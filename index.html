@@ -1,0 +1,38 @@
+<style>
+* {
+    box-sizing: border-box;
+}
+body {
+    font-family: monospace;
+    color: #0F0;
+    background-color: black;
+    font-size: 10pt;
+}
+@keyframes blink {
+    from, to { background-color: transparent }
+    50% { background-color: #0F0 }
+}
+
+.cursor {
+    display: inline-block;
+    position: relative;
+    top: 0.2em;
+    width:0.6em;
+    height:1em;
+    animation: 1s blink step-end infinite;
+}
+
+</style>
+<div>$&nbsp;webgpufundamentals<span></span><div class="cursor"></div></div>
+<script>
+const code = document.querySelector('span');
+const cursor = document.querySelector('.cursor');
+window.addEventListener('keypress', enter);
+function enter(e) {
+  if (e.keyCode === 13) {
+    code.innerHTML += '<br/>sh: webgpufundamentals: command not found<br/>$&nbsp;webgpufundamentals';
+    cursor.scrollIntoView();
+  }
+}
+</script>
+
