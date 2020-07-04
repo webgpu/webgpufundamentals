@@ -1,0 +1,11 @@
+<div class="webgpu_navbar">
+  <div>
+    {{{include "build/templates/languages.template"}}}
+    <a href="#toc">{{langInfo.toc}}</a>
+  </div>
+</div>
+<div class="webgpu_header">
+  <h1><a href="{{langInfo.home}}">webgpufundamentals.org</a></h1>
+{{{include "build/templates/repobanner.template"}}}
+</div>
+

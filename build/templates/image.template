@@ -1,0 +1,9 @@
+<div class="webgpu_image {{className}}">
+  <img class="" src="{{{examplePath}}}{{{url}}}">
+  {{#caption}}
+  <div class="webgpu_center">{{{../caption}}}</div>
+  {{/caption}}
+  {{^caption}}
+  {{/caption}}
+</div>
+

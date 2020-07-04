@@ -1,0 +1,9 @@
+<div class="webgpu_diagram_container">
+  <iframe class="webgpu_diagram {{className}}" style="width: {{width}}px; height: {{height}}px;" src="{{{examplePath}}}{{{url}}}"></iframe>
+  {{#caption}}
+  <div class="webgpu_center">{{{../caption}}}</div>
+  {{/caption}}
+  {{^caption}}
+  {{/caption}}
+</div>
+

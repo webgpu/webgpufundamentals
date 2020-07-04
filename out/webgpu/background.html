@@ -1,0 +1,61 @@
+<style>
+* {
+    box-sizing: border-box;
+}
+body {
+    font-family: monospace;
+    color: #0F0;
+    background-color: black;
+    font-size: 10pt;
+}
+@keyframes blink {
+    from, to { background-color: transparent }
+    50% { background-color: #0F0 }
+}
+
+.cursor {
+    display: inline-block;
+    position: relative;
+    top: 0.2em;
+    width:0.6em;
+    height:1em;
+    animation: 1s blink step-end infinite;
+}
+
+</style>
+<div>$&nbsp;<span id="cmd"></span><span></span><div class="cursor"></div></div>
+<script>
+const code = document.querySelector('span');
+const cmd = document.querySelector('#cmd');
+const cursor = document.querySelector('.cursor');
+setTimeout(start, 500);
+
+function r(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function start() {
+  const word = 'build webgpufundamentals';
+  function type() {
+    if (cmd.textContent !== word) {
+      cmd.textContent = word.substr(0, cmd.textContent.length + 1);
+      setTimeout(type, r(50, 150));
+    } else {
+      run();
+    }
+  }
+  type();
+}
+
+function run() {
+  code.innerHTML += '<br/>compiling...<span id="tick"></span>';
+  const tick = document.querySelector('#tick');
+  const ticks = ['-', '\\', '|', '/'];
+  setInterval(() => {
+    tick.textContent = ticks[((performance.now() * 0.001 * 10) | 0) % ticks.length];
+  }, 100);
+  cursor.scrollIntoView();
+}
+
+</script>
+
