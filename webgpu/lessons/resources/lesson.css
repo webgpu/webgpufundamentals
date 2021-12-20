@@ -1,9 +1,56 @@
+:root {
+  --main-fg-color: #000;
+  --main-bg-color: #FFF;
+  --code-fg-color: #000;
+  --code-bg-color: rgb(143, 140, 140);
+  --comment-notes-fg-color: red;
+  --comment-notes-bg-color: #DDD;
+  --blockquote-bg-color: #DEF;
+  --bottombar-bg-color: #DEF;
+  --bottombar-code-bg-color: #CCC;
+  --sidebar-bg-color: #EEE;
+  --a-fg-color: #00E;
+  --codearea-shadow-color: #CCC;
+  --compare-bg-color: #DDD;
+  --warning-bg-color: #800;
+  --warning-fg-color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --main-fg-color: #CCC;
+    --main-bg-color: #333;
+    --code-fg-color: #CCC;
+    --code-bg-color: #666;
+    --comment-notes-fg-color: red;
+    --comment-notes-bg-color: #222;
+    --blockquote-bg-color: #1b1b44;
+    --bottombar-bg-color: #1b1b44;
+    --bottombar-code-bg-color: #348;
+    --sidebar-bg-color: #222;
+    --a-fg-color: #56D3FD;
+    --codearea-shadow-color: #292929;
+    --compare-bg-color: #444;
+  }
+}
 
 body {
   margin: 0;
   font-family: Georgia, serif;
   font-size: 19px;
   line-height: 150%;
+  background: var(--main-bg-color);
+  color: var(--main-fg-color);
+}
+
+.warn {
+  padding: 1em;
+  background: var(--warning-bg-color);
+  color: var(--warning-fg-color);
+}
+
+a {
+  color: var(--a-fg-color);
 }
 
 p + p {
@@ -33,7 +80,7 @@ table {
 }
 
 pre {
-  background: rgb(143, 140, 140);
+  background: var(--code-bg-color);
   padding: 1em;
 }
 pre>code {
@@ -95,8 +142,8 @@ div[data-diagram] {
 .lesson-comment-notes {
   padding: 1em;
   margin: 1em;
-  background: #DDD;
-  color: red;
+  background: var(--comment-notes-bg-color);
+  color: var(--comment-notes-fg-color);
 }
 
 .webgpu_navbar>div,
@@ -211,7 +258,7 @@ div[data-diagram] {
     z-index: 100;
 }
 .lesson-main>blockquote {
-    background-color: #DEF;
+    background-color: var(--blockquote-bg-color);
     padding: 1em;
 }
 .lesson-title {
@@ -223,7 +270,7 @@ div[data-diagram] {
     columns: 220px;
     padding: 1em;
     column-rule: dashed 1px #CCC;
-    background: #eee;
+    background: var(--sidebar-bg-color);
     margin-bottom: 1em;
 }
 .lesson-sidebar>ul>li {
@@ -246,9 +293,9 @@ h3 {
   font-size: medium;
 }
 code {
-    color: black;
+    color: var(--code-fg-color);
     font-family: monospace;
-    background-color: #ddd;
+    background-color: var(--code-bg-color);
     padding: 0.1em 0.2em 0.1em 0.2em;
     border-radius: 0.5em;
     white-space: nowrap;
@@ -362,7 +409,7 @@ iframe.external_diagram {
 
 div.webgpu_bottombar {
   border: 1px solid #000;
-  background-color: #def;
+  background-color: var(--bottombar-bg-color);
   padding: 1em;
   width: calc(100% - 80px);
 }
@@ -372,7 +419,7 @@ div.webgpu_bottombar>h3 {
   margin-bottom: 1em;
 }
 div.webgpu_bottombar code {
-    background-color: #ccc;
+    background-color: var(--bottombar-code-bg-color);
 }
 
 /* --- Prettify --- */
@@ -415,7 +462,7 @@ pre.prettyprint, code.prettyprint, .dos {
     color: #FFF;
     background: #222;
     border: 1px solid #000;
-    box-shadow: 10px 10px 0px #ccc;
+    box-shadow: 10px 10px 0px var(--codearea-shadow-color);
     font-size: 9pt;
     font-family: "Lucida Console", Monaco, monospace;
     margin: auto;
@@ -430,6 +477,18 @@ pre.prettyprint, code.prettyprint, .dos {
 
 .dos {
   line-height: 1;
+}
+
+.compare {
+  display: flex;
+  max-width: 1300px;
+  background-color: var(--compare-bg-color);
+  padding: 1em;  
+}
+.compare>div {
+  flex: 1 1 50%;
+  position: relative;
+  min-width: 0;
 }
 
 pre.prettyprint.lighttheme, code.prettyprint.lighttheme {
@@ -531,26 +590,16 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
     iframe.background {
         max-width: 100%;
     }
+    .compare {
+      flex-direction: column;
+    }
+
 }
 
 
 @media (prefers-color-scheme: dark) {
   html {
     scrollbar-color: hsl(0, 0%, 35%) hsl(0, 0%, 13%);
-  }
-  body {
-    background: #333;
-    color: #CCC;
-  }
-  a {
-    color: #56d3fd;
-  }
-  pre.prettyprint, code.prettyprint, .dos {
-    box-shadow: 10px 10px 0px #292929;
-  }
-  code {
-    background: #666;
-    color: #CCC;
   }
   img {
     background: #DDD;
@@ -564,21 +613,6 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
   }
   .nobg {
     background: none;
-  }
-  .lesson-sidebar {
-    background: #222;
-  }
-  .lesson-main>blockquote {
-    background-color: #1b1b44;
-  }
-  div.webgpu_bottombar {
-    background-color: #1b1b44;
-  }
-  div.webgpu_bottombar code {
-    background-color: #348;
-  }
-  .lesson-comment-notes {
-    background: #222;
   }
   input[type=text] {
     background: #444;

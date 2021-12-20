@@ -11,16 +11,23 @@
   <script type="module">
 /* global GPUBufferUsage */
 /* global GPUTextureUsage */
+/* eslint no-alert: 0 */
+
 import {v3, m4} from 'https://twgljs.org/dist/4.x/twgl-full.module.js';
 
 async function main() {
   const gpu = navigator.gpu;
   if (!gpu) {
-    alert('need webgpu'); // eslint-disable-line
+    alert('this browser does not support webgpu');
     return;
   }
 
   const adapter = await gpu.requestAdapter();
+  if (!adapter) {
+    alert('this browser appears to support WebGPU but it\'s disabled');
+    return;
+  }
+
   const device = await adapter.requestDevice();
 
   const canvas = document.querySelector('canvas');
@@ -39,56 +46,53 @@ async function main() {
     renderTargetView: undefined,
     depthTexture: undefined,
     depthTextureView: undefined,
+    sampleCount: 4,  // can be 1 or 4
   };
 
-  const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
-  const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
+  const shaderSrc = `
+  struct VSUniforms {
+    worldViewProjection: mat4x4<f32>;
+    worldInverseTranspose: mat4x4<f32>;
+  };
+  [[group(0), binding(0)]] var<uniform> vsUniforms: VSUniforms;
 
-  const vSrc = `
-  struct VSOut {
+  struct MyVSInput {
+      [[location(0)]] position: vec4<f32>;
+      [[location(1)]] normal: vec3<f32>;
+      [[location(2)]] texcoord: vec2<f32>;
+  };
+
+  struct MyVSOutput {
     [[builtin(position)]] position: vec4<f32>;
     [[location(0)]] normal: vec3<f32>;
     [[location(1)]] texcoord: vec2<f32>;
   };
-  struct Uniforms {
-    worldViewProjection: mat4x4<f32>;
-    worldInverseTranspose: mat4x4<f32>;
-  };
-  [[group(0), binding(0)]] var<uniform> uniforms: Uniforms;
 
   [[stage(vertex)]]
-  fn main(
-      [[location(0)]] position: vec4<f32>,
-      [[location(1)]] normal: vec3<f32>,
-      [[location(2)]] texcoord: vec2<f32>,
-  ) -> VSOut
+  fn myVSMain(v: MyVSInput) -> MyVSOutput
   {
-    var vsOut: VSOut;
-    vsOut.position = uniforms.worldViewProjection * position;
-    vsOut.normal = (uniforms.worldInverseTranspose * vec4<f32>(normal, 0.0)).xyz;
-    vsOut.texcoord = texcoord;
+    var vsOut: MyVSOutput;
+
+    vsOut.position = vsUniforms.worldViewProjection * v.position;
+    vsOut.normal = (vsUniforms.worldInverseTranspose * vec4<f32>(v.normal, 0.0)).xyz;
+    vsOut.texcoord = v.texcoord;
     return vsOut;
   }
-  `;
 
-  const fSrc = `
-  struct Uniforms {
+  struct FSUniforms {
     lightDirection: vec3<f32>;
   };
 
-  [[group(0), binding(1)]] var<uniform> uniforms: Uniforms;
+  [[group(0), binding(1)]] var<uniform> fsUniforms: FSUniforms;
   [[group(0), binding(2)]] var diffuseSampler: sampler;
   [[group(0), binding(3)]] var diffuseTexture: texture_2d<f32>;
 
   [[stage(fragment)]]
-  fn main(
-    [[location(0)]] normal: vec3<f32>,
-    [[location(1)]] texcoord: vec2<f32>,
-  ) -> [[location(0)]] vec4<f32>
+  fn myFSMain(v: MyVSOutput) -> [[location(0)]] vec4<f32>
   {
-    var diffuseColor = textureSample(diffuseTexture, diffuseSampler, texcoord);
-    var a_normal = normalize(normal);
-    var l = dot(a_normal, uniforms.lightDirection) * 0.5 + 0.5;
+    var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.texcoord);
+    var a_normal = normalize(v.normal);
+    var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
     return vec4<f32>(diffuseColor.rgb * l, diffuseColor.a);
   }
   `;
@@ -106,16 +110,22 @@ async function main() {
 
   function showErrors(code, info) {
     const msgs = [...info.messages].sort((a, b) => a.lineNum - b.lineNum);
-    const lines = code.split('\n');
+    // convert offset, length from string relative to line relative
+    const lines = code.split(/\n|\r|\f|\v/);
     const output = [];
     let hasError = false;
+    let lineOffset = 0;
+    let prevLineOffset = 0;
     lines.forEach((line, ndx) => {
       while (msgs.length && msgs[0].lineNum <= ndx) {
         const m = msgs.shift();
         hasError |= m.type === 'error';
-        output.push(`\n${m.type}:${m.lineNum}:${m.linePos}:${m.message}\n`);
+        const offset = m.offset - prevLineOffset;
+        output.push(`${''.padEnd(offset)}${''.padEnd(m.length, '^')}\n${m.type}:${m.lineNum}:${m.linePos}:${m.message}\n`);
       }
       output.push(line);
+      prevLineOffset = lineOffset;
+      lineOffset += line.length + 1;
     });
     for (const m of msgs) {
       hasError |= m.type === 'error';
@@ -137,57 +147,24 @@ async function main() {
     return shader;
   }
 
-  const vsModule = await createShaderModule(device, vSrc);
-  const fsModule = await createShaderModule(device, fSrc);
+  const shaderModule = await createShaderModule(device, shaderSrc);
 
-  const pipeline = device.createRenderPipeline({
-    vertex: {
-      module: vsModule,
-      entryPoint: 'main',
-      buffers: [
-        // position
-        {
-          arrayStride: 3 * 4, // 3 floats, 4 bytes each
-          attributes: [
-            {shaderLocation: 0, offset: 0, format: 'float32x3'},
-          ],
-        },
-        // normals
-        {
-          arrayStride: 3 * 4, // 3 floats, 4 bytes each
-          attributes: [
-            {shaderLocation: 1, offset: 0, format: 'float32x3'},
-          ],
-        },
-        // texcoords
-        {
-          arrayStride: 2 * 4, // 2 floats, 4 bytes each
-          attributes: [
-            {shaderLocation: 2, offset: 0, format: 'float32x2',},
-          ],
-        },
-      ],
-    },
-    fragment: {
-      module: fsModule,
-      entryPoint: 'main',
-      targets: [
-        {format: presentationFormat},
-      ],
-    },
-    primitive: {
-      topology: 'triangle-list',
-      cullMode: 'back',
-    },
-    depthStencil: {
-      depthWriteEnabled: true,
-      depthCompare: 'less',
-      format: 'depth24plus',
-    },
-    multisample: {
-      count: 4,
-    },
+  const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
+  const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
+
+  const vsUniformBuffer = device.createBuffer({
+    size: vUniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
+  const fsUniformBuffer = device.createBuffer({
+    size: fUniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
+  const worldViewProjection = vsUniformValues.subarray(0, 16);
+  const worldInverseTranspose = vsUniformValues.subarray(16, 32);
+  const fsUniformValues = new Float32Array(3);  // 1 vec3
+  const lightDirection = fsUniformValues.subarray(0, 3);
 
   function createBuffer(device, data, usage) {
     const buffer = device.createBuffer({
@@ -216,8 +193,7 @@ async function main() {
     format: 'rgba8unorm',
     usage:
       GPUTextureUsage.TEXTURE_BINDING |
-      GPUTextureUsage.COPY_DST |
-      GPUTextureUsage.RENDER_ATTACHMENT,
+      GPUTextureUsage.COPY_DST,
   });
   device.queue.writeTexture(
       { texture: tex },
@@ -236,19 +212,56 @@ async function main() {
     minFilter: 'nearest',
   });
 
-  const vsUniformBuffer = device.createBuffer({
-    size: vUniformBufferSize,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  const pipeline = device.createRenderPipeline({
+    vertex: {
+      module: shaderModule,
+      entryPoint: 'myVSMain',
+      buffers: [
+        // position
+        {
+          arrayStride: 3 * 4, // 3 floats, 4 bytes each
+          attributes: [
+            {shaderLocation: 0, offset: 0, format: 'float32x3'},
+          ],
+        },
+        // normals
+        {
+          arrayStride: 3 * 4, // 3 floats, 4 bytes each
+          attributes: [
+            {shaderLocation: 1, offset: 0, format: 'float32x3'},
+          ],
+        },
+        // texcoords
+        {
+          arrayStride: 2 * 4, // 2 floats, 4 bytes each
+          attributes: [
+            {shaderLocation: 2, offset: 0, format: 'float32x2',},
+          ],
+        },
+      ],
+    },
+    fragment: {
+      module: shaderModule,
+      entryPoint: 'myFSMain',
+      targets: [
+        {format: presentationFormat},
+      ],
+    },
+    primitive: {
+      topology: 'triangle-list',
+      cullMode: 'back',
+    },
+    depthStencil: {
+      depthWriteEnabled: true,
+      depthCompare: 'less',
+      format: 'depth24plus',
+    },
+    ...(canvasInfo.sampleCount > 1 && {
+        multisample: {
+          count: canvasInfo.sampleCount,
+        },
+    }),
   });
-  const fsUniformBuffer = device.createBuffer({
-    size: fUniformBufferSize,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
-  const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
-  const worldViewProjection = vsUniformValues.subarray(0, 16);
-  const worldInverseTranspose = vsUniformValues.subarray(16, 32);
-  const fsUniformValues = new Float32Array(3);  // 1 vec3
-  const lightDirection = fsUniformValues.subarray(0, 3);
 
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
@@ -263,14 +276,14 @@ async function main() {
   const renderPassDescriptor = {
     colorAttachments: [
       {
-        view: undefined, // Assigned later
-        resolveTarget: undefined, // Assigned Later
+        // view: undefined, // Assigned later
+        // resolveTarget: undefined, // Assigned Later
         loadValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
         storeOp: 'store',
       },
     ],
     depthStencilAttachment: {
-      view: undefined,  // Assigned later
+      // view: undefined,  // Assigned later
       depthLoadValue: 1.0,
       depthStoreOp: 'store',
       stencilLoadValue: 0,
@@ -286,10 +299,10 @@ async function main() {
       presentationSize,
       presentationFormat,
       depthTexture,
-      sampleCount = 4,
+      sampleCount,
     } = canvasInfo;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
+    const width = Math.min(device.limits.maxTextureDimension2D, canvas.clientWidth);
+    const height = Math.min(device.limits.maxTextureDimension2D, canvas.clientHeight);
 
     const needResize = !canvasInfo.renderTarget ||
                        width !== presentationSize[0] ||
@@ -311,14 +324,16 @@ async function main() {
         size: presentationSize,
       });
 
-      const newRenderTarget = device.createTexture({
-        size: presentationSize,
-        format: presentationFormat,
-        sampleCount,
-        usage: GPUTextureUsage.RENDER_ATTACHMENT,
-      });
-      canvasInfo.renderTarget = newRenderTarget;
-      canvasInfo.renderTargetView = newRenderTarget.createView();
+      if (sampleCount > 1) {
+        const newRenderTarget = device.createTexture({
+          size: presentationSize,
+          format: presentationFormat,
+          sampleCount,
+          usage: GPUTextureUsage.RENDER_ATTACHMENT,
+        });
+        canvasInfo.renderTarget = newRenderTarget;
+        canvasInfo.renderTargetView = newRenderTarget.createView();
+      }
 
       const newDepthTexture = device.createTexture({
         size: presentationSize,
@@ -364,8 +379,14 @@ async function main() {
       fsUniformValues.byteOffset,
       fsUniformValues.byteLength,
     );
-    renderPassDescriptor.colorAttachments[0].view = canvasInfo.renderTargetView;
-    renderPassDescriptor.colorAttachments[0].resolveTarget = context.getCurrentTexture().createView();
+
+    if (canvasInfo.sampleCount === 1) {
+        const colorTexture = context.getCurrentTexture();
+        renderPassDescriptor.colorAttachments[0].view = colorTexture.createView();
+    } else {
+      renderPassDescriptor.colorAttachments[0].view = canvasInfo.renderTargetView;
+      renderPassDescriptor.colorAttachments[0].resolveTarget = context.getCurrentTexture().createView();
+    }
     renderPassDescriptor.depthStencilAttachment.view = canvasInfo.depthTextureView;
 
     const commandEncoder = device.createCommandEncoder();
