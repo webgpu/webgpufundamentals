@@ -409,9 +409,9 @@ specify the type. In other words in GLSL</p>
 <pre class="prettyprint notranslate" translate="no"><code class="lang-glsl">vec4 color = texture(someTexture, someTextureCoord);
 </code></pre>
 <p>Above you needed to declare <code class="notranslate" translate="no">color</code> as a <code class="notranslate" translate="no">vec4</code> but in WGSL you can do either of these</p>
-<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">vec4&lt;f32&gt; color = textureSampler(someTexture, someSampler, someTextureCoord);
+<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">var color: vec4&lt;f32&gt; = textureSample(someTexture, someSampler, someTextureCoord);
 </code></pre><p>or</p>
-<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">var color = textureSampler(someTexture, someSampler, someTextureCoord);
+<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">var color = textureSample(someTexture, someSampler, someTextureCoord);
 </code></pre><p>In both cases <code class="notranslate" translate="no">color</code> is a <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>.</p>
 <p>On the other hand, the biggest difference is all of the <code class="notranslate" translate="no">[[???]]</code> parts. Each
 one is declaring exactly where that particular piece of data is coming from. For
