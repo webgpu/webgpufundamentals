@@ -2,4 +2,7 @@
   'basics': [
     'webgpu-fundamentals.md',
   ],
+  'misc': [
+    'webgpu-from-webgl.md',
+  ],
 }
