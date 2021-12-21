@@ -282,7 +282,8 @@ passed into<code class="notranslate" translate="no">likeWebGPU</code> would beco
 the code inside (WGSL) and outside (JavaScript/WASM) in sync in WebGPU is
 entirely your responsibility.</p>
 <h3 id="other-notable-differences">Other notable differences</h3>
-<p>(*) The Canvas</p>
+<ul>
+<li><p>The Canvas</p>
 <p>WebGL manages the canvas itself for you. You choose antialias,
 preserveDrawingBuffer, stencil, depth, alpha when you create the WebGL context
 and after that WebGL manages the canvas itself. All you have to is set
@@ -291,15 +292,19 @@ and after that WebGL manages the canvas itself. All you have to is set
 drawingbuffer (with or without alpha) and if you want a depth buffer you create
 that yourself too (with or without a stencil buffer). If you want to resize you
 need to delete the old ones and create new ones yourself.</p>
-<p>(*) WebGPU does not generate mipmaps.</p>
+</li>
+<li><p>WebGPU does not generate mipmaps.</p>
 <p>In WebGL you could create a texture&#39;s level 0 mip and then call
 <code class="notranslate" translate="no">gl.generateMipmap</code> and WebGL would generate all the other mip levels. WebGPU
 has no such function. If you want mips for your textures you have to generate
 them yourself.</p>
-<p>(*) WebGPU requires samplers</p>
+</li>
+<li><p>WebGPU requires samplers</p>
 <p>In WebGL1, samplers did not exist or to put it another way, samplers were handled
 by WebGL internally. In WebGL2 using samplers was optional. In WebGPU
 samplers are required.</p>
+</li>
+</ul>
 <h2 id="let-s-compare-webgl-to-webgpu">Let&#39;s compare WebGL to WebGPU</h2>
 <h3 id="shaders">Shaders</h3>
 <p>Here is a shader that draws textured, lit, triangles. One in GLSL and the other

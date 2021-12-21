@@ -110,7 +110,6 @@ async function main() {
 
   function showErrors(code, info) {
     const msgs = [...info.messages].sort((a, b) => a.lineNum - b.lineNum);
-    // convert offset, length from string relative to line relative
     const lines = code.split(/\n|\r|\f|\v/);
     const output = [];
     let hasError = false;
