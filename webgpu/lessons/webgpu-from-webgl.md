@@ -2,6 +2,9 @@ Title: WebGPU from WebGL
 Description: Comparing using WebGL to WebGPU
 TOC: WebGPU from WebGL
 
+This article is meant for people who already know WebGL and want to start
+using WebGPU.
+
 If you're coming from WebGL to WebGPU it's worth noting that many of the
 concepts are the same. Both WebGL and WebGPU let you run small functions on the
 GPU. WebGL has vertex shaders and fragment shaders. WebGPU has the same plus
