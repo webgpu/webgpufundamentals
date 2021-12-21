@@ -320,7 +320,7 @@ Again, what matters is the that the locations match.
 function main() {
   const gl = document.querySelector('canvas').getContext('webgl');
   if (!gl) {
-    alert('need webgl');
+    fail('need webgl');
     return;
   }
 }
@@ -334,13 +334,13 @@ main();
 async function main() {
   const gpu = navigator.gpu;
   if (!gpu) {
-    alert('this browser does not support webgpu');
+    fail('this browser does not support webgpu');
     return;
   }
 
   const adapter = await gpu.requestAdapter();
   if (!adapter) {
-    alert('this browser appears to support WebGPU but it\'s disabled');
+    fail('this browser appears to support WebGPU but it\'s disabled');
     return;
   }
   const device = await adapter.requestDevice();
