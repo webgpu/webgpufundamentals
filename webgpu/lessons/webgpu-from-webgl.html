@@ -294,6 +294,8 @@ and after that WebGL manages the canvas itself. All you have to is set
 drawingbuffer (with or without alpha) and if you want a depth buffer you create
 that yourself too (with or without a stencil buffer). If you want to resize you
 need to delete the old ones and create new ones yourself.</p>
+<p>But, because of that, unlike WebGL, you can use one WebGPU device to
+render to multiple canvases.</p>
 </li>
 <li><p>WebGPU does not generate mipmaps.</p>
 <p>In WebGL you could create a texture&#39;s level 0 mip and then call
@@ -312,7 +314,7 @@ samplers are required.</p>
 <p>Here is a shader that draws textured, lit, triangles. One in GLSL and the other
 in WGSL.</p>
 <div class="webgpu_center compare"><div><div>GLSL</div><pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const vSrc = `
+const vSrc &#x3D; &#x60;
 uniform mat4 u_worldViewProjection;
 uniform mat4 u_worldInverseTranspose;
 
@@ -324,13 +326,13 @@ varying vec2 v_texCoord;
 varying vec3 v_normal;
 
 void main() {
-  gl_Position = u_worldViewProjection * a_position;
-  v_texCoord = a_texcoord;
-  v_normal = (u_worldInverseTranspose * vec4(a_normal, 0)).xyz;
+  gl_Position &#x3D; u_worldViewProjection * a_position;
+  v_texCoord &#x3D; a_texcoord;
+  v_normal &#x3D; (u_worldInverseTranspose * vec4(a_normal, 0)).xyz;
 }
-`;
+&#x60;;
 
-const fSrc = `
+const fSrc &#x3D; &#x60;
 precision highp float;
 
 varying vec2 v_texCoord;
@@ -340,63 +342,63 @@ uniform sampler2D u_diffuse;
 uniform vec3 u_lightDirection;
 
 void main() {
-  vec4 diffuseColor = texture2D(u_diffuse, v_texCoord);
-  vec3 a_normal = normalize(v_normal);
-  float l = dot(a_normal, u_lightDirection) * 0.5 + 0.5;
-  gl_FragColor = vec4(diffuseColor.rgb * l, diffuseColor.a);
+  vec4 diffuseColor &#x3D; texture2D(u_diffuse, v_texCoord);
+  vec3 a_normal &#x3D; normalize(v_normal);
+  float l &#x3D; dot(a_normal, u_lightDirection) * 0.5 + 0.5;
+  gl_FragColor &#x3D; vec4(diffuseColor.rgb * l, diffuseColor.a);
 }
-`;
+&#x60;;
 </code></pre>
 </div><div>
 <div>WGSL</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const shaderSrc = `
+const shaderSrc &#x3D; &#x60;
 struct VSUniforms {
-  worldViewProjection: mat4x4<f32>;
-  worldInverseTranspose: mat4x4<f32>;
+  worldViewProjection: mat4x4&lt;f32&gt;;
+  worldInverseTranspose: mat4x4&lt;f32&gt;;
 };
-[[group(0), binding(0)]] var<uniform> vsUniforms: VSUniforms;
+[[group(0), binding(0)]] var&lt;uniform&gt; vsUniforms: VSUniforms;
 
 struct MyVSInput {
-    [[location(0)]] position: vec4<f32>;
-    [[location(1)]] normal: vec3<f32>;
-    [[location(2)]] texcoord: vec2<f32>;
+    [[location(0)]] position: vec4&lt;f32&gt;;
+    [[location(1)]] normal: vec3&lt;f32&gt;;
+    [[location(2)]] texcoord: vec2&lt;f32&gt;;
 };
 
 struct MyVSOutput {
-  [[builtin(position)]] position: vec4<f32>;
-  [[location(0)]] normal: vec3<f32>;
-  [[location(1)]] texcoord: vec2<f32>;
+  [[builtin(position)]] position: vec4&lt;f32&gt;;
+  [[location(0)]] normal: vec3&lt;f32&gt;;
+  [[location(1)]] texcoord: vec2&lt;f32&gt;;
 };
 
 [[stage(vertex)]]
-fn myVSMain(v: MyVSInput) -> MyVSOutput
+fn myVSMain(v: MyVSInput) -&gt; MyVSOutput
 {
   var vsOut: MyVSOutput;
 
-  vsOut.position = vsUniforms.worldViewProjection * v.position;
-  vsOut.normal = (vsUniforms.worldInverseTranspose * vec4<f32>(v.normal, 0.0)).xyz;
-  vsOut.texcoord = v.texcoord;
+  vsOut.position &#x3D; vsUniforms.worldViewProjection * v.position;
+  vsOut.normal &#x3D; (vsUniforms.worldInverseTranspose * vec4&lt;f32&gt;(v.normal, 0.0)).xyz;
+  vsOut.texcoord &#x3D; v.texcoord;
   return vsOut;
 }
 
 struct FSUniforms {
-  lightDirection: vec3<f32>;
+  lightDirection: vec3&lt;f32&gt;;
 };
 
-[[group(0), binding(1)]] var<uniform> fsUniforms: FSUniforms;
+[[group(0), binding(1)]] var&lt;uniform&gt; fsUniforms: FSUniforms;
 [[group(0), binding(2)]] var diffuseSampler: sampler;
-[[group(0), binding(3)]] var diffuseTexture: texture_2d<f32>;
+[[group(0), binding(3)]] var diffuseTexture: texture_2d&lt;f32&gt;;
 
 [[stage(fragment)]]
-fn myFSMain(v: MyVSOutput) -> [[location(0)]] vec4<f32>
+fn myFSMain(v: MyVSOutput) -&gt; [[location(0)]] vec4&lt;f32&gt;
 {
-  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.texcoord);
-  var a_normal = normalize(v.normal);
-  var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
-  return vec4<f32>(diffuseColor.rgb * l, diffuseColor.a);
+  var diffuseColor &#x3D; textureSample(diffuseTexture, diffuseSampler, v.texcoord);
+  var a_normal &#x3D; normalize(v.normal);
+  var l &#x3D; dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
+  return vec4&lt;f32&gt;(diffuseColor.rgb * l, diffuseColor.a);
 }
-`;
+&#x60;;
 </code></pre></div></div>
 
 <p>Notice in many ways they aren&#39;t all that different. The core parts of each
@@ -468,9 +470,9 @@ fn myFSMain(
     <div>WebGL</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
 function main() {
-  const gl = document.querySelector('canvas').getContext('webgl');
+  const gl &#x3D; document.querySelector(&#x27;canvas&#x27;).getContext(&#x27;webgl&#x27;);
   if (!gl) {
-    alert('need webgl');
+    alert(&#x27;need webgl&#x27;);
     return;
   }
 }
@@ -482,18 +484,18 @@ main();
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
 async function main() {
-  const gpu = navigator.gpu;
+  const gpu &#x3D; navigator.gpu;
   if (!gpu) {
-    alert('this browser does not support webgpu');
+    alert(&#x27;this browser does not support webgpu&#x27;);
     return;
   }
 
-  const adapter = await gpu.requestAdapter();
+  const adapter &#x3D; await gpu.requestAdapter();
   if (!adapter) {
-    alert('this browser appears to support WebGPU but it\'s disabled');
+    alert(&#x27;this browser appears to support WebGPU but it\&#x27;s disabled&#x27;);
     return;
   }
-  const device = await adapter.requestDevice();
+  const device &#x3D; await adapter.requestDevice();
 
 ...
 }
@@ -513,7 +515,7 @@ is asynchronous.</p>
     <div>WebGL</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
 function createShader(gl, type, source) {
-  const sh = gl.createShader(type);
+  const sh &#x3D; gl.createShader(type);
   gl.shaderSource(sh, source);
   gl.compileShader(sh);
   if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
@@ -523,9 +525,9 @@ function createShader(gl, type, source) {
 }
 
 function createProgram(gl, vSrc, fSrc) {
-  const vs = createShader(gl, gl.VERTEX_SHADER, vSrc);
-  const fs = createShader(gl, gl.FRAGMENT_SHADER, fSrc);
-  const prg = gl.createProgram();
+  const vs &#x3D; createShader(gl, gl.VERTEX_SHADER, vSrc);
+  const fs &#x3D; createShader(gl, gl.FRAGMENT_SHADER, fSrc);
+  const prg &#x3D; gl.createProgram();
   gl.attachShader(prg, vs);
   gl.attachShader(prg, fs);
   gl.linkProgram(prg);
@@ -535,34 +537,34 @@ function createProgram(gl, vSrc, fSrc) {
   return prg;
 }
 
-const program = createProgram(gl, vSrc, fSrc);
+const program &#x3D; createProgram(gl, vSrc, fSrc);
 </code></pre>
   </div>
   <div>
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
 function showErrorsSimple(code, info) {
-  let hasError = false;
-  info.messages.forEach(m => {
-    console[m.type](`${m.lineNum}:${m.linePos}:${m.message}`);
-    hasError |= m.type === 'error';
+  let hasError &#x3D; false;
+  info.messages.forEach(m &#x3D;&gt; {
+    console[m.type](&#x60;${m.lineNum}:${m.linePos}:${m.message}&#x60;);
+    hasError |&#x3D; m.type &#x3D;&#x3D;&#x3D; &#x27;error&#x27;;
   });
   return hasError;
 }
 
 async function createShaderModule(device, code) {
-  const shader = device.createShaderModule({code});
-  const info = await shader.compilationInfo();
+  const shader &#x3D; device.createShaderModule({code});
+  const info &#x3D; await shader.compilationInfo();
   if (info.messages.length) {
-    const hasError = showErrorsSimple(code, info);
+    const hasError &#x3D; showErrorsSimple(code, info);
     if (hasError) {
-      throw new Error('can not compile shader');
+      throw new Error(&#x27;can not compile shader&#x27;);
     }
   }
   return shader;
 }
 
-const shaderModule = await createShaderModule(device, shaderSrc);
+const shaderModule &#x3D; await createShaderModule(device, shaderSrc);
 </code></pre>
   </div>
 </div>
@@ -591,31 +593,31 @@ may not be errors. To show them you have to loop through them.</p>
   <div>
     <div>WebGL</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const u_lightDirectionLoc = gl.getUniformLocation(program, 'u_lightDirection');
-const u_diffuseLoc = gl.getUniformLocation(program, 'u_diffuse');
-const u_worldInverseTransposeLoc = gl.getUniformLocation(program, 'u_worldInverseTranspose');
-const u_worldViewProjectionLoc = gl.getUniformLocation(program, 'u_worldViewProjection');
+const u_lightDirectionLoc &#x3D; gl.getUniformLocation(program, &#x27;u_lightDirection&#x27;);
+const u_diffuseLoc &#x3D; gl.getUniformLocation(program, &#x27;u_diffuse&#x27;);
+const u_worldInverseTransposeLoc &#x3D; gl.getUniformLocation(program, &#x27;u_worldInverseTranspose&#x27;);
+const u_worldViewProjectionLoc &#x3D; gl.getUniformLocation(program, &#x27;u_worldViewProjection&#x27;);
 </code></pre>
   </div>
   <div>
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
-const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
+const vUniformBufferSize &#x3D; 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
+const fUniformBufferSize &#x3D; 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
 
-const vsUniformBuffer = device.createBuffer({
+const vsUniformBuffer &#x3D; device.createBuffer({
   size: vUniformBufferSize,
   usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 });
-const fsUniformBuffer = device.createBuffer({
+const fsUniformBuffer &#x3D; device.createBuffer({
   size: fUniformBufferSize,
   usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 });
-const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
-const worldViewProjection = vsUniformValues.subarray(0, 16);
-const worldInverseTranspose = vsUniformValues.subarray(16, 32);
-const fsUniformValues = new Float32Array(3);  // 1 vec3
-const lightDirection = fsUniformValues.subarray(0, 3);
+const vsUniformValues &#x3D; new Float32Array(2 * 16); // 2 mat4s
+const worldViewProjection &#x3D; vsUniformValues.subarray(0, 16);
+const worldInverseTranspose &#x3D; vsUniformValues.subarray(16, 32);
+const fsUniformValues &#x3D; new Float32Array(3);  // 1 vec3
+const lightDirection &#x3D; fsUniformValues.subarray(0, 3);
 </code></pre>
   </div>
 </div>
@@ -635,48 +637,48 @@ you&#39;ve never used Uniform Blocks then this will be new.</p>
   <div>
     <div>WebGL</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-function createBuffer(gl, data, type = gl.ARRAY_BUFFER) {
-  const buf = gl.createBuffer();
+function createBuffer(gl, data, type &#x3D; gl.ARRAY_BUFFER) {
+  const buf &#x3D; gl.createBuffer();
   gl.bindBuffer(type, buf);
   gl.bufferData(type, data, gl.STATIC_DRAW);
   return buf;
 }
 
-const positions = new Float32Array([1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1]);
-const normals   = new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]);
-const texcoords = new Float32Array([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1]);
-const indices   = new Uint16Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23]);
+const positions &#x3D; new Float32Array([1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1]);
+const normals   &#x3D; new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]);
+const texcoords &#x3D; new Float32Array([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1]);
+const indices   &#x3D; new Uint16Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23]);
 
-const positionBuffer = createBuffer(gl, positions);
-const normalBuffer = createBuffer(gl, normals);
-const texcoordBuffer = createBuffer(gl, texcoords);
-const indicesBuffer = createBuffer(gl, indices, gl.ELEMENT_ARRAY_BUFFER);
+const positionBuffer &#x3D; createBuffer(gl, positions);
+const normalBuffer &#x3D; createBuffer(gl, normals);
+const texcoordBuffer &#x3D; createBuffer(gl, texcoords);
+const indicesBuffer &#x3D; createBuffer(gl, indices, gl.ELEMENT_ARRAY_BUFFER);
 </code></pre>
   </div>
   <div>
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
 function createBuffer(device, data, usage) {
-  const buffer = device.createBuffer({
+  const buffer &#x3D; device.createBuffer({
     size: data.byteLength,
     usage,
     mappedAtCreation: true,
   });
-  const dst = new data.constructor(buffer.getMappedRange());
+  const dst &#x3D; new data.constructor(buffer.getMappedRange());
   dst.set(data);
   buffer.unmap();
   return buffer;
 }
 
-const positions = new Float32Array([1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1]);
-const normals   = new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]);
-const texcoords = new Float32Array([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1]);
-const indices   = new Uint16Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23]);
+const positions &#x3D; new Float32Array([1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1]);
+const normals   &#x3D; new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]);
+const texcoords &#x3D; new Float32Array([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1]);
+const indices   &#x3D; new Uint16Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23]);
 
-const positionBuffer = createBuffer(device, positions, GPUBufferUsage.VERTEX);
-const normalBuffer = createBuffer(device, normals, GPUBufferUsage.VERTEX);
-const texcoordBuffer = createBuffer(device, texcoords, GPUBufferUsage.VERTEX);
-const indicesBuffer = createBuffer(device, indices, GPUBufferUsage.INDEX);
+const positionBuffer &#x3D; createBuffer(device, positions, GPUBufferUsage.VERTEX);
+const normalBuffer &#x3D; createBuffer(device, normals, GPUBufferUsage.VERTEX);
+const texcoordBuffer &#x3D; createBuffer(device, texcoords, GPUBufferUsage.VERTEX);
+const indicesBuffer &#x3D; createBuffer(device, indices, GPUBufferUsage.INDEX);
 </code></pre>
   </div>
 </div>
@@ -688,7 +690,7 @@ functions but otherwise it&#39;s pretty similar.</p>
   <div>
     <div>WebGL</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const tex = gl.createTexture();
+const tex &#x3D; gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, tex);
 gl.texImage2D(
     gl.TEXTURE_2D,
@@ -712,9 +714,9 @@ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   <div>
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const tex = device.createTexture({
+const tex &#x3D; device.createTexture({
   size: [2, 2, 1],
-  format: 'rgba8unorm',
+  format: &#x27;rgba8unorm&#x27;,
   usage:
     GPUTextureUsage.TEXTURE_BINDING |
     GPUTextureUsage.COPY_DST,
@@ -731,9 +733,9 @@ device.queue.writeTexture(
     { width: 2, height: 2 },
 );
 
-const sampler = device.createSampler({
-  magFilter: 'nearest',
-  minFilter: 'nearest',
+const sampler &#x3D; device.createSampler({
+  magFilter: &#x27;nearest&#x27;,
+  minFilter: &#x27;nearest&#x27;,
 });
 </code></pre>
   </div>
@@ -777,51 +779,51 @@ gl.enable(gl.CULL_FACE);
   <div>
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const pipeline = device.createRenderPipeline({
+const pipeline &#x3D; device.createRenderPipeline({
   vertex: {
     module: shaderModule,
-    entryPoint: 'myVSMain',
+    entryPoint: &#x27;myVSMain&#x27;,
     buffers: [
       // position
       {
         arrayStride: 3 * 4, // 3 floats, 4 bytes each
         attributes: [
-          {shaderLocation: 0, offset: 0, format: 'float32x3'},
+          {shaderLocation: 0, offset: 0, format: &#x27;float32x3&#x27;},
         ],
       },
       // normals
       {
         arrayStride: 3 * 4, // 3 floats, 4 bytes each
         attributes: [
-          {shaderLocation: 1, offset: 0, format: 'float32x3'},
+          {shaderLocation: 1, offset: 0, format: &#x27;float32x3&#x27;},
         ],
       },
       // texcoords
       {
         arrayStride: 2 * 4, // 2 floats, 4 bytes each
         attributes: [
-          {shaderLocation: 2, offset: 0, format: 'float32x2',},
+          {shaderLocation: 2, offset: 0, format: &#x27;float32x2&#x27;,},
         ],
       },
     ],
   },
   fragment: {
     module: shaderModule,
-    entryPoint: 'myFSMain',
+    entryPoint: &#x27;myFSMain&#x27;,
     targets: [
       {format: presentationFormat},
     ],
   },
   primitive: {
-    topology: 'triangle-list',
-    cullMode: 'back',
+    topology: &#x27;triangle-list&#x27;,
+    cullMode: &#x27;back&#x27;,
   },
   depthStencil: {
     depthWriteEnabled: true,
-    depthCompare: 'less',
-    format: 'depth24plus',
+    depthCompare: &#x27;less&#x27;,
+    format: &#x27;depth24plus&#x27;,
   },
-  ...(canvasInfo.sampleCount > 1 && {
+  ...(canvasInfo.sampleCount &gt; 1 &amp;&amp; {
       multisample: {
         count: canvasInfo.sampleCount,
       },
@@ -876,7 +878,7 @@ gl.bindTexture(gl.TEXTURE_2D, tex);
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
 // can happen at init time
-const bindGroup = device.createBindGroup({
+const bindGroup &#x3D; device.createBindGroup({
   layout: pipeline.getBindGroupLayout(0),
   entries: [
     { binding: 0, resource: { buffer: vsUniformBuffer } },
@@ -903,21 +905,21 @@ gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   <div>
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const renderPassDescriptor = {
+const renderPassDescriptor &#x3D; {
   colorAttachments: [
     {
       // view: undefined, // Assigned later
       // resolveTarget: undefined, // Assigned Later
       loadValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
-      storeOp: 'store',
+      storeOp: &#x27;store&#x27;,
     },
   ],
   depthStencilAttachment: {
     // view: undefined,  // Assigned later
     depthLoadValue: 1.0,
-    depthStoreOp: 'store',
+    depthStoreOp: &#x27;store&#x27;,
     stencilLoadValue: 0,
-    stencilStoreOp: 'store',
+    stencilStoreOp: &#x27;store&#x27;,
   },
 };
 </code></pre>
@@ -980,12 +982,12 @@ handled for us but in WebGPU we need to do ourselves.</p>
     <div>WebGL</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
 function resizeCanvasToDisplaySize(canvas) {
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
-  const needResize = width !== canvas.width || height !== canvas.height;
+  const width &#x3D; canvas.clientWidth;
+  const height &#x3D; canvas.clientHeight;
+  const needResize &#x3D; width !&#x3D;&#x3D; canvas.width || height !&#x3D;&#x3D; canvas.height;
   if (needResize) {
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width &#x3D; width;
+    canvas.height &#x3D; height;
   }
   return needResize;
 }
@@ -995,13 +997,13 @@ function resizeCanvasToDisplaySize(canvas) {
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
 // At init time
-const canvas = document.querySelector('canvas');
-const context = canvas.getContext('webgpu');
+const canvas &#x3D; document.querySelector(&#x27;canvas&#x27;);
+const context &#x3D; canvas.getContext(&#x27;webgpu&#x27;);
 
-const presentationFormat = context.getPreferredFormat(adapter);
-const presentationSize = [300, 150];  // default canvas size
+const presentationFormat &#x3D; context.getPreferredFormat(adapter);
+const presentationSize &#x3D; [300, 150];  // default canvas size
 
-const canvasInfo = {
+const canvasInfo &#x3D; {
   canvas,
   context,
   presentationSize,
@@ -1025,13 +1027,13 @@ function resizeToDisplaySize(device, canvasInfo) {
     presentationFormat,
     depthTexture,
     sampleCount,
-  } = canvasInfo;
-  const width = Math.min(device.limits.maxTextureDimension2D, canvas.clientWidth);
-  const height = Math.min(device.limits.maxTextureDimension2D, canvas.clientHeight);
+  } &#x3D; canvasInfo;
+  const width &#x3D; Math.min(device.limits.maxTextureDimension2D, canvas.clientWidth);
+  const height &#x3D; Math.min(device.limits.maxTextureDimension2D, canvas.clientHeight);
 
-  const needResize = !canvasInfo.renderTarget ||
-                     width !== presentationSize[0] ||
-                     height !== presentationSize[1];
+  const needResize &#x3D; !canvasInfo.renderTarget ||
+                     width !&#x3D;&#x3D; presentationSize[0] ||
+                     height !&#x3D;&#x3D; presentationSize[1];
   if (needResize) {
     if (renderTarget) {
       renderTarget.destroy();
@@ -1040,8 +1042,8 @@ function resizeToDisplaySize(device, canvasInfo) {
       depthTexture.destroy();
     }
 
-    presentationSize[0] = width;
-    presentationSize[1] = height;
+    presentationSize[0] &#x3D; width;
+    presentationSize[1] &#x3D; height;
 
     context.configure({
       device,
@@ -1049,25 +1051,25 @@ function resizeToDisplaySize(device, canvasInfo) {
       size: presentationSize,
     });
 
-    if (sampleCount > 1) {
-      const newRenderTarget = device.createTexture({
+    if (sampleCount &gt; 1) {
+      const newRenderTarget &#x3D; device.createTexture({
         size: presentationSize,
         format: presentationFormat,
         sampleCount,
         usage: GPUTextureUsage.RENDER_ATTACHMENT,
       });
-      canvasInfo.renderTarget = newRenderTarget;
-      canvasInfo.renderTargetView = newRenderTarget.createView();
+      canvasInfo.renderTarget &#x3D; newRenderTarget;
+      canvasInfo.renderTargetView &#x3D; newRenderTarget.createView();
     }
 
-    const newDepthTexture = device.createTexture({
+    const newDepthTexture &#x3D; device.createTexture({
       size: presentationSize,
-      format: 'depth24plus',
+      format: &#x27;depth24plus&#x27;,
       sampleCount,
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
-    canvasInfo.depthTexture = newDepthTexture;
-    canvasInfo.depthTextureView = newDepthTexture.createView();
+    canvasInfo.depthTexture &#x3D; newDepthTexture;
+    canvasInfo.depthTextureView &#x3D; newDepthTexture.createView();
   }
   return needResize;
 }
@@ -1116,23 +1118,23 @@ gl.drawElements(gl.TRIANGLES, 6 * 6, gl.UNSIGNED_SHORT, 0);
   <div>
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-if (canvasInfo.sampleCount === 1) {
-    const colorTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view = colorTexture.createView();
+if (canvasInfo.sampleCount &#x3D;&#x3D;&#x3D; 1) {
+    const colorTexture &#x3D; context.getCurrentTexture();
+    renderPassDescriptor.colorAttachments[0].view &#x3D; colorTexture.createView();
 } else {
-  renderPassDescriptor.colorAttachments[0].view = canvasInfo.renderTargetView;
-  renderPassDescriptor.colorAttachments[0].resolveTarget = context.getCurrentTexture().createView();
+  renderPassDescriptor.colorAttachments[0].view &#x3D; canvasInfo.renderTargetView;
+  renderPassDescriptor.colorAttachments[0].resolveTarget &#x3D; context.getCurrentTexture().createView();
 }
-renderPassDescriptor.depthStencilAttachment.view = canvasInfo.depthTextureView;
+renderPassDescriptor.depthStencilAttachment.view &#x3D; canvasInfo.depthTextureView;
 
-const commandEncoder = device.createCommandEncoder();
-const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+const commandEncoder &#x3D; device.createCommandEncoder();
+const passEncoder &#x3D; commandEncoder.beginRenderPass(renderPassDescriptor);
 passEncoder.setPipeline(pipeline);
 passEncoder.setBindGroup(0, bindGroup);
 passEncoder.setVertexBuffer(0, positionBuffer);
 passEncoder.setVertexBuffer(1, normalBuffer);
 passEncoder.setVertexBuffer(2, texcoordBuffer);
-passEncoder.setIndexBuffer(indicesBuffer, 'uint16');
+passEncoder.setIndexBuffer(indicesBuffer, &#x27;uint16&#x27;);
 passEncoder.drawIndexed(indices.length);
 passEncoder.endPass();
 device.queue.submit([commandEncoder.finish()]);
@@ -1140,9 +1142,9 @@ device.queue.submit([commandEncoder.finish()]);
   </div>
 </div>
 
-<p>Note that I repeated the WebGL attribute setup code here. In WebGL, this can happen at init time or at render time. In WebGPU we setup how to pull data
-out of the buffers at init time but we set the actual buffers to use at
-render time.</p>
+<p>Note that I repeated the WebGL attribute setup code here. In WebGL, this can
+happen at init time or at render time. In WebGPU we setup how to pull data out
+of the buffers at init time but we set the actual buffers to use at render time.</p>
 <p>In WebGPU, we need to update our render pass descriptor to use the textures
 we may have just updated in <code class="notranslate" translate="no">resizeToDisplaySize</code>. Then we need to create a 
 command encoder and begin a render pass.</p>
@@ -1171,6 +1173,15 @@ set that up when creating our render pass descriptor.</p>
 </div>
 
 </p>
+<p>Another important thing to notice, We&#39;re issue instructions to something
+referred to as the <code class="notranslate" translate="no">device.queue</code>. Notice that when we uploaded the values
+for the uniforms we called <code class="notranslate" translate="no">device.queue.writeBuffer</code> and then when we created
+a command encoder and submitted it with <code class="notranslate" translate="no">device.queue.submit</code>. That should
+make it pretty clear that we can&#39;t update the buffers between draw calls within
+the same command encoder. If we want to draw multiple things we&#39;d need
+multiple buffers or multiple sets of values in a single buffer.</p>
+<p>Let&#39;s go over and example of drawing multiple things.</p>
+<p>TBD</p>
 <p>If you were already familiar with WebGL then I hope this article was useful.</p>
 
     </div>
