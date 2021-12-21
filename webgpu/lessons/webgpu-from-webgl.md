@@ -99,30 +99,30 @@ entirely your responsibility.
 
 ### Other notable differences
 
-(*) The Canvas
+* The Canvas
 
-WebGL manages the canvas itself for you. You choose antialias,
-preserveDrawingBuffer, stencil, depth, alpha when you create the WebGL context
-and after that WebGL manages the canvas itself. All you have to is set
-`canvas.width` and `canvas.height`.
+  WebGL manages the canvas itself for you. You choose antialias,
+  preserveDrawingBuffer, stencil, depth, alpha when you create the WebGL context
+  and after that WebGL manages the canvas itself. All you have to is set
+  `canvas.width` and `canvas.height`.
 
-WebGPU you have to do all of that yourself. You create the canvas's
-drawingbuffer (with or without alpha) and if you want a depth buffer you create
-that yourself too (with or without a stencil buffer). If you want to resize you
-need to delete the old ones and create new ones yourself.
+  WebGPU you have to do all of that yourself. You create the canvas's
+  drawingbuffer (with or without alpha) and if you want a depth buffer you create
+  that yourself too (with or without a stencil buffer). If you want to resize you
+  need to delete the old ones and create new ones yourself.
 
-(*) WebGPU does not generate mipmaps.
+* WebGPU does not generate mipmaps.
 
-In WebGL you could create a texture's level 0 mip and then call
-`gl.generateMipmap` and WebGL would generate all the other mip levels. WebGPU
-has no such function. If you want mips for your textures you have to generate
-them yourself.
+  In WebGL you could create a texture's level 0 mip and then call
+  `gl.generateMipmap` and WebGL would generate all the other mip levels. WebGPU
+  has no such function. If you want mips for your textures you have to generate
+  them yourself.
 
-(*) WebGPU requires samplers
+* WebGPU requires samplers
 
-In WebGL1, samplers did not exist or to put it another way, samplers were handled
-by WebGL internally. In WebGL2 using samplers was optional. In WebGPU
-samplers are required.
+  In WebGL1, samplers did not exist or to put it another way, samplers were handled
+  by WebGL internally. In WebGL2 using samplers was optional. In WebGPU
+  samplers are required.
 
 ## Let's compare WebGL to WebGPU
 
