@@ -114,6 +114,9 @@ entirely your responsibility.
   that yourself too (with or without a stencil buffer). If you want to resize you
   need to delete the old ones and create new ones yourself.
 
+  But, because of that, unlike WebGL, you can use one WebGPU device to
+  render to multiple canvases.
+
 * WebGPU does not generate mipmaps.
 
   In WebGL you could create a texture's level 0 mip and then call
@@ -134,7 +137,7 @@ entirely your responsibility.
 Here is a shader that draws textured, lit, triangles. One in GLSL and the other
 in WGSL.
 
-<div class="webgpu_center compare"><div><div>GLSL</div><pre class="prettyprint lang-javascript"><code>
+<div class="webgpu_center compare"><div><div>GLSL</div><pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 const vSrc = `
 uniform mat4 u_worldViewProjection;
 uniform mat4 u_worldInverseTranspose;
@@ -169,10 +172,10 @@ void main() {
   gl_FragColor = vec4(diffuseColor.rgb * l, diffuseColor.a);
 }
 `;
-</code></pre>
+{{/escapehtml}}</code></pre>
 </div><div>
 <div>WGSL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 const shaderSrc = `
 struct VSUniforms {
   worldViewProjection: mat4x4<f32>;
@@ -220,7 +223,7 @@ fn myFSMain(v: MyVSOutput) -> [[location(0)]] vec4<f32>
   return vec4<f32>(diffuseColor.rgb * l, diffuseColor.a);
 }
 `;
-</code></pre></div></div>
+{{/escapehtml}}</code></pre></div></div>
 
 Notice in many ways they aren't all that different. The core parts of each
 function are very similar. `vec4` in GLSL becomes `vec4<f32>` in WGSL, `mat4`
@@ -313,7 +316,7 @@ Again, what matters is the that the locations match.
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 function main() {
   const gl = document.querySelector('canvas').getContext('webgl');
   if (!gl) {
@@ -323,11 +326,11 @@ function main() {
 }
 
 main();
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 async function main() {
   const gpu = navigator.gpu;
   if (!gpu) {
@@ -346,7 +349,7 @@ async function main() {
 }
 
 main();
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
 </div>
 
@@ -361,7 +364,7 @@ is asynchronous.
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 function createShader(gl, type, source) {
   const sh = gl.createShader(type);
   gl.shaderSource(sh, source);
@@ -386,11 +389,11 @@ function createProgram(gl, vSrc, fSrc) {
 }
 
 const program = createProgram(gl, vSrc, fSrc);
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 function showErrorsSimple(code, info) {
   let hasError = false;
   info.messages.forEach(m => {
@@ -413,7 +416,7 @@ async function createShaderModule(device, code) {
 }
 
 const shaderModule = await createShaderModule(device, shaderSrc);
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
 </div>
 
@@ -446,16 +449,16 @@ may not be errors. To show them you have to loop through them.
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 const u_lightDirectionLoc = gl.getUniformLocation(program, 'u_lightDirection');
 const u_diffuseLoc = gl.getUniformLocation(program, 'u_diffuse');
 const u_worldInverseTransposeLoc = gl.getUniformLocation(program, 'u_worldInverseTranspose');
 const u_worldViewProjectionLoc = gl.getUniformLocation(program, 'u_worldViewProjection');
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
 const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
 
@@ -472,7 +475,7 @@ const worldViewProjection = vsUniformValues.subarray(0, 16);
 const worldInverseTranspose = vsUniformValues.subarray(16, 32);
 const fsUniformValues = new Float32Array(3);  // 1 vec3
 const lightDirection = fsUniformValues.subarray(0, 3);
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
 </div>
 
@@ -493,7 +496,7 @@ you've never used Uniform Blocks then this will be new.
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 function createBuffer(gl, data, type = gl.ARRAY_BUFFER) {
   const buf = gl.createBuffer();
   gl.bindBuffer(type, buf);
@@ -510,11 +513,11 @@ const positionBuffer = createBuffer(gl, positions);
 const normalBuffer = createBuffer(gl, normals);
 const texcoordBuffer = createBuffer(gl, texcoords);
 const indicesBuffer = createBuffer(gl, indices, gl.ELEMENT_ARRAY_BUFFER);
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 function createBuffer(device, data, usage) {
   const buffer = device.createBuffer({
     size: data.byteLength,
@@ -536,7 +539,7 @@ const positionBuffer = createBuffer(device, positions, GPUBufferUsage.VERTEX);
 const normalBuffer = createBuffer(device, normals, GPUBufferUsage.VERTEX);
 const texcoordBuffer = createBuffer(device, texcoords, GPUBufferUsage.VERTEX);
 const indicesBuffer = createBuffer(device, indices, GPUBufferUsage.INDEX);
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
 </div>
 
@@ -548,7 +551,7 @@ functions but otherwise it's pretty similar.
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 const tex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, tex);
 gl.texImage2D(
@@ -568,11 +571,11 @@ gl.texImage2D(
     ]));
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 const tex = device.createTexture({
   size: [2, 2, 1],
   format: 'rgba8unorm',
@@ -596,7 +599,7 @@ const sampler = device.createSampler({
   magFilter: 'nearest',
   minFilter: 'nearest',
 });
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
 </div>
 
@@ -616,7 +619,7 @@ Here's the code.
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 gl.linkProgram(prg);
 
 ...
@@ -637,11 +640,11 @@ gl.enableVertexAttribArray(texcoordLoc);
 
 gl.enable(gl.DEPTH_TEST);
 gl.enable(gl.CULL_FACE);
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 const pipeline = device.createRenderPipeline({
   vertex: {
     module: shaderModule,
@@ -692,7 +695,7 @@ const pipeline = device.createRenderPipeline({
       },
   }),
 });
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
 </div>
 
@@ -741,15 +744,15 @@ shaders will use
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 // happens at render time
 gl.activeTexture(gl.TEXTURE0);
 gl.bindTexture(gl.TEXTURE_2D, tex);
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 // can happen at init time
 const bindGroup = device.createBindGroup({
   layout: pipeline.getBindGroupLayout(0),
@@ -760,7 +763,7 @@ const bindGroup = device.createBindGroup({
     { binding: 3, resource: tex.createView() },
   ],
 });
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
 </div>
 
@@ -772,14 +775,14 @@ settings are set via stateful API calls or handled automatically.
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 gl.clearColor(0.5, 0.5, 0.5, 1.0);
 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 const renderPassDescriptor = {
   colorAttachments: [
     {
@@ -797,7 +800,7 @@ const renderPassDescriptor = {
     stencilStoreOp: 'store',
   },
 };
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
 </div>
 
@@ -811,16 +814,16 @@ rendering to a framebuffer these settings are the equivalent of calls to
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 gl.uniform3fv(u_lightDirectionLoc, v3.normalize([1, 8, -10]));
 gl.uniform1i(u_diffuseLoc, 0);
 gl.uniformMatrix4fv(u_worldInverseTransposeLoc, false, m4.transpose(m4.inverse(world)));
 gl.uniformMatrix4fv(u_worldViewProjectionLoc, false, m4.multiply(viewProjection, world));
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 m4.transpose(m4.inverse(world), worldInverseTranspose);
 m4.multiply(viewProjection, world, worldViewProjection);
 
@@ -840,7 +843,7 @@ device.queue.writeBuffer(
   fsUniformValues.byteOffset,
   fsUniformValues.byteLength,
 );
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
 </div>
 
@@ -862,7 +865,7 @@ handled for us but in WebGPU we need to do ourselves.
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 function resizeCanvasToDisplaySize(canvas) {
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
@@ -873,11 +876,11 @@ function resizeCanvasToDisplaySize(canvas) {
   }
   return needResize;
 }
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 // At init time
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('webgpu');
@@ -955,7 +958,7 @@ function resizeToDisplaySize(device, canvasInfo) {
   }
   return needResize;
 }
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
 </div>
 
@@ -973,7 +976,7 @@ the equivalent of `antialias: false` when creating the WebGL context.
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -998,11 +1001,11 @@ gl.enableVertexAttribArray(texcoordLoc);
 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
 
 gl.drawElements(gl.TRIANGLES, 6 * 6, gl.UNSIGNED_SHORT, 0);
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 if (canvasInfo.sampleCount === 1) {
     const colorTexture = context.getCurrentTexture();
     renderPassDescriptor.colorAttachments[0].view = colorTexture.createView();
@@ -1023,13 +1026,13 @@ passEncoder.setIndexBuffer(indicesBuffer, 'uint16');
 passEncoder.drawIndexed(indices.length);
 passEncoder.endPass();
 device.queue.submit([commandEncoder.finish()]);
-</code></pre>
+{{/escapehtml}}</code></pre>
   </div>
 </div>
 
-Note that I repeated the WebGL attribute setup code here. In WebGL, this can happen at init time or at render time. In WebGPU we setup how to pull data
-out of the buffers at init time but we set the actual buffers to use at
-render time.
+Note that I repeated the WebGL attribute setup code here. In WebGL, this can
+happen at init time or at render time. In WebGPU we setup how to pull data out
+of the buffers at init time but we set the actual buffers to use at render time.
 
 In WebGPU, we need to update our render pass descriptor to use the textures
 we may have just updated in `resizeToDisplaySize`. Then we need to create a 
@@ -1057,6 +1060,19 @@ WebGL
 WebGPU
 
 {{{example url="../webgpu-cube.html"}}}
+
+Another important thing to notice, We're issue instructions to something
+referred to as the `device.queue`. Notice that when we uploaded the values
+for the uniforms we called `device.queue.writeBuffer` and then when we created
+a command encoder and submitted it with `device.queue.submit`. That should
+make it pretty clear that we can't update the buffers between draw calls within
+the same command encoder. If we want to draw multiple things we'd need
+multiple buffers or multiple sets of values in a single buffer.
+
+Let's go over and example of drawing multiple things.
+
+TBD
+
 
 If you were already familiar with WebGL then I hope this article was useful.
 
