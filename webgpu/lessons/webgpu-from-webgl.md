@@ -238,13 +238,13 @@ vec4 color = texture(someTexture, someTextureCoord);
 Above you needed to declare `color` as a `vec4` but in WGSL you can do either of these
 
 ```
-vec4<f32> color = textureSampler(someTexture, someSampler, someTextureCoord);
+var color: vec4<f32> = textureSample(someTexture, someSampler, someTextureCoord);
 ```
 
 or
 
 ```
-var color = textureSampler(someTexture, someSampler, someTextureCoord);
+var color = textureSample(someTexture, someSampler, someTextureCoord);
 ```
 
 In both cases `color` is a `vec4<f32>`.
