@@ -146,7 +146,25 @@ function getHTMLPart(re, obj, tag) {
     part = p1;
     return tag;
   });
-  return part.replace(/\s*/, '');
+  const lines = part.replace(/\r\n/g, '\n').split('\n');
+  // remove leading blank lines
+  while (lines.length && !lines[0].length) {
+    lines.shift();
+  }
+  // remove common indentation
+  if (lines.length) {
+    const firstLine = lines[0];
+    const m = /(\s*)\S/.exec(firstLine);
+    if (m) {
+      const indent = m[1];
+      lines.forEach((line, ndx) => {
+        if (line.startsWith(indent)) {
+          lines[ndx] = line.substring(indent.length);
+        }
+      });
+    }
+  }
+  return lines.join('\n');
 }
 
 // doesn't handle multi-line comments or comments with { or } in them
@@ -156,7 +174,8 @@ function formatCSS(css) {
     let currIndent = indent;
     if (line.includes('{')) {
       indent = indent + '  ';
-    } else if (line.includes('}')) {
+    }
+    if (line.includes('}')) {
       indent = indent.substring(0, indent.length - 2);
       currIndent = indent;
     }

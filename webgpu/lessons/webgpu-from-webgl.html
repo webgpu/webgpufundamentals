@@ -472,7 +472,7 @@ fn myFSMain(
 function main() {
   const gl &#x3D; document.querySelector(&#x27;canvas&#x27;).getContext(&#x27;webgl&#x27;);
   if (!gl) {
-    alert(&#x27;need webgl&#x27;);
+    fail(&#x27;need webgl&#x27;);
     return;
   }
 }
@@ -486,13 +486,13 @@ main();
 async function main() {
   const gpu &#x3D; navigator.gpu;
   if (!gpu) {
-    alert(&#x27;this browser does not support webgpu&#x27;);
+    fail(&#x27;this browser does not support webgpu&#x27;);
     return;
   }
 
   const adapter &#x3D; await gpu.requestAdapter();
   if (!adapter) {
-    alert(&#x27;this browser appears to support WebGPU but it\&#x27;s disabled&#x27;);
+    fail(&#x27;this browser appears to support WebGPU but it\&#x27;s disabled&#x27;);
     return;
   }
   const device &#x3D; await adapter.requestDevice();
@@ -1226,7 +1226,6 @@ multiple buffers or multiple sets of values in a single buffer.</p>
               this.page.url = `${window.location.origin}${window.location.pathname}`;
               this.page.identifier = `WebGPU from WebGL`;
             };
-            */
             (function() { // DON'T EDIT BELOW THIS LINE
                 if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
                     return;

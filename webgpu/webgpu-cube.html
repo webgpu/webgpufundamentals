@@ -3,28 +3,47 @@
     <style>
       html, body { margin: 0; height: 100% }
       canvas { width: 100%; height: 100%; display: block; }
+
+      #fail {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: red;
+        color: white;
+        font-weight: bold;
+        font-family: monospace;
+        font-size: 16pt;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
     <canvas></canvas>
+    <div id="fail">
+      <div class="content"></div>
+    </div>
   </body>
   <script type="module">
 /* global GPUBufferUsage */
 /* global GPUTextureUsage */
-/* eslint no-alert: 0 */
 
 import {v3, m4} from 'https://twgljs.org/dist/4.x/twgl-full.module.js';
 
 async function main() {
   const gpu = navigator.gpu;
   if (!gpu) {
-    alert('this browser does not support webgpu');
+    fail('this browser does not support webgpu');
     return;
   }
 
   const adapter = await gpu.requestAdapter();
   if (!adapter) {
-    alert('this browser appears to support WebGPU but it\'s disabled');
+    fail('this browser appears to support WebGPU but it\'s disabled');
     return;
   }
 
@@ -404,6 +423,14 @@ async function main() {
   }
   requestAnimationFrame(render);
 }
+
+function fail(msg) {
+  const elem = document.querySelector('#fail');
+  const contentElem = elem.querySelector('.content');
+  elem.style.display = '';
+  contentElem.textContent = msg;
+}
+
 main();
   </script>
 </html>
