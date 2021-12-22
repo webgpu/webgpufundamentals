@@ -227,9 +227,37 @@ fn myFSMain(v: MyVSOutput) -> [[location(0)]] vec4<f32>
 
 Notice in many ways they aren't all that different. The core parts of each
 function are very similar. `vec4` in GLSL becomes `vec4<f32>` in WGSL, `mat4`
-becomes `mat4x4<f32>`. WGSL has the concept `var` which means a variable's type
-becomes the type of the expression on the right whereas GLSL required you to
-specify the type. In other words in GLSL
+becomes `mat4x4<f32>`. 
+
+GLSL is C/C++ like. WGSL is Rust like. One difference is
+types go on the left in GLSL and on the right in WGSL.
+
+<div class="webgpu_center compare"><div><div>GLSL</div><pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
+// declare a variable of type vec4
+vec4 v;
+
+// declare a function of type mat4 that takes a vec3 parameter
+mat4 someFunction(vec3 p) { ... }
+
+// declare a struct
+struct Foo {  vec4: field; }
+{{/escapehtml}}</code></pre>
+</div><div>
+<div>WGSL</div>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
+// declare a variable of type vec4<f32>
+var v: vec4<f32>;
+
+// declare a function of type mat4x4<f32> that takes a vec3<f32> parameter
+fn someFunction(p: vec3<f32>) => mat4x4<f32> { ... }
+
+// declare a struct
+struct Foo {  field: vec4<f32>; }
+{{/escapehtml}}</code></pre></div></div>
+
+WGSL has the concept that if you do not specify the type of variable it will
+be deduced from the type of the expression on the right whereas GLSL required you to
+always specify the type. In other words in GLSL
 
 ```glsl
 vec4 color = texture(someTexture, someTextureCoord);
@@ -264,7 +292,9 @@ called `main` but in WebGPU when you use a shader you specify which function to
 call.
 
 Notice in WebGPU the attributes are declared as parameters to the vertex shader
-function vs GLSL where they are declared as globals outside the function.
+function vs GLSL where they are declared as globals outside the function and
+unlike GLSL where if you don't choose a location the compiler will assign one,
+in WGSL we must supply the locations.
 
 For varyings, in GLSL they are also declared as global variables whereas in
 WGSL you declare a structure with locations for each field, you declare your
@@ -272,22 +302,22 @@ vertex shader as returning that structure, and you return an instance of that
 structure in the function itself. In the fragment shader you declare your
 function as taking these inputs.
 
-In the code above uses the same structure for both the vertex shaders output and
-the fragment shader's input, but there's no requirement to use the same
-structure. All that's required is that the locations match. For example this
+The code above uses the same structure for both the vertex shader's output and
+the fragment shader's input, but there is no requirement to use the same
+structure. All that is required is the locations match. For example this
 would work:
 
 ```wgsl
-struct MyFSInput {
-  [[location(0)]] normal: vec3<f32>;
-  [[location(1)]] texcoord: vec2<f32>;
-};
+*struct MyFSInput {
+*  [[location(0)]] the_normal: vec3<f32>;
+*  [[location(1)]] the_texcoord: vec2<f32>;
+*};
 
 [[stage(fragment)]]
-fn myFSMain(v: MyFSInput) -> [[location(0)]] vec4<f32>
+*fn myFSMain(v: MyFSInput) -> [[location(0)]] vec4<f32>
 {
-  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.texcoord);
-  var a_normal = normalize(v.normal);
+*  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.the_texcoord);
+*  var a_normal = normalize(v.the_normal);
   var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
   return vec4<f32>(diffuseColor.rgb * l, diffuseColor.a);
 }
@@ -298,24 +328,24 @@ This would also work
 ```wgsl
 [[stage(fragment)]]
 fn myFSMain(
-  [[location(0)]] normal: vec3<f32>,
-  [[location(1)]] texcoord: vec2<f32>,
+*  [[location(1)]] uv: vec2<f32>,
+*  [[location(0)]] nrm: vec3<f32>,
 ) -> [[location(0)]] vec4<f32>
 {
-  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, texcoord);
-  var a_normal = normalize(normal);
+*  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, uv);
+*  var a_normal = normalize(nrm);
   var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
   return vec4<f32>(diffuseColor.rgb * l, diffuseColor.a);
 }
 ```
 
-Again, what matters is the that the locations match.
+Again, what matters is the that the locations match, not the names.
 
 Another difference to notice is `gl_Position` in GLSL has just a special
 location `[[builtin(position)]]` for a user declared structure field in WGSL.
 Similarly, the output of the fragment shader is given a location. In this case
 `[[location(0)]]`. This is similar to using `gl_FragData[0]` in WebGL1's
-`WEBGL_draw_buffers` extension. Here again, if you wanted to output more that an
+`WEBGL_draw_buffers` extension. Here again, if you wanted to output more than a
 single value, for example to multiple render targets, you'd declare a structure
 and assign locations just like we did for the output of the vertex shader.
 
