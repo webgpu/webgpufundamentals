@@ -6,13 +6,12 @@
 const {
   fixSourceLinks,
   fixJSForCodeSite,
+  fixHTMLForCodeSite,
   extraHTMLParsing,
   runOnResize,
-  lessonSettings,
+  getWorkerPreamble,
+  prepHTML,
 } = lessonEditorSettings;
-
-const lessonHelperScriptRE = /<script src="[^"]+lessons-helper\.js"><\/script>/;
-const webglDebugHelperScriptRE = /<script src="[^"]+webgl-debug-helper\.js"><\/script>/;
 
 function getQuery(s) {
   s = s === undefined ? window.location.search : s;
@@ -391,11 +390,9 @@ function makeBlobURLsForSources(scriptInfo) {
       });
       scriptInfo.numLinesBeforeScript = 0;
       if (scriptInfo.isWorker) {
-        const extra = `self.lessonSettings = ${JSON.stringify(lessonSettings)};
-import '${dirname(scriptInfo.fqURL)}/resources/webgl-debug-helper.js';
-import '${dirname(scriptInfo.fqURL)}/resources/lessons-worker-helper.js';`;
-        scriptInfo.numLinesBeforeScript = extra.split('\n').length;
-        text = `${extra}\n${text}`;
+        const workerPreamble = getWorkerPreamble(scriptInfo);
+        scriptInfo.numLinesBeforeScript = workerPreamble.split('\n').length;
+        text = `${workerPreamble}\n${text}`;
       }
       scriptInfo.blobUrl = getJavaScriptBlob(text);
       scriptInfo.munged = text;
@@ -418,13 +415,7 @@ function getSourceBlob(htmlParts) {
   source = source.replace('${html}', htmlParts.html);
   source = source.replace('${css}', htmlParts.css);
   source = source.replace('${js}', g.rootScriptInfo.munged); //htmlParts.js);
-  source = source.replace('<head>', `<head>
-  <link rel="stylesheet" href="${prefix}/resources/lesson-helper.css" type="text/css">
-  <script match="false">self.lessonSettings = ${JSON.stringify(lessonSettings)}</script>`);
-
-  source = source.replace('</head>', `<script src="${prefix}/resources/webgl-debug-helper.js"></script>
-<script src="${prefix}/resources/lessons-helper.js"></script>
-  </head>`);
+  source = prepHTML(source, prefix);
   const scriptNdx = source.search(/<script(\s+type="module"\s*)?>/);
   g.rootScriptInfo.numLinesBeforeScript = (source.substring(0, scriptNdx).match(/\n/g) || []).length;
 
@@ -556,12 +547,6 @@ function makeScriptsForWorkers(scriptInfo) {
     js: init,
     html,
   };
-}
-
-function fixHTMLForCodeSite(html) {
-  html = html.replace(lessonHelperScriptRE, '');
-  html = html.replace(webglDebugHelperScriptRE, '');
-  return html;
 }
 
 function openInCodepen() {

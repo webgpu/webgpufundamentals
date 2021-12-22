@@ -1,85 +1,40 @@
 // Licensed under a BSD license. See license.html for license
-'use strict';  // eslint-disable-line
-
-/* global jQuery */
-
+/* eslint-disable strict */
+/* global settings, contributors, jQuery */
 (function($){
+
 function getQueryParams() {
-  const params = {};
-  if (window.location.search) {
-    window.location.search.substring(1).split('&').forEach(function(pair) {
-      const keyValue = pair.split('=').map(function(kv) {
-        return decodeURIComponent(kv);
-      });
-      params[keyValue[0]] = keyValue[1];
-    });
-  }
-  return params;
+  return Object.fromEntries(new URLSearchParams(window.location.search).entries());
 }
 
-$(document).ready(function($){
-  const supportedLangs = {
-    'en': true,
-    'zh': true,
-  };
+//
+function replaceParams(str, subs) {
+  return str.replace(/\${(\w+)}/g, function(m, key) {
+    return subs[key];
+  });
+}
 
-  function insertLang(codeKeywordLinks) {
-    const lang = document.documentElement.lang.substr(0, 2).toLowerCase();
-    const langPart = `#api/${supportedLangs[lang] ? lang : 'en'}/`;
-    const langAddedLinks = {};
-    for (const [keyword, url] of Object.entries(codeKeywordLinks)) {
-      langAddedLinks[keyword] = url.replace('#api/', langPart);
-    }
-    return langAddedLinks;
+function showContributors() {
+  // contribTemplate: 'Thank you
+  // <a href="${html_url}">
+  // <img src="${avatar_url}">${login}<a/>
+  //  for <a href="https://github.com/${owner}/${repo}/commits?author=${login}">${contributions} contributions</a>',
+  try {
+    const subs = {...settings, ...contributors[Math.random() * contributors.length | 0]};
+    const template = settings.contribTemplate;
+    const html = replaceParams(template, subs);
+    const parent = document.querySelector('#forkongithub>div');
+    const div = document.createElement('div');
+    div.className = 'contributors';
+    div.innerHTML = html;
+    parent.appendChild(div);
+  } catch (e) {
+    console.error(e);
   }
+}
+showContributors();
 
-  const codeKeywordLinks = insertLang({
-  });
-
-  function getKeywordLink(keyword) {
-    const dotNdx = keyword.indexOf('.');
-    if (dotNdx) {
-      const before = keyword.substring(0, dotNdx);
-      const link = codeKeywordLinks[before];
-      if (link) {
-        return `${link}.${keyword.substr(dotNdx + 1)}`;
-      }
-    }
-    return keyword.startsWith('webgpu.')
-      ? codeKeywordLinks[keyword.substring(6)]
-      : codeKeywordLinks[keyword];
-  }
-
-  $('code').filter(function() {
-    return getKeywordLink(this.textContent) &&
-           this.parentElement.nodeName !== 'A';
-  }).wrap(function() {
-    const a = document.createElement('a');
-    a.href = getKeywordLink(this.textContent);
-    return a;
-  });
-
-  const methodPropertyRE = /^(\w+)\.(\w+)$/;
-  const classRE = /^(\w+)$/;
-  $('a').each(function() {
-    const href = this.getAttribute('href');
-    if (!href) {
-      return;
-    }
-    const m = methodPropertyRE.exec(href);
-    if (m) {
-      const codeKeywordLink = getKeywordLink(m[1]);
-      if (codeKeywordLink) {
-        this.setAttribute('href', `${codeKeywordLink}#${m[2]}`);
-      }
-    } else if (classRE.test(href)) {
-      const codeKeywordLink = getKeywordLink(href);
-      if (codeKeywordLink) {
-        this.setAttribute('href', codeKeywordLink);
-      }
-    }
-  });
-
+$(document).ready(function($) {
   const linkImgs = function(bigHref) {
     return function() {
       const a = document.createElement('a');
@@ -108,13 +63,16 @@ $(document).ready(function($){
   $('img[src$="-sm.gif"]').wrap(linkSmallImgs('.gif'));
   $('img[src$="-sm.png"]').wrap(linkSmallImgs('.png'));
   $('pre>code')
-    .unwrap()
-    .replaceWith(function() {
-      return $('<pre class="prettyprint showlinemods">' + this.innerHTML + '</pre>');
+     .unwrap()
+     .replaceWith(function() {
+      return $('<pre class="prettyprint showlinemods notranslate" translate="no">' + this.innerHTML + '</pre>');
     });
   if (window.prettyPrint) {
     window.prettyPrint();
   }
+  $('span[class=com]')
+    .addClass('translate yestranslate')
+    .attr('translate', 'yes');
 
   const params = getQueryParams();
   if (params.doubleSpace || params.doublespace) {
@@ -125,9 +83,10 @@ $(document).ready(function($){
     window.location.href = this.value;
   });
 
-  if (window.webgpuLessonUtils) {
-    window.webgpuLessonUtils.afterPrettify();
-  }
+  $('a[data-href]').on('click', function() {
+    window.location.href = this.dataset.href;
+  });
+
 });
 }(jQuery));
 
