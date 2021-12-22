@@ -12,12 +12,10 @@ function getPrefix(url) {
   return prefix;
 }
 
-const lessonHelperScriptRE = /<script src="[^"]+lessons-helper\.js"><\/script>/;
-const webglDebugHelperScriptRE = /<script src="[^"]+webgl-debug-helper\.js"><\/script>/;
+const lessonHelperScriptRE = /<script type="module" src="[^"]+lessons-helper\.js"><\/script>/;
 
 function fixHTMLForCodeSite(html) {
   html = html.replace(lessonHelperScriptRE, '');
-  html = html.replace(webglDebugHelperScriptRE, '');
   return html;
 }
 
@@ -152,23 +150,21 @@ function requestCORSIfNotSameOrigin(img, url) {
 
 function prepHTML(source, prefix) {
   source = source.replace('<head>', `<head>
-  <!-- <link rel="stylesheet" href="${prefix}/resources/lesson-helper.css" type="text/css"> -->
+  <link rel="stylesheet" href="${prefix}/resources/lesson-helper.css" type="text/css">
   <script match="false">self.lessonSettings = ${JSON.stringify(lessonSettings)}</script>`);
 
-  source = source.replace('</head>', `<!-- <script src="${prefix}/resources/webgpu-debug-helper.js"></script> ==>
-<script src="${prefix}/resources/lessons-helper.js"></script>
+  source = source.replace('</head>', `<script type="module" src="${prefix}/resources/lessons-helper.js"></script>
   </head>`);
   return source;
 }
 
 function getWorkerPreamble(scriptInfo) {
   return `self.lessonSettings = ${JSON.stringify(lessonSettings)};
-// import '${dirname(scriptInfo.fqURL)}/resources/webgpu-debug-helper.js';
 import '${dirname(scriptInfo.fqURL)}/resources/lessons-worker-helper.js';`;
 }
 
 const lessonSettings = {
-  glDebug: true,
+  webgpuDebug: true,
 };
 
 window.lessonEditorSettings = {
