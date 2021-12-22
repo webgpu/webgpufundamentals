@@ -22,22 +22,22 @@ to render to textures. And, both have a bunch of settings for how pixels are
 blended, how the depth buffer and stencil buffers work, etc...
 
 The biggest difference is WebGL is a stateful API and WebGPU is not. By that I
-mean in WebGL there is whole bunch of global state. Which textures are currently
+mean in WebGL there is a bunch of global state. Which textures are currently
 bound, which buffers are currently bound, what the current program is, what the
 blending, depth, and stencil settings are. You set those states by calling
-various API functions like `gl.bindBuffer` or `gl.enable` etc and they stay
+various API functions like `gl.bindBuffer` or `gl.enable`, etc..., and they stay
 what you set them *globally* until you change them to something else.
 
-By contrast, In WebGPU there is almost no *global* state. Instead there concepts
+By contrast, In WebGPU there is almost no *global* state. Instead, there concepts
 of a *pipeline* and a *render pass* which effectively contain most of the state
 that was global in WebGL. Which textures, which attributes, which buffers, and
 all the various other settings. Any settings you don't set have default values.
-You can't modify a pipeline. Instead you create them and after that they are
+You can't modify a pipeline. Instead, you create them and after that they are
 immutable. If you want different settings you need to create another pipeline.
-*render passes* do have some state but that state is local to the render pass.
+*render passes* do have some state, but that state is local to the render pass.
 
-The second biggest difference is that WebGPU **is lower level** than WebGL. In
-WebGL many things connect by names. For example you declare a uniform in GLSL
+The second-biggest difference is that WebGPU **is lower level** than WebGL. In
+WebGL many things connect by names. For example, you declare a uniform in GLSL
 and you look up its location 
 
 ```js
@@ -47,7 +47,7 @@ loc = gl.getUniformLocation(program, 'nameOfUniform');
 Another example is varyings, in a vertex shader you use
 `varying vec2 v_texcoord` or `out vec2 v_texcoord` and in the fragment shader
 you declare the corresponding varying naming it `v_texcoord`. The good part of
-this is if you mis-type the name you'll get an error.
+this is if you mistype the name you'll get an error.
 
 WebGPU, on the other hand, everything is entirely connected by index or byte
 offset. You don't create individual uniforms like WebGL, instead you declare
@@ -228,7 +228,7 @@ fn myFSMain(v: MyVSOutput) -> [[location(0)]] vec4<f32>
 Notice in many ways they aren't all that different. The core parts of each
 function are very similar. `vec4` in GLSL becomes `vec4<f32>` in WGSL, `mat4`
 becomes `mat4x4<f32>`. WGSL has the concept `var` which means a variable's type
-becomes the type of the expression on the right where as GLSL required you to
+becomes the type of the expression on the right whereas GLSL required you to
 specify the type. In other words in GLSL
 
 ```glsl
@@ -249,7 +249,7 @@ var color = textureSample(someTexture, someSampler, someTextureCoord);
 
 In both cases `color` is a `vec4<f32>`.
 
-On the other hand, the biggest difference is all of the `[[???]]` parts. Each
+On the other hand, the biggest difference is all the `[[???]]` parts. Each
 one is declaring exactly where that particular piece of data is coming from. For
 example, notice that uniforms in the vertex shader and uniforms the fragment
 shader declare their `[[group(?), binding(?)]]` and that it's up to you to make
@@ -266,14 +266,14 @@ call.
 Notice in WebGPU the attributes are declared as parameters to the vertex shader
 function vs GLSL where they are declared as globals outside the function.
 
-For varyings, in GLSL they are also declared as global variables where as in
+For varyings, in GLSL they are also declared as global variables whereas in
 WGSL you declare a structure with locations for each field, you declare your
-vertex shader as returning that structure and you return an instance of that
+vertex shader as returning that structure, and you return an instance of that
 structure in the function itself. In the fragment shader you declare your
 function as taking these inputs.
 
 In the code above uses the same structure for both the vertex shaders output and
-the fragment shader's input but there's no requirement to use the same
+the fragment shader's input, but there's no requirement to use the same
 structure. All that's required is that the locations match. For example this
 would work:
 
@@ -361,7 +361,7 @@ main();
   </div>
 </div>
 
-Here, `adapter` represents the GPU itself where as `device` represents
+Here, `adapter` represents the GPU itself whereas `device` represents
 an instance of the API on that GPU.
 
 Probably the biggest difference here is that getting the API in WebGPU
@@ -487,11 +487,11 @@ const lightDirection = fsUniformValues.subarray(0, 3);
   </div>
 </div>
 
-In WebGL we lookup the locations of the uniforms. In WebGPU we create
+In WebGL we look up the locations of the uniforms. In WebGPU we create
 buffers to hold the values of the uniforms. The code above then creates
 TypedArray views into larger CPU side TypedArrays that hold the values
 for the uniforms. Notice `vUniformBufferSize` and `fUniformBufferSize`
-are hand computed. Similarly when creating views into type typed arrays
+are hand computed. Similarly, when creating views into type typed arrays
 the offsets and sizes are hand computed. It's entirely up to use to
 do those calculations. Unlike WebGL, WebGPU provides no API to query these offsets
 and sizes.
@@ -552,7 +552,7 @@ const indicesBuffer = createBuffer(device, indices, GPUBufferUsage.INDEX);
 </div>
 
 You can see, at a glance, these are not too different. You call different
-functions but otherwise it's pretty similar.
+functions, but otherwise it's pretty similar.
 
 ### Creating a Texture
 
@@ -715,7 +715,7 @@ internally depending on the settings. You can see, for `vertex` and `fragment`
 we specify a shader `module` and specify which function to call via `entryPoint`.
 WebGPU then needs to make sure those 2 functions are compatible with each other.
 
-In WebGL we call `gl.vertexAttribPointer` to attach the current ARRAY_BUFFER
+In WebGL we call `gl.vertexAttribPointer` to attach the current `ARRAY_BUFFER`
 buffer to an attribute *and* to specify how to pull data out of that buffer. In
 WebGPU we only specify how to pull data out of buffers when creating the
 pipeline. We specify what buffers to use later.
@@ -730,7 +730,7 @@ would have 3 entries.
 Also note here is a place where we have to match `shaderLocation` to
 what we used in the shader.
 
-In WebGPU we setup the `primitive`, cull mode, and depth settings here.
+In WebGPU we set up the `primitive`, cull mode, and depth settings here.
 That means if we want to draw something with any of those settings different,
 for example if we want to draw some geometry with triangles and later with
 lines, we have to create multiple pipelines.
@@ -738,8 +738,8 @@ lines, we have to create multiple pipelines.
 The last part `multisample` we need if we're drawing to a multi-sampled
 destination texture. I put that in here because by default, WebGL will use a
 multi sampled texture for the canvas. To emulate that requires adding a
-`multisample` property. `presentationFormat` and `canvasInfo.sampleCount` areß
-something we'll below. Similarly
+`multisample` property. `presentationFormat` and `canvasInfo.sampleCount` are
+something we'll cover below.
 
 ### Preparing to draw
 
@@ -1039,24 +1039,24 @@ device.queue.submit([commandEncoder.finish()]);
 </div>
 
 Note that I repeated the WebGL attribute setup code here. In WebGL, this can
-happen at init time or at render time. In WebGPU we setup how to pull data out
-of the buffers at init time but we set the actual buffers to use at render time.
+happen at init time or at render time. In WebGPU we set up how to pull data out
+of the buffers at init time, but we set the actual buffers to use at render time.
 
 In WebGPU, we need to update our render pass descriptor to use the textures
 we may have just updated in `resizeToDisplaySize`. Then we need to create a 
 command encoder and begin a render pass.
 
-In the render pass we set the pipeline, which is kind of like the equivalent of
+Inside the render pass we set the pipeline, which is kind of like the equivalent of
 `gl.useProgram`. We then set our bind group which supplies our sampler, texture,
 and the 2 buffers for our uniforms. We set the vertex buffers to match
-what we declared earlier. Finally we set an index buffer can call `drawIndexed`
+what we declared earlier. Finally, we set an index buffer can call `drawIndexed`
 which is the equivalent of calling `gl.drawElements`.
 
-In WebGL we needed to call `gl.viewport`. In WebGPU the pass encoder defaults
+Back in WebGL we needed to call `gl.viewport`. In WebGPU the pass encoder defaults
 to a viewport that matches the size of the attachments so unless we want a
 different viewport setting we don't have to set a viewport separately.
 
-In WebGL we called `gl.clear` to clear the canvas. In WebGPU we had previously
+In WebGL we called `gl.clear` to clear the canvas. Whereas in WebGPU we had previously
 set that up when creating our render pass descriptor.
 
 ## Working Examples:
