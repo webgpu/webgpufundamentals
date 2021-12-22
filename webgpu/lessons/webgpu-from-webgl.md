@@ -273,7 +273,7 @@ structure in the function itself. In the fragment shader you declare your
 function as taking these inputs.
 
 In the code above uses the same structure for both the vertex shaders output and
-the fragment shader's input but there's not requirement to use the same
+the fragment shader's input but there's no requirement to use the same
 structure. All that's required is that the locations match. For example this
 would work:
 
@@ -310,6 +310,14 @@ fn myFSMain(
 ```
 
 Again, what matters is the that the locations match.
+
+Another difference to notice is `gl_Position` in GLSL has just a special
+location `[[builtin(position)]]` for a user declared structure field in WGSL.
+Similarly, the output of the fragment shader is given a location. In this case
+`[[location(0)]]`. This is similar to using `gl_FragData[0]` in WebGL1's
+`WEBGL_draw_buffers` extension. Here again, if you wanted to output more that an
+single value, for example to multiple render targets, you'd declare a structure
+and assign locations just like we did for the output of the vertex shader.
 
 ### Getting the API
 
