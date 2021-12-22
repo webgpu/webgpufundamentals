@@ -8,11 +8,13 @@ using WebGPU.
 If you're coming from WebGL to WebGPU it's worth noting that many of the
 concepts are the same. Both WebGL and WebGPU let you run small functions on the
 GPU. WebGL has vertex shaders and fragment shaders. WebGPU has the same plus
-compute shaders. WebGL uses GLSL as its shading language. WebGPU uses WGSL.
-While they are different languages the concepts are mostly the same.
+compute shaders. WebGL uses
+[GLSL](https://www.khronos.org/registry/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf)
+as its shading language. WebGPU uses [WGSL](https://www.w3.org/TR/WGSL/). While
+they are different languages the concepts are mostly the same.
 
 Both APIs have attributes, a way to specify data pulled from buffers and fed
-each iteration of a vertex shader. Both APIs have uniforms, a way to specify
+to each iteration of a vertex shader. Both APIs have uniforms, a way to specify
 values shared by all iterations of a shader function. Both APIs have varyings, a
 way to pass data from a vertex shader to a fragment shader and interpolate
 between values computed by the vertex shader when rasterizing via a fragment
@@ -25,16 +27,18 @@ The biggest difference is WebGL is a stateful API and WebGPU is not. By that I
 mean in WebGL there is a bunch of global state. Which textures are currently
 bound, which buffers are currently bound, what the current program is, what the
 blending, depth, and stencil settings are. You set those states by calling
-various API functions like `gl.bindBuffer` or `gl.enable`, etc..., and they stay
-what you set them *globally* until you change them to something else.
+various API functions like `gl.bindBuffer`, `gl.enable`, `gl.blendFunc`, etc...,
+and they stay what you set them *globally* until you change them to something
+else.
 
-By contrast, In WebGPU there is almost no *global* state. Instead, there concepts
-of a *pipeline* and a *render pass* which effectively contain most of the state
-that was global in WebGL. Which textures, which attributes, which buffers, and
-all the various other settings. Any settings you don't set have default values.
-You can't modify a pipeline. Instead, you create them and after that they are
-immutable. If you want different settings you need to create another pipeline.
-*render passes* do have some state, but that state is local to the render pass.
+By contrast, In WebGPU there is almost no *global* state. Instead, there are the
+concepts of a *pipeline* or *render pipeline* and a *render pass* which together effectively contain most of
+the state that was global in WebGL. Which textures, which attributes, which
+buffers, and all the various other settings. Any settings you don't set have
+default values. You can't modify a pipeline. Instead, you create them and after
+that they are immutable. If you want different settings you need to create
+another pipeline. *render passes* do have some state, but that state is local to
+the render pass.
 
 The second-biggest difference is that WebGPU **is lower level** than WebGL. In
 WebGL many things connect by names. For example, you declare a uniform in GLSL
@@ -60,8 +64,8 @@ could query WebGL2 for those offsets and (b) you could still look up the block
 locations themselves by name.
 
 In WebGPU on the other hand **EVERYTHING** is by byte offset or index (often
-called '*location*'). That means it's entirely up to you to keep those locations
-in sync and to manually compute byte offsets.
+called '*location*') and there is no API to query them. That means it's entirely
+up to you to keep those locations in sync and to manually compute byte offsets.
 
 To give a JavaScript analogy:
 
@@ -81,32 +85,39 @@ In the `likeWebGL` example above, things are connected by name. We can call
 `likeWebGL` like this
 
 ```js
-likeWebGL({normal, color, position});
+const inputs = {};
+inputs.normal = normal;
+inputs.color = color;
+inputs.position = position;
+likeWebGL(inputs);
 ```
 
-Notice because we are connected by names, the order of our parameters does not
+Notice because they are connected by names, the order of our parameters does not
 matter. Further, we can skip a parameter (`texcoords` in the example above)
 assuming the function can run without `texcoords`.
 
 On the other hand with `likeWebGPU`
 
 ```js
-likeWebGPU([position, undefined, normal, color]);
+const inputs = [];
+inputs[0] = position;
+inputs[2] = normal;
+inputs[3] = color;
+likeWebGPU(inputs);
 ```
 
-We pass in our parameters in an array. Notice we have to pass in something for
-`texcoords` because if we didn't things would get out of order and the `normal` we
-passed into`likeWebGPU` would become `texcoords` inside the function. Keeping
-the code inside (WGSL) and outside (JavaScript/WASM) in sync in WebGPU is
-entirely your responsibility.
+Here, we pass in our parameters in an array. Notice we have to know the
+locations (indices) for each input. Keeping the locations for the code inside
+(WGSL) and outside (JavaScript/WASM) in sync in WebGPU is entirely your
+responsibility.
 
 ### Other notable differences
 
 * The Canvas
 
   WebGL manages the canvas itself for you. You choose antialias,
-  preserveDrawingBuffer, stencil, depth, alpha when you create the WebGL context
-  and after that WebGL manages the canvas itself. All you have to is set
+  preserveDrawingBuffer, stencil, depth, and alpha when you create the WebGL context
+  and after that WebGL manages the canvas itself. All you have to do is set
   `canvas.width` and `canvas.height`.
 
   WebGPU you have to do all of that yourself. You create the canvas's
@@ -196,10 +207,8 @@ struct MyVSOutput {
 };
 
 [[stage(vertex)]]
-fn myVSMain(v: MyVSInput) -> MyVSOutput
-{
+fn myVSMain(v: MyVSInput) -> MyVSOutput {
   var vsOut: MyVSOutput;
-
   vsOut.position = vsUniforms.worldViewProjection * v.position;
   vsOut.normal = (vsUniforms.worldInverseTranspose * vec4<f32>(v.normal, 0.0)).xyz;
   vsOut.texcoord = v.texcoord;
@@ -215,8 +224,7 @@ struct FSUniforms {
 [[group(0), binding(3)]] var diffuseTexture: texture_2d<f32>;
 
 [[stage(fragment)]]
-fn myFSMain(v: MyVSOutput) -> [[location(0)]] vec4<f32>
-{
+fn myFSMain(v: MyVSOutput) -> [[location(0)]] vec4<f32> {
   var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.texcoord);
   var a_normal = normalize(v.normal);
   var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
@@ -460,23 +468,17 @@ const shaderModule = await createShaderModule(device, shaderSrc);
 
 A minor difference, unlike WebGL, we can compile multiple shaders at once.
 
-The code above is probably a little controversial. In WebGL if your shader
-didn't compile it is up to you to check vs `gl.getShaderParameter` and then if
+The code above is probably a little controversial as it makes shader compilation
+synchronous. I made it that way to duplicate the WebGL style. In WebGL, if your shader
+didn't compile it is up to you to check the `COMPILE_STATUS` with `gl.getShaderParameter` and then if
 it failed, pull out the error messages with a call to `gl.getShaderInfoLog`. If
 you didn't do this no errors are shown. You'd likely just get an error later
 when you tried to use the shader program.
 
-In WebGPU, according to the spec, it's similar, but, at least at the moment,
-most implementations print shader complication errors to the JavaScript console
-even if you don't ask for them.
-
-Further, the code above waits for the error message, which is slower than
-not waiting. (The same is true in WebGL). The point being there's less reason
-to check for the errors yourself since, at least at the moment, the browser
-will show you the errors automatically, so many WebGPU example don't check.
-But, in WebGPU you can only get the errors asynchronously, so you have to
-choose. Do you want to `await` for the errors, do you want to get them
-*out of band*, or do you just want to ignore them.
+The WebGPU code above waits for the error message, which is slower than
+not waiting. (The same is true in WebGL). In WebGPU you can only get the
+errors asynchronously, so you have to choose. Do you want to `await` for the errors,
+do you want to get them *out of band*, or do you just want to ignore them.
 
 A big difference is that errors are structured in WebGPU. In WebGL it was
 just a string. In WebGPU it's an array of messages and those messages may or
@@ -517,14 +519,13 @@ const lightDirection = fsUniformValues.subarray(0, 3);
   </div>
 </div>
 
-In WebGL we look up the locations of the uniforms. In WebGPU we create
-buffers to hold the values of the uniforms. The code above then creates
-TypedArray views into larger CPU side TypedArrays that hold the values
-for the uniforms. Notice `vUniformBufferSize` and `fUniformBufferSize`
-are hand computed. Similarly, when creating views into type typed arrays
-the offsets and sizes are hand computed. It's entirely up to use to
-do those calculations. Unlike WebGL, WebGPU provides no API to query these offsets
-and sizes.
+In WebGL we look up the locations of the uniforms. In WebGPU we create buffers
+to hold the values of the uniforms. The code above then creates TypedArray views
+into larger CPU side TypedArrays that hold the values for the uniforms. Notice
+`vUniformBufferSize` and `fUniformBufferSize` are hand computed. Similarly, when
+creating views into the typed arrays the offsets and sizes are hand computed.
+It's entirely up to you to do those calculations. Unlike WebGL, WebGPU provides
+no API to query these offsets and sizes.
 
 Note, a similar process exists for WebGL2 using Uniform Blocks but if
 you've never used Uniform Blocks then this will be new.
@@ -647,10 +648,11 @@ is that in WebGPU we need to create a sampler which is optional in WebGL
 
 ### Setting up a Pipeline
 
-Several things that happen in WebGL are combined into one thing in WebGPU
-when creating a pipeline. For example, linking the shaders, setting up
-attributes, choosing the draw mode (points, line, triangles), setting up
-how the depth buffer is used. 
+A pipeline, or more specifically a "render pipeline", represents a pair of
+shaders used in a particular way. Several things that happen in WebGL are
+combined into one thing in WebGPU when creating a pipeline. For example, linking
+the shaders, setting up attributes, choosing the draw mode (points, line,
+triangles), setting up how the depth buffer is used. 
 
 Here's the code.
 
@@ -757,10 +759,10 @@ an array of attributes. Here we're setting up to get our data from
 we'd only need one `GPUVertexBufferLayout` but its `attribute` array
 would have 3 entries.
 
-Also note here is a place where we have to match `shaderLocation` to
+Also note, here is a place where we have to match `shaderLocation` to
 what we used in the shader.
 
-In WebGPU we set up the `primitive`, cull mode, and depth settings here.
+In WebGPU we set up the primitive type, cull mode, and depth settings here.
 That means if we want to draw something with any of those settings different,
 for example if we want to draw some geometry with triangles and later with
 lines, we have to create multiple pipelines.
@@ -805,7 +807,7 @@ const bindGroup = device.createBindGroup({
   </div>
 </div>
 
-Again, notice the `binding` add group must match what we specified in our shaders.
+Again, notice the `binding` and group must match what we specified in our shaders.
 
 In WebGPU we also create a render pass descriptor vs WebGL where these
 settings are set via stateful API calls or handled automatically.
@@ -844,7 +846,7 @@ const renderPassDescriptor = {
 
 Note that many of the settings in WebGPU are related to where we want to render.
 In WebGL, when rendering to the canvas, all of this was handled for us. When
-rendering to a framebuffer these settings are the equivalent of calls to
+rendering to a framebuffer in WebGL these settings are the equivalent of calls to
 `gl.framebufferTexture2D` and/or `gl.framebufferRenderbuffer`.
 
 ### Setting Uniforms
@@ -1005,9 +1007,10 @@ we need to manually destroy the old textures (color and depth) and create
 new ones. We also need to check that we don't go over the limits, something
 WebGL handled for us, at least for the canvas.
 
-Above, the property `sampleCount` effectively becomes the `antialias` property
-of the WebGL context's creation attributes. `sampleCount: 4` would be the equivalent of `antialias: true` (the default), were as `sampleCount: 1` would be
-the equivalent of `antialias: false` when creating the WebGL context.
+Above, the property `sampleCount` is effectively the analog of `antialias`
+property of the WebGL context's creation attributes. `sampleCount: 4` would be
+the equivalent of `antialias: true` (the default), whereas `sampleCount: 1`
+would be the equivalent of `antialias: false` when creating a WebGL context.
 
 ### Drawing
 
@@ -1079,12 +1082,12 @@ command encoder and begin a render pass.
 Inside the render pass we set the pipeline, which is kind of like the equivalent of
 `gl.useProgram`. We then set our bind group which supplies our sampler, texture,
 and the 2 buffers for our uniforms. We set the vertex buffers to match
-what we declared earlier. Finally, we set an index buffer can call `drawIndexed`
+what we declared earlier. Finally, we set an index buffer and call `drawIndexed`,
 which is the equivalent of calling `gl.drawElements`.
 
-Back in WebGL we needed to call `gl.viewport`. In WebGPU the pass encoder defaults
+Back in WebGL we needed to call `gl.viewport`. In WebGPU, the pass encoder defaults
 to a viewport that matches the size of the attachments so unless we want a
-different viewport setting we don't have to set a viewport separately.
+viewport that doesn't match we don't have to set a viewport separately.
 
 In WebGL we called `gl.clear` to clear the canvas. Whereas in WebGPU we had previously
 set that up when creating our render pass descriptor.
@@ -1099,7 +1102,7 @@ WebGPU
 
 {{{example url="../webgpu-cube.html"}}}
 
-Another important thing to notice, We're issue instructions to something
+Another important thing to notice, We're issuing instructions to something
 referred to as the `device.queue`. Notice that when we uploaded the values
 for the uniforms we called `device.queue.writeBuffer` and then when we created
 a command encoder and submitted it with `device.queue.submit`. That should
@@ -1107,10 +1110,9 @@ make it pretty clear that we can't update the buffers between draw calls within
 the same command encoder. If we want to draw multiple things we'd need
 multiple buffers or multiple sets of values in a single buffer.
 
-Let's go over and example of drawing multiple things.
+Let's go over an example of drawing multiple things.
 
 TBD
-
 
 If you were already familiar with WebGL then I hope this article was useful.
 
