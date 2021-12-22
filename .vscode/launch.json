@@ -12,6 +12,18 @@
         "<node_internals>/**"
       ],
       "program": "node_modules/.bin/ld-check-dependencies"
+    },
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Debug Build",
+      "program": "${workspaceFolder}/node_modules/grunt/bin/grunt",
+      "env": {
+        "ARTICLE_FILTER": "webgl"
+      },
+      "args": [
+        "buildlessons"
+      ]
     }
   ]
 }

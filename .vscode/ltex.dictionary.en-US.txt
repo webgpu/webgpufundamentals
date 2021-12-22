@@ -1,0 +1,15 @@
+WebGPU
+globals
+varyings
+escapehtml
+TypedArray
+TypedArrays
+framebuffer
+init
+url
+antialias
+preserveDrawingBuffer
+drawingbuffer
+mipmaps
+mip
+mips
