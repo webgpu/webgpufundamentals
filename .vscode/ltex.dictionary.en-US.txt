@@ -13,3 +13,4 @@ drawingbuffer
 mipmaps
 mip
 mips
+Varyings
