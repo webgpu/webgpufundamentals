@@ -1,6 +1,9 @@
 {
   'basics': [
     'webgpu-fundamentals.md',
+    'webgpu-compute-shaders.md',
+    'webgpu-wgsl.md',
+    'webgpu-textures.md',
   ],
   'misc': [
     'webgpu-from-webgl.md',

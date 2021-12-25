@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- this file is auto-generated from webgpu/lessons/index.md. Do not edited directly -->
+<!-- this file is auto-generated from webgpu/lessons/webgpu-wgsl.md. Do not edited directly -->
 <!--
-Copyright 2020, Gregg Tavares.
+Copyright 2021, Gregg Tavares
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -37,119 +37,79 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="webgpu tutorials and solutions" />
+<meta name="description" content="An introduction to WebGPU Shading Language" />
 <meta name="keywords" content="webgpu graphics" />
-<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg" />
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-wgsl_en.jpg" />
 
-<meta property="og:title" content="WebGPU Fundamentals" />
+<meta property="og:title" content="WebGPU WGSL" />
 <meta property="og:type" content="website" />
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg" />
-<meta property="og:description" content="Learn webgpu" />
-<meta property="og:url" content="https://webgpufundamentals.org">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-wgsl_en.jpg" />
+<meta property="og:description" content="An introduction to WebGPU Shading Language" />
+<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-wgsl.html" />
 
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@greggman">
-<meta name="twitter:creator" content="@greggman">
-<meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="webgpufundamentals.org">
-<meta name="twitter:url" content="https://webgpufundamentals.org">
-<meta name="twitter:description" content="Learn webgpu" />
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@greggman" />
+<meta name="twitter:creator" content="@greggman" />
+<meta name="twitter:domain" content="webgpufundamentals.org" />
+<meta name="twitter:title" content="WebGPU WGSL" />
+<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-wgsl.html" />
+<meta name="twitter:description" content="An introduction to WebGPU Shading Language" />
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-wgsl_en.jpg" />
 
-<title>WebGPU Fundamentals</title>
-
-<link rel="alternate" type="application/atom+xml" title="webgpu fundamentals" href="https://webgpufundamentals.org/atom.xml" />
 <script type="application/ld+json">
 {
   "@context":"https://schema.org",
-  "@type":"ItemList",
-  "itemListElement":
-  [
-  {
-    "@type": "ListItem",
-    "position": 1,
-    "url": "https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html"
-  },
-  {
-    "@type": "ListItem",
-    "position": 2,
-    "url": "https://webgpufundamentals.org/webgpu/lessons/webgpu-compute-shaders.html"
-  },
-  {
-    "@type": "ListItem",
-    "position": 3,
-    "url": "https://webgpufundamentals.org/webgpu/lessons/webgpu-wgsl.html"
-  },
-  {
-    "@type": "ListItem",
-    "position": 4,
-    "url": "https://webgpufundamentals.org/webgpu/lessons/webgpu-textures.html"
-  },
-  {
-    "@type": "ListItem",
-    "position": 5,
-    "url": "https://webgpufundamentals.org/webgpu/lessons/webgpu-from-webgl.html"
-  }
-]
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-wgsl.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-wgsl_en.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-wgsl.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/webgpu-wgsl.html",
+      "inLanguage":"en",
+      "name":"WebGPU WGSL",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-wgsl.html#primaryimage"
+      }
+    }
+  ]
 }
 </script>
 
-
+<title>WebGPU WGSL</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
 <link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
-
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css" />
-<link rel="stylesheet" href="/webgpu/lessons/resources/index.css" />
 </head>
 <body>
-<div class="delme" style="display:none;">
 <div class="webgpu_navbar">
   <div>
     <select class="language">
-    <option value="/" >English</a>
+    <option value="/webgpu/lessons/webgpu-wgsl.html" selected>English</a>
 </select>
 
 
+    <a href="#toc">Table of Contents</a>
   </div>
 </div>
-<div class="container">
-  <div class="lesson">
-    <div class="lesson-main">
-      <h1>WebGPU Fundamentals <span class="rss"><a href="http://webgpufundamentals.org/atom.xml"><img src="/webgpu/lessons/resources/rss-icon.svg" alt="rss"/></a></span></h1>
-      <div class="home-lang">
-        <select class="language">
-    <option value="/" >English</a>
-</select>
-
-
-      </div>
-      <p>A set of articles to help learn WebGPU</p>
-<p><ul>  <li>Basics</li>
-        <ul>
-          <li><a href="/webgpu/lessons/webgpu-fundamentals.html">Fundamentals</a></li>
-<li><a href="/webgpu/lessons/webgpu-compute-shaders.html">Compute Shaders</a></li>
-<li><a href="/webgpu/lessons/webgpu-wgsl.html">WGSL</a></li>
-<li><a href="/webgpu/lessons/webgpu-textures.html">Textures</a></li>
-        </ul>
-  <li>Mics</li>
-        <ul>
-          <li><a href="/webgpu/lessons/webgpu-from-webgl.html">WebGPU from WebGL</a></li>
-        </ul></ul>
-<ul>
-  <li><a href="https://github.com/gfxfundamentals/webgpufundamentals">github</a></li>
-</ul>
-</p>
-<!--
-
-
-
--->
-
-    </div>
-  </div>
-</div>
-</div> <!-- delme -->
+<div class="webgpu_header">
+  <h1><a href="/">webgpufundamentals.org</a></h1>
 <style>
 #forkongithub>div {
     background: #000;
@@ -250,7 +210,81 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </svg>
 </a></div></div></div>
 
-<iframe class="background" src="/webgpu/background.html"></iframe>
+</div>
+
+
+<div class="container">
+  <div class="lesson-title">
+    <h1>WebGPU WGSL</h1>
+  </div>
+  <div class="lesson">
+    <div class="lesson-main">
+      <div class="warn">
+      Warning: WebGPU has not shipped and the spec is still changing.<br><br>
+      If you see a problem please <a href="https://github.com/gfxfundamentals/webgpufundamentals">file an issue</a>.
+      </div>
+      <p>TBD</p>
+
+    </div>
+    <div class="lesson-sidebar">
+        <select class="language">
+    <option value="/webgpu/lessons/webgpu-wgsl.html" selected>English</a>
+</select>
+
+
+        <div id="toc">
+          <ul>  <li>Basics</li>
+        <ul>
+          <li><a href="/webgpu/lessons/webgpu-fundamentals.html">Fundamentals</a></li>
+<li><a href="/webgpu/lessons/webgpu-compute-shaders.html">Compute Shaders</a></li>
+<li><a href="/webgpu/lessons/webgpu-wgsl.html">WGSL</a></li>
+<li><a href="/webgpu/lessons/webgpu-textures.html">Textures</a></li>
+        </ul>
+  <li>Mics</li>
+        <ul>
+          <li><a href="/webgpu/lessons/webgpu-from-webgl.html">WebGPU from WebGL</a></li>
+        </ul></ul>
+<ul>
+  <li><a href="https://github.com/gfxfundamentals/webgpufundamentals">github</a></li>
+</ul>
+
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+    <div>Questions? <a href="http://stackoverflow.com/questions/tagged/webgpu">Ask on stackoverflow</a>.</div>
+    <div>
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=suggested+topic&template=suggest-topic.md&title=%5BSUGGESTION%5D">Suggestion</a>?
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=&template=request.md&title=">Request</a>?
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=bug+%2F+issue&template=bug-issue-report.md&title=">Issue</a>?
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=bug+%2F+issue&template=bug-issue-report.md&title=">Bug</a>?
+    </div>
+    <div class="lesson-comment-notes">
+       Use <b>&lt;pre&gt;&lt;code&gt;</b>code goes here<b>&lt;/code&gt;&lt;/pre&gt;</b> for code blocks
+    </div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU WGSL`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    </div>
+  </div>
+</div>
 </body>
 <script>
 const settings = {
@@ -261,6 +295,7 @@ const settings = {
 </script>
 <script src="/contributors.js"></script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
+<script src="/webgpu/lessons/resources/prettify.js"></script>
 <script src="/webgpu/lessons/resources/lesson.js"></script>
 <script>
 (function() {
@@ -293,5 +328,6 @@ const settings = {
 
 
 </html>
+
 
 

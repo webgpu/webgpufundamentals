@@ -37,14 +37,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="TBD" />
+<meta name="description" content="The fundamentals of WebGPU" />
 <meta name="keywords" content="webgpu graphics" />
 <meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_en.jpg" />
 
 <meta property="og:title" content="WebGPU Fundamentals" />
 <meta property="og:type" content="website" />
 <meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_en.jpg" />
-<meta property="og:description" content="TBD" />
+<meta property="og:description" content="The fundamentals of WebGPU" />
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html" />
 
 <meta name="twitter:card" content="summary_large_image" />
@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <meta name="twitter:domain" content="webgpufundamentals.org" />
 <meta name="twitter:title" content="WebGPU Fundamentals" />
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html" />
-<meta name="twitter:description" content="TBD" />
+<meta name="twitter:description" content="The fundamentals of WebGPU" />
 <meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_en.jpg" />
 
 <script type="application/ld+json">
@@ -223,7 +223,440 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       Warning: WebGPU has not shipped and the spec is still changing.<br><br>
       If you see a problem please <a href="https://github.com/gfxfundamentals/webgpufundamentals">file an issue</a>.
       </div>
-      <p>TBD</p>
+      <p>Warning: This article is going to be long! To get WebGPU to do something
+requires many steps, each step needs to be explained, and until we
+cover all the steps we won&#39;t get any results. Let&#39;s go!</p>
+<p>WebGPU is an API that lets you run short functions on the GPU. There are
+3 types of functions you can run</p>
+<ol>
+<li><p>Vertex Shaders</p>
+<p>Vertex shaders are functions that compute vertex positions for drawing
+points, lines, and mostly triangles.</p>
+</li>
+<li><p>Fragment Shaders</p>
+<p>Fragment shaders are functions that compute the color (or other data)
+for each pixel to be drawn/rasterized when drawing points, lines,
+and triangles.</p>
+</li>
+<li><p>Compute Shaders</p>
+<p>Compute shaders are functions that write computed data to buffers.
+(yea, I know that&#39;s pretty ambiguous).</p>
+</li>
+</ol>
+<p>This article will try to cover the basics of vertex and fragment shaders.
+<a href="webgpu-compute-shaders.html">Another article will cover compute shaders</a>.</p>
+<p>Let&#39;s try to explain this by implementing something similar to what the GPU does
+with vertex shaders and fragment shaders but in JavaScript. Hopefully this will give
+you an intuitive feeling about what&#39;s really going on. If you already know how GPUs
+and shaders work, or if you find this section confusing, feel
+free to skip to <a href="#WebGPU">the actual WebGPU code</a>.</p>
+<p>If you&#39;re familiar with
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">Array.map</a>,
+if you squint real hard you can get some idea of how these 3 different kinds of
+shader functions work. With <code class="notranslate" translate="no">Array.map</code> you provide a function to transform a value.
+Example:</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const shader = v =&gt; v * 2;  // double the input
+const input = [1, 2, 3, 4];
+const output = input.map(shader);   // result [2, 4, 6, 8]
+</code></pre>
+<p>Above our &quot;shader&quot; for array.map is just a function that given a number, returns
+its double. That&#39;s probably the closest analogy in JavaScript to what &quot;shader&quot;
+means. It&#39;s function that returns or generates values. You don&#39;t call it
+directly. Instead, you specify it and then the system calls it for you.</p>
+<p>For a GPU vertex shader you don&#39;t map over an input array. Instead, you just
+specify a count of how many times you want the function to be called.</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">function draw(count, vertexShaderFn) {
+  const internalBuffer = [];
+  for (let i = 0; i &lt; count; ++i) {
+    internalBuffer[i] = vertexShaderFn(i);
+  }
+  console.log(JSON.stringify(internalBuffer));
+}
+</code></pre>
+<p>One consequence is we no longer need a source array to do something.</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const shader = v =&gt; v * 2;
+const count = 4;
+draw(count, shader);
+// outputs [0, 2, 4, 6]
+</code></pre>
+<p>The thing that makes GPU work complicated is that these functions run on a separate
+system in your computer. This means all the data you create and reference
+has to somehow be sent to the GPU and you then need to communicate to the shader
+where you put that data and how to access it.</p>
+<p>Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffers, Textures, Varyings.</p>
+<ol>
+<li><p>Uniforms</p>
+<p>Uniforms are values that are the same for each iteration of the shader.
+Think of them as constant global variables. You can set them before a shader
+is run but while the shader is being used they remain constant, or to put it
+another way, they remain <em>uniform</em>.</p>
+<p>Let&#39;s change <code class="notranslate" translate="no">draw</code> to pass uniforms to a shader. To do this we&#39;ll
+make an array called <code class="notranslate" translate="no">bindings</code> and use it to pass in the uniforms.</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">*function draw(count, vertexShaderFn, bindings) {
+  const internalBuffer = [];
+  for (let i = 0; i &lt; count; ++i) {
+*    internalBuffer[i] = vertexShaderFn(i, bindings);
+  }
+  console.log(JSON.stringify(internalBuffer));
+}
+</code></pre>
+<p>And then let&#39;s change our shader to use the uniforms</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const vertexShader = (v, bindings) =&gt; {
+  const uniforms = bindings[0];
+  return v * uniforms.multiplier;
+};
+const count = 4;
+const uniforms1 = {multiplier: 3};
+const uniforms2 = {multiplier: 5};
+const bindings1 = [uniforms1];
+const bindings2 = [uniforms2];
+draw(count, vertexShader, bindings1);
+// outputs [0, 3, 6, 9]
+draw(count, vertexShader, bindings2);
+// outputs [0, 5, 10, 15]
+</code></pre>
+<p>So, the concept of uniforms hopefully seems pretty straight forward. The
+indirection through <code class="notranslate" translate="no">bindings</code> is there because this &quot;similar&quot; to how things
+are done in WebGPU. Like mentioned above, we access the things, in this case
+the uniforms, by location/index. Here they are found in <code class="notranslate" translate="no">bindings[0]</code>.</p>
+</li>
+<li><p>Attributes (vertex shaders only)</p>
+<p>Attributes provide per shader iteration data. In <code class="notranslate" translate="no">array.map</code> above,
+the value <code class="notranslate" translate="no">v</code> was pulled from <code class="notranslate" translate="no">input</code> and automatically provided
+to the function. This is very similar to an attribute in a shader.</p>
+<p>The difference is, we are not mapping over the input, instead,
+because we are just counting so, we need to tell WebGPU
+about these inputs and how to get data out of them.</p>
+<p>Imagine we updated <code class="notranslate" translate="no">draw</code> like this</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">*function draw(count, vertexShaderFn, bindings, attribsSpec) {
+  const internalBuffer = [];
+  for (let i = 0; i &lt; count; ++i) {
+*    const attribs = getAttribs(attribsSpec, i);
+*    internalBuffer[i] = vertexShaderFn(i, bindings, attribs);
+  }
+  console.log(JSON.stringify(internalBuffer));
+}
+
++function getAttribs(attribs, ndx) {
++  return attribs.map(({source, offset, stride}) =&gt; source[ndx * stride + offset]);
++}
+</code></pre>
+<p>Then we could call it like this</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const buffer1 = [0, 1, 2, 3, 4, 5, 6, 7];
+const buffer2 = [11, 22, 33, 44];
+const attribsSpec = [
+  { source: buffer1, offset: 0, stride: 2, },
+  { source: buffer1, offset: 1, stride: 2, },
+  { source: buffer2, offset: 0, stride: 1, },
+];
+const vertexShader = (v, bindings, attribs) =&gt; (attribs[0] + attribs[1]) * attribs[2];
+const bindings = [];
+const count = 4;
+draw(count, vertexShader, bindings, attribsSpec);
+// outputs [11, 110, 297, 572]
+</code></pre>
+<p>As you can see above, <code class="notranslate" translate="no">getAttribs</code> uses <code class="notranslate" translate="no">offset</code>, and <code class="notranslate" translate="no">stride</code> to
+compute indices into the corresponding <code class="notranslate" translate="no">source</code> buffer and pulls out values.
+The pulled out values are then sent to the shader. On each iteration
+<code class="notranslate" translate="no">attribs</code> will be different</p>
+<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no"> iteration |  attribs
+ ----------+-------------
+     0     | [0, 1, 11]
+     1     | [2, 3, 22]
+     2     | [4, 5, 33]
+     3     | [6, 7, 44]
+</code></pre></li>
+<li><p>Raw Buffers</p>
+<p>Buffers are effectively arrays, again for our analogy let&#39;s make version
+of <code class="notranslate" translate="no">draw</code> that uses buffers. We&#39;ll pass these buffers via <code class="notranslate" translate="no">bindings</code>
+like we did with uniforms.</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const buffer1 = [0, 1, 2, 3, 4, 5, 6, 7];
+const buffer2 = [11, 22, 33, 44];
+const attribsSpec = [];
+const bindings = [
+  buffer1,
+  buffer2,
+];
+const vertexShader = (ndx, bindings, attribs) =&gt; 
+    (bindings[0][ndx * 2] + bindings[0][ndx * 2 + 1]) * bindings[1][ndx];
+const count = 4;
+draw(count, vertexShader, bindings, attribsSpec);
+// outputs [11, 110, 297, 572]
+</code></pre>
+<p>Here we got the same result as we did with attributes except this time,
+instead of the system pulling the values out of the buffers for us, we
+calculated our own indices into the bound buffers. This is more flexible than
+attributes since we basically have random access to the arrays. But, it&#39;s
+potentially slower for that same reason. Given the way attributes worked the
+GPU knows the values will be accessed in order which it can use to optimize.
+For example, in order access is usually cache friendly. When we calculate our
+own indices the GPU has no idea which part of a buffer we&#39;re going to access
+until we actually try to access it.</p>
+</li>
+<li><p>Textures</p>
+<p>Textures are 1d, 2d, or 3d arrays of data. Of course, we could implement
+our own 2d or 3d arrays using buffers. What&#39;s special about textures
+is they can be sampled. Sampling means that we can ask the GPU to compute
+a value between the values we supply. We&#39;ll cover that this means in
+<a href="webgpu-textures.html">the article on textures</a>. For now, let&#39;s make
+a JavaScript analogy again.</p>
+<p>First we&#39;ll create a function <code class="notranslate" translate="no">textureSample</code> that <em>samples</em> an array
+between values</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">function textureSample(texture, ndx) {
+  const startNdx = ndx | 0;  // round down to an int
+  const fraction = ndx % 1;  // get the fractional part between indices
+  const start = texture[startNdx];
+  const end = texture[startNdx + 1];
+  return start + (end - start) * fraction;  // compute value between start and end
+}
+</code></pre>
+<p>A function something like that already exists on the GPU.</p>
+<p>Now let&#39;s use that in a shader.</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const texture = [10, 20, 30, 40, 50, 60, 70, 80];
+const attribsSpec = [];
+const bindings = [
+  texture,
+];
+const vertexShader = (ndx, bindings, attribs) =&gt;
+    textureSample(bindings[0], ndx * 1.75);
+const count = 4;
+draw(count, vertexShader, bindings, attribsSpec);
+// outputs [10, 27.5, 45, 62.5]
+</code></pre>
+<p>When <code class="notranslate" translate="no">ndx</code> is <code class="notranslate" translate="no">3</code> we&#39;ll pass in <code class="notranslate" translate="no">3 * 1.75</code> or <code class="notranslate" translate="no">5.25</code> into <code class="notranslate" translate="no">textureSample</code>.
+That will compute a <code class="notranslate" translate="no">startNdx</code> of <code class="notranslate" translate="no">5</code>. So we&#39;ll pull out indices <code class="notranslate" translate="no">5</code> and <code class="notranslate" translate="no">6</code>
+which are <code class="notranslate" translate="no">60</code> and <code class="notranslate" translate="no">70</code>. <code class="notranslate" translate="no">fraction</code> becomes <code class="notranslate" translate="no">0.25</code>, so we&#39;ll get
+<code class="notranslate" translate="no">60 + (70 - 60) * 0.25</code> which is <code class="notranslate" translate="no">62.5</code>.</p>
+<p>Looking at the code above we could write <code class="notranslate" translate="no">textureSample</code> ourselves in our shader
+function. We could manually pull out the 2 values and interpolate between them.
+The reason the GPU has this special functionality is it can do it much faster
+and, depending on the settings, it may read as many as sixteen 4-float values
+to produce one 4-float value for us. That would be a lot of work to do manually.</p>
+</li>
+<li><p>Varyings (fragment shaders only)</p>
+<p>Varyings are outputs from a vertex shader to a fragment shader. As was mentioned
+above, a vertex shader outputs positions that are used to draw/rasterize points,
+lines, and triangles. </p>
+<p>Let&#39;s imagine we&#39;re drawing a line. Let&#39;s say our vertex shader was run
+twice, the first time it output the equivalent of <code class="notranslate" translate="no">5,0</code> and the second time
+the equivalent of <code class="notranslate" translate="no">25,4</code>. Given those 2 points the GPU will draw a line from
+<code class="notranslate" translate="no">5,0</code> to <code class="notranslate" translate="no">25,4</code> exclusive. To do this it will call our fragment shader 20
+times, once for each of the pixels on that line. Each time it calls our
+fragment shader it&#39;s up to us to decide what color to return.</p>
+<p>Let&#39;s assume we have a generator function called <code class="notranslate" translate="no">mapLine</code>. It takes 2
+points and generates the points in a line. Example:</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">for (const [p] of mapLine([10, 10], [13, 13])) {
+  console.log(p);
+}
+// prints
+// 10,10
+// 11,11
+// 12,12
+</code></pre>
+<p>Note: In this example, the reason there is no <code class="notranslate" translate="no">13,13</code> is the same reason that
+<code class="notranslate" translate="no">array.slice(10, 13)</code> returns elements 10, 11, 12.</p>
+<p>So, let&#39;s change our vertex shader so it outputs 2 values per iteration. We could do that in
+many ways. Here&#39;s one.</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const buffer1 = [5, 0, 25, 4];
+const attribsSpec = [
+  {source: buffer1, offset: 0, stride: 2},
+  {source: buffer1, offset: 1, stride: 2},
+];
+const bindings = [];
+const dest = new Array(2);
+const vertexShader = (ndx, bindings, attribs) =&gt; [attribs[0], attribs[1]];
+const count = 2;
+draw(count, vertexShader, bindings, attribsSpec);
+// outputs [[5, 0], [25, 4]]
+</code></pre>
+<p>Now let&#39;s write some code that loops over points 2 at a time and 
+calls <code class="notranslate" translate="no">mapLine</code> to rasterize a line.</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">function rasterizeLines(dest, destWidth, inputs, fragShaderFn, bindings) {
+  for (let ndx = 0; ndx &lt; inputs.length - 1; ndx += 2) {
+    const p0 = inputs[ndx    ];
+    const p1 = inputs[ndx + 1];
+    for (const [p] of mapLine(p0, p1)) {
+      const offset = p[1] * destWidth + p[0];  // y * width + x
+      dest[offset] = fragShaderFn(bindings);
+    }
+  }
+}
+</code></pre>
+<p>We can update draw to use that code like this</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">-function draw(count, vertexShaderFn, bindings, attribsSpec) {
++function draw(dest, destWidth,
++              count, vertexShaderFn, fragmentShaderFn,
++              bindings, attribsSpec,
++) {
+  const internalBuffer = [];
+  for (let i = 0; i &lt; count; ++i) {
+    const attribs = getAttribs(attribsSpec, i);
+    internalBuffer[i] = vertexShaderFn(i, bindings, attribs);
+  }
+-  console.log(JSON.stringify(internalBuffer));
++  rasterizeLines(dest, destWidth, internalBuffer,
++                 fragmentShaderFn, bindings);
+}
+</code></pre>
+<p>Now we&#39;re actually using <code class="notranslate" translate="no">internalBuffer</code> 😃!</p>
+<p>Let&#39;s update the code that calls <code class="notranslate" translate="no">draw</code>.</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const buffer1 = [5, 0, 25, 4];
+const attribsSpec = [
+  {source: buffer1, offset: 0, stride: 2},
+  {source: buffer1, offset: 1, stride: 2},
+];
+const bindings = [];
+const vertexShader = (ndx, bindings, attribs) =&gt; [attribs[0], attribs[1]];
+const count = 2;
+-draw(count, vertexShader, bindings, attribsSpec);
+
++const width = 30;
++const height = 5;
++const pixels = new Array(width * height).fill(0);
++const fragShader = (bindings) =&gt; 6;
+
+*draw(
+*   pixels, width,
+*   count, vertexShader, fragShader,
+*   bindings, attribsSpec);
+</code></pre>
+<p>If we print <code class="notranslate" translate="no">pixels</code> as a rectangle where <code class="notranslate" translate="no">0</code> becomes <code class="notranslate" translate="no">.</code> we&#39;d get this</p>
+<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">.....666......................
+........66666.................
+.............66666............
+..................66666.......
+.......................66.....
+</code></pre><p>Unfortunately, our fragment shader gets no input that changes each iteration so
+there is no way to output anything different for each pixel. This is where
+varyings come in. Let&#39;s change our first shader to output an extra value.</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const buffer1 = [5, 0, 25, 4];
++const buffer2 = [9, 3];
+const attribsSpec = [
+  {source: buffer1, offset: 0, stride: 2},
+  {source: buffer1, offset: 1, stride: 2},
++  {source: buffer2, offset: 0, stride: 1},
+];
+const bindings = [];
+const dest = new Array(2);
+const vertexShader = (ndx, bindings, attribs) =&gt; 
+-    [attribs[0], attribs[1]];
++    [[attribs[0], attribs[1]], [attribs[2]]];
+
+...
+</code></pre>
+<p>If we changed nothing else, after the loop inside <code class="notranslate" translate="no">draw</code>, <code class="notranslate" translate="no">internalBuffer</code> would have
+these values</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js"> [ 
+   [[ 5, 0], [9]],
+   [[25, 4], [3]],
+ ]
+</code></pre>
+<p>Let&#39;s assume <code class="notranslate" translate="no">mapLine</code> returns not only the points but a value from 0.0 to 1.0
+that represents how far along the line we are. We can have <code class="notranslate" translate="no">rasterizeLine</code>
+use this to interpolate the extra value we just added.</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">function rasterizeLines(dest, destWidth, inputs, fragShaderFn, bindings) {
+  for(let ndx = 0; ndx &lt; inputs.length - 1; ndx += 2) {
+-    const p0 = inputs[ndx    ];
+-    const p1 = inputs[ndx + 1];
++    const p0 = inputs[ndx    ][0];
++    const p1 = inputs[ndx + 1][0];
++    const v0 = inputs[ndx    ].slice(1);  // everything but the first value
++    const v1 = inputs[ndx + 1].slice(1);
+-    for (const [p] of mapLine(p0, p1)) {
++    for (const [p, t] of mapLine(p0, p1)) {
+      const offset = p[1] * destWidth + p[0];  // y * width + x
++      const varyings = interpolateArrays(v0, v1, t);
+-      dest[offset] = fragShaderFn(bindings);
++      dest[offset] = fragShaderFn(bindings, varyings);
+    }
+  }
+}
+
++// interpolateArrays([[1,2]], [[3,4]], 0.25) =&gt; [[1.5, 2.5]]
++function interpolateArrays(v0, v1, t) {
++  return v0.map((array0, ndx) =&gt; {
++    const array1 = v1[ndx];
++    return interpolateValues(array0, array1, t);
++  });
++}
+
++// interpolateValues([1,2], [3,4], 0.25) =&gt; [1.5, 2.5]
++function interpolateValues(array0, array1, t) {
++  return array0.map((a, ndx) =&gt; {
++    const b = array1[ndx];
++    return a + (b - a) * t;
++  });
++}
+</code></pre>
+<p>Now we can use those varyings in our fragment shader</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">-const fragShader = (bindings) =&gt; 6;
++const fragShader = (bindings, varyings) =&gt; varyings[0] | 0; // convert to int
+</code></pre>
+<p>If we ran it now we&#39;d see results like this</p>
+<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">.....988......................
+........87776.................
+.............66655............
+..................54443.......
+.......................33.....
+</code></pre><p>The first iteration of the vertex shader output <code class="notranslate" translate="no">[[5,0], [9]</code> and
+the 2nd iteration output <code class="notranslate" translate="no">[25,4], [3]</code> and you can see, 
+as the fragment shader was called, the 2nd value of each of those
+varied (was interpolated) between the 2 values.</p>
+<p>We could make another function <code class="notranslate" translate="no">mapTriangle</code> that given 3 points
+rasterized a triangle calling the fragment shader function for each
+point inside the triangle. It would interpolate the varyings
+from 3 points instead of 2.</p>
+</li>
+</ol>
+<p>Here are all the examples above running live in case you find it
+useful to play around with them to understand them.</p>
+<p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-javascript-analogies.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-javascript-analogies.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+</p>
+<p>What happens in the JavaScript above is an analogy. The details
+of how varyings are actually interpolated, how lines are drawn, how
+buffers are accessed, how textures, uniforms, attributes are specified,
+etc... are different in WebGPU, but the concepts are very similar so
+I hope this JavaScript analogy provided some help in getting a mental
+model of what&#39;s happening.</p>
+<p>Why is it this way? Well, if you look at <code class="notranslate" translate="no">draw</code> and <code class="notranslate" translate="no">rasterizeLines</code>
+you might notice that each iteration is entirely independent of
+the other iterations. Another way to say this, you could process
+each iteration in any order. Instead of 0, 1, 2, 3, 4 you could
+process them 3, 1, 4, 0, 2 and you&#39;d get the exact same result.
+The fact that they are independent means each iteration can be
+run in parallel by a different processor. Modern 2021 top end
+GPUs have ~3000 processors. That means up to 3000 things can be
+run in parallel. That is where the power of using the GPU comes from.
+By following these patterns the system can massively parallelize
+the work.</p>
+<p>The biggest limitations are:</p>
+<ol>
+<li><p>A shader function can only operate
+on its inputs (attributes, buffers, textures, uniforms, varyings).</p>
+</li>
+<li><p>A shader can not reference its destination, the thing it&#39;s
+generating values for.</p>
+<p>When you think about it this makes sense. Imagine <code class="notranslate" translate="no">fragShader</code>
+above tried to reference <code class="notranslate" translate="no">dest</code> directly. That would mean when
+trying to parallelize things it would be impossible to coordinate.
+Which iteration would go first? If the 3rd iteration referenced <code class="notranslate" translate="no">dest[0]</code>
+then the 0th iteration would need to run first but if the 0th iteration
+referenced <code class="notranslate" translate="no">dest[3]</code> then the 3rd iteration would need to run first.
+That&#39;s a situation which is impossible to resolve. 
+Given we can compute our own indices in the shader there is no way
+for the GPU to know what the shader is going to access and so no way
+to do any coordination. So, the limit is, a shader cannot reference
+the thing it&#39;s generating values for. </p>
+<p>Figuring out ways to solve problems within those limits is a big
+part of what GPU programming is about.</p>
+</li>
+</ol>
+<p><a id="WebGPU"></a></p>
+<p>TBD</p>
 
     </div>
     <div class="lesson-sidebar">
@@ -236,6 +669,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           <ul>  <li>Basics</li>
         <ul>
           <li><a href="/webgpu/lessons/webgpu-fundamentals.html">Fundamentals</a></li>
+<li><a href="/webgpu/lessons/webgpu-compute-shaders.html">Compute Shaders</a></li>
+<li><a href="/webgpu/lessons/webgpu-wgsl.html">WGSL</a></li>
+<li><a href="/webgpu/lessons/webgpu-textures.html">Textures</a></li>
         </ul>
   <li>Mics</li>
         <ul>
