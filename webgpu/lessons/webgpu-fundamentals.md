@@ -87,13 +87,14 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    is run but while the shader is being used they remain constant, or to put it
    another way, they remain *uniform*.
 
-   Let's change `draw` to pass uniforms to a shader.
+   Let's change `draw` to pass uniforms to a shader. To do this we'll
+   make an array called `bindings` and use it to pass in the uniforms.
 
    ```js
-   *function draw(count, vertexShaderFn, uniforms) {
+   *function draw(count, vertexShaderFn, bindings) {
      const internalBuffer = [];
      for (let i = 0; i < count; ++i) {
-   *    internalBuffer[i] = vertexShaderFn(i, uniforms);
+   *    internalBuffer[i] = vertexShaderFn(i, bindings);
      }
      console.log(JSON.stringify(internalBuffer));
    }
@@ -102,15 +103,25 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    And then let's change our shader to use the uniforms
 
    ```js
-   const vertexShader = (v, uniforms) => v * uniforms.multiplier;
+   const vertexShader = (v, bindings) => {
+     const uniforms = bindings[0];
+     return v * uniforms.multiplier;
+   };
    const count = 4;
-   draw(count, vertexShader, {multiplier: 3});
+   const uniforms1 = {multiplier: 3};
+   const uniforms2 = {multiplier: 5};
+   const bindings1 = [uniforms1];
+   const bindings2 = [uniforms2];
+   draw(count, vertexShader, bindings1);
    // outputs [0, 3, 6, 9]
-   draw(count, vertexShader, {multiplier: 5});
+   draw(count, vertexShader, bindings2);
    // outputs [0, 5, 10, 15]
    ```
 
-   So, the concept of uniforms hopefully seems pretty straight forward.
+   So, the concept of uniforms hopefully seems pretty straight forward. The
+   indirection through `bindings` is there because this "similar" to how things
+   are done in WebGPU. Like mentioned above, we access the things, in this case
+   the uniforms, by location/index. Here they are found in `bindings[0]`.
 
 2. Attributes (vertex shaders only)
 
@@ -125,11 +136,11 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    Imagine we updated `draw` like this
 
    ```js
-   *function draw(count, vertexShaderFn, uniforms, attribsSpec) {
+   *function draw(count, vertexShaderFn, bindings, attribsSpec) {
      const internalBuffer = [];
      for (let i = 0; i < count; ++i) {
    *    const attribs = getAttribs(attribsSpec, i);
-   *    internalBuffer[i] = vertexShaderFn(i, uniforms, attribs);
+   *    internalBuffer[i] = vertexShaderFn(i, bindings, attribs);
      }
      console.log(JSON.stringify(internalBuffer));
    }
@@ -142,17 +153,17 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    Then we could call it like this
 
    ```js
-   const buffer1 = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+   const buffer1 = [0, 1, 2, 3, 4, 5, 6, 7];
    const buffer2 = [11, 22, 33, 44];
    const attribsSpec = [
      { source: buffer1, offset: 0, stride: 2, },
      { source: buffer1, offset: 1, stride: 2, },
      { source: buffer2, offset: 0, stride: 1, },
    ];
-   const vertexShader = (v, uniforms, attribs) => (attribs[0] + attribs[1]) * attribs[2];
-   const uniforms = {};
+   const vertexShader = (v, bindings, attribs) => (attribs[0] + attribs[1]) * attribs[2];
+   const bindings = [];
    const count = 4;
-   draw(count, vertexShader, uniforms, attribsSpec);
+   draw(count, vertexShader, bindings, attribsSpec);
    // outputs [11, 110, 297, 572]
    ```
 
@@ -172,36 +183,22 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
 
 3. Raw Buffers
 
-   Buffers are effectively arrays, again for our analogy let's make a version
-   of `draw` that uses buffers. We'll put these buffers in an array
-   called `bindings` and reference them by index.
+   Buffers are effectively arrays, again for our analogy let's make version
+   of `draw` that uses buffers. We'll pass these buffers via `bindings`
+   like we did with uniforms.
 
    ```js
-   *function draw(count, vertexShaderFn, uniforms, attribsSpec, bindings) {
-     const internalBuffer = [];
-     for (let i = 0; i < count; ++i) {
-       const attribs = getAttribValues(attribsSpec, i);
-   *    internalBuffer[i] = vertexShaderFn(i, uniforms, attribs, bindings);
-     }
-     console.log(JSON.stringify(internalBuffer));
-   }
-   ```
-
-   And let's use it
-
-   ```js
-   const buffer1 = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+   const buffer1 = [0, 1, 2, 3, 4, 5, 6, 7];
    const buffer2 = [11, 22, 33, 44];
    const attribsSpec = [];
    const bindings = [
      buffer1,
      buffer2,
    ];
-   const vertexShader = (ndx, uniforms, attribs, bindings) => 
+   const vertexShader = (ndx, bindings, attribs) => 
        (bindings[0][ndx * 2] + bindings[0][ndx * 2 + 1]) * bindings[1][ndx];
-   const uniforms = {};
    const count = 4;
-   draw(count, vertexShader, uniforms, attribsSpec, bindings);
+   draw(count, vertexShader, bindings, attribsSpec);
    // outputs [11, 110, 297, 572]
    ```
 
@@ -247,11 +244,10 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    const bindings = [
      texture,
    ];
-   const vertexShader = (ndx, uniforms, attribs, bindings) =>
+   const vertexShader = (ndx, bindings, attribs) =>
        textureSample(bindings[0], ndx * 1.75);
-   const uniforms = {};
    const count = 4;
-   draw(count, vertexShader, uniforms, attribsSpec, bindings);
+   draw(count, vertexShader, bindings, attribsSpec);
    // outputs [10, 27.5, 45, 62.5]
    ```
 
@@ -283,7 +279,7 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    points and generates the points in a line. Example:
 
    ```js
-   for (const [p] of mapLine([10,10], [13, 13])) {
+   for (const [p] of mapLine([10, 10], [13, 13])) {
      console.log(p);
    }
    // prints
@@ -306,11 +302,9 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    ];
    const bindings = [];
    const dest = new Array(2);
-   const vertexShader = (ndx, uniforms, attribs, bindings) => 
-       [attribs[0], attribs[1]];
-   const uniforms = {};
+   const vertexShader = (ndx, bindings, attribs) => [attribs[0], attribs[1]];
    const count = 2;
-   draw(count, vertexShader, uniforms, attribsSpec, bindings);
+   draw(count, vertexShader, bindings, attribsSpec);
    // outputs [[5, 0], [25, 4]]
    ```
 
@@ -318,13 +312,13 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    calls `mapLine` to rasterize a line.
 
    ```js
-   function rasterizeLines(dest, destWidth, inputs, fragShaderFn, uniforms, bindings) {
-     for(let ndx = 0; ndx < inputs.length - 1; ndx += 2) {
+   function rasterizeLines(dest, destWidth, inputs, fragShaderFn, bindings) {
+     for (let ndx = 0; ndx < inputs.length - 1; ndx += 2) {
        const p0 = inputs[ndx    ];
-       const p1 = inputs[ndx + 1]
+       const p1 = inputs[ndx + 1];
        for (const [p] of mapLine(p0, p1)) {
          const offset = p[1] * destWidth + p[0];  // y * width + x
-         dest[offset] = fragShaderFn(uniforms, bindings);
+         dest[offset] = fragShaderFn(bindings);
        }
      }
    }
@@ -333,19 +327,19 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    We can update draw to use that code like this
 
    ```js
-   -function draw(count, vertexShaderFn, uniforms, attribsSpec, bindings) {
+   -function draw(count, vertexShaderFn, bindings, attribsSpec) {
    +function draw(dest, destWidth,
    +              count, vertexShaderFn, fragmentShaderFn,
-   +              uniforms, attribsSpec, bindings,
+   +              bindings, attribsSpec,
    +) {
      const internalBuffer = [];
      for (let i = 0; i < count; ++i) {
        const attribs = getAttribs(attribsSpec, i);
-       internalBuffer[i] = vertexShaderFn(i, uniforms, attribs, bindings);
+       internalBuffer[i] = vertexShaderFn(i, bindings, attribs);
      }
    -  console.log(JSON.stringify(internalBuffer));
    +  rasterizeLines(dest, destWidth, internalBuffer,
-   +                 fragmentShaderFn, uniforms, bindings);
+   +                 fragmentShaderFn, bindings);
    }
    ```
 
@@ -360,21 +354,19 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
      {source: buffer1, offset: 1, stride: 2},
    ];
    const bindings = [];
-   const vertexShader = (ndx, uniforms, attribs, bindings) => 
-       [attribs[0], attribs[1]];
-   const uniforms = {};
+   const vertexShader = (ndx, bindings, attribs) => [attribs[0], attribs[1]];
    const count = 2;
-   -draw(count, vertexShader, uniforms, attribsSpec, bindings);
+   -draw(count, vertexShader, bindings, attribsSpec);
 
    +const width = 30;
    +const height = 5;
    +const pixels = new Array(width * height).fill(0);
-   +const fragShader = (uniforms, bindings) => 6;
+   +const fragShader = (bindings) => 6;
 
    *draw(
    *   pixels, width,
    *   count, vertexShader, fragShader,
-   *   uniforms, attribsSpec, bindings);
+   *   bindings, attribsSpec);
    ```
 
    If we print `pixels` as a rectangle where `0` becomes `.` we'd get this
@@ -401,7 +393,7 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    ];
    const bindings = [];
    const dest = new Array(2);
-   const vertexShader = (ndx, uniforms, attribs, bindings) => 
+   const vertexShader = (ndx, bindings, attribs) => 
    -    [attribs[0], attribs[1]];
    +    [[attribs[0], attribs[1]], [attribs[2]]];
 
@@ -423,10 +415,10 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    use this to interpolate the extra value we just added.
 
    ```js
-   function rasterizeLines(dest, destWidth, inputs, fragShaderFn, uniforms, bindings) {
+   function rasterizeLines(dest, destWidth, inputs, fragShaderFn, bindings) {
      for(let ndx = 0; ndx < inputs.length - 1; ndx += 2) {
    -    const p0 = inputs[ndx    ];
-   -    const p1 = inputs[ndx + 1]
+   -    const p1 = inputs[ndx + 1];
    +    const p0 = inputs[ndx    ][0];
    +    const p1 = inputs[ndx + 1][0];
    +    const v0 = inputs[ndx    ].slice(1);  // everything but the first value
@@ -435,8 +427,8 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    +    for (const [p, t] of mapLine(p0, p1)) {
          const offset = p[1] * destWidth + p[0];  // y * width + x
    +      const varyings = interpolateArrays(v0, v1, t);
-   -      dest[offset] = fragShaderFn(uniforms, bindings);
-   +      dest[offset] = fragShaderFn(uniforms, bindings, varyings);
+   -      dest[offset] = fragShaderFn(bindings);
+   +      dest[offset] = fragShaderFn(bindings, varyings);
        }
      }
    }
@@ -461,8 +453,8 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    Now we can use those varyings in our fragment shader
 
    ```js
-   -const fragShader = (uniforms, bindings) => 6;
-   +const fragShader = (uniforms, bindings, varyings) => varyings[0] | 0; // convert to int
+   -const fragShader = (bindings) => 6;
+   +const fragShader = (bindings, varyings) => varyings[0] | 0; // convert to int
    ```
 
    If we ran it now we'd see results like this
