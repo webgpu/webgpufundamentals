@@ -1237,6 +1237,31 @@ the same command encoder. If we want to draw multiple things we&#39;d need
 multiple buffers or multiple sets of values in a single buffer.</p>
 <p>Let&#39;s go over an example of drawing multiple things.</p>
 <p>TBD</p>
+<h2 id="other-random-differences">Other random differences</h2>
+<h3 id="z-clip-space-is-0-to-1">Z clip space is 0 to 1</h3>
+<p>In WebGL Z clip space was -1 to +1. In WebGPU it&#39;s 0 to 1 (which btw makes way more sense!)</p>
+<h3 id="y-axis-is-down-in-framebuffer-viewport-coordinates">Y axis is down in framebuffer, viewport coordinates</h3>
+<p>This is the opposite of WebGL though in clip space Y axis is up (same as WebGL)</p>
+<p>In other words, returning (-1, -1) from a vertex shader will reference the lower left
+corner in both WebGL and WebGPU. On the other hand, setting the viewport or scissor to
+<code class="notranslate" translate="no">0, 0, 1, 1</code> references the lower left corner in WebGL but the upper left corner in WebGPU.</p>
+<h3 id="wgsl-uses-builtin-for-glsl-s-gl_xxx-">WGSL uses <code class="notranslate" translate="no">[[builtin(???)]]</code> for GLSL&#39;s <code class="notranslate" translate="no">gl_XXX</code></h3>
+<p><code class="notranslate" translate="no">gl_FragCoord</code> is <code class="notranslate" translate="no">[[builtin(position)]] myVarOrField: vec4&lt;f32&gt;</code> and unlike
+WebGL it&#39;s in normalized coordinates (-1 to +1).</p>
+<p><code class="notranslate" translate="no">gl_VertexID</code> is <code class="notranslate" translate="no">[[builtin(vertex_index)]] myVarOrField: u32</code></p>
+<p><code class="notranslate" translate="no">gl_InstanceID</code> is <code class="notranslate" translate="no">[[builtin(instance_index)]] myVarOrField: u32</code></p>
+<p><code class="notranslate" translate="no">gl_Position</code> is <code class="notranslate" translate="no">[[builtin(position)]] vec4&lt;f32&gt;</code> which may be the return value
+of a vertex shader or a field in a structure returned by the vertex shader</p>
+<p>There is no <code class="notranslate" translate="no">gl_PointCoord</code> equivalent because points are only 1 pixel in WebGPU</p>
+<p>You can see other builtin variables <a href="https://www.w3.org/TR/WGSL/#builtin-variables">here</a>.</p>
+<h3 id="wgsl-only-supports-lines-and-points-1-pixel-wide">WGSL only supports lines and points 1 pixel wide</h3>
+<p>According to the spec, WebGL2 could support lines larger than 1 pixel, but in
+actual practice no implementations did. WebGL2 did generally support points larger
+than 1 pixel but, (a) lots of GPUs only supported a max size of 64 pixels and (b)
+different GPU would clip or not clip based on th center of the point. So, it&#39;s arguably
+a good thing WebGPU doesn&#39;t support points. This forces you to implement a portable
+solution.</p>
+<hr>
 <p>If you were already familiar with WebGL then I hope this article was useful.</p>
 
     </div>

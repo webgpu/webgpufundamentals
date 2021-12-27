@@ -443,9 +443,13 @@ the equivalent of <code class="notranslate" translate="no">25,4</code>. Given th
 <code class="notranslate" translate="no">5,0</code> to <code class="notranslate" translate="no">25,4</code> exclusive. To do this it will call our fragment shader 20
 times, once for each of the pixels on that line. Each time it calls our
 fragment shader it&#39;s up to us to decide what color to return.</p>
-<p>Let&#39;s assume we have a generator function called <code class="notranslate" translate="no">mapLine</code>. It takes 2
-points and generates the points in a line. Example:</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">for (const [p] of mapLine([10, 10], [13, 13])) {
+<p>Let&#39;s assume we have pair of functions that help us draw a line between
+2 points. The first function computes how many pixel&#39;s we need to draw and some
+values to help draw them. The second takes that info plus a pixel number
+and gives us a pixel position. Example:</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const line = calcLine([10, 10], [13, 13]);
+for (let i = 0; i &lt; line.numPixels; ++i) {
+  const p = calcLinePoint(line, i);
   console.log(p);
 }
 // prints
@@ -453,8 +457,6 @@ points and generates the points in a line. Example:</p>
 // 11,11
 // 12,12
 </code></pre>
-<p>Note: In this example, the reason there is no <code class="notranslate" translate="no">13,13</code> is the same reason that
-<code class="notranslate" translate="no">array.slice(10, 13)</code> returns elements 10, 11, 12.</p>
 <p>So, let&#39;s change our vertex shader so it outputs 2 values per iteration. We could do that in
 many ways. Here&#39;s one.</p>
 <pre class="prettyprint notranslate" translate="no"><code class="lang-js">const buffer1 = [5, 0, 25, 4];
@@ -475,7 +477,9 @@ calls <code class="notranslate" translate="no">mapLine</code> to rasterize a lin
   for (let ndx = 0; ndx &lt; inputs.length - 1; ndx += 2) {
     const p0 = inputs[ndx    ];
     const p1 = inputs[ndx + 1];
-    for (const [p] of mapLine(p0, p1)) {
+    const line = calcLine(p0, p1);
+    for (let i = 0; i &lt; line.numPixels; ++i) {
+      const p = calcLinePoint(line, i);
       const offset = p[1] * destWidth + p[0];  // y * width + x
       dest[offset] = fragShaderFn(bindings);
     }
@@ -551,9 +555,9 @@ these values</p>
    [[25, 4], [3]],
  ]
 </code></pre>
-<p>Let&#39;s assume <code class="notranslate" translate="no">mapLine</code> returns not only the points but a value from 0.0 to 1.0
-that represents how far along the line we are. We can have <code class="notranslate" translate="no">rasterizeLine</code>
-use this to interpolate the extra value we just added.</p>
+<p>We can easily compute a value from 0.0 to 1.0 that represents how far along
+the line we are. We can use this to interpolate the extra value we just
+added.</p>
 <pre class="prettyprint notranslate" translate="no"><code class="lang-js">function rasterizeLines(dest, destWidth, inputs, fragShaderFn, bindings) {
   for(let ndx = 0; ndx &lt; inputs.length - 1; ndx += 2) {
 -    const p0 = inputs[ndx    ];
@@ -562,10 +566,12 @@ use this to interpolate the extra value we just added.</p>
 +    const p1 = inputs[ndx + 1][0];
 +    const v0 = inputs[ndx    ].slice(1);  // everything but the first value
 +    const v1 = inputs[ndx + 1].slice(1);
--    for (const [p] of mapLine(p0, p1)) {
-+    for (const [p, t] of mapLine(p0, p1)) {
-      const offset = p[1] * destWidth + p[0];  // y * width + x
+    const line = calcLine(p0, p1);
+    for (let i = 0; i &lt; line.numPixels; ++i) {
+      const p = calcLinePoint(line, i);
++      const t = i / line.numPixels;
 +      const varyings = interpolateArrays(v0, v1, t);
+      const offset = p[1] * destWidth + p[0];  // y * width + x
 -      dest[offset] = fragShaderFn(bindings);
 +      dest[offset] = fragShaderFn(bindings, varyings);
     }
@@ -618,7 +624,7 @@ useful to play around with them to understand them.</p>
 </p>
 <p>What happens in the JavaScript above is an analogy. The details
 of how varyings are actually interpolated, how lines are drawn, how
-buffers are accessed, how textures, uniforms, attributes are specified,
+buffers are accessed, how textures are sampled, uniforms, attributes specified,
 etc... are different in WebGPU, but the concepts are very similar so
 I hope this JavaScript analogy provided some help in getting a mental
 model of what&#39;s happening.</p>
@@ -629,14 +635,16 @@ each iteration in any order. Instead of 0, 1, 2, 3, 4 you could
 process them 3, 1, 4, 0, 2 and you&#39;d get the exact same result.
 The fact that they are independent means each iteration can be
 run in parallel by a different processor. Modern 2021 top end
-GPUs have ~3000 processors. That means up to 3000 things can be
+GPUs have ~10000 processors. That means up to 10000 things can be
 run in parallel. That is where the power of using the GPU comes from.
 By following these patterns the system can massively parallelize
 the work.</p>
 <p>The biggest limitations are:</p>
 <ol>
-<li><p>A shader function can only operate
-on its inputs (attributes, buffers, textures, uniforms, varyings).</p>
+<li><p>A shader function can only reference
+its inputs (attributes, buffers, textures, uniforms, varyings).</p>
+</li>
+<li><p>A shader can not allocate memory.</p>
 </li>
 <li><p>A shader can not reference its destination, the thing it&#39;s
 generating values for.</p>
