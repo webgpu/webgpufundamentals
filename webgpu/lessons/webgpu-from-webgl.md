@@ -1128,7 +1128,7 @@ In other words, returning (-1, -1) from a vertex shader will reference the lower
 corner in both WebGL and WebGPU. On the other hand, setting the viewport or scissor to
 `0, 0, 1, 1` references the lower left corner in WebGL but the upper left corner in WebGPU.
 
-### WGSL uses `[[builtin(???)]]` for GLSL's `gl_XXX`
+### WGSL uses `[[builtin(???)]]` for GLSL's `gl_XXX` variables.
 
 `gl_FragCoord` is `[[builtin(position)]] myVarOrField: vec4<f32>` and unlike
 WebGL it's in normalized coordinates (-1 to +1).
