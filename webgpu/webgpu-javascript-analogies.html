@@ -314,9 +314,13 @@ section('varyings: draw line with varying value');
    logArray2D(pixels, width);
 }
 
+function int(v) {
+  return v | 0;
+}
+
 function calcLine(p1, p2) {
   const deltaInc = p1.map((v, ndx) => {
-    const d = Math.floor(p2[ndx]) - Math.floor(v);
+    const d = int(p2[ndx]) - int(v);
     return {delta: Math.abs(d), inc: Math.sign(d)};
   });
 
@@ -328,7 +332,7 @@ function calcLine(p1, p2) {
   const numPixels = deltaInc[mainAxis].delta;
 
   return {
-    p1: p1.map(v => Math.floor(v)),
+    p1: p1.map(v => int(v)),
     mainAxis,
     numPixels,
     minDelta,
@@ -340,10 +344,10 @@ function calcLine(p1, p2) {
 function calcLinePoint(line, i) {
   const {p1, mainAxis, numPixels, minDelta, minInc, mainInc} = line;
   const minAxis = 1 - mainAxis;
-  const accum = numPixels / 2 + minDelta * i;
+  const accum = int(numPixels / 2) + minDelta * i;
   const p = p1.slice();
   p[mainAxis] += mainInc * i;
-  p[minAxis] += Math.floor(minInc * (accum / numPixels));
+  p[minAxis] += int(minInc * (accum / numPixels));
   return p;
 }
 

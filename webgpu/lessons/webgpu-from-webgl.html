@@ -1245,7 +1245,7 @@ multiple buffers or multiple sets of values in a single buffer.</p>
 <p>In other words, returning (-1, -1) from a vertex shader will reference the lower left
 corner in both WebGL and WebGPU. On the other hand, setting the viewport or scissor to
 <code class="notranslate" translate="no">0, 0, 1, 1</code> references the lower left corner in WebGL but the upper left corner in WebGPU.</p>
-<h3 id="wgsl-uses-builtin-for-glsl-s-gl_xxx-">WGSL uses <code class="notranslate" translate="no">[[builtin(???)]]</code> for GLSL&#39;s <code class="notranslate" translate="no">gl_XXX</code></h3>
+<h3 id="wgsl-uses-builtin-for-glsl-s-gl_xxx-variables-">WGSL uses <code class="notranslate" translate="no">[[builtin(???)]]</code> for GLSL&#39;s <code class="notranslate" translate="no">gl_XXX</code> variables.</h3>
 <p><code class="notranslate" translate="no">gl_FragCoord</code> is <code class="notranslate" translate="no">[[builtin(position)]] myVarOrField: vec4&lt;f32&gt;</code> and unlike
 WebGL it&#39;s in normalized coordinates (-1 to +1).</p>
 <p><code class="notranslate" translate="no">gl_VertexID</code> is <code class="notranslate" translate="no">[[builtin(vertex_index)]] myVarOrField: u32</code></p>
