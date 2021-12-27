@@ -1114,5 +1114,47 @@ Let's go over an example of drawing multiple things.
 
 TBD
 
+## Other random differences
+
+### Z clip space is 0 to 1
+
+In WebGL Z clip space was -1 to +1. In WebGPU it's 0 to 1 (which btw makes way more sense!)
+
+### Y axis is down in framebuffer, viewport coordinates
+
+This is the opposite of WebGL though in clip space Y axis is up (same as WebGL)
+
+In other words, returning (-1, -1) from a vertex shader will reference the lower left
+corner in both WebGL and WebGPU. On the other hand, setting the viewport or scissor to
+`0, 0, 1, 1` references the lower left corner in WebGL but the upper left corner in WebGPU.
+
+### WGSL uses `[[builtin(???)]]` for GLSL's `gl_XXX`
+
+`gl_FragCoord` is `[[builtin(position)]] myVarOrField: vec4<f32>` and unlike
+WebGL it's in normalized coordinates (-1 to +1).
+
+`gl_VertexID` is `[[builtin(vertex_index)]] myVarOrField: u32`
+
+`gl_InstanceID` is `[[builtin(instance_index)]] myVarOrField: u32`
+
+`gl_Position` is `[[builtin(position)]] vec4<f32>` which may be the return value
+of a vertex shader or a field in a structure returned by the vertex shader
+
+There is no `gl_PointCoord` equivalent because points are only 1 pixel in WebGPU
+
+You can see other builtin variables [here](https://www.w3.org/TR/WGSL/#builtin-variables).
+
+### WGSL only supports lines and points 1 pixel wide
+
+According to the spec, WebGL2 could support lines larger than 1 pixel, but in
+actual practice no implementations did. WebGL2 did generally support points larger
+than 1 pixel but, (a) lots of GPUs only supported a max size of 64 pixels and (b)
+different GPU would clip or not clip based on th center of the point. So, it's arguably
+a good thing WebGPU doesn't support points. This forces you to implement a portable
+solution.
+
+---
+
 If you were already familiar with WebGL then I hope this article was useful.
+
 
