@@ -275,11 +275,15 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    times, once for each of the pixels on that line. Each time it calls our
    fragment shader it's up to us to decide what color to return.
 
-   Let's assume we have a generator function called `mapLine`. It takes 2
-   points and generates the points in a line. Example:
+   Let's assume we have pair of functions that help us draw a line between
+   2 points. The first function computes how many pixel's we need to draw and some
+   values to help draw them. The second takes that info plus a pixel number
+   and gives us a pixel position. Example:
 
    ```js
-   for (const [p] of mapLine([10, 10], [13, 13])) {
+   const line = calcLine([10, 10], [13, 13]);
+   for (let i = 0; i < line.numPixels; ++i) {
+     const p = calcLinePoint(line, i);
      console.log(p);
    }
    // prints
@@ -288,9 +292,6 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    // 12,12
    ```
 
-   Note: In this example, the reason there is no `13,13` is the same reason that
-   `array.slice(10, 13)` returns elements 10, 11, 12.
-  
    So, let's change our vertex shader so it outputs 2 values per iteration. We could do that in
    many ways. Here's one.
 
@@ -316,7 +317,9 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
      for (let ndx = 0; ndx < inputs.length - 1; ndx += 2) {
        const p0 = inputs[ndx    ];
        const p1 = inputs[ndx + 1];
-       for (const [p] of mapLine(p0, p1)) {
+       const line = calcLine(p0, p1);
+       for (let i = 0; i < line.numPixels; ++i) {
+         const p = calcLinePoint(line, i);
          const offset = p[1] * destWidth + p[0];  // y * width + x
          dest[offset] = fragShaderFn(bindings);
        }
@@ -410,9 +413,9 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
     ]
    ```
 
-   Let's assume `mapLine` returns not only the points but a value from 0.0 to 1.0
-   that represents how far along the line we are. We can have `rasterizeLine`
-   use this to interpolate the extra value we just added.
+   We can easily compute a value from 0.0 to 1.0 that represents how far along
+   the line we are. We can use this to interpolate the extra value we just
+   added.
 
    ```js
    function rasterizeLines(dest, destWidth, inputs, fragShaderFn, bindings) {
@@ -423,10 +426,12 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
    +    const p1 = inputs[ndx + 1][0];
    +    const v0 = inputs[ndx    ].slice(1);  // everything but the first value
    +    const v1 = inputs[ndx + 1].slice(1);
-   -    for (const [p] of mapLine(p0, p1)) {
-   +    for (const [p, t] of mapLine(p0, p1)) {
-         const offset = p[1] * destWidth + p[0];  // y * width + x
+       const line = calcLine(p0, p1);
+       for (let i = 0; i < line.numPixels; ++i) {
+         const p = calcLinePoint(line, i);
+   +      const t = i / line.numPixels;
    +      const varyings = interpolateArrays(v0, v1, t);
+         const offset = p[1] * destWidth + p[0];  // y * width + x
    -      dest[offset] = fragShaderFn(bindings);
    +      dest[offset] = fragShaderFn(bindings, varyings);
        }
@@ -484,7 +489,7 @@ useful to play around with them to understand them.
 
 What happens in the JavaScript above is an analogy. The details
 of how varyings are actually interpolated, how lines are drawn, how
-buffers are accessed, how textures, uniforms, attributes are specified,
+buffers are accessed, how textures are sampled, uniforms, attributes specified,
 etc... are different in WebGPU, but the concepts are very similar so
 I hope this JavaScript analogy provided some help in getting a mental
 model of what's happening.
@@ -496,17 +501,19 @@ each iteration in any order. Instead of 0, 1, 2, 3, 4 you could
 process them 3, 1, 4, 0, 2 and you'd get the exact same result.
 The fact that they are independent means each iteration can be
 run in parallel by a different processor. Modern 2021 top end
-GPUs have ~3000 processors. That means up to 3000 things can be
+GPUs have ~10000 processors. That means up to 10000 things can be
 run in parallel. That is where the power of using the GPU comes from.
 By following these patterns the system can massively parallelize
 the work.
 
 The biggest limitations are:
 
-1. A shader function can only operate
-   on its inputs (attributes, buffers, textures, uniforms, varyings).
+1. A shader function can only reference
+   its inputs (attributes, buffers, textures, uniforms, varyings).
 
-2. A shader can not reference its destination, the thing it's
+2. A shader can not allocate memory.
+
+3. A shader can not reference its destination, the thing it's
    generating values for.
 
    When you think about it this makes sense. Imagine `fragShader`
