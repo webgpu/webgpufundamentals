@@ -29,7 +29,7 @@
     </div>
   </body>
   <script type="module">
-import {v3, m4} from 'https://twgljs.org/dist/4.x/twgl-full.module.js';
+import {vec3, mat4} from './resources/js/wgpu-matrix.module.js';
 
 function main() {
   const gl = document.querySelector('canvas').getContext('webgl');
@@ -167,20 +167,20 @@ function main() {
 
     gl.useProgram(program);
 
-    const projection = m4.perspective(30 * Math.PI / 180, gl.canvas.clientWidth / gl.canvas.clientHeight, 0.5, 10);
+    const projection = mat4.perspective(30 * Math.PI / 180, gl.canvas.clientWidth / gl.canvas.clientHeight, 0.5, 10);
     const eye = [1, 4, -6];
     const target = [0, 0, 0];
     const up = [0, 1, 0];
 
-    const camera = m4.lookAt(eye, target, up);
-    const view = m4.inverse(camera);
-    const viewProjection = m4.multiply(projection, view);
-    const world = m4.rotationY(time);
+    const camera = mat4.lookAt(eye, target, up);
+    const view = mat4.inverse(camera);
+    const viewProjection = mat4.multiply(projection, view);
+    const world = mat4.rotationY(time);
 
-    gl.uniform3fv(u_lightDirectionLoc, v3.normalize([1, 8, -10]));
+    gl.uniform3fv(u_lightDirectionLoc, vec3.normalize([1, 8, -10]));
     gl.uniform1i(u_diffuseLoc, 0);
-    gl.uniformMatrix4fv(u_worldInverseTransposeLoc, false, m4.transpose(m4.inverse(world)));
-    gl.uniformMatrix4fv(u_worldViewProjectionLoc, false, m4.multiply(viewProjection, world));
+    gl.uniformMatrix4fv(u_worldInverseTransposeLoc, false, mat4.transpose(mat4.inverse(world)));
+    gl.uniformMatrix4fv(u_worldViewProjectionLoc, false, mat4.multiply(viewProjection, world));
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, tex);
