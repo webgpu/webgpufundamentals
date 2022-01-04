@@ -12,11 +12,30 @@ function getPrefix(url) {
   return prefix;
 }
 
+function getRootPrefix(url) {
+  const u = new URL(url, window.location.href);
+  return u.origin;
+}
+
 const lessonHelperScriptRE = /<script type="module" src="[^"]+lessons-helper\.js"><\/script>/;
 
 function fixHTMLForCodeSite(html) {
   html = html.replace(lessonHelperScriptRE, '');
   return html;
+}
+
+function removeDotDotSlash(url) {
+  // assumes a well formed URL. In other words: 'https://..//foo.html" is a bad URL and this code would fail.
+  const parts = url.split('/');
+  for (;;) {
+    const dotDotNdx = parts.indexOf('..');
+    if (dotDotNdx < 0) {
+      break;
+    }
+    parts.splice(dotDotNdx - 1, 2);
+  }
+  const newUrl = parts.join('/');
+  return newUrl;
 }
 
 /**
@@ -48,15 +67,20 @@ function fixSourceLinks(url, source) {
   const quoteRE = /"(.*?)"/g;
   const workerRE = /(new\s+Worker\s*\(\s*)('|")(.*?)('|")/g;
   const importScriptsRE = /(importScripts\s*\(\s*)('|")(.*?)('|")/g;
+  const moduleRE = /(import.*?)('|")(.*?)('|")/g;
   const prefix = getPrefix(url);
+  const rootPrefix = getRootPrefix(url);
+
+  function addCorrectPrefix(url) {
+    return (url.startsWith('/'))
+       ? `${rootPrefix}${url}`
+       : removeDotDotSlash((prefix + url).replace(/\/.\//g, '/'));
+  }
 
   function addPrefix(url) {
-    if (url.startsWith('//')) {
-      // this issue here is we're passing this to a blob
-      // with just // it becomes blob://
-      return `${window.location.protocol}${url}`;
-    }
-    return url.indexOf('://') < 0 && url[0] !== '?' ? (prefix + url) : url;
+    return url.indexOf('://') < 0 && !url.startsWith('data:') && url[0] !== '?'
+        ? removeDotDotSlash(addCorrectPrefix(url))
+        : url;
   }
   function makeLinkFQedQuote(match, p1, url, p2) {
     return `${p1}${addPrefix(url)}${p2}`;
@@ -66,6 +90,9 @@ function fixSourceLinks(url, source) {
   }
   function makeTaggedFDedQuotes(match, start, q1, url, q2, suffix) {
     return start + q1 + addPrefix(url) + q2 + suffix;
+  }
+  function makeFDedQuotes(match, start, q1, url, q2) {
+    return start + q1 + addPrefix(url) + q2;
   }
   source = source.replace(srcRE, makeLinkFDedQuotes);
   source = source.replace(linkRE, makeLinkFDedQuotes);
@@ -84,6 +111,7 @@ function fixSourceLinks(url, source) {
   });
   source = source.replace(loadGLTFRE, makeLinkFQedQuote);
   source = source.replace(webgpufundamentalsUrlRE, makeTaggedFDedQuotes);
+  source = source.replace(moduleRE, makeFDedQuotes);
   return source;
 }
 
