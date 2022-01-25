@@ -92,6 +92,12 @@ inputs.position = position;
 likeWebGL(inputs);
 ```
 
+or like this
+
+```js
+likeWebGP({color, position, normal});
+```
+
 Notice because they are connected by names, the order of our parameters does not
 matter. Further, we can skip a parameter (`texcoords` in the example above)
 assuming the function can run without `texcoords`.
@@ -107,7 +113,8 @@ likeWebGPU(inputs);
 ```
 
 Here, we pass in our parameters in an array. Notice we have to know the
-locations (indices) for each input. Keeping the locations for the code inside
+locations (indices) for each input. We need to know that `position` is index 0,
+`normal` is at index 2 etc. Keeping the locations for the code inside
 (WGSL) and outside (JavaScript/WASM) in sync in WebGPU is entirely your
 responsibility.
 
@@ -115,7 +122,7 @@ responsibility.
 
 * The Canvas
 
-  WebGL manages the canvas itself for you. You choose antialias,
+  WebGL manages the canvas for you. You choose antialias,
   preserveDrawingBuffer, stencil, depth, and alpha when you create the WebGL context
   and after that WebGL manages the canvas itself. All you have to do is set
   `canvas.width` and `canvas.height`.
@@ -126,7 +133,7 @@ responsibility.
   need to delete the old ones and create new ones yourself.
 
   But, because of that, unlike WebGL, you can use one WebGPU device to
-  render to multiple canvases.
+  render to multiple canvases. 🎉
 
 * WebGPU does not generate mipmaps.
 
@@ -405,131 +412,6 @@ an instance of the API on that GPU.
 Probably the biggest difference here is that getting the API in WebGPU
 is asynchronous.
 
-### Compiling shaders
-
-<div class="webgpu_center compare">
-  <div>
-    <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
-function createShader(gl, type, source) {
-  const sh = gl.createShader(type);
-  gl.shaderSource(sh, source);
-  gl.compileShader(sh);
-  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-    throw new Error(gl.getShaderInfoLog(sh));
-  }
-  return sh;
-}
-
-function createProgram(gl, vSrc, fSrc) {
-  const vs = createShader(gl, gl.VERTEX_SHADER, vSrc);
-  const fs = createShader(gl, gl.FRAGMENT_SHADER, fSrc);
-  const prg = gl.createProgram();
-  gl.attachShader(prg, vs);
-  gl.attachShader(prg, fs);
-  gl.linkProgram(prg);
-  if (!gl.getProgramParameter(prg, gl.LINK_STATUS)) {
-    throw new Error(gl.getProgramInfoLog(prg));
-  }
-  return prg;
-}
-
-const program = createProgram(gl, vSrc, fSrc);
-{{/escapehtml}}</code></pre>
-  </div>
-  <div>
-    <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
-function showErrorsSimple(code, info) {
-  let hasError = false;
-  info.messages.forEach(m => {
-    console[m.type](`${m.lineNum}:${m.linePos}:${m.message}`);
-    hasError |= m.type === 'error';
-  });
-  return hasError;
-}
-
-async function createShaderModule(device, code) {
-  const shader = device.createShaderModule({code});
-  const info = await shader.compilationInfo();
-  if (info.messages.length) {
-    const hasError = showErrorsSimple(code, info);
-    if (hasError) {
-      throw new Error('can not compile shader');
-    }
-  }
-  return shader;
-}
-
-const shaderModule = await createShaderModule(device, shaderSrc);
-{{/escapehtml}}</code></pre>
-  </div>
-</div>
-
-A minor difference, unlike WebGL, we can compile multiple shaders at once.
-
-The code above is probably a little controversial as it makes shader compilation
-synchronous. I made it that way to duplicate the WebGL style. In WebGL, if your shader
-didn't compile it is up to you to check the `COMPILE_STATUS` with `gl.getShaderParameter` and then if
-it failed, pull out the error messages with a call to `gl.getShaderInfoLog`. If
-you didn't do this no errors are shown. You'd likely just get an error later
-when you tried to use the shader program.
-
-The WebGPU code above waits for the error message, which is slower than
-not waiting. (The same is true in WebGL). In WebGPU you can only get the
-errors asynchronously, so you have to choose. Do you want to `await` for the errors,
-do you want to get them *out of band*, or do you just want to ignore them.
-
-A big difference is that errors are structured in WebGPU. In WebGL it was
-just a string. In WebGPU it's an array of messages and those messages may or
-may not be errors. To show them you have to loop through them.
-
-### Preparing for uniforms
-
-<div class="webgpu_center compare">
-  <div>
-    <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
-const u_lightDirectionLoc = gl.getUniformLocation(program, 'u_lightDirection');
-const u_diffuseLoc = gl.getUniformLocation(program, 'u_diffuse');
-const u_worldInverseTransposeLoc = gl.getUniformLocation(program, 'u_worldInverseTranspose');
-const u_worldViewProjectionLoc = gl.getUniformLocation(program, 'u_worldViewProjection');
-{{/escapehtml}}</code></pre>
-  </div>
-  <div>
-    <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
-const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
-const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
-
-const vsUniformBuffer = device.createBuffer({
-  size: vUniformBufferSize,
-  usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-});
-const fsUniformBuffer = device.createBuffer({
-  size: fUniformBufferSize,
-  usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-});
-const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
-const worldViewProjection = vsUniformValues.subarray(0, 16);
-const worldInverseTranspose = vsUniformValues.subarray(16, 32);
-const fsUniformValues = new Float32Array(3);  // 1 vec3
-const lightDirection = fsUniformValues.subarray(0, 3);
-{{/escapehtml}}</code></pre>
-  </div>
-</div>
-
-In WebGL we look up the locations of the uniforms. In WebGPU we create buffers
-to hold the values of the uniforms. The code above then creates TypedArray views
-into larger CPU side TypedArrays that hold the values for the uniforms. Notice
-`vUniformBufferSize` and `fUniformBufferSize` are hand computed. Similarly, when
-creating views into the typed arrays the offsets and sizes are hand computed.
-It's entirely up to you to do those calculations. Unlike WebGL, WebGPU provides
-no API to query these offsets and sizes.
-
-Note, a similar process exists for WebGL2 using Uniform Blocks but if
-you've never used Uniform Blocks then this will be new.
-
 ### Creating Buffers
 
 <div class="webgpu_center compare">
@@ -646,12 +528,64 @@ Again, not all that different. One difference is there are usage flags in WebGPU
 that you need to set depending on what you plan to do with the texture. Another
 is that in WebGPU we need to create a sampler which is optional in WebGL
 
-### Setting up a Pipeline
+### Compiling shaders
+
+<div class="webgpu_center compare">
+  <div>
+    <div>WebGL</div>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
+function createShader(gl, type, source) {
+  const sh = gl.createShader(type);
+  gl.shaderSource(sh, source);
+  gl.compileShader(sh);
+  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+    throw new Error(gl.getShaderInfoLog(sh));
+  }
+  return sh;
+}
+
+const vs = createShader(gl, gl.VERTEX_SHADER, vSrc);
+const fs = createShader(gl, gl.FRAGMENT_SHADER, fSrc);
+{{/escapehtml}}</code></pre>
+  </div>
+  <div>
+    <div>WebGPU</div>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
+async function createShaderModule(device, code) {
+  device.pushErrorScope('validation');
+  const shader = device.createShaderModule({code});
+  const error = await device.popErrorScope();
+  if (error) {
+    throw new Error(error.message);
+  }
+  return shader;
+}
+
+const shaderModule = await createShaderModule(device, shaderSrc);
+{{/escapehtml}}</code></pre>
+  </div>
+</div>
+
+A minor difference, unlike WebGL, we can compile multiple shaders at once.
+
+The code above is probably a little controversial as it makes shader compilation
+synchronous. I made it that way to duplicate the WebGL style. In WebGL, if your
+shader didn't compile it is up to you to check the `COMPILE_STATUS` with
+`gl.getShaderParameter` and then if it failed, pull out the error messages with
+a call to `gl.getShaderInfoLog`. If you didn't do this no errors are shown.
+You'd likely just get an error later when you tried to use the shader program.
+
+The WebGPU code above waits for the error message, which is slower than
+not waiting. (The same is true in WebGL). In WebGPU you can only get the
+errors asynchronously, so you have to choose. Do you want to `await` for the errors,
+do you want to get them *out of band*, or do you just want to ignore them.
+
+### Linking a Program / Setting up a Pipeline
 
 A pipeline, or more specifically a "render pipeline", represents a pair of
 shaders used in a particular way. Several things that happen in WebGL are
 combined into one thing in WebGPU when creating a pipeline. For example, linking
-the shaders, setting up attributes, choosing the draw mode (points, line,
+the shaders, setting up attributes parameters, choosing the draw mode (points, line,
 triangles), setting up how the depth buffer is used. 
 
 Here's the code.
@@ -660,7 +594,18 @@ Here's the code.
   <div>
     <div>WebGL</div>
 <pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
-gl.linkProgram(prg);
+function createProgram(gl, vs, fs) {
+  const prg = gl.createProgram();
+  gl.attachShader(prg, vs);
+  gl.attachShader(prg, fs);
+  gl.linkProgram(prg);
+  if (!gl.getProgramParameter(prg, gl.LINK_STATUS)) {
+    throw new Error(gl.getProgramInfoLog(prg));
+  }
+  return prg;
+}
+
+const program = createProgram(gl, vs, fs);
 
 ...
 
@@ -685,6 +630,7 @@ gl.enable(gl.CULL_FACE);
   <div>
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
+device.pushErrorScope('validation');
 const pipeline = device.createRenderPipeline({
   vertex: {
     module: shaderModule,
@@ -735,6 +681,10 @@ const pipeline = device.createRenderPipeline({
       },
   }),
 });
+const error = await device.popErrorScope();
+if (error) {
+  throw new Error(error.message);
+}
 {{/escapehtml}}</code></pre>
   </div>
 </div>
@@ -745,7 +695,9 @@ Shader linking happens when you call `createRenderPipeline` and in fact
 `createRenderPipeline` is a slow call as your shaders might be adjusted
 internally depending on the settings. You can see, for `vertex` and `fragment`
 we specify a shader `module` and specify which function to call via `entryPoint`.
-WebGPU then needs to make sure those 2 functions are compatible with each other.
+WebGPU then needs to make sure those 2 functions are compatible with each other
+in the same way that linking to shaders into a program in WebGL checks to shaders
+are compatible with each other.
 
 In WebGL we call `gl.vertexAttribPointer` to attach the current `ARRAY_BUFFER`
 buffer to an attribute *and* to specify how to pull data out of that buffer. In
@@ -772,6 +724,66 @@ destination texture. I put that in here because by default, WebGL will use a
 multi sampled texture for the canvas. To emulate that requires adding a
 `multisample` property. `presentationFormat` and `canvasInfo.sampleCount` are
 something we'll cover below.
+
+Again, we're checking for an error in WebGPU. Like WebGL, if you know you're not
+going to get an error you don't need to check. Or, alternatively, you could check
+asynchronously 
+
+```js
+device.pushErrorScope('validation');
+const pipeline = device.createRenderPipeline({...});
+device.popErrorScope().then(error => {
+  if (error) {
+    throw new Error(error.message);
+  }
+});
+```
+
+### Preparing for uniforms
+
+<div class="webgpu_center compare">
+  <div>
+    <div>WebGL</div>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
+const u_lightDirectionLoc = gl.getUniformLocation(program, 'u_lightDirection');
+const u_diffuseLoc = gl.getUniformLocation(program, 'u_diffuse');
+const u_worldInverseTransposeLoc = gl.getUniformLocation(program, 'u_worldInverseTranspose');
+const u_worldViewProjectionLoc = gl.getUniformLocation(program, 'u_worldViewProjection');
+{{/escapehtml}}</code></pre>
+  </div>
+  <div>
+    <div>WebGPU</div>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
+const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
+const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
+
+const vsUniformBuffer = device.createBuffer({
+  size: vUniformBufferSize,
+  usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+});
+const fsUniformBuffer = device.createBuffer({
+  size: fUniformBufferSize,
+  usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+});
+const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
+const worldViewProjection = vsUniformValues.subarray(0, 16);
+const worldInverseTranspose = vsUniformValues.subarray(16, 32);
+const fsUniformValues = new Float32Array(3);  // 1 vec3
+const lightDirection = fsUniformValues.subarray(0, 3);
+{{/escapehtml}}</code></pre>
+  </div>
+</div>
+
+In WebGL we look up the locations of the uniforms. In WebGPU we create buffers
+to hold the values of the uniforms. The code above then creates TypedArray views
+into larger CPU side TypedArrays that hold the values for the uniforms. Notice
+`vUniformBufferSize` and `fUniformBufferSize` are hand computed. Similarly, when
+creating views into the typed arrays the offsets and sizes are hand computed.
+It's entirely up to you to do those calculations. Unlike WebGL, WebGPU provides
+no API to query these offsets and sizes.
+
+Note, a similar process exists for WebGL2 using Uniform Blocks but if
+you've never used Uniform Blocks then this will be new.
 
 ### Preparing to draw
 
@@ -807,7 +819,7 @@ const bindGroup = device.createBindGroup({
   </div>
 </div>
 
-Again, notice the `binding` and group must match what we specified in our shaders.
+Again, notice the `binding` and `group` must match what we specified in our shaders.
 
 In WebGPU we also create a render pass descriptor vs WebGL where these
 settings are set via stateful API calls or handled automatically.
@@ -1011,6 +1023,36 @@ Above, the property `sampleCount` is effectively the analog of `antialias`
 property of the WebGL context's creation attributes. `sampleCount: 4` would be
 the equivalent of `antialias: true` (the default), whereas `sampleCount: 1`
 would be the equivalent of `antialias: false` when creating a WebGL context.
+
+Another thing not shown above, WebGL would try not to run out of memory meaning
+if you asked for a 16000x16000 canvas, WebGL might give you back a 4096x4096 canvas.
+You could find out what you actually got back by looking at `gl.drawingBufferWidth` and
+`gl.drawingBufferHeight`.
+
+The reasons WebGL did this are (1) stretching a canvas across multiple monitors
+might make the size larger than the GPU can handle (2) the system might be low
+on memory and instead of just crashing, WebGL would return a smaller drawingbuffer.
+
+In WebGPU, checking those 2 situations is up to you. We're checking for situation (1)
+above. For situation (2) we'd have to check for out of memory ourselves and like
+everything else in WebGPU, doing so is asynchronous.
+
+```js
+device.pushErrorScope('out-of-memory');
+context.configure({...});
+if (sampleCount > 1) {
+  const newRenderTarget = device.createTexture({...});
+  ...
+}
+
+const newDepthTexture = device.createTexture({...});
+...
+device.popErrorScope().then(error => {
+  if (error) {
+    // we're out of memory, try a smaller size?
+  }
+});
+```
 
 ### Drawing
 

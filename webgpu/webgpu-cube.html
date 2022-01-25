@@ -114,57 +114,6 @@ async function main() {
   }
   `;
 
-  /*
-  function showErrorsSimple(code, info) {
-    let hasError = false;
-    info.messages.forEach(m => {
-      console[m.type](`${m.lineNum}:${m.linePos}:${m.message}`);
-      hasError |= m.type === 'error';
-    });
-    return hasError;
-  }
-  */
-
-  function showErrors(code, info) {
-    const msgs = [...info.messages].sort((a, b) => a.lineNum - b.lineNum);
-    const lines = code.split(/\n|\r|\f|\v/);
-    const output = [];
-    let hasError = false;
-    let lineOffset = 0;
-    let prevLineOffset = 0;
-    lines.forEach((line, ndx) => {
-      while (msgs.length && msgs[0].lineNum <= ndx) {
-        const m = msgs.shift();
-        hasError |= m.type === 'error';
-        const offset = m.offset - prevLineOffset;
-        output.push(`${''.padEnd(offset)}${''.padEnd(m.length, '^')}\n${m.type}:${m.lineNum}:${m.linePos}:${m.message}\n`);
-      }
-      output.push(line);
-      prevLineOffset = lineOffset;
-      lineOffset += line.length + 1;
-    });
-    for (const m of msgs) {
-      hasError |= m.type === 'error';
-      output.push(`${m.type}:${m.lineNum}:${m.linePos}:${m.message}`);
-    }
-    console[hasError ? 'error' : 'log'](output.join('\n'));
-    return hasError;
-  }
-
-  async function createShaderModule(device, code) {
-    const shader = device.createShaderModule({code});
-    const info = await shader.compilationInfo();
-    if (info.messages.length) {
-      const hasError = showErrors(code, info);
-      if (hasError) {
-        throw new Error('can not compile shader');
-      }
-    }
-    return shader;
-  }
-
-  const shaderModule = await createShaderModule(device, shaderSrc);
-
   const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
   const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
 
@@ -228,6 +177,19 @@ async function main() {
     minFilter: 'nearest',
   });
 
+  async function createShaderModule(device, code) {
+    device.pushErrorScope('validation');
+    const shader = device.createShaderModule({code});
+    const error = await device.popErrorScope();
+    if (error) {
+      throw new Error(error.message);
+    }
+    return shader;
+  }
+
+  const shaderModule = await createShaderModule(device, shaderSrc);
+
+  device.pushErrorScope('validation');
   const pipeline = device.createRenderPipeline({
     vertex: {
       module: shaderModule,
@@ -278,6 +240,10 @@ async function main() {
         },
     }),
   });
+  const error = await device.popErrorScope();
+  if (error) {
+    throw new Error('failed to create pipeline');
+  }
 
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),

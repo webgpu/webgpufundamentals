@@ -74,40 +74,6 @@ function main() {
   }
   `;
 
-  function createShader(gl, type, source) {
-    const sh = gl.createShader(type);
-    gl.shaderSource(sh, source);
-    gl.compileShader(sh);
-    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-      throw new Error(gl.getShaderInfoLog(sh));
-    }
-    return sh;
-  }
-
-  function createProgram(gl, vSrc, fSrc) {
-    const vs = createShader(gl, gl.VERTEX_SHADER, vSrc);
-    const fs = createShader(gl, gl.FRAGMENT_SHADER, fSrc);
-    const prg = gl.createProgram();
-    gl.attachShader(prg, vs);
-    gl.attachShader(prg, fs);
-    gl.linkProgram(prg);
-    if (!gl.getProgramParameter(prg, gl.LINK_STATUS)) {
-      throw new Error(gl.getProgramInfoLog(prg));
-    }
-    return prg;
-  }
-
-  const program = createProgram(gl, vSrc, fSrc);
-
-  const u_lightDirectionLoc = gl.getUniformLocation(program, 'u_lightDirection');
-  const u_diffuseLoc = gl.getUniformLocation(program, 'u_diffuse');
-  const u_worldInverseTransposeLoc = gl.getUniformLocation(program, 'u_worldInverseTranspose');
-  const u_worldViewProjectionLoc = gl.getUniformLocation(program, 'u_worldViewProjection');
-
-  const positionLoc = gl.getAttribLocation(program, 'a_position');
-  const normalLoc = gl.getAttribLocation(program, 'a_normal');
-  const texcoordLoc = gl.getAttribLocation(program, 'a_texcoord');
-
   function createBuffer(gl, data, type = gl.ARRAY_BUFFER) {
     const buf = gl.createBuffer();
     gl.bindBuffer(type, buf);
@@ -144,6 +110,41 @@ function main() {
       ]));
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+  function createShader(gl, type, source) {
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, source);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+      throw new Error(gl.getShaderInfoLog(sh));
+    }
+    return sh;
+  }
+
+  function createProgram(gl, vs, fs) {
+    const prg = gl.createProgram();
+    gl.attachShader(prg, vs);
+    gl.attachShader(prg, fs);
+    gl.linkProgram(prg);
+    if (!gl.getProgramParameter(prg, gl.LINK_STATUS)) {
+      throw new Error(gl.getProgramInfoLog(prg));
+    }
+    return prg;
+  }
+
+  const vs = createShader(gl, gl.VERTEX_SHADER, vSrc);
+  const fs = createShader(gl, gl.FRAGMENT_SHADER, fSrc);
+
+  const program = createProgram(gl, vs, fs);
+
+  const u_lightDirectionLoc = gl.getUniformLocation(program, 'u_lightDirection');
+  const u_diffuseLoc = gl.getUniformLocation(program, 'u_diffuse');
+  const u_worldInverseTransposeLoc = gl.getUniformLocation(program, 'u_worldInverseTranspose');
+  const u_worldViewProjectionLoc = gl.getUniformLocation(program, 'u_worldViewProjection');
+
+  const positionLoc = gl.getAttribLocation(program, 'a_position');
+  const normalLoc = gl.getAttribLocation(program, 'a_normal');
+  const texcoordLoc = gl.getAttribLocation(program, 'a_texcoord');
 
   function resizeCanvasToDisplaySize(canvas) {
     const width = canvas.clientWidth;
