@@ -114,23 +114,6 @@ async function main() {
   }
   `;
 
-  const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
-  const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
-
-  const vsUniformBuffer = device.createBuffer({
-    size: vUniformBufferSize,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
-  const fsUniformBuffer = device.createBuffer({
-    size: fUniformBufferSize,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
-  const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
-  const worldViewProjection = vsUniformValues.subarray(0, 16);
-  const worldInverseTranspose = vsUniformValues.subarray(16, 32);
-  const fsUniformValues = new Float32Array(3);  // 1 vec3
-  const lightDirection = fsUniformValues.subarray(0, 3);
-
   function createBuffer(device, data, usage) {
     const buffer = device.createBuffer({
       size: data.byteLength,
@@ -244,6 +227,23 @@ async function main() {
   if (error) {
     throw new Error('failed to create pipeline');
   }
+
+  const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
+  const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
+
+  const vsUniformBuffer = device.createBuffer({
+    size: vUniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const fsUniformBuffer = device.createBuffer({
+    size: fUniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
+  const worldViewProjection = vsUniformValues.subarray(0, 16);
+  const worldInverseTranspose = vsUniformValues.subarray(16, 32);
+  const fsUniformValues = new Float32Array(3);  // 1 vec3
+  const lightDirection = fsUniformValues.subarray(0, 3);
 
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
