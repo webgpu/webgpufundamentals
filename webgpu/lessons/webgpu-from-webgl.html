@@ -388,21 +388,21 @@ struct VSUniforms {
   worldViewProjection: mat4x4&lt;f32&gt;;
   worldInverseTranspose: mat4x4&lt;f32&gt;;
 };
-[[group(0), binding(0)]] var&lt;uniform&gt; vsUniforms: VSUniforms;
+@group(0) binding(0) var&lt;uniform&gt; vsUniforms: VSUniforms;
 
 struct MyVSInput {
-    [[location(0)]] position: vec4&lt;f32&gt;;
-    [[location(1)]] normal: vec3&lt;f32&gt;;
-    [[location(2)]] texcoord: vec2&lt;f32&gt;;
+    @location(0) position: vec4&lt;f32&gt;;
+    @location(1) normal: vec3&lt;f32&gt;;
+    @location(2) texcoord: vec2&lt;f32&gt;;
 };
 
 struct MyVSOutput {
-  [[builtin(position)]] position: vec4&lt;f32&gt;;
-  [[location(0)]] normal: vec3&lt;f32&gt;;
-  [[location(1)]] texcoord: vec2&lt;f32&gt;;
+  @builtin(position) position: vec4&lt;f32&gt;;
+  @location(0) normal: vec3&lt;f32&gt;;
+  @location(1) texcoord: vec2&lt;f32&gt;;
 };
 
-[[stage(vertex)]]
+@stage(vertex)
 fn myVSMain(v: MyVSInput) -&gt; MyVSOutput {
   var vsOut: MyVSOutput;
   vsOut.position &#x3D; vsUniforms.worldViewProjection * v.position;
@@ -415,12 +415,12 @@ struct FSUniforms {
   lightDirection: vec3&lt;f32&gt;;
 };
 
-[[group(0), binding(1)]] var&lt;uniform&gt; fsUniforms: FSUniforms;
-[[group(0), binding(2)]] var diffuseSampler: sampler;
-[[group(0), binding(3)]] var diffuseTexture: texture_2d&lt;f32&gt;;
+@group(0) binding(1) var&lt;uniform&gt; fsUniforms: FSUniforms;
+@group(0) binding(2) var diffuseSampler: sampler;
+@group(0) binding(3) var diffuseTexture: texture_2d&lt;f32&gt;;
 
-[[stage(fragment)]]
-fn myFSMain(v: MyVSOutput) -&gt; [[location(0)]] vec4&lt;f32&gt; {
+@stage(fragment)
+fn myFSMain(v: MyVSOutput) -&gt; @location(0) vec4&lt;f32&gt; {
   var diffuseColor &#x3D; textureSample(diffuseTexture, diffuseSampler, v.texcoord);
   var a_normal &#x3D; normalize(v.normal);
   var l &#x3D; dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
@@ -467,10 +467,10 @@ always specify the type. In other words in GLSL</p>
 </code></pre><p>or</p>
 <pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">var color = textureSample(someTexture, someSampler, someTextureCoord);
 </code></pre><p>In both cases <code class="notranslate" translate="no">color</code> is a <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>.</p>
-<p>On the other hand, the biggest difference is all the <code class="notranslate" translate="no">[[???]]</code> parts. Each
+<p>On the other hand, the biggest difference is all the <code class="notranslate" translate="no">@???</code> parts. Each
 one is declaring exactly where that particular piece of data is coming from. For
 example, notice that uniforms in the vertex shader and uniforms the fragment
-shader declare their <code class="notranslate" translate="no">[[group(?), binding(?)]]</code> and that it&#39;s up to you to make
+shader declare their <code class="notranslate" translate="no">@group(?) binding(?)</code> and that it&#39;s up to you to make
 sure they don&#39;t clash. Above the vertex shader uses <code class="notranslate" translate="no">binding(0)</code> and the
 fragment shader <code class="notranslate" translate="no">binding(1)</code>, <code class="notranslate" translate="no">binding(2)</code>, <code class="notranslate" translate="no">binding(3)</code> In the example above
 there are 2 uniform blocks. We could have used 1. I chose to use 2 to more
@@ -493,12 +493,12 @@ the fragment shader&#39;s input, but there is no requirement to use the same
 structure. All that is required is the locations match. For example this
 would work:</p>
 <pre class="prettyprint notranslate" translate="no"><code class="lang-wgsl">*struct MyFSInput {
-*  [[location(0)]] the_normal: vec3&lt;f32&gt;;
-*  [[location(1)]] the_texcoord: vec2&lt;f32&gt;;
+*  @location(0) the_normal: vec3&lt;f32&gt;;
+*  @location(1) the_texcoord: vec2&lt;f32&gt;;
 *};
 
-[[stage(fragment)]]
-*fn myFSMain(v: MyFSInput) -&gt; [[location(0)]] vec4&lt;f32&gt;
+@stage(fragment)
+*fn myFSMain(v: MyFSInput) -&gt; @location(0) vec4&lt;f32&gt;
 {
 *  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.the_texcoord);
 *  var a_normal = normalize(v.the_normal);
@@ -507,11 +507,11 @@ would work:</p>
 }
 </code></pre>
 <p>This would also work</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-wgsl">[[stage(fragment)]]
+<pre class="prettyprint notranslate" translate="no"><code class="lang-wgsl">@stage(fragment)
 fn myFSMain(
-*  [[location(1)]] uv: vec2&lt;f32&gt;,
-*  [[location(0)]] nrm: vec3&lt;f32&gt;,
-) -&gt; [[location(0)]] vec4&lt;f32&gt;
+*  @location(1) uv: vec2&lt;f32&gt;,
+*  @location(0) nrm: vec3&lt;f32&gt;,
+) -&gt; @location(0) vec4&lt;f32&gt;
 {
 *  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, uv);
 *  var a_normal = normalize(nrm);
@@ -521,9 +521,9 @@ fn myFSMain(
 </code></pre>
 <p>Again, what matters is the that the locations match, not the names.</p>
 <p>Another difference to notice is <code class="notranslate" translate="no">gl_Position</code> in GLSL has just a special
-location <code class="notranslate" translate="no">[[builtin(position)]]</code> for a user declared structure field in WGSL.
+location <code class="notranslate" translate="no">@builtin(position)</code> for a user declared structure field in WGSL.
 Similarly, the output of the fragment shader is given a location. In this case
-<code class="notranslate" translate="no">[[location(0)]]</code>. This is similar to using <code class="notranslate" translate="no">gl_FragData[0]</code> in WebGL1&#39;s
+<code class="notranslate" translate="no">@location(0)</code>. This is similar to using <code class="notranslate" translate="no">gl_FragData[0]</code> in WebGL1&#39;s
 <code class="notranslate" translate="no">WEBGL_draw_buffers</code> extension. Here again, if you wanted to output more than a
 single value, for example to multiple render targets, you&#39;d declare a structure
 and assign locations just like we did for the output of the vertex shader.</p>
@@ -1277,12 +1277,12 @@ multiple buffers or multiple sets of values in a single buffer.</p>
 <p>In other words, returning (-1, -1) from a vertex shader will reference the lower left
 corner in both WebGL and WebGPU. On the other hand, setting the viewport or scissor to
 <code class="notranslate" translate="no">0, 0, 1, 1</code> references the lower left corner in WebGL but the upper left corner in WebGPU.</p>
-<h3 id="wgsl-uses-builtin-for-glsl-s-gl_xxx-variables-">WGSL uses <code class="notranslate" translate="no">[[builtin(???)]]</code> for GLSL&#39;s <code class="notranslate" translate="no">gl_XXX</code> variables.</h3>
-<p><code class="notranslate" translate="no">gl_FragCoord</code> is <code class="notranslate" translate="no">[[builtin(position)]] myVarOrField: vec4&lt;f32&gt;</code> and unlike
+<h3 id="wgsl-uses-builtin-for-glsl-s-gl_xxx-variables-">WGSL uses <code class="notranslate" translate="no">@builtin(???)</code> for GLSL&#39;s <code class="notranslate" translate="no">gl_XXX</code> variables.</h3>
+<p><code class="notranslate" translate="no">gl_FragCoord</code> is <code class="notranslate" translate="no">@builtin(position) myVarOrField: vec4&lt;f32&gt;</code> and unlike
 WebGL it&#39;s in normalized coordinates (-1 to +1).</p>
-<p><code class="notranslate" translate="no">gl_VertexID</code> is <code class="notranslate" translate="no">[[builtin(vertex_index)]] myVarOrField: u32</code></p>
-<p><code class="notranslate" translate="no">gl_InstanceID</code> is <code class="notranslate" translate="no">[[builtin(instance_index)]] myVarOrField: u32</code></p>
-<p><code class="notranslate" translate="no">gl_Position</code> is <code class="notranslate" translate="no">[[builtin(position)]] vec4&lt;f32&gt;</code> which may be the return value
+<p><code class="notranslate" translate="no">gl_VertexID</code> is <code class="notranslate" translate="no">@builtin(vertex_index) myVarOrField: u32</code></p>
+<p><code class="notranslate" translate="no">gl_InstanceID</code> is <code class="notranslate" translate="no">@builtin(instance_index) myVarOrField: u32</code></p>
+<p><code class="notranslate" translate="no">gl_Position</code> is <code class="notranslate" translate="no">@builtin(position) vec4&lt;f32&gt;</code> which may be the return value
 of a vertex shader or a field in a structure returned by the vertex shader</p>
 <p>There is no <code class="notranslate" translate="no">gl_PointCoord</code> equivalent because points are only 1 pixel in WebGPU</p>
 <p>You can see other builtin variables <a href="https://www.w3.org/TR/WGSL/#builtin-variables">here</a>.</p>
