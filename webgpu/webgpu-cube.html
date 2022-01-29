@@ -74,21 +74,21 @@ async function main() {
     worldViewProjection: mat4x4<f32>;
     worldInverseTranspose: mat4x4<f32>;
   };
-  [[group(0), binding(0)]] var<uniform> vsUniforms: VSUniforms;
+  @group(0) @binding(0) var<uniform> vsUniforms: VSUniforms;
 
   struct MyVSInput {
-      [[location(0)]] position: vec4<f32>;
-      [[location(1)]] normal: vec3<f32>;
-      [[location(2)]] texcoord: vec2<f32>;
+      @location(0) position: vec4<f32>;
+      @location(1) normal: vec3<f32>;
+      @location(2) texcoord: vec2<f32>;
   };
 
   struct MyVSOutput {
-    [[builtin(position)]] position: vec4<f32>;
-    [[location(0)]] normal: vec3<f32>;
-    [[location(1)]] texcoord: vec2<f32>;
+    @builtin(position) position: vec4<f32>;
+    @location(0) normal: vec3<f32>;
+    @location(1) texcoord: vec2<f32>;
   };
 
-  [[stage(vertex)]]
+  @stage(vertex)
   fn myVSMain(v: MyVSInput) -> MyVSOutput {
     var vsOut: MyVSOutput;
     vsOut.position = vsUniforms.worldViewProjection * v.position;
@@ -101,12 +101,12 @@ async function main() {
     lightDirection: vec3<f32>;
   };
 
-  [[group(0), binding(1)]] var<uniform> fsUniforms: FSUniforms;
-  [[group(0), binding(2)]] var diffuseSampler: sampler;
-  [[group(0), binding(3)]] var diffuseTexture: texture_2d<f32>;
+  @group(0) @binding(1) var<uniform> fsUniforms: FSUniforms;
+  @group(0) @binding(2) var diffuseSampler: sampler;
+  @group(0) @binding(3) var diffuseTexture: texture_2d<f32>;
 
-  [[stage(fragment)]]
-  fn myFSMain(v: MyVSOutput) -> [[location(0)]] vec4<f32> {
+  @stage(fragment)
+  fn myFSMain(v: MyVSOutput) -> @location(0) vec4<f32> {
     var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.texcoord);
     var a_normal = normalize(v.normal);
     var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;

@@ -199,21 +199,21 @@ struct VSUniforms {
   worldViewProjection: mat4x4<f32>;
   worldInverseTranspose: mat4x4<f32>;
 };
-[[group(0), binding(0)]] var<uniform> vsUniforms: VSUniforms;
+@group(0) binding(0) var<uniform> vsUniforms: VSUniforms;
 
 struct MyVSInput {
-    [[location(0)]] position: vec4<f32>;
-    [[location(1)]] normal: vec3<f32>;
-    [[location(2)]] texcoord: vec2<f32>;
+    @location(0) position: vec4<f32>;
+    @location(1) normal: vec3<f32>;
+    @location(2) texcoord: vec2<f32>;
 };
 
 struct MyVSOutput {
-  [[builtin(position)]] position: vec4<f32>;
-  [[location(0)]] normal: vec3<f32>;
-  [[location(1)]] texcoord: vec2<f32>;
+  @builtin(position) position: vec4<f32>;
+  @location(0) normal: vec3<f32>;
+  @location(1) texcoord: vec2<f32>;
 };
 
-[[stage(vertex)]]
+@stage(vertex)
 fn myVSMain(v: MyVSInput) -> MyVSOutput {
   var vsOut: MyVSOutput;
   vsOut.position = vsUniforms.worldViewProjection * v.position;
@@ -226,12 +226,12 @@ struct FSUniforms {
   lightDirection: vec3<f32>;
 };
 
-[[group(0), binding(1)]] var<uniform> fsUniforms: FSUniforms;
-[[group(0), binding(2)]] var diffuseSampler: sampler;
-[[group(0), binding(3)]] var diffuseTexture: texture_2d<f32>;
+@group(0) binding(1) var<uniform> fsUniforms: FSUniforms;
+@group(0) binding(2) var diffuseSampler: sampler;
+@group(0) binding(3) var diffuseTexture: texture_2d<f32>;
 
-[[stage(fragment)]]
-fn myFSMain(v: MyVSOutput) -> [[location(0)]] vec4<f32> {
+@stage(fragment)
+fn myFSMain(v: MyVSOutput) -> @location(0) vec4<f32> {
   var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.texcoord);
   var a_normal = normalize(v.normal);
   var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
@@ -292,10 +292,10 @@ var color = textureSample(someTexture, someSampler, someTextureCoord);
 
 In both cases `color` is a `vec4<f32>`.
 
-On the other hand, the biggest difference is all the `[[???]]` parts. Each
+On the other hand, the biggest difference is all the `@???` parts. Each
 one is declaring exactly where that particular piece of data is coming from. For
 example, notice that uniforms in the vertex shader and uniforms the fragment
-shader declare their `[[group(?), binding(?)]]` and that it's up to you to make
+shader declare their `@group(?) binding(?)` and that it's up to you to make
 sure they don't clash. Above the vertex shader uses `binding(0)` and the
 fragment shader `binding(1)`, `binding(2)`, `binding(3)` In the example above
 there are 2 uniform blocks. We could have used 1. I chose to use 2 to more
@@ -324,12 +324,12 @@ would work:
 
 ```wgsl
 *struct MyFSInput {
-*  [[location(0)]] the_normal: vec3<f32>;
-*  [[location(1)]] the_texcoord: vec2<f32>;
+*  @location(0) the_normal: vec3<f32>;
+*  @location(1) the_texcoord: vec2<f32>;
 *};
 
-[[stage(fragment)]]
-*fn myFSMain(v: MyFSInput) -> [[location(0)]] vec4<f32>
+@stage(fragment)
+*fn myFSMain(v: MyFSInput) -> @location(0) vec4<f32>
 {
 *  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.the_texcoord);
 *  var a_normal = normalize(v.the_normal);
@@ -341,11 +341,11 @@ would work:
 This would also work
 
 ```wgsl
-[[stage(fragment)]]
+@stage(fragment)
 fn myFSMain(
-*  [[location(1)]] uv: vec2<f32>,
-*  [[location(0)]] nrm: vec3<f32>,
-) -> [[location(0)]] vec4<f32>
+*  @location(1) uv: vec2<f32>,
+*  @location(0) nrm: vec3<f32>,
+) -> @location(0) vec4<f32>
 {
 *  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, uv);
 *  var a_normal = normalize(nrm);
@@ -357,9 +357,9 @@ fn myFSMain(
 Again, what matters is the that the locations match, not the names.
 
 Another difference to notice is `gl_Position` in GLSL has just a special
-location `[[builtin(position)]]` for a user declared structure field in WGSL.
+location `@builtin(position)` for a user declared structure field in WGSL.
 Similarly, the output of the fragment shader is given a location. In this case
-`[[location(0)]]`. This is similar to using `gl_FragData[0]` in WebGL1's
+`@location(0)`. This is similar to using `gl_FragData[0]` in WebGL1's
 `WEBGL_draw_buffers` extension. Here again, if you wanted to output more than a
 single value, for example to multiple render targets, you'd declare a structure
 and assign locations just like we did for the output of the vertex shader.
@@ -1170,16 +1170,16 @@ In other words, returning (-1, -1) from a vertex shader will reference the lower
 corner in both WebGL and WebGPU. On the other hand, setting the viewport or scissor to
 `0, 0, 1, 1` references the lower left corner in WebGL but the upper left corner in WebGPU.
 
-### WGSL uses `[[builtin(???)]]` for GLSL's `gl_XXX` variables.
+### WGSL uses `@builtin(???)` for GLSL's `gl_XXX` variables.
 
-`gl_FragCoord` is `[[builtin(position)]] myVarOrField: vec4<f32>` and unlike
+`gl_FragCoord` is `@builtin(position) myVarOrField: vec4<f32>` and unlike
 WebGL it's in normalized coordinates (-1 to +1).
 
-`gl_VertexID` is `[[builtin(vertex_index)]] myVarOrField: u32`
+`gl_VertexID` is `@builtin(vertex_index) myVarOrField: u32`
 
-`gl_InstanceID` is `[[builtin(instance_index)]] myVarOrField: u32`
+`gl_InstanceID` is `@builtin(instance_index) myVarOrField: u32`
 
-`gl_Position` is `[[builtin(position)]] vec4<f32>` which may be the return value
+`gl_Position` is `@builtin(position) vec4<f32>` which may be the return value
 of a vertex shader or a field in a structure returned by the vertex shader
 
 There is no `gl_PointCoord` equivalent because points are only 1 pixel in WebGPU
