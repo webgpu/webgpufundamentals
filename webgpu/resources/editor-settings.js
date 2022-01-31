@@ -94,12 +94,16 @@ function fixSourceLinks(url, source) {
   function makeFDedQuotes(match, start, q1, url, q2) {
     return start + q1 + addPrefix(url) + q2;
   }
+  function makeLinkFDedQuotesModule(match, start, q1, url, q2) {
+    // modules require relative paths or fully qualified, otherwise they are module names
+    return `${start}${q1}${url.startsWith('.') ? addPrefix(url) : url}${q2}`;
+  }
   source = source.replace(srcRE, makeLinkFDedQuotes);
   source = source.replace(linkRE, makeLinkFDedQuotes);
   source = source.replace(imageSrcRE, makeLinkFDedQuotes);
   source = source.replace(urlPropRE, makeLinkFDedQuotes);
   source = source.replace(workerRE, makeLinkFDedQuotes);
-  source = source.replace(importScriptsRE, makeLinkFDedQuotes);
+  source = source.replace(importScriptsRE, makeLinkFDedQuotesModule);
   source = source.replace(loadImageRE, function(match, fn, q1, url, q2) {
     return fn + '(' + q1 + addPrefix(url) + q2;
   });
