@@ -840,15 +840,18 @@ const renderPassDescriptor = {
     {
       // view: undefined, // Assigned later
       // resolveTarget: undefined, // Assigned Later
-      loadValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
-      storeOp: 'store',
+      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
+      loadOp: 'clear',
+      storeOp: 'store',      
     },
   ],
   depthStencilAttachment: {
     // view: undefined,  // Assigned later
-    depthLoadValue: 1.0,
+    depthClearValue: 1,
+    depthLoadOp: 'clear',
     depthStoreOp: 'store',
-    stencilLoadValue: 0,
+    stencilClearValue: 0,
+    stencilLoadOp: 'clear',
     stencilStoreOp: 'store',
   },
 };
