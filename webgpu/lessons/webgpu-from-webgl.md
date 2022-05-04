@@ -196,21 +196,21 @@ void main() {
 <pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 const shaderSrc = `
 struct VSUniforms {
-  worldViewProjection: mat4x4<f32>;
-  worldInverseTranspose: mat4x4<f32>;
+  worldViewProjection: mat4x4<f32>,
+  worldInverseTranspose: mat4x4<f32>,
 };
 @group(0) binding(0) var<uniform> vsUniforms: VSUniforms;
 
 struct MyVSInput {
-    @location(0) position: vec4<f32>;
-    @location(1) normal: vec3<f32>;
-    @location(2) texcoord: vec2<f32>;
+    @location(0) position: vec4<f32>,
+    @location(1) normal: vec3<f32>,
+    @location(2) texcoord: vec2<f32>,
 };
 
 struct MyVSOutput {
-  @builtin(position) position: vec4<f32>;
-  @location(0) normal: vec3<f32>;
-  @location(1) texcoord: vec2<f32>;
+  @builtin(position) position: vec4<f32>,
+  @location(0) normal: vec3<f32>,
+  @location(1) texcoord: vec2<f32>,
 };
 
 @stage(vertex)
@@ -223,7 +223,7 @@ fn myVSMain(v: MyVSInput) -> MyVSOutput {
 }
 
 struct FSUniforms {
-  lightDirection: vec3<f32>;
+  lightDirection: vec3<f32>,
 };
 
 @group(0) binding(1) var<uniform> fsUniforms: FSUniforms;
@@ -324,8 +324,8 @@ would work:
 
 ```wgsl
 *struct MyFSInput {
-*  @location(0) the_normal: vec3<f32>;
-*  @location(1) the_texcoord: vec2<f32>;
+*  @location(0) the_normal: vec3<f32>,
+*  @location(1) the_texcoord: vec2<f32>,
 *};
 
 @stage(fragment)
@@ -842,7 +842,7 @@ const renderPassDescriptor = {
       // resolveTarget: undefined, // Assigned Later
       clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
       loadOp: 'clear',
-      storeOp: 'store',      
+      storeOp: 'store',
     },
   ],
   depthStencilAttachment: {
@@ -850,9 +850,6 @@ const renderPassDescriptor = {
     depthClearValue: 1,
     depthLoadOp: 'clear',
     depthStoreOp: 'store',
-    stencilClearValue: 0,
-    stencilLoadOp: 'clear',
-    stencilStoreOp: 'store',
   },
 };
 {{/escapehtml}}</code></pre>
@@ -1110,7 +1107,7 @@ passEncoder.setVertexBuffer(1, normalBuffer);
 passEncoder.setVertexBuffer(2, texcoordBuffer);
 passEncoder.setIndexBuffer(indicesBuffer, 'uint16');
 passEncoder.drawIndexed(indices.length);
-passEncoder.endPass();
+passEncoder.end();
 device.queue.submit([commandEncoder.finish()]);
 {{/escapehtml}}</code></pre>
   </div>
