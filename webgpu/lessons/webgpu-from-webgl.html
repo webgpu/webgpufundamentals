@@ -385,21 +385,21 @@ void main() {
 <pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
 const shaderSrc &#x3D; &#x60;
 struct VSUniforms {
-  worldViewProjection: mat4x4&lt;f32&gt;;
-  worldInverseTranspose: mat4x4&lt;f32&gt;;
+  worldViewProjection: mat4x4&lt;f32&gt;,
+  worldInverseTranspose: mat4x4&lt;f32&gt;,
 };
 @group(0) binding(0) var&lt;uniform&gt; vsUniforms: VSUniforms;
 
 struct MyVSInput {
-    @location(0) position: vec4&lt;f32&gt;;
-    @location(1) normal: vec3&lt;f32&gt;;
-    @location(2) texcoord: vec2&lt;f32&gt;;
+    @location(0) position: vec4&lt;f32&gt;,
+    @location(1) normal: vec3&lt;f32&gt;,
+    @location(2) texcoord: vec2&lt;f32&gt;,
 };
 
 struct MyVSOutput {
-  @builtin(position) position: vec4&lt;f32&gt;;
-  @location(0) normal: vec3&lt;f32&gt;;
-  @location(1) texcoord: vec2&lt;f32&gt;;
+  @builtin(position) position: vec4&lt;f32&gt;,
+  @location(0) normal: vec3&lt;f32&gt;,
+  @location(1) texcoord: vec2&lt;f32&gt;,
 };
 
 @stage(vertex)
@@ -412,7 +412,7 @@ fn myVSMain(v: MyVSInput) -&gt; MyVSOutput {
 }
 
 struct FSUniforms {
-  lightDirection: vec3&lt;f32&gt;;
+  lightDirection: vec3&lt;f32&gt;,
 };
 
 @group(0) binding(1) var&lt;uniform&gt; fsUniforms: FSUniforms;
@@ -493,8 +493,8 @@ the fragment shader&#39;s input, but there is no requirement to use the same
 structure. All that is required is the locations match. For example this
 would work:</p>
 <pre class="prettyprint notranslate" translate="no"><code class="lang-wgsl">*struct MyFSInput {
-*  @location(0) the_normal: vec3&lt;f32&gt;;
-*  @location(1) the_texcoord: vec2&lt;f32&gt;;
+*  @location(0) the_normal: vec3&lt;f32&gt;,
+*  @location(1) the_texcoord: vec2&lt;f32&gt;,
 *};
 
 @stage(fragment)
@@ -973,7 +973,7 @@ const renderPassDescriptor &#x3D; {
       // resolveTarget: undefined, // Assigned Later
       clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
       loadOp: &#x27;clear&#x27;,
-      storeOp: &#x27;store&#x27;,      
+      storeOp: &#x27;store&#x27;,
     },
   ],
   depthStencilAttachment: {
@@ -981,9 +981,6 @@ const renderPassDescriptor &#x3D; {
     depthClearValue: 1,
     depthLoadOp: &#x27;clear&#x27;,
     depthStoreOp: &#x27;store&#x27;,
-    stencilClearValue: 0,
-    stencilLoadOp: &#x27;clear&#x27;,
-    stencilStoreOp: &#x27;store&#x27;,
   },
 };
 </code></pre>
@@ -1226,7 +1223,7 @@ passEncoder.setVertexBuffer(1, normalBuffer);
 passEncoder.setVertexBuffer(2, texcoordBuffer);
 passEncoder.setIndexBuffer(indicesBuffer, &#x27;uint16&#x27;);
 passEncoder.drawIndexed(indices.length);
-passEncoder.endPass();
+passEncoder.end();
 device.queue.submit([commandEncoder.finish()]);
 </code></pre>
   </div>
