@@ -258,7 +258,7 @@ function setupWorkerSupport() {
       super(url);
       let listener;
       this.onmessage = function(e) {
-        if (!e || !e.data || !e.data.type === '___editor___') {
+        if (!e || !e.data || e.data.type !== '___editor___') {
           if (listener) {
             listener(e);
           }
