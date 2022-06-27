@@ -213,7 +213,7 @@ struct MyVSOutput {
   @location(1) texcoord: vec2<f32>,
 };
 
-@stage(vertex)
+@vertex
 fn myVSMain(v: MyVSInput) -> MyVSOutput {
   var vsOut: MyVSOutput;
   vsOut.position = vsUniforms.worldViewProjection * v.position;
@@ -230,7 +230,7 @@ struct FSUniforms {
 @group(0) binding(2) var diffuseSampler: sampler;
 @group(0) binding(3) var diffuseTexture: texture_2d<f32>;
 
-@stage(fragment)
+@fragment
 fn myFSMain(v: MyVSOutput) -> @location(0) vec4<f32> {
   var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.texcoord);
   var a_normal = normalize(v.normal);
@@ -632,6 +632,7 @@ gl.enable(gl.CULL_FACE);
 <pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 device.pushErrorScope('validation');
 const pipeline = device.createRenderPipeline({
+  layout: 'auto',
   vertex: {
     module: shaderModule,
     entryPoint: 'myVSMain',
@@ -717,7 +718,11 @@ what we used in the shader.
 In WebGPU we set up the primitive type, cull mode, and depth settings here.
 That means if we want to draw something with any of those settings different,
 for example if we want to draw some geometry with triangles and later with
-lines, we have to create multiple pipelines.
+lines, we have to create multiple pipelines. Similarly of the vertex
+layouts are different. For example if one model has positions and texture
+coordinates separated in separated buffers, another has them in the same buffer
+but offset, and yet another has them interleaved, all 3 would require
+their own pipeline.
 
 The last part `multisample` we need if we're drawing to a multi-sampled
 destination texture. I put that in here because by default, WebGL will use a
@@ -937,13 +942,14 @@ function resizeCanvasToDisplaySize(canvas) {
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('webgpu');
 
-const presentationFormat = context.getPreferredFormat(adapter);
-const presentationSize = [300, 150];  // default canvas size
+const presentationFormat = gpu.getPreferredFormat(adapter);
+context.configure({
+  device,
+  format: presentationFormat,
+});
 
 const canvasInfo = {
   canvas,
-  context,
-  presentationSize,
   presentationFormat,
   // these are filled out in resizeToDisplaySize
   renderTarget: undefined,
@@ -960,7 +966,6 @@ function resizeToDisplaySize(device, canvasInfo) {
     canvas,
     context,
     renderTarget,
-    presentationSize,
     presentationFormat,
     depthTexture,
     sampleCount,
@@ -969,8 +974,8 @@ function resizeToDisplaySize(device, canvasInfo) {
   const height = Math.min(device.limits.maxTextureDimension2D, canvas.clientHeight);
 
   const needResize = !canvasInfo.renderTarget ||
-                     width !== presentationSize[0] ||
-                     height !== presentationSize[1];
+                     width !== canvas.width ||
+                     height !== canvas.height;
   if (needResize) {
     if (renderTarget) {
       renderTarget.destroy();
@@ -979,18 +984,12 @@ function resizeToDisplaySize(device, canvasInfo) {
       depthTexture.destroy();
     }
 
-    presentationSize[0] = width;
-    presentationSize[1] = height;
-
-    context.configure({
-      device,
-      format: presentationFormat,
-      size: presentationSize,
-    });
+    canvas.width = width;
+    canvas.height = height;
 
     if (sampleCount > 1) {
       const newRenderTarget = device.createTexture({
-        size: presentationSize,
+        size: [canvas.width, canvas.height],
         format: presentationFormat,
         sampleCount,
         usage: GPUTextureUsage.RENDER_ATTACHMENT,
@@ -1000,7 +999,7 @@ function resizeToDisplaySize(device, canvasInfo) {
     }
 
     const newDepthTexture = device.createTexture({
-      size: presentationSize,
+      size: [canvas.width, canvas.height,
       format: 'depth24plus',
       sampleCount,
       usage: GPUTextureUsage.RENDER_ATTACHMENT,

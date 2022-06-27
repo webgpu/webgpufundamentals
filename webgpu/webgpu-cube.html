@@ -53,13 +53,15 @@ async function main() {
   const canvas = document.querySelector('canvas');
   const context = canvas.getContext('webgpu');
 
-  const presentationFormat = context.getPreferredFormat(adapter);
-  const presentationSize = [300, 150];  // default canvas size
+  const presentationFormat = gpu.getPreferredCanvasFormat(adapter);
+  context.configure({
+    device,
+    format: presentationFormat,
+  });
 
   const canvasInfo = {
     canvas,
     context,
-    presentationSize,
     presentationFormat,
     // these are filled out in resizeToDisplaySize
     renderTarget: undefined,
@@ -88,7 +90,7 @@ async function main() {
     @location(1) texcoord: vec2<f32>,
   };
 
-  @stage(vertex)
+  @vertex
   fn myVSMain(v: MyVSInput) -> MyVSOutput {
     var vsOut: MyVSOutput;
     vsOut.position = vsUniforms.worldViewProjection * v.position;
@@ -105,7 +107,7 @@ async function main() {
   @group(0) @binding(2) var diffuseSampler: sampler;
   @group(0) @binding(3) var diffuseTexture: texture_2d<f32>;
 
-  @stage(fragment)
+  @fragment
   fn myFSMain(v: MyVSOutput) -> @location(0) vec4<f32> {
     var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.texcoord);
     var a_normal = normalize(v.normal);
@@ -174,6 +176,7 @@ async function main() {
 
   device.pushErrorScope('validation');
   const pipeline = device.createRenderPipeline({
+    layout: 'auto',
     vertex: {
       module: shaderModule,
       entryPoint: 'myVSMain',
@@ -276,9 +279,7 @@ async function main() {
   function resizeToDisplaySize(device, canvasInfo) {
     const {
       canvas,
-      context,
       renderTarget,
-      presentationSize,
       presentationFormat,
       depthTexture,
       sampleCount,
@@ -287,8 +288,8 @@ async function main() {
     const height = Math.min(device.limits.maxTextureDimension2D, canvas.clientHeight);
 
     const needResize = !canvasInfo.renderTarget ||
-                       width !== presentationSize[0] ||
-                       height !== presentationSize[1];
+                       width !== canvas.width ||
+                       height !== canvas.height;
     if (needResize) {
       if (renderTarget) {
         renderTarget.destroy();
@@ -297,18 +298,12 @@ async function main() {
         depthTexture.destroy();
       }
 
-      presentationSize[0] = width;
-      presentationSize[1] = height;
-
-      context.configure({
-        device,
-        format: presentationFormat,
-        size: presentationSize,
-      });
+      canvas.width = width;
+      canvas.height = height;
 
       if (sampleCount > 1) {
         const newRenderTarget = device.createTexture({
-          size: presentationSize,
+          size: [canvas.width, canvas.height],
           format: presentationFormat,
           sampleCount,
           usage: GPUTextureUsage.RENDER_ATTACHMENT,
@@ -318,7 +313,7 @@ async function main() {
       }
 
       const newDepthTexture = device.createTexture({
-        size: presentationSize,
+        size: [canvas.width, canvas.height],
         format: 'depth24plus',
         sampleCount,
         usage: GPUTextureUsage.RENDER_ATTACHMENT,
