@@ -4,8 +4,8 @@
   "description": "Some webgpu Tutorials",
   "main": "index.js",
   "devDependencies": {
-    "@gfxfundamentals/lesson-builder": "git+https://github.com/gfxfundamentals/lesson-builder.git#v1.17.5",
-    "@gfxfundamentals/live-editor": "git+https://github.com/gfxfundamentals/live-editor.git#v1.2.0",
+    "@gfxfundamentals/lesson-builder": "git+https://github.com/gfxfundamentals/lesson-builder.git#v1.18.2",
+    "@gfxfundamentals/live-editor": "git+https://github.com/gfxfundamentals/live-editor.git#v1.2.2",
     "eslint": "^8.7.0",
     "eslint-plugin-google-camelcase": "0.0.2",
     "eslint-plugin-html": "^6.2.0",
