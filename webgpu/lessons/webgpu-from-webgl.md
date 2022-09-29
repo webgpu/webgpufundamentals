@@ -242,7 +242,7 @@ fn myFSMain(v: MyVSOutput) -> @location(0) vec4<f32> {
 
 Notice in many ways they aren't all that different. The core parts of each
 function are very similar. `vec4` in GLSL becomes `vec4<f32>` in WGSL, `mat4`
-becomes `mat4x4<f32>`. 
+becomes `mat4x4<f32>`.
 
 GLSL is C/C++ like. WGSL is Rust like. One difference is
 types go on the left in GLSL and on the right in WGSL.
