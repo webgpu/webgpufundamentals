@@ -225,7 +225,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </div>
       <p>This article is meant for people who already know WebGL and want to start
 using WebGPU.</p>
-<p>If you&#39;re coming from WebGL to WebGPU it&#39;s worth noting that many of the
+<p>If you’re coming from WebGL to WebGPU it’s worth noting that many of the
 concepts are the same. Both WebGL and WebGPU let you run small functions on the
 GPU. WebGL has vertex shaders and fragment shaders. WebGPU has the same plus
 compute shaders. WebGL uses
@@ -240,34 +240,34 @@ between values computed by the vertex shader when rasterizing via a fragment
 shader. Both APIs have textures and samplers, ways to provide 2D or 3D data and
 sample it (filter multiple pixels into a single value). Both APIs provide ways
 to render to textures. And, both have a bunch of settings for how pixels are
-blended, how the depth buffer and stencil buffers work, etc...</p>
+blended, how the depth buffer and stencil buffers work, etc…</p>
 <p>The biggest difference is WebGL is a stateful API and WebGPU is not. By that I
 mean in WebGL there is a bunch of global state. Which textures are currently
 bound, which buffers are currently bound, what the current program is, what the
 blending, depth, and stencil settings are. You set those states by calling
-various API functions like <code class="notranslate" translate="no">gl.bindBuffer</code>, <code class="notranslate" translate="no">gl.enable</code>, <code class="notranslate" translate="no">gl.blendFunc</code>, etc...,
+various API functions like <code class="notranslate" translate="no">gl.bindBuffer</code>, <code class="notranslate" translate="no">gl.enable</code>, <code class="notranslate" translate="no">gl.blendFunc</code>, etc…,
 and they stay what you set them <em>globally</em> until you change them to something
 else.</p>
 <p>By contrast, In WebGPU there is almost no <em>global</em> state. Instead, there are the
 concepts of a <em>pipeline</em> or <em>render pipeline</em> and a <em>render pass</em> which together effectively contain most of
 the state that was global in WebGL. Which textures, which attributes, which
-buffers, and all the various other settings. Any settings you don&#39;t set have
-default values. You can&#39;t modify a pipeline. Instead, you create them and after
+buffers, and all the various other settings. Any settings you don’t set have
+default values. You can’t modify a pipeline. Instead, you create them and after
 that they are immutable. If you want different settings you need to create
 another pipeline. <em>render passes</em> do have some state, but that state is local to
 the render pass.</p>
 <p>The second-biggest difference is that WebGPU <strong>is lower level</strong> than WebGL. In
 WebGL many things connect by names. For example, you declare a uniform in GLSL
-and you look up its location </p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">loc = gl.getUniformLocation(program, &#39;nameOfUniform&#39;);
+and you look up its location</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">loc = gl.getUniformLocation(program, 'nameOfUniform');
 </code></pre>
 <p>Another example is varyings, in a vertex shader you use
 <code class="notranslate" translate="no">varying vec2 v_texcoord</code> or <code class="notranslate" translate="no">out vec2 v_texcoord</code> and in the fragment shader
 you declare the corresponding varying naming it <code class="notranslate" translate="no">v_texcoord</code>. The good part of
-this is if you mistype the name you&#39;ll get an error.</p>
+this is if you mistype the name you’ll get an error.</p>
 <p>WebGPU, on the other hand, everything is entirely connected by index or byte
-offset. You don&#39;t create individual uniforms like WebGL, instead you declare
-uniform blocks (a structure that declares your uniforms). It&#39;s then up to you to
+offset. You don’t create individual uniforms like WebGL, instead you declare
+uniform blocks (a structure that declares your uniforms). It’s then up to you to
 make sure you manually organize the data you pass to the shader to match that
 structure. Note: WebGL2 has the same concept, known as Uniform Blocks, but
 WebGL2 also had the concept of uniforms by name. And, even though individual
@@ -275,7 +275,7 @@ fields in a WebGL2 Uniform Block needed to be set via byte offsets, (a) you
 could query WebGL2 for those offsets and (b) you could still look up the block
 locations themselves by name.</p>
 <p>In WebGPU on the other hand <strong>EVERYTHING</strong> is by byte offset or index (often
-called &#39;<em>location</em>&#39;) and there is no API to query them. That means it&#39;s entirely
+called ‘<em>location</em>’) and there is no API to query them. That means it’s entirely
 up to you to keep those locations in sync and to manually compute byte offsets.</p>
 <p>To give a JavaScript analogy:</p>
 <pre class="prettyprint notranslate" translate="no"><code class="lang-js">function likeWebGL(inputs) {
@@ -316,31 +316,34 @@ locations (indices) for each input. We need to know that <code class="notranslat
 responsibility.</p>
 <h3 id="other-notable-differences">Other notable differences</h3>
 <ul>
-<li><p>The Canvas</p>
+<li>
+<p>The Canvas</p>
 <p>WebGL manages the canvas for you. You choose antialias,
 preserveDrawingBuffer, stencil, depth, and alpha when you create the WebGL context
 and after that WebGL manages the canvas itself. All you have to do is set
 <code class="notranslate" translate="no">canvas.width</code> and <code class="notranslate" translate="no">canvas.height</code>.</p>
-<p>WebGPU you have to do all of that yourself. You create the canvas&#39;s
+<p>WebGPU you have to do all of that yourself. You create the canvas’s
 drawingbuffer (with or without alpha) and if you want a depth buffer you create
 that yourself too (with or without a stencil buffer). If you want to resize you
 need to delete the old ones and create new ones yourself.</p>
 <p>But, because of that, unlike WebGL, you can use one WebGPU device to
 render to multiple canvases. 🎉</p>
 </li>
-<li><p>WebGPU does not generate mipmaps.</p>
-<p>In WebGL you could create a texture&#39;s level 0 mip and then call
+<li>
+<p>WebGPU does not generate mipmaps.</p>
+<p>In WebGL you could create a texture’s level 0 mip and then call
 <code class="notranslate" translate="no">gl.generateMipmap</code> and WebGL would generate all the other mip levels. WebGPU
 has no such function. If you want mips for your textures you have to generate
 them yourself.</p>
 </li>
-<li><p>WebGPU requires samplers</p>
+<li>
+<p>WebGPU requires samplers</p>
 <p>In WebGL1, samplers did not exist or to put it another way, samplers were handled
 by WebGL internally. In WebGL2 using samplers was optional. In WebGPU
 samplers are required.</p>
 </li>
 </ul>
-<h2 id="let-s-compare-webgl-to-webgpu">Let&#39;s compare WebGL to WebGPU</h2>
+<h2 id="lets-compare-webgl-to-webgpu">Let’s compare WebGL to WebGPU</h2>
 <h3 id="shaders">Shaders</h3>
 <p>Here is a shader that draws textured, lit, triangles. One in GLSL and the other
 in WGSL.</p>
@@ -428,10 +431,9 @@ fn myFSMain(v: MyVSOutput) -&gt; @location(0) vec4&lt;f32&gt; {
 }
 &#x60;;
 </code></pre></div></div>
-
-<p>Notice in many ways they aren&#39;t all that different. The core parts of each
+<p>Notice in many ways they aren’t all that different. The core parts of each
 function are very similar. <code class="notranslate" translate="no">vec4</code> in GLSL becomes <code class="notranslate" translate="no">vec4&lt;f32&gt;</code> in WGSL, <code class="notranslate" translate="no">mat4</code>
-becomes <code class="notranslate" translate="no">mat4x4&lt;f32&gt;</code>. </p>
+becomes <code class="notranslate" translate="no">mat4x4&lt;f32&gt;</code>.</p>
 <p>GLSL is C/C++ like. WGSL is Rust like. One difference is
 types go on the left in GLSL and on the right in WGSL.</p>
 <div class="webgpu_center compare"><div><div>GLSL</div><pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
@@ -456,7 +458,6 @@ fn someFunction(p: vec3&lt;f32&gt;) &#x3D;&gt; mat4x4&lt;f32&gt; { ... }
 // declare a struct
 struct Foo {  field: vec4&lt;f32&gt;; }
 </code></pre></div></div>
-
 <p>WGSL has the concept that if you do not specify the type of variable it will
 be deduced from the type of the expression on the right whereas GLSL required you to
 always specify the type. In other words in GLSL</p>
@@ -464,32 +465,34 @@ always specify the type. In other words in GLSL</p>
 </code></pre>
 <p>Above you needed to declare <code class="notranslate" translate="no">color</code> as a <code class="notranslate" translate="no">vec4</code> but in WGSL you can do either of these</p>
 <pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">var color: vec4&lt;f32&gt; = textureSample(someTexture, someSampler, someTextureCoord);
-</code></pre><p>or</p>
+</code></pre>
+<p>or</p>
 <pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">var color = textureSample(someTexture, someSampler, someTextureCoord);
-</code></pre><p>In both cases <code class="notranslate" translate="no">color</code> is a <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>.</p>
+</code></pre>
+<p>In both cases <code class="notranslate" translate="no">color</code> is a <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>.</p>
 <p>On the other hand, the biggest difference is all the <code class="notranslate" translate="no">@???</code> parts. Each
 one is declaring exactly where that particular piece of data is coming from. For
 example, notice that uniforms in the vertex shader and uniforms the fragment
-shader declare their <code class="notranslate" translate="no">@group(?) binding(?)</code> and that it&#39;s up to you to make
-sure they don&#39;t clash. Above the vertex shader uses <code class="notranslate" translate="no">binding(0)</code> and the
+shader declare their <code class="notranslate" translate="no">@group(?) binding(?)</code> and that it’s up to you to make
+sure they don’t clash. Above the vertex shader uses <code class="notranslate" translate="no">binding(0)</code> and the
 fragment shader <code class="notranslate" translate="no">binding(1)</code>, <code class="notranslate" translate="no">binding(2)</code>, <code class="notranslate" translate="no">binding(3)</code> In the example above
 there are 2 uniform blocks. We could have used 1. I chose to use 2 to more
 separate the vertex shader from the fragment shader.</p>
 <p>Another difference between WebGL and WebGPU is that in WebGPU you can put
-multiple shaders in the same source. In WebGL a shader&#39;s entry point was always
+multiple shaders in the same source. In WebGL a shader’s entry point was always
 called <code class="notranslate" translate="no">main</code> but in WebGPU when you use a shader you specify which function to
 call.</p>
 <p>Notice in WebGPU the attributes are declared as parameters to the vertex shader
 function vs GLSL where they are declared as globals outside the function and
-unlike GLSL where if you don&#39;t choose a location the compiler will assign one,
+unlike GLSL where if you don’t choose a location the compiler will assign one,
 in WGSL we must supply the locations.</p>
 <p>For varyings, in GLSL they are also declared as global variables whereas in
 WGSL you declare a structure with locations for each field, you declare your
 vertex shader as returning that structure, and you return an instance of that
 structure in the function itself. In the fragment shader you declare your
 function as taking these inputs.</p>
-<p>The code above uses the same structure for both the vertex shader&#39;s output and
-the fragment shader&#39;s input, but there is no requirement to use the same
+<p>The code above uses the same structure for both the vertex shader’s output and
+the fragment shader’s input, but there is no requirement to use the same
 structure. All that is required is the locations match. For example this
 would work:</p>
 <pre class="prettyprint notranslate" translate="no"><code class="lang-wgsl">*struct MyFSInput {
@@ -523,9 +526,9 @@ fn myFSMain(
 <p>Another difference to notice is <code class="notranslate" translate="no">gl_Position</code> in GLSL has just a special
 location <code class="notranslate" translate="no">@builtin(position)</code> for a user declared structure field in WGSL.
 Similarly, the output of the fragment shader is given a location. In this case
-<code class="notranslate" translate="no">@location(0)</code>. This is similar to using <code class="notranslate" translate="no">gl_FragData[0]</code> in WebGL1&#39;s
+<code class="notranslate" translate="no">@location(0)</code>. This is similar to using <code class="notranslate" translate="no">gl_FragData[0]</code> in WebGL1’s
 <code class="notranslate" translate="no">WEBGL_draw_buffers</code> extension. Here again, if you wanted to output more than a
-single value, for example to multiple render targets, you&#39;d declare a structure
+single value, for example to multiple render targets, you’d declare a structure
 and assign locations just like we did for the output of the vertex shader.</p>
 <h3 id="getting-the-api">Getting the API</h3>
 <div class="webgpu_center compare">
@@ -567,7 +570,6 @@ main();
 </code></pre>
   </div>
 </div>
-
 <p>Here, <code class="notranslate" translate="no">adapter</code> represents the GPU itself whereas <code class="notranslate" translate="no">device</code> represents
 an instance of the API on that GPU.</p>
 <p>Probably the biggest difference here is that getting the API in WebGPU
@@ -622,9 +624,8 @@ const indicesBuffer &#x3D; createBuffer(device, indices, GPUBufferUsage.INDEX);
 </code></pre>
   </div>
 </div>
-
 <p>You can see, at a glance, these are not too different. You call different
-functions, but otherwise it&#39;s pretty similar.</p>
+functions, but otherwise it’s pretty similar.</p>
 <h3 id="creating-a-texture">Creating a Texture</h3>
 <div class="webgpu_center compare">
   <div>
@@ -680,7 +681,6 @@ const sampler &#x3D; device.createSampler({
 </code></pre>
   </div>
 </div>
-
 <p>Again, not all that different. One difference is there are usage flags in WebGPU
 that you need to set depending on what you plan to do with the texture. Another
 is that in WebGPU we need to create a sampler which is optional in WebGL</p>
@@ -720,25 +720,24 @@ const shaderModule &#x3D; await createShaderModule(device, shaderSrc);
 </code></pre>
   </div>
 </div>
-
 <p>A minor difference, unlike WebGL, we can compile multiple shaders at once.</p>
 <p>The code above is probably a little controversial as it makes shader compilation
 synchronous. I made it that way to duplicate the WebGL style. In WebGL, if your
-shader didn&#39;t compile it is up to you to check the <code class="notranslate" translate="no">COMPILE_STATUS</code> with
+shader didn’t compile it is up to you to check the <code class="notranslate" translate="no">COMPILE_STATUS</code> with
 <code class="notranslate" translate="no">gl.getShaderParameter</code> and then if it failed, pull out the error messages with
-a call to <code class="notranslate" translate="no">gl.getShaderInfoLog</code>. If you didn&#39;t do this no errors are shown.
-You&#39;d likely just get an error later when you tried to use the shader program.</p>
+a call to <code class="notranslate" translate="no">gl.getShaderInfoLog</code>. If you didn’t do this no errors are shown.
+You’d likely just get an error later when you tried to use the shader program.</p>
 <p>The WebGPU code above waits for the error message, which is slower than
 not waiting. (The same is true in WebGL). In WebGPU you can only get the
 errors asynchronously, so you have to choose. Do you want to <code class="notranslate" translate="no">await</code> for the errors,
 do you want to get them <em>out of band</em>, or do you just want to ignore them.</p>
-<h3 id="linking-a-program-setting-up-a-pipeline">Linking a Program / Setting up a Pipeline</h3>
-<p>A pipeline, or more specifically a &quot;render pipeline&quot;, represents a pair of
+<h3 id="linking-a-program--setting-up-a-pipeline">Linking a Program / Setting up a Pipeline</h3>
+<p>A pipeline, or more specifically a “render pipeline”, represents a pair of
 shaders used in a particular way. Several things that happen in WebGL are
 combined into one thing in WebGPU when creating a pipeline. For example, linking
 the shaders, setting up attributes parameters, choosing the draw mode (points, line,
-triangles), setting up how the depth buffer is used. </p>
-<p>Here&#39;s the code.</p>
+triangles), setting up how the depth buffer is used.</p>
+<p>Here’s the code.</p>
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
@@ -838,7 +837,6 @@ if (error) {
 </code></pre>
   </div>
 </div>
-
 <p>Parts to note:</p>
 <p>Shader linking happens when you call <code class="notranslate" translate="no">createRenderPipeline</code> and in fact
 <code class="notranslate" translate="no">createRenderPipeline</code> is a slow call as your shaders might be adjusted
@@ -853,9 +851,9 @@ WebGPU we only specify how to pull data out of buffers when creating the
 pipeline. We specify what buffers to use later.</p>
 <p>In the example above you can see <code class="notranslate" translate="no">buffers</code> is an array of objects.
 Those objects are called <code class="notranslate" translate="no">GPUVertexBufferLayout</code>. Within each one is
-an array of attributes. Here we&#39;re setting up to get our data from
+an array of attributes. Here we’re setting up to get our data from
 3 different buffers. If we interleaved the data into one buffer
-we&#39;d only need one <code class="notranslate" translate="no">GPUVertexBufferLayout</code> but its <code class="notranslate" translate="no">attribute</code> array
+we’d only need one <code class="notranslate" translate="no">GPUVertexBufferLayout</code> but its <code class="notranslate" translate="no">attribute</code> array
 would have 3 entries.</p>
 <p>Also note, here is a place where we have to match <code class="notranslate" translate="no">shaderLocation</code> to
 what we used in the shader.</p>
@@ -867,15 +865,15 @@ layouts are different. For example if one model has positions and texture
 coordinates separated in separated buffers, another has them in the same buffer
 but offset, and yet another has them interleaved, all 3 would require
 their own pipeline.</p>
-<p>The last part <code class="notranslate" translate="no">multisample</code> we need if we&#39;re drawing to a multi-sampled
+<p>The last part <code class="notranslate" translate="no">multisample</code> we need if we’re drawing to a multi-sampled
 destination texture. I put that in here because by default, WebGL will use a
 multi sampled texture for the canvas. To emulate that requires adding a
 <code class="notranslate" translate="no">multisample</code> property. <code class="notranslate" translate="no">presentationFormat</code> and <code class="notranslate" translate="no">canvasInfo.sampleCount</code> are
-something we&#39;ll cover below.</p>
-<p>Again, we&#39;re checking for an error in WebGPU. Like WebGL, if you know you&#39;re not
-going to get an error you don&#39;t need to check. Or, alternatively, you could check
-asynchronously </p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">device.pushErrorScope(&#39;validation&#39;);
+something we’ll cover below.</p>
+<p>Again, we’re checking for an error in WebGPU. Like WebGL, if you know you’re not
+going to get an error you don’t need to check. Or, alternatively, you could check
+asynchronously</p>
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">device.pushErrorScope('validation');
 const pipeline = device.createRenderPipeline({...});
 device.popErrorScope().then(error =&gt; {
   if (error) {
@@ -916,18 +914,17 @@ const lightDirection &#x3D; fsUniformValues.subarray(0, 3);
 </code></pre>
   </div>
 </div>
-
 <p>In WebGL we look up the locations of the uniforms. In WebGPU we create buffers
 to hold the values of the uniforms. The code above then creates TypedArray views
 into larger CPU side TypedArrays that hold the values for the uniforms. Notice
 <code class="notranslate" translate="no">vUniformBufferSize</code> and <code class="notranslate" translate="no">fUniformBufferSize</code> are hand computed. Similarly, when
 creating views into the typed arrays the offsets and sizes are hand computed.
-It&#39;s entirely up to you to do those calculations. Unlike WebGL, WebGPU provides
+It’s entirely up to you to do those calculations. Unlike WebGL, WebGPU provides
 no API to query these offsets and sizes.</p>
 <p>Note, a similar process exists for WebGL2 using Uniform Blocks but if
-you&#39;ve never used Uniform Blocks then this will be new.</p>
+you’ve never used Uniform Blocks then this will be new.</p>
 <h3 id="preparing-to-draw">Preparing to draw</h3>
-<p>In WebGL we&#39;d get straight to drawing at this point but in WebGPU we have some
+<p>In WebGL we’d get straight to drawing at this point but in WebGPU we have some
 work left.</p>
 <p>We need to create a bind group. This lets us specify what resources our
 shaders will use</p>
@@ -956,7 +953,6 @@ const bindGroup &#x3D; device.createBindGroup({
 </code></pre>
   </div>
 </div>
-
 <p>Again, notice the <code class="notranslate" translate="no">binding</code> and <code class="notranslate" translate="no">group</code> must match what we specified in our shaders.</p>
 <p>In WebGPU we also create a render pass descriptor vs WebGL where these
 settings are set via stateful API calls or handled automatically.</p>
@@ -991,7 +987,6 @@ const renderPassDescriptor &#x3D; {
 </code></pre>
   </div>
 </div>
-
 <p>Note that many of the settings in WebGPU are related to where we want to render.
 In WebGL, when rendering to the canvas, all of this was handled for us. When
 rendering to a framebuffer in WebGL these settings are the equivalent of calls to
@@ -1032,13 +1027,12 @@ device.queue.writeBuffer(
 </code></pre>
   </div>
 </div>
-
 <p>In the WebGL case we compute a value and pass it to <code class="notranslate" translate="no">gl.uniform???</code> with
 the appropriate location.</p>
 <p>In the WebGPU case we write values into our typed arrays and then copy the
 contents of those typed arrays to the corresponding GPU buffers.</p>
 <p>Note: In WebGL2, if we were using Uniform Blocks, this process is almost
-exactly the same except we&#39;d call <code class="notranslate" translate="no">gl.bufferSubData</code> to upload the typed array
+exactly the same except we’d call <code class="notranslate" translate="no">gl.bufferSubData</code> to upload the typed array
 contents.</p>
 <h3 id="resizing-the-drawing-buffer">Resizing the drawing buffer</h3>
 <p>As mentioned near the start of the article, this is one place that WebGL just
@@ -1136,13 +1130,12 @@ function resizeToDisplaySize(device, canvasInfo) {
 </code></pre>
   </div>
 </div>
-
-<p>You can see above there&#39;s a bunch of work to do. If we need to resize, 
+<p>You can see above there’s a bunch of work to do. If we need to resize,
 we need to manually destroy the old textures (color and depth) and create
-new ones. We also need to check that we don&#39;t go over the limits, something
+new ones. We also need to check that we don’t go over the limits, something
 WebGL handled for us, at least for the canvas.</p>
 <p>Above, the property <code class="notranslate" translate="no">sampleCount</code> is effectively the analog of <code class="notranslate" translate="no">antialias</code>
-property of the WebGL context&#39;s creation attributes. <code class="notranslate" translate="no">sampleCount: 4</code> would be
+property of the WebGL context’s creation attributes. <code class="notranslate" translate="no">sampleCount: 4</code> would be
 the equivalent of <code class="notranslate" translate="no">antialias: true</code> (the default), whereas <code class="notranslate" translate="no">sampleCount: 1</code>
 would be the equivalent of <code class="notranslate" translate="no">antialias: false</code> when creating a WebGL context.</p>
 <p>Another thing not shown above, WebGL would try not to run out of memory meaning
@@ -1152,10 +1145,10 @@ You could find out what you actually got back by looking at <code class="notrans
 <p>The reasons WebGL did this are (1) stretching a canvas across multiple monitors
 might make the size larger than the GPU can handle (2) the system might be low
 on memory and instead of just crashing, WebGL would return a smaller drawingbuffer.</p>
-<p>In WebGPU, checking those 2 situations is up to you. We&#39;re checking for situation (1)
-above. For situation (2) we&#39;d have to check for out of memory ourselves and like
+<p>In WebGPU, checking those 2 situations is up to you. We’re checking for situation (1)
+above. For situation (2) we’d have to check for out of memory ourselves and like
 everything else in WebGPU, doing so is asynchronous.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">device.pushErrorScope(&#39;out-of-memory&#39;);
+<pre class="prettyprint notranslate" translate="no"><code class="lang-js">device.pushErrorScope('out-of-memory');
 context.configure({...});
 if (sampleCount &gt; 1) {
   const newRenderTarget = device.createTexture({...});
@@ -1166,7 +1159,7 @@ const newDepthTexture = device.createTexture({...});
 ...
 device.popErrorScope().then(error =&gt; {
   if (error) {
-    // we&#39;re out of memory, try a smaller size?
+    // we're out of memory, try a smaller size?
   }
 });
 </code></pre>
@@ -1227,12 +1220,11 @@ device.queue.submit([commandEncoder.finish()]);
 </code></pre>
   </div>
 </div>
-
 <p>Note that I repeated the WebGL attribute setup code here. In WebGL, this can
 happen at init time or at render time. In WebGPU we set up how to pull data out
 of the buffers at init time, but we set the actual buffers to use at render time.</p>
 <p>In WebGPU, we need to update our render pass descriptor to use the textures
-we may have just updated in <code class="notranslate" translate="no">resizeToDisplaySize</code>. Then we need to create a 
+we may have just updated in <code class="notranslate" translate="no">resizeToDisplaySize</code>. Then we need to create a
 command encoder and begin a render pass.</p>
 <p>Inside the render pass we set the pipeline, which is kind of like the equivalent of
 <code class="notranslate" translate="no">gl.useProgram</code>. We then set our bind group which supplies our sampler, texture,
@@ -1241,10 +1233,10 @@ what we declared earlier. Finally, we set an index buffer and call <code class="
 which is the equivalent of calling <code class="notranslate" translate="no">gl.drawElements</code>.</p>
 <p>Back in WebGL we needed to call <code class="notranslate" translate="no">gl.viewport</code>. In WebGPU, the pass encoder defaults
 to a viewport that matches the size of the attachments so unless we want a
-viewport that doesn&#39;t match we don&#39;t have to set a viewport separately.</p>
+viewport that doesn’t match we don’t have to set a viewport separately.</p>
 <p>In WebGL we called <code class="notranslate" translate="no">gl.clear</code> to clear the canvas. Whereas in WebGPU we had previously
 set that up when creating our render pass descriptor.</p>
-<h2 id="working-examples-">Working Examples:</h2>
+<h2 id="working-examples">Working Examples:</h2>
 <p>WebGL</p>
 <p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgl-cube.html"></iframe></div>
@@ -1259,26 +1251,26 @@ set that up when creating our render pass descriptor.</p>
 </div>
 
 </p>
-<p>Another important thing to notice, We&#39;re issuing instructions to something
+<p>Another important thing to notice, We’re issuing instructions to something
 referred to as the <code class="notranslate" translate="no">device.queue</code>. Notice that when we uploaded the values
 for the uniforms we called <code class="notranslate" translate="no">device.queue.writeBuffer</code> and then when we created
 a command encoder and submitted it with <code class="notranslate" translate="no">device.queue.submit</code>. That should
-make it pretty clear that we can&#39;t update the buffers between draw calls within
-the same command encoder. If we want to draw multiple things we&#39;d need
+make it pretty clear that we can’t update the buffers between draw calls within
+the same command encoder. If we want to draw multiple things we’d need
 multiple buffers or multiple sets of values in a single buffer.</p>
-<p>Let&#39;s go over an example of drawing multiple things.</p>
+<p>Let’s go over an example of drawing multiple things.</p>
 <p>TBD</p>
 <h2 id="other-random-differences">Other random differences</h2>
 <h3 id="z-clip-space-is-0-to-1">Z clip space is 0 to 1</h3>
-<p>In WebGL Z clip space was -1 to +1. In WebGPU it&#39;s 0 to 1 (which btw makes way more sense!)</p>
+<p>In WebGL Z clip space was -1 to +1. In WebGPU it’s 0 to 1 (which btw makes way more sense!)</p>
 <h3 id="y-axis-is-down-in-framebuffer-viewport-coordinates">Y axis is down in framebuffer, viewport coordinates</h3>
 <p>This is the opposite of WebGL though in clip space Y axis is up (same as WebGL)</p>
 <p>In other words, returning (-1, -1) from a vertex shader will reference the lower left
 corner in both WebGL and WebGPU. On the other hand, setting the viewport or scissor to
 <code class="notranslate" translate="no">0, 0, 1, 1</code> references the lower left corner in WebGL but the upper left corner in WebGPU.</p>
-<h3 id="wgsl-uses-builtin-for-glsl-s-gl_xxx-variables-">WGSL uses <code class="notranslate" translate="no">@builtin(???)</code> for GLSL&#39;s <code class="notranslate" translate="no">gl_XXX</code> variables.</h3>
+<h3 id="wgsl-uses-builtin-for-glsls-gl_xxx-variables">WGSL uses <code class="notranslate" translate="no">@builtin(???)</code> for GLSL’s <code class="notranslate" translate="no">gl_XXX</code> variables.</h3>
 <p><code class="notranslate" translate="no">gl_FragCoord</code> is <code class="notranslate" translate="no">@builtin(position) myVarOrField: vec4&lt;f32&gt;</code> and unlike
-WebGL it&#39;s in normalized coordinates (-1 to +1).</p>
+WebGL it’s in normalized coordinates (-1 to +1).</p>
 <p><code class="notranslate" translate="no">gl_VertexID</code> is <code class="notranslate" translate="no">@builtin(vertex_index) myVarOrField: u32</code></p>
 <p><code class="notranslate" translate="no">gl_InstanceID</code> is <code class="notranslate" translate="no">@builtin(instance_index) myVarOrField: u32</code></p>
 <p><code class="notranslate" translate="no">gl_Position</code> is <code class="notranslate" translate="no">@builtin(position) vec4&lt;f32&gt;</code> which may be the return value
@@ -1289,8 +1281,8 @@ of a vertex shader or a field in a structure returned by the vertex shader</p>
 <p>According to the spec, WebGL2 could support lines larger than 1 pixel, but in
 actual practice no implementations did. WebGL2 did generally support points larger
 than 1 pixel but, (a) lots of GPUs only supported a max size of 64 pixels and (b)
-different GPU would clip or not clip based on th center of the point. So, it&#39;s arguably
-a good thing WebGPU doesn&#39;t support points. This forces you to implement a portable
+different GPU would clip or not clip based on th center of the point. So, it’s arguably
+a good thing WebGPU doesn’t support points. This forces you to implement a portable
 solution.</p>
 <hr>
 <p>If you were already familiar with WebGL then I hope this article was useful.</p>
