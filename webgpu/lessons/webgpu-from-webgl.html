@@ -1010,20 +1010,8 @@ m4.multiply(viewProjection, world, worldViewProjection);
 
 v3.normalize([1, 8, -10], lightDirection);
 
-device.queue.writeBuffer(
-  vsUniformBuffer,
-  0,
-  vsUniformValues.buffer,
-  vsUniformValues.byteOffset,
-  vsUniformValues.byteLength,
-);
-device.queue.writeBuffer(
-  fsUniformBuffer,
-  0,
-  fsUniformValues.buffer,
-  fsUniformValues.byteOffset,
-  fsUniformValues.byteLength,
-);
+device.queue.writeBuffer(vsUniformBuffer, 0, vsUniformValues);
+device.queue.writeBuffer(fsUniformBuffer, 0, fsUniformValues);
 </code></pre>
   </div>
 </div>
