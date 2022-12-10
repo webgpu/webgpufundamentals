@@ -162,19 +162,8 @@ async function main() {
     minFilter: 'nearest',
   });
 
-  async function createShaderModule(device, code) {
-    device.pushErrorScope('validation');
-    const shader = device.createShaderModule({code});
-    const error = await device.popErrorScope();
-    if (error) {
-      throw new Error(error.message);
-    }
-    return shader;
-  }
+  const shaderModule = device.createShaderModule({code: shaderSrc});
 
-  const shaderModule = await createShaderModule(device, shaderSrc);
-
-  device.pushErrorScope('validation');
   const pipeline = device.createRenderPipeline({
     layout: 'auto',
     vertex: {
@@ -226,10 +215,6 @@ async function main() {
         },
     }),
   });
-  const error = await device.popErrorScope();
-  if (error) {
-    throw new Error('failed to create pipeline');
-  }
 
   const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
   const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
