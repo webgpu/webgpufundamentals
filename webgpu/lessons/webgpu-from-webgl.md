@@ -551,34 +551,22 @@ const fs = createShader(gl, gl.FRAGMENT_SHADER, fSrc);
   <div>
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
-async function createShaderModule(device, code) {
-  device.pushErrorScope('validation');
-  const shader = device.createShaderModule({code});
-  const error = await device.popErrorScope();
-  if (error) {
-    throw new Error(error.message);
-  }
-  return shader;
-}
-
-const shaderModule = await createShaderModule(device, shaderSrc);
+const shaderModule = device.createShaderModule({code: shaderSrc});
 {{/escapehtml}}</code></pre>
   </div>
 </div>
 
 A minor difference, unlike WebGL, we can compile multiple shaders at once.
 
-The code above is probably a little controversial as it makes shader compilation
-synchronous. I made it that way to duplicate the WebGL style. In WebGL, if your
-shader didn't compile it is up to you to check the `COMPILE_STATUS` with
-`gl.getShaderParameter` and then if it failed, pull out the error messages with
-a call to `gl.getShaderInfoLog`. If you didn't do this no errors are shown.
-You'd likely just get an error later when you tried to use the shader program.
+In WebGL, if your shader didn't compile it is up to you to check the
+`COMPILE_STATUS` with `gl.getShaderParameter` and then if it failed, pull out
+the error messages with a call to `gl.getShaderInfoLog`. If you didn't do this
+no errors are shown. You'd likely just get an error later when you tried to use
+the shader program.
 
-The WebGPU code above waits for the error message, which is slower than
-not waiting. (The same is true in WebGL). In WebGPU you can only get the
-errors asynchronously, so you have to choose. Do you want to `await` for the errors,
-do you want to get them *out of band*, or do you just want to ignore them.
+In WebGPU, most implementations will print an error to the JavaScript console.
+Of course you can still check for errors yourself but it's really nice that
+if you do nothing you'll still get some useful info.
 
 ### Linking a Program / Setting up a Pipeline
 
@@ -630,7 +618,6 @@ gl.enable(gl.CULL_FACE);
   <div>
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
-device.pushErrorScope('validation');
 const pipeline = device.createRenderPipeline({
   layout: 'auto',
   vertex: {
@@ -682,10 +669,6 @@ const pipeline = device.createRenderPipeline({
       },
   }),
 });
-const error = await device.popErrorScope();
-if (error) {
-  throw new Error(error.message);
-}
 {{/escapehtml}}</code></pre>
   </div>
 </div>
@@ -697,7 +680,7 @@ Shader linking happens when you call `createRenderPipeline` and in fact
 internally depending on the settings. You can see, for `vertex` and `fragment`
 we specify a shader `module` and specify which function to call via `entryPoint`.
 WebGPU then needs to make sure those 2 functions are compatible with each other
-in the same way that linking to shaders into a program in WebGL checks to shaders
+in the same way that linking two shaders into a program in WebGL checks the shaders
 are compatible with each other.
 
 In WebGL we call `gl.vertexAttribPointer` to attach the current `ARRAY_BUFFER`
@@ -718,31 +701,17 @@ what we used in the shader.
 In WebGPU we set up the primitive type, cull mode, and depth settings here.
 That means if we want to draw something with any of those settings different,
 for example if we want to draw some geometry with triangles and later with
-lines, we have to create multiple pipelines. Similarly of the vertex
+lines, we have to create multiple pipelines. Similarly if the vertex
 layouts are different. For example if one model has positions and texture
 coordinates separated in separated buffers, another has them in the same buffer
 but offset, and yet another has them interleaved, all 3 would require
 their own pipeline.
 
-The last part `multisample` we need if we're drawing to a multi-sampled
+The last part, `multisample`, we need if we're drawing to a multi-sampled
 destination texture. I put that in here because by default, WebGL will use a
 multi sampled texture for the canvas. To emulate that requires adding a
 `multisample` property. `presentationFormat` and `canvasInfo.sampleCount` are
 something we'll cover below.
-
-Again, we're checking for an error in WebGPU. Like WebGL, if you know you're not
-going to get an error you don't need to check. Or, alternatively, you could check
-asynchronously 
-
-```js
-device.pushErrorScope('validation');
-const pipeline = device.createRenderPipeline({...});
-device.popErrorScope().then(error => {
-  if (error) {
-    throw new Error(error.message);
-  }
-});
-```
 
 ### Preparing for uniforms
 
