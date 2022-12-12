@@ -6,6 +6,8 @@
   "devDependencies": {
     "@gfxfundamentals/lesson-builder": "github:gfxfundamentals/lesson-builder#v2.0.0",
     "@gfxfundamentals/live-editor": "github:gfxfundamentals/live-editor#v1.2.2",
+    "@typescript-eslint/typescript-estree": "^5.46.0",
+    "@webgpu/types": "^0.1.23",
     "eslint": "^8.7.0",
     "eslint-plugin-google-camelcase": "0.0.2",
     "eslint-plugin-html": "^6.2.0",
