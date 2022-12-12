@@ -1,0 +1,100 @@
+<html>
+  <head>
+    <title>WebGPU Simple Triangle</title>
+    <style>
+      @import url(resources/webgpu-lesson.css);
+    </style>
+  </head>
+  <body>
+    <canvas></canvas>
+  </body>
+  <script type="module">
+async function main() {
+  const gpu = navigator.gpu;
+  if (!gpu) {
+    fail('this browser does not support webgpu');
+    return;
+  }
+
+  const adapter = await gpu.requestAdapter();
+  if (!adapter) {
+    fail('this browser appears to support WebGPU but it\'s disabled');
+    return;
+  }
+
+  const device = await adapter.requestDevice();
+
+  const context = document.querySelector('canvas').getContext('webgpu');
+  const presentationFormat = gpu.getPreferredCanvasFormat();
+  context.configure({
+    device,
+    format: presentationFormat,
+    alphaMode: 'opaque',
+  });
+
+  const module = device.createShaderModule({
+    code: `
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -> @builtin(position) vec4<f32> {
+        var pos = array<vec2<f32>, 3>(
+          vec2(0.0, 0.5),
+          vec2(-0.5, -0.5),
+          vec2(0.5, -0.5)
+        );
+
+        return vec4(pos[vertexIndex], 0.0, 1.0);
+      }
+
+      @fragment fn fs() -> @location(0) vec4<f32> {
+        return vec4(1.0, 0.0, 0.0, 1.0);
+      }
+    `,
+  });
+
+  const pipeline = device.createRenderPipeline({
+    layout: 'auto',
+    vertex: {
+      module,
+      entryPoint: 'vs',
+    },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+
+  function render() {
+    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass({
+      colorAttachments: [
+        {
+          view: context.getCurrentTexture().createView(),
+          clearValue: [1, 1, 0, 1],
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
+    });
+    pass.setPipeline(pipeline);
+
+    const iterationCount = 3;
+    pass.draw(iterationCount);
+
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+  }
+
+  render();
+}
+
+function fail(msg) {
+  alert(msg);
+}
+
+main();
+  </script>
+</html>
