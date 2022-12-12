@@ -2,31 +2,263 @@ Title: WebGPU Fundamentals
 Description: The fundamentals of WebGPU
 TOC: Fundamentals
 
-Warning: This article is going to be long! To get WebGPU to do something
-requires many steps, each step needs to be explained, and until we
-cover all the steps we won't get any results. Let's go!
+WebGPU is an API that lets you do 2 basic things.
 
-WebGPU is an API that lets you run short functions on the GPU. There are
-3 types of functions you can run
+1. Draw triangles (and points and lines)
+
+2. Run computations on the GPU
+
+That is it!
+
+Everything about WebGPU after that is up to you. It's like learning a computer
+language like JavaScript or C++. First you learn the basics, then it's up to
+you to creatively use those basic to solve your problem.
+
+This article we start with 1., Drawing Triangles.
+[A different article will cover running computations on the GPU](webgpu-compute-shaders.html).
+
+To draw triangles with WebGPU we have to supply 2 "shaders". Shaders
+are functions that run on the GPU. These 2 shaders are
 
 1. Vertex Shaders
 
    Vertex shaders are functions that compute vertex positions for drawing
-   points, lines, and mostly triangles.
+   triangles.
 
 2. Fragment Shaders
 
    Fragment shaders are functions that compute the color (or other data)
-   for each pixel to be drawn/rasterized when drawing points, lines,
-   and triangles.
+   for each pixel to be drawn/rasterized when drawing triangles.
 
-3. Compute Shaders
+Let's start with a very small WebGPU program to draw a triangle and build it up.
 
-   Compute shaders are functions that write computed data to buffers.
-   (yea, I know that's pretty ambiguous).
+We need a canvas to display our triangle
 
-This article will try to cover the basics of vertex and fragment shaders.
-[Another article will cover compute shaders](webgpu-compute-shaders.html).
+```html
+<canvas></canvas>
+```
+
+WebGPU is an asynchronous API so it's easiest to use in an async function.
+We start off by checking for `navigator.gpu`, requesting an adaptor, and requesting
+a device.
+
+```js
+async function main() {
+  const gpu = navigator.gpu;
+  if (!gpu) {
+    fail('this browser does not support webgpu');
+    return;
+  }
+
+  const adapter = await navigator.requestAdapter();
+  if (!adapter) {
+    fail('this browser appears to support WebGPU but it\'s disabled');
+    return;
+  }
+
+  const device = await adapter.requestDevice();
+}
+main();
+```
+
+The code above is fairly self explanatory. First we check if `navigator.gpu` exists.
+If not then the browser doesn't support WebGPU. Next we request an adaptor. And adaptor
+represents the GPU itself. If the WebGPU api exists but requesting an adaptor fails
+then WebGPU is probably disabled. Either the browser disabled it because of a bug or
+possibly the user disabled it.
+
+Finally we request a device. Requesting a device can fail as well but that seems rare.
+
+Next up we look up the canvas and create a `webgpu` context for it. This will let
+us get a texture to render to that will be used to draw the canvas.
+
+```js
+  const context = document.querySelect('canvas').getContext('webgpu');
+  const presentationFormat = gpu.getPreferredCanvasFormat();
+  context.configure({
+    device,
+    format: presentationFormat,
+    alphaMode: 'opaque',
+  });
+```
+
+Again the code above is pretty self explanatory. We get the context. We ask the
+system what the preferred canvas format is. This will be something either
+`"rgba8unorm"` or `"bgra8unorm"`. It's not really that important what it is but
+query it instead of specifying it will make things fastest for the user's system.
+
+We pass that into the webgpu canvas context by calling `configure`. We pass in the
+`device`, the `format`, and an `alphaMode` which can be either `"opaque"` or
+`"premultiplied"`.
+
+Next we create a shader module. A shader module contains one or more shader functions.
+In our case we'll make 1 vertex shader function and 1 fragment shader function.
+
+```js
+  const module = device.createShaderModule({
+    code: `
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -> @builtin(position) vec4<f32> {
+        var pos = array<vec2<f32>, 3>(
+          vec2<f32>( 0.0,  0.5),  // top center
+          vec2<f32>(-0.5, -0.5),  // bottom left
+          vec2<f32>( 0.5, -0.5)   // bottom right
+        );
+
+        return vec4<f32>(pos[vertexIndex], 0.0, 1.0);
+      }
+
+      @fragment fn fs() -> @location(0) vec4<f32> {
+        return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+      }
+    `,
+  });
+```
+
+Shaders are written in a language called WebGPU Shading Language (WGSL) which is
+often pronounced wig-sil. WGSL is a semi-rust like strongly typed language
+which we'll try to go over more details in [another article](webgpu-wgsl-basics.html).
+
+For now, above we see a function called `vs` is declared with `@vertex`. This
+designates it as a vertex shader function.
+
+```wgsl
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -> @builtin(position) vec4<f32> {
+         ...
+```
+
+ It excepts one parameter we named `vertexIndex`.
+`vertexIndex` is a `u32` which means a *32bit unsigned integer*. It gets its value
+from the builtin called `vertex_index`. `vertex_index` is the iteration number just like
+`index` in JavaScript's `Array.map(function(value, index) { ... })`. If we tell the GPU to
+execute this function 10 times, the first time `vertex_index` would be `0`, the 2nd time
+it would be `1`, the 3rd time it would be `2`, etc...
+
+Our `vs` function is declared as returning a `vec4<f32>` which is vector of 4
+32bit floating point values. This returned value will be assigned to the
+`position` builtin. Every 3 times the vertex shader is executed a triangle will
+be drawn connecting the 3 `position` values returned.
+
+Positions in WebGPU need to be returned in *clip space* where X goes from -1.0
+on the left to +1.0 on the right, Y goes from -1.0 at the bottom to +1.0 at the
+top. This is true regardless of the size of the canvas we are drawing to.
+
+<div class="webgpu_center"><img src="resources/clipspace.svg" style="width: 500px"></div>
+
+The `vs` function declares an array of of 3 `vec2<f32>`. Each is 2 32bit floating point
+values. It then fills out that array with 3 values
+
+```wgsl
+        var pos = array<vec2<f32>, 3>(
+          vec2<f32>( 0.0,  0.5),  // top center
+          vec2<f32>(-0.5, -0.5),  // bottom left
+          vec2<f32>( 0.5, -0.5)   // bottom right
+        );
+```
+
+Finally it uses `vertexIndex` to turn one of the 3 values from the array.
+Since the function requires a 4 floating point values and `pos` is an array
+of `vec2<f32>` the code supplies `0.0` and `1.0` for the remaining 2 values.
+
+```wgsl
+        return vec4<f32>(pos[vertexIndex], 0.0, 1.0);
+```
+
+The shader module also declares a function called `fs` that is declared with
+`@fragment` making it a fragment shader function.
+
+```wgsl
+      @fragment fn fs() -> @location(0) vec4<f32> {
+```
+
+This function takes no inputs and returns a `vec4<f32>` at `location(0)`.
+This means it will write to the first render target which will be our canvas.
+
+```wgsl
+        return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+```
+
+The code returns `1, 0, 0, 1` which is red. Colors in WebGPU are usually
+specified as floating point values from `0.0` to `1.0` where the 4 values above
+correspond to red, green, blue, and alpha respectively.
+
+Now that we've created a shader module, we next need to make a render pipeline
+
+```js
+  const pipeline = device.createRenderPipeline({
+    layout: 'auto',
+    vertex: {
+      module,
+      entryPoint: 'vs',
+    },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+```
+
+In this case there isn't much to see. We tell the pipeline to use
+the `vs` function from our shader module for a vertex shader and the
+`fs` function for our fragment shader. Otherwise we tell it
+the format of the first target. The first target corresponds to location 0
+as we specified in the shader.
+
+Now it's time to render.
+
+```js
+  function render() {
+    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass({
+      colorAttachments: [
+        {
+          view: context.getCurrentTexture().createView(),
+          clearValue: [1, 1, 0, 1],
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
+    });
+    pass.setPipeline(pipeline);
+
+    const iterationCount = 3;
+    pass.draw(iterationCount);
+
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+  }
+
+  render();
+```
+
+First we create a command encoder. A command encoder is used to create
+a command buffer. Our first command is `beginRenderPass` which we
+need to pass an array of `colorAttachments`. In this case our only attachment
+is a texture view from our canvas which we get via the context we created at
+the start. Again, this corresponds to `location(0)` as we specified in the
+fragment shader.
+
+We also setup a clear value, yellow in this case, and a `loadOp` and `storeOp`
+
+We set our pipeline and then tell it to execute our vertex shader 3 times.
+By default, every 3 times our vertex shader is executed a triangle will be
+drawn connected the 3 values just returned from the vertex shader.
+
+Finally we end the render pass, and then finish the encoder. This gives us
+a command buffer that represents the steps we just specified. Finally we
+submit the command buffer to be executed.
+
+The result
+
+{{{example url="../webgpu-simple-triangle.html"}}}
+
+---
 
 Let's try to explain this by implementing something similar to what the GPU does
 with vertex shaders and fragment shaders but in JavaScript. Hopefully this will give
@@ -36,8 +268,9 @@ free to skip to [the actual WebGPU code](#WebGPU).
 
 If you're familiar with
 [Array.map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map),
-if you squint real hard you can get some idea of how these 3 different kinds of
+if you squint real hard you can get some idea of how these 2 different kinds of
 shader functions work. With `Array.map` you provide a function to transform a value.
+
 Example:
 
 ```js
@@ -64,7 +297,7 @@ function draw(count, vertexShaderFn) {
 }
 ```
 
-One consequence is we no longer need a source array to do something.
+One consequence is that unlike `Array.map`, we no longer need a source array to do something.
 
 ```js
 const shader = v => v * 2;
@@ -82,9 +315,9 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
 
 1. Uniforms
 
-   Uniforms are values that are the same for each iteration of the shader.
-   Think of them as constant global variables. You can set them before a shader
-   is run but while the shader is being used they remain constant, or to put it
+   Uniforms are values that are the same for each iteration of the shader. Think
+   of them as constant global variables. You can set them before a shader is run
+   but, while the shader is being used, they remain constant, or to put it
    another way, they remain *uniform*.
 
    Let's change `draw` to pass uniforms to a shader. To do this we'll
@@ -120,17 +353,17 @@ Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffe
 
    So, the concept of uniforms hopefully seems pretty straight forward. The
    indirection through `bindings` is there because this "similar" to how things
-   are done in WebGPU. Like mentioned above, we access the things, in this case
+   are done in WebGPU. Like was mentioned above, we access the things, in this case
    the uniforms, by location/index. Here they are found in `bindings[0]`.
 
 2. Attributes (vertex shaders only)
 
-   Attributes provide per shader iteration data. In `array.map` above,
+   Attributes provide per shader iteration data. In `Array.map` above,
    the value `v` was pulled from `input` and automatically provided
    to the function. This is very similar to an attribute in a shader.
 
    The difference is, we are not mapping over the input, instead,
-   because we are just counting so, we need to tell WebGPU
+   because we are just counting, we need to tell WebGPU
    about these inputs and how to get data out of them.
 
    Imagine we updated `draw` like this
