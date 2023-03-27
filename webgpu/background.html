@@ -286,14 +286,52 @@ async function main() {
     return needResize;
   }
 
+  let requestId;
+  let running;
+  let then = 0;
+  let time = 0;
+  function startAnimation() {
+    running = true;
+    requestAnimation();
+  }
+
+  function stopAnimation() {
+    running = false;
+  }
+
+  function requestAnimation() {
+    if (!requestId) {
+      requestId = requestAnimationFrame(render);
+    }
+  }
+
+  const motionQuery = matchMedia('(prefers-reduced-motion)');
+  function handleReduceMotionChanged() {
+    if (motionQuery.matches) {
+      stopAnimation();
+    } else {
+      startAnimation();
+    }
+  }
+  motionQuery.addEventListener('change', handleReduceMotionChanged);
+  handleReduceMotionChanged();
+  requestAnimation();
+
   function render(now) {
-    now *= 0.0001;
+    requestId = undefined;
+
+    const elapsed = Math.min(now - then, 1000 / 10);
+    then = now;
+    if (running) {
+      time += elapsed * 0.001;
+    }
+
     resizeToDisplaySize(device, canvasInfo);
 
     const projection = mat4.perspective(30 * Math.PI / 180, canvas.clientWidth / canvas.clientHeight, 4000, 6000);
     const eye = [0, 0, -5000];
     const target = [0, 0, 0];
-    const n = now * 0.1;
+    const n = time * 0.01;
     const up = [Math.cos(n), Math.sin(n), 0];
 
     const camera = mat4.lookAt(eye, target, up);
@@ -301,9 +339,9 @@ async function main() {
     const viewProjection = mat4.multiply(projection, view);
     mat4.copy(viewProjection, worldViewProjection);
 
-    for (const {offset, time, mat} of infos) {
-      const t = now + time * Math.PI * 2;
-      mat4.translation([offset[0] * 10000 - 5000, offset[1] * 10000 - 5000, time], mat);
+    for (const {offset, time: timeOffset, mat} of infos) {
+      const t = time * 0.1 + timeOffset * Math.PI * 2;
+      mat4.translation([offset[0] * 10000 - 5000, offset[1] * 10000 - 5000, timeOffset], mat);
       mat4.rotateZ(mat, t, mat);
       //mat4.rotateX(mat, t * 0.9, mat);
       mat4.scale(mat, [0.5, 0.5, 0.5], mat);
@@ -334,9 +372,13 @@ async function main() {
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
 
-    requestAnimationFrame(render);
+    if (running) {
+      requestAnimation(render);
+    }
   }
-  requestAnimationFrame(render);
+
+  const observer = new ResizeObserver(_ => requestAnimation(render));
+  observer.observe(canvas);
 }
 
 function fail(msg) {
