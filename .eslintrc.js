@@ -8,6 +8,7 @@ module.exports = {
   globals: {
     'GPUBufferUsage': 'readonly',
     'GPUTextureUsage': 'readonly',
+    'GPUMapMode': 'readonly',
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {

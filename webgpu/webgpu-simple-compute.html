@@ -56,7 +56,7 @@ async function main() {
   const resultBuffer = device.createBuffer({
     label: 'result buffer',
     size: input.byteLength,
-    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
+    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
   });
 
   // Setup a bindGroup to tell the shader which

@@ -105,7 +105,7 @@ section('buffers');
      buffer1,
      buffer2,
    ];
-   const vertexShader = (ndx, bindings, attribs) =>
+   const vertexShader = (ndx, bindings /* , attribs */) =>
        (bindings[0][ndx * 2] + bindings[0][ndx * 2 + 1]) * bindings[1][ndx];
    const count = 4;
    draw(count, vertexShader, bindings, attribsSpec);
@@ -140,7 +140,7 @@ section('textures');
    const bindings = [
      texture,
    ];
-   const vertexShader = (ndx, bindings, attribs) =>
+   const vertexShader = (ndx, bindings /* , attribs */) =>
        textureSample(bindings[0], ndx * 1.75);
    const count = 4;
    draw(count, vertexShader, bindings, attribsSpec);
@@ -177,7 +177,7 @@ section('varyings: output 2 values per iteration');
      {source: buffer1, offset: 1, stride: 2},
    ];
    const bindings = [];
-   const dest = new Array(2);
+   // const dest = new Array(2);
    const vertexShader = (ndx, bindings, attribs) => [attribs[0], attribs[1]];
    const count = 2;
    draw(count, vertexShader, bindings, attribsSpec);
@@ -228,7 +228,7 @@ section('varyings: draw line with constant value');
    const width = 30;
    const height = 5;
    const pixels = new Array(width * height).fill(0);
-   const fragShader = (bindings) => 6;
+   const fragShader = (/* bindings */) => 6;
 
    draw(
       pixels, width,
@@ -297,10 +297,10 @@ section('varyings: draw line with varying value');
      {source: buffer2, offset: 0, stride: 1},
    ];
    const bindings = [];
-   const dest = new Array(2);
-   const vertexShader = (ndx, uniforms, attribs, bindings) =>
+   // const dest = new Array(2);
+   const vertexShader = (ndx, uniforms, attribs /* , bindings */) =>
        [[attribs[0], attribs[1]], [attribs[2]]];
-   const uniforms = {};
+   //const uniforms = {};
    const count = 2;
 
    const width = 30;

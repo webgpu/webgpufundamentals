@@ -23,10 +23,6 @@ canvas {
 <script type="module">
 import {vec3, mat4} from '/3rdparty/wgpu-matrix.module.js';
 
-
-const r = max => Math.random() * max;
-const roundUp = (align, value) => ((value + align - 1) / align | 0) * align;
-
 async function main() {
   const gpu = navigator.gpu;
   if (!gpu) {
@@ -130,7 +126,6 @@ async function main() {
   });
   const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
   const worldViewProjection = vsUniformValues.subarray(0, 16);
-  const worldInverseTranspose = vsUniformValues.subarray(16, 32);
   const fsUniformValues = new Float32Array(3);  // 1 vec3
   const lightDirection = fsUniformValues.subarray(0, 3);
 
@@ -243,7 +238,6 @@ async function main() {
   function resizeToDisplaySize(device, canvasInfo) {
     const {
       canvas,
-      context,
       renderTarget,
       presentationSize,
       presentationFormat,
