@@ -5,63 +5,354 @@
 * {
     box-sizing: border-box;
 }
-body {
+html, body {
+    height: 100%;
     font-family: monospace;
-    color: #0F0;
-    background-color: black;
-    font-size: 10pt;
+    margin: 0;
 }
-@keyframes blink {
-    from, to { background-color: transparent }
-    50% { background-color: #0F0 }
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
-
-.cursor {
-    display: inline-block;
-    position: relative;
-    top: 0.2em;
-    width:0.6em;
-    height:1em;
-    animation: 1s blink step-end infinite;
-}
-
 </style>
 </head>
 <body>
-<div>$&nbsp;<span id="cmd"></span><span></span><div class="cursor"></div></div>
-<script>
-const code = document.querySelector('span');
-const cmd = document.querySelector('#cmd');
-const cursor = document.querySelector('.cursor');
-setTimeout(start, 500);
+<canvas id="canvas"></canvas>
+<div id="content"></div>
+<script type="module">
+import {vec3, mat4} from '/3rdparty/wgpu-matrix.module.js';
 
-function r(min, max) {
-  return Math.random() * (max - min) + min;
-}
 
-function start() {
-  const word = 'build webgpufundamentals';
-  function type() {
-    if (cmd.textContent !== word) {
-      cmd.textContent = word.substr(0, cmd.textContent.length + 1);
-      setTimeout(type, r(50, 150));
-    } else {
-      run();
+const r = max => Math.random() * max;
+const roundUp = (align, value) => ((value + align - 1) / align | 0) * align;
+
+async function main() {
+  const gpu = navigator.gpu;
+  if (!gpu) {
+    fail('this browser does not support webgpu');
+    return;
+  }
+
+  const adapter = await gpu.requestAdapter();
+  if (!adapter) {
+    fail('this browser appears to support WebGPU but it\'s disabled');
+    return;
+  }
+
+  const device = await adapter.requestDevice();
+
+  const canvas = document.querySelector('canvas');
+  const context = canvas.getContext('webgpu');
+
+  const presentationFormat = gpu.getPreferredCanvasFormat(adapter);
+  const presentationSize = [300, 150];  // default canvas size
+
+  context.configure({
+    alphaMode: 'opaque',
+    format: presentationFormat,
+    device,
+  });
+
+  const canvasInfo = {
+    canvas,
+    context,
+    presentationSize,
+    presentationFormat,
+    // these are filled out in resizeToDisplaySize
+    renderTarget: undefined,
+    renderTargetView: undefined,
+    depthTexture: undefined,
+    depthTextureView: undefined,
+    sampleCount: 4,  // can be 1 or 4
+  };
+
+  const shaderSrc = `
+  struct VSUniforms {
+    worldViewProjection: mat4x4<f32>,
+    worldInverseTranspose: mat4x4<f32>,
+  };
+  @group(0) @binding(0) var<uniform> vsUniforms: VSUniforms;
+
+  struct Inst {
+    mat: mat4x4f,
+  };
+
+  @group(0) @binding(1) var<storage, read> perInst: array<Inst>;
+
+  struct MyVSInput {
+      @location(0) position: vec4f,
+      @location(1) color: vec4f,
+  };
+
+  struct MyVSOutput {
+    @builtin(position) position: vec4f,
+    @location(0) normal: vec3f,
+    @location(1) color: vec4f,
+  };
+
+  @vertex
+  fn myVSMain(v: MyVSInput, @builtin(instance_index) instNdx: u32) -> MyVSOutput {
+    let inst = perInst[instNdx];
+    var vsOut: MyVSOutput;
+    vsOut.position = vsUniforms.worldViewProjection * inst.mat * v.position;
+    vsOut.normal = (inst.mat * vec4f(0, 0, 1, 0)).xyz;
+    vsOut.color = v.color;
+    return vsOut;
+  }
+
+  struct FSUniforms {
+    lightDirection: vec3f,
+  };
+
+  @group(0) @binding(2) var<uniform> fsUniforms: FSUniforms;
+
+  @fragment
+  fn myFSMain(v: MyVSOutput) -> @location(0) vec4f {
+    var a_normal = normalize(v.normal);
+    var l = 1.0 + (dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5) * 0.0;
+    return vec4f(v.color.rgb * l, v.color.a);
+  }
+  `;
+
+  const shaderModule = device.createShaderModule({code: shaderSrc});
+
+  const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
+  const fUniformBufferSize = (3 + 1) * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
+
+  const vsUniformBuffer = device.createBuffer({
+    size: vUniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const fsUniformBuffer = device.createBuffer({
+    size: fUniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
+  const worldViewProjection = vsUniformValues.subarray(0, 16);
+  const worldInverseTranspose = vsUniformValues.subarray(16, 32);
+  const fsUniformValues = new Float32Array(3);  // 1 vec3
+  const lightDirection = fsUniformValues.subarray(0, 3);
+
+  function createBuffer(device, data, usage) {
+    const buffer = device.createBuffer({
+      size: data.byteLength,
+      usage,
+      mappedAtCreation: true,
+    });
+    const dst = new data.constructor(buffer.getMappedRange());
+    dst.set(data);
+    buffer.unmap();
+    return buffer;
+  }
+
+  const data = new Float32Array([626, 295, 0, 0.53, 0.91, 565, 190, 0, 0.53, 0.91, 685, 190, 0, 0.53, 0.91, 626, 87, 0, 0.58, 1, 565, 191, 0, 0.58, 1, 685, 191, 0, 0.58, 1, 506, 504, 0, 0.46, 0.8, 385, 295, 0, 0.46, 0.8, 625, 294, 0, 0.46, 0.8, 506, 87, 0, 0.4, 0.69, 385, 295, 0, 0.4, 0.69, 625, 294, 0, 0.4, 0.69, 265, 504, 0, 0.35, 0.61, 24, 87, 0, 0.35, 0.61, 505, 87, 0, 0.35, 0.61]);
+  const min = data.slice(0, 2);
+  const max = data.slice(0, 2);
+  for (let i = 1; i < data.length; i += 5) {
+    for (let a = 0; a < 2; ++a) {
+      min[a] = Math.min(data[i + a], min[a]);
+      max[a] = Math.max(data[i + a], max[a]);
     }
   }
-  type();
+  const center = [
+    (min[0] + max[0]) / 2,
+    (min[1] + max[1]) / 2,
+  ];
+
+  const infos = [];
+  const numInstances = 1000;
+  const matrixData = new Float32Array(numInstances * 16);
+  const w = Math.sqrt(numInstances) | 0;
+  for (let i = 0; i < numInstances; ++i) {
+    infos.push({
+      offset: [i % w / w, ((i / w) | 0) / w], //[r(1), r(1)],
+      time: i / numInstances,
+      mat: matrixData.subarray(i * 16, i * 16 + 16),
+    });
+  }
+  const storageBuffer = createBuffer(device, matrixData, GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST);
+
+  const numVertices = data.length / 5;
+  const vertexBuffer = createBuffer(device, data, GPUBufferUsage.VERTEX);
+  const pipeline = device.createRenderPipeline({
+    layout: 'auto',
+    vertex: {
+      module: shaderModule,
+      entryPoint: 'myVSMain',
+      buffers: [
+        {
+          arrayStride: 5 * 4, // 5 floats, 4 bytes each
+          attributes: [
+            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
+            {shaderLocation: 1, offset: 8, format: 'float32x3'},  // color
+          ],
+        },
+      ],
+    },
+    fragment: {
+      module: shaderModule,
+      entryPoint: 'myFSMain',
+      targets: [
+        {format: presentationFormat},
+      ],
+    },
+    primitive: {
+      topology: 'triangle-list',
+     // cullMode: 'back',
+    },
+    depthStencil: {
+      depthWriteEnabled: true,
+      depthCompare: 'less',
+      format: 'depth24plus',
+    },
+    ...(canvasInfo.sampleCount > 1 && {
+        multisample: {
+          count: canvasInfo.sampleCount,
+        },
+    }),
+  });
+
+  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: vsUniformBuffer } },
+      { binding: 1, resource: { buffer: storageBuffer } },
+      { binding: 2, resource: { buffer: fsUniformBuffer } },
+    ],
+  });
+
+  const renderPassDescriptor = {
+    colorAttachments: [
+      {
+        // view: undefined, // Assigned later
+        // resolveTarget: undefined, // Assigned Later
+        clearValue: { r: 0.1, g: 0.1, b: 0.1, a: 1.0 },
+        loadOp: 'clear',
+        storeOp: 'store',
+      },
+    ],
+    depthStencilAttachment: {
+      // view: undefined,  // Assigned later
+      depthClearValue: 1.0,
+      depthLoadOp: 'clear',
+      depthStoreOp: 'store',
+    },
+  };
+
+  function resizeToDisplaySize(device, canvasInfo) {
+    const {
+      canvas,
+      context,
+      renderTarget,
+      presentationSize,
+      presentationFormat,
+      depthTexture,
+      sampleCount,
+    } = canvasInfo;
+    const width = Math.min(device.limits.maxTextureDimension2D, canvas.clientWidth);
+    const height = Math.min(device.limits.maxTextureDimension2D, canvas.clientHeight);
+
+    const needResize = !canvasInfo.renderTarget ||
+                       width !== presentationSize[0] ||
+                       height !== presentationSize[1];
+    if (needResize) {
+      if (renderTarget) {
+        renderTarget.destroy();
+      }
+      if (depthTexture) {
+        depthTexture.destroy();
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      presentationSize[0] = width;
+      presentationSize[1] = height;
+
+      if (sampleCount > 1) {
+        const newRenderTarget = device.createTexture({
+          size: presentationSize,
+          format: presentationFormat,
+          sampleCount,
+          usage: GPUTextureUsage.RENDER_ATTACHMENT,
+        });
+        canvasInfo.renderTarget = newRenderTarget;
+        canvasInfo.renderTargetView = newRenderTarget.createView();
+      }
+
+      const newDepthTexture = device.createTexture({
+        size: presentationSize,
+        format: 'depth24plus',
+        sampleCount,
+        usage: GPUTextureUsage.RENDER_ATTACHMENT,
+      });
+      canvasInfo.depthTexture = newDepthTexture;
+      canvasInfo.depthTextureView = newDepthTexture.createView();
+    }
+    return needResize;
+  }
+
+  function render(now) {
+    now *= 0.0001;
+    resizeToDisplaySize(device, canvasInfo);
+
+    const projection = mat4.perspective(30 * Math.PI / 180, canvas.clientWidth / canvas.clientHeight, 4000, 6000);
+    const eye = [0, 0, -5000];
+    const target = [0, 0, 0];
+    const n = now * 0.1;
+    const up = [Math.cos(n), Math.sin(n), 0];
+
+    const camera = mat4.lookAt(eye, target, up);
+    const view = mat4.inverse(camera);
+    const viewProjection = mat4.multiply(projection, view);
+    mat4.copy(viewProjection, worldViewProjection);
+
+    for (const {offset, time, mat} of infos) {
+      const t = now + time * Math.PI * 2;
+      mat4.translation([offset[0] * 10000 - 5000, offset[1] * 10000 - 5000, time], mat);
+      mat4.rotateZ(mat, t, mat);
+      //mat4.rotateX(mat, t * 0.9, mat);
+      mat4.scale(mat, [0.5, 0.5, 0.5], mat);
+      mat4.translate(mat, [-center[0], -center[1], 0], mat);
+    }
+
+    vec3.normalize([1, 8, -10], lightDirection);
+
+    device.queue.writeBuffer(vsUniformBuffer, 0, vsUniformValues);
+    device.queue.writeBuffer(fsUniformBuffer, 0, fsUniformValues);
+    device.queue.writeBuffer(storageBuffer, 0, matrixData);
+
+    if (canvasInfo.sampleCount === 1) {
+        const colorTexture = context.getCurrentTexture();
+        renderPassDescriptor.colorAttachments[0].view = colorTexture.createView();
+    } else {
+      renderPassDescriptor.colorAttachments[0].view = canvasInfo.renderTargetView;
+      renderPassDescriptor.colorAttachments[0].resolveTarget = context.getCurrentTexture().createView();
+    }
+    renderPassDescriptor.depthStencilAttachment.view = canvasInfo.depthTextureView;
+
+    const commandEncoder = device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setBindGroup(0, bindGroup);
+    passEncoder.setVertexBuffer(0, vertexBuffer);
+    passEncoder.draw(numVertices, numInstances);
+    passEncoder.end();
+    device.queue.submit([commandEncoder.finish()]);
+
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
 }
 
-function run() {
-  code.innerHTML += '<br/>compiling...<span id="tick"></span>';
-  const tick = document.querySelector('#tick');
-  const ticks = ['-', '\\', '|', '/'];
-  setInterval(() => {
-    tick.textContent = ticks[((performance.now() * 0.001 * 10) | 0) % ticks.length];
-  }, 100);
-  cursor.scrollIntoView();
+function fail(msg) {
+  const elem = document.querySelector('#fail');
+  const contentElem = elem.querySelector('.content');
+  elem.style.display = '';
+  contentElem.textContent = msg;
 }
 
-</script>
+main();
+  </script>
 </body>
 </html>

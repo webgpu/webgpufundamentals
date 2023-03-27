@@ -4,6 +4,11 @@ module.exports = {
   env: {
     browser: true,
   },
+  // REMOVE THIS!
+  globals: {
+    'GPUBufferUsage': 'readonly',
+    'GPUTextureUsage': 'readonly',
+  },
   parser: '@typescript-eslint/parser',
   parserOptions: {
     sourceType: 'module',

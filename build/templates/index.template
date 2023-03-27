@@ -77,7 +77,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <link rel="stylesheet" href="/webgpu/lessons/resources/index.css" />
 </head>
 <body>
-<div class="delme" style="display:none;">
 <div class="webgpu_navbar">
   <div>
     {{{include "build/templates/languages.template"}}}
@@ -94,7 +93,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </div>
   </div>
 </div>
-</div> <!-- delme -->
 {{{include "build/templates/repobanner.template"}}}
 <iframe class="background" src="/webgpu/background.html"></iframe>
 </body>
