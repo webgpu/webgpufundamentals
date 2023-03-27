@@ -22,6 +22,8 @@ jobs:
           npm i
           npm run pre-build
           npm run build-ci
+        env:
+          LESSON_BUILDER_ENV: production
 
       - name: Deploy 📦
         uses: JamesIves/github-pages-deploy-action@3.6.2
