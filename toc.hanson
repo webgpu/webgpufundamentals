@@ -7,8 +7,8 @@
     'webgpu-vertex-buffers.md',
     'webgpu-textures.md',
     'webgpu-constants.md',
+    'webgpu-memory-layout.md',
     'webgpu-wgsl.md',
-    'webgpu-textures.md',
     'webgpu-how-it-works.md',
   ],
   'misc': [
