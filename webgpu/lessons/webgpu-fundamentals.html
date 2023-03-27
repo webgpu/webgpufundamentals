@@ -951,28 +951,32 @@ way would be something like
     fail('this browser does not support WebGPU');
     return;
   }
-<p>const adapter = await navigator.gpu.requestAdapter();
-if (!adapter) {
-fail(‘this browser supports webgpu but it appears disabled’);
-return;
-}</p>
-<p>const device = await adapter?.requestDevice();
-device.lost.then((info) =&gt; {
-console.error(<code class="notranslate" translate="no">WebGPU device was lost: ${info.message}</code>);</p>
-<pre class="prettyprint showlinemods notranslate notranslate" translate="no">// 'reason' will be 'destroyed' if we intentionally destroy the device.
-if (info.reason !== 'destroyed') {
-  // try again
-  start();
+
+  const adapter = await navigator.gpu.requestAdapter();
+  if (!adapter) {
+    fail('this browser supports webgpu but it appears disabled');
+    return;
+  }
+
+  const device = await adapter?.requestDevice();
+  device.lost.then((info) =&gt; {
+    console.error(`WebGPU device was lost: ${info.message}`);
+
+    // 'reason' will be 'destroyed' if we intentionally destroy the device.
+    if (info.reason !== 'destroyed') {
+      // try again
+      start();
+    }
+  });
+  
+  main(device);
+}
+start();
+
+function main(device) {
+  ... do webgpu ...
 }
 </pre>
-<p>});</p>
-<p>main(device);
-}
-start();</p>
-<p>function main(device) {
-… do webgpu …
-}
-</p></pre><p></p>
 <p>
 <code class="notranslate" translate="no">device.lost</code> is a promise that starts off unresolved. It will resolve if and when the
 device is lost. A device can be lost for many reasons. Maybe the user ran a really intensive
