@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>WebGPU Simple Triangle</title>
@@ -10,22 +11,17 @@
   </body>
   <script type="module">
 async function main() {
-  const gpu = navigator.gpu;
-  if (!gpu) {
-    fail('this browser does not support webgpu');
+  const adapter = await navigator.gpu?.requestAdapter();
+  const device = await adapter?.requestDevice();
+  if (!device) {
+    fail('need a browser that supports WebGPU');
     return;
   }
 
-  const adapter = await gpu.requestAdapter();
-  if (!adapter) {
-    fail('this browser appears to support WebGPU but it\'s disabled');
-    return;
-  }
-
-  const device = await adapter.requestDevice();
-
-  const context = document.querySelector('canvas').getContext('webgpu');
-  const presentationFormat = gpu.getPreferredCanvasFormat();
+  // Get a WebGPU context from the canvas and configure it
+  const canvas = document.querySelector('canvas');
+  const context = canvas.getContext('webgpu');
+  const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   context.configure({
     device,
     format: presentationFormat,
@@ -33,26 +29,28 @@ async function main() {
   });
 
   const module = device.createShaderModule({
+    label: 'our hardcoded red triangle shaders',
     code: `
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
-      ) -> @builtin(position) vec4<f32> {
-        var pos = array<vec2<f32>, 3>(
-          vec2<f32>( 0.0,  0.5),  // top center
-          vec2<f32>(-0.5, -0.5),  // bottom left
-          vec2<f32>( 0.5, -0.5)   // bottom right
+      ) -> @builtin(position) vec4f {
+        var pos = array<vec2f, 3>(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
         );
 
-        return vec4<f32>(pos[vertexIndex], 0.0, 1.0);
+        return vec4f(pos[vertexIndex], 0.0, 1.0);
       }
 
-      @fragment fn fs() -> @location(0) vec4<f32> {
-        return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+      @fragment fn fs() -> @location(0) vec4f {
+        return vec4f(1, 0, 0, 1);
       }
     `,
   });
 
   const pipeline = device.createRenderPipeline({
+    label: 'our hardcoded red triangle pipeline',
     layout: 'auto',
     vertex: {
       module,
@@ -65,23 +63,31 @@ async function main() {
     },
   });
 
+  const renderPassDescriptor = {
+    label: 'our basic canvas renderPass',
+    colorAttachments: [
+      {
+        // view: <- to be filled out when we render
+        clearValue: [0.3, 0.3, 0.3, 1],
+        loadOp: 'clear',
+        storeOp: 'store',
+      },
+    ],
+  };
+
   function render() {
-    const encoder = device.createCommandEncoder();
-    const pass = encoder.beginRenderPass({
-      colorAttachments: [
-        {
-          view: context.getCurrentTexture().createView(),
-          clearValue: [1, 1, 0, 1],
-          loadOp: 'clear',
-          storeOp: 'store',
-        },
-      ],
-    });
+    // Get the current texture from the canvas context and
+    // set it as the texture to render to.
+    renderPassDescriptor.colorAttachments[0].view =
+        context.getCurrentTexture().createView();
+
+    // make a command encoder to start encoding commands
+    const encoder = device.createCommandEncoder({ label: 'our encoder' });
+
+    // make a render pass encoder to encode render specific commands
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
-
-    const iterationCount = 3;
-    pass.draw(iterationCount);
-
+    pass.draw(3);  // call our vertex shader 3 times.
     pass.end();
 
     const commandBuffer = encoder.finish();
@@ -92,6 +98,7 @@ async function main() {
 }
 
 function fail(msg) {
+  // eslint-disable-next-line no-alert
   alert(msg);
 }
 

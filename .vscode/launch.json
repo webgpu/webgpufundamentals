@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "launch",
       "name": "Test ld-check-dependencies",
       "skipFiles": [
@@ -14,7 +14,7 @@
       "program": "node_modules/.bin/ld-check-dependencies"
     },
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "launch",
       "name": "Debug Build",
       "program": "${workspaceFolder}/node_modules/grunt/bin/grunt",
@@ -23,6 +23,20 @@
       },
       "args": [
         "buildlessons"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Diagram Gen",
+      "runtimeArgs": [
+          "--loader",
+          "ts-node/esm"
+      ],
+      "program": "${workspaceFolder}/build/make-type-diagram.ts",
+      "env": {
+      },
+      "args": [
       ]
     }
   ]

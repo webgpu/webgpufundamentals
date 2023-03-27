@@ -202,28 +202,28 @@ struct VSUniforms {
 @group(0) binding(0) var<uniform> vsUniforms: VSUniforms;
 
 struct MyVSInput {
-    @location(0) position: vec4<f32>,
-    @location(1) normal: vec3<f32>,
-    @location(2) texcoord: vec2<f32>,
+    @location(0) position: vec4f,
+    @location(1) normal: vec3f,
+    @location(2) texcoord: vec2f,
 };
 
 struct MyVSOutput {
-  @builtin(position) position: vec4<f32>,
-  @location(0) normal: vec3<f32>,
-  @location(1) texcoord: vec2<f32>,
+  @builtin(position) position: vec4f,
+  @location(0) normal: vec3f,
+  @location(1) texcoord: vec2f,
 };
 
 @vertex
 fn myVSMain(v: MyVSInput) -> MyVSOutput {
   var vsOut: MyVSOutput;
   vsOut.position = vsUniforms.worldViewProjection * v.position;
-  vsOut.normal = (vsUniforms.worldInverseTranspose * vec4<f32>(v.normal, 0.0)).xyz;
+  vsOut.normal = (vsUniforms.worldInverseTranspose * vec4f(v.normal, 0.0)).xyz;
   vsOut.texcoord = v.texcoord;
   return vsOut;
 }
 
 struct FSUniforms {
-  lightDirection: vec3<f32>,
+  lightDirection: vec3f,
 };
 
 @group(0) binding(1) var<uniform> fsUniforms: FSUniforms;
@@ -231,17 +231,17 @@ struct FSUniforms {
 @group(0) binding(3) var diffuseTexture: texture_2d<f32>;
 
 @fragment
-fn myFSMain(v: MyVSOutput) -> @location(0) vec4<f32> {
+fn myFSMain(v: MyVSOutput) -> @location(0) vec4f {
   var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.texcoord);
   var a_normal = normalize(v.normal);
   var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
-  return vec4<f32>(diffuseColor.rgb * l, diffuseColor.a);
+  return vec4f(diffuseColor.rgb * l, diffuseColor.a);
 }
 `;
 {{/escapehtml}}</code></pre></div></div>
 
 Notice in many ways they aren't all that different. The core parts of each
-function are very similar. `vec4` in GLSL becomes `vec4<f32>` in WGSL, `mat4`
+function are very similar. `vec4` in GLSL becomes `vec4f` in WGSL, `mat4`
 becomes `mat4x4<f32>`.
 
 GLSL is C/C++ like. WGSL is Rust like. One difference is
@@ -260,14 +260,14 @@ struct Foo {  vec4: field; }
 </div><div>
 <div>WGSL</div>
 <pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
-// declare a variable of type vec4<f32>
-var v: vec4<f32>;
+// declare a variable of type vec4f
+var v: vec4f;
 
-// declare a function of type mat4x4<f32> that takes a vec3<f32> parameter
-fn someFunction(p: vec3<f32>) => mat4x4<f32> { ... }
+// declare a function of type mat4x4<f32> that takes a vec3f parameter
+fn someFunction(p: vec3f) => mat4x4<f32> { ... }
 
 // declare a struct
-struct Foo {  field: vec4<f32>; }
+struct Foo {  field: vec4f; }
 {{/escapehtml}}</code></pre></div></div>
 
 WGSL has the concept that if you do not specify the type of variable it will
@@ -281,7 +281,7 @@ vec4 color = texture(someTexture, someTextureCoord);
 Above you needed to declare `color` as a `vec4` but in WGSL you can do either of these
 
 ```
-var color: vec4<f32> = textureSample(someTexture, someSampler, someTextureCoord);
+var color: vec4f = textureSample(someTexture, someSampler, someTextureCoord);
 ```
 
 or
@@ -290,7 +290,7 @@ or
 var color = textureSample(someTexture, someSampler, someTextureCoord);
 ```
 
-In both cases `color` is a `vec4<f32>`.
+In both cases `color` is a `vec4f`.
 
 On the other hand, the biggest difference is all the `@???` parts. Each
 one is declaring exactly where that particular piece of data is coming from. For
@@ -324,17 +324,17 @@ would work:
 
 ```wgsl
 *struct MyFSInput {
-*  @location(0) the_normal: vec3<f32>,
-*  @location(1) the_texcoord: vec2<f32>,
+*  @location(0) the_normal: vec3f,
+*  @location(1) the_texcoord: vec2f,
 *};
 
 @stage(fragment)
-*fn myFSMain(v: MyFSInput) -> @location(0) vec4<f32>
+*fn myFSMain(v: MyFSInput) -> @location(0) vec4f
 {
 *  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.the_texcoord);
 *  var a_normal = normalize(v.the_normal);
   var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
-  return vec4<f32>(diffuseColor.rgb * l, diffuseColor.a);
+  return vec4f(diffuseColor.rgb * l, diffuseColor.a);
 }
 ```
 
@@ -343,14 +343,14 @@ This would also work
 ```wgsl
 @stage(fragment)
 fn myFSMain(
-*  @location(1) uv: vec2<f32>,
-*  @location(0) nrm: vec3<f32>,
-) -> @location(0) vec4<f32>
+*  @location(1) uv: vec2f,
+*  @location(0) nrm: vec3f,
+) -> @location(0) vec4f
 {
 *  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, uv);
 *  var a_normal = normalize(nrm);
   var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
-  return vec4<f32>(diffuseColor.rgb * l, diffuseColor.a);
+  return vec4f(diffuseColor.rgb * l, diffuseColor.a);
 }
 ```
 
@@ -899,7 +899,7 @@ function resizeCanvasToDisplaySize(canvas) {
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('webgpu');
 
-const presentationFormat = gpu.getPreferredFormat(adapter);
+const presentationFormat = navigator.gpu.getPreferredFormat(adapter);
 context.configure({
   device,
   format: presentationFormat,
@@ -1128,14 +1128,14 @@ corner in both WebGL and WebGPU. On the other hand, setting the viewport or scis
 
 ### WGSL uses `@builtin(???)` for GLSL's `gl_XXX` variables.
 
-`gl_FragCoord` is `@builtin(position) myVarOrField: vec4<f32>` and unlike
+`gl_FragCoord` is `@builtin(position) myVarOrField: vec4f` and unlike
 WebGL it's in normalized coordinates (-1 to +1).
 
 `gl_VertexID` is `@builtin(vertex_index) myVarOrField: u32`
 
 `gl_InstanceID` is `@builtin(instance_index) myVarOrField: u32`
 
-`gl_Position` is `@builtin(position) vec4<f32>` which may be the return value
+`gl_Position` is `@builtin(position) vec4f` which may be the return value
 of a vertex shader or a field in a structure returned by the vertex shader
 
 There is no `gl_PointCoord` equivalent because points are only 1 pixel in WebGPU

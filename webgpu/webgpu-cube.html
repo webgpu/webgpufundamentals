@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>WebGPU Cube</title>
@@ -14,30 +15,20 @@
     </div>
   </body>
   <script type="module">
-/* global GPUBufferUsage */
-/* global GPUTextureUsage */
-
 import {vec3, mat4} from './resources/js/wgpu-matrix.module.js';
 
 async function main() {
-  const gpu = navigator.gpu;
-  if (!gpu) {
-    fail('this browser does not support webgpu');
+  const adapter = await navigator.gpu?.requestAdapter();
+  const device = await adapter?.requestDevice();
+  if (!device) {
+    fail('need a browser that supports WebGPU');
     return;
   }
-
-  const adapter = await gpu.requestAdapter();
-  if (!adapter) {
-    fail('this browser appears to support WebGPU but it\'s disabled');
-    return;
-  }
-
-  const device = await adapter.requestDevice();
 
   const canvas = document.querySelector('canvas');
   const context = canvas.getContext('webgpu');
 
-  const presentationFormat = gpu.getPreferredCanvasFormat(adapter);
+  const presentationFormat = navigator.gpu.getPreferredCanvasFormat(adapter);
   context.configure({
     device,
     format: presentationFormat,
@@ -63,28 +54,28 @@ async function main() {
   @group(0) @binding(0) var<uniform> vsUniforms: VSUniforms;
 
   struct MyVSInput {
-      @location(0) position: vec4<f32>,
-      @location(1) normal: vec3<f32>,
-      @location(2) texcoord: vec2<f32>,
+      @location(0) position: vec4f,
+      @location(1) normal: vec3f,
+      @location(2) texcoord: vec2f,
   };
 
   struct MyVSOutput {
-    @builtin(position) position: vec4<f32>,
-    @location(0) normal: vec3<f32>,
-    @location(1) texcoord: vec2<f32>,
+    @builtin(position) position: vec4f,
+    @location(0) normal: vec3f,
+    @location(1) texcoord: vec2f,
   };
 
   @vertex
   fn myVSMain(v: MyVSInput) -> MyVSOutput {
     var vsOut: MyVSOutput;
     vsOut.position = vsUniforms.worldViewProjection * v.position;
-    vsOut.normal = (vsUniforms.worldInverseTranspose * vec4<f32>(v.normal, 0.0)).xyz;
+    vsOut.normal = (vsUniforms.worldInverseTranspose * vec4f(v.normal, 0.0)).xyz;
     vsOut.texcoord = v.texcoord;
     return vsOut;
   }
 
   struct FSUniforms {
-    lightDirection: vec3<f32>,
+    lightDirection: vec3f,
   };
 
   @group(0) @binding(1) var<uniform> fsUniforms: FSUniforms;
@@ -92,11 +83,11 @@ async function main() {
   @group(0) @binding(3) var diffuseTexture: texture_2d<f32>;
 
   @fragment
-  fn myFSMain(v: MyVSOutput) -> @location(0) vec4<f32> {
+  fn myFSMain(v: MyVSOutput) -> @location(0) vec4f {
     var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.texcoord);
     var a_normal = normalize(v.normal);
     var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
-    return vec4<f32>(diffuseColor.rgb * l, diffuseColor.a);
+    return vec4f(diffuseColor.rgb * l, diffuseColor.a);
   }
   `;
 
@@ -149,6 +140,7 @@ async function main() {
   const shaderModule = device.createShaderModule({code: shaderSrc});
 
   const pipeline = device.createRenderPipeline({
+    label: 'fake lighting',
     layout: 'auto',
     vertex: {
       module: shaderModule,
@@ -203,12 +195,20 @@ async function main() {
   const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
   const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
 
+
   const vsUniformBuffer = device.createBuffer({
-    size: vUniformBufferSize,
+    size: Math.max(16, vUniformBufferSize),
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
+
+
+
+
+
+
+
   const fsUniformBuffer = device.createBuffer({
-    size: fUniformBufferSize,
+    size: Math.max(16, fUniformBufferSize),
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
   const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s

@@ -1,9 +1,15 @@
 {
   'basics': [
     'webgpu-fundamentals.md',
-    'webgpu-compute-shaders.md',
+    'webgpu-inter-stage-variables.md',
+    'webgpu-uniforms.md',
+    'webgpu-storage-buffers.md',
+    'webgpu-vertex-buffers.md',
+    'webgpu-textures.md',
+    'webgpu-constants.md',
     'webgpu-wgsl.md',
     'webgpu-textures.md',
+    'webgpu-how-it-works.md',
   ],
   'misc': [
     'webgpu-from-webgl.md',

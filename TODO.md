@@ -1,5 +1,26 @@
 # To Do
 
+- [X] Use external refs in build
+  - [ ] Figure out how to check for device.fn, encoder.fn, pass.fn
+- [X] Fix code gen double output for non-struct
+
+- [ ] Get webgpu types in live-editor
+- [ ] Get eslint to run correctly
+  - [ ] recognize WebGPU types
+- [ ] Re-style
+  - [ ] `<code>stuff</code>`
+  - [ ] type table
+
+- [ ] explain opaque/premultiplied canvas
+- [ ] explain typedarrays
+- [ ] make table of valid buffer usage combinations for every situation
+- [ ] make table of valid texture usage combinations for every situation
+- [ ] asking for higher limits
+- [ ] asking for the fallback
+- [ ] asking for compat?
+- [ ] multisample
+  - [ ] can we display it at the seam of a quad?
+
 - [ ] resizing for the canvas
   - [ ] dpr
   - [ ] exact match
@@ -37,6 +58,7 @@
 - [ ] picking via GPU
 - [ ] fog
 
+- [ ] sprites
 - [ ] text
   - [ ] html
   - [ ] canvas
@@ -57,3 +79,4 @@
 - [ ] drawimage
 
 - [ ] compute 
+  - [ ] prefix-sum

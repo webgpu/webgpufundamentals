@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light dark;
   --main-fg-color: #000;
   --main-bg-color: #FFF;
   --code-fg-color: #000;
@@ -13,7 +14,9 @@
   --codearea-shadow-color: #CCC;
   --compare-bg-color: #DDD;
   --warning-bg-color: #800;
-  --warning-fg-color: white;
+  --warning-fg-color: white;  
+  --table-head-bg-color: #68F;
+  --table-even-bg-color: rgba(0, 0, 0, 0.05);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,6 +34,8 @@
     --a-fg-color: #56D3FD;
     --codearea-shadow-color: #292929;
     --compare-bg-color: #444;
+    --table-head-bg-color: #238;
+    --table-even-bg-color: rgba(255, 255, 255, 0.05);
   }
 }
 
@@ -58,6 +63,12 @@ p + p {
 }
 li > p {
   width: calc(100% - 2em);
+}
+
+sup {
+  vertical-align: baseline;
+  position: relative;
+  top: -0.4em;
 }
 
 table {
@@ -310,6 +321,11 @@ code {
   margin-right: auto;
 }
 
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .webgpu_center {
   margin-left: auto;
   margin-top: 1em;
@@ -479,6 +495,13 @@ pre.prettyprint, code.prettyprint, .dos {
   line-height: 1;
 }
 
+.side-by-side {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .compare {
   display: flex;
   max-width: 1300px;
@@ -621,3 +644,95 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
     padding: 3px;
   }
 }
+
+/* ---- data table ---- */
+
+.data-table>div {
+  display: inline-block;
+  text-align: left;
+}
+.data-table table {
+  border-collapse: collapse;
+  font-family: monospace;
+}
+.data-table thead {
+  background-color: var(--table-head-bg-color);
+  break-inside: avoid;
+}
+.data-table tr:nth-child(even) {
+  background-color: var(--table-even-bg-color)
+}
+.data-table th,
+.data-table td {
+  padding: 0.2em;
+  border: 1px solid var(--byte-border-color);
+}
+
+/* ---- byte table styles ---- */
+
+:root {
+  --byte-table-border-color: black;
+  --byte-border-color: rgba(0,0,0,0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --byte-table-border-color: #ccc;
+    --byte-border-color: rgba(255,255,255,0.2);
+  }
+}
+.byte-diagram {
+  line-height: initial;
+}
+.byte-diagram pre { margin: 0; }
+.byte-diagram table {
+  display: inline-block;
+  border-collapse: collapse;
+  /*border: 1px solid var(--byte-table-border-color); */
+}
+.byte-diagram tr {
+  border-top: 1px solid var(--byte-table-border-color);
+  border-bottom: 1px solid var(--byte-table-border-color);
+}
+.byte-diagram td {
+  border-right: 1px solid var(--byte-border-color);
+}
+.byte-diagram td.elem-start { border-left: 1px solid var(--byte-table-border-color); }
+.byte-diagram td.elem-end { border-right: 1px solid var(--byte-table-border-color); }
+.byte-diagram .offset {
+  font-family: monospace;
+  border: 1px solid var(--byte-table-border-color);
+}
+.byte-diagram .field-names {
+  font-size: 10px;
+  text-align: left;
+}
+.byte-diagram .field-names td {
+  border: 1px solid var(--byte-table-border-color);
+}
+.byte-diagram .name {
+  overflow: hidden;
+}
+
+.byte-diagram .i32-1::before,
+.byte-diagram .u32-1::before,
+.byte-diagram .f32-1::before,
+.byte-diagram .u16-0::before {
+  position: relative;
+  left: 50%;
+  opacity: 30%;
+}
+.byte-diagram .u16-0::before {
+  content: 'f16';
+}
+.byte-diagram .i32-1::before {
+  content: 'i32';
+}
+.byte-diagram .u32-1::before {
+  content: 'u32';
+}
+.byte-diagram .f32-1::before {
+  content: 'f32';
+}
+
+

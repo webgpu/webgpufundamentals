@@ -131,15 +131,7 @@ function extraHTMLParsing(html, htmlParts) {
 
   // add css if there is none
   if (!hasCanvasInCSSRE.test(htmlParts.css.sources[0].source) && !hasCanvasStyleInHTMLRE.test(htmlParts.html.sources[0].source)) {
-    htmlParts.css.sources[0].source = `body {
-  margin: 0;
-}
-canvas {
-  width: 100vw;
-  height: 100vh;
-  display: block;
-}
-` + htmlParts.css.sources[0].source;
+    htmlParts.css.sources[0].source = htmlParts.css.sources[0].source;
   }
 
   return html;
