@@ -852,7 +852,7 @@ to observe.
 ```
 
 In the code above we go over all the entries but there should only ever be one
-because we're only observing out canvas. We need to limit the size of the canvas
+because we're only observing our canvas. We need to limit the size of the canvas
 to the largest size our device supports otherwise WebGPU will start generating
 errors that we tried to make a texture that is too large.
 
