@@ -887,7 +887,7 @@ start going over actual techniques.
 The code above gets a WebGPU device in very terse way. A more verbose
 way would be something like
 </p>
-<pre class="prettyprint showmods">
+<pre class="prettyprint showmods">{{#escapehtml}}
 async function start() {
   if (!navigator.gpu) {
     fail('this browser does not support WebGPU');
@@ -918,7 +918,7 @@ start();
 function main(device) {
   ... do webgpu ...
 }
-</pre>
+{{/escapehtml}}</pre>
 <p>
 <code>device.lost</code> is a promise that starts off unresolved. It will resolve if and when the
 device is lost. A device can be lost for many reasons. Maybe the user ran a really intensive
