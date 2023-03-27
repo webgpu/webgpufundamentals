@@ -1,24 +1,22 @@
-<!DOCTYPE html>
-<!-- this file is auto-generated from webgpu/lessons/webgpu-fundamentals.md. Do not edited directly -->
-<!--
-Copyright 2021, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/webgpu-fundamentals.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-*   Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-*   Redistributions in binary form must reproduce the above
-    copyright notice, this list of conditions and the following disclaimer
-    in the documentation and/or other materials provided with the
-    distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-*   Neither the name of Gregg Tavares nor the names of the
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,30 +29,30 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
--->
-<html lang="en">
-<head>
+
+
+--><html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="The fundamentals of WebGPU" />
-<meta name="keywords" content="webgpu graphics" />
-<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_en.jpg" />
+<meta name="description" content="The fundamentals of WebGPU">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_en.jpg">
 
-<meta property="og:title" content="WebGPU Fundamentals" />
-<meta property="og:type" content="website" />
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_en.jpg" />
-<meta property="og:description" content="The fundamentals of WebGPU" />
-<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html" />
+<meta property="og:title" content="WebGPU Fundamentals">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_en.jpg">
+<meta property="og:description" content="The fundamentals of WebGPU">
+<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html">
 
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:site" content="@greggman" />
-<meta name="twitter:creator" content="@greggman" />
-<meta name="twitter:domain" content="webgpufundamentals.org" />
-<meta name="twitter:title" content="WebGPU Fundamentals" />
-<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html" />
-<meta name="twitter:description" content="The fundamentals of WebGPU" />
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_en.jpg" />
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@greggman">
+<meta name="twitter:creator" content="@greggman">
+<meta name="twitter:domain" content="webgpufundamentals.org">
+<meta name="twitter:title" content="WebGPU Fundamentals">
+<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-fundamentals.html">
+<meta name="twitter:description" content="The fundamentals of WebGPU">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_en.jpg">
 
 <script type="application/ld+json">
 {
@@ -95,14 +93,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
 <link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
-<link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css" />
+<link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
 <div class="webgpu_navbar">
   <div>
     <select class="language">
-    <option value="/webgpu/lessons/webgpu-fundamentals.html" selected>English</a>
-</select>
+    <option value="/webgpu/lessons/webgpu-fundamentals.html" selected="">English
+</option></select>
 
 
     <a href="#toc">Table of Contents</a>
@@ -201,11 +199,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
 
 </style>
-<div id="forkongithub"><div><div><a href="https://github.com/gfxfundamentals/webgpufundamentals">Fix, Fork, Contribute <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<div id="forkongithub"><div><div><a href="https://github.com/gfxfundamentals/webgpufundamentals">Fix, Fork, Contribute <!--?xml version="1.0" encoding="UTF-8" standalone="no"?-->
+
 <svg width="100%" height="100%" viewBox="0 0 136 133" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
     <g transform="matrix(3.92891,0,0,3.92891,67.867,129.125)">
-        <path d="M0,-31.904C-8.995,-31.904 -16.288,-24.611 -16.288,-15.614C-16.288,-8.417 -11.621,-2.312 -5.148,-0.157C-4.333,-0.008 -4.036,-0.511 -4.036,-0.943C-4.036,-1.329 -4.05,-2.354 -4.058,-3.713C-8.589,-2.729 -9.545,-5.897 -9.545,-5.897C-10.286,-7.779 -11.354,-8.28 -11.354,-8.28C-12.833,-9.29 -11.242,-9.27 -11.242,-9.27C-9.607,-9.155 -8.747,-7.591 -8.747,-7.591C-7.294,-5.102 -4.934,-5.821 -4.006,-6.238C-3.858,-7.29 -3.438,-8.008 -2.972,-8.415C-6.589,-8.826 -10.392,-10.224 -10.392,-16.466C-10.392,-18.244 -9.757,-19.698 -8.715,-20.837C-8.883,-21.249 -9.442,-22.905 -8.556,-25.148C-8.556,-25.148 -7.188,-25.586 -4.076,-23.478C-2.777,-23.84 -1.383,-24.02 0.002,-24.026C1.385,-24.02 2.779,-23.84 4.08,-23.478C7.19,-25.586 8.555,-25.148 8.555,-25.148C9.444,-22.905 8.885,-21.249 8.717,-20.837C9.761,-19.698 10.392,-18.244 10.392,-16.466C10.392,-10.208 6.583,-8.831 2.954,-8.428C3.539,-7.925 4.06,-6.931 4.06,-5.411C4.06,-3.234 4.04,-1.477 4.04,-0.943C4.04,-0.507 4.333,0 5.16,-0.159C11.628,-2.318 16.291,-8.419 16.291,-15.614C16.291,-24.611 8.997,-31.904 0,-31.904" style="fill:white;"/>
+        <path d="M0,-31.904C-8.995,-31.904 -16.288,-24.611 -16.288,-15.614C-16.288,-8.417 -11.621,-2.312 -5.148,-0.157C-4.333,-0.008 -4.036,-0.511 -4.036,-0.943C-4.036,-1.329 -4.05,-2.354 -4.058,-3.713C-8.589,-2.729 -9.545,-5.897 -9.545,-5.897C-10.286,-7.779 -11.354,-8.28 -11.354,-8.28C-12.833,-9.29 -11.242,-9.27 -11.242,-9.27C-9.607,-9.155 -8.747,-7.591 -8.747,-7.591C-7.294,-5.102 -4.934,-5.821 -4.006,-6.238C-3.858,-7.29 -3.438,-8.008 -2.972,-8.415C-6.589,-8.826 -10.392,-10.224 -10.392,-16.466C-10.392,-18.244 -9.757,-19.698 -8.715,-20.837C-8.883,-21.249 -9.442,-22.905 -8.556,-25.148C-8.556,-25.148 -7.188,-25.586 -4.076,-23.478C-2.777,-23.84 -1.383,-24.02 0.002,-24.026C1.385,-24.02 2.779,-23.84 4.08,-23.478C7.19,-25.586 8.555,-25.148 8.555,-25.148C9.444,-22.905 8.885,-21.249 8.717,-20.837C9.761,-19.698 10.392,-18.244 10.392,-16.466C10.392,-10.208 6.583,-8.831 2.954,-8.428C3.539,-7.925 4.06,-6.931 4.06,-5.411C4.06,-3.234 4.04,-1.477 4.04,-0.943C4.04,-0.507 4.333,0 5.16,-0.159C11.628,-2.318 16.291,-8.419 16.291,-15.614C16.291,-24.611 8.997,-31.904 0,-31.904" style="fill:white;"></path>
     </g>
 </svg>
 </a></div></div></div>
@@ -219,481 +217,815 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <div class="warn">
-      Warning: WebGPU has not shipped and the spec is still changing.<br><br>
-      If you see a problem please <a href="https://github.com/gfxfundamentals/webgpufundamentals">file an issue</a>.
-      </div>
-      <p>Warning: This article is going to be long! To get WebGPU to do something
-requires many steps, each step needs to be explained, and until we
-cover all the steps we won’t get any results. Let’s go!</p>
-<p>WebGPU is an API that lets you run short functions on the GPU. There are
-3 types of functions you can run</p>
+      <p>This article will try to teach you the very fundamentals of WebGPU.</p>
+<div class="warn">
+It is expected you already know JavaScript before
+you read this article. Concepts like
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">mapping arrays</a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">destructuring assignment</a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">spreading values</a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async/await</a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">es6 modules</a>,
+and more will be used extensively.
+</div>
+<p>WebGPU is an API that lets you do 2 basic things.</p>
+<ol>
+<li>
+<p><a href="#drawing-triangles-to-textures">Draw triangles/points/lines to textures</a></p>
+</li>
+<li>
+<p><a href="#run-computations-on-the-gpu">Run computations on the GPU</a></p>
+</li>
+</ol>
+<p>That is it!</p>
+<p>Everything about WebGPU after that is up to you. It’s like learning a computer
+language like JavaScript, or Rust, or C++. First you learn the basics, then it’s up to
+you to creatively use those basic to solve your problem.</p>
+<p>WebGPU is an extremely low-level API. While you can make some small examples,
+for many apps it will likely require a large amount of code and some serious
+organization of data. As an example, <a href="https://threejs.org">three.js</a> which
+supports WebGPU consists of ~600k minified JavaScript, and that’s just its
+base library. That does not include loaders, controls, post processing, and
+many other features.</p>
+<p>The point being, if you just want to get something on the screen you’re far
+better off choosing a library that provides the large amount of code you’re
+going to have to write when doing it yourself.</p>
+<p>On the other hand, maybe you have a custom use case or maybe you want to modify
+an existing library or maybe you’re just curious how it all works. In those
+cases, read on!</p>
+<h1 id="getting-started">Getting Started</h1>
+<p>It’s hard to decide where to start. At certain level, WebGPU is a very simple
+system. All it does is run 3 types of functions on the GPU. Vertex Shaders,
+Fragment Shaders, Compute Shaders.</p>
+<p>A Vertex Shader computes vertices. The shader returns vertex positions. For
+every 3 it returns a triangle is drawn between those 3 positions <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<p>A Fragment Shader computes colors <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. When a triangle is drawn, for each pixel
+to be drawn the GPU calls your fragment shader. The fragment shader returns a
+color</p>
+<p>A Compute Shader is more generic. It’s effectively just a function you call and
+say “execute this function N times”. The GPU passes the iteration number each
+time it calls your function so you can use that number to do something unique on
+each iteration.</p>
+<p>If you squint hard, you can think of these functions similar to the functions to
+pass to
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach"><code class="notranslate" translate="no">array.forEach</code></a>
+or
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">`array.map</a>.
+The functions you run on the GPU are just functions, just like JavaScript
+functions. The part that different is they run on the GPU and so to run them you
+need to copy all the data you want them to access to the GPU in the form of
+buffers and textures and they only output to those buffers and textures.
+You need to specify in the functions which bindings or locations the function
+will look for the data. And, back in JavaScript, you need to bind the buffers and
+textures holding your data to the bindings or locations. Once you’ve done that you tell the GPU to execute the
+function.</p>
+<p><a id="webgpu-draw-diagram"></a>Maybe a picture will help. Here is a <em>simplified</em> diagram of WebGPU setup to draw triangles
+by using a vertex shader and a fragment shader</p>
+<div class="webgpu_center"><img src="resources/webgpu-draw-diagram.svg" style="width: 960px;"></div>
+<p>What to notice about this diagram</p>
+<ul>
+<li>
+<p>There is a <strong>Pipeline</strong>. It contains the vertex shader and fragment shader the
+GPU will run. You could also have a pipeline with a compute shader.</p>
+</li>
+<li>
+<p>The shaders reference resources (buffers, textures, samplers) indirectly
+through <strong>Bind Groups</strong></p>
+</li>
+<li>
+<p>The pipeline defines attributes that reference buffers indirectly through the
+internal state</p>
+</li>
+<li>
+<p>Attributes pull data out of buffers and feed the data into the vertex shader.</p>
+</li>
+<li>
+<p>The vertex shader may feed data into the fragment shader</p>
+</li>
+<li>
+<p>The fragment shader writes to textures indirectly through the render pass
+description</p>
+</li>
+</ul>
+<p>To execute shaders on the GPU you need to create all of these resources and
+setup this state. Creation of resources is relatively straight forward. One
+interesting thing is most WebGPU resources can not be changed after creation. You
+can change their contents but not their size, usage, format, etc… If you want
+to change any of that stuff you create a new resource and destroy the old one.</p>
+<p>Some of the state is setup by creating and then executing command buffers.
+Command buffers are literally what their name suggests. They are a buffer of
+commands. You create encoders. The encoders encode commands into the command
+buffer. You then <em>finish</em> the encoder and it gives you the command buffer it
+created. You can then <em>submit</em> that command buffer to have WebGPU execute the
+commands.</p>
+<p>Here is some pseudo code of encoding a command buffer followed by a representation of
+the command buffer that was created.</p>
+<div class="webgpu_center side-by-side"><div style="min-width: 300px; max-width: 400px; flex: 1 1;"><pre class="prettyprint showlinemods notranslate notranslate" translate="no">encoder = device.createCommandEncoder()
+// draw something
+{
+  pass = encoder.beginRenderPass(...)
+  pass.setPipeline(...)
+  pass.setVertexBuffer(0, …)
+  pass.setVertexBuffer(1, …)
+  pass.setIndexBuffer(...)
+  pass.setBindGroup(0, …)
+  pass.setBindGroup(1, …)
+  pass.draw(...)
+  pass.end()
+}
+// draw something else
+{
+  pass = encoder.beginRenderPass(...)
+  pass.setPipeline(...)
+  pass.setVertexBuffer(0, …)
+  pass.setBindGroup(0, …)
+  pass.draw(...)
+  pass.end()
+}
+// compute something
+{
+  pass = encoder.beginComputePass(...)
+  pass.beginComputePass(...)
+  pass.setBindGroup(0, …)
+  pass.setPipeline(...)
+  pass.dispatchWorkgroups(...)
+  pass.end();
+}
+commandBuffer = encoder.finish();
+</pre></div>
+<div><img src="resources/webgpu-command-buffer.svg" style="width: 300px;"></div>
+</div>
+<p>Once you create a command buffer you can <em>submit</em> to be executed</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.submit([commandBuffer]);
+</pre>
+<p>The diagram above represent the state at some <code class="notranslate" translate="no">draw</code> command in the command
+buffer. Executing the commands will setup the <em>internal state</em> and then the
+<em>draw</em> command will tell the GPU to execute a vertex shader (and indirectly a
+fragment shader). The <em>dispatchWorkgroup</em> command will tell the GPU to execute a
+compute shader.</p>
+<p>I hope that gave some mental image of the state you need to set up. Like
+mentioned above, WebGPU has 2 basic things it can do</p>
+<ol>
+<li>
+<p><a href="#drawing-triangles-to-textures">Draw triangles/points/lines to textures</a></p>
+</li>
+<li>
+<p><a href="#run-computations-on-the-gpu">Run computations on the GPU</a></p>
+</li>
+</ol>
+<p>Following we’ll go over a small example of doing each of those things. Other
+articles will show the various ways of providing data to these things. Note that
+this will be very basic. We need to build up a foundation of these basics. Later
+we’ll show how to use them to do things people typically do with GPUs like 2D
+graphics, 3D graphics, etc…</p>
+<h1 id="drawing-triangles-to-textures">Drawing triangles to textures</h1>
+<p>WebGPU can draw triangles to <a href="webgpu-textures.html">textures</a>. For the purpose
+if this article, a texture is a 2d rectangle of pixels. The <code class="notranslate" translate="no">&lt;canvas&gt;</code> element
+represents a texture on a webpage. In WebGPU we can ask the canvas for a texture
+and then render to that texture.</p>
+<p>To draw triangles with WebGPU we have to supply 2 “shaders”. Again, Shaders
+are functions that run on the GPU. These 2 shaders are</p>
 <ol>
 <li>
 <p>Vertex Shaders</p>
 <p>Vertex shaders are functions that compute vertex positions for drawing
-points, lines, and mostly triangles.</p>
+triangles/lines/points</p>
 </li>
 <li>
 <p>Fragment Shaders</p>
 <p>Fragment shaders are functions that compute the color (or other data)
-for each pixel to be drawn/rasterized when drawing points, lines,
-and triangles.</p>
-</li>
-<li>
-<p>Compute Shaders</p>
-<p>Compute shaders are functions that write computed data to buffers.
-(yea, I know that’s pretty ambiguous).</p>
+for each pixel to be drawn/rasterized when drawing triangles/lines/points</p>
 </li>
 </ol>
-<p>This article will try to cover the basics of vertex and fragment shaders.
-<a href="webgpu-compute-shaders.html">Another article will cover compute shaders</a>.</p>
-<p>Let’s try to explain this by implementing something similar to what the GPU does
-with vertex shaders and fragment shaders but in JavaScript. Hopefully this will give
-you an intuitive feeling about what’s really going on. If you already know how GPUs
-and shaders work, or if you find this section confusing, feel
-free to skip to <a href="#WebGPU">the actual WebGPU code</a>.</p>
-<p>If you’re familiar with
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">Array.map</a>,
-if you squint real hard you can get some idea of how these 3 different kinds of
-shader functions work. With <code class="notranslate" translate="no">Array.map</code> you provide a function to transform a value.
-Example:</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const shader = v =&gt; v * 2;  // double the input
-const input = [1, 2, 3, 4];
-const output = input.map(shader);   // result [2, 4, 6, 8]
-</code></pre>
-<p>Above our “shader” for array.map is just a function that given a number, returns
-its double. That’s probably the closest analogy in JavaScript to what “shader”
-means. It’s function that returns or generates values. You don’t call it
-directly. Instead, you specify it and then the system calls it for you.</p>
-<p>For a GPU vertex shader you don’t map over an input array. Instead, you just
-specify a count of how many times you want the function to be called.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">function draw(count, vertexShaderFn) {
-  const internalBuffer = [];
-  for (let i = 0; i &lt; count; ++i) {
-    internalBuffer[i] = vertexShaderFn(i);
-  }
-  console.log(JSON.stringify(internalBuffer));
-}
-</code></pre>
-<p>One consequence is we no longer need a source array to do something.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const shader = v =&gt; v * 2;
-const count = 4;
-draw(count, shader);
-// outputs [0, 2, 4, 6]
-</code></pre>
-<p>The thing that makes GPU work complicated is that these functions run on a separate
-system in your computer. This means all the data you create and reference
-has to somehow be sent to the GPU and you then need to communicate to the shader
-where you put that data and how to access it.</p>
-<p>Vertex And Fragment shaders can take data in 5 ways. Uniforms, Attributes, Buffers, Textures, Varyings.</p>
-<ol>
-<li>
-<p>Uniforms</p>
-<p>Uniforms are values that are the same for each iteration of the shader.
-Think of them as constant global variables. You can set them before a shader
-is run but while the shader is being used they remain constant, or to put it
-another way, they remain <em>uniform</em>.</p>
-<p>Let’s change <code class="notranslate" translate="no">draw</code> to pass uniforms to a shader. To do this we’ll
-make an array called <code class="notranslate" translate="no">bindings</code> and use it to pass in the uniforms.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">*function draw(count, vertexShaderFn, bindings) {
-  const internalBuffer = [];
-  for (let i = 0; i &lt; count; ++i) {
-*    internalBuffer[i] = vertexShaderFn(i, bindings);
-  }
-  console.log(JSON.stringify(internalBuffer));
-}
-</code></pre>
-<p>And then let’s change our shader to use the uniforms</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const vertexShader = (v, bindings) =&gt; {
-  const uniforms = bindings[0];
-  return v * uniforms.multiplier;
-};
-const count = 4;
-const uniforms1 = {multiplier: 3};
-const uniforms2 = {multiplier: 5};
-const bindings1 = [uniforms1];
-const bindings2 = [uniforms2];
-draw(count, vertexShader, bindings1);
-// outputs [0, 3, 6, 9]
-draw(count, vertexShader, bindings2);
-// outputs [0, 5, 10, 15]
-</code></pre>
-<p>So, the concept of uniforms hopefully seems pretty straight forward. The
-indirection through <code class="notranslate" translate="no">bindings</code> is there because this “similar” to how things
-are done in WebGPU. Like mentioned above, we access the things, in this case
-the uniforms, by location/index. Here they are found in <code class="notranslate" translate="no">bindings[0]</code>.</p>
-</li>
-<li>
-<p>Attributes (vertex shaders only)</p>
-<p>Attributes provide per shader iteration data. In <code class="notranslate" translate="no">array.map</code> above,
-the value <code class="notranslate" translate="no">v</code> was pulled from <code class="notranslate" translate="no">input</code> and automatically provided
-to the function. This is very similar to an attribute in a shader.</p>
-<p>The difference is, we are not mapping over the input, instead,
-because we are just counting so, we need to tell WebGPU
-about these inputs and how to get data out of them.</p>
-<p>Imagine we updated <code class="notranslate" translate="no">draw</code> like this</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">*function draw(count, vertexShaderFn, bindings, attribsSpec) {
-  const internalBuffer = [];
-  for (let i = 0; i &lt; count; ++i) {
-*    const attribs = getAttribs(attribsSpec, i);
-*    internalBuffer[i] = vertexShaderFn(i, bindings, attribs);
-  }
-  console.log(JSON.stringify(internalBuffer));
-}
+<p>Let’s start with a very small WebGPU program to draw a triangle.</p>
+<p>We need a canvas to display our triangle</p>
+<pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;canvas&gt;&lt;/canvas&gt;
+</pre>
+<p>Then we need a <code class="notranslate" translate="no">&lt;script&gt;</code> tag to hold our JavaScript.</p>
+<pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;canvas&gt;&lt;/canvas&gt;
++&lt;script type="module"&gt;
 
-+function getAttribs(attribs, ndx) {
-+  return attribs.map(({source, offset, stride}) =&gt; source[ndx * stride + offset]);
-+}
-</code></pre>
-<p>Then we could call it like this</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const buffer1 = [0, 1, 2, 3, 4, 5, 6, 7];
-const buffer2 = [11, 22, 33, 44];
-const attribsSpec = [
-  { source: buffer1, offset: 0, stride: 2, },
-  { source: buffer1, offset: 1, stride: 2, },
-  { source: buffer2, offset: 0, stride: 1, },
-];
-const vertexShader = (v, bindings, attribs) =&gt; (attribs[0] + attribs[1]) * attribs[2];
-const bindings = [];
-const count = 4;
-draw(count, vertexShader, bindings, attribsSpec);
-// outputs [11, 110, 297, 572]
-</code></pre>
-<p>As you can see above, <code class="notranslate" translate="no">getAttribs</code> uses <code class="notranslate" translate="no">offset</code>, and <code class="notranslate" translate="no">stride</code> to
-compute indices into the corresponding <code class="notranslate" translate="no">source</code> buffer and pulls out values.
-The pulled out values are then sent to the shader. On each iteration
-<code class="notranslate" translate="no">attribs</code> will be different</p>
-<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no"> iteration |  attribs
- ----------+-------------
-     0     | [0, 1, 11]
-     1     | [2, 3, 22]
-     2     | [4, 5, 33]
-     3     | [6, 7, 44]
-</code></pre>
-</li>
-<li>
-<p>Raw Buffers</p>
-<p>Buffers are effectively arrays, again for our analogy let’s make version
-of <code class="notranslate" translate="no">draw</code> that uses buffers. We’ll pass these buffers via <code class="notranslate" translate="no">bindings</code>
-like we did with uniforms.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const buffer1 = [0, 1, 2, 3, 4, 5, 6, 7];
-const buffer2 = [11, 22, 33, 44];
-const attribsSpec = [];
-const bindings = [
-  buffer1,
-  buffer2,
-];
-const vertexShader = (ndx, bindings, attribs) =&gt; 
-    (bindings[0][ndx * 2] + bindings[0][ndx * 2 + 1]) * bindings[1][ndx];
-const count = 4;
-draw(count, vertexShader, bindings, attribsSpec);
-// outputs [11, 110, 297, 572]
-</code></pre>
-<p>Here we got the same result as we did with attributes except this time,
-instead of the system pulling the values out of the buffers for us, we
-calculated our own indices into the bound buffers. This is more flexible than
-attributes since we basically have random access to the arrays. But, it’s
-potentially slower for that same reason. Given the way attributes worked the
-GPU knows the values will be accessed in order which it can use to optimize.
-For example, in order access is usually cache friendly. When we calculate our
-own indices the GPU has no idea which part of a buffer we’re going to access
-until we actually try to access it.</p>
-</li>
-<li>
-<p>Textures</p>
-<p>Textures are 1d, 2d, or 3d arrays of data. Of course, we could implement
-our own 2d or 3d arrays using buffers. What’s special about textures
-is they can be sampled. Sampling means that we can ask the GPU to compute
-a value between the values we supply. We’ll cover that this means in
-<a href="webgpu-textures.html">the article on textures</a>. For now, let’s make
-a JavaScript analogy again.</p>
-<p>First we’ll create a function <code class="notranslate" translate="no">textureSample</code> that <em>samples</em> an array
-between values</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">function textureSample(texture, ndx) {
-  const startNdx = ndx | 0;  // round down to an int
-  const fraction = ndx % 1;  // get the fractional part between indices
-  const start = texture[startNdx];
-  const end = texture[startNdx + 1];
-  return start + (end - start) * fraction;  // compute value between start and end
-}
-</code></pre>
-<p>A function something like that already exists on the GPU.</p>
-<p>Now let’s use that in a shader.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const texture = [10, 20, 30, 40, 50, 60, 70, 80];
-const attribsSpec = [];
-const bindings = [
-  texture,
-];
-const vertexShader = (ndx, bindings, attribs) =&gt;
-    textureSample(bindings[0], ndx * 1.75);
-const count = 4;
-draw(count, vertexShader, bindings, attribsSpec);
-// outputs [10, 27.5, 45, 62.5]
-</code></pre>
-<p>When <code class="notranslate" translate="no">ndx</code> is <code class="notranslate" translate="no">3</code> we’ll pass in <code class="notranslate" translate="no">3 * 1.75</code> or <code class="notranslate" translate="no">5.25</code> into <code class="notranslate" translate="no">textureSample</code>.
-That will compute a <code class="notranslate" translate="no">startNdx</code> of <code class="notranslate" translate="no">5</code>. So we’ll pull out indices <code class="notranslate" translate="no">5</code> and <code class="notranslate" translate="no">6</code>
-which are <code class="notranslate" translate="no">60</code> and <code class="notranslate" translate="no">70</code>. <code class="notranslate" translate="no">fraction</code> becomes <code class="notranslate" translate="no">0.25</code>, so we’ll get
-<code class="notranslate" translate="no">60 + (70 - 60) * 0.25</code> which is <code class="notranslate" translate="no">62.5</code>.</p>
-<p>Looking at the code above we could write <code class="notranslate" translate="no">textureSample</code> ourselves in our shader
-function. We could manually pull out the 2 values and interpolate between them.
-The reason the GPU has this special functionality is it can do it much faster
-and, depending on the settings, it may read as many as sixteen 4-float values
-to produce one 4-float value for us. That would be a lot of work to do manually.</p>
-</li>
-<li>
-<p>Varyings (fragment shaders only)</p>
-<p>Varyings are outputs from a vertex shader to a fragment shader. As was mentioned
-above, a vertex shader outputs positions that are used to draw/rasterize points,
-lines, and triangles.</p>
-<p>Let’s imagine we’re drawing a line. Let’s say our vertex shader was run
-twice, the first time it output the equivalent of <code class="notranslate" translate="no">5,0</code> and the second time
-the equivalent of <code class="notranslate" translate="no">25,4</code>. Given those 2 points the GPU will draw a line from
-<code class="notranslate" translate="no">5,0</code> to <code class="notranslate" translate="no">25,4</code> exclusive. To do this it will call our fragment shader 20
-times, once for each of the pixels on that line. Each time it calls our
-fragment shader it’s up to us to decide what color to return.</p>
-<p>Let’s assume we have pair of functions that help us draw a line between
-2 points. The first function computes how many pixel’s we need to draw and some
-values to help draw them. The second takes that info plus a pixel number
-and gives us a pixel position. Example:</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const line = calcLine([10, 10], [13, 13]);
-for (let i = 0; i &lt; line.numPixels; ++i) {
-  const p = calcLinePoint(line, i);
-  console.log(p);
-}
-// prints
-// 10,10
-// 11,11
-// 12,12
-</code></pre>
-<p>So, let’s change our vertex shader so it outputs 2 values per iteration. We could do that in
-many ways. Here’s one.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const buffer1 = [5, 0, 25, 4];
-const attribsSpec = [
-  {source: buffer1, offset: 0, stride: 2},
-  {source: buffer1, offset: 1, stride: 2},
-];
-const bindings = [];
-const dest = new Array(2);
-const vertexShader = (ndx, bindings, attribs) =&gt; [attribs[0], attribs[1]];
-const count = 2;
-draw(count, vertexShader, bindings, attribsSpec);
-// outputs [[5, 0], [25, 4]]
-</code></pre>
-<p>Now let’s write some code that loops over points 2 at a time and
-calls <code class="notranslate" translate="no">mapLine</code> to rasterize a line.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">function rasterizeLines(dest, destWidth, inputs, fragShaderFn, bindings) {
-  for (let ndx = 0; ndx &lt; inputs.length - 1; ndx += 2) {
-    const p0 = inputs[ndx    ];
-    const p1 = inputs[ndx + 1];
-    const line = calcLine(p0, p1);
-    for (let i = 0; i &lt; line.numPixels; ++i) {
-      const p = calcLinePoint(line, i);
-      const offset = p[1] * destWidth + p[0];  // y * width + x
-      dest[offset] = fragShaderFn(bindings);
-    }
+... javascript goes here ...
+
++&lt;/script&gt;
+</pre>
+<p>All of the JavaScript below will go inside this script tag</p>
+<p>WebGPU is an asynchronous API so it’s easiest to use in an async function. We
+start off by checking for requesting an adaptor, and requesting
+a device.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
+  const adapter = await gpu?.requestAdapter();
+  const device = await adapter?.requestDevice();
+  if (!device) {
+    fail('need a browser that supports WebGPU');
+    return;
   }
 }
-</code></pre>
-<p>We can update draw to use that code like this</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">-function draw(count, vertexShaderFn, bindings, attribsSpec) {
-+function draw(dest, destWidth,
-+              count, vertexShaderFn, fragmentShaderFn,
-+              bindings, attribsSpec,
-+) {
-  const internalBuffer = [];
-  for (let i = 0; i &lt; count; ++i) {
-    const attribs = getAttribs(attribsSpec, i);
-    internalBuffer[i] = vertexShaderFn(i, bindings, attribs);
+main();
+</pre>
+<p>The code above is fairly self explanatory. First we request an adapter by using the
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining"><code class="notranslate" translate="no">?.</code> optional chaining operator</a>.
+so that if <code class="notranslate" translate="no">navigator.gpu</code> does not exist then <code class="notranslate" translate="no">adapter</code> will be undefined.
+If it does exist then we’ll call <code class="notranslate" translate="no">requestAdapter</code>. It turns its results asynchronously
+so we need the <code class="notranslate" translate="no">await</code>. The adapter represents a specific GPU. Some devices
+have multiple GPUs.</p>
+<p>From the adapter we request the device but again use <code class="notranslate" translate="no">?.</code> so that if adapter happens
+to be undefined then device will also be undefined.</p>
+<p>If the <code class="notranslate" translate="no">device</code> not set it’s likely the user has an old browser.</p>
+<p>Next up we look up the canvas and create a <code class="notranslate" translate="no">webgpu</code> context for it. This will
+let us get a texture to render to that will be used to render the canvas in the
+webpage.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Get a WebGPU context from the canvas and configure it
+  const canvas = document.querySelector('canvas');
+  const context = canvas.getContext('webgpu');
+  const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+  context.configure({
+    device,
+    format: presentationFormat,
+    alphaMode: 'opaque',
+  });
+</pre>
+<p>Again the code above is pretty self explanatory. We get a <code class="notranslate" translate="no">"webgpu"</code> context
+from the canvas. We ask the system what the preferred canvas format is. This
+will be either <code class="notranslate" translate="no">"rgba8unorm"</code> or <code class="notranslate" translate="no">"bgra8unorm"</code>. It’s not really that important
+what it is but by querying it it will make things fastest for the user’s system.</p>
+<p>We pass that into the webgpu canvas context by calling <code class="notranslate" translate="no">configure</code>. We pass in
+the <code class="notranslate" translate="no">device</code>, the <code class="notranslate" translate="no">format</code>, and an <code class="notranslate" translate="no">alphaMode</code> which can be either <code class="notranslate" translate="no">"opaque"</code> or
+<code class="notranslate" translate="no">"premultiplied"</code>.</p>
+<p>Next we create a shader module. A shader module contains one or more shader
+functions. In our case we’ll make 1 vertex shader function and 1 fragment shader
+function.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+    label: 'our hardcoded red triangle shaders',
+    code: `
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; @builtin(position) vec4f {
+        var pos = array&lt;vec2f, 3&gt;(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+        return vec4f(pos[vertexIndex], 0.0, 1.0);
+      }
+
+      @fragment fn fs() -&gt; @location(0) vec4f {
+        return vec4f(1.0, 0.0, 0.0, 1.0);
+      }
+    `,
+  });
+</pre>
+<p>Shaders are written in a language called
+<a href="https://gpuweb.github.io/gpuweb/wgsl/">WebGPU Shading Language (WGSL)</a> which is
+often pronounced wig-sil. WGSL is a strongly typed language
+which we’ll try to go over more details in <a href="webgpu-wgsl.html">another article</a>.
+For now I’m hoping with a little explanation you can infer some basics.</p>
+<p>Above we see a function called <code class="notranslate" translate="no">vs</code> is declared with the <code class="notranslate" translate="no">@vertex</code> attribute.
+This designates it as a vertex shader function.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; @builtin(position) vec4f {
+         ...
+</pre>
+<p>It excepts one parameter we named <code class="notranslate" translate="no">vertexIndex</code>. <code class="notranslate" translate="no">vertexIndex</code> is a <code class="notranslate" translate="no">u32</code> which
+means a <em>32bit unsigned integer</em>. It gets its value from the builtin called
+<code class="notranslate" translate="no">vertex_index</code>. <code class="notranslate" translate="no">vertex_index</code> is the iteration number just like <code class="notranslate" translate="no">index</code> in
+JavaScript’s <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array.map(function(value, index) { ... })"><code class="notranslate" translate="no">Array.map(function(value, index) { ... })</code></a>. If we tell the GPU to
+execute this function 10 times, the first time <code class="notranslate" translate="no">vertex_index</code> would be <code class="notranslate" translate="no">0</code>, the
+2nd time it would be <code class="notranslate" translate="no">1</code>, the 3rd time it would be <code class="notranslate" translate="no">2</code>, etc…</p>
+<p>Our <code class="notranslate" translate="no">vs</code> function is declared as returning a <code class="notranslate" translate="no">vec4f</code> which is vector of four
+32bit floating point values. Think of it as an array of 4 values or an object
+with 4 properties like <code class="notranslate" translate="no">{x: 0, y: 0, z: 0, w: 0}</code>. This returned value will be
+assigned to the <code class="notranslate" translate="no">position</code> builtin. In “triangle-list” mode, every 3 times the
+vertex shader is executed a triangle will be drawn connecting the 3 <code class="notranslate" translate="no">position</code>
+values we return.</p>
+<p>Positions in WebGPU need to be returned in <em>clip space</em> where X goes from -1.0
+on the left to +1.0 on the right, Y goes from -1.0 at the bottom to +1.0 at the
+top. This is true regardless of the size of the texture we are drawing to.</p>
+<div class="webgpu_center"><img src="resources/clipspace.svg" style="width: 500px"></div>
+<p>The <code class="notranslate" translate="no">vs</code> function declares an array of 3 <code class="notranslate" translate="no">vec2f</code>s. Each <code class="notranslate" translate="no">vec2f</code> consists of two
+32bit floating point values. The code then fills out that array with 3 <code class="notranslate" translate="no">vec2f</code>s.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        var pos = array&lt;vec2f, 3&gt;(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+</pre>
+<p>Finally it uses <code class="notranslate" translate="no">vertexIndex</code> to return one of the 3 values from the array.
+Since the function requires 4 floating point values for its return type, and
+since <code class="notranslate" translate="no">pos</code> is an array of <code class="notranslate" translate="no">vec2f</code>, the code supplies <code class="notranslate" translate="no">0.0</code> and <code class="notranslate" translate="no">1.0</code> for
+the remaining 2 values.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        return vec4f(pos[vertexIndex], 0.0, 1.0);
+</pre>
+<p>The shader module also declares a function called <code class="notranslate" translate="no">fs</code> that is declared with
+<code class="notranslate" translate="no">@fragment</code> attribute making it a fragment shader function.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs() -&gt; @location(0) vec4f {
+</pre>
+<p>This function takes no parameters and returns a <code class="notranslate" translate="no">vec4f</code> at <code class="notranslate" translate="no">location(0)</code>.
+This means it will write to the first render target. We’ll make the first
+render target our canvas later.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        return vec4f(1, 0, 0, 1);
+</pre>
+<p>The code returns <code class="notranslate" translate="no">1, 0, 0, 1</code> which is red. Colors in WebGPU are usually
+specified as floating point values from <code class="notranslate" translate="no">0.0</code> to <code class="notranslate" translate="no">1.0</code> where the 4 values above
+correspond to red, green, blue, and alpha respectively.</p>
+<p>When the GPU rasterizes the triangle (draws it with pixels), it will call
+the fragment shader to find out what color to make each pixel. In our case
+we’re just returning red.</p>
+<p>One more thing to note is the <code class="notranslate" translate="no">label</code>. Nearly every object you can create with
+WebGPU can take a <code class="notranslate" translate="no">label</code>. Labels are entirely optional but it’s considered
+<em>best practice</em> to label everything you make. The reason is, when you get an
+error, most WebGPU implementations will print an error message that includes the
+labels of the things related to the error.</p>
+<p>In a normal app you’d have 100s or 1000s of buffers, textures, shader modules,
+pipelines, etc… If you get an error like <code class="notranslate" translate="no">"WGSL syntax error in shaderModule at line 10"</code>, if you have 100 shader modules, which one got the error? If you
+label the module then you’ll get an error more like <code class="notranslate" translate="no">"WGSL syntax error in shaderModule('our hardcoded red triangle shaders') at line 10</code> which is a way
+more useful error message and will save you a ton of time tracking down the
+issue.</p>
+<p>Now that we’ve created a shader module, we next need to make a render pipeline</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: 'our hardcoded red triangle pipeline',
+    layout: 'auto',
+    vertex: {
+      module,
+      entryPoint: 'vs',
+    },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+</pre>
+<p>In this case there isn’t much to see. We set <code class="notranslate" translate="no">layout</code> to <code class="notranslate" translate="no">'auto'</code> which means
+to ask WebGPU to derive the layout of data from the shaders. We’re not using
+any data though.</p>
+<p>We then tell the render pipeline to use the <code class="notranslate" translate="no">vs</code> function from our shader module
+for a vertex shader and the <code class="notranslate" translate="no">fs</code> function for our fragment shader. Otherwise we
+tell it the format of the first render target. “render target” means the texture
+we will render to. We create a pipeline
+we have to specify the format for the texture(s) we’ll use this pipeline to
+eventually render to.</p>
+<p>Element 0 for the <code class="notranslate" translate="no">targets</code> array corresponds to location 0 as we specified for
+the fragment shader’s return value. Later, well set that target to be a texture
+for the canvas.</p>
+<p>Next up we prepare a <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a> which describes which textures
+we want to draw and how to use them.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
+    label: 'our basic canvas renderPass',
+    colorAttachments: [
+      {
+        // view: &lt;- to be filled out when we render
+        clearValue: [0.3, 0.3, 0.3, 1],
+        loadOp: 'clear',
+        storeOp: 'store',
+      },
+    ],
+  };  
+</pre>
+<p>A <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a> has an array for <code class="notranslate" translate="no">colorAttachments</code> which lists
+the textures we will render to and how to treat the textures.
+We’ll wait to fill in which texture we actually want to render to. For now,
+we setup a clear value of semi-dark gray, and a <code class="notranslate" translate="no">loadOp</code> and <code class="notranslate" translate="no">storeOp</code>.
+<code class="notranslate" translate="no">loadOp: 'clear'</code> specifies to clear the texture to the clear value before
+drawing. The other option is <code class="notranslate" translate="no">'load'</code> which means load the existing contents of
+the texture into the GPU so we can draw over what’s already there.
+<code class="notranslate" translate="no">storeOp: 'store'</code> means store the result of what we draw. We could also pass <code class="notranslate" translate="no">'discard'</code>
+which would throw away what we draw. We’ll cover why we might want to do that in
+<a href="webgpu-multisampling.html">another article</a>.</p>
+<p>Now it’s time to render.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
+    // Get the current texture from the canvas context and
+    // set it as the texture to render to.
+    renderPassDescriptor.colorAttachments[0].view =
+        context.getCurrentTexture().createView();
+
+    // make a command encoder to start encoding commands
+    const encoder = device.createCommandEncoder({ label: 'our encoder' });
+
+    // make a render pass encoder to encode render specific commands
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.draw(3);  // call our vertex shader 3 times
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
   }
--  console.log(JSON.stringify(internalBuffer));
-+  rasterizeLines(dest, destWidth, internalBuffer,
-+                 fragmentShaderFn, bindings);
-}
-</code></pre>
-<p>Now we’re actually using <code class="notranslate" translate="no">internalBuffer</code> 😃!</p>
-<p>Let’s update the code that calls <code class="notranslate" translate="no">draw</code>.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const buffer1 = [5, 0, 25, 4];
-const attribsSpec = [
-  {source: buffer1, offset: 0, stride: 2},
-  {source: buffer1, offset: 1, stride: 2},
-];
-const bindings = [];
-const vertexShader = (ndx, bindings, attribs) =&gt; [attribs[0], attribs[1]];
-const count = 2;
--draw(count, vertexShader, bindings, attribsSpec);
 
-+const width = 30;
-+const height = 5;
-+const pixels = new Array(width * height).fill(0);
-+const fragShader = (bindings) =&gt; 6;
-
-*draw(
-*   pixels, width,
-*   count, vertexShader, fragShader,
-*   bindings, attribsSpec);
-</code></pre>
-<p>If we print <code class="notranslate" translate="no">pixels</code> as a rectangle where <code class="notranslate" translate="no">0</code> becomes <code class="notranslate" translate="no">.</code> we’d get this</p>
-<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">.....666......................
-........66666.................
-.............66666............
-..................66666.......
-.......................66.....
-</code></pre>
-<p>Unfortunately, our fragment shader gets no input that changes each iteration so
-there is no way to output anything different for each pixel. This is where
-varyings come in. Let’s change our first shader to output an extra value.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const buffer1 = [5, 0, 25, 4];
-+const buffer2 = [9, 3];
-const attribsSpec = [
-  {source: buffer1, offset: 0, stride: 2},
-  {source: buffer1, offset: 1, stride: 2},
-+  {source: buffer2, offset: 0, stride: 1},
-];
-const bindings = [];
-const dest = new Array(2);
-const vertexShader = (ndx, bindings, attribs) =&gt; 
--    [attribs[0], attribs[1]];
-+    [[attribs[0], attribs[1]], [attribs[2]]];
-
-...
-</code></pre>
-<p>If we changed nothing else, after the loop inside <code class="notranslate" translate="no">draw</code>, <code class="notranslate" translate="no">internalBuffer</code> would have
-these values</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js"> [ 
-   [[ 5, 0], [9]],
-   [[25, 4], [3]],
- ]
-</code></pre>
-<p>We can easily compute a value from 0.0 to 1.0 that represents how far along
-the line we are. We can use this to interpolate the extra value we just
-added.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">function rasterizeLines(dest, destWidth, inputs, fragShaderFn, bindings) {
-  for(let ndx = 0; ndx &lt; inputs.length - 1; ndx += 2) {
--    const p0 = inputs[ndx    ];
--    const p1 = inputs[ndx + 1];
-+    const p0 = inputs[ndx    ][0];
-+    const p1 = inputs[ndx + 1][0];
-+    const v0 = inputs[ndx    ].slice(1);  // everything but the first value
-+    const v1 = inputs[ndx + 1].slice(1);
-    const line = calcLine(p0, p1);
-    for (let i = 0; i &lt; line.numPixels; ++i) {
-      const p = calcLinePoint(line, i);
-+      const t = i / line.numPixels;
-+      const varyings = interpolateArrays(v0, v1, t);
-      const offset = p[1] * destWidth + p[0];  // y * width + x
--      dest[offset] = fragShaderFn(bindings);
-+      dest[offset] = fragShaderFn(bindings, varyings);
-    }
-  }
-}
-
-+// interpolateArrays([[1,2]], [[3,4]], 0.25) =&gt; [[1.5, 2.5]]
-+function interpolateArrays(v0, v1, t) {
-+  return v0.map((array0, ndx) =&gt; {
-+    const array1 = v1[ndx];
-+    return interpolateValues(array0, array1, t);
-+  });
-+}
-
-+// interpolateValues([1,2], [3,4], 0.25) =&gt; [1.5, 2.5]
-+function interpolateValues(array0, array1, t) {
-+  return array0.map((a, ndx) =&gt; {
-+    const b = array1[ndx];
-+    return a + (b - a) * t;
-+  });
-+}
-</code></pre>
-<p>Now we can use those varyings in our fragment shader</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">-const fragShader = (bindings) =&gt; 6;
-+const fragShader = (bindings, varyings) =&gt; varyings[0] | 0; // convert to int
-</code></pre>
-<p>If we ran it now we’d see results like this</p>
-<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">.....988......................
-........87776.................
-.............66655............
-..................54443.......
-.......................33.....
-</code></pre>
-<p>The first iteration of the vertex shader output <code class="notranslate" translate="no">[[5,0], [9]</code> and
-the 2nd iteration output <code class="notranslate" translate="no">[25,4], [3]</code> and you can see,
-as the fragment shader was called, the 2nd value of each of those
-varied (was interpolated) between the 2 values.</p>
-<p>We could make another function <code class="notranslate" translate="no">mapTriangle</code> that given 3 points
-rasterized a triangle calling the fragment shader function for each
-point inside the triangle. It would interpolate the varyings
-from 3 points instead of 2.</p>
-</li>
-</ol>
-<p>Here are all the examples above running live in case you find it
-useful to play around with them to understand them.</p>
-<p><div class="webgpu_example_container">
-  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-javascript-analogies.html"></iframe></div>
-  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-javascript-analogies.html" target="_blank">click here to open in a separate window</a>
+  render();
+</pre>
+<p>First we call <code class="notranslate" translate="no">context.getCurrentTexture()</code> to get a texture that will appear in the
+canvas. Calling <code class="notranslate" translate="no">createView</code> gets a view into a specific part of a texture but
+with no parameters it will return the default part which is what we want in this
+case. In this case our only <code class="notranslate" translate="no">colorAttachment</code> is a texture view from our
+canvas which we get via the context we created at the start. Again, element 0 of
+the <code class="notranslate" translate="no">colorAttachments</code> array corresponds to <code class="notranslate" translate="no">location(0)</code> as we specified for
+the return value of the fragment shader.</p>
+<p>Next we create a command encoder. A command encoder is used to create a command
+buffer. We use it to encode commands and then “submit” the command buffer it
+created to have the commands executed.</p>
+<p>We encode the command, <code class="notranslate" translate="no">setPipeline</code>, to set our pipeline and then tell it to
+execute our vertex shader 3 times by calling <code class="notranslate" translate="no">draw</code> with 3. By default, every 3
+times our vertex shader is executed a triangle will be drawn by connecting the 3
+values just returned from the vertex shader.</p>
+<p>Finally we end the render pass, and then finish the encoder. This gives us a
+command buffer that represents the steps we just specified. Finally we submit
+the command buffer to be executed.</p>
+<p>When the <code class="notranslate" translate="no">draw</code> command is executed, this will be our state</p>
+<div class="webgpu_center"><img src="resources/webgpu-simple-triangle-diagram.svg" style="width: 723px;"></div>
+<p>We’ve got no textures, no buffers, no bindGroups but we do have a pipeline, a
+vertex and fragment shader, and a render pass descriptor that tells our shader
+to render to the the canvas texture.</p>
+<p>The result</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle.html" target="_blank">click here to open in a separate window</a>
 </div>
 
+<p></p>
+<p>It’s import to important to emphasize that all of these functions we called
+like <code class="notranslate" translate="no">setPipeline</code>, and <code class="notranslate" translate="no">draw</code> only add commands to a command buffer.
+They don’t actually execute the commands. The commands are executed
+when we submit the command buffer to the device queue.</p>
+<p>So, now we’ve seen a very small working WebGPU example. It should be pretty
+obvious that hard coding a triangle inside a shader is not very flexible. We
+need ways to provide data and we’ll cover those in the following articles. The
+points to take away from the code above,</p>
+<ul>
+<li>WebGPU just runs shaders. Its up to you to fill them with code to do useful things</li>
+<li>Shaders are specified in a shader module and then turned into a pipeline</li>
+<li>WebGPU can draw triangles</li>
+<li>WebGPU draws to textures (we happened to get a texture from the canvas)</li>
+<li>WebGPU works by encoding commands and then submitting them.</li>
+</ul>
+<h1 id="run-computations-on-the-gpu">Run computations on the GPU</h1>
+<p>Let’s write a basic example for doing some computation on the GPU</p>
+<p>We start off with the same code to get a WebGPU device</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
+  const adapter = await gpu?.requestAdapter();
+  const device = await adapter?.requestDevice();
+  if (!device) {
+    fail('need a browser that supports WebGPU');
+    return;
+  }
+</pre>
+<p>When we create a shader module</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+    label: 'doubling compute module',
+    code: `
+      @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
+
+      @compute @workgroup_size(1) fn computeSomething(
+        @builtin(global_invocation_id) id: vec3&lt;u32&gt;
+      ) {
+        let i = id.x;
+        data[i] = data[i] * 2.0;
+      }
+    `,
+  });
+</pre>
+<p>First we declare a variable called <code class="notranslate" translate="no">data</code> of type <code class="notranslate" translate="no">storage</code> that we want to be
+able to both read from and write to.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
+</pre>
+<p>We declare its type as <code class="notranslate" translate="no">array&lt;f32&gt;</code> which means an array of 32bit floating point
+values. We tell it we’re going to specify this array on binding location 0 (the
+<code class="notranslate" translate="no">binding(0)</code>) in bindGroup 0 (the <code class="notranslate" translate="no">@group(0)</code>).</p>
+<p>Then we declare a function called <code class="notranslate" translate="no">computeSomething</code> with the <code class="notranslate" translate="no">@compute</code>
+attribute which makes it a compute shader.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @compute @workgroup_size(1) fn computeSomething(
+        @builtin(global_invocation_id) id: vec3u
+      ) {
+        ...
+</pre>
+<p>Compute shaders are required to declare a workgroup size which we will cover
+later. For now we’ll just set it to 1 with the attribute <code class="notranslate" translate="no">@workgroup_size(1)</code>.
+We declare it to have one parameter <code class="notranslate" translate="no">id</code> which uses a <code class="notranslate" translate="no">vec3u</code>. A <code class="notranslate" translate="no">vec3u</code> is
+three unsigned 32 integer values. Like our vertex shader above, this is the
+iteration number. It’s different in that compute shader iteration numbers are 3
+dimensional (have 3 values). We declare <code class="notranslate" translate="no">id</code> to get its value from the built-in
+<code class="notranslate" translate="no">global_invocation_id</code>.</p>
+<p>You can <em>kind of</em> think of compute shaders as running like this. This is an over
+simplification but it will do for now.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// pseudo code
+for (z = 0; z &lt; depth; ++z) {
+  for (y = 0; y &lt; height; ++y) {
+    for (x = 0; x &lt; width; ++x) {
+      const global_invocation_id = {x, y, z};
+      computeShaderFn(global_invocation_id);
+    }
+  }
+}
+</pre>
+<p>Finally we use the <code class="notranslate" translate="no">x</code> property of <code class="notranslate" translate="no">id</code> to index <code class="notranslate" translate="no">data</code> and multiply each value
+by 2</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let i = id.x;
+        data[i] = data[i] * 2.0;
+</pre>
+<p>Above, <code class="notranslate" translate="no">i</code> is just the first of the 3 iteration numbers.</p>
+<p>Now that we’ve created the shader we need to create a pipeline</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createComputePipeline({
+    label: 'doubling compute pipeline',
+    layout: 'auto',
+    compute: {
+      module,
+      entryPoint: 'computeSomething',
+    },
+  });
+</pre>
+<p>Here we just tell it we’re using a <code class="notranslate" translate="no">compute</code> stage from the shader <code class="notranslate" translate="no">module</code> we
+created and we want to call the <code class="notranslate" translate="no">computeSomething</code> function. <code class="notranslate" translate="no">layout</code> is
+<code class="notranslate" translate="no">'auto'</code> again, telling WebGPU to figure out the layout from the shaders.</p>
+<p>Next we need some data</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const input = new Float32Array([1, 3, 5]);
+</pre>
+<p>That data only exists in JavaScript. For WebGPU to use it we need to make a
+buffer that exists on the GPU and copy the data to the buffer.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // create a buffer on the GPU to hold our computation
+  // input and output
+  const workBuffer = device.createBuffer({
+    label: 'work buffer',
+    size: input.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+  });
+  // Copy our input data to that buffer
+  device.queue.writeBuffer(workBuffer, 0, input);
+</pre>
+<p>Above we call <code class="notranslate" translate="no">device.createBuffer</code> to create a buffer. <code class="notranslate" translate="no">size</code> is the size in
+bytes, in this case it will be 12 because size in bytes of a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> of 3
+values is 12. If you’re not familiar with <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> and typed arrays then
+see <a href="webgpu-typedarrays.html">this article</a>.</p>
+<p>Every WebGPU buffer we create has to specify a <code class="notranslate" translate="no">usage</code>. There are a bunch of
+flags we can pass for usage but not all of them can be used together. Here we
+say we want this buffer to be usable as <code class="notranslate" translate="no">storage</code> by passing
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.STORAGE"><code class="notranslate" translate="no">GPUBufferUsage.STORAGE</code></a>. This makes it compatible with <code class="notranslate" translate="no">var&lt;storage,...&gt;</code> from
+the shader. Further, we want to able to copy data to this buffer so we include
+the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.COPY_DST"><code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code></a> flag. And finally we want to be able to copy data
+from the buffer so we include <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.COPY_SRC"><code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code></a>.</p>
+<p>Note that you can not directly read the contents of a WebGPU buffer from
+JavaScript. Instead you have to “map” it which is another way of requesting
+access to the buffer from WebGPU because the buffer might be in use and because
+it might only exist on the GPU.</p>
+<p>WebGPU buffers that can be mapped in JavaScript can’t be used for much else. In
+other words, we can not map the buffer we just created above and we try to add
+the flag to make it mappable we’ll get an error that that is not compatible with
+usage <code class="notranslate" translate="no">STORAGE</code>.</p>
+<p>So, in order to see the result of our computation, we’ll need another buffer.
+After running the computation, we’ll copy the buffer above to this result buffer
+and set its flags so we can map it.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // create a buffer on the GPU to get a copy of the results
+  const resultBuffer = device.createBuffer({
+    label: 'result buffer',
+    size: input.byteLength,
+    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
+  });
+</pre>
+<p><code class="notranslate" translate="no">MAP_READ</code> means we want to be able to map this buffer for reading data.</p>
+<p>In order to tell our shader about the buffer we want it to work on we need to
+create a bindGroup</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Setup a bindGroup to tell the shader which
+  // buffer to use for the computation
+  const bindGroup = device.createBindGroup({
+    label: 'bindGroup for work buffer',
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: workBuffer } },
+    ],
+  });
+</pre>
+<p>We get the layout for the bindGroup from the pipeline. Then we setup bindGroup
+entries. The <code class="notranslate" translate="no">{binding: 0 ...</code> of the <code class="notranslate" translate="no">entries</code> corresponds to the <code class="notranslate" translate="no">@binding(0)</code>
+in the shader.</p>
+<p>Now we can start encoding commands</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Encode commands to do the computation
+  const encoder = device.createCommandEncoder({
+    label: 'doubling encoder',
+  });
+  const pass = encoder.beginComputePass({
+    label: 'doubling compute pass',
+  });
+  pass.setPipeline(pipeline);
+  pass.setBindGroup(0, bindGroup);
+  pass.dispatchWorkgroups(input.length);
+  pass.end();
+</pre>
+<p>We create a command encoder. We start a compute pass. We set the pipeline, then
+we set the bindGroup. Here, the <code class="notranslate" translate="no">0</code> in <code class="notranslate" translate="no">pass.setBindGroup(0, bindGroup)</code>
+corresponds to <code class="notranslate" translate="no">@group(0)</code> in the shader. We then <code class="notranslate" translate="no">dispatchWorkgroups</code> and in
+this case we pass it <code class="notranslate" translate="no">input.length</code> which is <code class="notranslate" translate="no">3</code> telling WebGPU to run the
+compute shader 3 times. We then end the pass.</p>
+<p>Here’s what the situation will be when <code class="notranslate" translate="no">dispatchWorkgroups</code> is executed</p>
+<div class="webgpu_center"><img src="resources/webgpu-simple-compute-diagram.svg" style="width: 553px;"></div>
+<p>After the computation is finished we ask WebGPU to copy from <code class="notranslate" translate="no">buffer</code> to
+<code class="notranslate" translate="no">resultBuffer</code></p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Encode a command to copy the results to a mappable buffer.
+  encoder.copyBufferToBuffer(workBuffer, 0, resultBuffer, 0, resultBuffer.size);
+</pre>
+<p>Now we can <code class="notranslate" translate="no">finish</code> the encoder to get a command buffer and then submit that
+command buffer.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Finish encoding and submit the commands
+  const commandBuffer = encoder.finish();
+  device.queue.submit([commandBuffer]);
+</pre>
+<p>Now we map the results buffer and get a copy of the data</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Read the results
+  await resultBuffer.mapAsync(GPUMapMode.READ);
+  const result = new Float32Array(resultBuffer.getMappedRange());
+
+  console.log('input', input);
+  console.log('result', result);
+
+  resultBuffer.unmap();
+</pre>
+<p>To map the results buffer we call <code class="notranslate" translate="no">mapAsync</code> and have to <code class="notranslate" translate="no">await</code> for it to
+finish. Once mapped, we can call <code class="notranslate" translate="no">resultBuffer.getMappedRange()</code> which with no
+parameters will return an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> of entire buffer. We put that in a
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> typed array view and then we can look at the values. One
+important detail, the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> returned by <code class="notranslate" translate="no">getMappedRange</code> is only valid
+until we called <code class="notranslate" translate="no">unmap</code>. After <code class="notranslate" translate="no">unmap</code> its length with be set to 0 and its data
+no longer accessible.</p>
+<p>Running that we can see we got the result back, all the numbers have been
+doubled.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-compute.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-compute.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>We’ll cover how to really use compute shaders in other articles. For now, you
+hopefully have gleaned some understanding of what WebGPU does. EVERYTHING ELSE
+IS UP TO YOU! Think of WebGPU as similar to other programming languages. It
+provides a few basic features, and leaves the rest to your creativity.</p>
+<p>What makes WebGPU programming special is these functions, vertex shaders,
+fragment shaders, and compute shaders, run on your GPU. A GPU could have over
+10000 processors which means they can potentially do more than 10000
+calculations in parallel which is likely 3 or more orders of magnitude than your
+CPU can do in parallel.</p>
+<p>Before we move on, let’s go back to our triangle drawing example and add some
+basic support for resizing a canvas. Sizing a canvas is actually a topic that
+can have many subtleties so <a href="webgpu-resizing-the-canvas.html">there is an entire article on it</a>.
+For now though let’s just add some basic support</p>
+<p>First we’ll add some CSS to make our canvas fill the page</p>
+<pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;style&gt;
+html, body {
+  margin: 0;       /* remove the default margin          */
+  height: 100%;    /* make the html,body fill the page   */
+}
+canvas {
+  display: block;  /* make the canvas act like a block   */
+  width: 100%;     /* make the canvas fill its container */
+  height: 100%;
+}
+&lt;/style&gt;
+</pre>
+<p>That CSS alone will make the canvas get displayed to cover the page but it won’t change
+the resolution of the canvas itself so you might notice if you make the example below
+large, like if you click the full screen button, you’ll see the edges of the triangle
+are blocky.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-with-canvas-css.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-with-canvas-css.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p><code class="notranslate" translate="no">&lt;canvas&gt;</code> tags, by default, have a resolution of 300x150 pixels. We’d like to adjust
+the canvas to match the size. One good way to do this is with a <code class="notranslate" translate="no">ResizeObserver</code>.
+You create a <code class="notranslate" translate="no">ResizeObserver</code> and give it a function to call whenever the elements
+you’ve asked it to observe change their size. You then tell it which elements
+to observe.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    ...
+-    render();
+
++    const observer = new ResizeObserver(entries =&gt; {
++      for (const entry of entries) {
++        const canvas = entry.target;
++        const width = entry.contentBoxSize.inlineSize;
++        const height = entry.contentBoxSize.blockSize;
++        canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
++        canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
++        // re-render
++        render();
++      }
++    });
++    observer.observe(canvas);
+</pre>
+<p>In the code above we go over all the entries but there should only ever be one
+because we’re only observing out canvas. We need to limit the size of the canvas
+to the largest size our device supports otherwise WebGPU will start generating
+errors that we tried to make a texture that is too large.</p>
+<p>We call <code class="notranslate" translate="no">render</code> to re-render the
+triangle at the new resolution. We removed the old call to <code class="notranslate" translate="no">render</code> because
+it’s not needed. A <code class="notranslate" translate="no">ResizeObserver</code> will always call its callback at least once
+to report the size of the elements when they started being observed.</p>
+<p>The new size texture is created when we call <code class="notranslate" translate="no">context.getCurrentTexture()</code>
+inside <code class="notranslate" translate="no">render</code> so there’s nothing left to do.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-with-canvas-resize.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-with-canvas-resize.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>In the following articles we’ll cover various ways to pass data into shaders.</p>
+<ul>
+<li><a href="webgpu-inter-stage-variables.html">inter-stage variables</a></li>
+<li><a href="webgpu-uniforms.html">uniforms</a></li>
+<li><a href="webgpu-storage-buffers.html">storage buffers</a></li>
+<li><a href="webgpu-vertex-buffers.html">vertex buffers</a></li>
+<li><a href="webgpu-textures.html">textures</a></li>
+<li><a href="webgpu-constants.html">constants</a></li>
+</ul>
+<p>Then we’ll cover <a href="webgpu-wgsl.html">the basics of WGSL</a>.</p>
+<p>I’m a little bit worried these article will be boring at first. Feel free to
+jump around if you’d like. Just remember if you don’t understand something you
+probably need to read or review these basics. Once we get the basics down we’ll
+start going over actual techniques.</p>
+<div class="webgpu_bottombar">
+<p>
+The code above gets a WebGPU device in very terse way. A more verbose
+way would be something like
 </p>
-<p>What happens in the JavaScript above is an analogy. The details
-of how varyings are actually interpolated, how lines are drawn, how
-buffers are accessed, how textures are sampled, uniforms, attributes specified,
-etc… are different in WebGPU, but the concepts are very similar so
-I hope this JavaScript analogy provided some help in getting a mental
-model of what’s happening.</p>
-<p>Why is it this way? Well, if you look at <code class="notranslate" translate="no">draw</code> and <code class="notranslate" translate="no">rasterizeLines</code>
-you might notice that each iteration is entirely independent of
-the other iterations. Another way to say this, you could process
-each iteration in any order. Instead of 0, 1, 2, 3, 4 you could
-process them 3, 1, 4, 0, 2 and you’d get the exact same result.
-The fact that they are independent means each iteration can be
-run in parallel by a different processor. Modern 2021 top end
-GPUs have ~10000 processors. That means up to 10000 things can be
-run in parallel. That is where the power of using the GPU comes from.
-By following these patterns the system can massively parallelize
-the work.</p>
-<p>The biggest limitations are:</p>
-<ol>
-<li>
-<p>A shader function can only reference
-its inputs (attributes, buffers, textures, uniforms, varyings).</p>
-</li>
-<li>
-<p>A shader can not allocate memory.</p>
-</li>
-<li>
-<p>A shader can not reference its destination, the thing it’s
-generating values for.</p>
-<p>When you think about it this makes sense. Imagine <code class="notranslate" translate="no">fragShader</code>
-above tried to reference <code class="notranslate" translate="no">dest</code> directly. That would mean when
-trying to parallelize things it would be impossible to coordinate.
-Which iteration would go first? If the 3rd iteration referenced <code class="notranslate" translate="no">dest[0]</code>
-then the 0th iteration would need to run first but if the 0th iteration
-referenced <code class="notranslate" translate="no">dest[3]</code> then the 3rd iteration would need to run first.
-That’s a situation which is impossible to resolve.
-Given we can compute our own indices in the shader there is no way
-for the GPU to know what the shader is going to access and so no way
-to do any coordination. So, the limit is, a shader cannot reference
-the thing it’s generating values for.</p>
-<p>Figuring out ways to solve problems within those limits is a big
-part of what GPU programming is about.</p>
+<pre class="prettyprint showmods">async function start() {
+  if (!navigator.gpu) {
+    fail('this browser does not support WebGPU');
+    return;
+  }
+<p>const adapter = await navigator.gpu.requestAdapter();
+if (!adapter) {
+fail(‘this browser supports webgpu but it appears disabled’);
+return;
+}</p>
+<p>const device = await adapter?.requestDevice();
+device.lost.then((info) =&gt; {
+console.error(<code class="notranslate" translate="no">WebGPU device was lost: ${info.message}</code>);</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">// 'reason' will be 'destroyed' if we intentionally destroy the device.
+if (info.reason !== 'destroyed') {
+  // try again
+  start();
+}
+</pre>
+<p>});</p>
+<p>main(device);
+}
+start();</p>
+<p>function main(device) {
+… do webgpu …
+}
+</p></pre><p></p>
+<p>
+<code class="notranslate" translate="no">device.lost</code> is a promise that starts off unresolved. It will resolve if and when the
+device is lost. A device can be lost for many reasons. Maybe the user ran a really intensive
+app and it crashed their GPU. Maybe the user updated their drivers. Maybe the user has
+an external GPU and unplugged it.
+</p>
+<p>
+Note that <code class="notranslate" translate="no">requestDevice</code> always returns a device. It just might start lost.
+WebGPU is designed so that, for the most part, the device will appear to work,
+at least from an API level. Calls to create things and use them will appear
+to succeed but they won't actually function. It's up to you to take action
+when the <code class="notranslate" translate="no">lost</code> promise resolves.
+</p>
+</div>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>There are actually 5 modes.</p>
+<ul>
+<li><code class="notranslate" translate="no">'point-list'</code>: for each position, draw a point</li>
+<li><code class="notranslate" translate="no">'line-list'</code>: for each 2 positions, draw a line</li>
+<li><code class="notranslate" translate="no">'line-strip'</code>: draw lines connecting the newest point to the previous point</li>
+<li><code class="notranslate" translate="no">'triangle-list'</code>: for each 3 positions, draw a triangle (<strong>default</strong>)</li>
+<li><code class="notranslate" translate="no">'triangle-strip'</code>: for each new position, draw a triangle from it and the last 2 positions</li>
+</ul>
+ <a href="#fnref1" class="footnote-backref">↩︎</a></li>
+<li id="fn2" class="footnote-item"><p>Fragment shaders indirectly write data to textures. That data does not
+have to be colors. For example, it’s common to output the direction of the surface that
+pixel represents. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
-<p><a id="WebGPU"></a></p>
-<p>TBD</p>
+</section>
 
     </div>
     <div class="lesson-sidebar">
         <select class="language">
-    <option value="/webgpu/lessons/webgpu-fundamentals.html" selected>English</a>
-</select>
+    <option value="/webgpu/lessons/webgpu-fundamentals.html" selected="">English
+</option></select>
 
 
         <div id="toc">
           <ul>  <li>Basics</li>
         <ul>
           <li><a href="/webgpu/lessons/webgpu-fundamentals.html">Fundamentals</a></li>
-<li><a href="/webgpu/lessons/webgpu-compute-shaders.html">Compute Shaders</a></li>
+<li><a href="/webgpu/lessons/webgpu-inter-stage-variables.html">Inter-stage Variables</a></li>
+<li><a href="/webgpu/lessons/webgpu-uniforms.html">Uniforms</a></li>
+<li><a href="/webgpu/lessons/webgpu-storage-buffers.html">Storage Buffers</a></li>
+<li><a href="/webgpu/lessons/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
+<li><a href="/webgpu/lessons/webgpu-textures.html">Textures</a></li>
+<li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-wgsl.html">WGSL</a></li>
 <li><a href="/webgpu/lessons/webgpu-textures.html">Textures</a></li>
+<li><a href="/webgpu/lessons/webgpu-how-it-works.html">how-it-works</a></li>
         </ul>
   <li>Mics</li>
         <ul>
@@ -701,6 +1033,9 @@ part of what GPU programming is about.</p>
         </ul></ul>
 <ul>
   <li><a href="https://github.com/gfxfundamentals/webgpufundamentals">github</a></li>
+  <li><a href="https://gpuweb.github.io/types/">WebGPU API Reference</a></li>
+  <li><a href="https://www.w3.org/TR/webgpu/">WebGPU Spec</a></li>
+  <li><a href="https://www.w3.org/TR/WGSL/">WGSL Spec</a></li>
 </ul>
 
         </div>
@@ -709,10 +1044,10 @@ part of what GPU programming is about.</p>
         
     <div>Questions? <a href="http://stackoverflow.com/questions/tagged/webgpu">Ask on stackoverflow</a>.</div>
     <div>
-       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=suggested+topic&template=suggest-topic.md&title=%5BSUGGESTION%5D">Suggestion</a>?
-       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=&template=request.md&title=">Request</a>?
-       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=bug+%2F+issue&template=bug-issue-report.md&title=">Issue</a>?
-       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=bug+%2F+issue&template=bug-issue-report.md&title=">Bug</a>?
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">Suggestion</a>?
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">Request</a>?
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">Issue</a>?
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">Bug</a>?
     </div>
     <div class="lesson-comment-notes">
        Use <b>&lt;pre&gt;&lt;code&gt;</b>code goes here<b>&lt;/code&gt;&lt;/pre&gt;</b> for code blocks
@@ -740,7 +1075,7 @@ part of what GPU programming is about.</p>
     </div>
   </div>
 </div>
-</body>
+
 <script>
 const settings = {
   contribTemplate: "Thank you <a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a><br>for <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} contributions</a>",
@@ -782,7 +1117,8 @@ const settings = {
 </script>
 
 
-</html>
 
 
 
+
+</body></html>

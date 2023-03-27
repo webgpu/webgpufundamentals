@@ -1,24 +1,22 @@
-<!DOCTYPE html>
-<!-- this file is auto-generated from webgpu/lessons/webgpu-from-webgl.md. Do not edited directly -->
-<!--
-Copyright 2021, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/webgpu-from-webgl.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-*   Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-*   Redistributions in binary form must reproduce the above
-    copyright notice, this list of conditions and the following disclaimer
-    in the documentation and/or other materials provided with the
-    distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-*   Neither the name of Gregg Tavares nor the names of the
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,30 +29,30 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
--->
-<html lang="en">
-<head>
+
+
+--><html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Comparing using WebGL to WebGPU" />
-<meta name="keywords" content="webgpu graphics" />
-<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-from-webgl_en.jpg" />
+<meta name="description" content="Comparing using WebGL to WebGPU">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-from-webgl_en.jpg">
 
-<meta property="og:title" content="WebGPU from WebGL" />
-<meta property="og:type" content="website" />
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-from-webgl_en.jpg" />
-<meta property="og:description" content="Comparing using WebGL to WebGPU" />
-<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-from-webgl.html" />
+<meta property="og:title" content="WebGPU from WebGL">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-from-webgl_en.jpg">
+<meta property="og:description" content="Comparing using WebGL to WebGPU">
+<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-from-webgl.html">
 
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:site" content="@greggman" />
-<meta name="twitter:creator" content="@greggman" />
-<meta name="twitter:domain" content="webgpufundamentals.org" />
-<meta name="twitter:title" content="WebGPU from WebGL" />
-<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-from-webgl.html" />
-<meta name="twitter:description" content="Comparing using WebGL to WebGPU" />
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-from-webgl_en.jpg" />
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@greggman">
+<meta name="twitter:creator" content="@greggman">
+<meta name="twitter:domain" content="webgpufundamentals.org">
+<meta name="twitter:title" content="WebGPU from WebGL">
+<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-from-webgl.html">
+<meta name="twitter:description" content="Comparing using WebGL to WebGPU">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-from-webgl_en.jpg">
 
 <script type="application/ld+json">
 {
@@ -95,14 +93,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
 <link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
-<link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css" />
+<link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
 <div class="webgpu_navbar">
   <div>
     <select class="language">
-    <option value="/webgpu/lessons/webgpu-from-webgl.html" selected>English</a>
-</select>
+    <option value="/webgpu/lessons/webgpu-from-webgl.html" selected="">English
+</option></select>
 
 
     <a href="#toc">Table of Contents</a>
@@ -201,11 +199,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
 
 </style>
-<div id="forkongithub"><div><div><a href="https://github.com/gfxfundamentals/webgpufundamentals">Fix, Fork, Contribute <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<div id="forkongithub"><div><div><a href="https://github.com/gfxfundamentals/webgpufundamentals">Fix, Fork, Contribute <!--?xml version="1.0" encoding="UTF-8" standalone="no"?-->
+
 <svg width="100%" height="100%" viewBox="0 0 136 133" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
     <g transform="matrix(3.92891,0,0,3.92891,67.867,129.125)">
-        <path d="M0,-31.904C-8.995,-31.904 -16.288,-24.611 -16.288,-15.614C-16.288,-8.417 -11.621,-2.312 -5.148,-0.157C-4.333,-0.008 -4.036,-0.511 -4.036,-0.943C-4.036,-1.329 -4.05,-2.354 -4.058,-3.713C-8.589,-2.729 -9.545,-5.897 -9.545,-5.897C-10.286,-7.779 -11.354,-8.28 -11.354,-8.28C-12.833,-9.29 -11.242,-9.27 -11.242,-9.27C-9.607,-9.155 -8.747,-7.591 -8.747,-7.591C-7.294,-5.102 -4.934,-5.821 -4.006,-6.238C-3.858,-7.29 -3.438,-8.008 -2.972,-8.415C-6.589,-8.826 -10.392,-10.224 -10.392,-16.466C-10.392,-18.244 -9.757,-19.698 -8.715,-20.837C-8.883,-21.249 -9.442,-22.905 -8.556,-25.148C-8.556,-25.148 -7.188,-25.586 -4.076,-23.478C-2.777,-23.84 -1.383,-24.02 0.002,-24.026C1.385,-24.02 2.779,-23.84 4.08,-23.478C7.19,-25.586 8.555,-25.148 8.555,-25.148C9.444,-22.905 8.885,-21.249 8.717,-20.837C9.761,-19.698 10.392,-18.244 10.392,-16.466C10.392,-10.208 6.583,-8.831 2.954,-8.428C3.539,-7.925 4.06,-6.931 4.06,-5.411C4.06,-3.234 4.04,-1.477 4.04,-0.943C4.04,-0.507 4.333,0 5.16,-0.159C11.628,-2.318 16.291,-8.419 16.291,-15.614C16.291,-24.611 8.997,-31.904 0,-31.904" style="fill:white;"/>
+        <path d="M0,-31.904C-8.995,-31.904 -16.288,-24.611 -16.288,-15.614C-16.288,-8.417 -11.621,-2.312 -5.148,-0.157C-4.333,-0.008 -4.036,-0.511 -4.036,-0.943C-4.036,-1.329 -4.05,-2.354 -4.058,-3.713C-8.589,-2.729 -9.545,-5.897 -9.545,-5.897C-10.286,-7.779 -11.354,-8.28 -11.354,-8.28C-12.833,-9.29 -11.242,-9.27 -11.242,-9.27C-9.607,-9.155 -8.747,-7.591 -8.747,-7.591C-7.294,-5.102 -4.934,-5.821 -4.006,-6.238C-3.858,-7.29 -3.438,-8.008 -2.972,-8.415C-6.589,-8.826 -10.392,-10.224 -10.392,-16.466C-10.392,-18.244 -9.757,-19.698 -8.715,-20.837C-8.883,-21.249 -9.442,-22.905 -8.556,-25.148C-8.556,-25.148 -7.188,-25.586 -4.076,-23.478C-2.777,-23.84 -1.383,-24.02 0.002,-24.026C1.385,-24.02 2.779,-23.84 4.08,-23.478C7.19,-25.586 8.555,-25.148 8.555,-25.148C9.444,-22.905 8.885,-21.249 8.717,-20.837C9.761,-19.698 10.392,-18.244 10.392,-16.466C10.392,-10.208 6.583,-8.831 2.954,-8.428C3.539,-7.925 4.06,-6.931 4.06,-5.411C4.06,-3.234 4.04,-1.477 4.04,-0.943C4.04,-0.507 4.333,0 5.16,-0.159C11.628,-2.318 16.291,-8.419 16.291,-15.614C16.291,-24.611 8.997,-31.904 0,-31.904" style="fill:white;"></path>
     </g>
 </svg>
 </a></div></div></div>
@@ -219,10 +217,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <div class="warn">
-      Warning: WebGPU has not shipped and the spec is still changing.<br><br>
-      If you see a problem please <a href="https://github.com/gfxfundamentals/webgpufundamentals">file an issue</a>.
-      </div>
       <p>This article is meant for people who already know WebGL and want to start
 using WebGPU.</p>
 <p>If you’re coming from WebGL to WebGPU it’s worth noting that many of the
@@ -259,8 +253,8 @@ the render pass.</p>
 <p>The second-biggest difference is that WebGPU <strong>is lower level</strong> than WebGL. In
 WebGL many things connect by names. For example, you declare a uniform in GLSL
 and you look up its location</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">loc = gl.getUniformLocation(program, 'nameOfUniform');
-</code></pre>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">loc = gl.getUniformLocation(program, 'nameOfUniform');
+</pre>
 <p>Another example is varyings, in a vertex shader you use
 <code class="notranslate" translate="no">varying vec2 v_texcoord</code> or <code class="notranslate" translate="no">out vec2 v_texcoord</code> and in the fragment shader
 you declare the corresponding varying naming it <code class="notranslate" translate="no">v_texcoord</code>. The good part of
@@ -278,7 +272,7 @@ locations themselves by name.</p>
 called ‘<em>location</em>’) and there is no API to query them. That means it’s entirely
 up to you to keep those locations in sync and to manually compute byte offsets.</p>
 <p>To give a JavaScript analogy:</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">function likeWebGL(inputs) {
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function likeWebGL(inputs) {
   const {position, texcoords, normal, color} = inputs;
   ...
 }
@@ -287,28 +281,28 @@ function likeWebGPU(inputs) {
   const [position, texcoords, normal, color] = inputs;
   ...
 }
-</code></pre>
+</pre>
 <p>In the <code class="notranslate" translate="no">likeWebGL</code> example above, things are connected by name. We can call
 <code class="notranslate" translate="no">likeWebGL</code> like this</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const inputs = {};
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const inputs = {};
 inputs.normal = normal;
 inputs.color = color;
 inputs.position = position;
 likeWebGL(inputs);
-</code></pre>
+</pre>
 <p>or like this</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">likeWebGP({color, position, normal});
-</code></pre>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">likeWebGP({color, position, normal});
+</pre>
 <p>Notice because they are connected by names, the order of our parameters does not
 matter. Further, we can skip a parameter (<code class="notranslate" translate="no">texcoords</code> in the example above)
 assuming the function can run without <code class="notranslate" translate="no">texcoords</code>.</p>
 <p>On the other hand with <code class="notranslate" translate="no">likeWebGPU</code></p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">const inputs = [];
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const inputs = [];
 inputs[0] = position;
 inputs[2] = normal;
 inputs[3] = color;
 likeWebGPU(inputs);
-</code></pre>
+</pre>
 <p>Here, we pass in our parameters in an array. Notice we have to know the
 locations (indices) for each input. We need to know that <code class="notranslate" translate="no">position</code> is index 0,
 <code class="notranslate" translate="no">normal</code> is at index 2 etc. Keeping the locations for the code inside
@@ -347,8 +341,7 @@ samplers are required.</p>
 <h3 id="shaders">Shaders</h3>
 <p>Here is a shader that draws textured, lit, triangles. One in GLSL and the other
 in WGSL.</p>
-<div class="webgpu_center compare"><div><div>GLSL</div><pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const vSrc &#x3D; &#x60;
+<div class="webgpu_center compare"><div><div>GLSL</div><pre class="prettyprint showlinemods notranslate notranslate" translate="no">const vSrc = `
 uniform mat4 u_worldViewProjection;
 uniform mat4 u_worldInverseTranspose;
 
@@ -360,13 +353,13 @@ varying vec2 v_texCoord;
 varying vec3 v_normal;
 
 void main() {
-  gl_Position &#x3D; u_worldViewProjection * a_position;
-  v_texCoord &#x3D; a_texcoord;
-  v_normal &#x3D; (u_worldInverseTranspose * vec4(a_normal, 0)).xyz;
+  gl_Position = u_worldViewProjection * a_position;
+  v_texCoord = a_texcoord;
+  v_normal = (u_worldInverseTranspose * vec4(a_normal, 0)).xyz;
 }
-&#x60;;
+`;
 
-const fSrc &#x3D; &#x60;
+const fSrc = `
 precision highp float;
 
 varying vec2 v_texCoord;
@@ -376,17 +369,16 @@ uniform sampler2D u_diffuse;
 uniform vec3 u_lightDirection;
 
 void main() {
-  vec4 diffuseColor &#x3D; texture2D(u_diffuse, v_texCoord);
-  vec3 a_normal &#x3D; normalize(v_normal);
-  float l &#x3D; dot(a_normal, u_lightDirection) * 0.5 + 0.5;
-  gl_FragColor &#x3D; vec4(diffuseColor.rgb * l, diffuseColor.a);
+  vec4 diffuseColor = texture2D(u_diffuse, v_texCoord);
+  vec3 a_normal = normalize(v_normal);
+  float l = dot(a_normal, u_lightDirection) * 0.5 + 0.5;
+  gl_FragColor = vec4(diffuseColor.rgb * l, diffuseColor.a);
 }
-&#x60;;
-</code></pre>
+`;
+</pre>
 </div><div>
 <div>WGSL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const shaderSrc &#x3D; &#x60;
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">const shaderSrc = `
 struct VSUniforms {
   worldViewProjection: mat4x4&lt;f32&gt;,
   worldInverseTranspose: mat4x4&lt;f32&gt;,
@@ -394,28 +386,28 @@ struct VSUniforms {
 @group(0) binding(0) var&lt;uniform&gt; vsUniforms: VSUniforms;
 
 struct MyVSInput {
-    @location(0) position: vec4&lt;f32&gt;,
-    @location(1) normal: vec3&lt;f32&gt;,
-    @location(2) texcoord: vec2&lt;f32&gt;,
+    @location(0) position: vec4f,
+    @location(1) normal: vec3f,
+    @location(2) texcoord: vec2f,
 };
 
 struct MyVSOutput {
-  @builtin(position) position: vec4&lt;f32&gt;,
-  @location(0) normal: vec3&lt;f32&gt;,
-  @location(1) texcoord: vec2&lt;f32&gt;,
+  @builtin(position) position: vec4f,
+  @location(0) normal: vec3f,
+  @location(1) texcoord: vec2f,
 };
 
 @vertex
 fn myVSMain(v: MyVSInput) -&gt; MyVSOutput {
   var vsOut: MyVSOutput;
-  vsOut.position &#x3D; vsUniforms.worldViewProjection * v.position;
-  vsOut.normal &#x3D; (vsUniforms.worldInverseTranspose * vec4&lt;f32&gt;(v.normal, 0.0)).xyz;
-  vsOut.texcoord &#x3D; v.texcoord;
+  vsOut.position = vsUniforms.worldViewProjection * v.position;
+  vsOut.normal = (vsUniforms.worldInverseTranspose * vec4f(v.normal, 0.0)).xyz;
+  vsOut.texcoord = v.texcoord;
   return vsOut;
 }
 
 struct FSUniforms {
-  lightDirection: vec3&lt;f32&gt;,
+  lightDirection: vec3f,
 };
 
 @group(0) binding(1) var&lt;uniform&gt; fsUniforms: FSUniforms;
@@ -423,21 +415,20 @@ struct FSUniforms {
 @group(0) binding(3) var diffuseTexture: texture_2d&lt;f32&gt;;
 
 @fragment
-fn myFSMain(v: MyVSOutput) -&gt; @location(0) vec4&lt;f32&gt; {
-  var diffuseColor &#x3D; textureSample(diffuseTexture, diffuseSampler, v.texcoord);
-  var a_normal &#x3D; normalize(v.normal);
-  var l &#x3D; dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
-  return vec4&lt;f32&gt;(diffuseColor.rgb * l, diffuseColor.a);
+fn myFSMain(v: MyVSOutput) -&gt; @location(0) vec4f {
+  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.texcoord);
+  var a_normal = normalize(v.normal);
+  var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
+  return vec4f(diffuseColor.rgb * l, diffuseColor.a);
 }
-&#x60;;
-</code></pre></div></div>
+`;
+</pre></div></div>
 <p>Notice in many ways they aren’t all that different. The core parts of each
-function are very similar. <code class="notranslate" translate="no">vec4</code> in GLSL becomes <code class="notranslate" translate="no">vec4&lt;f32&gt;</code> in WGSL, <code class="notranslate" translate="no">mat4</code>
+function are very similar. <code class="notranslate" translate="no">vec4</code> in GLSL becomes <code class="notranslate" translate="no">vec4f</code> in WGSL, <code class="notranslate" translate="no">mat4</code>
 becomes <code class="notranslate" translate="no">mat4x4&lt;f32&gt;</code>.</p>
 <p>GLSL is C/C++ like. WGSL is Rust like. One difference is
 types go on the left in GLSL and on the right in WGSL.</p>
-<div class="webgpu_center compare"><div><div>GLSL</div><pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-// declare a variable of type vec4
+<div class="webgpu_center compare"><div><div>GLSL</div><pre class="prettyprint showlinemods notranslate notranslate" translate="no">// declare a variable of type vec4
 vec4 v;
 
 // declare a function of type mat4 that takes a vec3 parameter
@@ -445,31 +436,30 @@ mat4 someFunction(vec3 p) { ... }
 
 // declare a struct
 struct Foo {  vec4: field; }
-</code></pre>
+</pre>
 </div><div>
 <div>WGSL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-// declare a variable of type vec4&lt;f32&gt;
-var v: vec4&lt;f32&gt;;
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">// declare a variable of type vec4f
+var v: vec4f;
 
-// declare a function of type mat4x4&lt;f32&gt; that takes a vec3&lt;f32&gt; parameter
-fn someFunction(p: vec3&lt;f32&gt;) &#x3D;&gt; mat4x4&lt;f32&gt; { ... }
+// declare a function of type mat4x4&lt;f32&gt; that takes a vec3f parameter
+fn someFunction(p: vec3f) =&gt; mat4x4&lt;f32&gt; { ... }
 
 // declare a struct
-struct Foo {  field: vec4&lt;f32&gt;; }
-</code></pre></div></div>
+struct Foo {  field: vec4f; }
+</pre></div></div>
 <p>WGSL has the concept that if you do not specify the type of variable it will
 be deduced from the type of the expression on the right whereas GLSL required you to
 always specify the type. In other words in GLSL</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-glsl">vec4 color = texture(someTexture, someTextureCoord);
-</code></pre>
+<pre class="prettyprint showlinemods notranslate lang-glsl" translate="no">vec4 color = texture(someTexture, someTextureCoord);
+</pre>
 <p>Above you needed to declare <code class="notranslate" translate="no">color</code> as a <code class="notranslate" translate="no">vec4</code> but in WGSL you can do either of these</p>
-<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">var color: vec4&lt;f32&gt; = textureSample(someTexture, someSampler, someTextureCoord);
-</code></pre>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">var color: vec4f = textureSample(someTexture, someSampler, someTextureCoord);
+</pre>
 <p>or</p>
-<pre class="prettyprint notranslate" translate="no"><code class="notranslate" translate="no">var color = textureSample(someTexture, someSampler, someTextureCoord);
-</code></pre>
-<p>In both cases <code class="notranslate" translate="no">color</code> is a <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>.</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">var color = textureSample(someTexture, someSampler, someTextureCoord);
+</pre>
+<p>In both cases <code class="notranslate" translate="no">color</code> is a <code class="notranslate" translate="no">vec4f</code>.</p>
 <p>On the other hand, the biggest difference is all the <code class="notranslate" translate="no">@???</code> parts. Each
 one is declaring exactly where that particular piece of data is coming from. For
 example, notice that uniforms in the vertex shader and uniforms the fragment
@@ -495,33 +485,33 @@ function as taking these inputs.</p>
 the fragment shader’s input, but there is no requirement to use the same
 structure. All that is required is the locations match. For example this
 would work:</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-wgsl">*struct MyFSInput {
-*  @location(0) the_normal: vec3&lt;f32&gt;,
-*  @location(1) the_texcoord: vec2&lt;f32&gt;,
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">*struct MyFSInput {
+*  @location(0) the_normal: vec3f,
+*  @location(1) the_texcoord: vec2f,
 *};
 
 @stage(fragment)
-*fn myFSMain(v: MyFSInput) -&gt; @location(0) vec4&lt;f32&gt;
+*fn myFSMain(v: MyFSInput) -&gt; @location(0) vec4f
 {
 *  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.the_texcoord);
 *  var a_normal = normalize(v.the_normal);
   var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
-  return vec4&lt;f32&gt;(diffuseColor.rgb * l, diffuseColor.a);
+  return vec4f(diffuseColor.rgb * l, diffuseColor.a);
 }
-</code></pre>
+</pre>
 <p>This would also work</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-wgsl">@stage(fragment)
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@stage(fragment)
 fn myFSMain(
-*  @location(1) uv: vec2&lt;f32&gt;,
-*  @location(0) nrm: vec3&lt;f32&gt;,
-) -&gt; @location(0) vec4&lt;f32&gt;
+*  @location(1) uv: vec2f,
+*  @location(0) nrm: vec3f,
+) -&gt; @location(0) vec4f
 {
 *  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, uv);
 *  var a_normal = normalize(nrm);
   var l = dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5;
-  return vec4&lt;f32&gt;(diffuseColor.rgb * l, diffuseColor.a);
+  return vec4f(diffuseColor.rgb * l, diffuseColor.a);
 }
-</code></pre>
+</pre>
 <p>Again, what matters is the that the locations match, not the names.</p>
 <p>Another difference to notice is <code class="notranslate" translate="no">gl_Position</code> in GLSL has just a special
 location <code class="notranslate" translate="no">@builtin(position)</code> for a user declared structure field in WGSL.
@@ -534,40 +524,38 @@ and assign locations just like we did for the output of the vertex shader.</p>
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-function main() {
-  const gl &#x3D; document.querySelector(&#x27;canvas&#x27;).getContext(&#x27;webgl&#x27;);
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">function main() {
+  const gl = document.querySelector('canvas').getContext('webgl');
   if (!gl) {
-    fail(&#x27;need webgl&#x27;);
+    fail('need webgl');
     return;
   }
 }
 
 main();
-</code></pre>
+</pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-async function main() {
-  const gpu &#x3D; navigator.gpu;
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">async function main() {
+  const gpu = navigator.gpu;
   if (!gpu) {
-    fail(&#x27;this browser does not support webgpu&#x27;);
+    fail('this browser does not support webgpu');
     return;
   }
 
-  const adapter &#x3D; await gpu.requestAdapter();
+  const adapter = await gpu.requestAdapter();
   if (!adapter) {
-    fail(&#x27;this browser appears to support WebGPU but it\&#x27;s disabled&#x27;);
+    fail('this browser appears to support WebGPU but it\'s disabled');
     return;
   }
-  const device &#x3D; await adapter.requestDevice();
+  const device = await adapter.requestDevice();
 
 ...
 }
 
 main();
-</code></pre>
+</pre>
   </div>
 </div>
 <p>Here, <code class="notranslate" translate="no">adapter</code> represents the GPU itself whereas <code class="notranslate" translate="no">device</code> represents
@@ -578,50 +566,48 @@ is asynchronous.</p>
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-function createBuffer(gl, data, type &#x3D; gl.ARRAY_BUFFER) {
-  const buf &#x3D; gl.createBuffer();
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">function createBuffer(gl, data, type = gl.ARRAY_BUFFER) {
+  const buf = gl.createBuffer();
   gl.bindBuffer(type, buf);
   gl.bufferData(type, data, gl.STATIC_DRAW);
   return buf;
 }
 
-const positions &#x3D; new Float32Array([1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1]);
-const normals   &#x3D; new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]);
-const texcoords &#x3D; new Float32Array([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1]);
-const indices   &#x3D; new Uint16Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23]);
+const positions = new Float32Array([1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1]);
+const normals   = new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]);
+const texcoords = new Float32Array([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1]);
+const indices   = new Uint16Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23]);
 
-const positionBuffer &#x3D; createBuffer(gl, positions);
-const normalBuffer &#x3D; createBuffer(gl, normals);
-const texcoordBuffer &#x3D; createBuffer(gl, texcoords);
-const indicesBuffer &#x3D; createBuffer(gl, indices, gl.ELEMENT_ARRAY_BUFFER);
-</code></pre>
+const positionBuffer = createBuffer(gl, positions);
+const normalBuffer = createBuffer(gl, normals);
+const texcoordBuffer = createBuffer(gl, texcoords);
+const indicesBuffer = createBuffer(gl, indices, gl.ELEMENT_ARRAY_BUFFER);
+</pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-function createBuffer(device, data, usage) {
-  const buffer &#x3D; device.createBuffer({
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">function createBuffer(device, data, usage) {
+  const buffer = device.createBuffer({
     size: data.byteLength,
     usage,
     mappedAtCreation: true,
   });
-  const dst &#x3D; new data.constructor(buffer.getMappedRange());
+  const dst = new data.constructor(buffer.getMappedRange());
   dst.set(data);
   buffer.unmap();
   return buffer;
 }
 
-const positions &#x3D; new Float32Array([1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1]);
-const normals   &#x3D; new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]);
-const texcoords &#x3D; new Float32Array([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1]);
-const indices   &#x3D; new Uint16Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23]);
+const positions = new Float32Array([1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1]);
+const normals   = new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]);
+const texcoords = new Float32Array([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1]);
+const indices   = new Uint16Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23]);
 
-const positionBuffer &#x3D; createBuffer(device, positions, GPUBufferUsage.VERTEX);
-const normalBuffer &#x3D; createBuffer(device, normals, GPUBufferUsage.VERTEX);
-const texcoordBuffer &#x3D; createBuffer(device, texcoords, GPUBufferUsage.VERTEX);
-const indicesBuffer &#x3D; createBuffer(device, indices, GPUBufferUsage.INDEX);
-</code></pre>
+const positionBuffer = createBuffer(device, positions, GPUBufferUsage.VERTEX);
+const normalBuffer = createBuffer(device, normals, GPUBufferUsage.VERTEX);
+const texcoordBuffer = createBuffer(device, texcoords, GPUBufferUsage.VERTEX);
+const indicesBuffer = createBuffer(device, indices, GPUBufferUsage.INDEX);
+</pre>
   </div>
 </div>
 <p>You can see, at a glance, these are not too different. You call different
@@ -630,8 +616,7 @@ functions, but otherwise it’s pretty similar.</p>
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const tex &#x3D; gl.createTexture();
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">const tex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, tex);
 gl.texImage2D(
     gl.TEXTURE_2D,
@@ -650,14 +635,13 @@ gl.texImage2D(
     ]));
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-</code></pre>
+</pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const tex &#x3D; device.createTexture({
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">const tex = device.createTexture({
   size: [2, 2, 1],
-  format: &#x27;rgba8unorm&#x27;,
+  format: 'rgba8unorm',
   usage:
     GPUTextureUsage.TEXTURE_BINDING |
     GPUTextureUsage.COPY_DST,
@@ -674,11 +658,11 @@ device.queue.writeTexture(
     { width: 2, height: 2 },
 );
 
-const sampler &#x3D; device.createSampler({
-  magFilter: &#x27;nearest&#x27;,
-  minFilter: &#x27;nearest&#x27;,
+const sampler = device.createSampler({
+  magFilter: 'nearest',
+  minFilter: 'nearest',
 });
-</code></pre>
+</pre>
   </div>
 </div>
 <p>Again, not all that different. One difference is there are usage flags in WebGPU
@@ -688,9 +672,8 @@ is that in WebGPU we need to create a sampler which is optional in WebGL</p>
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-function createShader(gl, type, source) {
-  const sh &#x3D; gl.createShader(type);
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">function createShader(gl, type, source) {
+  const sh = gl.createShader(type);
   gl.shaderSource(sh, source);
   gl.compileShader(sh);
   if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
@@ -699,15 +682,14 @@ function createShader(gl, type, source) {
   return sh;
 }
 
-const vs &#x3D; createShader(gl, gl.VERTEX_SHADER, vSrc);
-const fs &#x3D; createShader(gl, gl.FRAGMENT_SHADER, fSrc);
-</code></pre>
+const vs = createShader(gl, gl.VERTEX_SHADER, vSrc);
+const fs = createShader(gl, gl.FRAGMENT_SHADER, fSrc);
+</pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const shaderModule &#x3D; device.createShaderModule({code: shaderSrc});
-</code></pre>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">const shaderModule = device.createShaderModule({code: shaderSrc});
+</pre>
   </div>
 </div>
 <p>A minor difference, unlike WebGL, we can compile multiple shaders at once.</p>
@@ -729,9 +711,8 @@ triangles), setting up how the depth buffer is used.</p>
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-function createProgram(gl, vs, fs) {
-  const prg &#x3D; gl.createProgram();
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">function createProgram(gl, vs, fs) {
+  const prg = gl.createProgram();
   gl.attachShader(prg, vs);
   gl.attachShader(prg, fs);
   gl.linkProgram(prg);
@@ -741,7 +722,7 @@ function createProgram(gl, vs, fs) {
   return prg;
 }
 
-const program &#x3D; createProgram(gl, vs, fs);
+const program = createProgram(gl, vs, fs);
 
 ...
 
@@ -761,55 +742,54 @@ gl.enableVertexAttribArray(texcoordLoc);
 
 gl.enable(gl.DEPTH_TEST);
 gl.enable(gl.CULL_FACE);
-</code></pre>
+</pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const pipeline &#x3D; device.createRenderPipeline({
-  layout: &#x27;auto&#x27;,
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">const pipeline = device.createRenderPipeline({
+  layout: 'auto',
   vertex: {
     module: shaderModule,
-    entryPoint: &#x27;myVSMain&#x27;,
+    entryPoint: 'myVSMain',
     buffers: [
       // position
       {
         arrayStride: 3 * 4, // 3 floats, 4 bytes each
         attributes: [
-          {shaderLocation: 0, offset: 0, format: &#x27;float32x3&#x27;},
+          {shaderLocation: 0, offset: 0, format: 'float32x3'},
         ],
       },
       // normals
       {
         arrayStride: 3 * 4, // 3 floats, 4 bytes each
         attributes: [
-          {shaderLocation: 1, offset: 0, format: &#x27;float32x3&#x27;},
+          {shaderLocation: 1, offset: 0, format: 'float32x3'},
         ],
       },
       // texcoords
       {
         arrayStride: 2 * 4, // 2 floats, 4 bytes each
         attributes: [
-          {shaderLocation: 2, offset: 0, format: &#x27;float32x2&#x27;,},
+          {shaderLocation: 2, offset: 0, format: 'float32x2',},
         ],
       },
     ],
   },
   fragment: {
     module: shaderModule,
-    entryPoint: &#x27;myFSMain&#x27;,
+    entryPoint: 'myFSMain',
     targets: [
       {format: presentationFormat},
     ],
   },
   primitive: {
-    topology: &#x27;triangle-list&#x27;,
-    cullMode: &#x27;back&#x27;,
+    topology: 'triangle-list',
+    cullMode: 'back',
   },
   depthStencil: {
     depthWriteEnabled: true,
-    depthCompare: &#x27;less&#x27;,
-    format: &#x27;depth24plus&#x27;,
+    depthCompare: 'less',
+    format: 'depth24plus',
   },
   ...(canvasInfo.sampleCount &gt; 1 &amp;&amp; {
       multisample: {
@@ -817,7 +797,7 @@ const pipeline &#x3D; device.createRenderPipeline({
       },
   }),
 });
-</code></pre>
+</pre>
   </div>
 </div>
 <p>Parts to note:</p>
@@ -833,10 +813,10 @@ buffer to an attribute <em>and</em> to specify how to pull data out of that buff
 WebGPU we only specify how to pull data out of buffers when creating the
 pipeline. We specify what buffers to use later.</p>
 <p>In the example above you can see <code class="notranslate" translate="no">buffers</code> is an array of objects.
-Those objects are called <code class="notranslate" translate="no">GPUVertexBufferLayout</code>. Within each one is
+Those objects are called <a href="https://www.w3.org/TR/webgpu/#dictdef-gpuvertexbufferlayout"><code class="notranslate" translate="no">GPUVertexBufferLayout</code></a>. Within each one is
 an array of attributes. Here we’re setting up to get our data from
 3 different buffers. If we interleaved the data into one buffer
-we’d only need one <code class="notranslate" translate="no">GPUVertexBufferLayout</code> but its <code class="notranslate" translate="no">attribute</code> array
+we’d only need one <a href="https://www.w3.org/TR/webgpu/#dictdef-gpuvertexbufferlayout"><code class="notranslate" translate="no">GPUVertexBufferLayout</code></a> but its <code class="notranslate" translate="no">attribute</code> array
 would have 3 entries.</p>
 <p>Also note, here is a place where we have to match <code class="notranslate" translate="no">shaderLocation</code> to
 what we used in the shader.</p>
@@ -857,33 +837,31 @@ something we’ll cover below.</p>
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const u_lightDirectionLoc &#x3D; gl.getUniformLocation(program, &#x27;u_lightDirection&#x27;);
-const u_diffuseLoc &#x3D; gl.getUniformLocation(program, &#x27;u_diffuse&#x27;);
-const u_worldInverseTransposeLoc &#x3D; gl.getUniformLocation(program, &#x27;u_worldInverseTranspose&#x27;);
-const u_worldViewProjectionLoc &#x3D; gl.getUniformLocation(program, &#x27;u_worldViewProjection&#x27;);
-</code></pre>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">const u_lightDirectionLoc = gl.getUniformLocation(program, 'u_lightDirection');
+const u_diffuseLoc = gl.getUniformLocation(program, 'u_diffuse');
+const u_worldInverseTransposeLoc = gl.getUniformLocation(program, 'u_worldInverseTranspose');
+const u_worldViewProjectionLoc = gl.getUniformLocation(program, 'u_worldViewProjection');
+</pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const vUniformBufferSize &#x3D; 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
-const fUniformBufferSize &#x3D; 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
+const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
 
-const vsUniformBuffer &#x3D; device.createBuffer({
+const vsUniformBuffer = device.createBuffer({
   size: vUniformBufferSize,
   usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 });
-const fsUniformBuffer &#x3D; device.createBuffer({
+const fsUniformBuffer = device.createBuffer({
   size: fUniformBufferSize,
   usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 });
-const vsUniformValues &#x3D; new Float32Array(2 * 16); // 2 mat4s
-const worldViewProjection &#x3D; vsUniformValues.subarray(0, 16);
-const worldInverseTranspose &#x3D; vsUniformValues.subarray(16, 32);
-const fsUniformValues &#x3D; new Float32Array(3);  // 1 vec3
-const lightDirection &#x3D; fsUniformValues.subarray(0, 3);
-</code></pre>
+const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
+const worldViewProjection = vsUniformValues.subarray(0, 16);
+const worldInverseTranspose = vsUniformValues.subarray(16, 32);
+const fsUniformValues = new Float32Array(3);  // 1 vec3
+const lightDirection = fsUniformValues.subarray(0, 3);
+</pre>
   </div>
 </div>
 <p>In WebGL we look up the locations of the uniforms. In WebGPU we create buffers
@@ -903,17 +881,15 @@ shaders will use</p>
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-// happens at render time
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">// happens at render time
 gl.activeTexture(gl.TEXTURE0);
 gl.bindTexture(gl.TEXTURE_2D, tex);
-</code></pre>
+</pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-// can happen at init time
-const bindGroup &#x3D; device.createBindGroup({
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">// can happen at init time
+const bindGroup = device.createBindGroup({
   layout: pipeline.getBindGroupLayout(0),
   entries: [
     { binding: 0, resource: { buffer: vsUniformBuffer } },
@@ -922,7 +898,7 @@ const bindGroup &#x3D; device.createBindGroup({
     { binding: 3, resource: tex.createView() },
   ],
 });
-</code></pre>
+</pre>
   </div>
 </div>
 <p>Again, notice the <code class="notranslate" translate="no">binding</code> and <code class="notranslate" translate="no">group</code> must match what we specified in our shaders.</p>
@@ -931,32 +907,30 @@ settings are set via stateful API calls or handled automatically.</p>
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-gl.clearColor(0.5, 0.5, 0.5, 1.0);
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">gl.clearColor(0.5, 0.5, 0.5, 1.0);
 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-</code></pre>
+</pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-const renderPassDescriptor &#x3D; {
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">const renderPassDescriptor = {
   colorAttachments: [
     {
       // view: undefined, // Assigned later
       // resolveTarget: undefined, // Assigned Later
       clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
-      loadOp: &#x27;clear&#x27;,
-      storeOp: &#x27;store&#x27;,
+      loadOp: 'clear',
+      storeOp: 'store',
     },
   ],
   depthStencilAttachment: {
     // view: undefined,  // Assigned later
     depthClearValue: 1,
-    depthLoadOp: &#x27;clear&#x27;,
-    depthStoreOp: &#x27;store&#x27;,
+    depthLoadOp: 'clear',
+    depthStoreOp: 'store',
   },
 };
-</code></pre>
+</pre>
   </div>
 </div>
 <p>Note that many of the settings in WebGPU are related to where we want to render.
@@ -967,24 +941,22 @@ rendering to a framebuffer in WebGL these settings are the equivalent of calls t
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-gl.uniform3fv(u_lightDirectionLoc, v3.normalize([1, 8, -10]));
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">gl.uniform3fv(u_lightDirectionLoc, v3.normalize([1, 8, -10]));
 gl.uniform1i(u_diffuseLoc, 0);
 gl.uniformMatrix4fv(u_worldInverseTransposeLoc, false, m4.transpose(m4.inverse(world)));
 gl.uniformMatrix4fv(u_worldViewProjectionLoc, false, m4.multiply(viewProjection, world));
-</code></pre>
+</pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-m4.transpose(m4.inverse(world), worldInverseTranspose);
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">m4.transpose(m4.inverse(world), worldInverseTranspose);
 m4.multiply(viewProjection, world, worldViewProjection);
 
 v3.normalize([1, 8, -10], lightDirection);
 
 device.queue.writeBuffer(vsUniformBuffer, 0, vsUniformValues);
 device.queue.writeBuffer(fsUniformBuffer, 0, fsUniformValues);
-</code></pre>
+</pre>
   </div>
 </div>
 <p>In the WebGL case we compute a value and pass it to <code class="notranslate" translate="no">gl.uniform???</code> with
@@ -1000,33 +972,31 @@ handled for us but in WebGPU we need to do ourselves.</p>
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-function resizeCanvasToDisplaySize(canvas) {
-  const width &#x3D; canvas.clientWidth;
-  const height &#x3D; canvas.clientHeight;
-  const needResize &#x3D; width !&#x3D;&#x3D; canvas.width || height !&#x3D;&#x3D; canvas.height;
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">function resizeCanvasToDisplaySize(canvas) {
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+  const needResize = width !== canvas.width || height !== canvas.height;
   if (needResize) {
-    canvas.width &#x3D; width;
-    canvas.height &#x3D; height;
+    canvas.width = width;
+    canvas.height = height;
   }
   return needResize;
 }
-</code></pre>
+</pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-// At init time
-const canvas &#x3D; document.querySelector(&#x27;canvas&#x27;);
-const context &#x3D; canvas.getContext(&#x27;webgpu&#x27;);
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">// At init time
+const canvas = document.querySelector('canvas');
+const context = canvas.getContext('webgpu');
 
-const presentationFormat &#x3D; gpu.getPreferredFormat(adapter);
+const presentationFormat = navigator.gpu.getPreferredFormat(adapter);
 context.configure({
   device,
   format: presentationFormat,
 });
 
-const canvasInfo &#x3D; {
+const canvasInfo = {
   canvas,
   presentationFormat,
   // these are filled out in resizeToDisplaySize
@@ -1047,13 +1017,13 @@ function resizeToDisplaySize(device, canvasInfo) {
     presentationFormat,
     depthTexture,
     sampleCount,
-  } &#x3D; canvasInfo;
-  const width &#x3D; Math.min(device.limits.maxTextureDimension2D, canvas.clientWidth);
-  const height &#x3D; Math.min(device.limits.maxTextureDimension2D, canvas.clientHeight);
+  } = canvasInfo;
+  const width = Math.min(device.limits.maxTextureDimension2D, canvas.clientWidth);
+  const height = Math.min(device.limits.maxTextureDimension2D, canvas.clientHeight);
 
-  const needResize &#x3D; !canvasInfo.renderTarget ||
-                     width !&#x3D;&#x3D; canvas.width ||
-                     height !&#x3D;&#x3D; canvas.height;
+  const needResize = !canvasInfo.renderTarget ||
+                     width !== canvas.width ||
+                     height !== canvas.height;
   if (needResize) {
     if (renderTarget) {
       renderTarget.destroy();
@@ -1062,32 +1032,32 @@ function resizeToDisplaySize(device, canvasInfo) {
       depthTexture.destroy();
     }
 
-    canvas.width &#x3D; width;
-    canvas.height &#x3D; height;
+    canvas.width = width;
+    canvas.height = height;
 
     if (sampleCount &gt; 1) {
-      const newRenderTarget &#x3D; device.createTexture({
+      const newRenderTarget = device.createTexture({
         size: [canvas.width, canvas.height],
         format: presentationFormat,
         sampleCount,
         usage: GPUTextureUsage.RENDER_ATTACHMENT,
       });
-      canvasInfo.renderTarget &#x3D; newRenderTarget;
-      canvasInfo.renderTargetView &#x3D; newRenderTarget.createView();
+      canvasInfo.renderTarget = newRenderTarget;
+      canvasInfo.renderTargetView = newRenderTarget.createView();
     }
 
-    const newDepthTexture &#x3D; device.createTexture({
+    const newDepthTexture = device.createTexture({
       size: [canvas.width, canvas.height,
-      format: &#x27;depth24plus&#x27;,
+      format: 'depth24plus',
       sampleCount,
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
-    canvasInfo.depthTexture &#x3D; newDepthTexture;
-    canvasInfo.depthTextureView &#x3D; newDepthTexture.createView();
+    canvasInfo.depthTexture = newDepthTexture;
+    canvasInfo.depthTextureView = newDepthTexture.createView();
   }
   return needResize;
 }
-</code></pre>
+</pre>
   </div>
 </div>
 <p>You can see above there’s a bunch of work to do. If we need to resize,
@@ -1108,7 +1078,7 @@ on memory and instead of just crashing, WebGL would return a smaller drawingbuff
 <p>In WebGPU, checking those 2 situations is up to you. We’re checking for situation (1)
 above. For situation (2) we’d have to check for out of memory ourselves and like
 everything else in WebGPU, doing so is asynchronous.</p>
-<pre class="prettyprint notranslate" translate="no"><code class="lang-js">device.pushErrorScope('out-of-memory');
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.pushErrorScope('out-of-memory');
 context.configure({...});
 if (sampleCount &gt; 1) {
   const newRenderTarget = device.createTexture({...});
@@ -1122,13 +1092,12 @@ device.popErrorScope().then(error =&gt; {
     // we're out of memory, try a smaller size?
   }
 });
-</code></pre>
+</pre>
 <h3 id="drawing">Drawing</h3>
 <div class="webgpu_center compare">
   <div>
     <div>WebGL</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 ...
@@ -1152,32 +1121,31 @@ gl.enableVertexAttribArray(texcoordLoc);
 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
 
 gl.drawElements(gl.TRIANGLES, 6 * 6, gl.UNSIGNED_SHORT, 0);
-</code></pre>
+</pre>
   </div>
   <div>
     <div>WebGPU</div>
-<pre class="prettyprint lang-javascript"><code class="notranslate" translate="no">
-if (canvasInfo.sampleCount &#x3D;&#x3D;&#x3D; 1) {
-    const colorTexture &#x3D; context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view &#x3D; colorTexture.createView();
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">if (canvasInfo.sampleCount === 1) {
+    const colorTexture = context.getCurrentTexture();
+    renderPassDescriptor.colorAttachments[0].view = colorTexture.createView();
 } else {
-  renderPassDescriptor.colorAttachments[0].view &#x3D; canvasInfo.renderTargetView;
-  renderPassDescriptor.colorAttachments[0].resolveTarget &#x3D; context.getCurrentTexture().createView();
+  renderPassDescriptor.colorAttachments[0].view = canvasInfo.renderTargetView;
+  renderPassDescriptor.colorAttachments[0].resolveTarget = context.getCurrentTexture().createView();
 }
-renderPassDescriptor.depthStencilAttachment.view &#x3D; canvasInfo.depthTextureView;
+renderPassDescriptor.depthStencilAttachment.view = canvasInfo.depthTextureView;
 
-const commandEncoder &#x3D; device.createCommandEncoder();
-const passEncoder &#x3D; commandEncoder.beginRenderPass(renderPassDescriptor);
+const commandEncoder = device.createCommandEncoder();
+const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 passEncoder.setPipeline(pipeline);
 passEncoder.setBindGroup(0, bindGroup);
 passEncoder.setVertexBuffer(0, positionBuffer);
 passEncoder.setVertexBuffer(1, normalBuffer);
 passEncoder.setVertexBuffer(2, texcoordBuffer);
-passEncoder.setIndexBuffer(indicesBuffer, &#x27;uint16&#x27;);
+passEncoder.setIndexBuffer(indicesBuffer, 'uint16');
 passEncoder.drawIndexed(indices.length);
 passEncoder.end();
 device.queue.submit([commandEncoder.finish()]);
-</code></pre>
+</pre>
   </div>
 </div>
 <p>Note that I repeated the WebGL attribute setup code here. In WebGL, this can
@@ -1198,19 +1166,19 @@ viewport that doesn’t match we don’t have to set a viewport separately.</p>
 set that up when creating our render pass descriptor.</p>
 <h2 id="working-examples">Working Examples:</h2>
 <p>WebGL</p>
-<p><div class="webgpu_example_container">
+<p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgl-cube.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgl-cube.html" target="_blank">click here to open in a separate window</a>
 </div>
 
-</p>
+<p></p>
 <p>WebGPU</p>
-<p><div class="webgpu_example_container">
+<p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-cube.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-cube.html" target="_blank">click here to open in a separate window</a>
 </div>
 
-</p>
+<p></p>
 <p>Another important thing to notice, We’re issuing instructions to something
 referred to as the <code class="notranslate" translate="no">device.queue</code>. Notice that when we uploaded the values
 for the uniforms we called <code class="notranslate" translate="no">device.queue.writeBuffer</code> and then when we created
@@ -1229,11 +1197,11 @@ multiple buffers or multiple sets of values in a single buffer.</p>
 corner in both WebGL and WebGPU. On the other hand, setting the viewport or scissor to
 <code class="notranslate" translate="no">0, 0, 1, 1</code> references the lower left corner in WebGL but the upper left corner in WebGPU.</p>
 <h3 id="wgsl-uses-builtin-for-glsls-gl_xxx-variables">WGSL uses <code class="notranslate" translate="no">@builtin(???)</code> for GLSL’s <code class="notranslate" translate="no">gl_XXX</code> variables.</h3>
-<p><code class="notranslate" translate="no">gl_FragCoord</code> is <code class="notranslate" translate="no">@builtin(position) myVarOrField: vec4&lt;f32&gt;</code> and unlike
+<p><code class="notranslate" translate="no">gl_FragCoord</code> is <code class="notranslate" translate="no">@builtin(position) myVarOrField: vec4f</code> and unlike
 WebGL it’s in normalized coordinates (-1 to +1).</p>
 <p><code class="notranslate" translate="no">gl_VertexID</code> is <code class="notranslate" translate="no">@builtin(vertex_index) myVarOrField: u32</code></p>
 <p><code class="notranslate" translate="no">gl_InstanceID</code> is <code class="notranslate" translate="no">@builtin(instance_index) myVarOrField: u32</code></p>
-<p><code class="notranslate" translate="no">gl_Position</code> is <code class="notranslate" translate="no">@builtin(position) vec4&lt;f32&gt;</code> which may be the return value
+<p><code class="notranslate" translate="no">gl_Position</code> is <code class="notranslate" translate="no">@builtin(position) vec4f</code> which may be the return value
 of a vertex shader or a field in a structure returned by the vertex shader</p>
 <p>There is no <code class="notranslate" translate="no">gl_PointCoord</code> equivalent because points are only 1 pixel in WebGPU</p>
 <p>You can see other builtin variables <a href="https://www.w3.org/TR/WGSL/#builtin-variables">here</a>.</p>
@@ -1250,17 +1218,23 @@ solution.</p>
     </div>
     <div class="lesson-sidebar">
         <select class="language">
-    <option value="/webgpu/lessons/webgpu-from-webgl.html" selected>English</a>
-</select>
+    <option value="/webgpu/lessons/webgpu-from-webgl.html" selected="">English
+</option></select>
 
 
         <div id="toc">
           <ul>  <li>Basics</li>
         <ul>
           <li><a href="/webgpu/lessons/webgpu-fundamentals.html">Fundamentals</a></li>
-<li><a href="/webgpu/lessons/webgpu-compute-shaders.html">Compute Shaders</a></li>
+<li><a href="/webgpu/lessons/webgpu-inter-stage-variables.html">Inter-stage Variables</a></li>
+<li><a href="/webgpu/lessons/webgpu-uniforms.html">Uniforms</a></li>
+<li><a href="/webgpu/lessons/webgpu-storage-buffers.html">Storage Buffers</a></li>
+<li><a href="/webgpu/lessons/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
+<li><a href="/webgpu/lessons/webgpu-textures.html">Textures</a></li>
+<li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-wgsl.html">WGSL</a></li>
 <li><a href="/webgpu/lessons/webgpu-textures.html">Textures</a></li>
+<li><a href="/webgpu/lessons/webgpu-how-it-works.html">how-it-works</a></li>
         </ul>
   <li>Mics</li>
         <ul>
@@ -1268,6 +1242,9 @@ solution.</p>
         </ul></ul>
 <ul>
   <li><a href="https://github.com/gfxfundamentals/webgpufundamentals">github</a></li>
+  <li><a href="https://gpuweb.github.io/types/">WebGPU API Reference</a></li>
+  <li><a href="https://www.w3.org/TR/webgpu/">WebGPU Spec</a></li>
+  <li><a href="https://www.w3.org/TR/WGSL/">WGSL Spec</a></li>
 </ul>
 
         </div>
@@ -1276,10 +1253,10 @@ solution.</p>
         
     <div>Questions? <a href="http://stackoverflow.com/questions/tagged/webgpu">Ask on stackoverflow</a>.</div>
     <div>
-       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=suggested+topic&template=suggest-topic.md&title=%5BSUGGESTION%5D">Suggestion</a>?
-       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=&template=request.md&title=">Request</a>?
-       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=bug+%2F+issue&template=bug-issue-report.md&title=">Issue</a>?
-       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=bug+%2F+issue&template=bug-issue-report.md&title=">Bug</a>?
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">Suggestion</a>?
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">Request</a>?
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">Issue</a>?
+       <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">Bug</a>?
     </div>
     <div class="lesson-comment-notes">
        Use <b>&lt;pre&gt;&lt;code&gt;</b>code goes here<b>&lt;/code&gt;&lt;/pre&gt;</b> for code blocks
@@ -1307,7 +1284,7 @@ solution.</p>
     </div>
   </div>
 </div>
-</body>
+
 <script>
 const settings = {
   contribTemplate: "Thank you <a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a><br>for <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} contributions</a>",
@@ -1349,7 +1326,8 @@ const settings = {
 </script>
 
 
-</html>
 
 
 
+
+</body></html>

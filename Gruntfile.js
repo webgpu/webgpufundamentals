@@ -1,10 +1,16 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /*eslint-env node*/
 
 'use strict';
 
+process.on('unhandledRejection', up => {
+  throw up;
+});
+
 const fs = require('fs');
 const path = require('path');
 const liveEditor = require('@gfxfundamentals/live-editor');
+const fixLinks = require('./build/fix-links.js');
 const liveEditorPath = path.dirname(require.resolve('@gfxfundamentals/live-editor'));
 
 module.exports = function(grunt) {
@@ -131,6 +137,7 @@ module.exports = function(grunt) {
     templatePath: 'build/templates',
     owner: 'gfxfundamentals',
     repo: 'webgl-fundamentals',
+    postHTMLFn: fixLinks,
     thumbnailOptions: {
       thumbnailBackground: 'webgpufundamentals-background.jpg',
       text: [

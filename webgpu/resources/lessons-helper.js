@@ -40,7 +40,7 @@ const origConsole = {};
 
 function setupConsole() {
   const style = document.createElement('style');
-  style.innerText = `
+  style.textContent = `
   .console {
     font-family: monospace;
     font-size: medium;
@@ -50,16 +50,44 @@ function setupConsole() {
     left: 0;
     width: 100%;
     overflow: auto;
-    background: rgba(221, 221, 221, 0.9);
+    background-color: rgba(221, 221, 221, 0.9);
+    color: black;
   }
   .console .console-line {
     white-space: pre-line;
   }
   .console .log .warn {
-    color: black;
+    color: brown;
   }
   .console .error {
     color: red;
+  }
+  .alert-hack {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000000;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .alert-hack>div {
+    background-color: #444;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 300;
+    min-height: 100;
+    padding: 1em;
+  }
+  .alert-hack button {
+    margin: 1em;
+    min-width: 3em;
   }
   `;
   const parent = document.createElement('div');
@@ -83,6 +111,8 @@ function setupConsole() {
   }
   showHideConsole();
 
+  document.body.appendChild(style);
+
   const maxLines = 100;
   const lines = [];
   let added = false;
@@ -95,7 +125,6 @@ function setupConsole() {
     lines.push(div);
     if (!added) {
       added = true;
-      document.body.appendChild(style);
       document.body.appendChild(parent);
       document.body.appendChild(toggle);
     }
@@ -307,7 +336,9 @@ function addContextLostHTML() {
  */
 let setupLesson = function(canvas /*, options = {} */) {
   // only once
-  setupLesson = function() {};
+  setupLesson = function() {
+    //
+  };
 
   if (canvas) {
     /* TODO: handle lost context */
@@ -434,6 +465,27 @@ function getBrowser() {
   };
 }
 
+function installAlertCatcher() {
+  // window.alert = (msg) => console.log(msg);
+  // return;
+  window.alert = (msg) => {
+    const div = document.createElement('div');
+    div.className = 'alert-hack';
+    const inner = document.createElement('div');
+    const text = document.createElement('div');
+    text.textContent = msg;
+    const button = document.createElement('button');
+    button.textContent = 'ok';
+    div.addEventListener('click', () => {
+      div.remove();
+    });
+    div.appendChild(inner);
+    inner.appendChild(text);
+    inner.appendChild(button);
+    document.body.appendChild(div);
+  };
+}
+
 function installWebGPULessonSetup() {
   /*
   const isWebGLRE = /^(webgl|webgl2|experimental-webgl)$/i;
@@ -511,6 +563,7 @@ if (isInEditor()) {
   setupWorkerSupport();
   setupConsole();
   captureJSErrors();
+  installAlertCatcher();
   if (lessonSettings.webgpuDebug !== false) {
     installWebGPUDebugHelper();
   }
