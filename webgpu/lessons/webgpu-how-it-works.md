@@ -488,7 +488,7 @@ The biggest limitations are:
 
 2. A shader can not allocate memory.
 
-3. A shader can not reference its destination, the thing it's
+3. A shader has to careful if it references its destination, the thing it's
    generating values for.
 
    When you think about it this makes sense. Imagine `fragShader`
@@ -497,11 +497,8 @@ The biggest limitations are:
    Which iteration would go first? If the 3rd iteration referenced `dest[0]`
    then the 0th iteration would need to run first but if the 0th iteration
    referenced `dest[3]` then the 3rd iteration would need to run first.
-   That's a situation which is impossible to resolve. 
-   Given we can compute our own indices in the shader there is no way
-   for the GPU to know what the shader is going to access and so no way
-   to do any coordination. So, the limit is, a shader cannot reference
-   the thing it's generating values for. 
 
-   Figuring out ways to solve problems within those limits is a big
-   part of what GPU programming is about.
+   Designing around this limitation also happens with CPUs and multiple
+   thread or processes but in GPU land, with up to 10000 processors running
+   at once, it takes special coordination. We'll try to cover some of the
+   techniques in other articles.
