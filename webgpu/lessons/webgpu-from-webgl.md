@@ -127,13 +127,12 @@ responsibility.
   and after that WebGL manages the canvas itself. All you have to do is set
   `canvas.width` and `canvas.height`.
 
-  WebGPU you have to do all of that yourself. You create the canvas's
-  drawingbuffer (with or without alpha) and if you want a depth buffer you create
-  that yourself too (with or without a stencil buffer). If you want to resize you
-  need to delete the old ones and create new ones yourself.
+  WebGPU you have to do much of that yourself. If you want a depth buffer you create
+  that yourself (with or without a stencil buffer). If you want anti-aliasing,
+  you create your own multisample textures and resolve them into the canvas texture.
 
   But, because of that, unlike WebGL, you can use one WebGPU device to
-  render to multiple canvases. 🎉
+  render to multiple canvases. 🎉🤩
 
 * WebGPU does not generate mipmaps.
 
