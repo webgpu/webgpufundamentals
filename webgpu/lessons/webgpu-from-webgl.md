@@ -196,8 +196,8 @@ void main() {
 <pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 const shaderSrc = `
 struct VSUniforms {
-  worldViewProjection: mat4x4<f32>,
-  worldInverseTranspose: mat4x4<f32>,
+  worldViewProjection: mat4x4f,
+  worldInverseTranspose: mat4x4f,
 };
 @group(0) binding(0) var<uniform> vsUniforms: VSUniforms;
 
@@ -242,7 +242,7 @@ fn myFSMain(v: MyVSOutput) -> @location(0) vec4f {
 
 Notice in many ways they aren't all that different. The core parts of each
 function are very similar. `vec4` in GLSL becomes `vec4f` in WGSL, `mat4`
-becomes `mat4x4<f32>`.
+becomes `mat4x4f`.
 
 GLSL is C/C++ like. WGSL is Rust like. One difference is
 types go on the left in GLSL and on the right in WGSL.
@@ -263,8 +263,8 @@ struct Foo {  vec4: field; }
 // declare a variable of type vec4f
 var v: vec4f;
 
-// declare a function of type mat4x4<f32> that takes a vec3f parameter
-fn someFunction(p: vec3f) => mat4x4<f32> { ... }
+// declare a function of type mat4x4f that takes a vec3f parameter
+fn someFunction(p: vec3f) => mat4x4f { ... }
 
 // declare a struct
 struct Foo {  field: vec4f; }
@@ -385,18 +385,12 @@ main();
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 async function main() {
-  const gpu = navigator.gpu;
-  if (!gpu) {
-    fail('this browser does not support webgpu');
+  const adapter = await navigator.gpu?.requestAdapter();
+  const device = await adapter?.requestDevice();
+  if (!device) {
+    fail('need a browser that supports WebGPU');
     return;
   }
-
-  const adapter = await gpu.requestAdapter();
-  if (!adapter) {
-    fail('this browser appears to support WebGPU but it\'s disabled');
-    return;
-  }
-  const device = await adapter.requestDevice();
 
 ...
 }

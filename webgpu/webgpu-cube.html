@@ -15,7 +15,7 @@
     </div>
   </body>
   <script type="module">
-import {vec3, mat4} from './resources/js/wgpu-matrix.module.js';
+import {vec3, mat4} from '/3rdparty/wgpu-matrix.module.js';
 
 async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
@@ -48,8 +48,8 @@ async function main() {
 
   const shaderSrc = `
   struct VSUniforms {
-    worldViewProjection: mat4x4<f32>,
-    worldInverseTranspose: mat4x4<f32>,
+    worldViewProjection: mat4x4f,
+    worldInverseTranspose: mat4x4f,
   };
   @group(0) @binding(0) var<uniform> vsUniforms: VSUniforms;
 
@@ -195,17 +195,10 @@ async function main() {
   const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
   const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
 
-
   const vsUniformBuffer = device.createBuffer({
     size: Math.max(16, vUniformBufferSize),
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
-
-
-
-
-
-
 
   const fsUniformBuffer = device.createBuffer({
     size: Math.max(16, fUniformBufferSize),

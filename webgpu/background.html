@@ -68,8 +68,8 @@ async function main() {
 
   const shaderSrc = `
   struct VSUniforms {
-    worldViewProjection: mat4x4<f32>,
-    worldInverseTranspose: mat4x4<f32>,
+    worldViewProjection: mat4x4f,
+    worldInverseTranspose: mat4x4f,
   };
   @group(0) @binding(0) var<uniform> vsUniforms: VSUniforms;
 
