@@ -136,7 +136,7 @@ module.exports = function(grunt) {
     siteThumbnail: 'webgpufundamentals.jpg',  // in rootFolder/lessons/resources
     templatePath: 'build/templates',
     owner: 'gfxfundamentals',
-    repo: 'webgl-fundamentals',
+    repo: 'webgpufundamentals',
     postHTMLFn: fixLinks,
     thumbnailOptions: {
       thumbnailBackground: 'webgpufundamentals-background.jpg',
