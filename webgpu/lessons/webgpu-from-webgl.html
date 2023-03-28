@@ -380,8 +380,8 @@ void main() {
 <div>WGSL</div>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">const shaderSrc = `
 struct VSUniforms {
-  worldViewProjection: mat4x4&lt;f32&gt;,
-  worldInverseTranspose: mat4x4&lt;f32&gt;,
+  worldViewProjection: mat4x4f,
+  worldInverseTranspose: mat4x4f,
 };
 @group(0) binding(0) var&lt;uniform&gt; vsUniforms: VSUniforms;
 
@@ -425,7 +425,7 @@ fn myFSMain(v: MyVSOutput) -&gt; @location(0) vec4f {
 </pre></div></div>
 <p>Notice in many ways they aren’t all that different. The core parts of each
 function are very similar. <code class="notranslate" translate="no">vec4</code> in GLSL becomes <code class="notranslate" translate="no">vec4f</code> in WGSL, <code class="notranslate" translate="no">mat4</code>
-becomes <code class="notranslate" translate="no">mat4x4&lt;f32&gt;</code>.</p>
+becomes <code class="notranslate" translate="no">mat4x4f</code>.</p>
 <p>GLSL is C/C++ like. WGSL is Rust like. One difference is
 types go on the left in GLSL and on the right in WGSL.</p>
 <div class="webgpu_center compare"><div><div>GLSL</div><pre class="prettyprint showlinemods notranslate notranslate" translate="no">// declare a variable of type vec4
@@ -442,8 +442,8 @@ struct Foo {  vec4: field; }
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">// declare a variable of type vec4f
 var v: vec4f;
 
-// declare a function of type mat4x4&lt;f32&gt; that takes a vec3f parameter
-fn someFunction(p: vec3f) =&gt; mat4x4&lt;f32&gt; { ... }
+// declare a function of type mat4x4f that takes a vec3f parameter
+fn someFunction(p: vec3f) =&gt; mat4x4f { ... }
 
 // declare a struct
 struct Foo {  field: vec4f; }
@@ -538,18 +538,12 @@ main();
   <div>
     <div>WebGPU</div>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">async function main() {
-  const gpu = navigator.gpu;
-  if (!gpu) {
-    fail('this browser does not support webgpu');
+  const adapter = await navigator.gpu?.requestAdapter();
+  const device = await adapter?.requestDevice();
+  if (!device) {
+    fail('need a browser that supports WebGPU');
     return;
   }
-
-  const adapter = await gpu.requestAdapter();
-  if (!adapter) {
-    fail('this browser appears to support WebGPU but it\'s disabled');
-    return;
-  }
-  const device = await adapter.requestDevice();
 
 ...
 }
@@ -1066,7 +1060,7 @@ new ones. We also need to check that we don’t go over the limits, something
 WebGL handled for us, at least for the canvas.</p>
 <p>Above, the property <code class="notranslate" translate="no">sampleCount</code> is effectively the analog of <code class="notranslate" translate="no">antialias</code>
 property of the WebGL context’s creation attributes. <code class="notranslate" translate="no">sampleCount: 4</code> would be
-the equivalent of <code class="notranslate" translate="no">antialias: true</code> (the default), whereas <code class="notranslate" translate="no">sampleCount: 1</code>
+the equivalent of WebGL’s <code class="notranslate" translate="no">antialias: true</code> (the default), whereas <code class="notranslate" translate="no">sampleCount: 1</code>
 would be the equivalent of <code class="notranslate" translate="no">antialias: false</code> when creating a WebGL context.</p>
 <p>Another thing not shown above, WebGL would try not to run out of memory meaning
 if you asked for a 16000x16000 canvas, WebGL might give you back a 4096x4096 canvas.
@@ -1186,8 +1180,232 @@ a command encoder and submitted it with <code class="notranslate" translate="no"
 make it pretty clear that we can’t update the buffers between draw calls within
 the same command encoder. If we want to draw multiple things we’d need
 multiple buffers or multiple sets of values in a single buffer.</p>
+<h1 id="drawing-multiple-things">Drawing Multiple Things</h1>
 <p>Let’s go over an example of drawing multiple things.</p>
-<p>TBD</p>
+<p>As mentioned above, to draw multiple things, at least in the most common way,
+we’d need a different uniform buffer for each thing so that we can provide
+a different set of matrices. Uniform buffers are passed in via bind groups
+so we also need a different bind group per object.</p>
+<div class="webgpu_center compare">
+  <div>
+    <div>WebGL</div>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">+  const numObjects = 100;
++  const objectInfos = [];
++
++  for (let i = 0; i &lt; numObjects; ++i) {
++    const across = Math.sqrt(numObjects) | 0;
++    const x = (i % across - (across - 1) / 2) * 3;
++    const y = ((i / across | 0) - (across - 1) / 2) * 3;
++
++    objectInfos.push({
++      translation: [x, y, 0],
++    });
++  }
+</pre>
+  </div>
+  <div>
+    <div>WebGPU</div>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">  const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
+  const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
+
+  const fsUniformBuffer = device.createBuffer({
+    size: Math.max(16, fUniformBufferSize),
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const fsUniformValues = new Float32Array(3);  // 1 vec3
+  const lightDirection = fsUniformValues.subarray(0, 3);
+
++  const numObjects = 100;
++  const objectInfos = [];
++
++  for (let i = 0; i &lt; numObjects; ++i) {
+    const vsUniformBuffer = device.createBuffer({
+      size: Math.max(16, vUniformBufferSize),
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
+    const worldViewProjection = vsUniformValues.subarray(0, 16);
+    const worldInverseTranspose = vsUniformValues.subarray(16, 32);
+
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: vsUniformBuffer } },
+        { binding: 1, resource: { buffer: fsUniformBuffer } },
+        { binding: 2, resource: sampler },
+        { binding: 3, resource: tex.createView() },
+      ],
+    });
+
++    const across = Math.sqrt(numObjects) | 0;
++    const x = (i % across - (across - 1) / 2) * 3;
++    const y = ((i / across | 0) - (across - 1) / 2) * 3;
++
++    objectInfos.push({
++      vsUniformBuffer,  // needed to update the buffer
++      vsUniformValues,  // needed to update the buffer
++      worldViewProjection,  // needed so we can update this object's worldViewProject
++      worldInverseTranspose,  // needed so we can update this object's worldInverseTranspose
++      bindGroup, // needed to render this object
++      translation: [x, y, 0],
++    });
++  }
+</pre>
+  </div>
+</div>
+<p>Note that in this example we’re sharing the <code class="notranslate" translate="no">fsUniforms</code>, its buffer and values
+which contains the lighting direction we included <code class="notranslate" translate="no">fsUniformBuffer</code> in the bind group
+but it’s defined outside of the loop as there is only 1.</p>
+<p>For rendering we’ll setup the shared parts, then for each object, update its uniform values,
+copy those to the corresponding uniform buffer, and encode the command to draw it.</p>
+<div class="webgpu_center compare">
+  <div>
+    <div>WebGL</div>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">  function render(time) {
+    time *= 0.001;
+    resizeCanvasToDisplaySize(gl.canvas);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.clearColor(0.5, 0.5, 0.5, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    gl.useProgram(program);
+
+*    const projection = mat4.perspective(30 * Math.PI / 180, gl.canvas.clientWidth / gl.canvas.clientHeight, 0.5, 100);
+*    const eye = [1, 4, -46];
+    const target = [0, 0, 0];
+    const up = [0, 1, 0];
+
+    const camera = mat4.lookAt(eye, target, up);
+    const view = mat4.inverse(camera);
+    const viewProjection = mat4.multiply(projection, view);
+
+    gl.uniform3fv(u_lightDirectionLoc, vec3.normalize([1, 8, -10]));
+    gl.uniform1i(u_diffuseLoc, 0);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(positionLoc);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(normalLoc);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+    gl.vertexAttribPointer(texcoordLoc, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(texcoordLoc);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
+
+*    objectInfos.forEach(({translation}, ndx) =&gt; {
+*      const world = mat4.translation(translation);
+*      mat4.rotateX(world, time * 0.9 + ndx, world);
+*      mat4.rotateY(world, time + ndx, world);
+
+      gl.uniformMatrix4fv(u_worldInverseTransposeLoc, false, mat4.transpose(mat4.inverse(world)));
+      gl.uniformMatrix4fv(u_worldViewProjectionLoc, false, mat4.multiply(viewProjection, world));
+
+      gl.drawElements(gl.TRIANGLES, 6 * 6, gl.UNSIGNED_SHORT, 0);
+*    });
+
+    requestAnimationFrame(render);
+  }</pre>
+  </div>
+  <div>
+    <div>WebGPU</div>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">  function render(time) {
+    time *= 0.001;
+    resizeToDisplaySize(device, canvasInfo);
+
+    if (canvasInfo.sampleCount === 1) {
+        const colorTexture = context.getCurrentTexture();
+        renderPassDescriptor.colorAttachments[0].view = colorTexture.createView();
+    } else {
+      renderPassDescriptor.colorAttachments[0].view = canvasInfo.renderTargetView;
+      renderPassDescriptor.colorAttachments[0].resolveTarget = context.getCurrentTexture().createView();
+    }
+    renderPassDescriptor.depthStencilAttachment.view = canvasInfo.depthTextureView;
+
+    const commandEncoder = device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+
+    // Of course these could be per object but since we're drawing the same object
+    // multiple times, just set them once.
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setVertexBuffer(0, positionBuffer);
+    passEncoder.setVertexBuffer(1, normalBuffer);
+    passEncoder.setVertexBuffer(2, texcoordBuffer);
+    passEncoder.setIndexBuffer(indicesBuffer, 'uint16');
+
+*    const projection = mat4.perspective(30 * Math.PI / 180, canvas.clientWidth / canvas.clientHeight, 0.5, 100);
+*    const eye = [1, 4, -46];
+    const target = [0, 0, 0];
+    const up = [0, 1, 0];
+
+    const camera = mat4.lookAt(eye, target, up);
+    const view = mat4.inverse(camera);
+    const viewProjection = mat4.multiply(projection, view);
+
+    // the lighting info is shared so set these uniforms once
+    vec3.normalize([1, 8, -10], lightDirection);
+    device.queue.writeBuffer(fsUniformBuffer, 0, fsUniformValues);
+
++    objectInfos.forEach(({
++      vsUniformBuffer,
++      vsUniformValues,
++      worldViewProjection,
++      worldInverseTranspose,
++      bindGroup,
++      translation,
++    }, ndx) =&gt; {
+      passEncoder.setBindGroup(0, bindGroup);
+
+*      const world = mat4.translation(translation);
+*      mat4.rotateX(world, time * 0.9 + ndx, world);
+*      mat4.rotateY(world, time + ndx, world);
+      mat4.transpose(mat4.inverse(world), worldInverseTranspose);
+      mat4.multiply(viewProjection, world, worldViewProjection);
+
+      device.queue.writeBuffer(vsUniformBuffer, 0, vsUniformValues);
+      passEncoder.drawIndexed(indices.length);
++    });
+    passEncoder.end();
+    device.queue.submit([commandEncoder.finish()]);
+
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+}
+</pre>
+  </div>
+</div>
+<p>There isn’t much difference from our single cube but the code has been slightly re-arranged to
+put shared things outside the object loop. In this particular case, as we’re drawing the same cube
+100 times we don’t need to update vertex buffers or index buffers, but of course we could
+change those per object if we needed to.</p>
+<p>WebGL</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgl-cube-multiple.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgl-cube-multiple.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>WebGPU</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-cube-multiple.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-cube-multiple.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>The important part to take away is that unlike WebGL, you’ll need unique uniform buffers for
+any uniforms that are object specific (like a world matrix), and, because of that you also
+need a unique  bind group per object.</p>
 <h2 id="other-random-differences">Other random differences</h2>
 <h3 id="z-clip-space-is-0-to-1">Z clip space is 0 to 1</h3>
 <p>In WebGL Z clip space was -1 to +1. In WebGPU it’s 0 to 1 (which btw makes way more sense!)</p>
@@ -1198,7 +1416,7 @@ corner in both WebGL and WebGPU. On the other hand, setting the viewport or scis
 <code class="notranslate" translate="no">0, 0, 1, 1</code> references the lower left corner in WebGL but the upper left corner in WebGPU.</p>
 <h3 id="wgsl-uses-builtin-for-glsls-gl_xxx-variables">WGSL uses <code class="notranslate" translate="no">@builtin(???)</code> for GLSL’s <code class="notranslate" translate="no">gl_XXX</code> variables.</h3>
 <p><code class="notranslate" translate="no">gl_FragCoord</code> is <code class="notranslate" translate="no">@builtin(position) myVarOrField: vec4f</code> and unlike
-WebGL it’s in normalized coordinates (-1 to +1).</p>
+WebGL goes down the screen instead of up so 0,0 is the top left vs WebGL where 0,0 is the bottom left.</p>
 <p><code class="notranslate" translate="no">gl_VertexID</code> is <code class="notranslate" translate="no">@builtin(vertex_index) myVarOrField: u32</code></p>
 <p><code class="notranslate" translate="no">gl_InstanceID</code> is <code class="notranslate" translate="no">@builtin(instance_index) myVarOrField: u32</code></p>
 <p><code class="notranslate" translate="no">gl_Position</code> is <code class="notranslate" translate="no">@builtin(position) vec4f</code> which may be the return value

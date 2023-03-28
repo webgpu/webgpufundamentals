@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Cube</title>
+    <title>WebGPU Cube Multiple</title>
     <style>
       @import url(resources/webgpu-lesson.css);
       html, body { margin: 0; height: 100% }
@@ -195,30 +195,49 @@ async function main() {
   const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
   const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
 
-  const vsUniformBuffer = device.createBuffer({
-    size: Math.max(16, vUniformBufferSize),
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
-
   const fsUniformBuffer = device.createBuffer({
     size: Math.max(16, fUniformBufferSize),
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
-  const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
-  const worldViewProjection = vsUniformValues.subarray(0, 16);
-  const worldInverseTranspose = vsUniformValues.subarray(16, 32);
   const fsUniformValues = new Float32Array(3);  // 1 vec3
   const lightDirection = fsUniformValues.subarray(0, 3);
 
-  const bindGroup = device.createBindGroup({
-    layout: pipeline.getBindGroupLayout(0),
-    entries: [
-      { binding: 0, resource: { buffer: vsUniformBuffer } },
-      { binding: 1, resource: { buffer: fsUniformBuffer } },
-      { binding: 2, resource: sampler },
-      { binding: 3, resource: tex.createView() },
-    ],
-  });
+  const numObjects = 100;
+  const objectInfos = [];
+
+  for (let i = 0; i < numObjects; ++i) {
+    const vsUniformBuffer = device.createBuffer({
+      size: Math.max(16, vUniformBufferSize),
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
+    const worldViewProjection = vsUniformValues.subarray(0, 16);
+    const worldInverseTranspose = vsUniformValues.subarray(16, 32);
+
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: vsUniformBuffer } },
+        { binding: 1, resource: { buffer: fsUniformBuffer } },
+        { binding: 2, resource: sampler },
+        { binding: 3, resource: tex.createView() },
+      ],
+    });
+
+    const across = Math.sqrt(numObjects) | 0;
+    const x = (i % across - (across - 1) / 2) * 3;
+    const y = ((i / across | 0) - (across - 1) / 2) * 3;
+
+    objectInfos.push({
+      vsUniformBuffer,  // needed to update the buffer
+      vsUniformValues,  // needed to update the buffer
+      worldViewProjection,  // needed so we can update this object's worldViewProject
+      worldInverseTranspose,  // needed so we can update this object's worldInverseTranspose
+      bindGroup, // needed to render this object
+      translation: [x, y, 0],
+    });
+  }
 
   const renderPassDescriptor = {
     colorAttachments: [
@@ -290,23 +309,6 @@ async function main() {
     time *= 0.001;
     resizeToDisplaySize(device, canvasInfo);
 
-    const projection = mat4.perspective(30 * Math.PI / 180, canvas.clientWidth / canvas.clientHeight, 0.5, 10);
-    const eye = [1, 4, -6];
-    const target = [0, 0, 0];
-    const up = [0, 1, 0];
-
-    const camera = mat4.lookAt(eye, target, up);
-    const view = mat4.inverse(camera);
-    const viewProjection = mat4.multiply(projection, view);
-    const world = mat4.rotationY(time);
-    mat4.transpose(mat4.inverse(world), worldInverseTranspose);
-    mat4.multiply(viewProjection, world, worldViewProjection);
-
-    vec3.normalize([1, 8, -10], lightDirection);
-
-    device.queue.writeBuffer(vsUniformBuffer, 0, vsUniformValues);
-    device.queue.writeBuffer(fsUniformBuffer, 0, fsUniformValues);
-
     if (canvasInfo.sampleCount === 1) {
         const colorTexture = context.getCurrentTexture();
         renderPassDescriptor.colorAttachments[0].view = colorTexture.createView();
@@ -318,13 +320,47 @@ async function main() {
 
     const commandEncoder = device.createCommandEncoder();
     const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+
+    // Of course these could be per object but since we're drawing the same object
+    // multiple times, just set them once.
     passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, bindGroup);
     passEncoder.setVertexBuffer(0, positionBuffer);
     passEncoder.setVertexBuffer(1, normalBuffer);
     passEncoder.setVertexBuffer(2, texcoordBuffer);
     passEncoder.setIndexBuffer(indicesBuffer, 'uint16');
-    passEncoder.drawIndexed(indices.length);
+
+    const projection = mat4.perspective(30 * Math.PI / 180, canvas.clientWidth / canvas.clientHeight, 0.5, 100);
+    const eye = [1, 4, -46];
+    const target = [0, 0, 0];
+    const up = [0, 1, 0];
+
+    const camera = mat4.lookAt(eye, target, up);
+    const view = mat4.inverse(camera);
+    const viewProjection = mat4.multiply(projection, view);
+
+    // the lighting info is shared so set these uniforms once
+    vec3.normalize([1, 8, -10], lightDirection);
+    device.queue.writeBuffer(fsUniformBuffer, 0, fsUniformValues);
+
+    objectInfos.forEach(({
+      vsUniformBuffer,
+      vsUniformValues,
+      worldViewProjection,
+      worldInverseTranspose,
+      bindGroup,
+      translation,
+    }, ndx) => {
+      passEncoder.setBindGroup(0, bindGroup);
+
+      const world = mat4.translation(translation);
+      mat4.rotateX(world, time * 0.9 + ndx, world);
+      mat4.rotateY(world, time + ndx, world);
+      mat4.transpose(mat4.inverse(world), worldInverseTranspose);
+      mat4.multiply(viewProjection, world, worldViewProjection);
+
+      device.queue.writeBuffer(vsUniformBuffer, 0, vsUniformValues);
+      passEncoder.drawIndexed(indices.length);
+    });
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
 
