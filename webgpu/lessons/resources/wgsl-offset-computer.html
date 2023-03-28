@@ -5,10 +5,12 @@
     <style>
       :root {
         --error-bg-color: pink;
+        --divider-bg-color: #8cb5ff;
       }
       @media (prefers-color-scheme: dark) {
         :root {
           --error-bg-color: darkred;
+          --divider-bg-color: #33f;
         }
       }
       html, body {
@@ -27,7 +29,7 @@
       #header {
         flex: 0 0 auto;
         padding: 0.25em;
-        background-color: var(--bottombar-bg-color);
+        background-color: var(--divider-bg-color);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -51,7 +53,7 @@
       .h-sep,
       .v-sep {
         flex: 0 0 5px;
-        background-color: var(--bottombar-bg-color);
+        background-color: var(--divider-bg-color);
       }
       #left {
         flex: 1 1 50%;
@@ -108,7 +110,6 @@
       pre.prettyprint {
         border: none;
         box-shadow: none;
-        width: 100%;
         margin-top: 0 !important;
         margin-bottom: 0 !important;
       }
@@ -160,8 +161,10 @@
 
     <script src="/monaco-editor/min/vs/loader.js"></script>
     <script src="prettify.js"></script>
+    <script src="/3rdparty/lzma.js"></script>
     <script type="module">
 /* global monaco */
+/* global LZMA */
 import {
   makeShaderDataDefinitions,
 } from '/3rdparty/webgpu-utils.module.js';
@@ -170,6 +173,11 @@ import {
   getCodeForUniform,
 } from './data-byte-diagram.js';
 import { createElem as el } from './elem.js';
+import {
+  convertHexToBytes,
+  convertBytesToHex,
+} from './utils.js';
+const compressor = new LZMA('/3rdparty/lzma_worker.js');
 
 const examples = {
   basic: `
@@ -238,6 +246,60 @@ const examples = {
 const darkMatcher = window.matchMedia('(prefers-color-scheme: dark)');
 const isDarkMode = darkMatcher.matches;
 
+const resultsElem = document.querySelector('#results');
+const diagramElem = document.querySelector('#diagram');
+const errorsElem = document.querySelector('#errors');
+const compileElem = document.querySelector('#compile');
+
+function clearResults() {
+  resultsElem.innerHTML = '';
+  diagramElem.innerHTML = '';
+  errorsElem.innerHTML = '';
+  resultsElem.className = 'prettyprint';
+}
+
+let updateURL = false;
+function updateResults(code, style) {
+  try {
+    const defs = makeShaderDataDefinitions(code);
+
+    const results = [];
+    for (const key of ['uniforms', 'storages']) {
+      for (const [name, uniform] of Object.entries(defs[key])) {
+        diagramElem.appendChild(el('p', { textContent: name }));
+        diagramElem.appendChild(createByteDiagramForType(name, uniform));
+        diagramElem.appendChild(el('hr'));
+        results.push(getCodeForUniform(name, uniform, style));
+      }
+    }
+    resultsElem.textContent = results.join('\n\n');
+    window.prettyPrint(resultsElem);
+
+    if (updateURL) {
+      const save = JSON.stringify({
+        c: compileElem.checked ? 1 : 0,
+        x: code,
+      });
+      compressor.compress(save, 1, function(bytes) {
+        const hex = convertBytesToHex(bytes);
+        const params = new URLSearchParams({x: hex});
+        window.location.replace(`#${params.toString()}`);
+      },
+      () => { /* */ });
+    }
+    updateURL = true;
+  } catch (e) {
+    errorsElem.appendChild(el(
+      'div',
+      {},
+      [
+        el('div', {textContent: `wgsl errors: ${e}`}),
+      ],
+    ));
+
+  }
+}
+
 /* global require */
 require.config({ paths: { 'vs': '/monaco-editor/min/vs' }});
 require(['vs/editor/editor.main'], () => {
@@ -255,41 +317,34 @@ require(['vs/editor/editor.main'], () => {
   main(editor);
 });
 
-const resultsElem = document.querySelector('#results');
-const diagramElem = document.querySelector('#diagram');
-const errorsElem = document.querySelector('#errors');
-
-function clearResults() {
-  resultsElem.innerHTML = '';
-  diagramElem.innerHTML = '';
-  errorsElem.innerHTML = '';
-  resultsElem.className = 'prettyprint';
-}
-
-function updateResults(code, style) {
-  const defs = makeShaderDataDefinitions(code);
-
-  const results = [];
-  for (const key of ['uniforms', 'storages']) {
-    for (const [name, uniform] of Object.entries(defs[key])) {
-      diagramElem.appendChild(el('p', { textContent: name }));
-      diagramElem.appendChild(createByteDiagramForType(name, uniform));
-      diagramElem.appendChild(el('hr'));
-      results.push(getCodeForUniform(name, uniform, style));
+async function main(editor) {
+  function readURL(hash) {
+    const data = Object.fromEntries(new URLSearchParams(hash[0] === '#' ? hash.substring(1) : hash).entries());
+    console.log('h0', data);
+    if (data.x) {
+      console.log('h1');
+      const bytes = convertHexToBytes(data.x);
+      compressor.decompress(
+        bytes,
+        (text) => {
+          console.log('h2');
+          const data = JSON.parse(text);
+          compileElem.checked = !!data.c;
+          editor.setValue(data.x);
+          console.log(data.x);
+          process();
+        },
+        () => { /* */ });
     }
   }
-  resultsElem.textContent = results.join('\n\n');
-  window.prettyPrint(resultsElem);
-}
+  readURL(window.location.hash);
 
-async function main(editor) {
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice({
     requiredLimits: adapter.limits,
     requiredFeatures: adapter.features,
   });
 
-  const compileElem = document.querySelector('#compile');
   const compileStatusElem = document.querySelector('#compile-status');
   if (!device) {
     compileStatusElem.style.display = '';
