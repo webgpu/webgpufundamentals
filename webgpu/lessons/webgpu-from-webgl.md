@@ -971,7 +971,7 @@ WebGL handled for us, at least for the canvas.
 
 Above, the property `sampleCount` is effectively the analog of `antialias`
 property of the WebGL context's creation attributes. `sampleCount: 4` would be
-the equivalent of `antialias: true` (the default), whereas `sampleCount: 1`
+the equivalent of WebGL's `antialias: true` (the default), whereas `sampleCount: 1`
 would be the equivalent of `antialias: false` when creating a WebGL context.
 
 Another thing not shown above, WebGL would try not to run out of memory meaning
@@ -1102,9 +1102,238 @@ make it pretty clear that we can't update the buffers between draw calls within
 the same command encoder. If we want to draw multiple things we'd need
 multiple buffers or multiple sets of values in a single buffer.
 
+# Drawing Multiple Things
+
 Let's go over an example of drawing multiple things.
 
-TBD
+As mentioned above, to draw multiple things, at least in the most common way,
+we'd need a different uniform buffer for each thing so that we can provide
+a different set of matrices. Uniform buffers are passed in via bind groups
+so we also need a different bind group per object.
+
+<div class="webgpu_center compare">
+  <div>
+    <div>WebGL</div>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
++  const numObjects = 100;
++  const objectInfos = [];
++
++  for (let i = 0; i < numObjects; ++i) {
++    const across = Math.sqrt(numObjects) | 0;
++    const x = (i % across - (across - 1) / 2) * 3;
++    const y = ((i / across | 0) - (across - 1) / 2) * 3;
++
++    objectInfos.push({
++      translation: [x, y, 0],
++    });
++  }
+{{/escapehtml}}</code></pre>
+  </div>
+  <div>
+    <div>WebGPU</div>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
+  const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
+  const fUniformBufferSize = 3 * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
+
+  const fsUniformBuffer = device.createBuffer({
+    size: Math.max(16, fUniformBufferSize),
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const fsUniformValues = new Float32Array(3);  // 1 vec3
+  const lightDirection = fsUniformValues.subarray(0, 3);
+
++  const numObjects = 100;
++  const objectInfos = [];
++
++  for (let i = 0; i < numObjects; ++i) {
+    const vsUniformBuffer = device.createBuffer({
+      size: Math.max(16, vUniformBufferSize),
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
+    const worldViewProjection = vsUniformValues.subarray(0, 16);
+    const worldInverseTranspose = vsUniformValues.subarray(16, 32);
+
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: vsUniformBuffer } },
+        { binding: 1, resource: { buffer: fsUniformBuffer } },
+        { binding: 2, resource: sampler },
+        { binding: 3, resource: tex.createView() },
+      ],
+    });
+
++    const across = Math.sqrt(numObjects) | 0;
++    const x = (i % across - (across - 1) / 2) * 3;
++    const y = ((i / across | 0) - (across - 1) / 2) * 3;
++
++    objectInfos.push({
++      vsUniformBuffer,  // needed to update the buffer
++      vsUniformValues,  // needed to update the buffer
++      worldViewProjection,  // needed so we can update this object's worldViewProject
++      worldInverseTranspose,  // needed so we can update this object's worldInverseTranspose
++      bindGroup, // needed to render this object
++      translation: [x, y, 0],
++    });
++  }
+{{/escapehtml}}</code></pre>
+  </div>
+</div>
+
+Note that in this example we're sharing the `fsUniforms`, its buffer and values
+which contains the lighting direction we included `fsUniformBuffer` in the bind group
+but it's defined outside of the loop as there is only 1.
+
+For rendering we'll setup the shared parts, then for each object, update its uniform values,
+copy those to the corresponding uniform buffer, and encode the command to draw it.
+
+<div class="webgpu_center compare">
+  <div>
+    <div>WebGL</div>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
+  function render(time) {
+    time *= 0.001;
+    resizeCanvasToDisplaySize(gl.canvas);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.clearColor(0.5, 0.5, 0.5, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    gl.useProgram(program);
+
+*    const projection = mat4.perspective(30 * Math.PI / 180, gl.canvas.clientWidth / gl.canvas.clientHeight, 0.5, 100);
+*    const eye = [1, 4, -46];
+    const target = [0, 0, 0];
+    const up = [0, 1, 0];
+
+    const camera = mat4.lookAt(eye, target, up);
+    const view = mat4.inverse(camera);
+    const viewProjection = mat4.multiply(projection, view);
+
+    gl.uniform3fv(u_lightDirectionLoc, vec3.normalize([1, 8, -10]));
+    gl.uniform1i(u_diffuseLoc, 0);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(positionLoc);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(normalLoc);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+    gl.vertexAttribPointer(texcoordLoc, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(texcoordLoc);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer);
+
+*    objectInfos.forEach(({translation}, ndx) => {
+*      const world = mat4.translation(translation);
+*      mat4.rotateX(world, time * 0.9 + ndx, world);
+*      mat4.rotateY(world, time + ndx, world);
+
+      gl.uniformMatrix4fv(u_worldInverseTransposeLoc, false, mat4.transpose(mat4.inverse(world)));
+      gl.uniformMatrix4fv(u_worldViewProjectionLoc, false, mat4.multiply(viewProjection, world));
+
+      gl.drawElements(gl.TRIANGLES, 6 * 6, gl.UNSIGNED_SHORT, 0);
+*    });
+
+    requestAnimationFrame(render);
+  }{{/escapehtml}}</code></pre>
+  </div>
+  <div>
+    <div>WebGPU</div>
+<pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
+  function render(time) {
+    time *= 0.001;
+    resizeToDisplaySize(device, canvasInfo);
+
+    if (canvasInfo.sampleCount === 1) {
+        const colorTexture = context.getCurrentTexture();
+        renderPassDescriptor.colorAttachments[0].view = colorTexture.createView();
+    } else {
+      renderPassDescriptor.colorAttachments[0].view = canvasInfo.renderTargetView;
+      renderPassDescriptor.colorAttachments[0].resolveTarget = context.getCurrentTexture().createView();
+    }
+    renderPassDescriptor.depthStencilAttachment.view = canvasInfo.depthTextureView;
+
+    const commandEncoder = device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+
+    // Of course these could be per object but since we're drawing the same object
+    // multiple times, just set them once.
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setVertexBuffer(0, positionBuffer);
+    passEncoder.setVertexBuffer(1, normalBuffer);
+    passEncoder.setVertexBuffer(2, texcoordBuffer);
+    passEncoder.setIndexBuffer(indicesBuffer, 'uint16');
+
+*    const projection = mat4.perspective(30 * Math.PI / 180, canvas.clientWidth / canvas.clientHeight, 0.5, 100);
+*    const eye = [1, 4, -46];
+    const target = [0, 0, 0];
+    const up = [0, 1, 0];
+
+    const camera = mat4.lookAt(eye, target, up);
+    const view = mat4.inverse(camera);
+    const viewProjection = mat4.multiply(projection, view);
+
+    // the lighting info is shared so set these uniforms once
+    vec3.normalize([1, 8, -10], lightDirection);
+    device.queue.writeBuffer(fsUniformBuffer, 0, fsUniformValues);
+
++    objectInfos.forEach(({
++      vsUniformBuffer,
++      vsUniformValues,
++      worldViewProjection,
++      worldInverseTranspose,
++      bindGroup,
++      translation,
++    }, ndx) => {
+      passEncoder.setBindGroup(0, bindGroup);
+
+*      const world = mat4.translation(translation);
+*      mat4.rotateX(world, time * 0.9 + ndx, world);
+*      mat4.rotateY(world, time + ndx, world);
+      mat4.transpose(mat4.inverse(world), worldInverseTranspose);
+      mat4.multiply(viewProjection, world, worldViewProjection);
+
+      device.queue.writeBuffer(vsUniformBuffer, 0, vsUniformValues);
+      passEncoder.drawIndexed(indices.length);
++    });
+    passEncoder.end();
+    device.queue.submit([commandEncoder.finish()]);
+
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+}
+{{/escapehtml}}</code></pre>
+  </div>
+</div>
+
+There isn't much difference from our single cube but the code has been slightly re-arranged to
+put shared things outside the object loop. In this particular case, as we're drawing the same cube
+100 times we don't need to update vertex buffers or index buffers, but of course we could
+change those per object if we needed to.
+
+WebGL
+
+{{{example url="../webgl-cube-multiple.html"}}}
+
+WebGPU
+
+{{{example url="../webgpu-cube-multiple.html"}}}
+
+The important part to take away is that unlike WebGL, you'll need unique uniform buffers for
+any uniforms that are object specific (like a world matrix), and, because of that you also
+need a unique  bind group per object.
 
 ## Other random differences
 
@@ -1123,7 +1352,7 @@ corner in both WebGL and WebGPU. On the other hand, setting the viewport or scis
 ### WGSL uses `@builtin(???)` for GLSL's `gl_XXX` variables.
 
 `gl_FragCoord` is `@builtin(position) myVarOrField: vec4f` and unlike
-WebGL it's in normalized coordinates (-1 to +1).
+WebGL goes down the screen instead of up so 0,0 is the top left vs WebGL where 0,0 is the bottom left.
 
 `gl_VertexID` is `@builtin(vertex_index) myVarOrField: u32`
 
