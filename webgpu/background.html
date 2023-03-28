@@ -13,38 +13,38 @@ html, body {
     font-family: monospace;
     margin: 0;
 }
+#fail,
 canvas {
   width: 100%;
   height: 100%;
   display: block;
 }
+#fail {
+  background-color: #222;
+  background-image: url(/webgpu/lessons/resources/webgpufundamentals-icon-256.png);
+  background-repeat: repeat;
+  background-size: 10%;
+}
 </style>
 </head>
 <body>
 <canvas id="canvas"></canvas>
-<div id="content"></div>
+<div id="fail" style="display: none;"></div>
 <script type="module">
 import {vec3, mat4} from '/3rdparty/wgpu-matrix.module.js';
 
 async function main() {
-  const gpu = navigator.gpu;
-  if (!gpu) {
-    fail('this browser does not support webgpu');
+  const adapter = navigator.gpu?.requestAdapter();
+  const device = await adapter?.requestDevice();
+  if (!device) {
+    fail();
     return;
   }
-
-  const adapter = await gpu.requestAdapter();
-  if (!adapter) {
-    fail('this browser appears to support WebGPU but it\'s disabled');
-    return;
-  }
-
-  const device = await adapter.requestDevice();
 
   const canvas = document.querySelector('canvas');
   const context = canvas.getContext('webgpu');
 
-  const presentationFormat = gpu.getPreferredCanvasFormat(adapter);
+  const presentationFormat = navigator.gpu.getPreferredCanvasFormat(adapter);
   const presentationSize = [300, 150];  // default canvas size
 
   context.configure({
@@ -384,11 +384,9 @@ async function main() {
   observer.observe(canvas);
 }
 
-function fail(msg) {
-  const elem = document.querySelector('#fail');
-  const contentElem = elem.querySelector('.content');
-  elem.style.display = '';
-  contentElem.textContent = msg;
+function fail() {
+  document.querySelector('#fail').style.display = '';
+  document.querySelector('#canvas').style.display = 'none';
 }
 
 main();
