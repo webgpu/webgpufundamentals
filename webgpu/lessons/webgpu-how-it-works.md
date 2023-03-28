@@ -1,12 +1,10 @@
 Title: WebGPU How It Works
 Description: How WebGPU works
-TOC: how-it-works
+TOC: How It Works
 
-Let's try to explain this by implementing something similar to what the GPU does
+Let's try to explain WebGPU by implementing something similar to what the GPU does
 with vertex shaders and fragment shaders but in JavaScript. Hopefully this will give
-you an intuitive feeling about what's really going on. If you already know how GPUs
-and shaders work, or if you find this section confusing, feel
-free to skip to [the actual WebGPU code](#WebGPU).
+you an intuitive feeling about what's really going on.
 
 If you're familiar with
 [Array.map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map),
