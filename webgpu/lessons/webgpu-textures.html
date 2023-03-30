@@ -217,7 +217,341 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>TBD</p>
+      <p>In this article we’ll cover the fundamentals of textures. In previous articles
+we covered the other major ways to pass data into a shader. They were
+<a href="webgpu-inter-stage-variables.html">inter-stage variables</a>,
+<a href="webgpu-uniforms.html">uniforms</a>, <a href="webgpu-storage-buffers.html">storage-buffers</a>,
+and <a href="webgpu-vertex-buffers">vertex-buffers</a>. The last major way to pass data
+into a shader is textures.</p>
+<p>Textures most often represent a 2d image. A 2d image is just a 2d array of
+color values so you might wonder, why do we need textures for 2d arrays?
+We could just use storage buffers as 2d arrays. What makes textures special
+is that they can be accessed by special hardware called a <em>sampler</em>. A
+sampler can read up to 16 different values in a texture and blend them together
+in a way that is useful for many common use cases.</p>
+<p>As one example, lets say I want to draw a 2d image larger than its original size.</p>
+<div class="center">
+  <div>
+    <div><img class="pixel-perfect" src="resources/kiana.png" style="width: 128px; height: 128px; image-rendering: pixelated; image-rendering: crisp-edges;"></div>
+    <div style="text-align: center;">original</div>
+  </div>
+</div>
+<p>If we just simply take a single pixel from the original image to make each pixel in the larger image
+we’ll end up with the first example below. If instead, for a given pixel in the larger image we consider
+multiple pixels from the original image we can get results like the 2nd image below.</p>
+<div class="webgpu_center compare">
+  <div>
+    <div><img class="pixel-perfect" src="resources/kiana.png" style="width: 512px; height: 512px; image-rendering: pixelated; image-rendering: crisp-edges;"></div>
+    <div>un-filtered</div>
+  </div>
+  <div>
+    <div><img class="pixel-perfect" src="resources/kiana.png" style="width: 512px; height: 512px;"></div>
+    <div>filtered</div>
+  </div>
+</div>
+<p>While there are WGSL functions that will get an individual pixel from a texture and there are use cases
+for that, those functions are not all that interesting because we could do the same with storage buffers.
+The interesting WGSL functions for textures are ones that filter and can read multiple pixels.</p>
+<p>These WGSL functions take a texture which represents that data, a sampler which represents how
+we want to pull data out of the texture, and a texture coordinate which specifies where we want to
+get a value from the texture.</p>
+<p>Texture coordinates for 2D textures go from 0.0 to 1.0 across and down a texture regardless
+of the actual size of the texture. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<div class="webgpu_center"><img src="resources/texture-coordinates-diagram.svg" style="width: 500px;"></div>
+<p>Let’s take one of our samples from <a href="webgpu-inter-stage-variables.html">the article on inter-stage variables</a>
+and modify it to draw with a texture.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct OurVertexShaderOutput {
+  @builtin(position) position: vec4f,
+-  @location(0) color: vec4f,
++  @location(0) texcoord: vec2f,
+};
+
+@vertex fn vs(
+  @builtin(vertex_index) vertexIndex : u32
+) -&gt; OurVertexShaderOutput {
+-  var pos = array&lt;vec2f, 3&gt;(
+-    vec2f( 0.0,  0.5),  // top center
+-    vec2f(-0.5, -0.5),  // bottom left
+-    vec2f( 0.5, -0.5)   // bottom right
+-  );
+-  var color = array&lt;vec4f, 3&gt;(
+-    vec4f(1, 0, 0, 1), // red
+-    vec4f(0, 1, 0, 1), // green
+-    vec4f(0, 0, 1, 1), // blue
+-  );
++  var pos = array&lt;vec2f, 6&gt;(
++    // 1st triangle
++    vec2f( 0.0,  0.0),  // center
++    vec2f( 1.0,  0.0),  // right, center
++    vec2f( 0.0,  1.0),  // center, top
++
++    // 2st triangle
++    vec2f( 0.0,  1.0),  // center, top
++    vec2f( 1.0,  0.0),  // right, center
++    vec2f( 1.0,  1.0),  // right, top
++  );
+
+  var vsOutput: OurVertexShaderOutput;
+-  vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+-  vsOutput.color = color[vertexIndex];
++  let xy = pos[vertexIndex];
++  vsOutput.position = vec4f(xy, 0.0, 1.0);
++  vsOutput.texcoord = xy;
+  return vsOutput;
+}
+
++@group(0) @binding(0) var ourSampler: sampler;
++@group(0) @binding(1) var ourTexture: texture_2d&lt;f32&gt;;
+
+@fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
+-  return fsInput.color;
++  return textureSample(ourTexture, ourSampler, fsInput.texcoord);
+}
+</pre>
+<p>Above we changed from 3 vertices that draw a centered triangle to 6 vertices
+that draw a quad in the top right corner of the canvas.</p>
+<p>We changed <code class="notranslate" translate="no">OutVertexShaderOutput</code> to pass <code class="notranslate" translate="no">texcoord</code>, a <code class="notranslate" translate="no">vec2f</code> so we can
+pass texture coordinates to the fragment shader. We changed the vertex shader
+to set <code class="notranslate" translate="no">vsOutput.texcoord</code> to the same as the clip space position we pulled
+out of our hard coded array of positions. <code class="notranslate" translate="no">vsOutput.texcoord</code> will be
+interpolated between the 3 vertices of each triangle when passed to the
+fragment shader.</p>
+<p>We then declared a sampler and texture and referenced those in our fragment
+shader. The function <code class="notranslate" translate="no">textureSample</code> <em>samples</em> a texture. The first parameter
+is the texture to sample. The 2nd parameter is the sampler to specify how
+to sample the texture. The 3rd is the texture coordinate to sample.</p>
+<p>Now we need to create a texture data. We’ll make a 5x7 texel <code class="notranslate" translate="no">F</code> <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup></p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const kTextureWidth = 5;
+  const kTextureHeight = 7;
+  const _ = [255,   0,   0, 255];  // red
+  const y = [255, 255,   0, 255];  // yellow
+  const b = [  0,   0, 255, 255];  // blue
+  const textureData = new Uint8Array([
+    b, _, _, _, _,
+    _, y, y, y, _,
+    _, y, _, _, _,
+    _, y, y, _, _,
+    _, y, _, _, _,
+    _, y, _, _, _,
+    _, _, _, _, _,
+  ].flat());
+</pre>
+<p>Hopefully you can see the <code class="notranslate" translate="no">F</code> in there as well as a blue texel in the top
+left corner (the first value).</p>
+<p>We’re going to create a <code class="notranslate" translate="no">rgba8unorm</code> texture. <code class="notranslate" translate="no">rgba8unorm</code> means the texture will
+have red, green, blue, and alpha values. Each value will be 8 bits unsigned, and
+will be normalized when used in the texture. <code class="notranslate" translate="no">unorm</code> means <code class="notranslate" translate="no">unsigned normalize</code>
+which is fancy way of saying the value will be converted from (0 to 255) to (0 to 1).</p>
+<p>In other words if the value we put in the texture is <code class="notranslate" translate="no">[64, 128, 192, 255]</code> the value
+in the shader will end up being <code class="notranslate" translate="no">[64 / 255, 128 / 255, 192 / 255, 255 / 255]</code> or to
+put it another way <code class="notranslate" translate="no">[0.25, 0.50, 0.75, 1.00]</code></p>
+<p>Now that we have the data we need to make a texture</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const tex = device.createTexture({
+    size: [kTextureWidth, kTextureHeight, 1],
+    format: 'rgba8unorm',
+    usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+  });
+</pre>
+<p>For <code class="notranslate" translate="no">device.createTexture</code>, the <code class="notranslate" translate="no">size</code> parameter should be pretty obvious. The
+format is <code class="notranslate" translate="no">rgba8unorm</code> as mentioned above. For the <code class="notranslate" translate="no">usage</code>, <code class="notranslate" translate="no">TEXTURE_BINDING</code>
+says we want to be able to bind this texture into a bind group and <code class="notranslate" translate="no">COPY_DST</code>
+means we want to be able to copy data to it.</p>
+<p>Next we need to do just that and copy our data to it.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  device.queue.writeTexture(
+      { texture: tex },
+      textureData,
+      { bytesPerRow: kTextureWidth * 4 },
+      { width: kTextureWidth, height: kTextureHeight },
+  );
+</pre>
+<p>For <code class="notranslate" translate="no">device.queue.writeTexture</code> the first parameter is the texture we want to update.
+The second is the data we want to copy do it. The 3rd defines how to read that data
+when copying it to the texture. <code class="notranslate" translate="no">bytesPerRow</code> specifies how many bytes to get from
+one row of the source data to the next row. Finally, the least parameter specifies
+the size of the copy.</p>
+<p>We also need to make a sampler</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const sampler = device.createSampler({
+    magFilter: 'nearest',
+    minFilter: 'nearest',
+  });
+</pre>
+<p>This sampler has its filters set to <code class="notranslate" translate="no">nearest</code> which means that based on the
+texture coordinate, just get the color of the texel nearest to that coordinate.</p>
+<p>We need to add both the texture and the sampler to a bind group with bindings
+that match the <code class="notranslate" translate="no">@binding(?)</code>s we put in the shader.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: sampler },
+      { binding: 1, resource: tex.createView() },
+    ],
+  });
+</pre>
+<p>To update our rendering we need to specify the bind group and render 6 vertices
+to render our quad consisting of 2 triangles.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
++    pass.setBindGroup(0, bindGroup);
+-    pass.draw(3);  // call our vertex shader 3 times
++    pass.draw(6);  // call our vertex shader 6 times
+    pass.end();
+</pre>
+<p>and running it we get this</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-textured-quad.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-textured-quad.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p><strong>Why is the F upside down?</strong></p>
+<p>If you go back and reference the texture coordinate diagram again you can see
+that texture coordinate 0,0 references the first texel of the texture. The
+position in the center of the canvas of our quad is 0,0 and we use that value as
+a texture coordinate so it’s doing what the diagram shows, a 0,0 texture
+coordinate is referencing the first blue texel.</p>
+<p>To fix this we have 2 common solutions.</p>
+<ol>
+<li>
+<p>Flip the texture coordinates</p>
+<p>In this example we could change the texture coordinate in either
+the vertex shader</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-  vsOutput.texcoord = xy;
++  vsOutput.texcoord = vec2f(xy.x, 1.0 - xy.y);
+</pre>
+<p>or fragment shader</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-  return textureSample(ourTexture, ourSampler, fsInput.texcoord);
++  let texcoord = vec2f(fsInput.texcoord.x, 1.0 - fsInput.texcoord.y);
++  return textureSample(ourTexture, ourSampler, texcoord);
+</pre>
+<p>Of course if we were supplying texture coordinates via <a href="webgpu-vertex-buffers.html">vertex buffers</a>
+or <a href="webgpu-storage-buffers.html">storage buffers</a> then ideally we’d flip them
+at the source.</p>
+</li>
+<li>
+<p>Flip the texture data</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no"> const textureData = new Uint8Array([
+-   b, _, _, _, _,
+-   _, y, y, y, _,
+-   _, y, _, _, _,
+-   _, y, y, _, _,
+-   _, y, _, _, _,
+-   _, y, _, _, _,
+-   _, _, _, _, _,
++   _, _, _, _, _,
++   _, y, _, _, _,
++   _, y, _, _, _,
++   _, y, y, _, _,
++   _, y, _, _, _,
++   _, y, y, y, _,
++   b, _, _, _, _,
+ ].flat());
+</pre>
+<p>Once we’ve flipped the data what used to be at the top is now at the bottom
+and now the bottom of the left pixel of the original image is the first data
+in the texture and now at what texture coordinate 0,0 refers to. This is why
+often texture coordinates are considered to go from 0 at the bottom to 1 at
+the top.</p>
+<div class="webgpu_center"><img src="resources/texture-coordinates-y-flipped.svg" style="width: 500px;"></div>
+<p>Flipping the data is common enough that there are even options when loading
+textures from images, videos, and canvases to flip the data for you.</p>
+</li>
+</ol>
+<p>In the example above we set the sampler’s <code class="notranslate" translate="no">magFilter</code> to <code class="notranslate" translate="no">'nearest'</code>. Since we
+are drawing the 5x7 texture larger than it’s original 5x7 texels the sampler
+uses what’s called the <code class="notranslate" translate="no">magFilter</code> or, the filter used when magnifying the
+texture. If we change it from <code class="notranslate" translate="no">nearest</code> to to <code class="notranslate" translate="no">linear</code> then it will linearly
+interpolate between 4 pixels.</p>
+<div class="webgpu-center center"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
+<p>Texture coordinates are often called “UVs” (pronounced you-vees) so, in the
+diagram above, <code class="notranslate" translate="no">uv</code> is the texture coordinate. For a given uv, the closest 4
+pixels are chosen. <code class="notranslate" translate="no">t1</code> is the horizontal distance between the top left chosen
+pixel’s center and the pixel to its right’s center where 0 means we are
+horizontally at the left pixel’s center and 1 means we are horizontally at the
+right chosen pixel’s center. <code class="notranslate" translate="no">t2</code> is similar but vertically.</p>
+<p><code class="notranslate" translate="no">t1</code> is the used to <em>“mix”</em> between the top 2 pixels to produce an intermediate
+color. <em>mix</em> linear interpolates between 2 values so when <code class="notranslate" translate="no">t1</code> is 0 we get only
+the first color. When <code class="notranslate" translate="no">t1</code> = 1 we get only the second color. Values between 0
+and 1 produce proportional mix. For example 0.3 would be would be 70% of the
+first color and 30% of second color. Similarly, a second intermediate color is
+computed for the bottom 2 pixels. Finally, <code class="notranslate" translate="no">t2</code> is used to mix the two
+intermediate colors into a final color.</p>
+<p>Another thing to notice, at the bottom of the diagram are 2 settings,
+<code class="notranslate" translate="no">addressModeU</code> and <code class="notranslate" translate="no">addressModeV</code>. We can set these to <code class="notranslate" translate="no">repeat</code> or
+<code class="notranslate" translate="no">clamp-to-edge</code>. When set to ‘repeat’, when our texture coordinate is within
+half a texel of the edge of the texture we wrap around and blend with
+pixels on the opposite side of the texture. When set to <code class="notranslate" translate="no">clamp-to-edge</code>,
+for the purposes of calculating which color to return, the texture coordinate
+is clamped so that it can’t go into the last half texel on each edge.
+This has the effect of showing the edge colors for any texture coordinate
+that outside that range.</p>
+<p>Let’s update the sample so we can draw the quad with all of these</p>
+<p>First let’s create a sampler for each combination of settings.
+We’ll also create a bind group that uses that sampler.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const bindGroups = [];
++  for (let i = 0; i &lt; 8; ++i) {
+    const sampler = device.createSampler({
+-      minFilter: 'nearest',
+-      magFilter: 'nearest',
++      addressModeU: (i &amp; 1) ? 'repeat' : 'clamp-to-edge',
++      addressModeV: (i &amp; 2) ? 'repeat' : 'clamp-to-edge',
++      magFilter: (i &amp; 4) ? 'linear' : 'nearest',
+    });
+
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: sampler },
+        { binding: 1, resource: tex.createView() },
+      ],
+    });
++    bindGroups.push(bindGroup);
++  }
+</pre>
+<p>We’ll make some settings</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const settings = {
+    addressModeU: 'repeat',
+    addressModeV: 'repeat',
+    magFilter: 'linear',
+  };
+</pre>
+<p>and at render time we’ll look at the settings to decide which
+bind group to use.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
++    const ndx = (settings.addressModeU === 'repeat' ? 1 : 0) +
++                (settings.addressModeV === 'repeat' ? 2 : 0) +
++                (settings.magFilter === 'linear' ? 4 : 0);
++    const bindGroup = bindGroups[ndx];
+   ...
+</pre>
+<p>Now all we need to do is provide some UI to let us change the settings
+and when the setting change we need to re-render.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-textured-quad-linear.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-textured-quad-linear.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>Since our fragment shader is receiving interpolated texture coordinates, as our shader
+calls <code class="notranslate" translate="no">textureSample</code> with those coordinates, it gets different blended colors as it’s
+asked to provide a color for each pixel being rendered.
+Notice how with the address modes set to ‘repeat’ we can see WebGPU is “sampling”
+from the texels on the opposite side of the texture.</p>
+<!-- keep this at the bottom of the article -->
+<script type="module" src="/3rdparty/pixel-perfect.js"></script>
+<script type="module" src="webgpu-textures.js"></script>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>Whether texture coordinates go up (0 = bottom, 1 = top) or down (0 = top, 1 = bottom) is
+a matter of perspective. What’s important is that texture coordinate 0,0 references the first data in
+the texture. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p>A texel is a “texture element” vs a pixel which is a “picture element”.
+For me texel and pixel are basically synonymous but some people prefer to use
+the world <em>texel</em> when discussing textures. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
@@ -243,6 +577,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li>Mics</li>
         <ul>
           <li><a href="/webgpu/lessons/webgpu-from-webgl.html">WebGPU from WebGL</a></li>
+<li><a href="/webgpu/lessons/webgpu-resources.html">Resources / References</a></li>
         </ul></ul>
 <ul>
   <li><a href="https://github.com/gfxfundamentals/webgpufundamentals">github</a></li>

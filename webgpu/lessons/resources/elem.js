@@ -20,6 +20,7 @@ export function createElem(tag, attrs = {}, children = []) {
   return elem;
 }
 
+const el = createElem;
 const c = (tag, children = [], textContent = '') => {
   return createElem(tag, {textContent}, children);
 };
@@ -43,3 +44,22 @@ addRow('Gregg', 'SF');
 addRow('Tami', 'Glendora');
 addRow('Mom', 'Temecula');
 */
+
+export function radio(label, options, value, callback) {
+  const name = crypto.randomUUID();
+  const parent = el('div', {className: 'radio center', textContent: `${label}:`}, options.map(option => {
+    return el('label', {}, [
+      el('input', {
+        name,
+        type: 'radio',
+        value: option,
+        checked: option === value,
+        onInput: () => {
+          callback(parent.querySelector('input:checked').value);
+        },
+      }),
+      el('div', {textContent: option}),
+    ]);
+  }));
+  return parent;
+}

@@ -65,16 +65,18 @@
       #right {
         flex: 1 1 50%;
         min-height: 0;
-      }
-      #right>div {
-        height: 100%;
         display: flex;
         flex-direction: column;
+      }
+      #ui-split {
+        display: flex;
+      }
+      .ui-area {
+        padding: 1em;
       }
       #ui {
         flex: 0 0 auto;
         font-size: medium;
-        padding: 1em;
         line-height: 1.5;
       }
       #output {
@@ -94,6 +96,9 @@
       }
       .icon {
         width: 1em;
+      }
+      .nowrap {
+        white-space: nowrap;
       }
       label {
         display: inline-flex;
@@ -134,17 +139,26 @@
           </div>
           <div class="v-sep"></div>
           <div id="right">
-            <div>
-              <div id="ui">
-                <div>
-                  <label><input id="compile" type="checkbox" checked>Compile Shader (finds errors)<span id="compile-status" style="display: none;">[needs WebGPU]<span></span></label>
-                </div>
-                <div>
-                  <label><input name="style" type="radio" value="views" checked>as views</label>
-                  <label><input name="style" type="radio" value="offsets">as offsets</label>
-                </div>
-                <div>
-                  <button type="button" id="process">Process</button>
+               <div id="ui">
+                 <div id="ui-split">
+                  <div class="ui-area nowrap">
+                    <div>
+                      <label><input id="compile" type="checkbox" checked>Compile Shader (finds errors)<span id="compile-status" style="display: none;">[needs WebGPU]<span></span></label>
+                    </div>
+                    <div>
+                      <label><input name="style" type="radio" value="views" checked>as views</label>
+                      <label><input name="style" type="radio" value="offsets">as offsets</label>
+                    </div>
+                    <div>
+                      <button type="button" id="process">Process</button>
+                    </div>
+                  </div>
+                  <div class="v-sep"></div>
+                  <div class="ui-area">
+                    This site is useful for <a href="https://webgpufundamentals.org/webgpu/lessons/webgpu-memory-layout.html">understanding WGSL offsets</a>
+                    but you should arguably <a href="https://github.com/greggman/webgpu-utils">use a library</a>
+                    rather than hardcode things.
+                  </div>
                 </div>
               </div>
               <div class="h-sep"></div>
@@ -153,12 +167,10 @@
                 <pre id="results"></pre>
                 <div id="diagram"></div>
               </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
-
+  </div>
     <script src="/monaco-editor/min/vs/loader.js"></script>
     <script src="prettify.js"></script>
     <script src="/3rdparty/lzma.js"></script>
@@ -342,7 +354,7 @@ async function main(editor) {
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice({
     requiredLimits: adapter.limits,
-    requiredFeatures: adapter.features,
+    //requiredFeatures: adapter.features,
   });
 
   const compileStatusElem = document.querySelector('#compile-status');

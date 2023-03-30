@@ -31,3 +31,64 @@ export function convertBytesToHex(byteArray) {
   }
   return hex;
 }
+
+export const euclideanModulo = (x, a) => x - a * Math.floor(x / a);
+export const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+export const clamp01 = v => Math.min(1, Math.max(0, v));
+
+/**
+ * make css hsl string from normalized inputs
+ * @param {number} h hue 0 to 1
+ * @param {number} s saturation 0 to 1
+ * @param {number} l luminance 0 to 1
+ * @returns css hsl() string
+ */
+export const hsl = (h, s, l) => `hsl(${h * 360}, ${s * 100}%, ${l * 100}%)`;
+
+/**
+ * make css hsla string from normalized inputs
+ * @param {number} h hue 0 to 1
+ * @param {number} s saturation 0 to 1
+ * @param {number} l luminance 0 to 1
+ * @param {number} a alpha 0 to 1
+ * @returns css hsla() string
+ */
+export const hsla = (h, s, l, a) => `hsla(${h * 360}, ${s * 100}%, ${l * 100}%, ${a})`;
+
+/**
+ * make css rgb string from normalized inputs
+ * @param {number} r red 0 to 1
+ * @param {number} g green 0 to 1
+ * @param {number} b blue 0 to 1
+ * @returns css rgb() string
+ */
+export const rgb = (r, g, b) => `rgb(${r * 255}, ${g * 255}, ${b * 255})`;
+
+/**
+ * make css rgba string from normalized inputs
+ * @param {number} r red 0 to 1
+ * @param {number} g green 0 to 1
+ * @param {number} b blue 0 to 1
+ * @param {number} a alpha 0 to 1
+ * @returns css rgba() string
+ */
+export const rgba = (r, g, b, a) => `rgba(${r * 255}, ${g * 255}, ${b * 255}, ${a})`;
+
+/**
+ * make an rgba8unorm color (Array of 4 values between 0 and 255) from a CSS color
+ */
+export const rgba8unormFromCSS = (() => {
+  let ctx;
+  return function rgba8unormFromCSS(cssColor) {
+    if (!ctx) {
+      ctx = document.createElement('canvas').getContext('2d', {willReadFrequently: true});
+      ctx.canvas.width = 1;
+      ctx.canvas.height = 1;
+    }
+    ctx.clearRect(0, 0, 1, 1);
+    ctx.fillStyle = cssColor;
+    ctx.fillRect(0, 0, 1, 1);
+    const imgData = ctx.getImageData(0, 0, 1, 1);
+    return Array.from(imgData.data);
+  };
+})();

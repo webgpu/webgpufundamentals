@@ -13,5 +13,6 @@
   ],
   'misc': [
     'webgpu-from-webgl.md',
+    'webgpu-resources.md',
   ],
 }
