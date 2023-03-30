@@ -17,6 +17,7 @@
   --warning-fg-color: white;  
   --table-head-bg-color: #68F;
   --table-even-bg-color: rgba(0, 0, 0, 0.05);
+  --selected-fg-color: orange;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -36,6 +37,7 @@
     --compare-bg-color: #444;
     --table-head-bg-color: #238;
     --table-even-bg-color: rgba(255, 255, 255, 0.05);
+    --selected-fg-color: orange;
   }
 }
 
@@ -46,6 +48,13 @@ body {
   line-height: 150%;
   background: var(--main-bg-color);
   color: var(--main-fg-color);
+}
+
+.svg-main-text-color-fill {
+  fill: var(--main-fg-color);
+}
+.svg-main-text-color-stroke {
+  stroke: var(--main-fg-color);
 }
 
 .warn {
@@ -390,6 +399,16 @@ table.vertex_table td {
   text-align: right;
   padding-right: 1em;
   padding-left: 1em;
+}
+
+div.radio {
+  display: flex;
+}
+.radio div {
+  display: inline;
+}
+.radio :checked + * {
+  color: var(--selected-fg-color);
 }
 
 iframe {

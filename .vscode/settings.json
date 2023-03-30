@@ -1,18 +1,23 @@
 {
   "cSpell.words": [
+    "bbox",
     "bottombar",
     "buildlesson",
     "buildlessons",
     "buildwatch",
     "Gruntfile",
     "hackiest",
+    "kiana",
     "MSAA",
     "Multisampling",
     "nonull",
     "rasterizes",
     "rdparty",
+    "rgba",
     "showmods",
     "structs",
+    "texels",
+    "Tweakpane",
     "viewbox"
   ]
 }
