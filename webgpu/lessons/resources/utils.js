@@ -76,7 +76,6 @@ export const rgba = (r, g, b, a) => `rgba(${r * 255}, ${g * 255}, ${b * 255}, ${
 
 /**
  * make an rgba8unorm color (Array of 4 values between 0 and 255) from a CSS color
- * 
  */
 export const rgba8unormFromCSS = (() => {
   let ctx;
