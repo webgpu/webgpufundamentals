@@ -6,11 +6,13 @@
       :root {
         --error-bg-color: pink;
         --divider-bg-color: #8cb5ff;
+        --dialog-bg-color: #fff;
       }
       @media (prefers-color-scheme: dark) {
         :root {
           --error-bg-color: darkred;
           --divider-bg-color: #33f;
+          --dialog-bg-color: #333;
         }
       }
       html, body {
@@ -111,6 +113,24 @@
         background-color: var(--error-bg-color);
       }
 
+      #docs {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.8);
+      }
+      .dialog {
+        padding: 1em;
+        max-width: 90%;
+        width: 600px;
+        background: var(--dialog-bg-color);
+      }
+
       /* remove? this is overriding lesson.css. Maybe we should remove lesson.css */
       pre.prettyprint {
         border: none;
@@ -148,9 +168,14 @@
                     <div>
                       <label><input name="style" type="radio" value="views" checked>as views</label>
                       <label><input name="style" type="radio" value="offsets">as offsets</label>
+                      <label><input name="style" type="radio" value="none">none</label>
+                    </div>
+                    <div>
+                      <label><input id="structs" type="checkbox" value="structs" checked>include structs</label>
                     </div>
                     <div>
                       <button type="button" id="process">Process</button>
+                      <button type="button" id="help">Help(?)</button>
                     </div>
                   </div>
                   <div class="v-sep"></div>
@@ -167,6 +192,34 @@
                 <pre id="results"></pre>
                 <div id="diagram"></div>
               </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="docs" style="display: none;">
+    <div class="dialog">
+      <div>
+        <h1>WGSL Offset Computer</h1>
+        <p>Paste in WGSL and press "process"</p>
+        <p>Example:</p>
+        <pre class="prettyprint">
+struct Light {
+  specularFactor: f32,
+  direction: vec3f,
+  color: vec4f,
+};
+
+@group(0) @binding(0) var&lt;uniforms&gt; unis: Light;
+        </pre>
+        <p>
+        Rather than use these offsets directly it's much more convenient to
+        <a target="_blank" href="https://github.com/greggman/webgpu-utils">use a library</a>.
+        </p>
+        <p>
+          Want learn WebGPU? See <a target="_blank" href="https://webgpufundamentals.org">WebGPUFundamentals.org</a>
+        </p>
+        <div style="text-align: right;">
+          <button type="button">Done</button>
         </div>
       </div>
     </div>
@@ -262,30 +315,70 @@ const resultsElem = document.querySelector('#results');
 const diagramElem = document.querySelector('#diagram');
 const errorsElem = document.querySelector('#errors');
 const compileElem = document.querySelector('#compile');
+const structsElem = document.querySelector('#structs');
+const helpElem = document.querySelector('#help');
+const docsElem = document.querySelector('#docs');
+
+helpElem.addEventListener('click', () => {
+  docsElem.style.display = '';
+  docsElem.focus();
+});
+docsElem.addEventListener('click', () => {
+  docsElem.style.display = 'none';
+});
+document.querySelectorAll('.dialog').forEach(elem => {
+  elem.addEventListener('click', (e) => {
+    e.stopPropagation();
+  }, {passive: false});
+});
 
 function clearResults() {
   resultsElem.innerHTML = '';
   diagramElem.innerHTML = '';
   errorsElem.innerHTML = '';
+  errorsElem.style.display = 'none';
   resultsElem.className = 'prettyprint';
 }
+
+const dataTypes = {
+  structs: {
+    label: 'struct',
+  },
+  uniforms: {
+    label: 'uniform',
+  },
+  storages: {
+    label: 'storage',
+  },
+};
 
 let updateURL = false;
 function updateResults(code, style) {
   try {
     const defs = makeShaderDataDefinitions(code);
 
+    const includeStructs = structsElem.checked;
+
     const results = [];
-    for (const key of ['uniforms', 'storages']) {
+    for (const [key, {label}] of Object.entries(dataTypes).filter(([k]) => includeStructs ? true : k !== 'structs')) {
       for (const [name, uniform] of Object.entries(defs[key])) {
-        diagramElem.appendChild(el('p', { textContent: name }));
+        const text = `${label}: ${name}`;
+        diagramElem.appendChild(el('div', { textContent: text }));
         diagramElem.appendChild(createByteDiagramForType(name, uniform));
         diagramElem.appendChild(el('hr'));
-        results.push(getCodeForUniform(name, uniform, style));
+        if (style !== 'none') {
+          results.push(getCodeForUniform(name, uniform, style));
+        }
       }
     }
-    resultsElem.textContent = results.join('\n\n');
-    window.prettyPrint(resultsElem);
+
+    if (style === 'none' || results.length === 0) {
+      resultsElem.style.display = 'none';
+    } else {
+      resultsElem.style.display = '';
+      resultsElem.textContent = results.join('\n\n');
+      window.prettyPrint(resultsElem);
+    }
 
     if (updateURL) {
       const save = JSON.stringify({
@@ -301,6 +394,7 @@ function updateResults(code, style) {
     }
     updateURL = true;
   } catch (e) {
+    errorsElem.style.display = '';
     errorsElem.appendChild(el(
       'div',
       {},
@@ -331,30 +425,28 @@ require(['vs/editor/editor.main'], () => {
 
 async function main(editor) {
   function readURL(hash) {
-    const data = Object.fromEntries(new URLSearchParams(hash[0] === '#' ? hash.substring(1) : hash).entries());
-    console.log('h0', data);
-    if (data.x) {
-      console.log('h1');
-      const bytes = convertHexToBytes(data.x);
-      compressor.decompress(
-        bytes,
-        (text) => {
-          console.log('h2');
-          const data = JSON.parse(text);
-          compileElem.checked = !!data.c;
-          editor.setValue(data.x);
-          console.log(data.x);
-          process();
-        },
-        () => { /* */ });
-    }
+    return new Promise(resolve => {
+      const data = Object.fromEntries(new URLSearchParams(hash[0] === '#' ? hash.substring(1) : hash).entries());
+      if (data.x) {
+        const bytes = convertHexToBytes(data.x);
+        compressor.decompress(
+          bytes,
+          (text) => {
+            const data = JSON.parse(text);
+            compileElem.checked = !!data.c;
+            editor.setValue(data.x);
+            resolve();
+          },
+          resolve);
+      }
+    });
   }
-  readURL(window.location.hash);
 
+  await readURL(window.location.hash);
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice({
     requiredLimits: adapter.limits,
-    //requiredFeatures: adapter.features,
+    requiredFeatures: adapter.features,
   });
 
   const compileStatusElem = document.querySelector('#compile-status');
@@ -398,6 +490,7 @@ async function main(editor) {
           editor.revealLineInCenterIfOutsideViewport(firstError.lineNum);
           editor.focus();
         }
+        errorsElem.style.display = '';
         errorsElem.appendChild(el(
           'div',
           {},
@@ -406,7 +499,6 @@ async function main(editor) {
             ...info.messages.map(msg => el('div', {textContent: `${msg.lineNum || 0}:${msg.linePos || 0}: ${msg.message}`})),
           ],
         ));
-        return;
       }
     }
 
