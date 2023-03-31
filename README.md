@@ -130,3 +130,8 @@ now open your browser to `http://localhost:8080`
 You can run `npm run watch` to get continuous building.
 Only the article .md files and files that are normally copied are supported.
 The table of contents, templates, and index pages are not watched.
+
+### Development
+
+If you are working on updating dependencies with `npm link` you can use
+`npm run build-ci` and/or `npm run watch-no-check` to skip the dependency check.
