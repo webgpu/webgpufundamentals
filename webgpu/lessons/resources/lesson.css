@@ -497,7 +497,7 @@ pre.prettyprint .atv { color: #70c0b1 } /* attribute value */
 pre.prettyprint .dec { color: #e78c45 } /* decimal         */
 pre.prettyprint .var { color: #d54e53 } /* variable name   */
 pre.prettyprint .fun { color: #7aa6da } /* function name   */
-foo{ color: #FF8080}
+
 pre.prettyprint ul.modifiedlines {
     list-style-type: none;
     padding-left: 0;
@@ -517,6 +517,14 @@ pre.prettyprint ul.modifiedlines li.lineadded {
     background-color: #3f4463;
 }
 
+pre.prettyprint.hide-linedeleted .linedeleted {
+    display: none;
+}
+pre.prettyprint button.linedeleted-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 
 pre.prettyprint, code.prettyprint, .dos {
     color: #FFF;

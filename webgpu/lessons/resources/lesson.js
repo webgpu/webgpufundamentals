@@ -69,6 +69,13 @@ $(document).ready(function($) {
     });
   if (window.prettyPrint) {
     window.prettyPrint();
+    document.querySelectorAll('pre:has(.linedeleted)').forEach(e => {
+      const b = $('<button>').text('hide deleted').addClass('linedeleted-button').attr('type', 'button').on('click', () => {
+        const hide = e.classList.toggle('hide-linedeleted');
+        b.text(hide ? 'show deleted' : 'hide deleted');
+      });
+      $(e).append(b);
+    });
   }
   $('span[class=com]')
     .addClass('translate yestranslate')
