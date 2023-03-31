@@ -20,7 +20,7 @@ As one example, lets say I want to draw a 2d image larger than its original size
 
 <div class="center">
   <div>
-    <div><img class="pixel-perfect" src="resources/kiana.png" style="width: 128px; height: 128px; image-rendering: pixelated; image-rendering: crisp-edges;"></div>
+    <div><img class="pixel-perfect" src="resources/kiana.png" style="max-width: 100%; width: 128px; height: 128px; image-rendering: pixelated; image-rendering: crisp-edges;"></div>
     <div style="text-align: center;">original</div>
   </div>
 </div>
@@ -31,11 +31,11 @@ multiple pixels from the original image we can get results like the 2nd image be
 
 <div class="webgpu_center compare">
   <div>
-    <div><img class="pixel-perfect" src="resources/kiana.png" style="width: 512px; height: 512px; image-rendering: pixelated; image-rendering: crisp-edges;"></div>
+    <div><img class="pixel-perfect" src="resources/kiana.png" style="max-width: 100%; width: 512px; height: 512px; image-rendering: pixelated; image-rendering: crisp-edges;"></div>
     <div>un-filtered</div>
   </div>
   <div>
-    <div><img class="pixel-perfect" src="resources/kiana.png" style="width: 512px; height: 512px;"></div>
+    <div><img class="pixel-perfect" src="resources/kiana.png" style="max-width: 100%; width: 512px; height: 512px;"></div>
     <div>filtered</div>
   </div>
 </div>
@@ -195,14 +195,8 @@ the size of the copy.
 We also need to make a sampler
 
 ```js
-  const sampler = device.createSampler({
-    magFilter: 'nearest',
-    minFilter: 'nearest',
-  });
+  const sampler = device.createSampler();
 ```
-
-This sampler has its filters set to `nearest` which means that based on the
-texture coordinate, just get the color of the texel nearest to that coordinate.
 
 We need to add both the texture and the sampler to a bind group with bindings
 that match the `@binding(?)`s we put in the shader.
@@ -241,7 +235,7 @@ position in the center of the canvas of our quad is 0,0 and we use that value as
 a texture coordinate so it's doing what the diagram shows, a 0,0 texture
 coordinate is referencing the first blue texel.
 
-To fix this we have 2 common solutions.
+To fix this there are 2 common solutions.
 
 1. Flip the texture coordinates
 
@@ -297,13 +291,15 @@ To fix this we have 2 common solutions.
    Flipping the data is common enough that there are even options when loading
    textures from images, videos, and canvases to flip the data for you.
 
-In the example above we set the sampler's `magFilter` to `'nearest'`. Since we
- are drawing the 5x7 texture larger than it's original 5x7 texels the sampler
-uses what's called the `magFilter` or, the filter used when magnifying the
-texture. If we change it from `nearest` to to `linear` then it will linearly
-interpolate between 4 pixels.
+## magFilter
 
-<div class="webgpu-center center"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
+In the example above we use a sampler with its default settings. Since we are
+drawing the 5x7 texture larger than it's original 5x7 texels the sampler uses
+what's called the `magFilter` or, the filter used when magnifying the texture.
+If we change it from `nearest` to to `linear` then it will linearly interpolate
+between 4 pixels.
+
+<div class="webgpu-center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
 
 Texture coordinates are often called "UVs" (pronounced you-vees) so, in the
 diagram above, `uv` is the texture coordinate. For a given uv, the closest 4
@@ -320,17 +316,16 @@ first color and 30% of second color. Similarly, a second intermediate color is
 computed for the bottom 2 pixels. Finally, `t2` is used to mix the two
 intermediate colors into a final color.
 
-Another thing to notice, at the bottom of the diagram are 2 settings,
-`addressModeU` and `addressModeV`. We can set these to `repeat` or
-`clamp-to-edge`. When set to 'repeat', when our texture coordinate is within
-half a texel of the edge of the texture we wrap around and blend with
-pixels on the opposite side of the texture. When set to `clamp-to-edge`,
-for the purposes of calculating which color to return, the texture coordinate
-is clamped so that it can't go into the last half texel on each edge.
-This has the effect of showing the edge colors for any texture coordinate
-that outside that range.
+Another thing to notice, at the bottom of the diagram are 2 settings more
+sampler settings, `addressModeU` and `addressModeV`. We can set these to
+`repeat` or `clamp-to-edge`. When set to 'repeat', when our texture coordinate
+is within half a texel of the edge of the texture we wrap around and blend with
+pixels on the opposite side of the texture. When set to 'clamp-to-edge', for the
+purposes of calculating which color to return, the texture coordinate is clamped
+so that it can't go into the last half texel on each edge. This has the effect
+of showing the edge colors for any texture coordinate that outside that range.
 
-Let's update the sample so we can draw the quad with all of these
+Let's update the sample so we can draw the quad with all of these options.
 
 First let's create a sampler for each combination of settings.
 We'll also create a bind group that uses that sampler.
@@ -338,13 +333,12 @@ We'll also create a bind group that uses that sampler.
 ```js
 +  const bindGroups = [];
 +  for (let i = 0; i < 8; ++i) {
-    const sampler = device.createSampler({
--      minFilter: 'nearest',
--      magFilter: 'nearest',
+-   const sampler = device.createSampler();
++   const sampler = device.createSampler({
 +      addressModeU: (i & 1) ? 'repeat' : 'clamp-to-edge',
 +      addressModeV: (i & 2) ? 'repeat' : 'clamp-to-edge',
 +      magFilter: (i & 4) ? 'linear' : 'nearest',
-    });
++    });
 
     const bindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
@@ -380,7 +374,32 @@ bind group to use.
 ```
 
 Now all we need to do is provide some UI to let us change the settings
-and when the setting change we need to re-render.
+and when the setting change we need to re-render. I'm using a library
+called "muigui" which at the moment has a API similar to [dat.GUI](https://github.com/dataarts/dat.gui)
+
+```js
+import GUI from '/3rdparty/muigui-0.x.module.js';
+
+...
+
+  const settings = {
+    addressModeU: 'repeat',
+    addressModeV: 'repeat',
+    magFilter: 'linear',
+  };
+
+  const addressOptions = ['repeat', 'clamp-to-edge'];
+  const filterOptions = ['nearest', 'linear'];
+
+  const gui = new GUI();
+  Object.assign(gui.domElement.style, {right: '', left: '15px'});
+  gui.add(settings, 'addressModeU', addressOptions).onChange(render);
+  gui.add(settings, 'addressModeV', addressOptions).onChange(render);
+  gui.add(settings, 'magFilter', filterOptions).onChange(render);
+```
+
+The code above declares `settings` and then creates a ui to set them
+and calls `render` when they change.
 
 {{{example url="../webgpu-simple-textured-quad-linear.html"}}}
 
@@ -389,6 +408,404 @@ calls `textureSample` with those coordinates, it gets different blended colors a
 asked to provide a color for each pixel being rendered.
 Notice how with the address modes set to 'repeat' we can see WebGPU is "sampling"
 from the texels on the opposite side of the texture.
+
+## minFilter
+
+There is also a setting for `minFilter` which does similar math to `magFilter`
+for when the texture is drawn smaller than it's size. When set to 'linear'
+it also chooses 4 pixels and blends them following similar math to that above.
+
+The problem is, choosing 4 blended pixels from larger
+texture to render say 1 pixel, the color will change an we'll get flickering.
+
+Let's do it so we can see the issue
+
+First let's make our canvas low-res. To do this we need to update our
+css so the browser doesn't do the same `magFilter: 'linear'` effect on
+our canvas. We can do this by setting the css as follows
+
+```css
+canvas {
+  display: block;  /* make the canvas act like a block   */
+  width: 100%;     /* make the canvas fill its container */
+  height: 100%;
++  image-rendering: pixelated;
++  image-rendering: crisp-edges;
+}
+```
+
+Next let's lower the resolution of the canvas in our `ResizeObserver` callback
+
+```js
+  const observer = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const canvas = entry.target;
+-      const width = entry.contentBoxSize[0].inlineSize / 64 | 0;
+-      const height = entry.contentBoxSize[0].blockSize / 64 | 0;
++      const width = entry.contentBoxSize[0].inlineSize / 64 | 0;
++      const height = entry.contentBoxSize[0].blockSize / 64 | 0;
+      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
+      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+      // re-render
+      render();
+    }
+  });
+  observer.observe(canvas);
+```
+
+We're going to move and scale the quad so we'll add in a uniform buffer just
+like we did in the first example in [the article on uniforms](webgpu-uniforms.html).
+
+```wgsl
+struct OurVertexShaderOutput {
+  @builtin(position) position: vec4f,
+  @location(0) texcoord: vec2f,
+};
+
++struct Uniforms {
++  scale: vec2f,
++  offset: vec2f,
++};
++
++@group(0) @binding(2) var<uniform> uni: Uniforms;
+
+@vertex fn vs(
+  @builtin(vertex_index) vertexIndex : u32
+) -> OurVertexShaderOutput {
+  var pos = array<vec2f, 6>(
+    // 1st triangle
+    vec2f( 0.0,  0.0),  // center
+    vec2f( 1.0,  0.0),  // right, center
+    vec2f( 0.0,  1.0),  // center, top
+
+    // 2st triangle
+    vec2f( 0.0,  1.0),  // center, top
+    vec2f( 1.0,  0.0),  // right, center
+    vec2f( 1.0,  1.0),  // right, top
+  );
+
+  var vsOutput: OurVertexShaderOutput;
+  let xy = pos[vertexIndex];
+-  vsOutput.position = vec4f(xy, 0.0, 1.0);
++  vsOutput.position = vec4f(xy * uni.scale + uni.offset, 0.0, 1.0);
+  vsOutput.texcoord = xy;
+  return vsOutput;
+}
+
+@group(0) @binding(0) var ourSampler: sampler;
+@group(0) @binding(1) var ourTexture: texture_2d<f32>;
+
+@fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
+  return textureSample(ourTexture, ourSampler, fsInput.texcoord);
+}
+```
+
+So now we need to create a uniform buffer
+
+```js
++  // create a buffer for the uniform values
++  const uniformBufferSize =
++    2 * 4 + // scale is 2 32bit floats (4bytes each)
++    2 * 4;  // offset is 2 32bit floats (4bytes each)
++  const uniformBuffer = device.createBuffer({
++    label: 'uniforms for quad',
++    size: uniformBufferSize,
++    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
++  });
++
++  // create a typedarray to hold the values for the uniforms in JavaScript
++  const uniformValues = new Float32Array(uniformBufferSize / 4);
++
++  // offsets to the various uniform values in float32 indices
++  const kScaleOffset = 0;
++  const kOffsetOffset = 2;
+
+  const bindGroups = [];
+  for (let i = 0; i < 8; ++i) {
+    const sampler = device.createSampler({
+      addressModeU: (i & 1) ? 'repeat' : 'clamp-to-edge',
+      addressModeV: (i & 2) ? 'repeat' : 'clamp-to-edge',
+      magFilter: (i & 4) ? 'linear' : 'nearest',
+    });
+
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: sampler },
+        { binding: 1, resource: tex.createView() },
++        { binding: 2, resource: { buffer: uniformBuffer }},
+      ],
+    });
+    bindGroups.push(bindGroup);
+  }
+```
+
+And we need code to set the uniform's values and upload them to the GPU.
+We're going to animate this so we'll also change the render to use
+`requestAnimationFrame`.
+
+```js
+  function render(time) {
+    time *= 0.001;
+    const ndx = (settings.addressModeU === 'repeat' ? 1 : 0) +
+                (settings.addressModeV === 'repeat' ? 2 : 0) +
+                (settings.magFilter === 'linear' ? 4 : 0);
+    const bindGroup = bindGroups[ndx];
+
++    // compute a scale that will draw our 0 to 1 clip space quad
++    // 2x2 pixels in the canvas.
++    const scaleX = 4 / canvas.width;
++    const scaleY = 4 / canvas.height;
++
++    uniformValues.set([scaleX, scaleY], kScaleOffset); // set the scale
++    uniformValues.set([Math.sin(time * 0.25) * 0.9, 0.5], kOffsetOffset); // set the scale
++
++    // copy the values from JavaScript to the GPU
++    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+
+    ...
+
++    requestAnimationFrame(render);
+  }
++  requestAnimationFrame(render);
+
+  const observer = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const canvas = entry.target;
+      const width = entry.contentBoxSize[0].inlineSize / 64 | 0;
+      const height = entry.contentBoxSize[0].blockSize / 64 | 0;
+      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
+      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+-      // re-render
+-      render();
+    }
+  });
+  observer.observe(canvas);
+}
+```
+
+The code above sets the scale so that we'll draw the quad 2x2 pixels in the canvas.
+It also sets the offset from -0.9 to +0.9 using `Math.sin` so that the quad will
+slowly go back and forth across the canvas.
+
+Finally let's add `minFilter` to our settings and combinations
+
+```js
+  const bindGroups = [];
+  for (let i = 0; i < 16; ++i) {
+    const sampler = device.createSampler({
+      addressModeU: (i & 1) ? 'repeat' : 'clamp-to-edge',
+      addressModeV: (i & 2) ? 'repeat' : 'clamp-to-edge',
+      magFilter: (i & 4) ? 'linear' : 'nearest',
++      minFilter: (i & 8) ? 'linear' : 'nearest',
+    });
+
+...
+
+  const settings = {
+    addressModeU: 'repeat',
+    addressModeV: 'repeat',
+    magFilter: 'linear',
++    minFilter: 'linear',
+  };
+
+  const addressOptions = ['repeat', 'clamp-to-edge'];
+  const filterOptions = ['nearest', 'linear'];
+
+  const gui = new GUI();
+  Object.assign(gui.domElement.style, {right: '', left: '15px'});
+  -gui.add(settings, 'addressModeU', addressOptions).onChange(render);
+  -gui.add(settings, 'addressModeV', addressOptions).onChange(render);
+  -gui.add(settings, 'magFilter', filterOptions).onChange(render);
++  gui.add(settings, 'addressModeU', addressOptions);
++  gui.add(settings, 'addressModeV', addressOptions);
++  gui.add(settings, 'magFilter', filterOptions);
++  gui.add(settings, 'minFilter', filterOptions);
+
+  function render(time) {
+    time *= 0.001;
+    const ndx = (settings.addressModeU === 'repeat' ? 1 : 0) +
+                (settings.addressModeV === 'repeat' ? 2 : 0) +
+-                (settings.magFilter === 'linear' ? 4 : 0);
++                (settings.magFilter === 'linear' ? 4 : 0) +
++                (settings.minFilter === 'linear' ? 8 : 0);
+```
+
+We no longer need to call `render` when a setting changes since we're
+rendering constantly using `requestAnimationFrame` (often called "rAF"
+and this loop is often called a "rAF loop")
+
+{{{example url="../webgpu-simple-textured-quad-minfilter.html"}}}
+
+You can see the quad is flickering and changing colors. If the `minFilter`
+is set to `nearest` then for each of the 2x2 pixels of the quad it's picking 
+one pixel from our texture. If you set it to `linear` then it does the
+bilinear filtering we mentioned above but it still flickers.
+
+One reason is, the quad is draw with real numbers but pixels are integers.
+The texture coordinates are interpolated from the real numbers, or rather, they
+are computed from the real numbers.
+
+<div class="webgpu-center center diagram"><div data-diagram="pixel-to-texcoords" style="display: inline-block; width: 600px;"></div></div>
+
+In the diagram above, the <span style="color: red;">red</span> rectangle above
+represents the quad we are asked the GPU to draw, based on the values we return
+from our vertex shader. When the GPU draws, it computes which pixels' centers
+are inside our quad (well, our 2 triangles). Then, it computes what interpolated
+inter-stage variable value to pass to the fragment shader, based on where the
+center of the pixel to be drawn is, relative to the where the original points
+are. In our fragment shader we then pass that texture coordinate to the WGSL
+`textureSample` function and get back a sampled color as the previous diagram
+showed. Hopefully you can see why the colors are flickering. You can see them
+blend to different colors depending on which UV coordinates are computed for the
+pixel being drawn.
+
+Textures offer a solution to this problem. It's called mip-mapping. I think (but could be wrong)
+that "mipmap" stands for "multi-image-pyramid-map".
+
+What we take our texture and create a smaller texture that is half the size in each dimension,
+rounding down. We then fill the smaller texture with blended colors from the first original texture.
+We keep doing this until we get to a 1x1 texture. In our example we have a 5x7 texel texture.
+Dividing by 2 in each dimension and rounding down gives us a 2x3 texel texture. We take that one
+and repeat so we end up with 1x1 texel texture.
+
+<div class="webgpu-center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
+
+Given a mipmap, we can then ask the GPU to choose a smaller mip level when smaller than the original size.
+
+The best algorithm for blending the pixels from one mip to the next is
+a topic of research as well as a matter of opinion. As a first idea, here's some code that
+generates each mip from the previous mip by bilinear filtering (like we did above).
+
+```js
+const lerp = (a, b, t) => a + (b - a) * t;
+const mix = (a, b, t) => a.map((v, i) => lerp(v, b[i], t));
+const bilinearFilter = (tl, tr, bl, br, t1, t2) => {
+  const t = mix(tl, tr, t1);
+  const b = mix(bl, br, t1);
+  return mix(t, b, t2);
+};
+
+const createNextMipLevelRgba8Unorm = ({data: src, width: srcWidth, height: srcHeight}) => {
+  // compute the size of the next mip
+  const dstWidth = Math.max(1, srcWidth / 2 | 0);
+  const dstHeight = Math.max(1, srcHeight / 2 | 0);
+  const dst = new Uint8Array(dstWidth * dstHeight * 4);
+
+  const getSrcPixel = (x, y) => {
+    const offset = (y * srcWidth + x) * 4;
+    return src.subarray(offset, offset + 4);
+  };
+
+  for (let y = 0; y < dstHeight; ++y) {
+    for (let x = 0; x < dstWidth; ++x) {
+      // compute texcoord of the center of the destination texel
+      const u = (x + 0.5) / dstWidth;
+      const v = (y + 0.5) / dstHeight;
+
+      // compute the same texcoord in the source - 0.5 a pixel
+      const au = (u * srcWidth - 0.5);
+      const av = (v * srcHeight - 0.5);
+
+      // compute the src top left texel coord (not texcoord)
+      const tx = au | 0;
+      const ty = av | 0;
+
+      // compute the mix amounts between pixels
+      const t1 = au % 1;
+      const t2 = av % 1;
+
+      // get the 4 pixels
+      const tl = getSrcPixel(tx, ty);
+      const tr = getSrcPixel(tx + 1, ty);
+      const bl = getSrcPixel(tx, ty);
+      const br = getSrcPixel(tx + 1, ty + 1);
+
+      // copy the "sampled" result into the dest.
+      const dstOffset = (y * dstWidth + x) * 4;
+      dst.set(bilinearFilter(tl, tr, bl, br, t1, t2), dstOffset);
+    }
+  }
+  return { data: dst, width: dstWidth, height: dstHeight };
+};
+
+const generateMips = (src, srcWidth) => {
+  const srcHeight = src.length / 4 / srcWidth;
+
+  // populate with first mip level (base level)
+  let mip = { data: src, width: srcWidth, height: srcHeight, };
+  const mips = [mip];
+
+  while (mip.width > 1 || mip.height > 1) {
+    mip = createNextMipLevelRgba8Unorm(mip);
+    mips.push(mip);
+  }
+  return mips;
+};
+```
+
+We'll go over how to do this on the GPU in [another article](webgpu-generate-mips.html).
+For now, we can use the code above to generate a mipmap
+
+We pass our texture data to the function above, and it returns an array of mip level data.
+We can then create a texture with all the mip levels
+
+```js
+  const mips = generateMips(textureData, kTextureWidth);
+
+  const tex = device.createTexture({
+    label: 'yellow F on red',
++    size: [mips[0].width, mips[0].height, 1],
++    mipLevelCount: mips.length,
+    format: 'rgba8unorm',
+    usage:
+      GPUTextureUsage.TEXTURE_BINDING |
+      GPUTextureUsage.COPY_DST,
+  });
+  mips.forEach(({data, width, height}, mipLevel) => {
+    device.queue.writeTexture(
+-      { texture: tex },
+-      textureData,
+-      { bytesPerRow: kTextureWidth * 4 },
+-      { width: kTextureWidth, height: kTextureHeight },
++      { texture: tex, mipLevel },
++      data,
++      { bytesPerRow: width * 4 },
++      { width, height },
+    );
+  });
+```
+
+Notice we pass in `mipLevelCount` to the number of mip levels. WebGPU will then create
+the correct sized mip level at each level. We then copy the data to each level by specifying
+the `mipLevel`
+
+And with that the GPU is choose the smallest mip to draw and are flickering is gone.
+
+{{{example url="../webgpu-simple-textured-quad-mipmap.html"}}}
+
+But wait, there's MORE
+
+Just like we have a `magFilter` and a `minFilter` both of which which can be `nearest` or `linear`,
+there is also a `mipmapFilter` setting which can also be `nearest` or `linear`.
+
+This chooses if we blend between mip levels. In `mipmapFilter: 'linear'`, colors are sampled
+from 2 mip levels, either with nearest or linear filtering based on the previous settings,
+then, those 2 colors are again `mix`ed in a similar way.
+
+This comes up most when drawing things in 3D. How to draw in 3D is covered in [other articles](webgpu-perspective.html). For now, we'll just hard code a quad with data that happens to
+represent a plane that goes off into the distance.
+
+<div class="webgpu-center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
+
+<div class="webgpu-center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
+
+{{{example url="../webgpu-simple-textured-quad-mipmapfilter.html"}}}
+
+
+TODO: loading 
+TODO: texture formats
+TODO: 3D, 2D Array, Cube maps
 
 
 <!-- keep this at the bottom of the article -->

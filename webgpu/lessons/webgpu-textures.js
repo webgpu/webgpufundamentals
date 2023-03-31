@@ -10,12 +10,57 @@ import {
   euclideanModulo,
 } from './resources/utils.js';
 import {
-  createElem as el, radio,
+  createElem as el, radio, checkbox,
 } from './resources/elem.js';
+import {
+  generateMips,
+} from './resources/generate-mips-cpu.js';
 
 const rgba8unorm = (r, g, b, a) => `rgba(${r}, ${g}, ${b}, ${a / 255})`;
 const lerp = (a, b, t) => a + (b - a) * t;
 const lerpArray = (a, b, t) => a.map((v, i) => lerp(v, b[i], t));
+const f2 = v => v.toFixed(2);
+const setTranslation = (e, x, y) => e.attr({transform: `translate(${x}, ${y})`});
+
+function addMipmap(elem, mips, pixelSize) {
+  elem.appendChild(
+    el(
+      'div',
+      {
+        style: {
+          display: 'flex',
+          flexWrap: 'wrap',
+          textAlign: 'center',
+          alignItems: 'end',
+        },
+      },
+      mips.map(({width, height, data}) => {
+        const canvas = el('canvas', {
+          width,
+          height,
+          class: 'nearest-neighbor-like',
+          style: {
+            margin: '1em',
+            width: `${width * pixelSize}px`,
+            height: `${height * pixelSize}px`,
+          },
+        });
+        const ctx = canvas.getContext('2d');
+        const imageData = new ImageData(width, height);
+        imageData.data.set(data);
+        ctx.putImageData(imageData, 0, 0);
+        return el('div', {}, [
+          canvas,
+          el('div', {textContent: `${width}x${height}`}),
+        ]);
+      }),
+    )
+  );
+}
+
+function addMips(elem, textureData, width, pixelSize) {
+  addMipmap(elem, generateMips(textureData, width), pixelSize);
+}
 
 renderDiagrams({
   'linear-interpolation': (elem) => {
@@ -132,7 +177,7 @@ renderDiagrams({
     const makeArrow = (a, b) => {
       const b0 = a.bbox();
       const b1 = b.bbox();
-      const arrow = draw.path(`M${b0.x - 5},${b0.cy} C${b1.cx},${b0.cy} ${b1.cx},${b0.cy},${b1.cx},${b1.y}}`)
+      const arrow = draw.path(`M${b0.x - 5},${b0.cy} C${b1.cx},${b0.cy} ${b1.cx},${b0.cy} ${b1.cx},${b1.y}`)
         .fill('none')
         .addClass('svg-main-text-color-stroke');
       arrow.marker('end', marker2);
@@ -189,8 +234,6 @@ renderDiagrams({
 
     bg.clipWith(mask);
 
-    const f2 = v => v.toFixed(2);
-    const setTranslation = (e, x, y) => e.attr({transform: `translate(${x}, ${y})`});
     const size = [tw, th];
     const clampOrRepeat = (ndx, v) => {
       const s = size[ndx];
@@ -299,5 +342,251 @@ renderDiagrams({
     });
 
     update();
+  },
+  'pixel-to-texcoords': (elem) => {
+    const diagramDiv = el('div');
+    const uiDiv = el('div');
+    const div = el('div', {}, [diagramDiv, uiDiv]);
+    elem.appendChild(div);
+    const pixelSize = 40;
+    const dw = 10;
+    const dh = 8;
+    const hSize = pixelSize / 2;
+    const w = dw * pixelSize;
+    const h = dh * pixelSize;
+    const draw = svg().addTo(diagramDiv).viewbox(0, 0, w, h);
+
+    const makeText = (parent, t) => {
+      return parent.text(t)
+        .font({
+          family: 'monospace',
+          weight: 'bold',
+          size: '10',
+        })
+        .css({
+          filter: `
+            drop-shadow( 1px  0px 0px #fff) 
+            drop-shadow( 0px  1px 0px #fff) 
+            drop-shadow(-1px  0px 0px #fff) 
+            drop-shadow( 0px -1px 0px #fff) 
+          `,
+        });
+    };
+
+    const pixels = [];
+    const bg = draw.group();
+    for (let y = 0; y < dh; ++y) {
+      for (let x = 0; x < dw; ++x) {
+        const xx = x * pixelSize;
+        const yy = y * pixelSize;
+        pixels.push({
+          rect: bg.rect(pixelSize, pixelSize).move(xx, yy).fill('#00000000'),
+          dot: bg.circle(5).center(xx + hSize, yy + hSize).addClass('svg-main-text-color-fill').stroke('none'),
+        });
+      }
+    }
+    const grid = bg.group().addClass('svg-main-text-color-stroke');
+    for (let y = 0; y <= dh; ++y) {
+      const yy = y * pixelSize;
+      grid.line([0, yy, w, yy]).stroke({width: 0.5});
+    }
+    for (let x = 0; x <= dw; ++x) {
+      const xx = x * pixelSize;
+      grid.line([xx, 0, xx, h]).stroke({width: 0.5});
+    }
+
+    const quadGroup = draw.group();
+    const rot = quadGroup.group();
+    const quad = rot.rect(pixelSize * 2, pixelSize * 2).fill('none').stroke({color: 'red'});
+    // rot.line(0, pixelSize * 2, pixelSize * 2, 0).stroke('#FF000020');
+    makeText(rot, ('uv:0,0')).move(-40, pixelSize * 2 + 5);
+    makeText(rot, ('uv:1,1')).move(pixelSize * 2 + 10, -15);
+    setTranslation(rot, -pixelSize, -pixelSize);
+    setTranslation(quadGroup, 4.25 * pixelSize, 3.25 * pixelSize);
+    const uLine = rot.group();
+    uLine.line(0, 0, 0, pixelSize * 2).stroke('#FF0');
+    const uText = makeText(uLine, 'foo').move(0, -15).font({anchor: 'middle'});
+    const vLine = rot.group();
+    vLine.line(0, 0, pixelSize * 2, 0).stroke('#FF0');
+    const vText = makeText(vLine, 'foo').move(-40, -6);
+
+    const getTransformToElement = (toElement, fromElement) =>
+        toElement.getScreenCTM().inverse().multiply(fromElement.getScreenCTM());
+
+    const settings = {
+      pause: false,
+      rotate: false,
+      rotation: 0,
+      xOffset: 0,
+    };
+
+    const pre = el('pre', {style: { 'background-color': 'inherit', margin: '0'}});
+    uiDiv.appendChild(
+      el('div', {className: 'side-by-side-top-space-around'}, [
+        pre,
+        el('div', {}, [
+          checkbox('pause', settings.pause, v => {
+            settings.pause = v;
+          }),
+          checkbox('rotate', settings.rotate, v => {
+            settings.rotate = v;
+          }),
+        ]),
+      ])
+    );
+
+    const oldPixels = [];
+    const points = [
+      [0, 0],
+      [pixelSize * 2, 0],
+      [0, pixelSize * 2],
+      [pixelSize * 2, pixelSize * 2],
+    ];
+
+    let time = 0;
+    let then = 0;
+    function update(now) {
+      const deltaTime = Math.min(0.1, (then - now) * 0.001);
+      then = now;
+
+      if (!settings.pause) {
+        time += deltaTime;
+        settings.xOffset = Math.sin(time * 0.25) * pixelSize * 3;
+        if (settings.rotate) {
+          settings.rotation += deltaTime * 10;
+        }
+      }
+      rot.attr({transform: `translate(${settings.xOffset}, 0) rotate(${settings.rotation}) translate(${-pixelSize}, ${-pixelSize})`});
+
+      for (const {rect, dot} of oldPixels) {
+        rect.fill('none');
+        dot.fill('').addClass('svg-main-text-color-fill');
+      }
+      oldPixels.length = 0;
+
+      // I'm too lazy to write a rasterizer so hack
+      const toPixels = getTransformToElement(draw.node, quad.node);
+      const min = [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY];
+      const max = [Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY];
+      for (const point of points) {
+        const p = new DOMPoint(...point).matrixTransform(toPixels);
+        min[0] = Math.min(min[0], p.x);
+        min[1] = Math.min(min[1], p.y);
+        max[0] = Math.max(max[0], p.x);
+        max[1] = Math.max(max[1], p.y);
+      }
+      const left   = Math.max(0, min[0] / pixelSize) | 0;
+      const top    = Math.max(0, min[1] / pixelSize) | 0;
+      const right  = Math.min(dw - 1, max[0] / pixelSize) | 0;
+      const bottom = Math.min(dh - 1, max[1] / pixelSize) | 0;
+
+      const coords = [];
+      const toQuad = getTransformToElement(quad.node, draw.node);
+      for (let y = top; y <= bottom; ++y) {
+        for (let x = left; x <= right; ++x) {
+          const xx = x * pixelSize + hSize;
+          const yy = y * pixelSize + hSize;
+          const p = new DOMPoint(xx, yy).matrixTransform(toQuad);
+          const inside = p.x >= 0 && p.x < pixelSize * 2 &&
+                         p.y >= 0 && p.y < pixelSize * 2;
+          if (inside) {
+            const u = p.x / (pixelSize * 2);
+            const v = p.y / (pixelSize * 2);
+            if (coords.length === 0) {
+              setTranslation(uLine, p.x, 0);
+              setTranslation(vLine, 0, p.y);
+              uText.text(`u:${f2(u)}`);
+              vText.text(`v:${f2(v)}`);
+            }
+            coords.push(`pixel ${x},${y}  uv ${f2(u)},${f2(v)}`);
+            const pixel = pixels[y * dw + x];
+            oldPixels.push(pixel);
+            const { dot, rect } = pixel;
+            dot.fill('#f00').removeClass('svg-main-text-color-fill');
+            rect.fill('#0ff');
+          }
+        }
+      }
+
+
+
+      const extra = 6 - coords.length;
+      coords.push(...new Array(extra).fill(' '));
+
+      pre.textContent = coords.join('\n');
+
+      requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+
+
+  },
+  'mips': (elem) => {
+    const kTextureWidth = 5;
+    const _ = [255,   0,   0, 255];  // red
+    const y = [255, 255,   0, 255];  // yellow
+    const b = [  0,   0, 255, 255];  // blue
+    const textureData = new Uint8Array([
+      _, _, _, _, _,
+      _, y, _, _, _,
+      _, y, _, _, _,
+      _, y, y, _, _,
+      _, y, _, _, _,
+      _, y, y, y, _,
+      b, _, _, _, _,
+    ].flat());
+
+    const pixelSize = 40;
+    addMips(elem, textureData, kTextureWidth, pixelSize);
+  },
+  'checkered-mips': (elem) => {
+    const w = [255, 255, 255, 255];
+    const r = [255,   0,   0, 255];
+    const b = [  0,  28, 116, 255];
+    const y = [255, 231,   0, 255];
+    const g = [ 58, 181,  75, 255];
+    const a = [ 38, 123, 167, 255];
+    const data = new Uint8Array([
+      w, r, r, r, r, r, r, a, a, r, r, r, r, r, r, w,
+      w, w, r, r, r, r, r, a, a, r, r, r, r, r, w, w,
+      w, w, w, r, r, r, r, a, a, r, r, r, r, w, w, w,
+      w, w, w, w, r, r, r, a, a, r, r, r, w, w, w, w,
+      w, w, w, w, w, r, r, a, a, r, r, w, w, w, w, w,
+      w, w, w, w, w, w, r, a, a, r, w, w, w, w, w, w,
+      w, w, w, w, w, w, w, a, a, w, w, w, w, w, w, w,
+      b, b, b, b, b, b, b, b, a, y, y, y, y, y, y, y,
+      b, b, b, b, b, b, b, g, y, y, y, y, y, y, y, y,
+      w, w, w, w, w, w, w, g, g, w, w, w, w, w, w, w,
+      w, w, w, w, w, w, r, g, g, r, w, w, w, w, w, w,
+      w, w, w, w, w, r, r, g, g, r, r, w, w, w, w, w,
+      w, w, w, w, r, r, r, g, g, r, r, r, w, w, w, w,
+      w, w, w, r, r, r, r, g, g, r, r, r, r, w, w, w,
+      w, w, r, r, r, r, r, g, g, r, r, r, r, r, w, w,
+      w, r, r, r, r, r, r, g, g, r, r, r, r, r, r, w,
+    ].flat());
+    const pixelSize = 16;
+    addMips(elem, data, 16, pixelSize);
+  },
+  'blended-mips': (elem) => {
+    const ctx = document.createElement('canvas').getContext('2d', {willReadFrequently: true});
+    const levels = [
+      { size: 64, color: 'rgb(128,0,255)', },
+      { size: 32, color: 'rgb(0,255,0)', },
+      { size: 16, color: 'rgb(255,0,0)', },
+      { size:  8, color: 'rgb(255,255,0)', },
+      { size:  4, color: 'rgb(0,0,255)', },
+      { size:  2, color: 'rgb(0,255,255)', },
+      { size:  1, color: 'rgb(255,0,255)', },
+    ];
+    addMipmap(elem, levels.map(({size, color}, i) => {
+      ctx.canvas.width = size;
+      ctx.canvas.height = size;
+      ctx.fillStyle = i & 1 ? '#000' : '#fff';
+      ctx.fillRect(0, 0, size, size);
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, size / 2, size / 2);
+      ctx.fillRect(size / 2, size / 2, size / 2, size / 2);
+      return ctx.getImageData(0, 0, size, size);
+    }), 4);
   },
 });
