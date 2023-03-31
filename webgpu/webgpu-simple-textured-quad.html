@@ -106,6 +106,7 @@ async function main() {
   ].flat());
 
   const tex = device.createTexture({
+    label: 'yellow F on red',
     size: [kTextureWidth, kTextureHeight, 1],
     format: 'rgba8unorm',
     usage:
@@ -119,10 +120,7 @@ async function main() {
       { width: kTextureWidth, height: kTextureHeight },
   );
 
-  const sampler = device.createSampler({
-    magFilter: 'nearest',
-    minFilter: 'nearest',
-  });
+  const sampler = device.createSampler();
 
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),

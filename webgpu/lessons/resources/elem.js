@@ -1,4 +1,8 @@
 export function createElem(tag, attrs = {}, children = []) {
+  if (Array.isArray(attrs)) {
+    children = attrs;
+    attrs = {};
+  }
   const elem = document.createElement(tag);
   for (const [key, value] of Object.entries(attrs)) {
     if (typeof value === 'function' && key.startsWith('on')) {
@@ -61,5 +65,21 @@ export function radio(label, options, value, callback) {
       el('div', {textContent: option}),
     ]);
   }));
+  return parent;
+}
+
+export function checkbox(label, checked, callback) {
+  const parent = el('div', {className: 'checkbox center'}, [
+    el('label', {}, [
+      el('input', {
+        type: 'checkbox',
+        checked,
+        onInput: function() {
+          callback(this.checked);
+        },
+      }),
+      el('div', {textContent: label}),
+    ]),
+  ]);
   return parent;
 }

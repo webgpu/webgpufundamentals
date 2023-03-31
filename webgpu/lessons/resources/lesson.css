@@ -18,6 +18,7 @@
   --table-head-bg-color: #68F;
   --table-even-bg-color: rgba(0, 0, 0, 0.05);
   --selected-fg-color: orange;
+  --diagram-bg-color: #DDD;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,7 +39,15 @@
     --table-head-bg-color: #238;
     --table-even-bg-color: rgba(255, 255, 255, 0.05);
     --selected-fg-color: orange;
+    --diagram-bg-color: #222;
   }
+}
+
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
 body {
@@ -101,12 +110,12 @@ table {
 
 pre {
   background: var(--code-bg-color);
-  padding: 1em;
 }
 pre>code {
   white-space: inherit;
   background: none;
 }
+
 pre.prettyprint {
     margin-top: 2em !important;
     margin-bottom: 2em !important;
@@ -321,6 +330,14 @@ code {
     white-space: nowrap;
 }
 
+.diagram {
+  padding: 2em;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 2em 0;
+  background-color: var(--diagram-bg-color);
+}
+
 .webgpu_table_div_center {
   text-align: center;
 }
@@ -328,6 +345,11 @@ code {
 .webgpu_table_center {
   margin-left: auto;
   margin-right: auto;
+}
+
+.nearest-neighbor-like {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
 .center {
@@ -401,12 +423,15 @@ table.vertex_table td {
   padding-left: 1em;
 }
 
-div.radio {
+div.radio,
+div.checkbox {
   display: flex;
 }
-.radio div {
+.radio div,
+.checkbox div {
   display: inline;
 }
+.checkbox :checked + *,
 .radio :checked + * {
   color: var(--selected-fg-color);
 }
@@ -518,6 +543,12 @@ pre.prettyprint, code.prettyprint, .dos {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
+}
+.side-by-side-top-space-around {
+  display: flex;
+  justify-content: space-around;
+  align-items: start;
   flex-wrap: wrap;
 }
 

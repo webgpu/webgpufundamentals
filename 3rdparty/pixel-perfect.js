@@ -35,18 +35,32 @@ export function makePixelPerfect(elem) {
 
   }
 
-  const scale = options.scale
+  let scale = options.scale
   if (scale % 1 !== 0) {
     console.warn('scale must be an integer value');
   }
 
   const px = v => `${v}px`;
 
-  const desiredWidth = origWidth * scale;
-  const targetWidth = desiredWidth * devicePixelRatio;
-  const mult = Math.max(1, Math.round(targetWidth / origWidth));
-  elem.style.width = px(origWidth * mult / devicePixelRatio);
-  elem.style.height = px(origHeight * mult / devicePixelRatio);
+  let good;
+  do {
+    const desiredWidth = origWidth * scale;
+    const targetWidth = desiredWidth * devicePixelRatio;
+    const mult = Math.max(1, Math.round(targetWidth / origWidth));
+    const cssWidth = origWidth * mult / devicePixelRatio
+    const cssHeight = origHeight * mult / devicePixelRatio
+    elem.style.width = px(cssWidth);
+    elem.style.height = px(cssHeight);
+
+    // get the size it will actually be displayed. If smaller than we asked,
+    // try the next smallest integer size
+    const {width, height} = elem.getBoundingClientRect();
+    const diffX = Math.abs(cssWidth - width);
+    const diffY = Math.abs(cssHeight - height);
+    good = diffX < 1 && diffY < 1;
+    scale -= 1;
+  } while (scale > 0 && !good);
+
 }
 
 function makeAllPixelPerfect() {
