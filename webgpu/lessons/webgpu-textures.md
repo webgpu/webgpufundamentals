@@ -579,7 +579,7 @@ We're going to animate this so we'll also change the code use
 +    const scaleY = 4 / canvas.height;
 +
 +    uniformValues.set([scaleX, scaleY], kScaleOffset); // set the scale
-+    uniformValues.set([Math.sin(time * 0.25) * 0.8, -0.5], kOffsetOffset); // set the scale
++    uniformValues.set([Math.sin(time * 0.25) * 0.8, -0.8], kOffsetOffset); // set the offset
 +
 +    // copy the values from JavaScript to the GPU
 +    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
@@ -667,7 +667,12 @@ One reason is, the quad is positioned with real numbers but pixels are integers.
 The texture coordinates are interpolated from the real numbers, or rather, they
 are computed from the real numbers.
 
-<div class="webgpu-center center diagram"><div data-diagram="pixel-to-texcoords" style="display: inline-block; width: 600px;"></div></div>
+<div class="webgpu-center center diagram">
+  <div>
+    <div class="text-align: center">drag to move</div>
+    <div data-diagram="pixel-to-texcoords" style="display: inline-block; width: 600px;"></div>
+  </div>
+</div>
 
 In the diagram above, the <span style="color: red;">red</span> rectangle
 represents the quad we asked the GPU to draw, based on the values we return
