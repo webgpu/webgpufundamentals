@@ -114,7 +114,7 @@ async function main() {
   const indicesBuffer = createBuffer(device, indices, GPUBufferUsage.INDEX);
 
   const tex = device.createTexture({
-    size: [2, 2, 1],
+    size: [2, 2],
     format: 'rgba8unorm',
     usage:
       GPUTextureUsage.TEXTURE_BINDING |

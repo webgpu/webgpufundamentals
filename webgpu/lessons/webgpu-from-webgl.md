@@ -491,7 +491,7 @@ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     <div>WebGPU</div>
 <pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 const tex = device.createTexture({
-  size: [2, 2, 1],
+  size: [2, 2],
   format: 'rgba8unorm',
   usage:
     GPUTextureUsage.TEXTURE_BINDING |

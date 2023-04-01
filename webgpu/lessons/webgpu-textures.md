@@ -175,7 +175,7 @@ Now that we have the data we need to make a texture
 
 ```js
   const tex = device.createTexture({
-    size: [kTextureWidth, kTextureHeight, 1],
+    size: [kTextureWidth, kTextureHeight],
     format: 'rgba8unorm',
     usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
   });
@@ -781,7 +781,7 @@ We can then create a texture with all the mip levels
 
   const tex = device.createTexture({
     label: 'yellow F on red',
-+    size: [mips[0].width, mips[0].height, 1],
++    size: [mips[0].width, mips[0].height],
 +    mipLevelCount: mips.length,
     format: 'rgba8unorm',
     usage:
@@ -806,12 +806,49 @@ Notice we pass in `mipLevelCount` to the number of mip levels. WebGPU will then
 create the correct sized mip level at each level. We then copy the data to each
 level by specifying the `mipLevel`
 
+Let's also add a scale setting so we can see the quad drawn at different sizes.
+
+```js
+  const settings = {
+    addressModeU: 'repeat',
+    addressModeV: 'repeat',
+    magFilter: 'linear',
+    minFilter: 'linear',
++    scale: 1,
+  };
+
+  ...
+
+  const gui = new GUI();
+  Object.assign(gui.domElement.style, {right: '', left: '15px'});
+  gui.add(settings, 'addressModeU', addressOptions);
+  gui.add(settings, 'addressModeV', addressOptions);
+  gui.add(settings, 'magFilter', filterOptions);
+  gui.add(settings, 'minFilter', filterOptions);
++  gui.add(settings, 'scale', 0.5, 6);
+
+  function render(time) {
+
+    ...
+
+-    const scaleX = 4 / canvas.width;
+-    const scaleY = 4 / canvas.height;
++    const scaleX = 4 / canvas.width * settings.scale;
++    const scaleY = 4 / canvas.height * settings.scale;
+
+```
+
 And with that the GPU is choosing the smallest mip to draw and the flickering is
 gone.
 
 {{{example url="../webgpu-simple-textured-quad-mipmap.html"}}}
 
-But wait, there's MORE
+Adjust the scale and you can see as we get bigger, which mip level is used
+changes. There's a pretty harsh transition between scale 2.4 and scale 2.5
+where the GPU switches between mip level 0 (the largest mip level) and
+mip level 1 (the middle size). What to do about that?
+
+## mipmapFilter
 
 Just like we have a `magFilter` and a `minFilter` both of which can be `nearest`
 or `linear`, there is also a `mipmapFilter` setting which can also be `nearest`
@@ -902,7 +939,7 @@ Now that we've created the data lets create the textures
     const tex = device.createTexture({
 -      label: 'yellow F on red',
 +      label,
-      size: [mips[0].width, mips[0].height, 1],
+      size: [mips[0].width, mips[0].height],
       mipLevelCount: mips.length,
       format: 'rgba8unorm',
       usage:
