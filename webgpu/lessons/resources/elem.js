@@ -43,10 +43,10 @@ export function makeTable(parent, columnNames) {
 }
 
 /*
-const addRow = makeTable(parent, 'name', 'location');
-addRow('Gregg', 'SF');
-addRow('Tami', 'Glendora');
-addRow('Mom', 'Temecula');
+const addRow = makeTable(parent, ['name', 'location']);
+addRow(['Gregg', 'SF']);
+addRow(['Tami', 'Glendora']);
+addRow(['Mom', 'Temecula']);
 */
 
 export function radio(label, options, value, callback) {
