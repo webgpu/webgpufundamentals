@@ -194,7 +194,7 @@ div[data-diagram] {
 }
 
 .lesson-main>.webgpu_example_container {
-    max-width: 90%;
+    max-width: min(90%, 1500px);
 }
 .lesson-main>img {
   width: unset;
