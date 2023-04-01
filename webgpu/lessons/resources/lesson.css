@@ -194,7 +194,7 @@ div[data-diagram] {
 }
 
 .lesson-main>.webgpu_example_container {
-    max-width: 90%;
+    max-width: min(90%, 1500px);
 }
 .lesson-main>img {
   width: unset;
@@ -336,6 +336,9 @@ code {
   max-width: 100%;
   margin: 0 0 2em 0;
   background-color: var(--diagram-bg-color);
+}
+.diagram canvas {
+  max-width: 90%;
 }
 
 .webgpu_table_div_center {

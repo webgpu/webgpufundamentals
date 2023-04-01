@@ -282,7 +282,7 @@ async function main() {
     const scaleY = 4 / canvas.height * settings.scale;
 
     uniformValues.set([scaleX, scaleY], kScaleOffset); // set the scale
-    uniformValues.set([Math.sin(time * 0.25) * 0.9, -0.5], kOffsetOffset); // set the scale
+    uniformValues.set([Math.sin(time * 0.25) * 0.9, -0.8], kOffsetOffset); // set the scale
 
     // copy the values from JavaScript to the GPU
     device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
