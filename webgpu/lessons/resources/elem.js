@@ -29,16 +29,16 @@ const c = (tag, children = [], textContent = '') => {
   return createElem(tag, {textContent}, children);
 };
 
-export function makeTable(parent, ...args) {
-  const makeRow = arr => c('tr', arr.map(v => c('td', [], v)));
+export function makeTable(parent, columnNames) {
+  const makeRow = (arr, tag = 'td') => c('tr', arr.map(v => c(tag, [], v)));
 
   const tbody = c('tbody');
   parent.appendChild(c('table', [
-    c('thead', [makeRow(args)]),
+    c('thead', [makeRow(columnNames, 'th')]),
     tbody,
   ]));
-  return function(...args) {
-    tbody.appendChild(makeRow(args));
+  return function(columnData) {
+    tbody.appendChild(makeRow(columnData));
   };
 }
 

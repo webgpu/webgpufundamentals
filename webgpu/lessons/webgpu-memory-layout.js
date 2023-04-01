@@ -87,10 +87,10 @@ renderDiagrams({
   },
 
   wgslTypeTable(elem) {
-    const addRow = makeTable(elem, 'type', 'size', 'align');
+    const addRow = makeTable(elem, ['type', 'size', 'align']);
     for (const [name, {size, align}] of Object.entries(typeInfo)
         .filter(([name]) => name.length === 3 || name.includes('<'))) {
-      addRow(name, size, align);
+      addRow([name, size, align]);
     }
   },
 });

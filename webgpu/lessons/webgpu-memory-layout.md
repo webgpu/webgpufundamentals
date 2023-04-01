@@ -174,7 +174,7 @@ They are:
   </style>
   <table class="wgsl-types">
     <thead>
-      <tr><td>type</td><td>description</td><td>short name</td><tr>
+      <tr><th>type</th><th>description</th><th>short name</th><tr>
     </thead>
     <tbody>
       <tr><td><code>vec2&lt;f32&gt;</code></td></td><td>a type with 2  <code>f32</code>s</td><td><code>vec2f</code></td></tr>

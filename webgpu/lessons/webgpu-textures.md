@@ -1274,6 +1274,16 @@ Here are the "color" formats though of course you don't have to store colors in 
 
 <div class="webgpu_center data-table"><div data-diagram="color-texture-formats"></div></div>
 
+To read a format, like "rg16float". the first letters are the channels supported
+in the texture so "rg16float" supports "rg" or red and green (2 channels). The
+number, 16, means those channels are 16bits each. The word at the end is what
+kind of data is in the channel. "float" is floating point data, "unorm" is
+unsigned normalized data (0 to 1), "snorm" is signed normalized data (-1 to +1).
+"sint" is signed integers. "uint" is unsigned integer. If there are multiple
+letter number combinations it's specifying the number of bits for each channel.
+For example "rg11b10ufloat" is "rg11" so 11bits each of red and green. "b10" so
+10bits of blue and they are all unsigned floating point numbers.
+
 * **renderable**
 
   True means you can render to it (set its usage to `GPUTextureUsage.RENDER_ATTACHMENT`)
