@@ -10,11 +10,16 @@ import {
   euclideanModulo,
 } from './resources/utils.js';
 import {
-  createElem as el, radio, checkbox,
+  createElem as el, radio, checkbox, makeTable,
 } from './resources/elem.js';
 import {
   generateMips,
 } from './resources/generate-mips-cpu.js';
+import {
+  kDepthStencilFormats,
+  kRegularTextureFormats,
+  kTextureFormatInfo,
+} from './resources/capabilities-info.js';
 
 const rgba8unorm = (r, g, b, a) => `rgba(${r}, ${g}, ${b}, ${a / 255})`;
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -60,6 +65,16 @@ function addMipmap(elem, mips, pixelSize) {
 
 function addMips(elem, textureData, width, pixelSize) {
   addMipmap(elem, generateMips(textureData, width), pixelSize);
+}
+
+function addTextureTable(elem, spec, formats) {
+  const addRow = makeTable(elem, ...Object.values(spec).map(v => v.label));
+  for (const format of formats) {
+    const values = Object.entries(spec).map(([k /*, field */]) => {
+      return k === 'key' ? format : kTextureFormatInfo[format][k];
+    });
+    addRow(...values);
+  }
 }
 
 renderDiagrams({
@@ -539,7 +554,7 @@ renderDiagrams({
     const pixelSize = 40;
     addMips(elem, textureData, kTextureWidth, pixelSize);
   },
-  'checkered-mips': (elem) => {
+  'blended-mips': (elem) => {
     const w = [255, 255, 255, 255];
     const r = [255,   0,   0, 255];
     const b = [  0,  28, 116, 255];
@@ -567,7 +582,7 @@ renderDiagrams({
     const pixelSize = 16;
     addMips(elem, data, 16, pixelSize);
   },
-  'blended-mips': (elem) => {
+  'checkered-mips': (elem) => {
     const ctx = document.createElement('canvas').getContext('2d', {willReadFrequently: true});
     const levels = [
       { size: 64, color: 'rgb(128,0,255)', },
@@ -587,6 +602,33 @@ renderDiagrams({
       ctx.fillRect(0, 0, size / 2, size / 2);
       ctx.fillRect(size / 2, size / 2, size / 2, size / 2);
       return ctx.getImageData(0, 0, size, size);
-    }), 4);
+    }), 6);
+  },
+  'color-texture-formats': (elem) => {
+    const spec = {
+      key: { label: 'format', },
+      renderable: { label: 'renderable', },
+      multisample: { label: 'multisample', },
+      storage: { label: 'storage', },
+      sampleType: { label: 'sample type', },
+      bytesPerBlock: { label: 'bytes per pixel', },
+    };
+
+    addTextureTable(elem, spec, kRegularTextureFormats);
+  },
+  'depth-stencil-texture-formats': (elem) => {
+    const spec = {
+      key: { label: 'format', },
+      renderable: { label: 'renderable', },
+      multisample: { label: 'multisample', },
+      storage: { label: 'storage', },
+      sampleType: { label: 'sampler type', },
+      bytesPerBlock: { label: 'bytes per pixel', },
+      copySrc: { label: 'copy src', },
+      copyDst: { label: 'copy dst', },
+      feature: { label: 'feature', },
+    };
+
+    addTextureTable(elem, spec, kDepthStencilFormats);
   },
 });

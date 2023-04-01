@@ -21,6 +21,7 @@ canvas {
   padding: 0.5em;
   background-color: black;
   pointer-events: none;
+  user-select: none;
 }
     </style>
   </head>
@@ -231,7 +232,7 @@ async function main() {
   const createTextureWithMips = (mips, label) => {
     const tex = device.createTexture({
       label,
-      size: [mips[0].width, mips[0].height, 1],
+      size: [mips[0].width, mips[0].height],
       mipLevelCount: mips.length,
       format: 'rgba8unorm',
       usage:
@@ -287,6 +288,8 @@ async function main() {
           { binding: 2, resource: { buffer: uniformBuffer }},
         ],
       }));
+
+    // Save the data we need to render this object.
     objectInfos.push({
       bindGroups,
       matrix,
@@ -362,11 +365,6 @@ async function main() {
     device.queue.submit([commandBuffer]);
   }
 
-  canvas.addEventListener('click', () => {
-    texNdx = 1 - texNdx;
-    render();
-  });
-
   const observer = new ResizeObserver(entries => {
     for (const entry of entries) {
       const canvas = entry.target;
@@ -378,6 +376,11 @@ async function main() {
     }
   });
   observer.observe(canvas);
+
+  canvas.addEventListener('click', () => {
+    texNdx = 1 - texNdx;
+    render();
+  });
 }
 
 function fail(msg) {

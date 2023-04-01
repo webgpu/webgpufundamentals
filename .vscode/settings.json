@@ -1,6 +1,7 @@
 {
   "cSpell.words": [
     "bbox",
+    "bgra",
     "bottombar",
     "buildlesson",
     "buildlessons",
@@ -19,6 +20,9 @@
     "structs",
     "texels",
     "Tweakpane",
+    "ufloat",
+    "unfilterable",
+    "unrenderable",
     "viewbox"
   ]
 }
