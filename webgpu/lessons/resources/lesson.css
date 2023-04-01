@@ -337,6 +337,9 @@ code {
   margin: 0 0 2em 0;
   background-color: var(--diagram-bg-color);
 }
+.diagram canvas {
+  max-width: 90%;
+}
 
 .webgpu_table_div_center {
   text-align: center;
