@@ -1,6 +1,9 @@
 import {
   renderDiagrams
 } from './resources/diagrams.js';
+import {
+  createRequestAnimationFrameLoop,
+} from './resources/good-raf.js';
 import { SVG as svg } from '/3rdparty/svg.esm.js';
 import {
   rgba8unormFromCSS,
@@ -94,7 +97,7 @@ renderDiagrams({
     const pixelsOffX = 50;
     const draw = svg().addTo(diagramDiv).viewbox(0, 0, totalWidth, totalHeight);
     draw.css({cursor: 'pointer'});
-    const repeat = [false, false];
+    const repeat = [true, true];
 
     const marker = draw.marker(20, 8, function(add) {
       add.polygon([0, 0, 10, 4, 0, 8]).fill('#000').attr({orient: 'auto'});
@@ -286,18 +289,18 @@ renderDiagrams({
 
       const t1 = euclideanModulo(u * tw + 0.5, 1);
       const t2 = euclideanModulo(v * th + 0.5, 1);
-      mix0.mixAmount.text(`, t1(${f2(t1)}))`);
-      mix1.mixAmount.text(`, t1(${f2(t1)}))`);
-      mixF.mixAmount.text(`, t2(${f2(t2)}))`);
+      mix0.mixAmount.plain(`, t1(${f2(t1)}))`);
+      mix1.mixAmount.plain(`, t1(${f2(t1)}))`);
+      mixF.mixAmount.plain(`, t2(${f2(t2)}))`);
 
-      texCoord.text(`uv:${f2(u)},${f2(v)}`);
+      texCoord.plain(`uv:${f2(u)},${f2(v)}`);
       setTranslation(
         texCoord,
-        u < 0.75 ? 10 : (-texCoord.bbox().width - 10),
+        u < 0.75 ? 10 : -110,
         v < 0.25 ? 50 : -10,
       );
-      t1Text.text(`t1:${f2(t1)}`);
-      t2Text.text(`t2:${f2(t2)}`);
+      t1Text.plain(`t1:${f2(t1)}`);
+      t2Text.plain(`t2:${f2(t2)}`);
 
       const tx = euclideanModulo(u * tw - 0.5, tw) | 0;
       const ty = euclideanModulo(v * th - 0.5, th) | 0;
@@ -434,6 +437,10 @@ renderDiagrams({
       rotation: 0,
       xOffset: 0,
     };
+    let offX = 0;
+    let offY = 0;
+    let move = true;
+    let time = 0;
 
     const pre = el('pre', {style: { 'background-color': 'inherit', margin: '0'}});
     uiDiv.appendChild(
@@ -445,6 +452,16 @@ renderDiagrams({
           }),
           checkbox('rotate', settings.rotate, v => {
             settings.rotate = v;
+          }),
+          el('button', {
+            type: 'button',
+            textContent: 'reset',
+            onClick() {
+              settings.rotation = 0;
+              time = 0;
+              offX = 0;
+              offY = 0;
+            },
           }),
         ]),
       ])
@@ -458,20 +475,19 @@ renderDiagrams({
       [pixelSize * 2, pixelSize * 2],
     ];
 
-    let time = 0;
     let then = 0;
     function update(now) {
       const deltaTime = Math.min(0.1, (then - now) * 0.001);
       then = now;
 
-      if (!settings.pause) {
+      if (!settings.pause && move) {
         time += deltaTime;
         settings.xOffset = Math.sin(time * 0.25) * pixelSize * 3;
         if (settings.rotate) {
           settings.rotation += deltaTime * 10;
         }
       }
-      rot.attr({transform: `translate(${settings.xOffset}, 0) rotate(${settings.rotation}) translate(${-pixelSize}, ${-pixelSize})`});
+      rot.attr({transform: `translate(${settings.xOffset + offX}, ${offY}) rotate(${settings.rotation}) translate(${-pixelSize}, ${-pixelSize})`});
 
       for (const {rect, dot} of oldPixels) {
         rect.fill('none');
@@ -529,10 +545,46 @@ renderDiagrams({
       coords.push(...new Array(extra).fill(' '));
 
       pre.textContent = coords.join('\n');
-
-      requestAnimationFrame(update);
     }
-    requestAnimationFrame(update);
+    createRequestAnimationFrameLoop(elem, update);
+
+    let startX;
+    let startY;
+    let startMouseX;
+    let startMouseY;
+
+    function onMove(e) {
+      e.preventDefault();
+
+      const mouseDeltaX = e.pageX - startMouseX;
+      const mouseDeltaY = e.pageY - startMouseY;
+
+      const deltaX = mouseDeltaX * w / draw.node.clientWidth;
+      const deltaY = mouseDeltaY * h / draw.node.clientHeight;
+
+      offX = startX + deltaX;
+      offY = startY + deltaY;
+    }
+
+    function onUp() {
+      move = true;
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    }
+
+    draw.node.addEventListener('pointerdown', function(e) {
+      e.preventDefault();
+      move = false;
+
+      startX = offX;
+      startY = offY;
+
+      startMouseX = e.pageX;
+      startMouseY = e.pageY;
+
+      window.addEventListener('pointermove', onMove, {passive: false});
+      window.addEventListener('pointerup', onUp);
+    }, {passive: false});
 
 
   },
