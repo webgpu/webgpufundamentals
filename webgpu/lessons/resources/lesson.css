@@ -341,6 +341,12 @@ code {
   max-width: 90%;
 }
 
+div[data-diagram] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .webgpu_table_div_center {
   text-align: center;
 }
@@ -799,4 +805,8 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
   content: 'f32';
 }
 
+/* disqus */
 
+#disqus_thread {
+  color-scheme: auto; /* apparently disqus doesn't like light dark */
+}

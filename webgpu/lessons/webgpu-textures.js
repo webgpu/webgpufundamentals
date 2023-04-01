@@ -71,12 +71,12 @@ function addMips(elem, textureData, width, pixelSize) {
 }
 
 function addTextureTable(elem, spec, formats) {
-  const addRow = makeTable(elem, ...Object.values(spec).map(v => v.label));
+  const addRow = makeTable(elem, Object.values(spec).map(v => v.label));
   for (const format of formats) {
     const values = Object.entries(spec).map(([k /*, field */]) => {
       return k === 'key' ? format : kTextureFormatInfo[format][k];
     });
-    addRow(...values);
+    addRow(values);
   }
 }
 
