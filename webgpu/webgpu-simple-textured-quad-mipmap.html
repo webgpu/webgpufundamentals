@@ -186,7 +186,7 @@ async function main() {
 
   const tex = device.createTexture({
     label: 'yellow F on red',
-    size: [mips[0].width, mips[0].height, 1],
+    size: [mips[0].width, mips[0].height],
     mipLevelCount: mips.length,
     format: 'rgba8unorm',
     usage:
@@ -256,6 +256,7 @@ async function main() {
     addressModeV: 'repeat',
     magFilter: 'linear',
     minFilter: 'linear',
+    scale: 1,
   };
 
   const addressOptions = ['repeat', 'clamp-to-edge'];
@@ -267,6 +268,7 @@ async function main() {
   gui.add(settings, 'addressModeV', addressOptions);
   gui.add(settings, 'magFilter', filterOptions);
   gui.add(settings, 'minFilter', filterOptions);
+  gui.add(settings, 'scale', 0.5, 6);
 
   function render(time) {
     time *= 0.001;
@@ -276,8 +278,8 @@ async function main() {
                 (settings.minFilter === 'linear' ? 8 : 0);
     const bindGroup = bindGroups[ndx];
 
-    const scaleX = 4 / canvas.width;
-    const scaleY = 4 / canvas.height;
+    const scaleX = 4 / canvas.width * settings.scale;
+    const scaleY = 4 / canvas.height * settings.scale;
 
     uniformValues.set([scaleX, scaleY], kScaleOffset); // set the scale
     uniformValues.set([Math.sin(time * 0.25) * 0.9, -0.5], kOffsetOffset); // set the scale

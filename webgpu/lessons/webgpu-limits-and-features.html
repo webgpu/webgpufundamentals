@@ -217,7 +217,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>TBD</p>
+      <p>TBD - Work In Progress</p>
+<p>It might be temping to ask for all the limits and features and then check for the ones you need.</p>
+<p>Example:</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">//
+// BAD!!! ?
+//
+async function styleB() {
+  const adapter = await navigator?.gpu.requestAdapter();
+  const device = await adapter?.requestDevice({
+    requiredLimits: adapter.limits,
+    requiredFeatures: adapter.features,
+  });
+  if (!device) {
+    fail('need webgpu');
+    return;
+  }
+
+  const canUse128KUniformsBuffers = device.limits.maxUniformBufferBindingSize &gt;= 128 * 1024;
+  const canStoreToBGRA8Unorm = device.features.has('bgra8unorm-storage');
+  const canIndirectFirstInstance = device.features.has('indirect-first-instance');
+}
+</pre>
+<p>This seems nice like the tersest and not really unclear, way to check for limits. The
+problem with this pattern is you might be accidentally exceeding limits and not
+know it. For example lets say you created an <code class="notranslate" translate="no">rgba32float</code> texture and filtered it.
+It would magically just work on your desktop machine because you happened to have
+enabled it.</p>
+<p>On the user’s phone, your program fails mysteriously because the <code class="notranslate" translate="no">'float32-filterable'</code>
+feature didn’t exist and you happened to be using it without realized that it’s
+an optional feature.</p>
 
     </div>
     <div class="lesson-sidebar">

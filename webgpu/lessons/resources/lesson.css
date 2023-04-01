@@ -705,6 +705,9 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
 
 /* ---- data table ---- */
 
+.data-table {
+  overflow-x: auto;
+}
 .data-table>div {
   display: inline-block;
   text-align: left;
