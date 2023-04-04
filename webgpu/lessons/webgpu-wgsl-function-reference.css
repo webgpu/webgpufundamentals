@@ -1,0 +1,15 @@
+#func-toc {
+  columns: 11em;
+  font-size: medium;
+  max-width: 90%;
+  word-break: break-all;
+  line-height: 150%;
+}
+#func-toc li {
+  list-style: none;
+  padding-left: 1em;
+  text-indent: -1em;
+}
+#func-toc a {
+  text-decoration: none;
+}
