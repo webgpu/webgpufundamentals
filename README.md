@@ -135,3 +135,18 @@ The table of contents, templates, and index pages are not watched.
 
 If you are working on updating dependencies with `npm link` you can use
 `npm run build-ci` and/or `npm run watch-no-check` to skip the dependency check.
+
+## Building the WGSL Function Reference
+
+The [WGSL function reference](https://webgpufundamentals.org/webgpu/lessons/webgpu-wgsl-function-reference.html)
+is currently auto-generated for English by hackily scanning the spec HTML.
+Hackily means it's likely to break but it mostly works or at least seem to
+provide something kind of useful, for now.
+
+To scan the latest spec again use `npm run generate-wgsl-function-reference` then check that it
+worked (build and look at the page). Of particular note, check that angle brackets like
+`vec4<f32>` exist where where they should and also check that `<pre>` sections like in
+`textureGather` are correctly formatted.
+
+For other languages you'll likely need to copy the English file and translate.
+

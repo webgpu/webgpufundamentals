@@ -780,6 +780,9 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
   margin: 0.5em;
   background-color: inherit;
 }
+.data-table pre.prettyprint {
+  white-space: pre;
+}
 .data-table>div {
   display: inline-block;
   text-align: left;
