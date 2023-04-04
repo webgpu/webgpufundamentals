@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/webgpu-resizing-the-canvas.md. Do not edited directly --><!--
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/webgpu-buffers.md. Do not edited directly --><!--
 Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
@@ -35,24 +35,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Resizing The Canvas / devicePixelRatio">
+<meta name="description" content="How to use Buffers">
 <meta name="keywords" content="webgpu graphics">
-<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-resizing-the-canvas_en.jpg">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-buffers_en.jpg">
 
-<meta property="og:title" content="WebGPU Resizing The Canvas / devicePixelRatio">
+<meta property="og:title" content="WebGPU Buffers">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-resizing-the-canvas_en.jpg">
-<meta property="og:description" content="Resizing The Canvas / devicePixelRatio">
-<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-resizing-the-canvas.html">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-buffers_en.jpg">
+<meta property="og:description" content="How to use Buffers">
+<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-buffers.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Resizing The Canvas / devicePixelRatio">
-<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-resizing-the-canvas.html">
-<meta name="twitter:description" content="Resizing The Canvas / devicePixelRatio">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-resizing-the-canvas_en.jpg">
+<meta name="twitter:title" content="WebGPU Buffers">
+<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-buffers.html">
+<meta name="twitter:description" content="How to use Buffers">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-buffers_en.jpg">
 
 <script type="application/ld+json">
 {
@@ -66,30 +66,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     },
     {
       "@type":"ImageObject",
-      "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-resizing-the-canvas.html#primaryimage",
-      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-resizing-the-canvas_en.jpg",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-buffers.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-buffers_en.jpg",
       "width":1200,
       "height":630
     },
     {
       "@type":"WebPage",
-      "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-resizing-the-canvas.html#webpage",
-      "url":"https://webgpufundamentals.org/webgpu/lessons/webgpu-resizing-the-canvas.html",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-buffers.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/webgpu-buffers.html",
       "inLanguage":"en",
-      "name":"WebGPU Resizing The Canvas / devicePixelRatio",
+      "name":"WebGPU Buffers",
       "keywords":"webgpu graphics programming",
       "isPartOf":{
         "@id":"https://webgpufundamentals.org/#website"
       },
       "primaryImageOfPage":{
-        "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-resizing-the-canvas.html#primaryimage"
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-buffers.html#primaryimage"
       }
     }
   ]
 }
 </script>
 
-<title>WebGPU Resizing The Canvas / devicePixelRatio</title>
+<title>WebGPU Buffers</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
 <link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
@@ -99,7 +99,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="webgpu_navbar">
   <div>
     <select class="language">
-    <option value="/webgpu/lessons/webgpu-resizing-the-canvas.html" selected="">English
+    <option value="/webgpu/lessons/webgpu-buffers.html" selected="">English
 </option></select>
 
 
@@ -213,16 +213,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Resizing The Canvas / devicePixelRatio</h1>
+    <h1>WebGPU Buffers</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>TBD</p>
+      <p>This is a place holder. Whether this turns into an article or not, we need to
+cover mapping textures and mappedAtCreation And maybe some copy to/from stuff</p>
 
     </div>
     <div class="lesson-sidebar">
         <select class="language">
-    <option value="/webgpu/lessons/webgpu-resizing-the-canvas.html" selected="">English
+    <option value="/webgpu/lessons/webgpu-buffers.html" selected="">English
 </option></select>
 
 
@@ -273,7 +274,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <script>
             var disqus_config = function () {
               this.page.url = `${window.location.origin}${window.location.pathname}`;
-              this.page.identifier = `WebGPU Resizing The Canvas / devicePixelRatio`;
+              this.page.identifier = `WebGPU Buffers`;
             };
             (function() { // DON'T EDIT BELOW THIS LINE
                 if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
