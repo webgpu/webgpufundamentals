@@ -28,11 +28,7 @@
   toc: 'Table of Contents',
   categoryMapping: {
     'basics': 'Basics',
-    'misc': 'Mics',
-    'webvr': 'WebVR',
-    'optimization': 'Optimization',
-    'tips': 'Tips',
-    'fundamentals': 'Fundamentals',
+    'misc': 'Misc',
     'reference': 'Reference',
   },
 }
