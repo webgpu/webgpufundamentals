@@ -1,6 +1,7 @@
 import {
   createElem as el,
 } from './resources/elem.js';
+
 if (window.prettyPrint) {
   document.querySelectorAll('.tableprettyprint').forEach(elem => {
     elem.classList.add('prettyprint');

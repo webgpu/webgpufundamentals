@@ -218,8 +218,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="lesson">
     <div class="lesson-main">
       <p>For an in-depth overview of WGSL see <a href="https://google.github.io/tour-of-wgsl/">Tour of WGSL</a>.</p>
-<p>This article assumes you already know how to program. We’ll cover various basis to hopefully
-give you some help in understanding and writing WGSL shader programs.</p>
+<p>This article assumes you already know how to program. It’s probably way too
+terse but hopefully it can give you some help in understanding and writing WGSL
+shader programs.</p>
 <h2 id="wgsl-is-strictly-typed">WGSL is strictly typed</h2>
 <p>Unlike JavaScript, WGSL requires knowing the types of every variable, struct field,
 function parameter and function return type. If you’ve used typescript, rust, C++, C#,
@@ -231,6 +232,7 @@ Java, Swift, Kotlin, etc then you’re used to this.</p>
 <li><code class="notranslate" translate="no">u32</code> a 32 bit unsigned integer</li>
 <li><code class="notranslate" translate="no">f32</code> a 32 bit floating point number</li>
 <li><code class="notranslate" translate="no">bool</code> a boolean value</li>
+<li><code class="notranslate" translate="no">f16</code> a 16 bit floating point number (this is an optional feature you need to check for and request)</li>
 </ul>
 <h3 id="variable-declaration">variable declaration</h3>
 <p>In JavaScript you can declare variables and functions like this</p>
@@ -246,7 +248,7 @@ fn d(e: f32) -&gt; f32 { return e * 2; }
 <p>The important thing to note from above is having to add <code class="notranslate" translate="no">: &lt;type&gt;</code> like <code class="notranslate" translate="no">: f32</code>
 for the variable declarations and <code class="notranslate" translate="no">-&gt; &lt;type&gt;</code> to function declarations.</p>
 <h3 id="auto-types">auto types</h3>
-<p>WGSL does have a <em>shortcut</em> for variables. Similar to typescript, if you don’t
+<p>WGSL has a <em>shortcut</em> for variables. Similar to typescript, if you don’t
 declare the type of the variable then it automatically becomes the type of
 the expression on the right</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">var a = 1;    // a is an i32
@@ -265,11 +267,13 @@ let b = 2.0;   // b is a f32
 let c = f32(a) + b; // ok
 </pre>
 <h2 id="let-var-and-const-mean-different-things-in-wgsl-vs-javascript"><code class="notranslate" translate="no">let</code> <code class="notranslate" translate="no">var</code> and <code class="notranslate" translate="no">const</code> mean different things in WGSL vs JavaScript</h2>
-<p>In JavaScript <code class="notranslate" translate="no">var</code> is a variable with function scope. <code class="notranslate" translate="no">let</code> is a variable with block scope. <code class="notranslate" translate="no">const</code> is a constant variable (can’t be changed) <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<p>In JavaScript <code class="notranslate" translate="no">var</code> is a variable with function scope. <code class="notranslate" translate="no">let</code> is a variable with block scope. <code class="notranslate" translate="no">const</code> is a constant variable (can’t be changed) <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> with block scope.</p>
 <p>In WGSL all variables have block scope. <code class="notranslate" translate="no">var</code> is a variable that has storage and so is mutable. <code class="notranslate" translate="no">let</code> is a constant value.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">fn foo() {
   let a = 1;
 *  a = a + 1;  // ERROR: a is a constant expression
+  var b = 2;
+  a = b + 1;  // ok
 }
 </pre>
 <p><code class="notranslate" translate="no">const</code> is not a variable, it’s a compile time constant. You can
@@ -290,7 +294,7 @@ let c = vec4&lt;u32&gt;(9, 10);
 </pre>
 <h3 id="accessors">accessors</h3>
 <p>You can access the values inside a vector with various accessors</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4)
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4);
 let b = a.z;   // via x,y,z,w
 let c = a.b;   // via r,g,b,a
 let d = a[2];  // via array element accessors
@@ -298,7 +302,7 @@ let d = a[2];  // via array element accessors
 <p>Above, <code class="notranslate" translate="no">b</code>, <code class="notranslate" translate="no">c</code>, and <code class="notranslate" translate="no">d</code> are all the same. They are all accessing the 3rd element of <code class="notranslate" translate="no">a</code>.</p>
 <h3 id="swizzles">swizzles</h3>
 <p>You can also access more than 1 element.</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4)
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4);
 let b = a.zx;   // via x,y,z,w
 let c = a.br;   // via r,g,b,a
 let d = vec2&lt;f32&gt;(a[2], a[0]);
@@ -306,7 +310,7 @@ let d = vec2&lt;f32&gt;(a[2], a[0]);
 <p>Above, <code class="notranslate" translate="no">b</code>, <code class="notranslate" translate="no">c</code>, and <code class="notranslate" translate="no">d</code> are all the same.</p>
 <h3 id="vector-shortcuts">vector shortcuts</h3>
 <p>There are shortcuts for the base types. Change the <code class="notranslate" translate="no">&lt;i32&gt;</code> =&gt; <code class="notranslate" translate="no">i</code>, <code class="notranslate" translate="no">&lt;f32&gt;</code> =&gt; <code class="notranslate" translate="no">f</code>, and <code class="notranslate" translate="no">&lt;u32&gt;</code> to <code class="notranslate" translate="no">u</code> so</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4f&lt;32&gt;(1, 2, 3, 4);
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4);
 let b = vec4f(1, 2, 3, 4);
 </pre>
 <p><code class="notranslate" translate="no">a</code> and <code class="notranslate" translate="no">b</code> are the same type</p>
@@ -315,8 +319,11 @@ let b = vec4f(1, 2, 3, 4);
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4f(1, 2, 3, 4);
 let b = vec2f(2, 3);
 let c = vec4f(1, b, 4);
+let d = vec2f(1, a.yz, 4);
+let e = vec2f(a.xyz, 4);
+let f = vec2f(1, a.yzw);
 </pre>
-<p><code class="notranslate" translate="no">a</code> and <code class="notranslate" translate="no">c</code> are the same.</p>
+<p><code class="notranslate" translate="no">a</code>, <code class="notranslate" translate="no">c</code>, <code class="notranslate" translate="no">d</code>, <code class="notranslate" translate="no">e</code> and <code class="notranslate" translate="no">f</code> are the same.</p>
 <h3 id="vector-math">vector math</h3>
 <p>You can do math on vectors</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4f(1, 2, 3, 4);
@@ -331,22 +338,22 @@ let b = vec4f(5, 6, 7, 8);
 let c = mix(a, b, 0.5);  // c is vec4f(3, 4, 5, 6)
 </pre>
 <h2 id="matrices">matrices</h2>
-<p>WGSL has a bunch of matrix types matrices are arrays of vectors.
+<p>WGSL has a bunch of matrix types. Matrices are arrays of vectors.
 The format is <code class="notranslate" translate="no">mat&lt;numVectors&gt;x&lt;vectorSize&gt;&lt;&lt;type&gt;&gt;</code> so for example
 <code class="notranslate" translate="no">mat3x4&lt;f32&gt;</code> is an array of 3 <code class="notranslate" translate="no">vec4&lt;32&gt;</code>s. Like vectors, matrices
 have the same shortcuts</p>
-<pre class="prettyprint showlinemods notranslate notranslate" translate="no">let a: mat4x4&lt;f32&gt; = ...
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a: mat4x4&lt;f32&gt; = ...
 let b: mat4x4f = ...
 </pre>
 <p><code class="notranslate" translate="no">a</code> and <code class="notranslate" translate="no">b</code> are the same type</p>
 <h3 id="matrix-vector-access">matrix vector access</h3>
 <p>You can reference a vector of a matrix with array syntax</p>
-<pre class="prettyprint showlinemods notranslate notranslate" translate="no">let a = mat4x4f(...);
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = mat4x4f(...);
 let b = a[2];   // b is a vec4f of the 3rd vector of a
 </pre>
 <p>The most common matrix type for 3D computation is <code class="notranslate" translate="no">mat4x4f</code> and can be multiplied directly
 with a <code class="notranslate" translate="no">vec4f</code> to produce another <code class="notranslate" translate="no">vec4f</code></p>
-<pre class="prettyprint showlinemods notranslate notranslate" translate="no">let a = mat4x4f(....);
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = mat4x4f(....);
 let b = vec4f(1, 2, 3, 4);
 let c = a * b;  // c is a vec4f and the result of a * b
 </pre>
@@ -374,6 +381,24 @@ used at runtime</p>
   return vec4f(0, 0, 0, 0);
 }
 </pre>
+<h2 id="shaders-only-use-what-their-entry-point-accesses">shaders only use what their entry point accesses</h2>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;uniforms&gt; uni: vec4f;
+
+vec4f fn foo() {
+  return uni;
+}
+
+@vertex fn vs1(): @builtin(position) vec4f {
+  return vec4f(0);
+}
+
+@vertex fn vs2(): @builtin(position) vec4f {
+  return foo();
+}
+</pre>
+<p>Above <code class="notranslate" translate="no">uni</code> is not accessed by <code class="notranslate" translate="no">vs1</code> and so will not show up as a required
+binding if you use <code class="notranslate" translate="no">vs1</code> in a pipeline. <code class="notranslate" translate="no">vs2</code> does reference <code class="notranslate" translate="no">uni</code> indirectly through
+calling <code class="notranslate" translate="no">foo</code> so it will show up as a required binding when using <code class="notranslate" translate="no">vs2</code> in a pipeline.</p>
 <h2 id="attributes">attributes</h2>
 <p>The word <em>attributes</em> has 2 means in WebGPU. One is <em>vertex attributes</em> which is covered in <a href="webgpu-vertex-buffers.html">the article on vertex buffers</a>.
 The other is in WGSL where an attribute starts with <code class="notranslate" translate="no">@</code>.</p>
@@ -417,9 +442,257 @@ The fragment shader <code class="notranslate" translate="no">bar</code> receives
 }
 @fragment fn bar(...) -&gt; FSOut { ... }
 </pre>
+<h3 id="builtinname"><code class="notranslate" translate="no">@builtin(name)</code></h3>
+<p>The <code class="notranslate" translate="no">@builtin</code> attribute is used to specify that a particular variable’s value comes
+from a built-in feature of WebGPU</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@vertex fn vs1(@builtin(vertex_index) foo: u32, @builtin(instance_index) bar: u32) ... {
+  ...
+}
+</pre>
+<p>Above <code class="notranslate" translate="no">foo</code> gets its value from the builtin <code class="notranslate" translate="no">vertex_index</code> and <code class="notranslate" translate="no">bar</code> gets its value from <code class="notranslate" translate="no">instance_index</code></p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Foo {
+  @builtin(vertex_index) vNdx: u32,
+  @builtin(instance_index) iNdx: u32,
+}
+@vertex fn vs1(blap: Foo) ... {
+  ...
+}
+</pre>
+<p>Above <code class="notranslate" translate="no">blap.vNdx</code> gets its value from the builtin <code class="notranslate" translate="no">vertex_index</code> and <code class="notranslate" translate="no">blap.iNdx</code> gets its value from <code class="notranslate" translate="no">instance_index</code></p>
+<div class="webgpu-center center data-table">
+<table class="data">
+  <thead>
+    <tr>
+      <th>Builtin Name</th>
+      <th>Stage</th>
+      <th>IO</th>
+      <th>Type</th>
+      <th>Description </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-vertex_index">vertex_index</dfn> </td>
+      <td>vertex </td>
+      <td>input </td>
+      <td>u32 </td>
+      <td style="width:50%">
+       Index of the current vertex within the current API-level draw command,
+         independent of draw instancing. 
+       <p>For a non-indexed draw, the first vertex has an index equal to the <code class="notranslate" translate="no">firstVertex</code> argument
+         of the draw, whether provided directly or indirectly.
+         The index is incremented by one for each additional vertex in the draw instance.</p>
+       <p>For an indexed draw, the index is equal to the index buffer entry for the
+         vertex, plus the <code class="notranslate" translate="no">baseVertex</code> argument of the draw, whether provided directly or indirectly.</p></td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-instance_index">instance_index</dfn> </td>
+      <td>vertex </td>
+      <td>input </td>
+      <td>u32 </td>
+      <td style="width:50%">
+       Instance index of the current vertex within the current API-level draw command. 
+       <p>The first instance has an index equal to the <code class="notranslate" translate="no">firstInstance</code> argument of the draw,
+         whether provided directly or indirectly.
+         The index is incremented by one for each additional instance in the draw.</p></td>
+    </tr>
+    <tr>
+      <td rowspan="2"><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-position">position</dfn> </td>
+      <td>vertex </td>
+      <td>output </td>
+      <td>vec4&lt;f32&gt; </td>
+      <td style="width:50%">Output position of the current vertex, using homogeneous coordinates.
+      After homogeneous normalization (where each of the <em>x</em>, <em>y</em>, and <em>z</em> components
+      are divided by the <em>w</em> component), the position is in the WebGPU normalized device
+      coordinate space.
+      See <a href="https://www.w3.org/TR/webgpu/#coordinate-systems"><cite>WebGPU</cite> § 3.3 Coordinate Systems</a>. </td>
+    </tr>
+    <tr>
+      <td>fragment </td>
+      <td>input </td>
+      <td>vec4&lt;f32&gt; </td>
+      <td style="width:50%">Framebuffer position of the current fragment in <a data-link-type="dfn" href="https://gpuweb.github.io/gpuweb/#framebuffer" id="ref-for-framebuffer">framebuffer</a> space.
+      (The <em>x</em>, <em>y</em>, and <em>z</em> components have already been scaled such that <em>w</em> is now 1.)
+      See <a href="https://www.w3.org/TR/webgpu/#coordinate-systems"><cite>WebGPU</cite> § 3.3 Coordinate Systems</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-front_facing">front_facing</dfn> </td>
+      <td>fragment </td>
+      <td>input </td>
+      <td>bool </td>
+      <td style="width:50%">True when the current fragment is on a <a data-link-type="dfn" href="https://gpuweb.github.io/gpuweb/#front-facing" id="ref-for-front-facing">front-facing</a> primitive.
+         False otherwise. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-frag_depth">frag_depth</dfn> </td>
+      <td>fragment </td>
+      <td>output </td>
+      <td>f32 </td>
+      <td style="width:50%">Updated depth of the fragment, in the viewport depth range.
+      See <a href="https://www.w3.org/TR/webgpu/#coordinate-systems"><cite>WebGPU</cite> § 3.3 Coordinate Systems</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-local_invocation_id">local_invocation_id</dfn> </td>
+      <td>compute </td>
+      <td>input </td>
+      <td>vec3&lt;u32&gt; </td>
+      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#local-invocation-id" id="ref-for-local-invocation-id①">local invocation ID</a>,
+            i.e. its position in the <a data-link-type="dfn" href="#workgroup-grid" id="ref-for-workgroup-grid①">workgroup grid</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-local_invocation_index">local_invocation_index</dfn> </td>
+      <td>compute </td>
+      <td>input </td>
+      <td>u32 </td>
+      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#local-invocation-index" id="ref-for-local-invocation-index">local invocation index</a>, a linearized index of
+          the invocation’s position within the <a data-link-type="dfn" href="#workgroup-grid" id="ref-for-workgroup-grid②">workgroup grid</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-global_invocation_id">global_invocation_id</dfn> </td>
+      <td>compute </td>
+      <td>input </td>
+      <td>vec3&lt;u32&gt; </td>
+      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#global-invocation-id" id="ref-for-global-invocation-id">global invocation ID</a>,
+          i.e. its position in the <a data-link-type="dfn" href="#compute-shader-grid" id="ref-for-compute-shader-grid">compute shader grid</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-workgroup_id">workgroup_id</dfn> </td>
+      <td>compute </td>
+      <td>input </td>
+      <td>vec3&lt;u32&gt; </td>
+      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#workgroup-id" id="ref-for-workgroup-id">workgroup ID</a>,
+          i.e. the position of the workgroup in the <a data-link-type="dfn" href="#workgroup-grid" id="ref-for-workgroup-grid③">workgroup grid</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-num_workgroups">num_workgroups</dfn> </td>
+      <td>compute </td>
+      <td>input </td>
+      <td>vec3&lt;u32&gt; </td>
+      <td style="width:50%">The <a data-link-type="dfn" href="#dispatch-size" id="ref-for-dispatch-size">dispatch size</a>, <code class="notranslate" translate="no">vec&lt;u32&gt;(group_count_x, group_count_y, group_count_z)</code>, of the compute shader <a href="https://www.w3.org/TR/webgpu/#compute-pass-encoder-dispatch">dispatched</a> by the API. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-sample_index">sample_index</dfn> </td>
+      <td>fragment </td>
+      <td>input </td>
+      <td>u32 </td>
+      <td style="width:50%">Sample index for the current fragment.
+         The value is least 0 and at most <code class="notranslate" translate="no">sampleCount</code>-1, where <code class="notranslate" translate="no">sampleCount</code> is the MSAA sample <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/webgpu/#dom-gpumultisamplestate-count" id="ref-for-dom-gpumultisamplestate-count">count</a></code> specified for the GPU render pipeline. <br>See <a href="https://www.w3.org/TR/webgpu/#gpurenderpipeline"><cite>WebGPU</cite> § 10.3 GPURenderPipeline</a>. </td>
+    </tr>
+    <tr>
+      <td rowspan="2"><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-sample_mask">sample_mask</dfn> </td>
+      <td>fragment </td>
+      <td>input </td>
+      <td>u32 </td>
+      <td style="width:50%">Sample coverage mask for the current fragment.
+         It contains a bitmask indicating which samples in this fragment are covered
+         by the primitive being rendered. <br>See <a href="https://www.w3.org/TR/webgpu/#sample-masking"><cite>WebGPU</cite> § 23.3.11 Sample Masking</a>. </td>
+    </tr>
+    <tr>
+      <td>fragment </td>
+      <td>output </td>
+      <td>u32 </td>
+      <td style="width:50%">Sample coverage mask control for the current fragment.
+         The last value written to this variable becomes the <a data-link-type="dfn" href="https://gpuweb.github.io/gpuweb/#shader-output-mask" id="ref-for-shader-output-mask">shader-output mask</a>.
+         Zero bits in the written value will cause corresponding samples in
+         the color attachments to be discarded. <br>See <a href="https://www.w3.org/TR/webgpu/#sample-masking"><cite>WebGPU</cite> § 23.3.11 Sample Masking</a>. </td>
+    </tr>
+  </tbody>
+  </table>
+</div>
 <h2 id="flow-control">flow control</h2>
-<p>This is mostly same as JavaScript, <code class="notranslate" translate="no">for</code>, <code class="notranslate" translate="no">while</code>, <code class="notranslate" translate="no">do</code>, <code class="notranslate" translate="no">break</code>, <code class="notranslate" translate="no">continue</code>, <code class="notranslate" translate="no">if</code>, <code class="notranslate" translate="no">else</code> all work
-as expected.</p>
+<h3 id="for">for</h3>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  for (var i = 0; i &lt; 10; i++) { ... }
+</pre>
+<h3 id="if">if</h3>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">    if (i &lt; 5) {
+      ...
+    } else if (i &gt; 7) {
+      ..
+    } else {
+      ...
+    }
+</pre>
+<h3 id="while">while</h3>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  var j = 0;
+  while (j &lt; 5) {
+    ...
+    j++;
+  }
+</pre>
+<h3 id="loop">loop</h3>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  var k = 0;
+  loop {
+    k++;
+    if (k &gt;= 5) {
+      break;
+    }
+  }
+</pre>
+<h3 id="break">break</h3>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  var k = 0;
+  loop {
+    k++;
+    if (k &gt;= 5) {
+      break;
+    }
+  }
+</pre>
+<h3 id="break-if">break if</h3>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  var k = 0;
+  loop {
+    k++;
+    break if (k &gt;= 5);
+  }
+</pre>
+<h3 id="continue">continue</h3>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  for (var i = 0; i &lt; 10; ++i) {
+    if (i % 2 == 1) {
+      continue;
+    }
+    ...
+  }
+</pre>
+<h3 id="continuing">continuing</h3>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  for (var i = 0; i &lt; 10; ++i) {
+    if (i % 2 == 1) {
+      continue;
+    }
+    ...
+
+    continuing {
+      // continue goes here
+      ...
+    }
+  }
+</pre>
+<h3 id="discard">discard</h3>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">   if (v &lt; 0.5) {
+     discard;
+   }
+</pre>
+<p><code class="notranslate" translate="no">discard</code> exits the shader. It can only be used in a fragment shader</p>
+<h3 id="switch">switch</h3>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">var a : i32;
+let x : i32 = generateValue();
+switch x {
+  case 0: {      // The colon is optional
+    a = 1;
+  }
+  default {      // The default need not appear last
+    a = 2;
+  }
+  case 1, 2, {   // Multiple selector values can be used
+    a = 3;
+  }
+  case 3, {      // The trailing comma is optional
+    a = 4;
+  }
+  case 4 {
+    a = 5;
+  }
+}
+</pre>
+<p><code class="notranslate" translate="no">switch</code> only works with <code class="notranslate" translate="no">u32</code> or <code class="notranslate" translate="no">i32</code> and cases must be constants.</p>
 <h2 id="operators">Operators</h2>
 <div class="webgpu-center center data-table">
 <table class="data">
@@ -509,9 +782,19 @@ as expected.</p>
 </div>
 <h2 id="builtin-functions">Builtin functions</h2>
 <p>See <a href="webgpu-wgsl-function-reference.html">the WGSL Function reference</a>.</p>
-<h2 id="other-differences">Other differences</h2>
+<h2 id="differences-with-other-languages">Differences with other languages</h2>
+<h3 id="if-while-switch-break-if-expressions-dont-need-parenthesizes"><code class="notranslate" translate="no">if</code>, <code class="notranslate" translate="no">while</code>, <code class="notranslate" translate="no">switch</code>, <code class="notranslate" translate="no">break-if</code> expressions don’t need parenthesizes.</h3>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">if a &lt; 5 {
+  doTheThing();
+}
+</pre>
+<h3 id="no-ternary-operator">no ternary operator</h3>
+<p>Many languages have a ternary operator <code class="notranslate" translate="no">condition ? trueExpression : falseExpression</code>
+WGSL does not. WGSL does have <code class="notranslate" translate="no">select</code></p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  let a = select(falseExpression, trueExpression, condition);
+</pre>
 <h3 id="-and----are-statements-not-expressions"><code class="notranslate" translate="no">++</code> and <code class="notranslate" translate="no">--</code> are statements, not expressions.</h3>
-<p>Most languages I’ve used have <em>pre-increment</em> and <em>post-increment</em> operators</p>
+<p>Many languages have <em>pre-increment</em> and <em>post-increment</em> operators</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">let a = 5;
 let b = a++;  // b = 5, a = 6  (post-increment)
 let c = ++a;  // c = 7, a = 7  (pre-increment)
@@ -537,12 +820,30 @@ a += 2;           // a is 7
 *color.rgb = color.bgr; // ERROR
 color = vec4(color.bgr, 1);  // Ok
 </pre>
-<hr class="footnotes-sep">
+<h2 id="phony-assignment-to-_">Phony assignment to <code class="notranslate" translate="no">_</code></h2>
+<p><code class="notranslate" translate="no">_</code> is a special variable you can assign to to make something appear used but not actually use it.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;uniforms&gt; uni1: vec4f;
+@group(0) @binding(0) var&lt;uniforms&gt; uni2: mat4x4f;
+
+@vertex fn vs1(): @builtin(position) vec4f {
+  return vec4f(0);
+}
+
+@vertex fn vs2(): @builtin(position) vec4f {
+  _ = uni1;
+  _ = uni2;
+  return vec4f(0);
+}
+</pre>
+<p>Above neither <code class="notranslate" translate="no">uni1</code> nor <code class="notranslate" translate="no">uni2</code> are accessed by <code class="notranslate" translate="no">vs1</code> and so they will not show up as a required
+bindings if you use <code class="notranslate" translate="no">vs1</code> in a pipeline. <code class="notranslate" translate="no">vs2</code> does reference both <code class="notranslate" translate="no">uni1</code> and <code class="notranslate" translate="no">uni2</code>
+so they will both show up as a required bindings when using <code class="notranslate" translate="no">vs2</code> in a pipeline.</p>
+<p class="copyright" data-fill-with="copyright">portions of this page are <a href="https://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2023 <a href="https://www.w3.org/">World Wide Web Consortium</a>. <abbr title="World Wide Web Consortium">W3C</abbr><sup>®</sup> <a href="https://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="https://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document" rel="license">permissive document license</a> rules apply. </p><hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
 <li id="fn1" class="footnote-item"><p>Variables in JavaScript hold base types of <code class="notranslate" translate="no">undefined</code>, <code class="notranslate" translate="no">null</code>, <code class="notranslate" translate="no">boolean</code>, <code class="notranslate" translate="no">number</code>, <code class="notranslate" translate="no">string</code>, <code class="notranslate" translate="no">reference-to-object</code>.
 It can be confusing for people new to programming that <code class="notranslate" translate="no">const o = {name: 'foo'}; o.name = 'bar';</code> works because <code class="notranslate" translate="no">o</code> was declared as <code class="notranslate" translate="no">const</code>.
-The thing is, <code class="notranslate" translate="no">o</code> is const. It is constant reference to the object. You can not change which object <code class="notranslate" translate="no">o</code> references. You can object itself. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+The thing is, <code class="notranslate" translate="no">o</code> is const. It is a constant reference to the object. You can not change which object <code class="notranslate" translate="no">o</code> references. You can change object itself. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>
