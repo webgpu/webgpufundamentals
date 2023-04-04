@@ -78,6 +78,9 @@ body {
 .warn a {
   color: var(--a-warn-fg-color);
 }
+.copyright {
+  font-size: xx-small;
+}
 
 a {
   color: var(--a-fg-color);
