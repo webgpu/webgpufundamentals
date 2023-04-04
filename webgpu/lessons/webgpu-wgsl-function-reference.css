@@ -1,5 +1,6 @@
 #func-toc {
   columns: 11em;
+  column-rule: dashed 1px var(--column-rule-color);
   font-size: medium;
   max-width: 90%;
   word-break: break-all;
