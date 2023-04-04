@@ -1,9 +1,9 @@
 :root {
   color-scheme: light dark;
   --main-fg-color: #000;
-  --main-bg-color: #FFF;
+  --main-bg-color: #F8F8F8;
   --code-fg-color: #000;
-  --code-bg-color: rgb(143, 140, 140);
+  --code-bg-color: rgb(224, 224, 224);
   --comment-notes-fg-color: red;
   --comment-notes-bg-color: #DDD;
   --blockquote-bg-color: #DEF;
@@ -11,6 +11,7 @@
   --bottombar-code-bg-color: #CCC;
   --sidebar-bg-color: #EEE;
   --a-fg-color: #00E;
+  --a-warn-fg-color: #8CF;
   --codearea-shadow-color: #CCC;
   --compare-bg-color: #DDD;
   --warning-bg-color: #800;
@@ -20,6 +21,7 @@
   --table-even-bg-color: rgba(0, 0, 0, 0.05);
   --selected-fg-color: orange;
   --diagram-bg-color: #DDD;
+  --column-rule-color: #888;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -72,6 +74,9 @@ body {
   padding: 1em;
   background: var(--warning-bg-color);
   color: var(--warning-fg-color);
+}
+.warn a {
+  color: var(--a-warn-fg-color);
 }
 
 a {
@@ -300,7 +305,7 @@ div[data-diagram] {
     font-size: small;
     columns: 220px;
     padding: 1em;
-    column-rule: dashed 1px #CCC;
+    column-rule: dashed 1px var(--column-rule-color);
     background: var(--sidebar-bg-color);
     margin-bottom: 1em;
 }
@@ -494,52 +499,9 @@ div.webgpu_bottombar code {
 }
 
 /* --- Prettify --- */
-pre.prettyprint .nocode, pre.pretablettyprint .nocode { background-color: none; color: #FFF }
-pre.prettyprint .str, pre.tableprettyprint .str { color: #b9ca4a } /* string          */
-pre.prettyprint .kwd, pre.tableprettyprint .kwd { color: #c397d8 } /* keyword         */
-pre.prettyprint .com, pre.tableprettyprint .com { color: #f3efb2 } /* comment         */
-pre.prettyprint .typ, pre.tableprettyprint .typ { color: #7aa6da } /* type            */
-pre.prettyprint .lit, pre.tableprettyprint .lit { color: #45e7a6 } /* literal         */
-pre.prettyprint .pun, pre.tableprettyprint .pun { color: #7ecce0 } /* punctuation     */
-pre.prettyprint .pln, pre.tableprettyprint .pln { color: #eaeaea } /* plaintext       */
-pre.prettyprint .tag, pre.tableprettyprint .tag { color: #d54e53 } /* html/xml tag    */
-pre.prettyprint .atn, pre.tableprettyprint .atn { color: #e78c45 } /* attribute name  */
-pre.prettyprint .atv, pre.tableprettyprint .atv { color: #70c0b1 } /* attribute value */
-pre.prettyprint .dec, pre.tableprettyprint .dec { color: #e78c45 } /* decimal         */
-pre.prettyprint .var, pre.tableprettyprint .var { color: #d54e53 } /* variable name   */
-pre.prettyprint .fun, pre.tableprettyprint .fun { color: #7aa6da } /* function name   */
-
-pre.prettyprint ul.modifiedlines {
-    list-style-type: none;
-    padding-left: 0;
-}
-pre.prettyprint ul.modifiedlines li.linemodified {
-    list-style-type: none;
-    background-color: #324840;
-}
-pre.prettyprint ul.modifiedlines li.linedeleted {
-    list-style-type: none;
-    background-color: #4c1414;
-    text-decoration: line-through;
-}
-
-pre.prettyprint ul.modifiedlines li.lineadded {
-    list-style-type: none;
-    background-color: #3f4463;
-}
-
-pre.prettyprint.hide-linedeleted .linedeleted {
-    display: none;
-}
-pre.prettyprint button.linedeleted-button {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
 pre.prettyprint, code.prettyprint, .dos {
-    color: #FFF;
-    background: #222;
+    color: #000;
+    background-color: #FFF;
     border: 1px solid #000;
     box-shadow: 10px 10px 0px var(--codearea-shadow-color);
     font-size: 9pt;
@@ -553,7 +515,94 @@ pre.prettyprint, code.prettyprint, .dos {
     line-height: 1.5em;
     width: calc(100% - 80px);
 }
+pre.prettyprint ul.modifiedlines {
+    list-style-type: none;
+    padding-left: 0;
+}
 
+pre.prettyprint ul.modifiedlines li.linemodified {
+    list-style-type: none;
+    background-color: hsl(158, 18%, 84%);
+}
+pre.prettyprint ul.modifiedlines li.linedeleted {
+    list-style-type: none;
+    background-color: hsl(0, 58%, 89%);
+    text-decoration: line-through;
+}
+pre.prettyprint ul.modifiedlines li.lineadded {
+    list-style-type: none;
+    background-color: hsl(232, 22%, 92%);
+}
+pre.prettyprint .nocode, pre.tableprettyprint .nocode { background-color: none; color: #FFF }
+
+pre.prettyprint .str, pre.tableprettyprint .str { color: hsl( 68, 55%, calc(54% * 0.4)) } /* string          */
+pre.prettyprint .kwd, pre.tableprettyprint .kwd { color: hsl(281, 45%, calc(72% * 0.4)) } /* keyword         */
+pre.prettyprint .com, pre.tableprettyprint .com { color: hsl( 56, 73%, calc(83% * 0.4)) } /* comment         */
+pre.prettyprint .typ, pre.tableprettyprint .typ { color: hsl(213, 56%, calc(67% * 0.4)) } /* type            */
+pre.prettyprint .lit, pre.tableprettyprint .lit { color: hsl(156, 77%, calc(59% * 0.4)) } /* literal         */
+pre.prettyprint .pun, pre.tableprettyprint .pun { color: hsl(192, 61%, calc(69% * 0.4)) } /* punctuation     */
+pre.prettyprint .pln, pre.tableprettyprint .pln { color: hsl(  0,  0%, calc(92% * 0.4)) } /* plaintext       */
+pre.prettyprint .tag, pre.tableprettyprint .tag { color: hsl(358, 62%, calc(57% * 0.4)) } /* html/xml tag    */
+pre.prettyprint .atn, pre.tableprettyprint .atn { color: hsl( 26, 77%, calc(59% * 0.4)) } /* attribute name  */
+pre.prettyprint .atv, pre.tableprettyprint .atv { color: hsl(169, 39%, calc(60% * 0.4)) } /* attribute value */
+pre.prettyprint .dec, pre.tableprettyprint .dec { color: hsl( 26, 77%, calc(59% * 0.4)) } /* decimal         */
+pre.prettyprint .var, pre.tableprettyprint .var { color: hsl(358, 62%, calc(57% * 0.4)) } /* variable name   */
+pre.prettyprint .fun, pre.tableprettyprint .fun { color: hsl(213, 56%, calc(67% * 0.4)) } /* function name   */
+
+pre.prettyprint.lighttheme .str { color: #183691; }  /* string content */
+pre.prettyprint.lighttheme .kwd { color: #a71d5d; }  /* keyword */
+pre.prettyprint.lighttheme .com { color: #969896; }  /* comment */
+pre.prettyprint.lighttheme .typ { color: #0086b3; }  /* type name */
+pre.prettyprint.lighttheme .lit { color: #0086b3; }  /* literal value */
+pre.prettyprint.lighttheme .pun { color: #333; }  /* punctuation */
+pre.prettyprint.lighttheme .opn { color: #333; }  /* lisp open bracket */
+pre.prettyprint.lighttheme .clo { color: #333; }  /* lisp close bracket */
+pre.prettyprint.lighttheme .tag { color: #000080; }  /* markup tag name */
+pre.prettyprint.lighttheme .atn { color: #795da3; }  /* markup attribute name */
+pre.prettyprint.lighttheme .atv { color: #183691; }  /* markup attribute value */
+pre.prettyprint.lighttheme .dec { color: #333; }  /* declaration */
+pre.prettyprint.lighttheme .var { color: #008080; }  /* variable name */
+pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
+
+@media (prefers-color-scheme: dark) {
+  pre.prettyprint, code.prettyprint, .dos {
+    color: #FFF;
+    background-color: #222;
+    border: 1px solid #000;
+  }
+  pre.prettyprint ul.modifiedlines li.linemodified {
+      background-color: #324840;
+  }
+  pre.prettyprint ul.modifiedlines li.linedeleted {
+      background-color: #4c1414;
+  }
+  pre.prettyprint ul.modifiedlines li.lineadded {
+      background-color: #3f4463;
+  }  
+  pre.prettyprint .nocode, pre.pretablettyprint .nocode { background-color: none; color: #FFF }
+  pre.prettyprint .str, pre.tableprettyprint .str { color: #b9ca4a } /* string          */
+  pre.prettyprint .kwd, pre.tableprettyprint .kwd { color: #c397d8 } /* keyword         */
+  pre.prettyprint .com, pre.tableprettyprint .com { color: #f3efb2 } /* comment         */
+  pre.prettyprint .typ, pre.tableprettyprint .typ { color: #7aa6da } /* type            */
+  pre.prettyprint .lit, pre.tableprettyprint .lit { color: #45e7a6 } /* literal         */
+  pre.prettyprint .pun, pre.tableprettyprint .pun { color: #7ecce0 } /* punctuation     */
+  pre.prettyprint .pln, pre.tableprettyprint .pln { color: #eaeaea } /* plaintext       */
+  pre.prettyprint .tag, pre.tableprettyprint .tag { color: #d54e53 } /* html/xml tag    */
+  pre.prettyprint .atn, pre.tableprettyprint .atn { color: #e78c45 } /* attribute name  */
+  pre.prettyprint .atv, pre.tableprettyprint .atv { color: #70c0b1 } /* attribute value */
+  pre.prettyprint .dec, pre.tableprettyprint .dec { color: #e78c45 } /* decimal         */
+  pre.prettyprint .var, pre.tableprettyprint .var { color: #d54e53 } /* variable name   */
+  pre.prettyprint .fun, pre.tableprettyprint .fun { color: #7aa6da } /* function name   */
+}
+
+pre.prettyprint.hide-linedeleted .linedeleted {
+    display: none;
+}
+pre.prettyprint button.linedeleted-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 .dos {
   line-height: 1;
 }
@@ -604,6 +653,7 @@ pre.prettyprint.lighttheme .atv { color: #183691; }  /* markup attribute value *
 pre.prettyprint.lighttheme .dec { color: #333; }  /* declaration */
 pre.prettyprint.lighttheme .var { color: #008080; }  /* variable name */
 pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
+
 
 @media print {
     pre.prettyprint .str, pre.tableprettyprint .str, code.prettyprint .str{color:#060}
