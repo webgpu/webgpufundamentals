@@ -251,9 +251,12 @@ for the variable declarations and <code class="notranslate" translate="no">-&gt;
 <p>WGSL has a <em>shortcut</em> for variables. Similar to typescript, if you don’t
 declare the type of the variable then it automatically becomes the type of
 the expression on the right</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">var a = 1;    // a is an i32
-let b = 2.0;  // b is an f32
-var c = 3u;   // c is a u32
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">fn foo() -&gt; bool { return false; }
+
+var a = 1;     // a is an i32
+let b = 2.0;   // b is an f32
+var c = 3u;    // c is a u32
+var d = foo(); // d is bool
 </pre>
 <h3 id="type-conversion">type conversion</h3>
 <p>Further, being strictly type means you often have to convert types</p>
@@ -265,6 +268,24 @@ let b = 2.0;   // b is a f32
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = 1;     // a is an i32
 let b = 2.0;   // b is a f32
 let c = f32(a) + b; // ok
+</pre>
+<p>but!, WGSL has what are called “AbstractInt” and “AbstractFloat”. You can
+think of them as numbers that have not yet decided their type. These
+are compile time only features.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = 1;            // a is an i32
+let b = 2.0;          // b is a f32
+*let c = a + b;       // ERROR can't add an i32 to an f32
+let d = 1 + 2.0;      // d is a f32
+</pre>
+<h3 id="numeric-suffixes">numeric suffixes</h3>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">2i   // i32
+3u   // u32
+4f   // f32
+4.5f // f32
+5h   // f16
+5.6h // f16
+6    // AbstractInt
+7.0  // AbstractFloat
 </pre>
 <h2 id="let-var-and-const-mean-different-things-in-wgsl-vs-javascript"><code class="notranslate" translate="no">let</code> <code class="notranslate" translate="no">var</code> and <code class="notranslate" translate="no">const</code> mean different things in WGSL vs JavaScript</h2>
 <p>In JavaScript <code class="notranslate" translate="no">var</code> is a variable with function scope. <code class="notranslate" translate="no">let</code> is a variable with block scope. <code class="notranslate" translate="no">const</code> is a constant variable (can’t be changed) <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> with block scope.</p>
@@ -278,7 +299,11 @@ let c = f32(a) + b; // ok
 </pre>
 <p><code class="notranslate" translate="no">const</code> is not a variable, it’s a compile time constant. You can
 not use <code class="notranslate" translate="no">const</code> for something that happens at runtime.</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">fn add(a: f32, b: f32) -&gt; f32 {
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">const one = 1;              // ok
+const two = one * 2;        // ok
+const PI = radians(180.0);  // ok
+
+fn add(a: f32, b: f32) -&gt; f32 {
 *  const result = a + b;   // ERROR! const can only be used with compile time expressions
   return result;
 }
