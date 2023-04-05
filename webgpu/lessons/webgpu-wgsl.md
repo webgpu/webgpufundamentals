@@ -52,9 +52,12 @@ declare the type of the variable then it automatically becomes the type of
 the expression on the right
 
 ```wgsl
-var a = 1;    // a is an i32
-let b = 2.0;  // b is an f32
-var c = 3u;   // c is a u32
+fn foo() -> bool { return false; }
+
+var a = 1;     // a is an i32
+let b = 2.0;   // b is an f32
+var c = 3u;    // c is a u32
+var d = foo(); // d is bool
 ```
 
 ### type conversion
@@ -73,6 +76,30 @@ The fix is to convert one to the other
 let a = 1;     // a is an i32
 let b = 2.0;   // b is a f32
 let c = f32(a) + b; // ok
+```
+
+but!, WGSL has what are called "AbstractInt" and "AbstractFloat". You can
+think of them as numbers that have not yet decided their type. These
+are compile time only features.
+
+```wgsl
+let a = 1;            // a is an i32
+let b = 2.0;          // b is a f32
+*let c = a + b;       // ERROR can't add an i32 to an f32
+let d = 1 + 2.0;      // d is a f32
+```
+
+### numeric suffixes
+
+```
+2i   // i32
+3u   // u32
+4f   // f32
+4.5f // f32
+5h   // f16
+5.6h // f16
+6    // AbstractInt
+7.0  // AbstractFloat
 ```
 
 ## `let` `var` and `const` mean different things in WGSL vs JavaScript
@@ -98,6 +125,10 @@ fn foo() {
 not use `const` for something that happens at runtime.
 
 ```wgsl
+const one = 1;              // ok
+const two = one * 2;        // ok
+const PI = radians(180.0);  // ok
+
 fn add(a: f32, b: f32) -> f32 {
 *  const result = a + b;   // ERROR! const can only be used with compile time expressions
   return result;
