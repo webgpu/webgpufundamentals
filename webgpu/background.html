@@ -31,14 +31,8 @@ canvas {
 <canvas id="canvas"></canvas>
 <div id="fail" style="display: none;"></div>
 <script type="module">
-import {vec3, mat4} from '/3rdparty/wgpu-matrix.module.js';
+import {mat4} from '/3rdparty/wgpu-matrix.module.js';
 import data from './resources/models/raw/webgpu.raw.js';
-
-const r = (min, max) => {
-  if (min === undefined) { min = 0; max = 1; }
-  else if (max === undefined) { max = min; min = 0; }
-  return Math.random() * (max - min) + min;
-};
 
 async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
@@ -140,7 +134,7 @@ async function main() {
   const shaderModule = device.createShaderModule({code: shaderSrc});
 
   const uniformBufferSize = (1 * 16 + 4 + 4) * 4;
-  
+
   const uniformBuffer = device.createBuffer({
     size: uniformBufferSize,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -164,13 +158,11 @@ async function main() {
     return buffer;
   }
 
-  
   const gAngle = Math.PI * (3 - Math.sqrt(5));
- 
+
   const infos = [];
   const numInstances = 1000;
   const matrixData = new Float32Array(numInstances * 16);
-  const w = Math.sqrt(numInstances) | 0;
   for (let i = 0; i < numInstances; ++i) {
     const t = i * gAngle;
     const r = Math.sqrt(i) / Math.sqrt(numInstances) * 2;
@@ -348,7 +340,6 @@ async function main() {
     const projection = mat4.perspective(30 * Math.PI / 180, canvas.clientWidth / canvas.clientHeight, 0.01, 50);
     const eye = [0, 0, 4];
     const target = [0, 0, 0];
-    const n = time * 0.01;
     const up = [0, 1, 0];//Math.cos(n), Math.sin(n), 0];
 
     const camera = mat4.lookAt(eye, target, up);
