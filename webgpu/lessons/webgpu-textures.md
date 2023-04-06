@@ -174,7 +174,7 @@ put it another way `[0.25, 0.50, 0.75, 1.00]`
 Now that we have the data we need to make a texture
 
 ```js
-  const tex = device.createTexture({
+  const texture = device.createTexture({
     size: [kTextureWidth, kTextureHeight],
     format: 'rgba8unorm',
     usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
@@ -194,7 +194,7 @@ Next we need to do just that and copy our data to it.
 
 ```js
   device.queue.writeTexture(
-      { texture: tex },
+      { texture },
       textureData,
       { bytesPerRow: kTextureWidth * 4 },
       { width: kTextureWidth, height: kTextureHeight },
@@ -221,7 +221,7 @@ that match the `@binding(?)`s we put in the shader.
     layout: pipeline.getBindGroupLayout(0),
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: tex.createView() },
+      { binding: 1, resource: texture.createView() },
     ],
   });
 ```
@@ -364,7 +364,7 @@ We'll also create a bind group that uses that sampler.
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: sampler },
-        { binding: 1, resource: tex.createView() },
+        { binding: 1, resource: texture.createView() },
       ],
     });
 +    bindGroups.push(bindGroup);
@@ -553,7 +553,7 @@ add it to the bind group.
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: sampler },
-        { binding: 1, resource: tex.createView() },
+        { binding: 1, resource: texture.createView() },
 +        { binding: 2, resource: { buffer: uniformBuffer }},
       ],
     });
@@ -784,7 +784,7 @@ We can then create a texture with all the mip levels
 ```js
   const mips = generateMips(textureData, kTextureWidth);
 
-  const tex = device.createTexture({
+  const texture = device.createTexture({
     label: 'yellow F on red',
 +    size: [mips[0].width, mips[0].height],
 +    mipLevelCount: mips.length,
@@ -795,11 +795,11 @@ We can then create a texture with all the mip levels
   });
   mips.forEach(({data, width, height}, mipLevel) => {
     device.queue.writeTexture(
--      { texture: tex },
+-      { texture },
 -      textureData,
 -      { bytesPerRow: kTextureWidth * 4 },
 -      { width: kTextureWidth, height: kTextureHeight },
-+      { texture: tex, mipLevel },
++      { texture, mipLevel },
 +      data,
 +      { bytesPerRow: width * 4 },
 +      { width, height },
@@ -941,7 +941,7 @@ Now that we've created the data lets create the textures
 
 ```js
 +  const createTextureWithMips = (mips, label) => {
-    const tex = device.createTexture({
+    const texture = device.createTexture({
 -      label: 'yellow F on red',
 +      label,
       size: [mips[0].width, mips[0].height],
@@ -953,17 +953,19 @@ Now that we've created the data lets create the textures
     });
     mips.forEach(({data, width, height}, mipLevel) => {
       device.queue.writeTexture(
-          { texture: tex, mipLevel },
+          { texture, mipLevel },
           data,
           { bytesPerRow: width * 4 },
           { width, height },
       );
     });
-    return tex;
+    return texture;
 +  };
 
-+  const blendedTex = createTextureWithMips(createBlendedMipmap(), 'blended');
-+  const checkeredTex = createTextureWithMips(createCheckedMipmap(), 'checker');
++  const textures = [
++    createTextureWithMips(createBlendedMipmap(), 'blended'),
++    createTextureWithMips(createCheckedMipmap(), 'checker'),
++  ];
 ```
 
 We're going to draw a quad extending into the distance in 8 location. 
@@ -1049,12 +1051,12 @@ buffer per location like we covered in [the article on uniforms](webgpu-uniforms
     const uniformValues = new Float32Array(uniformBufferSize / 4);
     const matrix = uniformValues.subarray(kMatrixOffset, 16);
 
-    const bindGroups = [blendedTex, checkeredTex].map(tex =>
+    const bindGroups = textures.map(texture =>
       device.createBindGroup({
         layout: pipeline.getBindGroupLayout(0),
         entries: [
           { binding: 0, resource: sampler },
-          { binding: 1, resource: tex.createView() },
+          { binding: 1, resource: texture.createView() },
           { binding: 2, resource: { buffer: uniformBuffer }},
         ],
       }));
@@ -1168,12 +1170,12 @@ canvas {
 }
 ```
 
-And we can make it so if you click the canvas it toggles which texture to
+And we can make it so if you click the canvas it switches which texture to
 draw with and re-renders
 
 ```js
   canvas.addEventListener('click', () => {
-    texNdx = 1 - texNdx;
+    texNdx = (texNdx + 1) % textures.length;
     render();
   });
 ```
@@ -1196,6 +1198,7 @@ from a texture when all filtering is set to nearest is faster then reading
 8 pixels from a texture when all filtering is set to linear.
 
 TBD: Repeat
+
 TBD: Anisotropic filtering
 
 ## Texture Types and Texture Views
@@ -1335,7 +1338,7 @@ as [the article about shadow maps](webgpu-shadow-maps.html).
 
 There's also a bunch compressed texture formats which we'll save for another article.
 
-Let's cover [importing external textures](webgpu-import-textures.md) next.
+Let's cover [importing external textures](webgpu-importing-textures.md) next.
 
 <!-- keep this at the bottom of the article -->
 <script type="module" src="/3rdparty/pixel-perfect.js"></script>

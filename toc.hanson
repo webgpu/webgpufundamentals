@@ -6,6 +6,7 @@
     'webgpu-storage-buffers.md',
     'webgpu-vertex-buffers.md',
     'webgpu-textures.md',
+    'webgpu-importing-textures.md',
     'webgpu-constants.md',
     'webgpu-memory-layout.md',
     'webgpu-wgsl.md',

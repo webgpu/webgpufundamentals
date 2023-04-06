@@ -16,6 +16,8 @@ const globalObjects = [
   'BigUint64Array',
   'DataView',
 
+  'Image',
+
   'GPUAdapter',
   'GPUAdapterInfo',
   'GPUBindGroup',
@@ -111,10 +113,16 @@ const gpuDict = [
   'GPUOrigin3DDict',
 ];
 
+const apis = [
+  'ImageBitmap',
+  'createImageBitmap',
+];
+
 // check with removing the last 's'?
 const refs = {
   ...Object.fromEntries(globalObjects.map(k => [k, `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/${k}`])),
   ...Object.fromEntries(gpuDict.map(k => [k, `https://www.w3.org/TR/webgpu/#dictdef-${k.toLowerCase()}`])),
+  ...Object.fromEntries(apis.map(k => [k, `https://developer.mozilla.org/en-US/docs/Web/API/${k}`])),
 };
 
 module.exports = refs;
