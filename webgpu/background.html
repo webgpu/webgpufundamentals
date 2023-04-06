@@ -20,7 +20,7 @@ canvas {
   display: block;
 }
 #fail {
-  background-color: #222;
+  background-color: #F60;
   background-image: url(/webgpu/lessons/resources/webgpufundamentals-icon-256.png);
   background-repeat: repeat;
   background-size: 10%;
@@ -120,7 +120,7 @@ async function main() {
     let surfaceToViewDirection = normalize(v.surfaceToView);
     let halfVector = normalize(surfaceToLightDirection + surfaceToViewDirection);
 
-    let light = dot(normal, surfaceToLightDirection);
+    let light = dot(normal, surfaceToLightDirection) * 0.5 + 0.5;
  
     var specular = 0.0;
     if (light > 0.0) {
@@ -337,8 +337,17 @@ async function main() {
 
     resizeToDisplaySize(device, canvasInfo);
 
-    const projection = mat4.perspective(30 * Math.PI / 180, canvas.clientWidth / canvas.clientHeight, 0.01, 50);
-    const eye = [0, 0, 4];
+    const fovY = 30 * Math.PI / 180;
+    const aspect = canvas.clientWidth / canvas.clientHeight;
+    const zNear = 0.01;
+    const zFar = 50;
+    const projection = mat4.perspective(fovY, aspect, zNear, zFar);
+
+    const halfSize = 1.5;
+    const fovX = 2 * Math.atan(Math.tan(fovY * 0.5) * aspect);
+    const distanceX = halfSize / Math.tan(fovX * 0.5);
+    const distanceY = halfSize / Math.tan(fovY * 0.5);
+    const eye = [0, 0, Math.min(distanceX, distanceY)];
     const target = [0, 0, 0];
     const up = [0, 1, 0];//Math.cos(n), Math.sin(n), 0];
 
@@ -353,7 +362,7 @@ async function main() {
       mat4.rotateX(mat, t * 0.9, mat);
     }
 
-    lightPosition.set([20, 30, 60]);
+    lightPosition.set([2, 3, 6]);
     viewPosition.set(eye);
 
     device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
