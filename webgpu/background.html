@@ -32,6 +32,13 @@ canvas {
 <div id="fail" style="display: none;"></div>
 <script type="module">
 import {vec3, mat4} from '/3rdparty/wgpu-matrix.module.js';
+import data from './resources/models/raw/webgpu.raw.js';
+
+const r = (min, max) => {
+  if (min === undefined) { min = 0; max = 1; }
+  else if (max === undefined) { max = min; min = 0; }
+  return Math.random() * (max - min) + min;
+};
 
 async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
@@ -67,11 +74,14 @@ async function main() {
   };
 
   const shaderSrc = `
-  struct VSUniforms {
-    worldViewProjection: mat4x4f,
-    worldInverseTranspose: mat4x4f,
+  struct Uniforms {
+    viewProjection: mat4x4f,
+    viewPosition: vec3f,
+    lightPosition: vec3f,
+    shininess: f32,
   };
-  @group(0) @binding(0) var<uniform> vsUniforms: VSUniforms;
+
+  @group(0) @binding(0) var<uniform> uni: Uniforms;
 
   struct Inst {
     mat: mat4x4f,
@@ -79,58 +89,68 @@ async function main() {
 
   @group(0) @binding(1) var<storage, read> perInst: array<Inst>;
 
-  struct MyVSInput {
+  struct VSInput {
       @location(0) position: vec4f,
-      @location(1) color: vec4f,
+      @location(1) normal: vec3f,
+      @location(2) color: vec4f,
   };
 
-  struct MyVSOutput {
+  struct VSOutput {
     @builtin(position) position: vec4f,
     @location(0) normal: vec3f,
     @location(1) color: vec4f,
+    @location(2) surfaceToLight: vec3f,
+    @location(3) surfaceToView: vec3f,
   };
 
   @vertex
-  fn myVSMain(v: MyVSInput, @builtin(instance_index) instNdx: u32) -> MyVSOutput {
-    let inst = perInst[instNdx];
-    var vsOut: MyVSOutput;
-    vsOut.position = vsUniforms.worldViewProjection * inst.mat * v.position;
-    vsOut.normal = (inst.mat * vec4f(0, 0, 1, 0)).xyz;
+  fn myVSMain(v: VSInput, @builtin(instance_index) instanceIndex: u32) -> VSOutput {
+    var vsOut: VSOutput;
+    let world = perInst[instanceIndex].mat;
+    vsOut.position = uni.viewProjection * world * v.position;
+    vsOut.normal = (world * vec4f(v.normal, 0)).xyz;
     vsOut.color = v.color;
+
+    let surfaceWorldPosition = (world * v.position).xyz;
+    vsOut.surfaceToLight = uni.lightPosition - surfaceWorldPosition;
+    vsOut.surfaceToView = uni.viewPosition - surfaceWorldPosition;
+
     return vsOut;
   }
 
-  struct FSUniforms {
-    lightDirection: vec3f,
-  };
-
-  @group(0) @binding(2) var<uniform> fsUniforms: FSUniforms;
-
   @fragment
-  fn myFSMain(v: MyVSOutput) -> @location(0) vec4f {
-    var a_normal = normalize(v.normal);
-    var l = 1.0 + (dot(a_normal, fsUniforms.lightDirection) * 0.5 + 0.5) * 0.0;
-    return vec4f(v.color.rgb * l, v.color.a);
+  fn myFSMain(v: VSOutput) -> @location(0) vec4f {
+    var normal = normalize(v.normal);
+
+    let surfaceToLightDirection = normalize(v.surfaceToLight);
+    let surfaceToViewDirection = normalize(v.surfaceToView);
+    let halfVector = normalize(surfaceToLightDirection + surfaceToViewDirection);
+
+    let light = dot(normal, surfaceToLightDirection);
+ 
+    var specular = 0.0;
+    if (light > 0.0) {
+      specular = pow(dot(normal, halfVector), uni.shininess);
+    }
+
+    return vec4f(v.color.rgb * light + specular, v.color.a);
   }
   `;
 
   const shaderModule = device.createShaderModule({code: shaderSrc});
 
-  const vUniformBufferSize = 2 * 16 * 4; // 2 mat4s * 16 floats per mat * 4 bytes per float
-  const fUniformBufferSize = (3 + 1) * 4;      // 1 vec3 * 3 floats per vec3 * 4 bytes per float
-
-  const vsUniformBuffer = device.createBuffer({
-    size: vUniformBufferSize,
+  const uniformBufferSize = (1 * 16 + 4 + 4) * 4;
+  
+  const uniformBuffer = device.createBuffer({
+    size: uniformBufferSize,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
-  const fsUniformBuffer = device.createBuffer({
-    size: fUniformBufferSize,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
-  const vsUniformValues = new Float32Array(2 * 16); // 2 mat4s
-  const worldViewProjection = vsUniformValues.subarray(0, 16);
-  const fsUniformValues = new Float32Array(3);  // 1 vec3
-  const lightDirection = fsUniformValues.subarray(0, 3);
+  const uniformValues = new Float32Array(uniformBufferSize / 4);
+  const viewProjection = uniformValues.subarray(0, 16);
+  const viewPosition = uniformValues.subarray(16, 19);
+  const lightPosition = uniformValues.subarray(20, 23);
+  const shininess = uniformValues.subarray(23, 24);
+  shininess[0] = 150;
 
   function createBuffer(device, data, usage) {
     const buffer = device.createBuffer({
@@ -144,35 +164,29 @@ async function main() {
     return buffer;
   }
 
-  const data = new Float32Array([626, 295, 0, 0.53, 0.91, 565, 190, 0, 0.53, 0.91, 685, 190, 0, 0.53, 0.91, 626, 87, 0, 0.58, 1, 565, 191, 0, 0.58, 1, 685, 191, 0, 0.58, 1, 506, 504, 0, 0.46, 0.8, 385, 295, 0, 0.46, 0.8, 625, 294, 0, 0.46, 0.8, 506, 87, 0, 0.4, 0.69, 385, 295, 0, 0.4, 0.69, 625, 294, 0, 0.4, 0.69, 265, 504, 0, 0.35, 0.61, 24, 87, 0, 0.35, 0.61, 505, 87, 0, 0.35, 0.61]);
-  const min = data.slice(0, 2);
-  const max = data.slice(0, 2);
-  for (let i = 1; i < data.length; i += 5) {
-    for (let a = 0; a < 2; ++a) {
-      min[a] = Math.min(data[i + a], min[a]);
-      max[a] = Math.max(data[i + a], max[a]);
-    }
-  }
-  const center = [
-    (min[0] + max[0]) / 2,
-    (min[1] + max[1]) / 2,
-  ];
-
+  
+  const gAngle = Math.PI * (3 - Math.sqrt(5));
+ 
   const infos = [];
   const numInstances = 1000;
   const matrixData = new Float32Array(numInstances * 16);
   const w = Math.sqrt(numInstances) | 0;
   for (let i = 0; i < numInstances; ++i) {
+    const t = i * gAngle;
+    const r = Math.sqrt(i) / Math.sqrt(numInstances) * 2;
+    const c = Math.cos(t);
+    const s = Math.sin(t);
     infos.push({
-      offset: [i % w / w, ((i / w) | 0) / w], //[r(1), r(1)],
+      offset: [c * r, s * r, 0],
       time: i / numInstances,
       mat: matrixData.subarray(i * 16, i * 16 + 16),
     });
   }
+
   const storageBuffer = createBuffer(device, matrixData, GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST);
 
-  const numVertices = data.length / 5;
-  const vertexBuffer = createBuffer(device, data, GPUBufferUsage.VERTEX);
+  const numVertices = data.length / (3 + 3 + 4);
+  const vertexBuffer = createBuffer(device, new Float32Array(data), GPUBufferUsage.VERTEX);
   const pipeline = device.createRenderPipeline({
     layout: 'auto',
     vertex: {
@@ -180,10 +194,11 @@ async function main() {
       entryPoint: 'myVSMain',
       buffers: [
         {
-          arrayStride: 5 * 4, // 5 floats, 4 bytes each
+          arrayStride: (3 + 3 + 4) * 4, // 5 floats, 4 bytes each
           attributes: [
-            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
-            {shaderLocation: 1, offset: 8, format: 'float32x3'},  // color
+            {shaderLocation: 0, offset:  0, format: 'float32x3'},  // position
+            {shaderLocation: 1, offset: 12, format: 'float32x3'},  // normal
+            {shaderLocation: 2, offset: 24, format: 'float32x4'},  // color
           ],
         },
       ],
@@ -197,7 +212,7 @@ async function main() {
     },
     primitive: {
       topology: 'triangle-list',
-     // cullMode: 'back',
+      cullMode: 'back',
     },
     depthStencil: {
       depthWriteEnabled: true,
@@ -214,9 +229,8 @@ async function main() {
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: vsUniformBuffer } },
+      { binding: 0, resource: { buffer: uniformBuffer } },
       { binding: 1, resource: { buffer: storageBuffer } },
-      { binding: 2, resource: { buffer: fsUniformBuffer } },
     ],
   });
 
@@ -225,7 +239,7 @@ async function main() {
       {
         // view: undefined, // Assigned later
         // resolveTarget: undefined, // Assigned Later
-        clearValue: { r: 0.1, g: 0.1, b: 0.1, a: 1.0 },
+        clearValue: [ 1.0, 0.4, 0.0, 1.0 ],
         loadOp: 'clear',
         storeOp: 'store',
       },
@@ -331,30 +345,27 @@ async function main() {
 
     resizeToDisplaySize(device, canvasInfo);
 
-    const projection = mat4.perspective(30 * Math.PI / 180, canvas.clientWidth / canvas.clientHeight, 4000, 6000);
-    const eye = [0, 0, -5000];
+    const projection = mat4.perspective(30 * Math.PI / 180, canvas.clientWidth / canvas.clientHeight, 0.01, 50);
+    const eye = [0, 0, 4];
     const target = [0, 0, 0];
     const n = time * 0.01;
-    const up = [Math.cos(n), Math.sin(n), 0];
+    const up = [0, 1, 0];//Math.cos(n), Math.sin(n), 0];
 
     const camera = mat4.lookAt(eye, target, up);
     const view = mat4.inverse(camera);
-    const viewProjection = mat4.multiply(projection, view);
-    mat4.copy(viewProjection, worldViewProjection);
+    mat4.multiply(projection, view, viewProjection);
 
     for (const {offset, time: timeOffset, mat} of infos) {
       const t = time * 0.1 + timeOffset * Math.PI * 2;
-      mat4.translation([offset[0] * 10000 - 5000, offset[1] * 10000 - 5000, timeOffset], mat);
+      mat4.translation(offset, mat);
       mat4.rotateZ(mat, t, mat);
-      //mat4.rotateX(mat, t * 0.9, mat);
-      mat4.scale(mat, [0.5, 0.5, 0.5], mat);
-      mat4.translate(mat, [-center[0], -center[1], 0], mat);
+      mat4.rotateX(mat, t * 0.9, mat);
     }
 
-    vec3.normalize([1, 8, -10], lightDirection);
+    lightPosition.set([20, 30, 60]);
+    viewPosition.set(eye);
 
-    device.queue.writeBuffer(vsUniformBuffer, 0, vsUniformValues);
-    device.queue.writeBuffer(fsUniformBuffer, 0, fsUniformValues);
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
     device.queue.writeBuffer(storageBuffer, 0, matrixData);
 
     if (canvasInfo.sampleCount === 1) {
