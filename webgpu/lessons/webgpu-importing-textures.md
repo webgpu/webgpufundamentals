@@ -443,7 +443,7 @@ is this
 
 The code above loads the F texture from above as well as these 2 textures
 
-<div class="webgpu_center"><img src="../resources/images/coins.jpg">&spc;<img src="../resources/images/Granite_paving_tileable_512x512.jpeg"></div>
+<div class="webgpu_center"><img src="../resources/images/coins.jpg"> <img src="../resources/images/Granite_paving_tileable_512x512.jpeg"></div>
 
 And here it is
 
