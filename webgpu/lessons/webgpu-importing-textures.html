@@ -243,7 +243,7 @@ In those cases we definitely don’t want the browser to muck with the data in t
 <div class="webgpu_center"><img src="../resources/images/f-texture.png"></div>
 <p>I was taught once that a texture with an <code class="notranslate" translate="no">F</code> in it is a good example texture because we can instantly
 see its orientation.</p>
-<div class="webgpu_center"><img src="resources/images/f-orientation.svg"></div>
+<div class="webgpu_center"><img src="resources/f-orientation.svg"></div>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const texture = device.createTexture({
 -    label: 'yellow F on red',
 -    size: [kTextureWidth, kTextureHeight],
@@ -602,13 +602,29 @@ is this</p>
 -    createTextureWithMips(createCheckedMipmap(), 'checker'),
 -  ];
 +  const textures = await Promise.all([
-+    await createTextureFromImage(device, 'resources/images/f-texture.png', {mips: true, flipY: false}),
-+    await createTextureFromImage(device, 'resources/images/coins.jpg', {mips: true}),
-+    await createTextureFromImage(device, 'resources/images/Granite_paving_tileable_512x512.jpeg', {mips: true}),
++    await createTextureFromImage(device,
++        'resources/images/f-texture.png', {mips: true, flipY: false}),
++    await createTextureFromImage(device,
++        'resources/images/coins.jpg', {mips: true}),
++    await createTextureFromImage(device,
++        'resources/images/Granite_paving_tileable_512x512.jpeg', {mips: true}),
 +  ]);
 </pre>
-<p>The code above loads the F texture from above as well as these 2 textures</p>
-<div class="webgpu_center"><img src="../resources/images/coins.jpg"> <img src="../resources/images/Granite_paving_tileable_512x512.jpeg"></div>
+<p>The code above loads the F texture from above as well as these 2 tiling textures</p>
+<div class="webgpu_center side-by-side">
+  <div class="separate">
+    <img src="../resources/images/coins.jpg">
+    <div class="copyright">
+      <a href="https://renderman.pixar.com/pixar-one-thirty">CC-BY: Pixar</a>
+    </div>
+  </div>
+  <div class="separate">
+    <img src="../resources/images/Granite_paving_tileable_512x512.jpeg">
+    <div class="copyright">
+       <a href="https://commons.wikimedia.org/wiki/File:Granite_paving_tileable_2048x2048.jpg">CC-BY-SA: Coyau</a>
+    </div>
+  </div>
+</div>
 <p>And here it is</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-textured-quad-import.html"></iframe></div>
@@ -616,9 +632,314 @@ is this</p>
 </div>
 
 <p></p>
+<h2 id="import-canvas">Import Canvas</h2>
+<p><code class="notranslate" translate="no">copyExternalImageToTexture</code> takes other <em>sources</em>. Another is an <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement"><code class="notranslate" translate="no">HTMLCanvasElement</code></a>.
+We can use this to draw things in a 2d canvas, and then get the result in a texture in WebGPU.
+Of course you can use WebGPU to draw to a texture and use that texture you just drew too
+in something else you render. In fact we just did that, rendering to a mip level and then
+using that mip level a texture attachment to render to the next mip level.</p>
+<p>But, sometimes using 2d canvas can make certain things easy. The 2d canvas has relatively
+high level API.</p>
+<p>So, first let’s make some kind of canvas animation.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const size = 256;
+const half = size / 2;
+
+const ctx = document.createElement('canvas').getContext('2d');
+ctx.canvas.width = size;
+ctx.canvas.height = size;
+
+const hsl = (h, s, l) =&gt; `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
+
+function update2DCanvas(time) {
+  time *= 0.0001;
+  ctx.clearRect(0, 0, size, size);
+  ctx.save();
+  ctx.translate(half, half);
+  const num = 20;
+  for (let i = 0; i &lt; num; ++i) {
+    ctx.fillStyle = hsl(i / num * 0.2 + time * 0.1, 1, i % 2 * 0.5);
+    ctx.fillRect(-half, -half, size, size);
+    ctx.rotate(time * 0.5);
+    ctx.scale(0.85, 0.85);
+    ctx.translate(size / 16, 0);
+  }
+  ctx.restore();
+}
+
+function render(time) {
+  update2DCanvas(time);
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+</pre>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fcanvas-2d-animation.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../canvas-2d-animation.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>To import that canvas into WebGPU only a few changes are needed to our previous example.</p>
+<p>We need to create a texture of the right size. The easiest way it just to use the same
+code we wrote above</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const texture = createTextureFromSource(device, ctx.canvas, {mips: true});
+
+  const textures = await Promise.all([
+-    await createTextureFromImage(device,
+-        'resources/images/f-texture.png', {mips: true, flipY: false}),
+-    await createTextureFromImage(device,
+-        'resources/images/coins.jpg', {mips: true}),
+-    await createTextureFromImage(device,
+-        'resources/images/Granite_paving_tileable_512x512.jpeg', {mips: true}),
++    texture,
+  ]);
+</pre>
+<p>Then we need to switch to a <code class="notranslate" translate="no">requestAnimationFrame</code> loop, update the 2D canvas, and
+then upload it to WebGPU</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  function render() {
++  function render(time) {
++    update2DCanvas(time);
++    copySourceToTexture(device, texture, ctx.canvas);
+
+     ...
+
+
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+  const observer = new ResizeObserver(entries =&gt; {
+    for (const entry of entries) {
+      const canvas = entry.target;
+      const width = entry.contentBoxSize[0].inlineSize;
+      const height = entry.contentBoxSize[0].blockSize;
+      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
+      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+-      render();
+    }
+  });
+  observer.observe(canvas);
+
+  canvas.addEventListener('click', () =&gt; {
+    texNdx = (texNdx + 1) % textures.length;
+-    render();
+  });
+</pre>
+<p>With that we’re able to upload a canvas AND generate mips levels for it</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-textured-quad-import-canvas.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-textured-quad-import-canvas.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<h2 id="importing-video">Importing Video</h2>
+<p>Importing video this way is no different. We can create a <code class="notranslate" translate="no">&lt;video&gt;</code> element and pass
+it to the same functions we passed the canvas to in the previous example and it should
+just work with minor adjustments</p>
+<p>Here’s a video</p>
+<div class="webgpu_center">
+  <div>
+     <video mute="" controls="" src="../resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm" style="width: 720px" ;=""></video>
+     <div class="copyright"><a href="https://commons.wikimedia.org/wiki/File:Golden_retriever_swimming_the_doggy_paddle.webm">CC-BY: Golden Woofs</a></div>
+  </div>
+</div>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap"><code class="notranslate" translate="no">ImageBitmap</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement"><code class="notranslate" translate="no">HTMLCanvasElement</code></a> have their width and height as <code class="notranslate" translate="no">width</code> and <code class="notranslate" translate="no">height</code> properties but <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement"><code class="notranslate" translate="no">HTMLVideoElement</code></a> has its width and height
+on <code class="notranslate" translate="no">videoWidth</code> and <code class="notranslate" translate="no">videoHeight</code>. So, let’s update the code to handle that difference</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  function getSourceSize(source) {
++    return [
++      source.videoWidth || source.width,
++      source.videoHeight || source.height,
++    ];
++  }
+
+  function copySourceToTexture(device, texture, source, {flipY} = {}) {
+    device.queue.copyExternalImageToTexture(
+      { source, flipY, },
+      { texture },
+      { width: source.width, height: source.height },
++      getSourceSize(source),
+    );
+
+    if (texture.mipLevelCount &gt; 1) {
+      generateMips(device, texture);
+    }
+  }
+
+  function createTextureFromSource(device, source, options = {}) {
++    const size = getSourceSize(source);
+    const texture = device.createTexture({
+      format: 'rgba8unorm',
+-      mipLevelCount: options.mips ? numMipLevels(source.width, source.height) : 1,
+-      size: [source.width, source.height],
++      mipLevelCount: options.mips ? numMipLevels(...size) : 1,
++      size,
+      usage: GPUTextureUsage.TEXTURE_BINDING |
+             GPUTextureUsage.COPY_DST |
+             GPUTextureUsage.RENDER_ATTACHMENT,
+    });
+    copySourceToTexture(device, texture, source, options);
+    return texture;
+  }
+</pre>
+<p>So then, lets setup a video element</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const video = document.createElement('video');
+  video.mute = true;
+  video.loop = true;
+  video.preload = 'auto';
+  video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
+
+  const texture = createTextureFromSource(device, video, {mips: true});
+</pre>
+<p>and update it at render time</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  function render(time) {
+-    update2DCanvas(time);
+-    copySourceToTexture(device, texture, ctx.canvas);
++  function render() {
++    copySourceToTexture(device, texture, video);
+</pre>
+<p>One complication of videos is we need to wait for them to have started
+playing before we pass them to WebGPU. In modern browsers we can do
+this by calling <code class="notranslate" translate="no">video.requestVideoFrameCallback</code>. It calls us each time
+a new frame is available so we can use it to find out when at least
+one frame is available.</p>
+<p>For a fallback, we can wait for the time to advance and pray 🙏 because
+sadly, old browsers made it hard to know when it’s safe to use a video 😅</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  function startPlayingAndWaitForVideo(video) {
++    return new Promise((resolve, reject) =&gt; {
++      video.addEventListener('error', reject);
++      if ('requestVideoFrameCallback' in video) {
++        video.requestVideoFrameCallback(resolve);
++      } else {
++        const timeWatcher = () =&gt; {
++          if (video.currentTime &gt; 0) {
++            resolve();
++          } else {
++            requestAnimationFrame(timeWatcher);
++          }
++        };
++        timeWatcher();
++      }
++      video.play().catch(reject);
++    });
++  }
+
+  const video = document.createElement('video');
+  video.mute = true;
+  video.loop = true;
+  video.preload = 'auto';
+  video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
++  await startPlayingAndWaitForVideo(video);
+
+  const texture = createTextureFromSource(device, video, {mips: true});
+</pre>
+<p>Another complication is we need to wait for the user to interact with the
+page before we can start the video <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>. Let’s add some HTML with
+a play button.</p>
+<pre class="prettyprint showlinemods notranslate lang-html" translate="no">  &lt;body&gt;
+    &lt;canvas&gt;&lt;/canvas&gt;
++    &lt;div id="start"&gt;
++      &lt;div&gt;▶️&lt;/div&gt;
++    &lt;/div&gt;
+  &lt;/body&gt;
+</pre>
+<p>And some CSS to center it</p>
+<pre class="prettyprint showlinemods notranslate lang-css" translate="no">#start {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#start&gt;div {
+  font-size: 200px;
+  cursor: pointer;
+}
+</pre>
+<p>Then let’s write a function to wait for it to be clicked and hide it.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  function waitForClick() {
++    return new Promise(resolve =&gt; {
++      window.addEventListener(
++        'click',
++        () =&gt; {
++          document.querySelector('#start').style.display = 'none';
++          resolve();
++        },
++        { once: true });
++    });
++  }
+
+  const video = document.createElement('video');
+  video.mute = true;
+  video.loop = true;
+  video.preload = 'auto';
+  video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
++  await waitForClick();
+  await startPlayingAndWaitForVideo(video);
+
+  const texture = createTextureFromSource(device, video, {mips: true});
+</pre>
+<p>Any with that we should get video in a texture</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-textured-quad-import-video.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-textured-quad-import-video.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>One optimization we could make. We could only update the texture when
+the video has changed.</p>
+<p>For example</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const video = document.createElement('video');
+  video.mute = true;
+  video.loop = true;
+  video.preload = 'auto';
+  video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
+  await waitForClick();
+  await startPlayingAndWaitForVideo(video);
+
++  let alwaysUpdateVideo = !('requestVideoFrameCallback' in video);
++  let haveNewVideoFrame = false;
++  if (!alwaysUpdateVideo) {
++    function recordHaveNewFrame() {
++      haveNewVideoFrame = true;
++      video.requestVideoFrameCallback(recordHaveNewFrame);
++    }
++    video.requestVideoFrameCallback(recordHaveNewFrame);
++  }
+
+  ...
+
+  function render() {
++    if (alwaysUpdateVideo || haveNewVideoFrame) {
++      haveNewVideoFrame = false;
+      copySourceToTexture(device, texture, video);
++    }
+
+    ...
+</pre>
+<p>With this change we’d only update the video for each new frame. So, for example, on a device
+with a display rate of 120 frames per second we’d draw at 120 frames per second so animations,
+camera movements, etc would be smooth. But, the texture would only update at its own frame
+rate (for example 30fps).</p>
+<p><strong>BUT! WebGPU has special support for using video efficiently</strong></p>
+<p>We’ll cover that in <a href="webgpu-textures-external-video.html">another article</a>.
+The way above, using <code class="notranslate" translate="no">device.query.copyExternalImageToTexture</code> is actually
+making <strong>a copy</strong>. Making a copy takes time. For example a 4k video’s resolution
+is generally 3840 × 2160 which for <code class="notranslate" translate="no">rgba8unorm</code> is 31meg of data that needs to be
+copied, <strong>per frame</strong>. <a href="webgpu-textures-external-video.html">External textures</a>
+let you use the video’s data directly (no copy) but require different methods
+and have some restrictions.</p>
 <p>TBD: Atlas</p>
-<p>TBD: Canvas</p>
-<p>TBD: Video</p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>There are various ways to get a video, usually without audio,
+to autoplay without having to wait for the user to interact with the page.
+They seem to change over time so we won’t go into solutions here. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
