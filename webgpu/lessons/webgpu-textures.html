@@ -358,7 +358,7 @@ with values from (0 to 255) to a floating point value with values (0.0 to 1.0).<
 in the shader will end up being <code class="notranslate" translate="no">[64 / 255, 128 / 255, 192 / 255, 255 / 255]</code> or to
 put it another way <code class="notranslate" translate="no">[0.25, 0.50, 0.75, 1.00]</code></p>
 <p>Now that we have the data we need to make a texture</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const tex = device.createTexture({
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const texture = device.createTexture({
     size: [kTextureWidth, kTextureHeight],
     format: 'rgba8unorm',
     usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
@@ -370,7 +370,7 @@ says we want to be able to bind this texture into a bind group <sup class="footn
 means we want to be able to copy data to it.</p>
 <p>Next we need to do just that and copy our data to it.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  device.queue.writeTexture(
-      { texture: tex },
+      { texture },
       textureData,
       { bytesPerRow: kTextureWidth * 4 },
       { width: kTextureWidth, height: kTextureHeight },
@@ -390,7 +390,7 @@ that match the <code class="notranslate" translate="no">@binding(?)</code>s we p
     layout: pipeline.getBindGroupLayout(0),
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: tex.createView() },
+      { binding: 1, resource: texture.createView() },
     ],
   });
 </pre>
@@ -508,7 +508,7 @@ We’ll also create a bind group that uses that sampler.</p>
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: sampler },
-        { binding: 1, resource: tex.createView() },
+        { binding: 1, resource: texture.createView() },
       ],
     });
 +    bindGroups.push(bindGroup);
@@ -674,7 +674,7 @@ add it to the bind group.</p>
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: sampler },
-        { binding: 1, resource: tex.createView() },
+        { binding: 1, resource: texture.createView() },
 +        { binding: 2, resource: { buffer: uniformBuffer }},
       ],
     });
@@ -886,7 +886,7 @@ For now, we can use the code above to generate a mipmap.</p>
 We can then create a texture with all the mip levels</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const mips = generateMips(textureData, kTextureWidth);
 
-  const tex = device.createTexture({
+  const texture = device.createTexture({
     label: 'yellow F on red',
 +    size: [mips[0].width, mips[0].height],
 +    mipLevelCount: mips.length,
@@ -897,11 +897,11 @@ We can then create a texture with all the mip levels</p>
   });
   mips.forEach(({data, width, height}, mipLevel) =&gt; {
     device.queue.writeTexture(
--      { texture: tex },
+-      { texture },
 -      textureData,
 -      { bytesPerRow: kTextureWidth * 4 },
 -      { width: kTextureWidth, height: kTextureHeight },
-+      { texture: tex, mipLevel },
++      { texture, mipLevel },
 +      data,
 +      { bytesPerRow: width * 4 },
 +      { width, height },
@@ -1024,7 +1024,7 @@ is to make each mip level different colors. Let’s use the canvas 2d api to mak
 <div class="webgpu-center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
 <p>Now that we’ve created the data lets create the textures</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const createTextureWithMips = (mips, label) =&gt; {
-    const tex = device.createTexture({
+    const texture = device.createTexture({
 -      label: 'yellow F on red',
 +      label,
       size: [mips[0].width, mips[0].height],
@@ -1036,17 +1036,19 @@ is to make each mip level different colors. Let’s use the canvas 2d api to mak
     });
     mips.forEach(({data, width, height}, mipLevel) =&gt; {
       device.queue.writeTexture(
-          { texture: tex, mipLevel },
+          { texture, mipLevel },
           data,
           { bytesPerRow: width * 4 },
           { width, height },
       );
     });
-    return tex;
+    return texture;
 +  };
 
-+  const blendedTex = createTextureWithMips(createBlendedMipmap(), 'blended');
-+  const checkeredTex = createTextureWithMips(createCheckedMipmap(), 'checker');
++  const textures = [
++    createTextureWithMips(createBlendedMipmap(), 'blended'),
++    createTextureWithMips(createCheckedMipmap(), 'checker'),
++  ];
 </pre>
 <p>We’re going to draw a quad extending into the distance in 8 location.
 We’ll use matrix math as covered in <a href="webgpu-cameras.html">the series of articles on 3D</a>.</p>
@@ -1126,12 +1128,12 @@ buffer per location like we covered in <a href="webgpu-uniforms.html">the articl
     const uniformValues = new Float32Array(uniformBufferSize / 4);
     const matrix = uniformValues.subarray(kMatrixOffset, 16);
 
-    const bindGroups = [blendedTex, checkeredTex].map(tex =&gt;
+    const bindGroups = textures.map(texture =&gt;
       device.createBindGroup({
         layout: pipeline.getBindGroupLayout(0),
         entries: [
           { binding: 0, resource: sampler },
-          { binding: 1, resource: tex.createView() },
+          { binding: 1, resource: texture.createView() },
           { binding: 2, resource: { buffer: uniformBuffer }},
         ],
       }));
@@ -1232,10 +1234,10 @@ from filtering the canvas itself.</p>
 -  image-rendering: crisp-edges;
 }
 </pre>
-<p>And we can make it so if you click the canvas it toggles which texture to
+<p>And we can make it so if you click the canvas it switches which texture to
 draw with and re-renders</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  canvas.addEventListener('click', () =&gt; {
-    texNdx = 1 - texNdx;
+    texNdx = (texNdx + 1) % textures.length;
     render();
   });
 </pre>
@@ -1258,8 +1260,8 @@ reason is style. If you’re trying to make a pixelated looking image then
 of course you might not want filtering. Another is speed. Reading 1 pixel
 from a texture when all filtering is set to nearest is faster then reading
 8 pixels from a texture when all filtering is set to linear.</p>
-<p>TBD: Repeat
-TBD: Anisotropic filtering</p>
+<p>TBD: Repeat</p>
+<p>TBD: Anisotropic filtering</p>
 <h2 id="texture-types-and-texture-views">Texture Types and Texture Views</h2>
 <p>Until this point we’ve only used 2d textures. There are 6 types of textures</p>
 <ul>
@@ -1387,7 +1389,7 @@ other changes.</p>
 <p>We’ll use a depth texture in <a href="webgpu-orthographic.html">an article in the series on 3d</a> as well
 as <a href="webgpu-shadow-maps.html">the article about shadow maps</a>.</p>
 <p>There’s also a bunch compressed texture formats which we’ll save for another article.</p>
-<p>Let’s cover <a href="webgpu-import-textures.md">importing external textures</a> next.</p>
+<p>Let’s cover <a href="webgpu-importing-textures.md">importing external textures</a> next.</p>
 <!-- keep this at the bottom of the article -->
 <script type="module" src="/3rdparty/pixel-perfect.js"></script>
 <script type="module" src="webgpu-textures.js"></script>
@@ -1429,6 +1431,7 @@ goes “🟥🟩🟦🟦🟩🟥🟥🟩🟦🟦🟩🟥” <a href="#fnref4" cl
 <li><a href="/webgpu/lessons/webgpu-storage-buffers.html">Storage Buffers</a></li>
 <li><a href="/webgpu/lessons/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
 <li><a href="/webgpu/lessons/webgpu-textures.html">Textures</a></li>
+<li><a href="/webgpu/lessons/webgpu-importing-textures.html">Importing Images</a></li>
 <li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
 <li><a href="/webgpu/lessons/webgpu-wgsl.html">WGSL</a></li>
