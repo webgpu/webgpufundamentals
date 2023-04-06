@@ -79,7 +79,7 @@ body {
   color: var(--a-warn-fg-color);
 }
 .copyright {
-  font-size: xx-small;
+  font-size: small;
 }
 
 a {
@@ -267,6 +267,9 @@ div[data-diagram] {
 }
 .home-lang select {
     font-size: large;
+}
+.separate {
+  margin: 0.25em;
 }
 .color {
   padding: 0.25em;

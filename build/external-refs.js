@@ -116,6 +116,8 @@ const gpuDict = [
 const apis = [
   'ImageBitmap',
   'createImageBitmap',
+  'HTMLVideoElement',
+  'HTMLCanvasElement',
 ];
 
 // check with removing the last 's'?

@@ -39,7 +39,7 @@ We'll load this image
 I was taught once that a texture with an `F` in it is a good example texture because we can instantly
 see its orientation.
 
-<div class="webgpu_center"><img src="resources/images/f-orientation.svg"></div>
+<div class="webgpu_center"><img src="resources/f-orientation.svg"></div>
 
 
 ```js
@@ -435,22 +435,373 @@ is this
 -    createTextureWithMips(createCheckedMipmap(), 'checker'),
 -  ];
 +  const textures = await Promise.all([
-+    await createTextureFromImage(device, 'resources/images/f-texture.png', {mips: true, flipY: false}),
-+    await createTextureFromImage(device, 'resources/images/coins.jpg', {mips: true}),
-+    await createTextureFromImage(device, 'resources/images/Granite_paving_tileable_512x512.jpeg', {mips: true}),
++    await createTextureFromImage(device,
++        'resources/images/f-texture.png', {mips: true, flipY: false}),
++    await createTextureFromImage(device,
++        'resources/images/coins.jpg', {mips: true}),
++    await createTextureFromImage(device,
++        'resources/images/Granite_paving_tileable_512x512.jpeg', {mips: true}),
 +  ]);
 ```
 
-The code above loads the F texture from above as well as these 2 textures
+The code above loads the F texture from above as well as these 2 tiling textures
 
-<div class="webgpu_center"><img src="../resources/images/coins.jpg"> <img src="../resources/images/Granite_paving_tileable_512x512.jpeg"></div>
+<div class="webgpu_center side-by-side">
+  <div class="separate">
+    <img src="../resources/images/coins.jpg">
+    <div class="copyright">
+      <a href="https://renderman.pixar.com/pixar-one-thirty">CC-BY: Pixar</a>
+    </div>
+  </div>
+  <div class="separate">
+    <img src="../resources/images/Granite_paving_tileable_512x512.jpeg">
+    <div class="copyright">
+       <a href="https://commons.wikimedia.org/wiki/File:Granite_paving_tileable_2048x2048.jpg">CC-BY-SA: Coyau</a>
+    </div>
+  </div>
+</div>
 
 And here it is
 
 {{{example url="../webgpu-simple-textured-quad-import.html"}}}
 
+## Import Canvas
+
+`copyExternalImageToTexture` takes other *sources*. Another is an `HTMLCanvasElement`.
+We can use this to draw things in a 2d canvas, and then get the result in a texture in WebGPU.
+Of course you can use WebGPU to draw to a texture and use that texture you just drew too
+in something else you render. In fact we just did that, rendering to a mip level and then
+using that mip level a texture attachment to render to the next mip level.
+
+But, sometimes using 2d canvas can make certain things easy. The 2d canvas has relatively
+high level API.
+
+So, first let's make some kind of canvas animation.
+
+```js
+const size = 256;
+const half = size / 2;
+
+const ctx = document.createElement('canvas').getContext('2d');
+ctx.canvas.width = size;
+ctx.canvas.height = size;
+
+const hsl = (h, s, l) => `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
+
+function update2DCanvas(time) {
+  time *= 0.0001;
+  ctx.clearRect(0, 0, size, size);
+  ctx.save();
+  ctx.translate(half, half);
+  const num = 20;
+  for (let i = 0; i < num; ++i) {
+    ctx.fillStyle = hsl(i / num * 0.2 + time * 0.1, 1, i % 2 * 0.5);
+    ctx.fillRect(-half, -half, size, size);
+    ctx.rotate(time * 0.5);
+    ctx.scale(0.85, 0.85);
+    ctx.translate(size / 16, 0);
+  }
+  ctx.restore();
+}
+
+function render(time) {
+  update2DCanvas(time);
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+```
+
+{{{example url="../canvas-2d-animation.html"}}}
+
+To import that canvas into WebGPU only a few changes are needed to our previous example.
+
+We need to create a texture of the right size. The easiest way it just to use the same
+code we wrote above
+
+```js
++  const texture = createTextureFromSource(device, ctx.canvas, {mips: true});
+
+  const textures = await Promise.all([
+-    await createTextureFromImage(device,
+-        'resources/images/f-texture.png', {mips: true, flipY: false}),
+-    await createTextureFromImage(device,
+-        'resources/images/coins.jpg', {mips: true}),
+-    await createTextureFromImage(device,
+-        'resources/images/Granite_paving_tileable_512x512.jpeg', {mips: true}),
++    texture,
+  ]);
+```
+
+Then we need to switch to a `requestAnimationFrame` loop, update the 2D canvas, and
+then upload it to WebGPU
+
+```js
+-  function render() {
++  function render(time) {
++    update2DCanvas(time);
++    copySourceToTexture(device, texture, ctx.canvas);
+
+     ...
+
+
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+  const observer = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const canvas = entry.target;
+      const width = entry.contentBoxSize[0].inlineSize;
+      const height = entry.contentBoxSize[0].blockSize;
+      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
+      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+-      render();
+    }
+  });
+  observer.observe(canvas);
+
+  canvas.addEventListener('click', () => {
+    texNdx = (texNdx + 1) % textures.length;
+-    render();
+  });
+```
+
+With that we're able to upload a canvas AND generate mips levels for it
+
+{{{example url="../webgpu-simple-textured-quad-import-canvas.html"}}}
+
+## Importing Video
+
+Importing video this way is no different. We can create a `<video>` element and pass
+it to the same functions we passed the canvas to in the previous example and it should
+just work with minor adjustments
+
+Here's a video
+
+<div class="webgpu_center">
+  <div>
+     <video mute controls src="../resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm" style="width: 720px";></video>
+     <div class="copyright"><a href="https://commons.wikimedia.org/wiki/File:Golden_retriever_swimming_the_doggy_paddle.webm">CC-BY: Golden Woofs</a></div>
+  </div>
+</div>
+
+`ImageBitmap` and `HTMLCanvasElement` have their width and height as `width` and `height` properties but `HTMLVideoElement` has its width and height
+on `videoWidth` and `videoHeight`. So, let's update the code to handle that difference
+
+```js
++  function getSourceSize(source) {
++    return [
++      source.videoWidth || source.width,
++      source.videoHeight || source.height,
++    ];
++  }
+
+  function copySourceToTexture(device, texture, source, {flipY} = {}) {
+    device.queue.copyExternalImageToTexture(
+      { source, flipY, },
+      { texture },
+      { width: source.width, height: source.height },
++      getSourceSize(source),
+    );
+
+    if (texture.mipLevelCount > 1) {
+      generateMips(device, texture);
+    }
+  }
+
+  function createTextureFromSource(device, source, options = {}) {
++    const size = getSourceSize(source);
+    const texture = device.createTexture({
+      format: 'rgba8unorm',
+-      mipLevelCount: options.mips ? numMipLevels(source.width, source.height) : 1,
+-      size: [source.width, source.height],
++      mipLevelCount: options.mips ? numMipLevels(...size) : 1,
++      size,
+      usage: GPUTextureUsage.TEXTURE_BINDING |
+             GPUTextureUsage.COPY_DST |
+             GPUTextureUsage.RENDER_ATTACHMENT,
+    });
+    copySourceToTexture(device, texture, source, options);
+    return texture;
+  }
+```
+
+So then, lets setup a video element
+
+```js
+  const video = document.createElement('video');
+  video.mute = true;
+  video.loop = true;
+  video.preload = 'auto';
+  video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
+
+  const texture = createTextureFromSource(device, video, {mips: true});
+```
+
+and update it at render time
+
+```js
+-  function render(time) {
+-    update2DCanvas(time);
+-    copySourceToTexture(device, texture, ctx.canvas);
++  function render() {
++    copySourceToTexture(device, texture, video);
+```
+
+One complication of videos is we need to wait for them to have started
+playing before we pass them to WebGPU. In modern browsers we can do
+this by calling `video.requestVideoFrameCallback`. It calls us each time
+a new frame is available so we can use it to find out when at least
+one frame is available.
+
+For a fallback, we can wait for the time to advance and pray 🙏 because
+sadly, old browsers made it hard to know when it's safe to use a video 😅
+
+```js
++  function startPlayingAndWaitForVideo(video) {
++    return new Promise((resolve, reject) => {
++      video.addEventListener('error', reject);
++      if ('requestVideoFrameCallback' in video) {
++        video.requestVideoFrameCallback(resolve);
++      } else {
++        const timeWatcher = () => {
++          if (video.currentTime > 0) {
++            resolve();
++          } else {
++            requestAnimationFrame(timeWatcher);
++          }
++        };
++        timeWatcher();
++      }
++      video.play().catch(reject);
++    });
++  }
+
+  const video = document.createElement('video');
+  video.mute = true;
+  video.loop = true;
+  video.preload = 'auto';
+  video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
++  await startPlayingAndWaitForVideo(video);
+
+  const texture = createTextureFromSource(device, video, {mips: true});
+```
+
+Another complication is we need to wait for the user to interact with the
+page before we can start the video [^autoplay]. Let's add some HTML with
+a play button.
+
+[^autoplay]: There are various ways to get a video, usually without audio,
+to autoplay without having to wait for the user to interact with the page.
+They seem to change over time so we won't go into solutions here.
+
+```html
+  <body>
+    <canvas></canvas>
++    <div id="start">
++      <div>▶️</div>
++    </div>
+  </body>
+```
+
+And some CSS to center it
+
+```css
+#start {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#start>div {
+  font-size: 200px;
+  cursor: pointer;
+}
+```
+
+Then let's write a function to wait for it to be clicked and hide it.
+
+```js
++  function waitForClick() {
++    return new Promise(resolve => {
++      window.addEventListener(
++        'click',
++        () => {
++          document.querySelector('#start').style.display = 'none';
++          resolve();
++        },
++        { once: true });
++    });
++  }
+
+  const video = document.createElement('video');
+  video.mute = true;
+  video.loop = true;
+  video.preload = 'auto';
+  video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
++  await waitForClick();
+  await startPlayingAndWaitForVideo(video);
+
+  const texture = createTextureFromSource(device, video, {mips: true});
+```
+
+Any with that we should get video in a texture
+
+{{{example url="../webgpu-simple-textured-quad-import-video.html"}}}
+
+One optimization we could make. We could only update the texture when 
+the video has changed.
+
+For example
+
+```js
+  const video = document.createElement('video');
+  video.mute = true;
+  video.loop = true;
+  video.preload = 'auto';
+  video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
+  await waitForClick();
+  await startPlayingAndWaitForVideo(video);
+
++  let alwaysUpdateVideo = !('requestVideoFrameCallback' in video);
++  let haveNewVideoFrame = false;
++  if (!alwaysUpdateVideo) {
++    function recordHaveNewFrame() {
++      haveNewVideoFrame = true;
++      video.requestVideoFrameCallback(recordHaveNewFrame);
++    }
++    video.requestVideoFrameCallback(recordHaveNewFrame);
++  }
+
+  ...
+
+  function render() {
++    if (alwaysUpdateVideo || haveNewVideoFrame) {
++      haveNewVideoFrame = false;
+      copySourceToTexture(device, texture, video);
++    }
+
+    ...
+```
+
+With this change we'd only update the video for each new frame. So, for example, on a device
+with a display rate of 120 frames per second we'd draw at 120 frames per second so animations,
+camera movements, etc would be smooth. But, the texture would only update at its own frame
+rate (for example 30fps).
+
+**BUT! WebGPU has special support for using video efficiently**
+
+We'll cover that in [another article](webgpu-textures-external-video.html).
+The way above, using `device.query.copyExternalImageToTexture` is actually
+making **a copy**. Making a copy takes time. For example a 4k video's resolution
+is generally 3840 × 2160 which for `rgba8unorm` is 31meg of data that needs to be
+copied, **per frame**. [External textures](webgpu-textures-external-video.html)
+let you use the video's data directly (no copy) but require different methods
+and have some restrictions.
+
 TBD: Atlas
 
-TBD: Canvas
-
-TBD: Video
