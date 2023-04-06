@@ -42,7 +42,7 @@ function removeDotDotSlash(url) {
  * Fix any local URLs into fully qualified urls.
  *
  * Examples:
- *    resources/image.jpg ->  https://domain.org/webgl/resouces/image.jpg
+ *    resources/image.jpg ->  https://domain.org/webgpu/resouces/image.jpg
  *    /3rdparty/lib.js    ->  https://domain.org/3rdparty/lib.js
  *
  * The reason is (a) we're running the code as via blobUrl and nothing is relative to a blob.
@@ -159,9 +159,9 @@ ${indent}${variable}${code}${url};`;
 
 // This is needed if the images are not on the same domain
 // NOTE: The server providing the images must give CORS permissions
-// in order to be able to use the image with WebGL. Most sites
+// in order to be able to use the image with WebGPU. Most sites
 // do NOT give permission.
-// See: https://webgpufundamentals.org/webgl/lessons/webgl-cors-permission.html
+// See: https://webgpufundamentals.org/webgpu/lessons/webgpu-cors-permission.html
 function requestCORSIfNotSameOrigin(img, url) {
   if ((new URL(url, window.location.href)).origin !== window.location.origin) {
     img.crossOrigin = "";
