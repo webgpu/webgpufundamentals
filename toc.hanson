@@ -12,6 +12,17 @@
     'webgpu-wgsl.md',
     'webgpu-how-it-works.md',
   ],
+  '3d-math': [
+    'webgpu-translation.md',
+    'webgpu-rotation.md',
+    'webgpu-scale.md',
+    'webgpu-matrix-math.md',
+    'webgpu-orthographic-projection.md',
+    'webgpu-perspective-projection.md',
+    'webgpu-cameras.md',
+    'webgpu-matrix-stacks.md',
+    'webgpu-scene-graphs.md',
+  ],
   'misc': [
     'webgpu-from-webgl.md',
     'webgpu-resources.md',

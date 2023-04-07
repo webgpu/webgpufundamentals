@@ -8,13 +8,13 @@ them easiest to understand by reading them in order.
 
 1. [Translation](webgpu-translation.html)
 2. [Rotation](webgpu-rotation.html) ⬅ you are here
-3. [Scaling](webgpu-scaling.html)
+3. [Scaling](webgpu-scale.html)
 4. [Matrix Math](webgpu-matrix-math.html)
 5. [Orthographic Projection](webgpu-orthographic-projection.html)
 6. [Perspective Projection](webgpu-perspective-projection.html)
 7. [Cameras](webgpu-cameras.html)
 8. [Matrix Stacks](webgpu-matrix-stacks.html)
-9. [Scene Graphs](webgpu-scenegraphs.html)
+9. [Scene Graphs](webgpu-scene-graphs.html)
 
 I'm going to admit right up front I have no idea if how I explain this
  will make sense but what the heck, might as well try.

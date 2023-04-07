@@ -30,6 +30,7 @@
     'basics': 'Basics',
     'misc': 'Misc',
     'reference': 'Reference',
+    '3d-math': '3D Math',
   },
 }
 
