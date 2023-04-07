@@ -17,3 +17,11 @@
   font-size: 16pt;
   text-align: center;
 }
+.blink {
+  animation: blinker 2s step-start infinite;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
