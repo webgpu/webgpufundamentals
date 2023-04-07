@@ -160,5 +160,5 @@ to change the actual F position data. We'll go over another way soon.
 
 I hope these last 3 posts were helpful in understanding
 [translation](webgpu-translation.html), [rotation](webgpu-rotation.html)
-and scale. Next we'll go over [the magic that is matrices](webgl-matrix-math.html)
+and scale. Next we'll go over [the magic that is matrices](webgpu-matrix-math.html)
 that combines all 3 of these into a **much simpler** and often more useful form.
