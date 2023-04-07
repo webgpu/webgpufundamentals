@@ -220,7 +220,157 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>TBD</p>
+      <p>This article is the 3nd in a series of articles that will hopefully teach
+you about 3D math. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.</p>
+<ol>
+<li><a href="webgpu-translation.html">Translation</a></li>
+<li><a href="webgpu-rotation.html">Rotation</a></li>
+<li><a href="webgpu-scale.html">Scaling</a> ⬅ you are here</li>
+<li><a href="webgpu-matrix-math.html">Matrix Math</a></li>
+<li><a href="webgpu-orthographic-projection.html">Orthographic Projection</a></li>
+<li><a href="webgpu-perspective-projection.html">Perspective Projection</a></li>
+<li><a href="webgpu-cameras.html">Cameras</a></li>
+<li><a href="webgpu-matrix-stacks.html">Matrix Stacks</a></li>
+<li><a href="webgpu-scene-graphs.html">Scene Graphs</a></li>
+</ol>
+<p>Scaling is just as <a href="webgpu-translation.html">easy as translation</a>.</p>
+<p>We multiply the vertex positions by our desired scale. Here are the changes
+to the shader from our <a href="webgpu-rotation.html">previous example</a>.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Uniforms {
+  color: vec4f,
+  resolution: vec2f,
+  translation: vec2f,
+  rotation: vec2f,
+  scale: vec2f,
+};
+
+struct Vertex {
+  @location(0) position: vec2f,
+};
+
+struct VSOutput {
+  @builtin(position) position: vec4f,
+};
+
+@group(0) @binding(0) var&lt;uniform&gt; uni: Uniforms;
+
+@vertex fn vs(vert: Vertex) -&gt; VSOutput {
+  var vsOut: VSOutput;
+
++  // Scale the position
++  let scaledPosition = vert.position * uni.scale;
+
+  // Rotate the position
+  let rotatedPosition = vec2f(
+-    vert.position.x * uni.rotation.y + vert.position.y * uni.rotation.x,
+-    vert.position.y * uni.rotation.y - vert.position.x * uni.rotation.x
++    scaledPosition.x * uni.rotation.y + scaledPosition.y * uni.rotation.x,
++    scaledPosition.y * uni.rotation.y - scaledPosition.x * uni.rotation.x
+  );
+
+  // Add in the translation
+  let position = rotatedPosition + uni.translation;
+
+  // convert the position from pixels to a 0.0 to 1.0 value
+  let zeroToOne = position / uni.resolution;
+
+  // convert from 0 &lt;-&gt; 1 to 0 &lt;-&gt; 2
+  let zeroToTwo = zeroToOne * 2.0;
+
+  // covert from 0 &lt;-&gt; 2 to -1 &lt;-&gt; +1 (clip space)
+  let flippedClipSpace = zeroToTwo - 1.0;
+
+  // flip Y
+  let clipSpace = flippedClipSpace * vec2f(1, -1);
+
+  vsOut.position = vec4f(clipSpace, 0.0, 1.0);
+  return vsOut;
+}
+</pre>
+<p>And, like before, we need to update our uniform buffer to have room for
+the scale value.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  // color, resolution, translation, rotation, padding
+-  const uniformBufferSize = (4 + 2 + 2 + 2) * 4 + 8;
++  // color, resolution, translation, rotation, scale
++  const uniformBufferSize = (4 + 2 + 2 + 2 + 2) * 4;
+  const uniformBuffer = device.createBuffer({
+    label: 'uniforms',
+    size: uniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const uniformValues = new Float32Array(uniformBufferSize / 4);
+
+  // offsets to the various uniform values in float32 indices
+  const kColorOffset = 0;
+  const kResolutionOffset = 4;
+  const kTranslationOffset = 6;
+  const kRotationOffset = 8;
++  const kScaleOffset = 10;
+
+  const colorValue = uniformValues.subarray(kColorOffset, kColorOffset + 4);
+  const resolutionValue = uniformValues.subarray(kResolutionOffset, kResolutionOffset + 2);
+  const translationValue = uniformValues.subarray(kTranslationOffset, kTranslationOffset + 2);
+  const rotationValue = uniformValues.subarray(kRotationOffset, kRotationOffset + 2);
++  const scaleValue = uniformValues.subarray(kScaleOffset, kScaleOffset + 2);
+</pre>
+<p>and at render time we need to update the scale</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const settings = {
+    translation: [150, 100],
+    rotation: degToRad(30),
++    scale: [1, 1],
+  };
+
+  const gui = new GUI();
+  gui.onChange(render);
+  gui.add(settings.translation, '0', 0, 1000).name('translation.x');
+  gui.add(settings.translation, '1', 0, 1000).name('translation.y');
+  gui.add(settings, 'rotation', {
+      min: -360,
+      max: 360,
+      step: 1,
+      converters: {
+        to: radToDeg,
+        from: v =&gt; [true, degToRad(v)],
+      },
+    });
++  gui.add(settings.scale, '0', -5, 5).name('scale.x');
++  gui.add(settings.scale, '1', -5, 5).name('scale.y');
+
+  function render() {
+    ...
+
+    // Set the uniform values in our JavaScript side Float32Array
+    resolutionValue.set([canvas.width, canvas.height]);
+    translationValue.set(settings.translation);
+    rotationValue.set([
+        Math.cos(settings.rotation),
+        Math.sin(settings.rotation),
+    ]);
++    scaleValue.set(settings.scale);
+
+    // upload the uniform values to the uniform buffer
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+</pre>
+<p>And now we have scale. Drag the sliders.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-scale.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-scale.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>One thing to notice is that scaling by a negative value flips our geometry.</p>
+<p>Another thing to notice is it scales from 0, 0 which for our F is the
+top left corner. That makes sense since we’re multiplying the positions
+by the scale they will move away from 0, 0. You can probably
+imagine ways to fix that. For example you could add another translation
+before you scale, a <em>pre scale</em> translation. Another solution would be
+to change the actual F position data. We’ll go over another way soon.</p>
+<p>I hope these last 3 posts were helpful in understanding
+<a href="webgpu-translation.html">translation</a>, <a href="webgpu-rotation.html">rotation</a>
+and scale. Next we’ll go over <a href="webgl-matrix-math.html">the magic that is matrices</a>
+that combines all 3 of these into a <strong>much simpler</strong> and often more useful form.</p>
 
     </div>
     <div class="lesson-sidebar">
