@@ -291,6 +291,14 @@ div[data-diagram] {
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
 }
+.blink {
+  animation: blinker 2s step-start infinite;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
 .fullscreen {
     position: fixed !important;
     left: 0;
