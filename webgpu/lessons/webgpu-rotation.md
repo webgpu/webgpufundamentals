@@ -2,7 +2,7 @@ Title: WebGPU Rotation
 Description: Rotating an object
 TOC: Rotation
 
-This article is the first of series of articles that will hopefully teach
+This article is the 2nd in a series of articles that will hopefully teach
 you about 3D math. Each one builds on the previous lesson so you may find
 them easiest to understand by reading them in order.
 
