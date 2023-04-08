@@ -122,8 +122,8 @@ async function main() {
 
         // Rotate the position
         let rotatedPosition = vec2f(
-          vert.position.x * uni.rotation.y + vert.position.y * uni.rotation.x,
-          vert.position.y * uni.rotation.y - vert.position.x * uni.rotation.x
+          vert.position.x * uni.rotation.x - vert.position.y * uni.rotation.y,
+          vert.position.x * uni.rotation.y + vert.position.y * uni.rotation.x
         );
 
         // Add in the translation

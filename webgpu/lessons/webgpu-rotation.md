@@ -24,7 +24,11 @@ remember your junior high school math (don't go to sleep on me!) a
 circle has a radius. The radius of a circle is the distance from the center
 of the circle to the edge. A unit circle is a circle with a radius of 1.0.
 
-Here's a unit circle.
+Here's a unit circle. [^ydown]
+
+[^ydown]: This unit circle has +Y going down to match our pixel space which
+is also Y down. WebGPU's normal clip space is +Y up. As we went over in the
+previous article we've flipped Y in the shader.
 
 <div class="webgpu_center"><div data-diagram="unit-circle" style="display: inline-block; width: 500px;"></div></div>
 
@@ -67,8 +71,8 @@ struct VSOutput {
 
 +  // Rotate the position
 +  let rotatedPosition = vec2f(
-+    vert.position.x * uni.rotation.y + vert.position.y * uni.rotation.x,
-+    vert.position.y * uni.rotation.y - vert.position.x * uni.rotation.x
++    vert.position.x * uni.rotation.x - vert.position.y * uni.rotation.y,
++    vert.position.x * uni.rotation.y + vert.position.y * uni.rotation.x
 +  );
 
   // Add in the translation
@@ -176,23 +180,27 @@ or the sliders to translate.
 
 Why does it work? Well, look at the math.
 
-<pre class="webgpu_center">
-    rotatedX = a_position.x * u_rotation.y + a_position.y * u_rotation.x;
-    rotatedY = a_position.y * u_rotation.y - a_position.x * u_rotation.x;
+<div class="webgpu_center">
+<pre class="webgpu_math">
+rotatedX = a_position.x * u_rotation.x - a_position.y * u_rotation.y;
+rotatedY = a_position.x * u_rotation.y + a_position.y * u_rotation.x;
 </pre>
+</div>
 
 Let's say you have a rectangle and you want to rotate it.
-Before you start rotating it the top right corner is at 3.0, 9.0.
-Let's pick a point on the unit circle 30 degrees clockwise from 12 o'clock.
+Before you start rotating it, the top right corner is at 3.0, -9.0.
+Let's pick a point on the unit circle 30 degrees clockwise from 3 o'clock.
 
-<img src="resources/rotate-30.png" class="webgpu_center invertdark" />
+<div class="webgpu_center"><div data-diagram="static-circle-30" style="display: inline-block; width: 400px;"></div></div>
 
-The position on the circle there is 0.50 and 0.87
+The position on the circle there is x = 0.87, y = 0.50
 
-<pre class="webgpu_center">
-   3.0 * 0.87 + 9.0 * 0.50 = 7.1
-   9.0 * 0.87 - 3.0 * 0.50 = 6.3
+<div class="webgpu_center">
+<pre class="webgpu_math">
+ 3.0 * 0.87 - -9.0 * 0.50 =  7.1
+ 3.0 * 0.50 + -9.0 * 0.87 = -6.3
 </pre>
+</div>
 
 That's exactly where we need it to be
 
@@ -200,16 +208,18 @@ That's exactly where we need it to be
 
 The same for 60 degrees clockwise
 
-<img src="resources/rotate-60.png" class="webgpu_center invertdark" />
+<div class="webgpu_center"><div data-diagram="static-circle-60" style="display: inline-block; width: 400px;"></div></div>
 
 The position on the circle there is 0.87 and 0.50
 
-<pre class="webgpu_center">
-   3.0 * 0.50 + 9.0 * 0.87 = 9.3
-   9.0 * 0.50 - 3.0 * 0.87 = 1.9
+<div class="webgpu_center">
+<pre class="webgpu_math">
+ 3.0 * 0.50 - -9.0 * 0.87 =  9.3
+ 3.0 * 0.87 + -9.0 * 0.50 = -1.9
 </pre>
+</div>
 
-You can see that as we rotate that point clockwise to the right the X
+You can see that as we rotate that point clockwise, the X
 value gets bigger and the Y gets smaller. If we kept going past 90 degrees
 X would start getting smaller again and Y would start getting bigger.
 That pattern gives us rotation.
@@ -227,7 +237,7 @@ sine and cosine like this.
 
 If you copy and paste the code into your JavaScript console and
 type `printSineAndCosignForAngle(30)` you see it prints
-`s = 0.49 c = 0.87` (note: I rounded off the numbers)
+`s = 0.50 c = 0.87` (note: I rounded off the numbers)
 
 If you put it all together you can rotate your vertex positions to any angle
 you desire. Just set the rotation to the sine and cosine of the angle
@@ -235,8 +245,8 @@ you want to rotate to.
 
       ...
       const angleInRadians = angleInDegrees * Math.PI / 180;
-      rotation[0] = Math.sin(angleInRadians);
-      rotation[1] = Math.cos(angleInRadians);
+      rotation[0] = Math.cos(angleInRadians);
+      rotation[1] = Math.sin(angleInRadians);
 
 Let's change things to just have an rotation setting.
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Rotation via Unit Circle</title>
+    <title>WebGPU Matrix Transform Move Origin</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -37,13 +37,6 @@ canvas {
   background-position: -1.5px -1.5px, -1.5px -1.5px, -1px -1px, -1px -1px;
   background-size: 100px 100px, 100px 100px, 10px 10px, 10px 10px;  
 }
-#circle {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  width: 300px;
-  background-color: var(--bg-color);
-}
     </style>
   </head>
   <body>
@@ -52,7 +45,6 @@ canvas {
   </body>
   <script type="module">
 import GUI from '/3rdparty/muigui-0.x.module.js';
-import UnitCircle from './resources/js/unit-circle.js';
 
 function createFVertices() {
   const vertexData = new Float32Array([
@@ -88,6 +80,81 @@ function createFVertices() {
   };
 }
 
+const mat3 = {
+  projection(width, height) {
+    // Note: This matrix flips the Y axis so that 0 is at the top.
+    return [
+      2 / width, 0, 0,
+      0, -2 / height, 0,
+      -1, 1, 1,
+    ];
+  },
+  identity() {
+    return [
+      1, 0, 0,
+      0, 1, 0,
+      0, 0, 1,
+    ];
+  },
+  multiply(a, b) {
+    const a00 = a[0 * 3 + 0];
+    const a01 = a[0 * 3 + 1];
+    const a02 = a[0 * 3 + 2];
+    const a10 = a[1 * 3 + 0];
+    const a11 = a[1 * 3 + 1];
+    const a12 = a[1 * 3 + 2];
+    const a20 = a[2 * 3 + 0];
+    const a21 = a[2 * 3 + 1];
+    const a22 = a[2 * 3 + 2];
+    const b00 = b[0 * 3 + 0];
+    const b01 = b[0 * 3 + 1];
+    const b02 = b[0 * 3 + 2];
+    const b10 = b[1 * 3 + 0];
+    const b11 = b[1 * 3 + 1];
+    const b12 = b[1 * 3 + 2];
+    const b20 = b[2 * 3 + 0];
+    const b21 = b[2 * 3 + 1];
+    const b22 = b[2 * 3 + 2];
+
+    return [
+      b00 * a00 + b01 * a10 + b02 * a20,
+      b00 * a01 + b01 * a11 + b02 * a21,
+      b00 * a02 + b01 * a12 + b02 * a22,
+      b10 * a00 + b11 * a10 + b12 * a20,
+      b10 * a01 + b11 * a11 + b12 * a21,
+      b10 * a02 + b11 * a12 + b12 * a22,
+      b20 * a00 + b21 * a10 + b22 * a20,
+      b20 * a01 + b21 * a11 + b22 * a21,
+      b20 * a02 + b21 * a12 + b22 * a22,
+    ];
+  },
+  translation([tx, ty]) {
+    return [
+      1, 0, 0,
+      0, 1, 0,
+      tx, ty, 1,
+    ];
+  },
+
+  rotation(angleInRadians) {
+    const c = Math.cos(angleInRadians);
+    const s = Math.sin(angleInRadians);
+    return [
+      c, s, 0,
+      -s, c, 0,
+      0, 0, 1,
+    ];
+  },
+
+  scaling([sx, sy]) {
+    return [
+      sx, 0, 0,
+      0, sy, 0,
+      0, 0, 1,
+    ];
+  },
+};
+
 async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
@@ -110,9 +177,7 @@ async function main() {
     code: `
       struct Uniforms {
         color: vec4f,
-        resolution: vec2f,
-        translation: vec2f,
-        rotation: vec2f,
+        matrix: mat3x3f,
       };
 
       struct Vertex {
@@ -128,36 +193,7 @@ async function main() {
       @vertex fn vs(vert: Vertex) -> VSOutput {
         var vsOut: VSOutput;
 
-        // code
-        // c s
-        //-s c
-        //
-
-        // math
-        // c -s    x * c + y * -s
-        // s  c    x * s + y * c
-
-        // Rotate the position
-        let rotatedPosition = vec2f(
-          vert.position.x * uni.rotation.x - vert.position.y * uni.rotation.y,
-          vert.position.x * uni.rotation.y + vert.position.y * uni.rotation.x
-        );
-
-        // Add in the translation
-        let position = rotatedPosition + uni.translation;
-
-        // convert the position from pixels to a 0.0 to 1.0 value
-        let zeroToOne = position / uni.resolution;
-
-        // convert from 0 <-> 1 to 0 <-> 2
-        let zeroToTwo = zeroToOne * 2.0;
-
-        // covert from 0 <-> 2 to -1 <-> +1 (clip space)
-        let flippedClipSpace = zeroToTwo - 1.0;
-
-        // flip Y
-        let clipSpace = flippedClipSpace * vec2f(1, -1);
-
+        let clipSpace = (uni.matrix * vec3f(vert.position, 1)).xy;
         vsOut.position = vec4f(clipSpace, 0.0, 1.0);
         return vsOut;
       }
@@ -190,8 +226,8 @@ async function main() {
     },
   });
 
-  // color, resolution, translation, rotation, padding
-  const uniformBufferSize = (4 + 2 + 2 + 2) * 4 + 8;
+  // color, matrix
+  const uniformBufferSize = (4 + 12) * 4;
   const uniformBuffer = device.createBuffer({
     label: 'uniforms',
     size: uniformBufferSize,
@@ -202,14 +238,10 @@ async function main() {
 
   // offsets to the various uniform values in float32 indices
   const kColorOffset = 0;
-  const kResolutionOffset = 4;
-  const kTranslationOffset = 6;
-  const kRotationOffset = 8;
+  const kMatrixOffset = 4;
 
   const colorValue = uniformValues.subarray(kColorOffset, kColorOffset + 4);
-  const resolutionValue = uniformValues.subarray(kResolutionOffset, kResolutionOffset + 2);
-  const translationValue = uniformValues.subarray(kTranslationOffset, kTranslationOffset + 2);
-  const rotationValue = uniformValues.subarray(kRotationOffset, kRotationOffset + 2);
+  const matrixValue = uniformValues.subarray(kMatrixOffset, kMatrixOffset + 12);
 
   // The color will not change so let's set it once at init time
   colorValue.set([Math.random(), Math.random(), Math.random(), 1]);
@@ -247,18 +279,30 @@ async function main() {
     ],
   };
 
+  const degToRad = d => d * Math.PI / 180;
+  const radToDeg = r => r * 180 / Math.PI;
+
   const settings = {
     translation: [150, 100],
+    rotation: degToRad(30),
+    scale: [1, 1],
   };
 
   const gui = new GUI();
   gui.onChange(render);
   gui.add(settings.translation, '0', 0, 1000).name('translation.x');
   gui.add(settings.translation, '1', 0, 1000).name('translation.y');
-
-  const unitCircle = new UnitCircle();
-  document.querySelector('#circle').appendChild(unitCircle.domElement);
-  unitCircle.onChange(render);
+  gui.add(settings, 'rotation', {
+      min: -360,
+      max: 360,
+      step: 1,
+      converters: {
+        to: radToDeg,
+        from: v => [true, degToRad(v)],
+      },
+    });
+  gui.add(settings.scale, '0', -5, 5).name('scale.x');
+  gui.add(settings.scale, '1', -5, 5).name('scale.y');
 
   function render() {
     // Get the current texture from the canvas context and
@@ -272,10 +316,21 @@ async function main() {
     pass.setVertexBuffer(0, vertexBuffer);
     pass.setIndexBuffer(indexBuffer, 'uint32');
 
+    const projectionMatrix = mat3.projection(canvas.width, canvas.height);
+    const translationMatrix = mat3.translation(settings.translation);
+    const rotationMatrix = mat3.rotation(settings.rotation);
+    const scaleMatrix = mat3.scaling(settings.scale);
+
+    let matrix = mat3.multiply(projectionMatrix, translationMatrix);
+    matrix = mat3.multiply(matrix, rotationMatrix);
+    matrix = mat3.multiply(matrix, scaleMatrix);
+
     // Set the uniform values in our JavaScript side Float32Array
-    resolutionValue.set([canvas.width, canvas.height]);
-    translationValue.set(settings.translation);
-    rotationValue.set([unitCircle.x, unitCircle.y]);
+    matrixValue.set([
+      ...matrix.slice(0, 3), 0,
+      ...matrix.slice(3, 6), 0,
+      ...matrix.slice(6, 9), 0,
+    ]);
 
     // upload the uniform values to the uniform buffer
     device.queue.writeBuffer(uniformBuffer, 0, uniformValues);

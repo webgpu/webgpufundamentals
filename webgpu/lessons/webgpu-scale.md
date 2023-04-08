@@ -48,10 +48,10 @@ struct VSOutput {
 
   // Rotate the position
   let rotatedPosition = vec2f(
--    vert.position.x * uni.rotation.y + vert.position.y * uni.rotation.x,
--    vert.position.y * uni.rotation.y - vert.position.x * uni.rotation.x
-+    scaledPosition.x * uni.rotation.y + scaledPosition.y * uni.rotation.x,
-+    scaledPosition.y * uni.rotation.y - scaledPosition.x * uni.rotation.x
+-    vert.position.x * uni.rotation.y - vert.position.y * uni.rotation.x,
+-    vert.position.x * uni.rotation.x + vert.position.y * uni.rotation.y
++    scaledPosition.x * uni.rotation.y - scaledPosition.y * uni.rotation.x,
++    scaledPosition.x * uni.rotation.x + scaledPosition.y * uni.rotation.y
   );
 
   // Add in the translation

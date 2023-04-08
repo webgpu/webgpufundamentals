@@ -41,7 +41,9 @@ export default class UnitCircle {
   #update;
   #requestId;
 
-  constructor() {
+  constructor(options = {angle: 0.3, frozen: false, yUp: false}) {
+    this.#angle = options.angle === undefined ? 0.3 : options.angle;
+    const {frozen, yUp} = options;
     const draw = svg().viewbox(0, 0, size, size);
     draw.node.style.userSelect = 'none';
     this.#draw = draw;
@@ -83,7 +85,10 @@ export default class UnitCircle {
     const circleGroup = draw.group();
     setTranslation(circleGroup, halfSize, halfSize);
     const point = circleGroup.group();
-    const pointInner = point.circle(20).fill('#8000FFF20').center(0, 0).addClass('blink');
+    const pointInner = point.circle(20).fill('#8000FFF20').center(0, 0);
+    if (!frozen) {
+      pointInner.addClass('blink');
+    }
     const pointOuter = point.circle(20).fill('none').stroke('#000').center(0, 0);
     const grid = circleGroup.group();
     const tri = grid.polygon([0, 0, -100, 0, 0, -100]).fill('#eeffee20');
@@ -100,7 +105,7 @@ export default class UnitCircle {
 
       grid.text(y).move(position + 5, -5).font({size: 10}).fill('#888');
       if (y) {
-        grid.text(-y).move(5, position - 5).font({size: 10}).fill('#888');
+        grid.text(yUp ? -y : y).move(5, position - 5).font({size: 10}).fill('#888');
 
       }
     }
@@ -164,11 +169,13 @@ export default class UnitCircle {
       window.removeEventListener('pointerup', onUp);
     };
 
-    point.node.addEventListener('pointerdown', function(e) {
-      e.preventDefault();
-      window.addEventListener('pointermove', onMove, {passive: false});
-      window.addEventListener('pointerup', onUp);
-    });
+    if (!frozen) {
+      point.node.addEventListener('pointerdown', function(e) {
+        e.preventDefault();
+        window.addEventListener('pointermove', onMove, {passive: false});
+        window.addEventListener('pointerup', onUp);
+      });
+    }
   }
   handleRAF() {
     this.#requestId = undefined;
