@@ -1185,7 +1185,10 @@ Step 1:  no matrix (or the identity matrix)
 > <div data-diagram="space-change-0" data-caption="clip space"></div>
 >
 > The white area is the texture. Blue is outside the texture. We're in clip space.
-> Positions passed in need to be in clip space
+> Positions passed in need to be in clip space. The green area in the top right
+> is the top left corner of the F. It's upside down because in clip space +Y is up but
+> the F was designed in pixel space which is +Y down. Further, clip space shows
+> only 2x2 units but the F is 100x150 units big so we just see one unit's worth.
 
 Step 2:  `mat3.projection(canvas.clientWidth, canvas.clientHeight, matrixValue);`
 
@@ -1258,11 +1261,11 @@ For example if we made a canvas like this.</p>
 <p>Here are two examples that set the canvas's CSS display size to 100% so the canvas is stretched
 out to fill the page. The first one uses <code>canvas.width</code> and <code>canvas.height</code> when calling <code>mat3.projection</code>. Open it in a new
 window and resize the window. Notice how the 'F' doesn't have the correct aspect. It gets
-distorted.</p>
+distorted. It's also not in the correct place. The code says the top left corner should be at 150, 25 but as the canvas is stretched and shrunk the position where something we want to appear at 150, 25 moves.</p>
 {{{example url="../webgpu-canvas-width-height.html" width="500" height="150" }}}
-<p>In this second example we use <code>canvas.clientWidth</code> and <code>canvas.clientHeight</code> when calling <code>mat3.projection</code>. <code>canvas.clientWidth</code> and <code>canvas.clientHeight</code> report
+<p>This second example uses <code>canvas.clientWidth</code> and <code>canvas.clientHeight</code> when calling <code>mat3.projection</code>. <code>canvas.clientWidth</code> and <code>canvas.clientHeight</code> report
 the size the canvas is actually being displayed by the browser so in this case, even though the canvas still only has 400x300 pixels
-since we're defining our aspect ratio based on the size the canvas is being displayed the <code>F</code> always looks correct.</p>
+since we're defining our aspect ratio based on the size the canvas is being displayed the <code>F</code> always looks correct and the F is in the correct place.</p>
 {{{example url="../webgpu-canvas-clientwidth-clientheight.html" width="500" height="150" }}}
 <p>Most apps that allow their canvases to be resized try to make the <code>canvas.width</code> and <code>canvas.height</code> match
 the <code>canvas.clientWidth</code> and <code>canvas.clientHeight</code> because they want there to be
