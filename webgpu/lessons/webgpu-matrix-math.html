@@ -1252,7 +1252,10 @@ from left to right changes the space represented by the canvas.</p>
 <blockquote>
 <div data-diagram="space-change-0" data-caption="clip space"></div>
 <p>The white area is the texture. Blue is outside the texture. We’re in clip space.
-Positions passed in need to be in clip space</p>
+Positions passed in need to be in clip space. The green area in the top right
+is the top left corner of the F. It’s upside down because in clip space +Y is up but
+the F was designed in pixel space which is +Y down. Further, clip space shows
+only 2x2 units but the F is 100x150 units big so we just see one unit’s worth.</p>
 </blockquote>
 <p>Step 2:  <code class="notranslate" translate="no">mat3.projection(canvas.clientWidth, canvas.clientHeight, matrixValue);</code></p>
 <blockquote>
@@ -1314,16 +1317,16 @@ For example if we made a canvas like this.</p>
 <p>Here are two examples that set the canvas's CSS display size to 100% so the canvas is stretched
 out to fill the page. The first one uses <code class="notranslate" translate="no">canvas.width</code> and <code class="notranslate" translate="no">canvas.height</code> when calling <code class="notranslate" translate="no">mat3.projection</code>. Open it in a new
 window and resize the window. Notice how the 'F' doesn't have the correct aspect. It gets
-distorted.</p>
+distorted. It's also not in the correct place. The code says the top left corner should be at 150, 25 but as the canvas is stretched and shrunk the position where something we want to appear at 150, 25 moves.</p>
 <div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style="width:  500px; height: 150px;" src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-canvas-width-height.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-canvas-width-height.html" target="_blank">click here to open in a separate window</a>
 </div>
 
 
-<p>In this second example we use <code class="notranslate" translate="no">canvas.clientWidth</code> and <code class="notranslate" translate="no">canvas.clientHeight</code> when calling <code class="notranslate" translate="no">mat3.projection</code>. <code class="notranslate" translate="no">canvas.clientWidth</code> and <code class="notranslate" translate="no">canvas.clientHeight</code> report
+<p>This second example uses <code class="notranslate" translate="no">canvas.clientWidth</code> and <code class="notranslate" translate="no">canvas.clientHeight</code> when calling <code class="notranslate" translate="no">mat3.projection</code>. <code class="notranslate" translate="no">canvas.clientWidth</code> and <code class="notranslate" translate="no">canvas.clientHeight</code> report
 the size the canvas is actually being displayed by the browser so in this case, even though the canvas still only has 400x300 pixels
-since we're defining our aspect ratio based on the size the canvas is being displayed the <code class="notranslate" translate="no">F</code> always looks correct.</p>
+since we're defining our aspect ratio based on the size the canvas is being displayed the <code class="notranslate" translate="no">F</code> always looks correct and the F is in the correct place.</p>
 <div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style="width:  500px; height: 150px;" src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-canvas-clientwidth-clientheight.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-canvas-clientwidth-clientheight.html" target="_blank">click here to open in a separate window</a>
