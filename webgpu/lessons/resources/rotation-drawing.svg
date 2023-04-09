@@ -60,12 +60,12 @@
             <rect x="228.359" y="-34.2" width="30" height="90" style="fill:rgb(170,135,222);fill-opacity:0.8;"/>
         </g>
         <g id="path3928-8" transform="matrix(1,-0,-0,1,-20.4588,-19.1378)">
-            <path d="M260.105,98.673L262.459,117.5L271.872,101.026L260.105,98.673Z" style="fill-rule:nonzero;"/>
-            <path d="M265.283,103.38C268.24,88.594 272.459,67.5 272.459,67.5" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:1px;"/>
+            <path d="M259.304,100.141L261.387,119L271.036,102.663L259.304,100.141Z" style="fill-rule:nonzero;"/>
+            <path d="M264.414,104.922C267.692,89.674 272.459,67.5 272.459,67.5" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:1px;"/>
         </g>
         <g transform="matrix(1,0,0,1,230,42.3622)">
             <g id="text4407-6">
-                <text x="0px" y="0px" style="font-family:'LucidaGrande', 'Lucida Grande', sans-serif;font-weight:500;font-size:16px;">7.1, 6.3</text>
+                <text x="0px" y="0px" style="font-family:'LucidaGrande', 'Lucida Grande', sans-serif;font-weight:500;font-size:16px;">7.1, -6.3</text>
             </g>
         </g>
         <g id="g3912-9-3" transform="matrix(1,0,0,1,230,-230)">
@@ -145,7 +145,7 @@
         </g>
         <g transform="matrix(1,0,0,1,380,72.3622)">
             <g id="text4407-6-0-3-8">
-                <text x="0px" y="0px" style="font-family:'LucidaGrande', 'Lucida Grande', sans-serif;font-weight:500;font-size:16px;">9.3, 1.9</text>
+                <text x="0px" y="0px" style="font-family:'LucidaGrande', 'Lucida Grande', sans-serif;font-weight:500;font-size:16px;">9.3, -1.9</text>
             </g>
         </g>
     </g>
@@ -159,7 +159,7 @@
         </g>
         <g transform="matrix(1,0,0,1,80,22.3622)">
             <g id="text4407">
-                <text x="0px" y="0px" style="font-family:'LucidaGrande', 'Lucida Grande', sans-serif;font-weight:500;font-size:16px;">3.0, 9.0</text>
+                <text x="0px" y="0px" style="font-family:'LucidaGrande', 'Lucida Grande', sans-serif;font-weight:500;font-size:16px;">3.0, -9.0</text>
             </g>
         </g>
         <g transform="matrix(1,0,0,1,-20.4588,-19.1378)">
@@ -171,5 +171,15 @@
         <g transform="matrix(1,0,0,1,255.367,-19.1456)">
             <text x="228.019px" y="227.918px" style="font-family:'ArialMT', 'Arial', sans-serif;font-size:16px;">90°</text>
         </g>
+    </g>
+    <circle cx="80.459" cy="91.5" r="2.508" style="fill:rgb(255,0,13);"/>
+    <g transform="matrix(1,0,0,1,180.541,27.5)">
+        <circle cx="80.459" cy="91.5" r="2.508" style="fill:rgb(255,0,13);"/>
+    </g>
+    <g transform="matrix(1,0,0,1,343.264,73.0078)">
+        <circle cx="80.459" cy="91.5" r="2.508" style="fill:rgb(255,0,13);"/>
+    </g>
+    <g transform="matrix(1,0,0,1,479.541,119.5)">
+        <circle cx="80.459" cy="91.5" r="2.508" style="fill:rgb(255,0,13);"/>
     </g>
 </svg>
