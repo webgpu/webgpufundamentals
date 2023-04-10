@@ -624,11 +624,11 @@ identity matrix.  An identity matrix is a matrix that effectively
 represents 1.0 so that if you multiply by the identity nothing happens.
 Just like
 
-<div class="webgl_center"><div class="webgpu_math">X * 1 = X</div></div>
+<div class="webgpu_center"><div class="webgpu_math">X * 1 = X</div></div>
 
 so too
 
-<div class="webgl_center"><div class="webgpu_math">matrixX * identity = matrixX</div></div>
+<div class="webgpu_center"><div class="webgpu_math">matrixX * identity = matrixX</div></div>
 
 Here's the code to make an identity matrix.
 
@@ -1221,9 +1221,9 @@ In the shader we then do `clipSpace = uni.matrix * vert.position;`. The `vert.po
 Use which ever way you feel is easier to understand.
 
 I hope these articles have helped demystify matrix math. 
-Next [we'll move on to 3D](webgl-3d-orthographic.html).
+Next [we'll move on to 3D](webgpu-orthographic-projection.html).
 In 3D the matrix math follows the same principles and usage.
-I started with 2D to hopefully keep it simple to understand.
+We started with 2D to hopefully keep it simple to understand.
 
 Also, if you really want to become an expert
 in matrix math [check out this amazing videos](https://www.youtube.com/watch?v=kjBOesZCoqc&list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab).
