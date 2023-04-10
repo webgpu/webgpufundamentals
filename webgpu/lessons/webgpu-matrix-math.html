@@ -755,9 +755,9 @@ by our translation, rotation, and scale matrices.</p>
 identity matrix.  An identity matrix is a matrix that effectively
 represents 1.0 so that if you multiply by the identity nothing happens.
 Just like</p>
-<div class="webgl_center"><div class="webgpu_math">X * 1 = X</div></div>
+<div class="webgpu_center"><div class="webgpu_math">X * 1 = X</div></div>
 <p>so too</p>
-<div class="webgl_center"><div class="webgpu_math">matrixX * identity = matrixX</div></div>
+<div class="webgpu_center"><div class="webgpu_math">matrixX * identity = matrixX</div></div>
 <p>Here’s the code to make an identity matrix.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const mat3 = {
   ...
@@ -1282,9 +1282,9 @@ is when the space flips from positive Y = up to positive Y = down.</p>
 <p>In the shader we then do <code class="notranslate" translate="no">clipSpace = uni.matrix * vert.position;</code>. The <code class="notranslate" translate="no">vert.position</code> values are effectively applied in this final space.</p>
 <p>Use which ever way you feel is easier to understand.</p>
 <p>I hope these articles have helped demystify matrix math.
-Next <a href="webgl-3d-orthographic.html">we’ll move on to 3D</a>.
+Next <a href="webgpu-orthographic-projection.html">we’ll move on to 3D</a>.
 In 3D the matrix math follows the same principles and usage.
-I started with 2D to hopefully keep it simple to understand.</p>
+We started with 2D to hopefully keep it simple to understand.</p>
 <p>Also, if you really want to become an expert
 in matrix math <a href="https://www.youtube.com/watch?v=kjBOesZCoqc&amp;list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab">check out this amazing videos</a>.</p>
 <div class="webgpu_bottombar">
@@ -1389,6 +1389,7 @@ projection matrix's aspect ratio using <code class="notranslate" translate="no">
         </ul></ul>
 <ul>
   <li><a href="https://github.com/gfxfundamentals/webgpufundamentals">github</a></li>
+  <li><a href="/webgpu/lessons/resources/wgsl-offset-computer.html">WGSL Offset Computer</a></li>
   <!--<li><a href="https://google.github.io/tour-of-wgsl/">Tour of WGSL</a></li>-->
   <li><a href="https://gpuweb.github.io/types/">WebGPU API Reference</a></li>
   <li><a href="https://www.w3.org/TR/webgpu/">WebGPU Spec</a></li>
