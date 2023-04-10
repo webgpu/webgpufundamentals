@@ -1,4 +1,4 @@
-/* muigui@0.0.3, license MIT */
+/* muigui@0.0.5, license MIT */
 const css = `
 .muigui {
   --width: 250px;
@@ -40,6 +40,16 @@ const css = `
 }
 .muigui * {
   box-sizing: inherit;
+}
+
+.muigui-no-scroll {
+  touch-action: none;
+}
+.muigui-no-h-scroll {
+  touch-action: pan-y;
+}
+.muigui-no-v-scroll {
+  touch-action: pan-x;
 }
 
 .muigui-invalid-value {
@@ -666,12 +676,29 @@ function createElem(tag, attrs = {}, children = []) {
   return elem;
 }
 
+function addElem(tag, parent, attrs = {}, children = []) {
+  const elem = createElem(tag, attrs, children);
+  parent.appendChild(elem);
+  return elem;
+}
+
 function removeArrayElem(array, value) {
   const ndx = array.indexOf(value);
   if (ndx) {
     array.splice(ndx, 1);
   }
   return array;
+}
+
+/**
+ * Converts an camelCase or snake_case id to "camel case" or "snake case"
+ * @param {string} id
+ */
+const underscoreRE = /_/g;
+const upperLowerRE = /([A-Z])([a-z])/g;
+function idToLabel(id) {
+  return id.replace(underscoreRE, ' ')
+           .replace(upperLowerRE, (m, m1, m2) => `${m1.toLowerCase()} ${m2}`);
 }
 
 function clamp$1(v, min, max) {
@@ -686,6 +713,8 @@ const isTypedArray = typeof SharedArrayBuffer !== 'undefined'
     return a && a.buffer && a.buffer instanceof ArrayBuffer;
   };
 
+const isArrayOrTypedArray = v => Array.isArray(v) || isTypedArray(v);
+
 // Yea, I know this should be `Math.round(v / step) * step
 // but try step = 0.1, newV = 19.95
 //
@@ -697,6 +726,9 @@ const isTypedArray = typeof SharedArrayBuffer !== 'undefined'
 //     19.9
 //
 const stepify = (v, from, step) => Math.round(from(v) / step) / (1 / step);
+
+const euclideanModulo$1 = (v, n) => ((v % n) + n) % n;
+const lerp$1 = (a, b, t) => a + (b - a) * t;
 function copyExistingProperties(dst, src) {
   for (const key in src) {
     if (key in dst) {
@@ -2194,6 +2226,79 @@ class Label extends Controller {
   }
 }
 
+function showCSS(ob) {
+  if (ob.prototype.css) {
+    console.log(ob.prototype.css);
+    showCSS(ob.prototype);
+  }
+}
+
+class Layout extends View {
+  static css = 'bar';
+  constructor(tag, className) {
+    super(createElem(tag, {className}));
+
+    showCSS(this);
+  }
+}
+
+/*
+class ValueController ?? {
+  const row = this.add(new Row());
+  const label = row.add(new Label());
+  const div = row.add(new Div());
+  const row = div.add(new Row());
+}
+*/
+
+/*
+class MyCustomThing extends ValueController {
+  constructor(object, property, options) {
+    const topRow = this.add(new Row());
+    const bottomRow = this.add(new Row());
+    topRow.add(new NumberView());
+    topRow.add(new NumberView());
+    topRow.add(new NumberView());
+    topRow.add(new NumberView());
+    bottomRow.add(new DirectionView());
+    bottomRow.add(new DirectionView());
+    bottomRow.add(new DirectionView());
+    bottomRow.add(new DirectionView());
+  }
+}
+  new Grid([
+    [new
+  ]
+  */
+
+class Column extends Layout {
+  constructor() {
+    super('div', 'muigui-row');
+  }
+}
+
+class Frame extends Layout {
+  static css = 'foo';
+  constructor() {
+    super('div', 'muigui-frame');
+  }
+  static get foo() {
+    return 'boo';
+  }
+}
+
+class Grid extends Layout {
+  constructor() {
+    super('div', 'muigui-grid');
+  }
+}
+
+class Row extends Layout {
+  constructor() {
+    super('div', 'muigui-row');
+  }
+}
+
 let stylesInjected = false;
 const styleElem = createElem('style');
 
@@ -2258,4 +2363,850 @@ class GUI extends GUIFolder {
   }
 }
 
-export { GUI as default };
+function noop$1() {
+}
+
+function computeRelativePosition(elem, event, start) {
+  const rect = elem.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  const nx = x / rect.width;
+  const ny = y / rect.height;
+  start = start || [x, y];
+  const dx = x - start[0];
+  const dy = y - start[1];
+  const ndx = dx / rect.width;
+  const ndy = dy / rect.width;
+  return {x, y, nx, ny, dx, dy, ndx, ndy};
+}
+
+function addTouchEvents(elem, {onDown = noop$1, onMove = noop$1, onUp = noop$1}) {
+  let start;
+  const pointerMove = function(event) {
+    const e = {
+      type: 'move',
+      ...computeRelativePosition(elem, event, start),
+    };
+    onMove(e);
+  };
+
+  const pointerUp = function(event) {
+    elem.releasePointerCapture(event.pointerId);
+    elem.removeEventListener('pointermove', pointerMove);
+    elem.removeEventListener('pointerup', pointerUp);
+ 
+    document.body.style.backgroundColor = '';
+ 
+    onUp('up');
+  };
+
+  const pointerDown = function(event) {
+    elem.addEventListener('pointermove', pointerMove);
+    elem.addEventListener('pointerup', pointerUp);
+    elem.setPointerCapture(event.pointerId);
+
+    const rel = computeRelativePosition(elem, event);
+    start = [rel.x, rel.y];
+    onDown({
+      type: 'down',
+      ...rel,
+    });
+  };
+
+  elem.addEventListener('pointerdown', pointerDown);
+
+  return function() {
+    elem.removeEventListener('pointerdown', pointerDown);
+  };
+}
+
+const svg$3 = `
+
+<svg tabindex="0" viewBox="0 0 64 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <linearGradient id="muigui-color-chooser-light-dark" x1="0" x2="0" y1="0" y2="1">
+      <stop stop-color="rgba(0,0,0,0)" offset="0%"/>
+      <stop stop-color="#000" offset="100%"/>
+    </linearGradient>
+    <linearGradient id="muigui-color-chooser-hue">
+      <stop stop-color="hsl(60, 0%, 100%)" offset="0%"/>
+      <stop stop-color="hsl(60, 100%, 50%)" offset="100%"/>
+    </linearGradient>
+
+    <rect width="64" height="48" fill="url(#muigui-color-chooser-hue)"/>
+    <rect width="64" height="48" fill="url(#muigui-color-chooser-light-dark)"/>
+    <circle r="4" class="muigui-color-chooser-circle"/>
+</svg>
+<svg tabindex="0" viewBox="0 0 64 6" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <linearGradient id="muigui-color-chooser-hues" x1="0" x2="1" y1="0" y2="0">
+      <stop stop-color="hsl(0,100%,50%)" offset="0%"/>
+      <stop stop-color="hsl(60,100%,50%)" offset="16.666%"/>
+      <stop stop-color="hsl(120,100%,50%)" offset="33.333%"/>
+      <stop stop-color="hsl(180,100%,50%)" offset="50%"/>
+      <stop stop-color="hsl(240,100%,50%)" offset="66.666%"/>
+      <stop stop-color="hsl(300,100%,50%)" offset="83.333%"/>
+      <stop stop-color="hsl(360,100%,50%)" offset="100%"/>
+    </linearGradient>
+    <rect y="1" width="64" height="4" fill="url('#muigui-color-chooser-hues')"/>
+    <g class="muigui-color-chooser-cursor">
+      <rect x="-3" width="6" height="6" />
+    </g>
+</svg>
+`;
+
+class ColorChooserView extends EditView {
+  #satLevelElem;
+  #hueUIElem;
+  #circleElem;
+  #hueElem;
+  #hueCursorElem;
+  #hsv;
+  #skipHueUpdate;
+  #skipSatLevelUpdate;
+
+  constructor(setter) {
+    super(createElem('div', {
+      innerHTML: svg$3,
+      className: 'muigui-no-scroll',
+    }));
+    this.#satLevelElem = this.domElement.children[0];
+    this.#hueUIElem = this.domElement.children[1];
+    this.#circleElem = this.$('.muigui-color-chooser-circle');
+    this.#hueElem = this.$('#muigui-color-chooser-hue');
+    this.#hueCursorElem = this.$('.muigui-color-chooser-cursor');
+
+    const handleSatLevelChange = (e) => {
+      const s = clamp$1(e.nx, 0, 1);
+      const v = clamp$1(e.ny, 0, 1);
+      this.#hsv[1] = s;
+      this.#hsv[2] = (1 - v);
+      this.#skipHueUpdate = true;
+      setter.setValue(floatRGBToHex(hsv01ToRGBFloat(this.#hsv)));
+    };
+
+    const handleHueChange = (e) => {
+      const h = clamp$1(e.nx, 0, 1);
+      this.#hsv[0] = h;
+      this.#skipSatLevelUpdate = true;
+      setter.setValue(floatRGBToHex(hsv01ToRGBFloat(this.#hsv)));
+    };
+
+    addTouchEvents(this.#satLevelElem, {
+      onDown: handleSatLevelChange,
+      onMove: handleSatLevelChange,
+    });
+    addTouchEvents(this.#hueUIElem, {
+      onDown: handleHueChange,
+      onMove: handleHueChange,
+    });
+  }
+  updateDisplay(newV) {
+    if (!this.#hsv) {
+      this.#hsv = rgbFloatToHSV01(hexToFloatRGB(newV));
+    }
+    {
+      const [h, s, v] = rgbFloatToHSV01(hexToFloatRGB(newV));
+      // Don't copy the hue if it was un-computable.
+      if (!this.#skipHueUpdate) {
+        this.#hsv[0] = s > 0.001 && v > 0.001 ? h : this.#hsv[0];
+      }
+      if (!this.#skipSatLevelUpdate) {
+        this.#hsv[1] = s;
+        this.#hsv[2] = v;
+      }
+    }
+    {
+      const [h, s, v] = this.#hsv;
+      if (!this.#skipHueUpdate) {
+        this.#hueCursorElem.setAttribute('transform', `translate(${h * 64}, 0)`);
+        this.#hueElem.children[0].setAttribute('stop-color', `hsl(${h * 360}, 0%, 100%)`);
+        this.#hueElem.children[1].setAttribute('stop-color', `hsl(${h * 360}, 100%, 50%)`);
+      }
+      if (!this.#skipSatLevelUpdate) {
+        this.#circleElem.setAttribute('cx', `${s * 64}`);
+        this.#circleElem.setAttribute('cy', `${(1 - v) * 48}`);
+      }
+    }
+    this.#skipHueUpdate = false;
+    this.#skipSatLevelUpdate = false;
+  }
+}
+
+/*
+
+holder = new TabHolder
+tab = holder.add(new Tab("name"))
+tab.add(...)
+
+
+pc = new PopdownController
+top = pc.add(new Row())
+top.add(new Button());
+values = topRow.add(new Div())
+bottom = pc.add(new Row());
+
+
+
+pc = new PopdownController
+pc.addTop
+pc.addTop
+
+pc.addBottom
+
+
+*/
+
+function makeSetter(object, property) {
+  return {
+    setValue(v) {
+      object[property] = v;
+    },
+    setFinalValue(v) {
+      this.setValue(v);
+    },
+  };
+}
+
+class PopDownController extends ValueController {
+  #top;
+  #valuesView;
+  #bottom;
+  #options = {open: false};
+
+  constructor(object, property, options = {}) {
+    super(object, property, 'muigui-pop-down-controller');
+    /*
+    [ValueView
+      [[B][values]]   upper row
+      [[  visual ]]   lower row
+    ]
+    */
+    this.#top = this.add(new ElementView('div', 'muigui-pop-down-top'));
+//    this.#top.add(new CheckboxView(makeSetter(this.#options, 'open')));
+    const checkboxElem = this.#top.addElem(createElem('input', {
+      type: 'checkbox',
+      onChange: () => {
+        this.#options.open = checkboxElem.checked;
+      },
+    }));
+    this.#valuesView = this.#top.add(new ElementView('div', 'muigui-pop-down-values'));
+    this.#bottom = this.add(new ElementView('div', 'muigui-pop-down-bottom'));
+    this.setOptions(options);
+  }
+  updateDisplay() {
+    super.updateDisplay();
+    const {open} = this.#options;
+    this.domElement.children[1].classList.toggle('muigui-open', open);
+    this.domElement.children[1].classList.toggle('muigui-closed', !open);
+  }
+  setOptions(options) {
+    copyExistingProperties(this.#options, options);
+    super.setOptions(options);
+    this.updateDisplay();
+  }
+  addTop(view) {
+    return this.#valuesView.add(view);
+  }
+  addBottom(view) {
+    return this.#bottom.add(view);
+  }
+}
+
+class ColorChooser extends PopDownController {
+  constructor(object, property) {
+    super(object, property, 'muigui-color-chooser');
+    this.addTop(new TextView(this));
+    this.addBottom(new ColorChooserView(this));
+    this.updateDisplay();
+  }
+}
+
+function noop() {
+}
+
+const keyDirections = {
+  ArrowLeft: [-1, 0],
+  ArrowRight: [1, 0],
+  ArrowUp: [0, -1],
+  ArrowDown: [0, 1],
+};
+
+// This probably needs to be global
+function addKeyboardEvents(elem, {onDown = noop, onUp = noop}) {
+  const keyDown = function(event) {
+    const mult = event.shiftKey ? 10 : 1;
+    const [dx, dy] = (keyDirections[event.key] || [0, 0]).map(v => v * mult);
+    const fn = event.type === 'keydown' ? onDown : onUp;
+    fn({
+      type: event.type.substring(3),
+      dx,
+      dy,
+      event,
+    });
+  };
+
+  elem.addEventListener('keydown', keyDown);
+  elem.addEventListener('keyup', keyDown);
+
+  return function() {
+    elem.removeEventListener('keydown', keyDown);
+    elem.removeEventListener('keyup', keyDown);
+  };
+}
+
+function assert(truthy, msg = '') {
+  if (!truthy) {
+    throw new Error(msg);
+  }
+}
+
+function getEllipsePointForAngle(cx, cy, rx, ry, phi, theta) {
+  const m = Math.abs(rx) * Math.cos(theta);
+  const n = Math.abs(ry) * Math.sin(theta);
+
+  return [
+    cx + Math.cos(phi) * m - Math.sin(phi) * n,
+    cy + Math.sin(phi) * m + Math.cos(phi) * n,
+  ];
+}
+
+function getEndpointParameters(cx, cy, rx, ry, phi, theta, dTheta) {
+  const [x1, y1] = getEllipsePointForAngle(cx, cy, rx, ry, phi, theta);
+  const [x2, y2] = getEllipsePointForAngle(cx, cy, rx, ry, phi, theta + dTheta);
+
+  const fa = Math.abs(dTheta) > Math.PI ? 1 : 0;
+  const fs = dTheta > 0 ? 1 : 0;
+
+  return { x1, y1, x2, y2, fa, fs };
+}
+
+function arc(cx, cy, r, start, end) {
+  assert(Math.abs(start - end) <= Math.PI * 2);
+  assert(start >= -Math.PI && start <= Math.PI * 2);
+  assert(start <= end);
+  assert(end >= -Math.PI && end <= Math.PI * 4);
+
+  const { x1, y1, x2, y2, fa, fs } = getEndpointParameters(cx, cy, r, r, 0, start, end - start);
+  return Math.abs(Math.abs(start - end) - Math.PI * 2) > Number.EPSILON
+     ? `M${cx} ${cy} L${x1} ${y1} A ${r} ${r} 0 ${fa} ${fs} ${x2} ${y2} L${cx} ${cy}`
+     : `M${x1} ${y1} L${x1} ${y1} A ${r} ${r} 0 ${fa} ${fs} ${x2} ${y2}`;
+}
+
+const svg$2 = `
+<svg tabindex="0" viewBox="-32 -32 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <!--<circle id="muigui-outline" cx="0" cy="0" r="28.871" class="muigui-direction-circle"/>-->
+    <path id="muigui-range" class="muigui-direction-range" />
+    <g id="muigui-arrow">
+        <g transform="translate(-32, -32)">
+          <path d="M31.029,33.883c-1.058,-0.007 -1.916,-0.868 -1.916,-1.928c0,-1.065 0.864,-1.929 1.929,-1.929c0.204,0 0.401,0.032 0.586,0.091l14.729,-0l0,-2.585l12.166,4.468l-12.166,4.468l0,-2.585l-15.315,0l-0.013,0Z" class="muigui-direction-arrow"/>
+        </g>
+    </g>
+</svg>
+`;
+
+const twoPiMod = v => euclideanModulo$1(v + Math.PI, Math.PI * 2) - Math.PI;
+
+class DirectionView extends EditView {
+  #arrowElem;
+  #rangeElem;
+  #lastV;
+  #wrap;
+  #options = {
+    step: 1,
+    min: -180,
+    max:  180,
+
+    /*
+       --------
+      /  -π/2  \
+     /     |    \
+    |<- -π *     |
+    |      * 0 ->|     zero is down the positive X axis
+    |<- +π *     |
+     \     |    /
+      \   π/2  /
+       --------
+    */
+    dirMin: -Math.PI,
+    dirMax:  Math.PI,
+    //dirMin: Math.PI * 0.5,
+    //dirMax: Math.PI * 2.5,
+    //dirMin: -Math.PI * 0.75,  // test 10:30 to 7:30
+    //dirMax:  Math.PI * 0.75,
+    //dirMin:  Math.PI * 0.75,   // test 7:30 to 10:30
+    //dirMax: -Math.PI * 0.75,
+    //dirMin: -Math.PI * 0.75,  // test 10:30 to 1:30
+    //dirMax: -Math.PI * 0.25,
+    //dirMin:  Math.PI * 0.25,   // test 4:30 to 7:30
+    //dirMax:  Math.PI * 0.75,
+    //dirMin:  Math.PI * 0.75,   // test 4:30 to 7:30
+    //dirMax:  Math.PI * 0.25,
+    wrap: undefined,
+    converters: identity,
+  };
+
+  constructor(setter, options = {}) {
+    const wheelHelper = createWheelHelper();
+    super(createElem('div', {
+      className: 'muigui-direction muigui-no-scroll',
+      innerHTML: svg$2,
+      onWheel: e => {
+        e.preventDefault();
+        const {min, max, step} = this.#options;
+        const delta = wheelHelper(e, step);
+        let tempV = this.#lastV + delta;
+        if (this.#wrap) {
+          tempV = euclideanModulo$1(tempV - min, max - min) + min;
+        }
+        const newV = clamp$1(stepify(tempV, v => v, step), min, max);
+        setter.setValue(newV);
+      },
+    }));
+    const handleTouch = (e) => {
+      const {min, max, step, dirMin, dirMax} = this.#options;
+      const nx = e.nx * 2 - 1;
+      const ny = e.ny * 2 - 1;
+      const a = Math.atan2(ny, nx);
+
+      const center = (dirMin + dirMax) / 2;
+
+      const centeredAngle = twoPiMod(a - center);
+      const centeredStart = twoPiMod(dirMin - center);
+      const diff = dirMax - dirMin;
+
+      const n = clamp$1((centeredAngle - centeredStart) / (diff), 0, 1);
+      const newV = stepify(min + (max - min) * n, v => v, step);
+      setter.setValue(newV);
+    };
+    addTouchEvents(this.domElement, {
+      onDown: handleTouch,
+      onMove: handleTouch,
+    });
+    addKeyboardEvents(this.domElement, {
+      onDown: (e) => {
+        const {min, max, step} = this.#options;
+        const newV = clamp$1(stepify(this.#lastV + e.dx * step, v => v, step), min, max);
+        setter.setValue(newV);
+      },
+    });
+    this.#arrowElem = this.$('#muigui-arrow');
+    this.#rangeElem = this.$('#muigui-range');
+    this.setOptions(options);
+  }
+  updateDisplay(v) {
+    this.#lastV = v;
+    const {min, max} = this.#options;
+    const n = (v - min) / (max - min);
+    const angle = lerp$1(this.#options.dirMin, this.#options.dirMax, n);
+    this.#arrowElem.style.transform = `rotate(${angle}rad)`;
+  }
+  setOptions(options) {
+    copyExistingProperties(this.#options, options);
+    const {dirMin, dirMax, wrap} = this.#options;
+    this.#wrap = wrap !== undefined
+       ? wrap
+       : Math.abs(dirMin - dirMax) >= Math.PI * 2 - Number.EPSILON;
+    const [min, max] = dirMin < dirMax ? [dirMin, dirMax] : [dirMax , dirMin];
+    this.#rangeElem.setAttribute('d', arc(0, 0, 28.87, min, max));
+  }
+}
+
+// deg2rad
+// where is 0
+// range (0, 360), (-180, +180), (0,0)   Really this is a range
+
+class Direction extends PopDownController {
+  #options;
+  constructor(object, property, options) {
+    super(object, property, 'muigui-direction');
+this.#options = options; // FIX
+    this.addTop(new NumberView(this,
+identity));
+    this.addBottom(new DirectionView(this, options));
+    this.updateDisplay();
+  }
+}
+
+class RadioGridView extends EditView {
+  #values;
+
+  constructor(setter, keyValues, cols = 3) {
+    const values = [];
+    const name = makeId();
+    super(createElem('div', {}, keyValues.map(([key, value], ndx) => {
+      values.push(value);
+      return createElem('label', {}, [
+        createElem('input', {
+          type: 'radio',
+          name,
+          value: ndx,
+          onChange: function() {
+            if (this.checked) {
+              setter.setFinalValue(that.#values[this.value]);
+            }
+          },
+        }),
+        createElem('button', {
+          type: 'button',
+          textContent: key,
+          onClick: function() {
+            this.previousElementSibling.click();
+          },
+        }),
+      ]);
+    })));
+    const that = this;
+    this.#values = values;
+    this.cols(cols);
+  }
+  updateDisplay(v) {
+    const ndx = this.#values.indexOf(v);
+    for (let i = 0; i < this.domElement.children.length; ++i) {
+      this.domElement.children[i].children[0].checked = i === ndx;
+    }
+  }
+  cols(cols) {
+    this.domElement.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  }
+}
+
+class RadioGrid extends ValueController {
+  constructor(object, property, options) {
+    super(object, property, 'muigui-radio-grid');
+    const valueIsNumber = typeof this.getValue() === 'number';
+    const {
+      keyValues: keyValuesInput,
+      cols = 3,
+    } = options;
+    const keyValues = convertToKeyValues(keyValuesInput, valueIsNumber);
+    this.add(new RadioGridView(this, keyValues, cols));
+    this.updateDisplay();
+  }
+}
+
+function onResize(elem, callback) {
+  new ResizeObserver(() => {
+    callback({rect: elem.getBoundingClientRect(), elem});
+  }).observe(elem);
+}
+
+function onResizeSVGNoScale(elem, hAnchor, vAnchor, callback) {
+  onResize(elem, ({rect}) => {
+    const {width, height} = rect;
+    elem.setAttribute('viewBox', `-${width * hAnchor} -${height * vAnchor} ${width} ${height}`);
+    callback({elem, rect});
+  });
+}
+
+function onResizeCanvas(elem, callback) {
+  onResize(elem, ({rect}) => {
+    const {width, height} = rect;
+    elem.width = width;
+    elem.height = height;
+    callback({elem, rect});
+  });
+}
+
+const svg$1 = `
+<svg tabindex="0" viewBox="-32 -32 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+  <g id="muigui-orientation">
+    <g id="muigui-origin">
+      <g transform="translate(0, 4)">
+        <path id="muigui-ticks" class="muigui-ticks"/>
+        <path id="muigui-thicks" class="muigui-thicks"/>
+      </g>
+      <g transform="translate(0, 14)">
+        <g id="muigui-number-orientation">
+          <g id="muigui-numbers" transform="translate(0, -3)" class="muigui-svg-text"/>
+        </g>
+      </g>
+    </g>
+    <linearGradient id="muigui-bg-to-transparent">
+      <stop stop-color="var(--value-bg-color)" offset="0%"/>
+      <stop stop-color="var(--value-bg-color)" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+    <linearGradient id="muigui-transparent-to-bg">
+      <stop stop-color="var(--value-bg-color)" stop-opacity="0"  offset="0%"/>
+      <stop stop-color="var(--value-bg-color)" offset="100%"/>  
+    </linearGradient>
+    <!--<circle cx="0" cy="2" r="2" class="muigui-mark"/>-->
+    <!--<rect x="-1" y="0" width="2" height="10" class="muigui-mark"/>-->
+    <path d="M0 4L-2 0L2 0" class="muigui-mark"/>
+  </g>
+  <rect id="muigui-left-grad" x="0" y="0" width="20" height="20" fill="url(#muigui-bg-to-transparent)"/>
+  <rect id="muigui-right-grad" x="48" y="0" width="20" height="20" fill="url(#muigui-transparent-to-bg)"/>
+</svg>
+`;
+
+function createSVGTicks(start, end, step, min, max, height) {
+  const p = [];
+  if (start < min) {
+    start += stepify(min - start, v => v, step);
+  }
+  end = Math.min(end, max);
+  for (let i = start; i <= end; i += step) {
+    p.push(`M${i} 0 l0 ${height}`);
+  }
+  return p.join(' ');
+}
+
+function createSVGNumbers(start, end, unitSize, unit, minusSize, min, max, labelFn) {
+  const texts = [];
+  if (start < min) {
+    start += stepify(min - start, v => v, unitSize);
+  }
+  end = Math.min(end, max);
+  const digits = Math.max(0, -Math.log10(unit));
+  const f = v => labelFn(v.toFixed(digits));
+  for (let i = start; i <= end; i += unitSize) {
+    texts.push(`<text text-anchor="middle" dominant-baseline="hanging" x="${i >= 0 ? i : (i - minusSize / 2) }" y="0">${f(i / unitSize * unit)}</text>`);
+  }
+  return texts.join('\n');
+}
+
+function computeSizeOfMinus(elem) {
+  const oldHTML = elem.innerHTML;
+  elem.innerHTML = '<text>- </text>';
+  const text = elem.querySelector('text');
+  const size = text.getComputedTextLength();
+  elem.innerHTML = oldHTML;
+  return size;
+}
+
+class SliderView extends EditView {
+  #svgElem;
+  #originElem;
+  #ticksElem;
+  #thicksElem;
+  #numbersElem;
+  #leftGradElem;
+  #rightGradElem;
+  #width;
+  #height;
+  #lastV;
+  #minusSize;
+  #options = {
+    min: -100,
+    max: 100,
+    step: 1,
+    unit: 10,
+    unitSize: 10,
+    ticksPerUnit: 5,
+    labelFn: v => v,
+    tickHeight: 1,
+    limits: true,
+    thicksColor: undefined,
+    orientation: undefined,
+  };
+
+  constructor(setter, options) {
+    const wheelHelper = createWheelHelper();
+    super(createElem('div', {
+      innerHTML: svg$1,
+      className: 'muigui-no-v-scroll',
+      onWheel: e => {
+        e.preventDefault();
+        const {min, max, step} = this.#options;
+        const delta = wheelHelper(e, step);
+        const newV = clamp$1(stepify(this.#lastV + delta, v => v, step), min, max);
+        setter.setValue(newV);
+      },
+    }));
+    this.#svgElem = this.$('svg');
+    this.#originElem = this.$('#muigui-origin');
+    this.#ticksElem = this.$('#muigui-ticks');
+    this.#thicksElem = this.$('#muigui-thicks');
+    this.#numbersElem = this.$('#muigui-numbers');
+    this.#leftGradElem = this.$('#muigui-left-grad');
+    this.#rightGradElem = this.$('#muigui-right-grad');
+    this.setOptions(options);
+    let startV;
+    addTouchEvents(this.domElement, {
+      onDown: () => {
+        startV = this.#lastV;
+      },
+      onMove: (e) => {
+        const {min, max, unitSize, unit, step} = this.#options;
+        const newV = clamp$1(stepify(startV - e.dx / unitSize * unit, v => v, step), min, max);
+        setter.setValue(newV);
+      },
+    });
+    addKeyboardEvents(this.domElement, {
+      onDown: (e) => {
+        const {min, max, step} = this.#options;
+        const newV = clamp$1(stepify(this.#lastV + e.dx * step, v => v, step), min, max);
+        setter.setValue(newV);
+      },
+    });
+    onResizeSVGNoScale(this.#svgElem, 0.5, 0, ({rect: {width}}) => {
+      this.#leftGradElem.setAttribute('x', -width / 2);
+      this.#rightGradElem.setAttribute('x', width / 2 - 20);
+      this.#minusSize = computeSizeOfMinus(this.#numbersElem);
+      this.#width = width;
+      this.#updateSlider();
+    });
+  }
+  // |--------V--------|
+  // . . | . . . | . . . |
+  //
+  #updateSlider() {
+    // There's no size if ResizeObserver has not fired yet.
+    if (!this.#width || this.#lastV === undefined) {
+      return;
+    }
+    const {
+      labelFn,
+      limits,
+      min,
+      max,
+      orientation,
+      tickHeight,
+      ticksPerUnit,
+      unit,
+      unitSize,
+      thicksColor,
+    } = this.#options;
+    const unitsAcross = Math.ceil(this.#width / unitSize);
+    const center = this.#lastV;
+    const centerUnitSpace = center / unit;
+    const startUnitSpace = Math.round(centerUnitSpace - unitsAcross);
+    const endUnitSpace = startUnitSpace + unitsAcross * 2;
+    const start = startUnitSpace * unitSize;
+    const end = endUnitSpace * unitSize;
+    const minUnitSpace = limits ? min * unitSize / unit : start;
+    const maxUnitSpace = limits ? max * unitSize / unit : end;
+    const height = labelFn(1) === '' ? 10 : 5;
+    if (ticksPerUnit > 1) {
+      this.#ticksElem.setAttribute('d', createSVGTicks(start, end, unitSize / ticksPerUnit, minUnitSpace, maxUnitSpace, height * tickHeight));
+    }
+    this.#thicksElem.style.stroke =  thicksColor; //setAttribute('stroke', thicksColor);
+    this.#thicksElem.setAttribute('d', createSVGTicks(start, end, unitSize, minUnitSpace, maxUnitSpace, height));
+    this.#numbersElem.innerHTML = createSVGNumbers(start, end, unitSize, unit, this.#minusSize, minUnitSpace, maxUnitSpace, labelFn);
+    this.#originElem.setAttribute('transform', `translate(${-this.#lastV * unitSize / unit} 0)`);
+    this.#svgElem.classList.toggle('muigui-slider-up', orientation === 'up');
+  }
+  updateDisplay(v) {
+    this.#lastV = v;
+    this.#updateSlider();
+  }
+  setOptions(options) {
+    copyExistingProperties(this.#options, options);
+    return this;
+  }
+}
+
+class Slider extends ValueController {
+  constructor(object, property, options = {}) {
+    super(object, property, 'muigui-slider');
+    this.add(new SliderView(this, options));
+    this.add(new NumberView(this, options));
+    this.updateDisplay();
+  }
+}
+
+class GridView extends View {
+  // FIX: should this be 'options'?
+  constructor(cols) {
+    super(createElem('div', {
+      className: 'muigui-grid',
+    }));
+    this.cols(cols);
+  }
+  cols(cols) {
+    this.domElement.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  }
+}
+
+const svg = `
+<svg tabindex="0" viewBox="-32 -32 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+  <path d="m-3200,0L3200,0M0,-3200L0,3200" class="muigui-vec2-axis"/>
+  <path id="muigui-arrow" d="" class="muigui-vec2-line"/>
+  <g id="muigui-circle" transform="translate(0, 0)">
+    <circle r="3" class="muigui-vec2-axis"/>
+  </g>
+</svg>
+`;
+
+class Vec2View extends EditView {
+  #svgElem;
+  #arrowElem;
+  #circleElem;
+  #lastV = [];
+
+  constructor(setter) {
+    super(createElem('div', {
+      innerHTML: svg,
+      className: 'muigui-no-scroll',
+    }));
+    const onTouch = (e) => {
+      const {width, height} = this.#svgElem.getBoundingClientRect();
+      const nx = e.nx * 2 - 1;
+      const ny = e.ny * 2 - 1;
+      setter.setValue([nx * width * 0.5, ny * height * 0.5]);
+    };
+    addTouchEvents(this.domElement, {
+      onDown: onTouch,
+      onMove: onTouch,
+    });
+    this.#svgElem = this.$('svg');
+    this.#arrowElem = this.$('#muigui-arrow');
+    this.#circleElem = this.$('#muigui-circle');
+    onResizeSVGNoScale(this.#svgElem, 0.5, 0.5, () => this.#updateDisplayImpl);
+  }
+  #updateDisplayImpl() {
+    const [x, y] = this.#lastV;
+    this.#arrowElem.setAttribute('d', `M0,0L${x},${y}`);
+    this.#circleElem.setAttribute('transform', `translate(${x}, ${y})`);
+  }
+  updateDisplay(v) {
+    this.#lastV[0] = v[0];
+    this.#lastV[1] = v[1];
+    this.#updateDisplayImpl();
+  }
+}
+
+// TODO: zoom with wheel and pinch?
+// TODO: grid?
+// // options
+//   scale:
+//   range: number (both x and y + /)
+//   range: array (min, max)
+//   xRange:
+// deg/rad/turn
+
+class Vec2 extends PopDownController {
+  constructor(object, property) {
+    super(object, property, 'muigui-vec2');
+
+    const makeSetter = (ndx) => {
+      return {
+        setValue: (v) => {
+          const newV = this.getValue();
+          newV[ndx] = v;
+          this.setValue(newV);
+        },
+        setFinalValue: (v) => {
+          const newV = this.getValue();
+          newV[ndx] = v;
+          this.setFinalValue(newV);
+        },
+      };
+    };
+
+    this.addTop(new NumberView(makeSetter(0), {
+      converters: {
+        to: v => v[0],
+        from: strToNumber.from,
+      },
+    }));
+    this.addTop(new NumberView(makeSetter(1), {
+      converters: {
+        to: v => v[1],
+        from: strToNumber.from,
+      },
+    }));
+    this.addBottom(new Vec2View(this));
+    this.updateDisplay();
+  }
+}
+
+export { ColorChooser, Direction, RadioGrid, Range, Select, Slider, TextNumber, Vec2, GUI as default };

@@ -373,7 +373,7 @@ async function main() {
     pass.setVertexBuffer(0, vertexBuffer);
     pass.setIndexBuffer(indexBuffer, 'uint32');
 
-    mat3.projection(canvas.width, canvas.height, matrixValue);
+    mat3.projection(canvas.clientWidth, canvas.clientHeight, matrixValue);
     mat3.translate(matrixValue, settings.translation, matrixValue);
     mat3.rotate(matrixValue, settings.rotation, matrixValue);
     mat3.scale(matrixValue, settings.scale, matrixValue);
