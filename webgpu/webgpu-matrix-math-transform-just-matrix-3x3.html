@@ -316,7 +316,7 @@ async function main() {
     pass.setVertexBuffer(0, vertexBuffer);
     pass.setIndexBuffer(indexBuffer, 'uint32');
 
-    const projectionMatrix = mat3.projection(canvas.width, canvas.height);
+    const projectionMatrix = mat3.projection(canvas.clientWidth, canvas.clientHeight);
     const translationMatrix = mat3.translation(settings.translation);
     const rotationMatrix = mat3.rotation(settings.rotation);
     const scaleMatrix = mat3.scaling(settings.scale);
