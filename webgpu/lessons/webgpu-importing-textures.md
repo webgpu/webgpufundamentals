@@ -749,7 +749,7 @@ Then let's write a function to wait for it to be clicked and hide it.
   const texture = createTextureFromSource(device, video, {mips: true});
 ```
 
-Any with that we should get video in a texture
+And with that we should get video in a texture
 
 {{{example url="../webgpu-simple-textured-quad-import-video.html"}}}
 
