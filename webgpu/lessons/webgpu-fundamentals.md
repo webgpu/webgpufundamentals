@@ -77,7 +77,7 @@ pass to
 or
 [`array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map).
 The functions you run on the GPU are just functions, just like JavaScript
-functions. The part that different is they run on the GPU and so to run them you
+functions. The part that differs is they run on the GPU, and so to run them you
 need to copy all the data you want them to access to the GPU in the form of
 buffers and textures and they only output to those buffers and textures. 
 You need to specify in the functions which bindings or locations the function
