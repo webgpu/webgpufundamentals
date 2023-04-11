@@ -260,11 +260,10 @@ cases, read on!</p>
 <p>It’s hard to decide where to start. At certain level, WebGPU is a very simple
 system. All it does is run 3 types of functions on the GPU. Vertex Shaders,
 Fragment Shaders, Compute Shaders.</p>
-<p>A Vertex Shader computes vertices. The shader returns vertex positions. For
-every 3 it returns a triangle is drawn between those 3 positions <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<p>A Vertex Shader computes vertices. The shader returns vertex positions. For every group of 3 vertices, it returns a triangle drawn between those 3 positions <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
 <p>A Fragment Shader computes colors <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. When a triangle is drawn, for each pixel
-to be drawn the GPU calls your fragment shader. The fragment shader returns a
-color</p>
+to be drawn the GPU calls your fragment shader. The fragment shader then returns a
+color.</p>
 <p>A Compute Shader is more generic. It’s effectively just a function you call and
 say “execute this function N times”. The GPU passes the iteration number each
 time it calls your function so you can use that number to do something unique on
@@ -273,9 +272,9 @@ each iteration.</p>
 pass to
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach"><code class="notranslate" translate="no">array.forEach</code></a>
 or
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">`array.map</a>.
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map"><code class="notranslate" translate="no">array.map</code></a>.
 The functions you run on the GPU are just functions, just like JavaScript
-functions. The part that different is they run on the GPU and so to run them you
+functions. The part that differs is they run on the GPU, and so to run them you
 need to copy all the data you want them to access to the GPU in the form of
 buffers and textures and they only output to those buffers and textures.
 You need to specify in the functions which bindings or locations the function
