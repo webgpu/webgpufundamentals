@@ -6,6 +6,7 @@ Here are some other webgpu resources
 
 # Articles
 
+* [Tour of WGSL](https://google.github.io/tour-of-wgsl/)
 * [Efficiently rendering glTF models](https://toji.github.io/webgpu-gltf-case-study/)
 * [WebGPU Best Practices](https://toji.dev/webgpu-best-practices/)
 * [Rosetta](https://toji.github.io/rosetta/) - compare shaders in multiple shader languages
@@ -13,6 +14,7 @@ Here are some other webgpu resources
 # Examples
 
 * [WebGPU Samples](https://webgpu.github.io/webgpu-samples/)
+* [WebGPU Deferred Rendering](https://github.com/toji/burrow)
 * [WebGPU Shadow Playground](https://toji.github.io/webgpu-shadow-playground/)
 * [WebGPU Metaballs](https://toji.github.io/webgpu-metaballs/)
 * [Shadertoy example in WebGPU](https://jsgist.org/?src=a17b03b88c86c08ac621298dae50e30b)
