@@ -149,7 +149,7 @@ function fixJSForCodeSite(js) {
   }
 
   let found = false;
-  js = js.replace(/^( +)(img|image)(\.src = )(.*?);.*?$/mg, function(match, indent, variable, code, url) {
+  js = js.replace(/^( +)(img|image|video)(\.src = )(.*?);.*?$/mg, function(match, indent, variable, code, url) {
     found = true;
     return `${indent}requestCORSIfNotSameOrigin(${variable}, ${url})
 ${indent}${variable}${code}${url};`;
