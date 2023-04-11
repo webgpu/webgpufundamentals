@@ -48,8 +48,7 @@ It's hard to decide where to start. At certain level, WebGPU is a very simple
 system. All it does is run 3 types of functions on the GPU. Vertex Shaders,
 Fragment Shaders, Compute Shaders.
 
-A Vertex Shader computes vertices. The shader returns vertex positions. For
-every 3 it returns a triangle is drawn between those 3 positions [^primitives]
+A Vertex Shader computes vertices. The shader returns vertex positions. For every group of 3 vertices, it returns a triangle drawn between those 3 positions [^primitives]
 
 [^primitives]: There are actually 5 modes.
 
@@ -60,8 +59,8 @@ every 3 it returns a triangle is drawn between those 3 positions [^primitives]
     * `'triangle-strip'`: for each new position, draw a triangle from it and the last 2 positions
 
 A Fragment Shader computes colors [^fragment-output]. When a triangle is drawn, for each pixel
-to be drawn the GPU calls your fragment shader. The fragment shader returns a
-color
+to be drawn the GPU calls your fragment shader. The fragment shader then returns a
+color.
 
 [^fragment-output]: Fragment shaders indirectly write data to textures. That data does not
 have to be colors. For example, it's common to output the direction of the surface that
@@ -76,9 +75,9 @@ If you squint hard, you can think of these functions similar to the functions to
 pass to
 [`array.forEach`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
 or
-[`array.map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map).
+[`array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map).
 The functions you run on the GPU are just functions, just like JavaScript
-functions. The part that different is they run on the GPU and so to run them you
+functions. The part that differs is they run on the GPU, and so to run them you
 need to copy all the data you want them to access to the GPU in the form of
 buffers and textures and they only output to those buffers and textures. 
 You need to specify in the functions which bindings or locations the function
