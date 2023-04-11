@@ -48,7 +48,7 @@ It's hard to decide where to start. At certain level, WebGPU is a very simple
 system. All it does is run 3 types of functions on the GPU. Vertex Shaders,
 Fragment Shaders, Compute Shaders.
 
-A Vertex Shader computes the positions of vertices. Once calculated, the shader returns the positions of each vertex. Every group of three vertices returned by the shader form a triangle that is subsequently drawn in the graphics pipeline. [^primitives]
+A Vertex Shader computes vertices. The shader returns vertex positions. For very group of 3 vertices, it returns a triangle drawn between those 3 positions [^primitives]
 
 [^primitives]: There are actually 5 modes.
 
