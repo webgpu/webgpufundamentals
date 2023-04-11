@@ -59,8 +59,8 @@ A Vertex Shader computes the positions of vertices. Once calculated, the shader 
     * `'triangle-strip'`: for each new position, draw a triangle from it and the last 2 positions
 
 A Fragment Shader computes colors [^fragment-output]. When a triangle is drawn, for each pixel
-to be drawn the GPU calls your fragment shader. The fragment shader returns a
-color
+to be drawn the GPU calls your fragment shader. The fragment shader then returns a
+color.
 
 [^fragment-output]: Fragment shaders indirectly write data to textures. That data does not
 have to be colors. For example, it's common to output the direction of the surface that
