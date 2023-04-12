@@ -17,9 +17,9 @@ and more will be used extensively.
 
 WebGPU is an API that lets you do 2 basic things.
 
-1. [Draw triangles/points/lines to textures](#drawing-triangles-to-textures)
+1. [Draw triangles/points/lines to textures](#a-drawing-triangles-to-textures)
 
-2. [Run computations on the GPU](#run-computations-on-the-gpu)
+2. [Run computations on the GPU](#a-run-computations-on-the-gpu)
 
 That is it!
 
@@ -85,7 +85,7 @@ will look for the data. And, back in JavaScript, you need to bind the buffers an
 textures holding your data to the bindings or locations. Once you've done that you tell the GPU to execute the
 function.
 
-<a id="webgpu-draw-diagram"></a>Maybe a picture will help. Here is a *simplified* diagram of WebGPU setup to draw triangles
+<a id="a-draw-diagram"></a>Maybe a picture will help. Here is a *simplified* diagram of WebGPU setup to draw triangles
 by using a vertex shader and a fragment shader
 
 <div class="webgpu_center"><img src="resources/webgpu-draw-diagram.svg" style="width: 960px;"></div>
@@ -176,9 +176,9 @@ compute shader.
 I hope that gave some mental image of the state you need to set up. Like
 mentioned above, WebGPU has 2 basic things it can do
 
-1. [Draw triangles/points/lines to textures](#drawing-triangles-to-textures)
+1. [Draw triangles/points/lines to textures](#a-drawing-triangles-to-textures)
 
-2. [Run computations on the GPU](#run-computations-on-the-gpu)
+2. [Run computations on the GPU](#a-run-computations-on-the-gpu)
 
 Following we'll go over a small example of doing each of those things. Other
 articles will show the various ways of providing data to these things. Note that
@@ -186,7 +186,7 @@ this will be very basic. We need to build up a foundation of these basics. Later
 we'll show how to use them to do things people typically do with GPUs like 2D
 graphics, 3D graphics, etc...
 
-# Drawing triangles to textures
+# <a id="a-drawng-triangles-to-textures"></a>Drawing triangles to textures
 
 WebGPU can draw triangles to [textures](webgpu-textures.html). For the purpose
 if this article, a texture is a 2d rectangle of pixels. The `<canvas>` element
@@ -535,7 +535,7 @@ points to take away from the code above,
 * WebGPU draws to textures (we happened to get a texture from the canvas)
 * WebGPU works by encoding commands and then submitting them.
 
-# Run computations on the GPU
+# <a id="a-run-computations-on-the-gpu"></a>Run computations on the GPU
 
 Let's write a basic example for doing some computation on the GPU
 

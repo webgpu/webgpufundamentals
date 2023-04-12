@@ -247,7 +247,7 @@ implemented [using textures](webgpu-textures.html). In fact you'll see an issue
 if you size the window. Because the checkerboard is based on the pixel coordinates
 of the canvas it's relative to the canvas, not relative to the triangle.
 
-## Interpolation Settings
+## <a id="a-interpolate"></a>Interpolation Settings
 
 We saw above that inter-stage variables, the outputs from a vertex shader are
 interpolated when passed to the fragment shader. There are 2 sets of settings

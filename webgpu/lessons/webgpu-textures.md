@@ -306,7 +306,7 @@ To fix this there are 2 common solutions.
    Flipping the data is common enough that there are even options when loading
    textures from images, videos, and canvases to flip the data for you.
 
-## magFilter
+## <a id="a-mag-filter"></a>magFilter
 
 In the example above we use a sampler with its default settings. Since we are
 drawing the 5x7 texture larger than it's original 5x7 texels the sampler uses
@@ -429,7 +429,7 @@ colors as it's asked to provide a color for each pixel being rendered. Notice
 how with the address modes set to 'repeat' we can see WebGPU is "sampling" from
 the texels on the opposite side of the texture.
 
-## minFilter
+## <a id="a-min-filter"></a>minFilter
 
 There is also a setting, `minFilter`, which does similar math to `magFilter`
 for when the texture is drawn smaller than its size. When set to 'linear'
@@ -853,7 +853,7 @@ changes. There's a pretty harsh transition between scale 2.4 and scale 2.5
 where the GPU switches between mip level 0 (the largest mip level) and
 mip level 1 (the middle size). What to do about that?
 
-## mipmapFilter
+## <a id="a-mipmap-filter"></a>mipmapFilter
 
 Just like we have a `magFilter` and a `minFilter` both of which can be `nearest`
 or `linear`, there is also a `mipmapFilter` setting which can also be `nearest`

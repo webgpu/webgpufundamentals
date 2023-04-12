@@ -142,7 +142,7 @@ Above we're setting the color to green. The offset will move the triangle
 to the left 1/4th of the canvas and down 1/8th. (remember, clip space goes
 from -1 to 1 which is 2 units wide so 0.25 is 1/8 of 2). 
 
-Next, [as the diagram showed in the first article](webgpu-fundamentals.html#webgpu-draw-diagram),
+Next, [as the diagram showed in the first article](webgpu-fundamentals.html#a-draw-diagram),
 to tell a shader about our buffer we need to create a bind group
 and bind the buffer to the same `@binding(?)` we set in our shader.
 

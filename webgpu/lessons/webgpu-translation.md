@@ -22,7 +22,7 @@ them easiest to understand by reading them in order.
 9. [Scene Graphs](webgpu-scene-graphs.html)
 
 We are going to start code similar to the examples from [the article on vertex-buffers](webgpu-vertex-buffers.html)
-but instead of a bunch of circles we're going to draw a single F and we'll use an [index buffer](webgpu-vertex-buffers.html#index-buffers) to keep the data
+but instead of a bunch of circles we're going to draw a single F and we'll use an [index buffer](webgpu-vertex-buffers.html#a-index-buffers) to keep the data
 smaller.
 
 Let's work in pixel space instead of clip space, just like the [Canvas 2D API](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
@@ -55,7 +55,7 @@ function createFVertices() {
   ]);
 
   const indexData = new Uint32Array([
-    0,  1,  2,    3,  1,  2,  // left column
+    0,  1,  2,    2,  1,  3,  // left column
     4,  5,  6,    6,  5,  7,  // top run
     8,  9, 10,   10,  9, 11,  // middle run
   ]);

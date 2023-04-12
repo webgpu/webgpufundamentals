@@ -1099,15 +1099,9 @@ const mat3 = {
 -      0, 1, 0, 0,
 -      tx, ty, 1, 0,
 -    ];
-+    dst[0] = 1,
-+    dst[1] = 0,
-+    dst[2] = 0,
-+    dst[4] = 0,
-+    dst[5] = 1,
-+    dst[6] = 0;
-+    dst[8] = tx;
-+    dst[9] = ty;
-+    dst[10] = 1;
++    dst[0] = 1;   dst[1] = 0;   dst[ 2] = 0;
++    dst[4] = 0;   dst[5] = 1;   dst[ 6] = 0;
++    dst[8] = tx;  dst[9] = ty;  dst[10] = 1;
 +    return dst;
   },
 -  translate(m, translation) {
@@ -1134,7 +1128,7 @@ to this
 +    mat3.scale(matrixValue, settings.scale, matrixValue);
 ```
 
-We no longer need to copy the matrix into `matrixValue` as we
+We no longer need to copy the matrix into `matrixValue`. Instead we
 can operate directly on it.
 
 {{{example url="../webgpu-matrix-math-transform-trs.html"}}}

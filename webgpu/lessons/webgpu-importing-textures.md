@@ -10,7 +10,7 @@ put data in the texture by calling `device.queue.writeTexture`. There's another 
 on `device.queue` called `device.queue.copyExternalImageToTexture` that let's us copy
 an image into a texture.
 
-It can take an `ImageBitmap` so let's take [the magFilter example from the previous article](webgpu-textures.html#magFilter) and change it to import a few images.
+It can take an `ImageBitmap` so let's take [the magFilter example from the previous article](webgpu-textures.html#a-mag-filter) and change it to import a few images.
 
 First we need some code to get an `ImageBitmap` from an image
 
@@ -93,7 +93,7 @@ And that works!
 
 ## Generating mips on the GPU
 
-In [the previous article we also generated a mipmap](webgpu-textures.html#mipmapFilter)
+In [the previous article we also generated a mipmap](webgpu-textures.html#a-mipmap-filter)
 but in that case we had easy access to the image data. When importing an image, we
 could draw that image into a 2D canvas, the call `getImageData` to get the data, and
 finally generate mips and upload. That would be pretty slow. It would also potentially
@@ -103,7 +103,7 @@ When we generated mip levels we did a bilinear interpolation which is exactly wh
 the GPU does with `minFilter: linear`. We can use that feature to generate mip levels
 on the GPU
 
-Let's modify the [minmapFilter example from the previous article](webgpu-textures.html#mipmapFilter)
+Let's modify the [minmapFilter example from the previous article](webgpu-textures.html#a-mipmap-filter)
 to load images and generate mips using the GPU
 
 First, let's change the code that creates the texture to create mip levels. We need to know how many
@@ -426,7 +426,7 @@ call the previous function to create a texture and fill it with the contents of 
   }
 ```
 
-With those setup, the only major change to the [mipmapFilter sample](webgpu-textures.html#mipmapFilter)
+With those setup, the only major change to the [mipmapFilter sample](webgpu-textures.html#a-mipmap-filter)
 is this
 
 ```js

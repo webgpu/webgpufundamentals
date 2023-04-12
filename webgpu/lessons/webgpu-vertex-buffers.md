@@ -497,7 +497,7 @@ one reason you might want to separate vertex data into 2 buffers is if
 some of the vertex data was static and other vertex data was updated
 often.
 
-## Index Buffers
+## <a id="a-index-buffers"></a>Index Buffers
 
 One last thing to cover here are index buffers. Index buffers describe
 the order to process and use the vertices.

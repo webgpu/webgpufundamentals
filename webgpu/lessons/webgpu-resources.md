@@ -10,6 +10,7 @@ Here are some other webgpu resources
 * [Efficiently rendering glTF models](https://toji.github.io/webgpu-gltf-case-study/)
 * [WebGPU Best Practices](https://toji.dev/webgpu-best-practices/)
 * [Rosetta](https://toji.github.io/rosetta/) - compare shaders in multiple shader languages
+* [3D Graphics Beginner Tutorials and Projects](https://shrekshao.github.io/3d-graphics-beginner-projects/)
 
 # Examples
 
@@ -32,7 +33,7 @@ Here are some other webgpu resources
 
 ## Utilities
 
-* [webgpu-utils](https://github.com/greggman/webgpu-utils) - helps set uniform buffer data
+* [webgpu-utils](https://github.com/greggman/webgpu-utils) - helps set uniform buffer data and more
 
 
 
