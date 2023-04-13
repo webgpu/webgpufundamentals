@@ -226,7 +226,7 @@ In this article we’ll cover importing a texture from an image.</p>
 put data in the texture by calling <code class="notranslate" translate="no">device.queue.writeTexture</code>. There’s another function
 on <code class="notranslate" translate="no">device.queue</code> called <code class="notranslate" translate="no">device.queue.copyExternalImageToTexture</code> that let’s us copy
 an image into a texture.</p>
-<p>It can take an <a href="https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap"><code class="notranslate" translate="no">ImageBitmap</code></a> so let’s take <a href="webgpu-textures.html#magFilter">the magFilter example from the previous article</a> and change it to import a few images.</p>
+<p>It can take an <a href="https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap"><code class="notranslate" translate="no">ImageBitmap</code></a> so let’s take <a href="webgpu-textures.html#a-mag-filter">the magFilter example from the previous article</a> and change it to import a few images.</p>
 <p>First we need some code to get an <a href="https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap"><code class="notranslate" translate="no">ImageBitmap</code></a> from an image</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  async function loadImageBitmap(url) {
     const res = await fetch(url);
@@ -293,7 +293,7 @@ we can specify <code class="notranslate" translate="no">flipY: true</code> if we
 
 <p></p>
 <h2 id="generating-mips-on-the-gpu">Generating mips on the GPU</h2>
-<p>In <a href="webgpu-textures.html#mipmapFilter">the previous article we also generated a mipmap</a>
+<p>In <a href="webgpu-textures.html#a-mipmap-filter">the previous article we also generated a mipmap</a>
 but in that case we had easy access to the image data. When importing an image, we
 could draw that image into a 2D canvas, the call <code class="notranslate" translate="no">getImageData</code> to get the data, and
 finally generate mips and upload. That would be pretty slow. It would also potentially
@@ -301,7 +301,7 @@ be lossy since how canvas 2D renders is intentionally implementation dependant.<
 <p>When we generated mip levels we did a bilinear interpolation which is exactly what
 the GPU does with <code class="notranslate" translate="no">minFilter: linear</code>. We can use that feature to generate mip levels
 on the GPU</p>
-<p>Let’s modify the <a href="webgpu-textures.html#mipmapFilter">minmapFilter example from the previous article</a>
+<p>Let’s modify the <a href="webgpu-textures.html#a-mipmap-filter">minmapFilter example from the previous article</a>
 to load images and generate mips using the GPU</p>
 <p>First, let’s change the code that creates the texture to create mip levels. We need to know how many
 to create which we can calculate like this</p>
@@ -598,7 +598,7 @@ call the previous function to create a texture and fill it with the contents of 
     return createTextureFromSource(device, imgBitmap, options);
   }
 </pre>
-<p>With those setup, the only major change to the <a href="webgpu-textures.html#mipmapFilter">mipmapFilter sample</a>
+<p>With those setup, the only major change to the <a href="webgpu-textures.html#a-mipmap-filter">mipmapFilter sample</a>
 is this</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const textures = [
 -    createTextureWithMips(createBlendedMipmap(), 'blended'),

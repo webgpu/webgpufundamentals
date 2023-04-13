@@ -466,7 +466,7 @@ the top.</p>
 textures from images, videos, and canvases to flip the data for you.</p>
 </li>
 </ol>
-<h2 id="magfilter">magFilter</h2>
+<h2 id="magfilter"><a id="a-mag-filter"></a>magFilter</h2>
 <p>In the example above we use a sampler with its default settings. Since we are
 drawing the 5x7 texture larger than it’s original 5x7 texels the sampler uses
 what’s called the <code class="notranslate" translate="no">magFilter</code> or, the filter used when magnifying the texture.
@@ -568,7 +568,7 @@ shader calls <code class="notranslate" translate="no">textureSample</code> with 
 colors as it’s asked to provide a color for each pixel being rendered. Notice
 how with the address modes set to ‘repeat’ we can see WebGPU is “sampling” from
 the texels on the opposite side of the texture.</p>
-<h2 id="minfilter">minFilter</h2>
+<h2 id="minfilter"><a id="a-min-filter"></a>minFilter</h2>
 <p>There is also a setting, <code class="notranslate" translate="no">minFilter</code>, which does similar math to <code class="notranslate" translate="no">magFilter</code>
 for when the texture is drawn smaller than its size. When set to ‘linear’
 it also chooses 4 pixels and blends them following similar math to that above.</p>
@@ -955,7 +955,7 @@ gone.</p>
 changes. There’s a pretty harsh transition between scale 2.4 and scale 2.5
 where the GPU switches between mip level 0 (the largest mip level) and
 mip level 1 (the middle size). What to do about that?</p>
-<h2 id="mipmapfilter">mipmapFilter</h2>
+<h2 id="mipmapfilter"><a id="a-mipmap-filter"></a>mipmapFilter</h2>
 <p>Just like we have a <code class="notranslate" translate="no">magFilter</code> and a <code class="notranslate" translate="no">minFilter</code> both of which can be <code class="notranslate" translate="no">nearest</code>
 or <code class="notranslate" translate="no">linear</code>, there is also a <code class="notranslate" translate="no">mipmapFilter</code> setting which can also be <code class="notranslate" translate="no">nearest</code>
 or <code class="notranslate" translate="no">linear</code>.</p>
@@ -1373,7 +1373,7 @@ device then the formats <code class="notranslate" translate="no">r32float</code>
 other changes.</p>
 </li>
 </ul>
-<p>And here are the depth and stencil formats</p>
+<p><a id="a-depth-stencil-formats"></a>And here are the depth and stencil formats</p>
 <div class="webgpu_center data-table"><div data-diagram="depth-stencil-texture-formats"></div></div>
 <ul>
 <li>

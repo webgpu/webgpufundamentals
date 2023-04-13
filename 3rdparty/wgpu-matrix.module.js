@@ -1,4 +1,4 @@
-/* wgpu-matrix@1.0.0, license MIT */
+/* wgpu-matrix@1.1.0, license MIT */
 var arrayLike = /*#__PURE__*/Object.freeze({
     __proto__: null
 });
@@ -886,6 +886,28 @@ function create$3(v0, v1, v2, v3, v4, v5, v6, v7, v8) {
     return dst;
 }
 /**
+ * Creates a Mat3 from the upper left 3x3 part of a Mat4
+ * @param m4 - source matrix
+ * @param dst - matrix to hold result. If not passed a new one is created.
+ * @returns Mat3 made from m4
+ */
+function fromMat4(m4, dst) {
+    dst = dst || newMat3();
+    dst[0] = m4[0];
+    dst[1] = m4[1];
+    dst[2] = m4[2];
+    dst[3] = 0;
+    dst[4] = m4[4];
+    dst[5] = m4[5];
+    dst[6] = m4[6];
+    dst[7] = 0;
+    dst[8] = m4[8];
+    dst[9] = m4[9];
+    dst[10] = m4[10];
+    dst[11] = 0;
+    return dst;
+}
+/**
  * Negates a matrix.
  * @param m - The matrix.
  * @param dst - matrix to hold result. If not passed a new one is created.
@@ -1374,6 +1396,7 @@ var mat3Impl = /*#__PURE__*/Object.freeze({
     __proto__: null,
     setDefaultType: setDefaultType$4,
     create: create$3,
+    fromMat4: fromMat4,
     negate: negate$3,
     copy: copy$3,
     clone: clone$3,
@@ -2209,6 +2232,32 @@ function create$1(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v1
             }
         }
     }
+    return dst;
+}
+/**
+ * Creates a Mat4 from a Mat3
+ * @param m3 - source matrix
+ * @param dst - matrix to hold result. If not passed a new one is created.
+ * @returns Mat4 made from m3
+ */
+function fromMat3(m3, dst) {
+    dst = dst || new MatType(16);
+    dst[0] = m3[0];
+    dst[1] = m3[1];
+    dst[2] = m3[2];
+    dst[3] = 0;
+    dst[4] = m3[4];
+    dst[5] = m3[5];
+    dst[6] = m3[6];
+    dst[7] = 0;
+    dst[8] = m3[8];
+    dst[9] = m3[9];
+    dst[10] = m3[10];
+    dst[11] = 0;
+    dst[12] = 0;
+    dst[13] = 0;
+    dst[14] = 0;
+    dst[15] = 1;
     return dst;
 }
 /**
@@ -3350,6 +3399,7 @@ var mat4Impl = /*#__PURE__*/Object.freeze({
     __proto__: null,
     setDefaultType: setDefaultType$2,
     create: create$1,
+    fromMat3: fromMat3,
     negate: negate$1,
     copy: copy$1,
     clone: clone$1,

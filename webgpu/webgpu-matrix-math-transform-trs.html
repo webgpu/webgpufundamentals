@@ -68,7 +68,7 @@ function createFVertices() {
   ]);
 
   const indexData = new Uint32Array([
-    0,  1,  2,    3,  1,  2,  // left column
+    0,  1,  2,    2,  1,  3,  // left column
     4,  5,  6,    6,  5,  7,  // top run
     8,  9, 10,   10,  9, 11,  // middle run
   ]);
@@ -84,33 +84,17 @@ const mat3 = {
   projection(width, height, dst) {
     // Note: This matrix flips the Y axis so that 0 is at the top.
     dst = dst || new Float32Array(12);
-    dst[0] = 2 / width;
-    dst[1] = 0;
-    dst[2] = 0;
-
-    dst[4] = 0;
-    dst[5] = -2 / height;
-    dst[6] = 0;
-
-    dst[8] = -1;
-    dst[9] = 1;
-    dst[10] = 1;
+    dst[0] = 2 / width;  dst[1] = 0;             dst[2] = 0;
+    dst[4] = 0;          dst[5] = -2 / height;   dst[6] = 0;
+    dst[8] = -1;         dst[9] = 1;             dst[10] = 1;
     return dst;
   },
 
   identity(dst) {
     dst = dst || new Float32Array(12);
-    dst[0] = 1;
-    dst[1] = 0;
-    dst[2] = 0;
-
-    dst[4] = 0;
-    dst[5] = 1;
-    dst[6] = 0;
-
-    dst[8] = 0;
-    dst[9] = 0;
-    dst[10] = 1;
+    dst[0] = 1;  dst[1] = 0;  dst[2] = 0;
+    dst[4] = 0;  dst[5] = 1;  dst[6] = 0;
+    dst[8] = 0;  dst[9] = 0;  dst[10] = 1;
     return dst;
   },
 
@@ -146,21 +130,14 @@ const mat3 = {
     dst[ 8] = b20 * a00 + b21 * a10 + b22 * a20;
     dst[ 9] = b20 * a01 + b21 * a11 + b22 * a21;
     dst[10] = b20 * a02 + b21 * a12 + b22 * a22;
+    return dst;
   },
 
   translation([tx, ty], dst) {
     dst = dst || new Float32Array(12);
-    dst[0] = 1;
-    dst[1] = 0;
-    dst[2] = 0;
-
-    dst[4] = 0;
-    dst[5] = 1;
-    dst[6] = 0;
-
-    dst[8] = tx;
-    dst[9] = ty;
-    dst[10] = 1;
+    dst[0] = 1;   dst[1] = 0;   dst[2] = 0;
+    dst[4] = 0;   dst[5] = 1;   dst[6] = 0;
+    dst[8] = tx;  dst[9] = ty;  dst[10] = 1;
     return dst;
   },
 
@@ -168,34 +145,18 @@ const mat3 = {
     const c = Math.cos(angleInRadians);
     const s = Math.sin(angleInRadians);
     dst = dst || new Float32Array(12);
-    dst[0] = c;
-    dst[1] = s;
-    dst[2] = 0;
-
-    dst[4] = -s;
-    dst[5] = c;
-    dst[6] = 0;
-
-    dst[8] = 0;
-    dst[9] = 0;
-    dst[10] = 1;
+    dst[0] = c;   dst[1] = s;  dst[2] = 0;
+    dst[4] = -s;  dst[5] = c;  dst[6] = 0;
+    dst[8] = 0;   dst[9] = 0;  dst[10] = 1;
     return dst;
 
   },
 
   scaling([sx, sy], dst) {
     dst = dst || new Float32Array(12);
-    dst[0] = sx;
-    dst[1] = 0;
-    dst[2] = 0;
-
-    dst[4] = 0;
-    dst[5] = sy;
-    dst[6] = 0;
-
-    dst[8] = 0;
-    dst[9] = 0;
-    dst[10] = 1;
+    dst[0] = sx;  dst[1] = 0;   dst[2] = 0;
+    dst[4] = 0;   dst[5] = sy;  dst[6] = 0;
+    dst[8] = 0;   dst[9] = 0;   dst[10] = 1;
     return dst;
   },
 
@@ -208,7 +169,7 @@ const mat3 = {
   },
 
   scale(m, scale, dst) {
-    return mat3.scaling(m, mat3.scaling(scale), dst);
+    return mat3.multiply(m, mat3.scaling(scale), dst);
   },
 };
 
@@ -262,7 +223,7 @@ async function main() {
   });
 
   const pipeline = device.createRenderPipeline({
-    label: '2 attributes',
+    label: 'just 2d position',
     layout: 'auto',
     vertex: {
       module,
