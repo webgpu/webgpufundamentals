@@ -126,7 +126,7 @@ We've only got one attribute so our pipeline looks like this
 
 ```js
   const pipeline = device.createRenderPipeline({
-    label: '2 attributes',
+    label: 'just 2d position',
     layout: 'auto',
     vertex: {
       module,

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Matrix Transform TRS</title>
+    <title>WebGPU Orthographic Flat F in 3D - Step 1</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -49,22 +49,22 @@ import GUI from '/3rdparty/muigui-0.x.module.js';
 function createFVertices() {
   const vertexData = new Float32Array([
     // left column
-    0, 0,
-    30, 0,
-    0, 150,
-    30, 150,
+    0, 0, 0,
+    30, 0, 0,
+    0, 150, 0,
+    30, 150, 0,
 
     // top rung
-    30, 0,
-    100, 0,
-    30, 30,
-    100, 30,
+    30, 0, 0,
+    100, 0, 0,
+    30, 30, 0,
+    100, 30, 0,
 
     // middle rung
-    30, 60,
-    70, 60,
-    30, 90,
-    70, 90,
+    30, 60, 0,
+    70, 60, 0,
+    30, 90, 0,
+    70, 90, 0,
   ]);
 
   const indexData = new Uint32Array([
@@ -80,66 +80,153 @@ function createFVertices() {
   };
 }
 
-const mat3 = {
-  multiply(a, b) {
-    const a00 = a[0 * 4 + 0];
-    const a01 = a[0 * 4 + 1];
-    const a02 = a[0 * 4 + 2];
-    const a10 = a[1 * 4 + 0];
-    const a11 = a[1 * 4 + 1];
-    const a12 = a[1 * 4 + 2];
-    const a20 = a[2 * 4 + 0];
-    const a21 = a[2 * 4 + 1];
-    const a22 = a[2 * 4 + 2];
+const mat4 = {
+  projection(width, height, depth, dst) {
+    // Note: This matrix flips the Y axis so that 0 is at the top.
+    dst = dst || new Float32Array(16);
+    dst[ 0] = 2 / width;  dst[ 1] = 0;            dst[ 2] = 0;            dst[ 3] = 0;
+    dst[ 4] = 0;          dst[ 5] = -2 / height;  dst[ 6] = 0;            dst[ 7] = 0;
+    dst[ 8] = 0;          dst[ 9] = 0;            dst[10] = 0.5 / depth;  dst[11] = 0;
+    dst[12] = -1;         dst[13] = 1;            dst[14] = 0.5;          dst[15] = 1;
+    return dst;
+  },
+
+  identity(dst) {
+    dst = dst || new Float32Array(16);
+    dst[ 0] = 1;  dst[ 1] = 0;  dst[ 2] = 0;   dst[ 3] = 0;
+    dst[ 4] = 0;  dst[ 5] = 1;  dst[ 6] = 0;   dst[ 7] = 0;
+    dst[ 8] = 0;  dst[ 9] = 0;  dst[10] = 1;   dst[11] = 0;
+    dst[12] = 0;  dst[13] = 0;  dst[14] = 0;   dst[15] = 1;
+    return dst;
+  },
+
+  multiply(a, b, dst) {
+    dst = dst || new Float32Array(16);
     const b00 = b[0 * 4 + 0];
     const b01 = b[0 * 4 + 1];
     const b02 = b[0 * 4 + 2];
+    const b03 = b[0 * 4 + 3];
     const b10 = b[1 * 4 + 0];
     const b11 = b[1 * 4 + 1];
     const b12 = b[1 * 4 + 2];
+    const b13 = b[1 * 4 + 3];
     const b20 = b[2 * 4 + 0];
     const b21 = b[2 * 4 + 1];
     const b22 = b[2 * 4 + 2];
+    const b23 = b[2 * 4 + 3];
+    const b30 = b[3 * 4 + 0];
+    const b31 = b[3 * 4 + 1];
+    const b32 = b[3 * 4 + 2];
+    const b33 = b[3 * 4 + 3];
+    const a00 = a[0 * 4 + 0];
+    const a01 = a[0 * 4 + 1];
+    const a02 = a[0 * 4 + 2];
+    const a03 = a[0 * 4 + 3];
+    const a10 = a[1 * 4 + 0];
+    const a11 = a[1 * 4 + 1];
+    const a12 = a[1 * 4 + 2];
+    const a13 = a[1 * 4 + 3];
+    const a20 = a[2 * 4 + 0];
+    const a21 = a[2 * 4 + 1];
+    const a22 = a[2 * 4 + 2];
+    const a23 = a[2 * 4 + 3];
+    const a30 = a[3 * 4 + 0];
+    const a31 = a[3 * 4 + 1];
+    const a32 = a[3 * 4 + 2];
+    const a33 = a[3 * 4 + 3];
 
-    return [
-      b00 * a00 + b01 * a10 + b02 * a20,
-      b00 * a01 + b01 * a11 + b02 * a21,
-      b00 * a02 + b01 * a12 + b02 * a22,
-      0,
-      b10 * a00 + b11 * a10 + b12 * a20,
-      b10 * a01 + b11 * a11 + b12 * a21,
-      b10 * a02 + b11 * a12 + b12 * a22,
-      0,
-      b20 * a00 + b21 * a10 + b22 * a20,
-      b20 * a01 + b21 * a11 + b22 * a21,
-      b20 * a02 + b21 * a12 + b22 * a22,
-      0,
-    ];
-  },
-  translation([tx, ty]) {
-    return [
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      tx, ty, 1, 0,
-    ];
+    dst[0] = b00 * a00 + b01 * a10 + b02 * a20 + b03 * a30;
+    dst[1] = b00 * a01 + b01 * a11 + b02 * a21 + b03 * a31;
+    dst[2] = b00 * a02 + b01 * a12 + b02 * a22 + b03 * a32;
+    dst[3] = b00 * a03 + b01 * a13 + b02 * a23 + b03 * a33;
+
+    dst[4] = b10 * a00 + b11 * a10 + b12 * a20 + b13 * a30;
+    dst[5] = b10 * a01 + b11 * a11 + b12 * a21 + b13 * a31;
+    dst[6] = b10 * a02 + b11 * a12 + b12 * a22 + b13 * a32;
+    dst[7] = b10 * a03 + b11 * a13 + b12 * a23 + b13 * a33;
+
+    dst[8] = b20 * a00 + b21 * a10 + b22 * a20 + b23 * a30;
+    dst[9] = b20 * a01 + b21 * a11 + b22 * a21 + b23 * a31;
+    dst[10] = b20 * a02 + b21 * a12 + b22 * a22 + b23 * a32;
+    dst[11] = b20 * a03 + b21 * a13 + b22 * a23 + b23 * a33;
+
+    dst[12] = b30 * a00 + b31 * a10 + b32 * a20 + b33 * a30;
+    dst[13] = b30 * a01 + b31 * a11 + b32 * a21 + b33 * a31;
+    dst[14] = b30 * a02 + b31 * a12 + b32 * a22 + b33 * a32;
+    dst[15] = b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33;
+
+    return dst;
   },
 
-  rotation(angleInRadians) {
+  translation([tx, ty, tz], dst) {
+    dst = dst || new Float32Array(16);
+    dst[ 0] = 1;   dst[ 1] = 0;   dst[ 2] = 0;   dst[ 3] = 0;
+    dst[ 4] = 0;   dst[ 5] = 1;   dst[ 6] = 0;   dst[ 7] = 0;
+    dst[ 8] = 0;   dst[ 9] = 0;   dst[10] = 1;   dst[11] = 0;
+    dst[12] = tx;  dst[13] = ty;  dst[14] = tz;  dst[15] = 1;
+    return dst;
+  },
+
+  rotationX(angleInRadians, dst) {
     const c = Math.cos(angleInRadians);
     const s = Math.sin(angleInRadians);
-    return [
-      c, s, 0, 0,
-      -s, c, 0, 0,
-      0, 0, 1, 0,
-    ];
+    dst = dst || new Float32Array(16);
+    dst[ 0] = 1;  dst[ 1] = 0;   dst[ 2] = 0;  dst[ 3] = 0;
+    dst[ 4] = 0;  dst[ 5] = c;   dst[ 6] = s;  dst[ 7] = 0;
+    dst[ 8] = 0;  dst[ 9] = -s;  dst[10] = c;  dst[11] = 0;
+    dst[12] = 0;  dst[13] = 0;   dst[14] = 0;  dst[15] = 1;
+    return dst;
   },
 
-  scaling([sx, sy]) {
-    return [
-      sx, 0, 0, 0,
-      0, sy, 0, 0,
-      0, 0, 1, 0,
-    ];
+  rotationY(angleInRadians, dst) {
+    const c = Math.cos(angleInRadians);
+    const s = Math.sin(angleInRadians);
+    dst = dst || new Float32Array(16);
+    dst[ 0] = c;  dst[ 1] = 0;  dst[ 2] = -s;  dst[ 3] = 0;
+    dst[ 4] = 0;  dst[ 5] = 1;  dst[ 6] = 0;   dst[ 7] = 0;
+    dst[ 8] = s;  dst[ 9] = 0;  dst[10] = c;   dst[11] = 0;
+    dst[12] = 0;  dst[13] = 0;  dst[14] = 0;   dst[15] = 1;
+    return dst;
+  },
+
+  rotationZ(angleInRadians, dst) {
+    const c = Math.cos(angleInRadians);
+    const s = Math.sin(angleInRadians);
+    dst = dst || new Float32Array(16);
+    dst[ 0] = c;   dst[ 1] = s;  dst[ 2] = 0;  dst[ 3] = 0;
+    dst[ 4] = -s;  dst[ 5] = c;  dst[ 6] = 0;  dst[ 7] = 0;
+    dst[ 8] = 0;   dst[ 9] = 0;  dst[10] = 1;  dst[11] = 0;
+    dst[12] = 0;   dst[13] = 0;  dst[14] = 0;  dst[15] = 1;
+    return dst;
+  },
+
+  scaling([sx, sy, sz], dst) {
+    dst = dst || new Float32Array(16);
+    dst[ 0] = sx;  dst[ 1] = 0;   dst[ 2] = 0;    dst[ 3] = 0;
+    dst[ 4] = 0;   dst[ 5] = sy;  dst[ 6] = 0;    dst[ 7] = 0;
+    dst[ 8] = 0;   dst[ 9] = 0;   dst[10] = sz;   dst[11] = 0;
+    dst[12] = 0;   dst[13] = 0;   dst[14] = 0;    dst[15] = 1;
+    return dst;
+  },
+
+  translate(m, translation, dst) {
+    return mat4.multiply(m, mat4.translation(translation), dst);
+  },
+
+  rotateX(m, angleInRadians, dst) {
+    return mat4.multiply(m, mat4.rotationX(angleInRadians), dst);
+  },
+
+  rotateY(m, angleInRadians, dst) {
+    return mat4.multiply(m, mat4.rotationY(angleInRadians), dst);
+  },
+
+  rotateZ(m, angleInRadians, dst) {
+    return mat4.multiply(m, mat4.rotationZ(angleInRadians), dst);
+  },
+
+  scale(m, scale, dst) {
+    return mat4.multiply(m, mat4.scaling(scale), dst);
   },
 };
 
@@ -165,12 +252,11 @@ async function main() {
     code: `
       struct Uniforms {
         color: vec4f,
-        resolution: vec2f,
-        matrix: mat3x3f,
+        matrix: mat4x4f,
       };
 
       struct Vertex {
-        @location(0) position: vec2f,
+        @location(0) position: vec4f,
       };
 
       struct VSOutput {
@@ -181,23 +267,7 @@ async function main() {
 
       @vertex fn vs(vert: Vertex) -> VSOutput {
         var vsOut: VSOutput;
-
-        // Multiply by a matrix
-        let position = (uni.matrix * vec3f(vert.position, 1)).xy;
-
-        // convert the position from pixels to a 0.0 to 1.0 value
-        let zeroToOne = position / uni.resolution;
-
-        // convert from 0 <-> 1 to 0 <-> 2
-        let zeroToTwo = zeroToOne * 2.0;
-
-        // covert from 0 <-> 2 to -1 <-> +1 (clip space)
-        let flippedClipSpace = zeroToTwo - 1.0;
-
-        // flip Y
-        let clipSpace = flippedClipSpace * vec2f(1, -1);
-
-        vsOut.position = vec4f(clipSpace, 0.0, 1.0);
+        vsOut.position = uni.matrix * vert.position;
         return vsOut;
       }
 
@@ -215,9 +285,9 @@ async function main() {
       entryPoint: 'vs',
       buffers: [
         {
-          arrayStride: (2) * 4, // (2) floats, 4 bytes each
+          arrayStride: (3) * 4, // (3) floats, 4 bytes each
           attributes: [
-            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
+            {shaderLocation: 0, offset: 0, format: 'float32x3'},  // position
           ],
         },
       ],
@@ -229,8 +299,8 @@ async function main() {
     },
   });
 
-  // color, resolution, padding, matrix
-  const uniformBufferSize = (4 + 2 + 2 + 12) * 4;
+  // color, matrix
+  const uniformBufferSize = (4 + 16) * 4;
   const uniformBuffer = device.createBuffer({
     label: 'uniforms',
     size: uniformBufferSize,
@@ -241,12 +311,10 @@ async function main() {
 
   // offsets to the various uniform values in float32 indices
   const kColorOffset = 0;
-  const kResolutionOffset = 4;
-  const kMatrixOffset = 8;
+  const kMatrixOffset = 4;
 
   const colorValue = uniformValues.subarray(kColorOffset, kColorOffset + 4);
-  const resolutionValue = uniformValues.subarray(kResolutionOffset, kResolutionOffset + 2);
-  const matrixValue = uniformValues.subarray(kMatrixOffset, kMatrixOffset + 12);
+  const matrixValue = uniformValues.subarray(kMatrixOffset, kMatrixOffset + 16);
 
   // The color will not change so let's set it once at init time
   colorValue.set([Math.random(), Math.random(), Math.random(), 1]);
@@ -288,26 +356,32 @@ async function main() {
   const radToDeg = r => r * 180 / Math.PI;
 
   const settings = {
-    translation: [150, 100],
-    rotation: degToRad(30),
-    scale: [1, 1],
+    translation: [45, 100, 0],
+    rotation: [degToRad(40), degToRad(25), degToRad(325)],
+    scale: [1, 1, 1],
+  };
+
+  const rotationOptions = {
+    min: -360,
+    max: 360,
+    step: 1,
+    converters: {
+      to: radToDeg,
+      from: v => [true, degToRad(v)],
+    },
   };
 
   const gui = new GUI();
   gui.onChange(render);
   gui.add(settings.translation, '0', 0, 1000).name('translation.x');
   gui.add(settings.translation, '1', 0, 1000).name('translation.y');
-  gui.add(settings, 'rotation', {
-      min: -360,
-      max: 360,
-      step: 1,
-      converters: {
-        to: radToDeg,
-        from: v => [true, degToRad(v)],
-      },
-    });
+  gui.add(settings.translation, '2', -1000, 1000).name('translation.z');
+  gui.add(settings.rotation, '0', rotationOptions).name('rotation.x');
+  gui.add(settings.rotation, '1', rotationOptions).name('rotation.y');
+  gui.add(settings.rotation, '2', rotationOptions).name('rotation.z');
   gui.add(settings.scale, '0', -5, 5).name('scale.x');
   gui.add(settings.scale, '1', -5, 5).name('scale.y');
+  gui.add(settings.scale, '2', -5, 5).name('scale.z');
 
   function render() {
     // Get the current texture from the canvas context and
@@ -321,16 +395,12 @@ async function main() {
     pass.setVertexBuffer(0, vertexBuffer);
     pass.setIndexBuffer(indexBuffer, 'uint32');
 
-    const translationMatrix = mat3.translation(settings.translation);
-    const rotationMatrix = mat3.rotation(settings.rotation);
-    const scaleMatrix = mat3.scaling(settings.scale);
-
-    let matrix = mat3.multiply(translationMatrix, rotationMatrix);
-    matrix = mat3.multiply(matrix, scaleMatrix);
-
-    // Set the uniform values in our JavaScript side Float32Array
-    resolutionValue.set([canvas.width, canvas.height]);
-    matrixValue.set(matrix);
+    mat4.projection(canvas.clientWidth, canvas.clientHeight, 400, matrixValue);
+    mat4.translate(matrixValue, settings.translation, matrixValue);
+    mat4.rotateX(matrixValue, settings.rotation[0], matrixValue);
+    mat4.rotateY(matrixValue, settings.rotation[1], matrixValue);
+    mat4.rotateZ(matrixValue, settings.rotation[2], matrixValue);
+    mat4.scale(matrixValue, settings.scale, matrixValue);
 
     // upload the uniform values to the uniform buffer
     device.queue.writeBuffer(uniformBuffer, 0, uniformValues);

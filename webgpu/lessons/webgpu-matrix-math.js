@@ -121,7 +121,7 @@ async function main() {
   });
 
   const pipeline = device.createRenderPipeline({
-    label: '2 attributes',
+    label: 'just 2d position',
     layout: 'auto',
     vertex: {
       module,

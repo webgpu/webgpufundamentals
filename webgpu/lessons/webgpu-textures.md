@@ -1317,7 +1317,7 @@ For example "rg11b10ufloat" is "rg11" so 11bits each of red and green. "b10" so
   `unfilterable-float` to `float` and these textures formats will work with no
   other changes.
 
-And here are the depth and stencil formats
+<a id="a-depth-stencil-formats"></a>And here are the depth and stencil formats
 
 <div class="webgpu_center data-table"><div data-diagram="depth-stencil-texture-formats"></div></div>
 
