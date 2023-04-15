@@ -222,13 +222,13 @@ The CSS above should handle both light and dark cases.
 All our examples to this point have used an opaque canvas. To make it transparent,
 so we can see the background we just setup, we need to make a few changes.
 
-First we need to set the `alphaMode` when we configure the canvas to `premultiplied`
+First we need to set the `alphaMode` when we configure the canvas to `'premultiplied'`.
+It defaults to `'opaque'`.
 
 ```js
   context.configure({
     device,
     format: presentationFormat,
--    alphaMode: 'opaque',
 +    alphaMode: 'premultiplied',
   });
 ```

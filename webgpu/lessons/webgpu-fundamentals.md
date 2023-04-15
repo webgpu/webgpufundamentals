@@ -269,7 +269,6 @@ webpage.
   context.configure({
     device,
     format: presentationFormat,
-    alphaMode: 'opaque',
   });
 ```
 
@@ -279,8 +278,7 @@ will be either `"rgba8unorm"` or `"bgra8unorm"`. It's not really that important
 what it is but by querying it it will make things fastest for the user's system.
 
 We pass that into the webgpu canvas context by calling `configure`. We pass in
-the `device`, the `format`, and an `alphaMode` which can be either `"opaque"` or
-`"premultiplied"`.
+the `device` and the `format`.
 
 Next we create a shader module. A shader module contains one or more shader
 functions. In our case we'll make 1 vertex shader function and 1 fragment shader
