@@ -1451,7 +1451,7 @@ parameters, with this more common orthographic projection function we can pass i
 bottom, top, near, and far which gives as more flexibility. To use it the same as
 our original projection function we’d call it with</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-    mat4.projection(canvas.clientWidth, canvas.clientHeight, 400, matrixValue);
-+    mat4.orthographic(
++    mat4.ortho(
 +        0,                   // left
 +        canvas.clientWidth,  // right
 +        canvas.clientHeight, // bottom

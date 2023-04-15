@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Orthographic Use Ortho - Step 6</title>
+    <title>WebGPU Perspective - Matrix Z to W - Step 3</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -15,14 +15,10 @@ canvas {
 }
 :root {
   --bg-color: #fff;
-  --line-color-1: #AAA;
-  --line-color-2: #DDD;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-color: #000;
-    --line-color-1: #666;
-    --line-color-2: #333;
   }
 }
 canvas {
@@ -30,12 +26,6 @@ canvas {
   width: 100%;     /* make the canvas fill its container */
   height: 100%;
   background-color: var(--bg-color);
-  background-image: linear-gradient(var(--line-color-1) 1.5px, transparent 1.5px),
-      linear-gradient(90deg, var(--line-color-1) 1.5px, transparent 1.5px),
-      linear-gradient(var(--line-color-2) 1px, transparent 1px),
-      linear-gradient(90deg, var(--line-color-2) 1px, transparent 1px);
-  background-position: -1.5px -1.5px, -1.5px -1.5px, -1px -1px, -1px -1px;
-  background-size: 100px 100px, 100px 100px, 10px 10px, 10px 10px;  
 }
     </style>
   </head>
@@ -152,6 +142,35 @@ const mat4 = {
   projection(width, height, depth, dst) {
     // Note: This matrix flips the Y axis so that 0 is at the top.
     return mat4.ortho(0, width, height, 0, depth, -depth, dst);
+  },
+
+  perspective(fieldOfViewYInRadians, aspect, zNear, zFar, dst) {
+    dst = dst || new Float32Array(16);
+
+    const f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewYInRadians);
+    const rangeInv = 1 / (zNear - zFar);
+
+    dst[0] = f / aspect;
+    dst[1] = 0;
+    dst[2] = 0;
+    dst[3] = 0;
+
+    dst[4] = 0;
+    dst[5] = f;
+    dst[6] = 0;
+    dst[7] = 0;
+
+    dst[8] = 0;
+    dst[9] = 0;
+    dst[10] = zFar * rangeInv;
+    dst[11] = -1;
+
+    dst[12] = 0;
+    dst[13] = 0;
+    dst[14] = zNear * zFar * rangeInv;
+    dst[15] = 0;
+
+    return dst;
   },
 
   ortho(left, right, bottom, top, near, far, dst) {
@@ -450,8 +469,9 @@ async function main() {
   const degToRad = d => d * Math.PI / 180;
 
   const settings = {
-    translation: [45, 100, 0],
-    rotation: [degToRad(40), degToRad(25), degToRad(325)],
+    fieldOfView: degToRad(100),
+    translation: [-65, 0, -120],
+    rotation: [degToRad(220), degToRad(25), degToRad(325)],
     scale: [1, 1, 1],
   };
 
@@ -459,15 +479,13 @@ async function main() {
 
   const gui = new GUI();
   gui.onChange(render);
-  gui.add(settings.translation, '0', 0, 1000).name('translation.x');
-  gui.add(settings.translation, '1', 0, 1000).name('translation.y');
-  gui.add(settings.translation, '2', -1000, 1000).name('translation.z');
+  gui.add(settings, 'fieldOfView', {min: 1, max: 179, converters: GUI.converters.radToDeg});
+  gui.add(settings.translation, '0', -1000, 1000).name('translation.x');
+  gui.add(settings.translation, '1', -1000, 1000).name('translation.y');
+  gui.add(settings.translation, '2', -1400, -100).name('translation.z');
   gui.add(settings.rotation, '0', radToDegOptions).name('rotation.x');
   gui.add(settings.rotation, '1', radToDegOptions).name('rotation.y');
   gui.add(settings.rotation, '2', radToDegOptions).name('rotation.z');
-  gui.add(settings.scale, '0', -5, 5).name('scale.x');
-  gui.add(settings.scale, '1', -5, 5).name('scale.y');
-  gui.add(settings.scale, '2', -5, 5).name('scale.z');
 
   let depthTexture;
 
@@ -498,14 +516,13 @@ async function main() {
     pass.setPipeline(pipeline);
     pass.setVertexBuffer(0, vertexBuffer);
 
-    mat4.ortho(
-        0,                   // left
-        canvas.clientWidth,  // right
-        canvas.clientHeight, // bottom
-        0,                   // top
-        400,                 // near
-        -400,                // far
-        matrixValue,         // dst
+    const aspect = canvas.clientWidth / canvas.clientHeight;
+    mat4.perspective(
+        settings.fieldOfView,
+        aspect,
+        1,      // zNear
+        2000,   // zFar
+        matrixValue,
     );
     mat4.translate(matrixValue, settings.translation, matrixValue);
     mat4.rotateX(matrixValue, settings.rotation[0], matrixValue);

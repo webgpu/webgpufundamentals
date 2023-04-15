@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Orthographic Use Ortho - Step 6</title>
+    <title>WebGPU Perspective - Matrix Z to W - Step 3</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -146,6 +146,15 @@ function createFVertices() {
     vertexData,
     numVertices,
   };
+}
+
+function makeZToWMatrix(fudgeFactor) {
+  return [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, fudgeFactor,
+    0, 0, 0, 1,
+  ];
 }
 
 const mat4 = {
@@ -450,9 +459,10 @@ async function main() {
   const degToRad = d => d * Math.PI / 180;
 
   const settings = {
-    translation: [45, 100, 0],
+    translation: [canvas.clientWidth / 2 - 200, canvas.clientHeight / 2 - 75, -1000],
     rotation: [degToRad(40), degToRad(25), degToRad(325)],
-    scale: [1, 1, 1],
+    scale: [3, 3, 3],
+    fudgeFactor: 10,
   };
 
   const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
@@ -461,13 +471,14 @@ async function main() {
   gui.onChange(render);
   gui.add(settings.translation, '0', 0, 1000).name('translation.x');
   gui.add(settings.translation, '1', 0, 1000).name('translation.y');
-  gui.add(settings.translation, '2', -1000, 1000).name('translation.z');
+  gui.add(settings.translation, '2', -1400, 1000).name('translation.z');
   gui.add(settings.rotation, '0', radToDegOptions).name('rotation.x');
   gui.add(settings.rotation, '1', radToDegOptions).name('rotation.y');
   gui.add(settings.rotation, '2', radToDegOptions).name('rotation.z');
   gui.add(settings.scale, '0', -5, 5).name('scale.x');
   gui.add(settings.scale, '1', -5, 5).name('scale.y');
   gui.add(settings.scale, '2', -5, 5).name('scale.z');
+  gui.add(settings, 'fudgeFactor', 0, 50);
 
   let depthTexture;
 
@@ -498,15 +509,15 @@ async function main() {
     pass.setPipeline(pipeline);
     pass.setVertexBuffer(0, vertexBuffer);
 
-    mat4.ortho(
+    const projection = mat4.ortho(
         0,                   // left
         canvas.clientWidth,  // right
         canvas.clientHeight, // bottom
         0,                   // top
-        400,                 // near
-        -400,                // far
-        matrixValue,         // dst
+        1200,                // near
+        -1000,               // far
     );
+    mat4.multiply(makeZToWMatrix(settings.fudgeFactor), projection, matrixValue);
     mat4.translate(matrixValue, settings.translation, matrixValue);
     mat4.rotateX(matrixValue, settings.rotation[0], matrixValue);
     mat4.rotateY(matrixValue, settings.rotation[1], matrixValue);
