@@ -1,3 +1,4 @@
+/*
 import {
   makeShaderDataDefinitions,
 } from '/3rdparty/webgpu-utils.module.js';
@@ -17,7 +18,7 @@ import {
 import {
   hsla,
 } from './resources/utils.js';
-/*
+
 const darkColors = {
   lines: [1, 1, 1, 1],
 };
@@ -373,7 +374,6 @@ async function main() {
   }
 
 }
-*/
   renderDiagrams({
     'clip-space': (elem) => {
       showClipSpace(elem);
@@ -382,6 +382,5 @@ async function main() {
 }
 
 main();
-
-
+*/
 

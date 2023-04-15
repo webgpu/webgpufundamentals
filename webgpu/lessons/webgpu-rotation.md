@@ -252,26 +252,19 @@ Let's change things to just have an rotation setting.
 
 ```js
 +  const degToRad = d => d * Math.PI / 180;
-+  const radToDeg = r => r * 180 / Math.PI;
 
   const settings = {
     translation: [150, 100],
 +    rotation: degToRad(30),
   };
 
+  const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
+
   const gui = new GUI();
   gui.onChange(render);
   gui.add(settings.translation, '0', 0, 1000).name('translation.x');
   gui.add(settings.translation, '1', 0, 1000).name('translation.y');
-+  gui.add(settings, 'rotation', {
-+      min: -360,
-+      max: 360,
-+      step: 1,
-+      converters: {
-+        to: radToDeg,
-+        from: v => [true, degToRad(v)],
-+      },
-+    });
++  gui.add(settings, 'rotation', radToDegOptions);
 
 -  const unitCircle = new UnitCircle();
 -  document.querySelector('#circle').appendChild(unitCircle.domElement);

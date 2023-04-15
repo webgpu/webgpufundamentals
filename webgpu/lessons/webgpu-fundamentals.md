@@ -15,6 +15,8 @@ you read this article. Concepts like
 and more will be used extensively.
 </div>
 
+<div class="warn">If you already know WebGL, [read this](webgpu-from-webgl.html).</div>
+
 WebGPU is an API that lets you do 2 basic things.
 
 1. [Draw triangles/points/lines to textures](#a-drawing-triangles-to-textures)
@@ -880,6 +882,10 @@ I'm a little bit worried these article will be boring at first. Feel free to
 jump around if you'd like. Just remember if you don't understand something you
 probably need to read or review these basics. Once we get the basics down we'll
 start going over actual techniques.
+
+One other thing. All of the example programs can be edited live in the webpage.
+Further, they can all easily be exported to [jsfiddle](https://jsfiddle.net) and [codepen](https://codepen.io)
+and even [stackoverflow](https://stackoverflow.com). Just click "Export".
 
 <div class="webgpu_bottombar">
 <p>

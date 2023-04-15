@@ -113,19 +113,13 @@ and at render time we need to update the scale
 +    scale: [1, 1],
   };
 
+  const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
+
   const gui = new GUI();
   gui.onChange(render);
   gui.add(settings.translation, '0', 0, 1000).name('translation.x');
   gui.add(settings.translation, '1', 0, 1000).name('translation.y');
-  gui.add(settings, 'rotation', {
-      min: -360,
-      max: 360,
-      step: 1,
-      converters: {
-        to: radToDeg,
-        from: v => [true, degToRad(v)],
-      },
-    });
+  gui.add(settings, 'rotation', radToDegOptions);
 +  gui.add(settings.scale, '0', -5, 5).name('scale.x');
 +  gui.add(settings.scale, '1', -5, 5).name('scale.y');
 

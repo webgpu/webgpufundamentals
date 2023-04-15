@@ -1350,7 +1350,7 @@ our original projection function we'd call it with
 
 ```js
 -    mat4.projection(canvas.clientWidth, canvas.clientHeight, 400, matrixValue);
-+    mat4.orthographic(
++    mat4.ortho(
 +        0,                   // left
 +        canvas.clientWidth,  // right
 +        canvas.clientHeight, // bottom

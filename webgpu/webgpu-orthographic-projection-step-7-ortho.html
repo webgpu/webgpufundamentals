@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Orthographic Depth Texture - Step 6</title>
+    <title>WebGPU Orthographic Use Ortho - Step 6</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -448,7 +448,6 @@ async function main() {
   };
 
   const degToRad = d => d * Math.PI / 180;
-  const radToDeg = r => r * 180 / Math.PI;
 
   const settings = {
     translation: [45, 100, 0],
@@ -456,24 +455,16 @@ async function main() {
     scale: [1, 1, 1],
   };
 
-  const rotationOptions = {
-    min: -360,
-    max: 360,
-    step: 1,
-    converters: {
-      to: radToDeg,
-      from: v => [true, degToRad(v)],
-    },
-  };
+  const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
 
   const gui = new GUI();
   gui.onChange(render);
   gui.add(settings.translation, '0', 0, 1000).name('translation.x');
   gui.add(settings.translation, '1', 0, 1000).name('translation.y');
   gui.add(settings.translation, '2', -1000, 1000).name('translation.z');
-  gui.add(settings.rotation, '0', rotationOptions).name('rotation.x');
-  gui.add(settings.rotation, '1', rotationOptions).name('rotation.y');
-  gui.add(settings.rotation, '2', rotationOptions).name('rotation.z');
+  gui.add(settings.rotation, '0', radToDegOptions).name('rotation.x');
+  gui.add(settings.rotation, '1', radToDegOptions).name('rotation.y');
+  gui.add(settings.rotation, '2', radToDegOptions).name('rotation.z');
   gui.add(settings.scale, '0', -5, 5).name('scale.x');
   gui.add(settings.scale, '1', -5, 5).name('scale.y');
   gui.add(settings.scale, '2', -5, 5).name('scale.z');
@@ -507,7 +498,15 @@ async function main() {
     pass.setPipeline(pipeline);
     pass.setVertexBuffer(0, vertexBuffer);
 
-    mat4.projection(canvas.clientWidth, canvas.clientHeight, 400, matrixValue);
+    mat4.ortho(
+        0,                   // left
+        canvas.clientWidth,  // right
+        canvas.clientHeight, // bottom
+        0,                   // top
+        400,                 // near
+        -400,                // far
+        matrixValue,         // dst
+    );
     mat4.translate(matrixValue, settings.translation, matrixValue);
     mat4.rotateX(matrixValue, settings.rotation[0], matrixValue);
     mat4.rotateY(matrixValue, settings.rotation[1], matrixValue);
