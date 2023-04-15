@@ -740,7 +740,7 @@ by 2</p>
 </pre>
 <p>Here we just tell it we’re using a <code class="notranslate" translate="no">compute</code> stage from the shader <code class="notranslate" translate="no">module</code> we
 created and we want to call the <code class="notranslate" translate="no">computeSomething</code> function. <code class="notranslate" translate="no">layout</code> is
-<code class="notranslate" translate="no">'auto'</code> again, telling WebGPU to figure out the layout from the shaders.</p>
+<code class="notranslate" translate="no">'auto'</code> again, telling WebGPU to figure out the layout from the shaders. <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup></p>
 <p>Next we need some data</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const input = new Float32Array([1, 3, 5]);
 </pre>
@@ -1012,6 +1012,10 @@ when the <code class="notranslate" translate="no">lost</code> promise resolves.
 <li id="fn2" class="footnote-item"><p>Fragment shaders indirectly write data to textures. That data does not
 have to be colors. For example, it’s common to output the direction of the surface that
 pixel represents. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code> is convenient but, it’s impossible to share bind groups
+across pipelines using <code class="notranslate" translate="no">layout: 'auto'</code>. Most of the examples on this site
+never use a bind group with multiple pipelines . We’ll cover explicit layouts in <a href="webgpu-drawing-multiple-things.html">another article</a>. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>

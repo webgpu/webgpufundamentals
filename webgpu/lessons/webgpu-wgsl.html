@@ -220,7 +220,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>For an in-depth overview of WGSL see <a href="https://google.github.io/tour-of-wgsl/">Tour of WGSL</a>.</p>
+      <p>For an in-depth overview of WGSL see <a href="https://google.github.io/tour-of-wgsl/">Tour of WGSL</a>.
+There’s also <a href="https://www.w3.org/TR/WGSL/">the actual WGSL spec</a> though it can be hard
+to process since it’s written for <a href="http://catb.org/jargon/html/L/language-lawyer.html">language lawyers</a> 😂</p>
 <p>This article assumes you already know how to program. It’s probably way too
 terse but hopefully it can give you some help in understanding and writing WGSL
 shader programs.</p>
@@ -297,7 +299,7 @@ let d = 1 + 2.0;      // d is a f32
   let a = 1;
 *  a = a + 1;  // ERROR: a is a constant expression
   var b = 2;
-  a = b + 1;  // ok
+  b = b + 1;  // ok
 }
 </pre>
 <p><code class="notranslate" translate="no">const</code> is not a variable, it’s a compile time constant. You can
@@ -314,7 +316,7 @@ fn add(a: f32, b: f32) -&gt; f32 {
 <h2 id="vector-types">vector types</h2>
 <p>WGSL has 3 vector types <code class="notranslate" translate="no">vec2</code>, <code class="notranslate" translate="no">vec3</code>, and <code class="notranslate" translate="no">vec4</code>. Their basic style is <code class="notranslate" translate="no">vec?&lt;type&gt;</code>
 so <code class="notranslate" translate="no">vec2&lt;i32&gt;</code> (a vector of two i32s), <code class="notranslate" translate="no">vec3&lt;f32&gt;</code> (a vector of 3 f32s), <code class="notranslate" translate="no">vec4&lt;u32&gt;</code>(a vector of 4 u32s),
-<code class="notranslate" translate="no">vec3&lt;bool&gt;</code> a vector of boolean values.</p>
+<code class="notranslate" translate="no">vec3&lt;bool&gt;</code> a vector of 3 boolean values.</p>
 <p>Examples:</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec2&lt;i32&gt;(1, -2);
 let b = vec3&lt;f32&gt;(3.4, 5.6, 7.8);
@@ -336,8 +338,14 @@ let c = a.br;   // via r,g,b,a
 let d = vec2&lt;f32&gt;(a[2], a[0]);
 </pre>
 <p>Above, <code class="notranslate" translate="no">b</code>, <code class="notranslate" translate="no">c</code>, and <code class="notranslate" translate="no">d</code> are all the same.</p>
+<p>You can also repeat elements</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4);
+let b = vec3&lt;f32&gt;(a.z, a.z, a.y);
+let c = a.zzy;
+</pre>
+<p>Above <code class="notranslate" translate="no">b</code> and <code class="notranslate" translate="no">c</code> are the same. They both <code class="notranslate" translate="no">vec3&lt;f32&gt;</code> who contents is 3, 3, 2</p>
 <h3 id="vector-shortcuts">vector shortcuts</h3>
-<p>There are shortcuts for the base types. Change the <code class="notranslate" translate="no">&lt;i32&gt;</code> =&gt; <code class="notranslate" translate="no">i</code>, <code class="notranslate" translate="no">&lt;f32&gt;</code> =&gt; <code class="notranslate" translate="no">f</code>, and <code class="notranslate" translate="no">&lt;u32&gt;</code> to <code class="notranslate" translate="no">u</code> so</p>
+<p>There are shortcuts for the base types. Change the <code class="notranslate" translate="no">&lt;i32&gt;</code> =&gt; <code class="notranslate" translate="no">i</code>, <code class="notranslate" translate="no">&lt;f32&gt;</code> =&gt; <code class="notranslate" translate="no">f</code>, <code class="notranslate" translate="no">&lt;u32&gt;</code> to <code class="notranslate" translate="no">u</code> and <code class="notranslate" translate="no">&lt;f16&gt;</code> to <code class="notranslate" translate="no">h</code> so</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4);
 let b = vec4f(1, 2, 3, 4);
 </pre>
@@ -363,7 +371,8 @@ let e = a - b;  // e is vec4f(-4, -4, -4, -4)
 <p>Many functions also work on vectors</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4f(1, 2, 3, 4);
 let b = vec4f(5, 6, 7, 8);
-let c = mix(a, b, 0.5);  // c is vec4f(3, 4, 5, 6)
+let c = mix(a, b, 0.5);                   // c is vec4f(3, 4, 5, 6)
+let d = mix(a, b, vec4f(0, 0.5, 0.5, 1)); // d is vec4f(1, 4, 5, 8)
 </pre>
 <h2 id="matrices">matrices</h2>
 <p>WGSL has a bunch of matrix types. Matrices are arrays of vectors.
@@ -391,9 +400,9 @@ let c = a * b;  // c is a vec4f and the result of a * b
 let b = array&lt;vec4f, 6&gt;; // an array of six vec4fs
 </pre>
 <h3 id="runtime-sized-arrays">runtime sized arrays</h3>
-<p>Arrays that are at the root scope for uniform and storage declarations
+<p>Arrays that are at the root scope storage declarations
 are the only arrays that can be specified with no size</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;uniform&gt; foo: array&lt;mat4x4f&gt;;
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage&gt; foo: array&lt;mat4x4f&gt;;
 </pre>
 <p>The number of elements in <code class="notranslate" translate="no">foo</code> is defined by the settings of the bind group
 used at runtime</p>
