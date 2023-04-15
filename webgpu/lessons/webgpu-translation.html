@@ -415,11 +415,11 @@ canvas {
 <p>The CSS above should handle both light and dark cases.</p>
 <p>All our examples to this point have used an opaque canvas. To make it transparent,
 so we can see the background we just setup, we need to make a few changes.</p>
-<p>First we need to set the <code class="notranslate" translate="no">alphaMode</code> when we configure the canvas to <code class="notranslate" translate="no">premultiplied</code></p>
+<p>First we need to set the <code class="notranslate" translate="no">alphaMode</code> when we configure the canvas to <code class="notranslate" translate="no">'premultiplied'</code>.
+It defaults to <code class="notranslate" translate="no">'opaque'</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  context.configure({
     device,
     format: presentationFormat,
--    alphaMode: 'opaque',
 +    alphaMode: 'premultiplied',
   });
 </pre>

@@ -445,7 +445,6 @@ webpage.</p>
   context.configure({
     device,
     format: presentationFormat,
-    alphaMode: 'opaque',
   });
 </pre>
 <p>Again the code above is pretty self explanatory. We get a <code class="notranslate" translate="no">"webgpu"</code> context
@@ -453,8 +452,7 @@ from the canvas. We ask the system what the preferred canvas format is. This
 will be either <code class="notranslate" translate="no">"rgba8unorm"</code> or <code class="notranslate" translate="no">"bgra8unorm"</code>. It’s not really that important
 what it is but by querying it it will make things fastest for the user’s system.</p>
 <p>We pass that into the webgpu canvas context by calling <code class="notranslate" translate="no">configure</code>. We pass in
-the <code class="notranslate" translate="no">device</code>, the <code class="notranslate" translate="no">format</code>, and an <code class="notranslate" translate="no">alphaMode</code> which can be either <code class="notranslate" translate="no">"opaque"</code> or
-<code class="notranslate" translate="no">"premultiplied"</code>.</p>
+the <code class="notranslate" translate="no">device</code> and the <code class="notranslate" translate="no">format</code>.</p>
 <p>Next we create a shader module. A shader module contains one or more shader
 functions. In our case we’ll make 1 vertex shader function and 1 fragment shader
 function.</p>

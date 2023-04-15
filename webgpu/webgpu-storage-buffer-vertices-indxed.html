@@ -100,8 +100,7 @@ async function main() {
   context.configure({
     device,
     format: presentationFormat,
-    alphaMode: 'opaque',
-  });
+      });
 
   const module = device.createShaderModule({
     code: `
