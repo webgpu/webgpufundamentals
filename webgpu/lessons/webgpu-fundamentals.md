@@ -640,7 +640,11 @@ Now that we've created the shader we need to create a pipeline
 
 Here we just tell it we're using a `compute` stage from the shader `module` we
 created and we want to call the `computeSomething` function. `layout` is
-`'auto'` again, telling WebGPU to figure out the layout from the shaders.
+`'auto'` again, telling WebGPU to figure out the layout from the shaders. [^layout-auto]
+
+[^layout-auto]: `layout: 'auto'` is convenient but, it's impossible to share bind groups
+across pipelines using `layout: 'auto'`. Most of the examples on this site
+never use a bind group with multiple pipelines . We'll cover explicit layouts in [another article](webgpu-drawing-multiple-things.html).
 
 Next we need some data
 

@@ -3,6 +3,8 @@ Description: An introduction to WebGPU Shading Language
 TOC: WGSL
 
 For an in-depth overview of WGSL see [Tour of WGSL](https://google.github.io/tour-of-wgsl/).
+There's also [the actual WGSL spec](https://www.w3.org/TR/WGSL/) though it can be hard
+to process since it's written for [language lawyers](http://catb.org/jargon/html/L/language-lawyer.html) 😂
 
 This article assumes you already know how to program. It's probably way too
 terse but hopefully it can give you some help in understanding and writing WGSL
@@ -117,7 +119,7 @@ fn foo() {
   let a = 1;
 *  a = a + 1;  // ERROR: a is a constant expression
   var b = 2;
-  a = b + 1;  // ok
+  b = b + 1;  // ok
 }
 ```
 
@@ -139,7 +141,7 @@ fn add(a: f32, b: f32) -> f32 {
 
 WGSL has 3 vector types `vec2`, `vec3`, and `vec4`. Their basic style is `vec?<type>`
 so `vec2<i32>` (a vector of two i32s), `vec3<f32>` (a vector of 3 f32s), `vec4<u32>`(a vector of 4 u32s),
-`vec3<bool>` a vector of boolean values.
+`vec3<bool>` a vector of 3 boolean values.
 
 Examples:
 
@@ -175,9 +177,19 @@ let d = vec2<f32>(a[2], a[0]);
 
 Above, `b`, `c`, and `d` are all the same.
 
+You can also repeat elements
+
+```wgsl
+let a = vec4<f32>(1, 2, 3, 4);
+let b = vec3<f32>(a.z, a.z, a.y);
+let c = a.zzy;
+```
+
+Above `b` and `c` are the same. They both `vec3<f32>` who contents is 3, 3, 2
+
 ### vector shortcuts
 
-There are shortcuts for the base types. Change the `<i32>` => `i`, `<f32>` => `f`, and `<u32>` to `u` so
+There are shortcuts for the base types. Change the `<i32>` => `i`, `<f32>` => `f`, `<u32>` to `u` and `<f16>` to `h` so
 
 ```wgsl
 let a = vec4<f32>(1, 2, 3, 4);
@@ -218,7 +230,8 @@ Many functions also work on vectors
 ```wgsl
 let a = vec4f(1, 2, 3, 4);
 let b = vec4f(5, 6, 7, 8);
-let c = mix(a, b, 0.5);  // c is vec4f(3, 4, 5, 6)
+let c = mix(a, b, 0.5);                   // c is vec4f(3, 4, 5, 6)
+let d = mix(a, b, vec4f(0, 0.5, 0.5, 1)); // d is vec4f(1, 4, 5, 8)
 ```
 
 ## matrices
@@ -264,11 +277,11 @@ let b = array<vec4f, 6>; // an array of six vec4fs
 
 ### runtime sized arrays
 
-Arrays that are at the root scope for uniform and storage declarations
+Arrays that are at the root scope storage declarations
 are the only arrays that can be specified with no size
 
 ```wgsl
-@group(0) @binding(0) var<uniform> foo: array<mat4x4f>;
+@group(0) @binding(0) var<storage> foo: array<mat4x4f>;
 ```
 
 The number of elements in `foo` is defined by the settings of the bind group

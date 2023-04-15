@@ -10,7 +10,7 @@ concepts are the same. Both WebGL and WebGPU let you run small functions on the
 GPU. WebGL has vertex shaders and fragment shaders. WebGPU has the same plus
 compute shaders. WebGL uses
 [GLSL](https://www.khronos.org/registry/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf)
-as its shading language. WebGPU uses [WGSL](https://www.w3.org/TR/WGSL/). While
+as its shading language. WebGPU uses [WGSL](webgpu-wgsl.html). While
 they are different languages the concepts are mostly the same.
 
 Both APIs have attributes, a way to specify data pulled from buffers and fed
