@@ -15,7 +15,7 @@ you read this article. Concepts like
 and more will be used extensively.
 </div>
 
-<div class="warn">If you already know WebGL, [read this](webgpu-from-webgl.html).</div>
+<div class="warn">If you already know WebGL, <a href="webgpu-from-webgl.html">read this</a>.</div>
 
 WebGPU is an API that lets you do 2 basic things.
 
