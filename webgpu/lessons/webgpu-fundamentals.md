@@ -843,8 +843,8 @@ to observe.
 +    const observer = new ResizeObserver(entries => {
 +      for (const entry of entries) {
 +        const canvas = entry.target;
-+        const width = entry.contentBoxSize.inlineSize;
-+        const height = entry.contentBoxSize.blockSize;
++        const width = entry.contentBoxSize[0].inlineSize;
++        const height = entry.contentBoxSize[0].blockSize;
 +        canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
 +        canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
 +        // re-render
