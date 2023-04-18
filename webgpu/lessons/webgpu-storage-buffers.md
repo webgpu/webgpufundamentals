@@ -471,7 +471,7 @@ data later?
 
 Passing in vertices via storage buffers is gaining popularity.
 I'm told though that some older devices it's slower than the *classic* way
-which we'll cover next in an article on [vertex attributes](webgpu-vertex-attributes.html).
+which we'll cover next in an article on [vertex buffers](webgpu-vertex-buffers.html).
 
 <!-- keep this at the bottom of the article -->
 <script type="module" src="./webgpu-storage-buffers.js"></script>
