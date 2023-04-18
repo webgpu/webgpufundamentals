@@ -1,4 +1,267 @@
-/* webgpu-utils@0.2.1, license MIT */
+/* webgpu-utils@0.3.0, license MIT */
+const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
+// TODO: fix better?
+const isTypedArray = (arr) => arr && typeof arr.length === 'number' && arr.buffer instanceof ArrayBuffer && typeof arr.byteLength === 'number';
+
+class TypedArrayViewGenerator {
+    arrayBuffer;
+    byteOffset;
+    constructor(sizeInBytes) {
+        this.arrayBuffer = new ArrayBuffer(sizeInBytes);
+        this.byteOffset = 0;
+    }
+    align(alignment) {
+        this.byteOffset = roundUpToMultipleOf(this.byteOffset, alignment);
+    }
+    pad(numBytes) {
+        this.byteOffset += numBytes;
+    }
+    getView(Ctor, numElements) {
+        const view = new Ctor(this.arrayBuffer, this.byteOffset, numElements);
+        this.byteOffset += view.byteLength;
+        return view;
+    }
+}
+const b = {
+    i32: { numElements: 1, align: 4, size: 4, type: 'i32', View: Int32Array },
+    u32: { numElements: 1, align: 4, size: 4, type: 'u32', View: Uint32Array },
+    f32: { numElements: 1, align: 4, size: 4, type: 'f32', View: Float32Array },
+    f16: { numElements: 1, align: 2, size: 2, type: 'u16', View: Uint16Array },
+    vec2f: { numElements: 2, align: 8, size: 8, type: 'f32', View: Float32Array },
+    vec2i: { numElements: 2, align: 8, size: 8, type: 'i32', View: Int32Array },
+    vec2u: { numElements: 2, align: 8, size: 8, type: 'u32', View: Uint32Array },
+    vec2h: { numElements: 2, align: 4, size: 4, type: 'u16', View: Uint16Array },
+    vec3i: { numElements: 3, align: 16, size: 12, type: 'i32', View: Int32Array },
+    vec3u: { numElements: 3, align: 16, size: 12, type: 'u32', View: Uint32Array },
+    vec3f: { numElements: 3, align: 16, size: 12, type: 'f32', View: Float32Array },
+    vec3h: { numElements: 3, align: 8, size: 6, type: 'u16', View: Uint16Array },
+    vec4i: { numElements: 4, align: 16, size: 16, type: 'i32', View: Int32Array },
+    vec4u: { numElements: 4, align: 16, size: 16, type: 'u32', View: Uint32Array },
+    vec4f: { numElements: 4, align: 16, size: 16, type: 'f32', View: Float32Array },
+    vec4h: { numElements: 4, align: 8, size: 8, type: 'u16', View: Uint16Array },
+    // AlignOf(vecR)	SizeOf(array<vecR, C>)
+    mat2x2f: { numElements: 4, align: 8, size: 16, type: 'f32', View: Float32Array },
+    mat2x2h: { numElements: 4, align: 4, size: 8, type: 'u16', View: Uint16Array },
+    mat3x2f: { numElements: 6, align: 8, size: 24, type: 'f32', View: Float32Array },
+    mat3x2h: { numElements: 6, align: 4, size: 12, type: 'u16', View: Uint16Array },
+    mat4x2f: { numElements: 8, align: 8, size: 32, type: 'f32', View: Float32Array },
+    mat4x2h: { numElements: 8, align: 4, size: 16, type: 'u16', View: Uint16Array },
+    mat2x3f: { numElements: 8, align: 16, size: 32, pad: [3, 1], type: 'f32', View: Float32Array },
+    mat2x3h: { numElements: 8, align: 8, size: 16, pad: [3, 1], type: 'u16', View: Uint16Array },
+    mat3x3f: { numElements: 12, align: 16, size: 48, pad: [3, 1], type: 'f32', View: Float32Array },
+    mat3x3h: { numElements: 12, align: 8, size: 24, pad: [3, 1], type: 'u16', View: Uint16Array },
+    mat4x3f: { numElements: 16, align: 16, size: 64, pad: [3, 1], type: 'f32', View: Float32Array },
+    mat4x3h: { numElements: 16, align: 8, size: 32, pad: [3, 1], type: 'u16', View: Uint16Array },
+    mat2x4f: { numElements: 8, align: 16, size: 32, type: 'f32', View: Float32Array },
+    mat2x4h: { numElements: 8, align: 8, size: 16, type: 'u16', View: Uint16Array },
+    mat3x4f: { numElements: 12, align: 16, size: 48, pad: [3, 1], type: 'f32', View: Float32Array },
+    mat3x4h: { numElements: 12, align: 8, size: 24, pad: [3, 1], type: 'u16', View: Uint16Array },
+    mat4x4f: { numElements: 16, align: 16, size: 64, type: 'f32', View: Float32Array },
+    mat4x4h: { numElements: 16, align: 8, size: 32, type: 'u16', View: Uint16Array },
+};
+const typeInfo = {
+    ...b,
+    'vec2<i32>': b.vec2f,
+    'vec2<u32>': b.vec2i,
+    'vec2<f32>': b.vec2u,
+    'vec2<f16>': b.vec2h,
+    'vec3<i32>': b.vec3i,
+    'vec3<u32>': b.vec3u,
+    'vec3<f32>': b.vec3f,
+    'vec3<f16>': b.vec3h,
+    'vec4<i32>': b.vec4i,
+    'vec4<u32>': b.vec4u,
+    'vec4<f32>': b.vec4f,
+    'vec4<f16>': b.vec4h,
+    'mat2x2<f32>': b.mat2x2f,
+    'mat2x2<f16>': b.mat2x2h,
+    'mat3x2<f32>': b.mat3x2f,
+    'mat3x2<f16>': b.mat3x2h,
+    'mat4x2<f32>': b.mat4x2f,
+    'mat4x2<f16>': b.mat4x2h,
+    'mat2x3<f32>': b.mat2x3f,
+    'mat2x3<f16>': b.mat2x3h,
+    'mat3x3<f32>': b.mat3x3f,
+    'mat3x3<f16>': b.mat3x3h,
+    'mat4x3<f32>': b.mat4x3f,
+    'mat4x3<f16>': b.mat4x3h,
+    'mat2x4<f32>': b.mat2x4f,
+    'mat2x4<f16>': b.mat2x4h,
+    'mat3x4<f32>': b.mat3x4f,
+    'mat3x4<f16>': b.mat3x4h,
+    'mat4x4<f32>': b.mat4x4f,
+    'mat4x4<f16>': b.mat4x4h,
+};
+// This needs to be fixed! 😱
+function getSizeOfStructDef(fieldDef) {
+    if (Array.isArray(fieldDef)) {
+        return fieldDef.length * getSizeOfStructDef(fieldDef[0]);
+    }
+    else {
+        return fieldDef.size;
+    }
+}
+/**
+ * Creates a set of named TypedArray views on an ArrayBuffer
+ * @param structDef Definition of the various types of views.
+ * @param arrayBuffer Optional ArrayBuffer to use (if one provided one will be created)
+ * @param offset Optional offset in existing ArrayBuffer to start the views.
+ * @returns A bunch of named TypedArray views and the ArrayBuffer
+ */
+function makeTypedArrayViews(structDef, arrayBuffer, offset) {
+    const baseOffset = offset || 0;
+    const buffer = arrayBuffer || new ArrayBuffer(getSizeOfStructDef(structDef));
+    const makeViews = (structDef) => {
+        if (Array.isArray(structDef)) {
+            return structDef.map(elemDef => makeViews(elemDef));
+        }
+        else if (typeof structDef === 'string') {
+            throw Error('unreachable');
+        }
+        else {
+            const fields = structDef.fields;
+            if (fields) {
+                const views = {};
+                for (const [name, def] of Object.entries(fields)) {
+                    views[name] = makeViews(def);
+                }
+                return views;
+            }
+            else {
+                const { size, offset, type } = structDef;
+                try {
+                    const { View } = typeInfo[type];
+                    const numElements = size / View.BYTES_PER_ELEMENT;
+                    return new View(buffer, baseOffset + offset, numElements);
+                }
+                catch {
+                    throw new Error(`unknown type: ${type}`);
+                }
+            }
+        }
+    };
+    return { views: makeViews(structDef), arrayBuffer: buffer };
+}
+/**
+ * Given a set of TypeArrayViews and matching JavaScript data
+ * sets the content of the views.
+ * @param data The new values
+ * @param views TypedArray views as returned from {@link makeTypedArrayViews}
+ */
+function setStructuredView(data, views) {
+    if (data === undefined) {
+        return;
+    }
+    else if (isTypedArray(views)) {
+        const view = views;
+        if (view.length === 1 && typeof data === 'number') {
+            view[0] = data;
+        }
+        else {
+            if (Array.isArray(data[0]) || isTypedArray(data[0])) {
+                // complete hack!
+                // there's no type data here so let's guess based on the user's data
+                const dataLen = data[0].length;
+                const stride = dataLen == 3 ? 4 : dataLen;
+                for (let i = 0; i < data.length; ++i) {
+                    const offset = i * stride;
+                    view.set(data[i], offset);
+                }
+            }
+            else {
+                view.set(data);
+            }
+        }
+    }
+    else if (Array.isArray(views)) {
+        const asArray = views;
+        data.forEach((newValue, ndx) => {
+            setStructuredView(newValue, asArray[ndx]);
+        });
+    }
+    else {
+        const asViews = views;
+        for (const [key, newValue] of Object.entries(data)) {
+            const view = asViews[key];
+            if (view) {
+                setStructuredView(newValue, view);
+            }
+        }
+    }
+}
+/**
+ * Given a StructDefinition, create matching TypedArray views
+ * @param structDef A StructDefinition as returned from {@link makeShaderDataDefinitions}
+ * @param arrayBuffer Optional ArrayBuffer for the views
+ * @param offset Optional offset into the ArrayBuffer for the views
+ * @returns TypedArray views for the various named fields of the structure as well
+ *    as a `set` function to make them easy to set, and the arrayBuffer
+ */
+function makeStructuredView(structDef, arrayBuffer, offset = 0) {
+    const views = makeTypedArrayViews(structDef, arrayBuffer, offset);
+    return {
+        ...views,
+        set(data) {
+            setStructuredView(data, views.views);
+        },
+    };
+}
+const s_views = new WeakMap();
+function getViewsByCtor(arrayBuffer) {
+    let viewsByCtor = s_views.get(arrayBuffer);
+    if (!viewsByCtor) {
+        viewsByCtor = new Map();
+        s_views.set(arrayBuffer, viewsByCtor);
+    }
+    return viewsByCtor;
+}
+function getView(arrayBuffer, Ctor) {
+    const viewsByCtor = getViewsByCtor(arrayBuffer);
+    let view = viewsByCtor.get(Ctor);
+    if (!view) {
+        view = new Ctor(arrayBuffer);
+        viewsByCtor.set(Ctor, view);
+    }
+    return view;
+}
+function setStructuredValues(fieldDef, data, arrayBuffer, offset = 0) {
+    const asIntrinsicDefinition = fieldDef;
+    if (asIntrinsicDefinition.type) {
+        const type = typeInfo[asIntrinsicDefinition.type];
+        const view = getView(arrayBuffer, type.View);
+        const index = (offset + asIntrinsicDefinition.offset) / view.BYTES_PER_ELEMENT;
+        if (typeof data === 'number') {
+            view[index] = data;
+        }
+        else {
+            view.set(data, index);
+        }
+    }
+    else if (Array.isArray(fieldDef)) {
+        // It's IntrinsicDefinition[] or StructDefinition[]
+        data.forEach((newValue, ndx) => {
+            setStructuredValues(fieldDef[ndx], newValue, arrayBuffer, offset);
+        });
+    }
+    else {
+        // It's StructDefinition
+        const asStructDefinition = fieldDef;
+        for (const [key, newValue] of Object.entries(data)) {
+            const fieldDef = asStructDefinition.fields[key];
+            if (fieldDef) {
+                setStructuredValues(fieldDef, newValue, arrayBuffer, offset);
+            }
+        }
+    }
+}
+
+class ParseContext {
+    constructor() {
+        this.constants = new Map();
+        this.aliases = new Map();
+        this.structs = new Map();
+    }
+}
 /**
  * @class Node
  * @category AST
@@ -11,6 +274,12 @@ class Node {
     }
     get astNodeType() {
         return "";
+    }
+    evaluate(context) {
+        throw new Error("Cannot evaluate node");
+    }
+    evaluateString(context) {
+        return this.evaluate(context).toString();
     }
 }
 /**
@@ -138,6 +407,9 @@ class Const extends Statement {
     }
     get astNodeType() {
         return "const";
+    }
+    evaluate(context) {
+        return this.value.evaluate(context);
     }
 }
 var IncrementOperator;
@@ -297,6 +569,14 @@ class Struct extends Statement {
     }
     get astNodeType() {
         return "struct";
+    }
+    /// Return the index of the member with the given name, or -1 if not found.
+    getMemberIndex(name) {
+        for (let i = 0; i < this.members.length; i++) {
+            if (this.members[i].name == name)
+                return i;
+        }
+        return -1;
     }
 }
 /**
@@ -469,6 +749,9 @@ class StringExpr extends Expression {
     toString() {
         return this.value;
     }
+    evaluateString() {
+        return this.value;
+    }
 }
 /**
  * @class CreateExpr
@@ -499,6 +782,111 @@ class CallExpr extends Expression {
     get astNodeType() {
         return "callExpr";
     }
+    evaluate(context) {
+        switch (this.name) {
+            case "abs":
+                return Math.abs(this.args[0].evaluate(context));
+            case "acos":
+                return Math.acos(this.args[0].evaluate(context));
+            case "acosh":
+                return Math.acosh(this.args[0].evaluate(context));
+            case "asin":
+                return Math.asin(this.args[0].evaluate(context));
+            case "asinh":
+                return Math.asinh(this.args[0].evaluate(context));
+            case "atan":
+                return Math.atan(this.args[0].evaluate(context));
+            case "atan2":
+                return Math.atan2(this.args[0].evaluate(context), this.args[1].evaluate(context));
+            case "atanh":
+                return Math.atanh(this.args[0].evaluate(context));
+            case "ceil":
+                return Math.ceil(this.args[0].evaluate(context));
+            case "clamp":
+                return Math.min(Math.max(this.args[0].evaluate(context), this.args[1].evaluate(context)), this.args[2].evaluate(context));
+            case "cos":
+                return Math.cos(this.args[0].evaluate(context));
+            //case "cross":
+            //TODO: (x[i] * y[j] - x[j] * y[i])
+            case "degrees":
+                return (this.args[0].evaluate(context) * 180) / Math.PI;
+            //case "determinant":
+            //TODO implement
+            case "distance":
+                return Math.sqrt(Math.pow(this.args[0].evaluate(context) - this.args[1].evaluate(context), 2));
+            case "dot":
+            //TODO: (x[i] * y[i])
+            case "exp":
+                return Math.exp(this.args[0].evaluate(context));
+            case "exp2":
+                return Math.pow(2, this.args[0].evaluate(context));
+            //case "extractBits":
+            //TODO: implement
+            //case "firstLeadingBit":
+            //TODO: implement
+            case "floor":
+                return Math.floor(this.args[0].evaluate(context));
+            case "fma":
+                return (this.args[0].evaluate(context) * this.args[1].evaluate(context) +
+                    this.args[2].evaluate(context));
+            case "fract":
+                return (this.args[0].evaluate(context) -
+                    Math.floor(this.args[0].evaluate(context)));
+            //case "frexp":
+            //TODO: implement
+            case "inverseSqrt":
+                return 1 / Math.sqrt(this.args[0].evaluate(context));
+            //case "length":
+            //TODO: implement
+            case "log":
+                return Math.log(this.args[0].evaluate(context));
+            case "log2":
+                return Math.log2(this.args[0].evaluate(context));
+            case "max":
+                return Math.max(this.args[0].evaluate(context), this.args[1].evaluate(context));
+            case "min":
+                return Math.min(this.args[0].evaluate(context), this.args[1].evaluate(context));
+            case "mix":
+                return (this.args[0].evaluate(context) *
+                    (1 - this.args[2].evaluate(context)) +
+                    this.args[1].evaluate(context) * this.args[2].evaluate(context));
+            case "modf":
+                return (this.args[0].evaluate(context) -
+                    Math.floor(this.args[0].evaluate(context)));
+            case "pow":
+                return Math.pow(this.args[0].evaluate(context), this.args[1].evaluate(context));
+            case "radians":
+                return (this.args[0].evaluate(context) * Math.PI) / 180;
+            case "round":
+                return Math.round(this.args[0].evaluate(context));
+            case "sign":
+                return Math.sign(this.args[0].evaluate(context));
+            case "sin":
+                return Math.sin(this.args[0].evaluate(context));
+            case "sinh":
+                return Math.sinh(this.args[0].evaluate(context));
+            case "saturate":
+                return Math.min(Math.max(this.args[0].evaluate(context), 0), 1);
+            case "smoothstep":
+                return (this.args[0].evaluate(context) *
+                    this.args[0].evaluate(context) *
+                    (3 - 2 * this.args[0].evaluate(context)));
+            case "sqrt":
+                return Math.sqrt(this.args[0].evaluate(context));
+            case "step":
+                return this.args[0].evaluate(context) < this.args[1].evaluate(context)
+                    ? 0
+                    : 1;
+            case "tan":
+                return Math.tan(this.args[0].evaluate(context));
+            case "tanh":
+                return Math.tanh(this.args[0].evaluate(context));
+            case "trunc":
+                return Math.trunc(this.args[0].evaluate(context));
+            default:
+                throw new Error("Non const function: " + this.name);
+        }
+    }
 }
 /**
  * @class VariableExpr
@@ -515,6 +903,37 @@ class VariableExpr extends Expression {
     }
 }
 /**
+ * @class ConstExpr
+ * @extends Expression
+ * @category AST
+ */
+class ConstExpr extends Expression {
+    constructor(name, initializer) {
+        super();
+        this.name = name;
+        this.initializer = initializer;
+    }
+    get astNodeType() {
+        return "constExpr";
+    }
+    evaluate(context) {
+        var _a, _b;
+        if (this.initializer instanceof CreateExpr) {
+            // This is a struct constant
+            const property = (_a = this.postfix) === null || _a === void 0 ? void 0 : _a.evaluateString(context);
+            const type = (_b = this.initializer.type) === null || _b === void 0 ? void 0 : _b.name;
+            const struct = context.structs.get(type);
+            const memberIndex = struct === null || struct === void 0 ? void 0 : struct.getMemberIndex(property);
+            if (memberIndex != -1) {
+                const value = this.initializer.args[memberIndex].evaluate(context);
+                return value;
+            }
+            console.log(memberIndex);
+        }
+        return this.initializer.evaluate(context);
+    }
+}
+/**
  * @class LiteralExpr
  * @extends Expression
  * @category AST
@@ -526,6 +945,9 @@ class LiteralExpr extends Expression {
     }
     get astNodeType() {
         return "literalExpr";
+    }
+    evaluate() {
+        return this.value;
     }
 }
 /**
@@ -557,6 +979,9 @@ class TypecastExpr extends Expression {
     get astNodeType() {
         return "typecastExpr";
     }
+    evaluate(context) {
+        return this.args[0].evaluate(context);
+    }
 }
 /**
  * @class GroupingExpr
@@ -570,6 +995,9 @@ class GroupingExpr extends Expression {
     }
     get astNodeType() {
         return "groupExpr";
+    }
+    evaluate(context) {
+        return this.contents[0].evaluate(context);
     }
 }
 /**
@@ -586,6 +1014,7 @@ class Operator extends Expression {
  * @class UnaryOperator
  * @extends Operator
  * @category AST
+ * @property {string} operator +, -, !, ~
  */
 class UnaryOperator extends Operator {
     constructor(operator, right) {
@@ -596,11 +1025,26 @@ class UnaryOperator extends Operator {
     get astNodeType() {
         return "unaryOp";
     }
+    evaluate(context) {
+        switch (this.operator) {
+            case "+":
+                return this.right.evaluate(context);
+            case "-":
+                return -this.right.evaluate(context);
+            case "!":
+                return this.right.evaluate(context) ? 0 : 1;
+            case "~":
+                return ~this.right.evaluate(context);
+            default:
+                throw new Error("Unknown unary operator: " + this.operator);
+        }
+    }
 }
 /**
  * @class BinaryOperator
  * @extends Operator
  * @category AST
+ * @property {string} operator +, -, *, /, %, ==, !=, <, >, <=, >=, &&, ||
  */
 class BinaryOperator extends Operator {
     constructor(operator, left, right) {
@@ -611,6 +1055,54 @@ class BinaryOperator extends Operator {
     }
     get astNodeType() {
         return "binaryOp";
+    }
+    evaluate(context) {
+        switch (this.operator) {
+            case "+":
+                return this.left.evaluate(context) + this.right.evaluate(context);
+            case "-":
+                return this.left.evaluate(context) - this.right.evaluate(context);
+            case "*":
+                return this.left.evaluate(context) * this.right.evaluate(context);
+            case "/":
+                return this.left.evaluate(context) / this.right.evaluate(context);
+            case "%":
+                return this.left.evaluate(context) % this.right.evaluate(context);
+            case "==":
+                return this.left.evaluate(context) == this.right.evaluate(context)
+                    ? 1
+                    : 0;
+            case "!=":
+                return this.left.evaluate(context) != this.right.evaluate(context)
+                    ? 1
+                    : 0;
+            case "<":
+                return this.left.evaluate(context) < this.right.evaluate(context)
+                    ? 1
+                    : 0;
+            case ">":
+                return this.left.evaluate(context) > this.right.evaluate(context)
+                    ? 1
+                    : 0;
+            case "<=":
+                return this.left.evaluate(context) <= this.right.evaluate(context)
+                    ? 1
+                    : 0;
+            case ">=":
+                return this.left.evaluate(context) >= this.right.evaluate(context)
+                    ? 1
+                    : 0;
+            case "&&":
+                return this.left.evaluate(context) && this.right.evaluate(context)
+                    ? 1
+                    : 0;
+            case "||":
+                return this.left.evaluate(context) || this.right.evaluate(context)
+                    ? 1
+                    : 0;
+            default:
+                throw new Error(`Unknown operator ${this.operator}`);
+        }
     }
 }
 /**
@@ -828,6 +1320,7 @@ TokenTypes.keywords = {
     storage: new TokenType("storage", TokenClass.keyword, "storage"),
     switch: new TokenType("switch", TokenClass.keyword, "switch"),
     true: new TokenType("true", TokenClass.keyword, "true"),
+    alias: new TokenType("alias", TokenClass.keyword, "alias"),
     type: new TokenType("type", TokenClass.keyword, "type"),
     uniform: new TokenType("uniform", TokenClass.keyword, "uniform"),
     var: new TokenType("var", TokenClass.keyword, "var"),
@@ -1291,6 +1784,7 @@ class WgslParser {
     constructor() {
         this._tokens = [];
         this._current = 0;
+        this._context = new ParseContext();
     }
     parse(tokensOrCode) {
         this._initialize(tokensOrCode);
@@ -1387,7 +1881,7 @@ class WgslParser {
         // Ignore any stand-alone semicolons
         while (this._match(TokenTypes.tokens.semicolon) && !this._isAtEnd())
             ;
-        if (this._match(TokenTypes.keywords.type)) {
+        if (this._match(TokenTypes.keywords.alias)) {
             const type = this._type_alias();
             this._consume(TokenTypes.tokens.semicolon, "Expected ';'");
             return type;
@@ -1407,11 +1901,18 @@ class WgslParser {
             return _var;
         }
         if (this._check(TokenTypes.keywords.let)) {
-            const _let = this._global_constant_decl();
+            const _let = this._global_let_decl();
             if (_let != null)
                 _let.attributes = attrs;
             this._consume(TokenTypes.tokens.semicolon, "Expected ';'.");
             return _let;
+        }
+        if (this._check(TokenTypes.keywords.const)) {
+            const _const = this._global_const_decl();
+            if (_const != null)
+                _const.attributes = attrs;
+            this._consume(TokenTypes.tokens.semicolon, "Expected ';'.");
+            return _const;
         }
         if (this._check(TokenTypes.keywords.struct)) {
             const _struct = this._struct_decl();
@@ -1936,19 +2437,38 @@ class WgslParser {
         }
         return null;
     }
+    _getStruct(name) {
+        if (this._context.aliases.has(name)) {
+            const alias = this._context.aliases.get(name).type;
+            return alias;
+        }
+        if (this._context.structs.has(name)) {
+            const struct = this._context.structs.get(name);
+            return struct;
+        }
+        return null;
+    }
     _primary_expression() {
         // ident argument_expression_list?
         if (this._match(TokenTypes.tokens.ident)) {
             const name = this._previous().toString();
             if (this._check(TokenTypes.tokens.paren_left)) {
                 const args = this._argument_expression_list();
+                const struct = this._getStruct(name);
+                if (struct != null) {
+                    return new CreateExpr(struct, args);
+                }
                 return new CallExpr(name, args);
+            }
+            if (this._context.constants.has(name)) {
+                const c = this._context.constants.get(name);
+                return new ConstExpr(name, c.value);
             }
             return new VariableExpr(name);
         }
         // const_literal
         if (this._match(TokenTypes.const_literal)) {
-            return new LiteralExpr(this._previous().toString());
+            return new LiteralExpr(parseFloat(this._previous().toString()));
         }
         // paren_expression
         if (this._check(TokenTypes.tokens.paren_left)) {
@@ -2019,7 +2539,9 @@ class WgslParser {
             members.push(new Member(memberName, memberType, memberAttrs));
         }
         this._consume(TokenTypes.tokens.brace_right, "Expected '}' after struct body.");
-        return new Struct(name, members);
+        const structNode = new Struct(name, members);
+        this._context.structs.set(name, structNode);
+        return structNode;
     }
     _global_variable_decl() {
         // attribute* variable_decl (equal const_expression)?
@@ -2028,7 +2550,38 @@ class WgslParser {
             _var.value = this._const_expression();
         return _var;
     }
-    _global_constant_decl() {
+    _global_const_decl() {
+        // attribute* const (ident variable_ident_decl) global_const_initializer?
+        if (!this._match(TokenTypes.keywords.const))
+            return null;
+        const name = this._consume(TokenTypes.tokens.ident, "Expected variable name");
+        let type = null;
+        if (this._match(TokenTypes.tokens.colon)) {
+            const attrs = this._attribute();
+            type = this._type_decl();
+            if (type != null)
+                type.attributes = attrs;
+        }
+        let value = null;
+        if (this._match(TokenTypes.tokens.equal)) {
+            let valueExpr = this._short_circuit_or_expression();
+            if (valueExpr instanceof CreateExpr) {
+                value = valueExpr;
+            }
+            else if (valueExpr instanceof ConstExpr &&
+                valueExpr.initializer instanceof CreateExpr) {
+                value = valueExpr.initializer;
+            }
+            else {
+                let constValue = valueExpr.evaluate(this._context);
+                value = new LiteralExpr(constValue);
+            }
+        }
+        const c = new Const(name.toString(), type, "", "", value);
+        this._context.constants.set(c.name, c);
+        return c;
+    }
+    _global_let_decl() {
         // attribute* let (ident variable_ident_decl) global_const_initializer?
         if (!this._match(TokenTypes.keywords.let))
             return null;
@@ -2095,11 +2648,16 @@ class WgslParser {
         // type ident equal type_decl
         const name = this._consume(TokenTypes.tokens.ident, "identity expected.");
         this._consume(TokenTypes.tokens.equal, "Expected '=' for type alias.");
-        const alias = this._type_decl();
-        if (alias === null) {
+        let aliasType = this._type_decl();
+        if (aliasType === null) {
             throw this._error(this._peek(), "Expected Type for Alias.");
         }
-        return new Alias(name.toString(), alias);
+        if (this._context.aliases.has(aliasType.name)) {
+            aliasType = this._context.aliases.get(aliasType.name).type;
+        }
+        const aliasNode = new Alias(name.toString(), aliasType);
+        this._context.aliases.set(aliasNode.name, aliasNode);
+        return aliasNode;
     }
     _type_decl() {
         // ident
@@ -2170,10 +2728,15 @@ class WgslParser {
         if (this._match(TokenTypes.keywords.array)) {
             const array = this._previous();
             this._consume(TokenTypes.tokens.less_than, "Expected '<' for array type.");
-            const format = this._type_decl();
+            let format = this._type_decl();
+            if (this._context.aliases.has(format.name)) {
+                format = this._context.aliases.get(format.name).type;
+            }
             let count = "";
-            if (this._match(TokenTypes.tokens.comma))
-                count = this._consume(TokenTypes.element_count_expression, "Expected element_count for array.").toString();
+            if (this._match(TokenTypes.tokens.comma)) {
+                let c = this._shift_expression();
+                count = c.evaluate(this._context).toString();
+            }
             this._consume(TokenTypes.tokens.greater_than, "Expected '>' for array.");
             let countInt = count ? parseInt(count) : 0;
             return new ArrayType(array.toString(), attrs, format, countInt);
@@ -2494,6 +3057,7 @@ class WgslReflect {
             return null;
         if (name instanceof Struct)
             return name;
+        name = this.getAlias(name) || name;
         if (name instanceof Type) {
             name = name.name;
         }
@@ -2514,7 +3078,7 @@ class WgslReflect {
         }
         for (const u of this.aliases) {
             if (u.name == type)
-                return u.type;
+                return this.getAlias(u.type) || u.type;
         }
         return null;
     }
@@ -2583,7 +3147,7 @@ class WgslReflect {
             const info = this.getTypeInfo(member);
             if (!info)
                 continue;
-            const type = member.type;
+            const type = this.getAlias(member.type) || member.type;
             const align = info.align;
             const size = info.size;
             offset = this._roundUp(align, offset + lastSize);
@@ -2629,21 +3193,22 @@ class WgslReflect {
         const typeInfo = this.getTypeInfo(n.type);
         if (typeInfo === null)
             return null;
-        const info = new BufferInfo(node.name, n.type);
+        const type = this.getAlias(n.type) || n.type;
+        const info = new BufferInfo(node.name, type);
         info.align = typeInfo.align;
         info.size = typeInfo.size;
-        let s = this.getStruct((_a = n.type["format"]) === null || _a === void 0 ? void 0 : _a.name);
+        let s = this.getStruct((_a = type["format"]) === null || _a === void 0 ? void 0 : _a.name);
         let si = s ? this.getStructInfo(s) : undefined;
-        info.isArray = n.type.astNodeType === "array";
+        info.isArray = type.astNodeType === "array";
         info.isStruct = !!s;
         info.members = info.isStruct ? si === null || si === void 0 ? void 0 : si.members : undefined;
         info.name = n.name;
-        info.type = n.type;
+        info.type = type;
         info.arrayStride =
             ((_b = si === null || si === void 0 ? void 0 : si.size) !== null && _b !== void 0 ? _b : info.isArray)
-                ? (_c = this.getTypeInfo(n.type["format"])) === null || _c === void 0 ? void 0 : _c.size
-                : (_d = this.getTypeInfo(n.type)) === null || _d === void 0 ? void 0 : _d.size;
-        info.arrayCount = parseInt((_e = n.type["count"]) !== null && _e !== void 0 ? _e : 0);
+                ? (_c = this.getTypeInfo(type["format"])) === null || _c === void 0 ? void 0 : _c.size
+                : (_d = this.getTypeInfo(type)) === null || _d === void 0 ? void 0 : _d.size;
+        info.arrayCount = parseInt((_e = type["count"]) !== null && _e !== void 0 ? _e : 0);
         return info;
     }
     getUniformBufferInfo(uniform) {
@@ -2667,11 +3232,9 @@ class WgslReflect {
             if (alias !== null) {
                 type = alias;
             }
-            else {
-                const struct = this.getStruct(type.name);
-                if (struct !== null)
-                    type = struct;
-            }
+            const struct = this.getStruct(type.name);
+            if (struct !== null)
+                type = struct;
         }
         {
             const info = WgslReflect.typeInfo[type.name];
@@ -2778,243 +3341,6 @@ WgslReflect.samplerTypes = TokenTypes.sampler_type.map((t) => {
     return t.name;
 });
 
-const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
-// TODO: fix better?
-const isTypedArray = (arr) => arr && typeof arr.length === 'number' && arr.buffer instanceof ArrayBuffer && typeof arr.byteLength === 'number';
-class TypedArrayViewGenerator {
-    arrayBuffer;
-    byteOffset;
-    constructor(sizeInBytes) {
-        this.arrayBuffer = new ArrayBuffer(sizeInBytes);
-        this.byteOffset = 0;
-    }
-    align(alignment) {
-        this.byteOffset = roundUpToMultipleOf(this.byteOffset, alignment);
-    }
-    pad(numBytes) {
-        this.byteOffset += numBytes;
-    }
-    getView(Ctor, numElements) {
-        const view = new Ctor(this.arrayBuffer, this.byteOffset, numElements);
-        this.byteOffset += view.byteLength;
-        return view;
-    }
-}
-const b = {
-    i32: { numElements: 1, align: 4, size: 4, type: 'i32', View: Int32Array },
-    u32: { numElements: 1, align: 4, size: 4, type: 'u32', View: Uint32Array },
-    f32: { numElements: 1, align: 4, size: 4, type: 'f32', View: Float32Array },
-    f16: { numElements: 1, align: 2, size: 2, type: 'u16', View: Uint16Array },
-    vec2f: { numElements: 2, align: 8, size: 8, type: 'f32', View: Float32Array },
-    vec2i: { numElements: 2, align: 8, size: 8, type: 'i32', View: Int32Array },
-    vec2u: { numElements: 2, align: 8, size: 8, type: 'u32', View: Uint32Array },
-    vec2h: { numElements: 2, align: 4, size: 4, type: 'u16', View: Uint16Array },
-    vec3i: { numElements: 3, align: 16, size: 12, type: 'i32', View: Int32Array },
-    vec3u: { numElements: 3, align: 16, size: 12, type: 'u32', View: Uint32Array },
-    vec3f: { numElements: 3, align: 16, size: 12, type: 'f32', View: Float32Array },
-    vec3h: { numElements: 3, align: 8, size: 6, type: 'u16', View: Uint16Array },
-    vec4i: { numElements: 4, align: 16, size: 16, type: 'i32', View: Int32Array },
-    vec4u: { numElements: 4, align: 16, size: 16, type: 'u32', View: Uint32Array },
-    vec4f: { numElements: 4, align: 16, size: 16, type: 'f32', View: Float32Array },
-    vec4h: { numElements: 4, align: 8, size: 8, type: 'u16', View: Uint16Array },
-    // AlignOf(vecR)	SizeOf(array<vecR, C>)
-    mat2x2f: { numElements: 8, align: 8, size: 16, type: 'f32', View: Float32Array },
-    mat2x2h: { numElements: 4, align: 4, size: 8, type: 'u16', View: Uint16Array },
-    mat3x2f: { numElements: 8, align: 8, size: 24, type: 'f32', View: Float32Array },
-    mat3x2h: { numElements: 8, align: 4, size: 12, type: 'u16', View: Uint16Array },
-    mat4x2f: { numElements: 8, align: 8, size: 32, type: 'f32', View: Float32Array },
-    mat4x2h: { numElements: 8, align: 4, size: 16, type: 'u16', View: Uint16Array },
-    mat2x3f: { numElements: 12, align: 16, size: 32, type: 'f32', View: Float32Array },
-    mat2x3h: { numElements: 12, align: 8, size: 16, type: 'u16', View: Uint16Array },
-    mat3x3f: { numElements: 12, align: 16, size: 48, type: 'f32', View: Float32Array },
-    mat3x3h: { numElements: 12, align: 8, size: 24, type: 'u16', View: Uint16Array },
-    mat4x3f: { numElements: 16, align: 16, size: 64, type: 'f32', View: Float32Array },
-    mat4x3h: { numElements: 16, align: 8, size: 32, type: 'u16', View: Uint16Array },
-    mat2x4f: { numElements: 16, align: 16, size: 32, type: 'f32', View: Float32Array },
-    mat2x4h: { numElements: 16, align: 8, size: 16, type: 'u16', View: Uint16Array },
-    mat3x4f: { numElements: 16, align: 16, size: 48, type: 'f32', View: Float32Array },
-    mat3x4h: { numElements: 16, align: 8, size: 24, type: 'u16', View: Uint16Array },
-    mat4x4f: { numElements: 16, align: 16, size: 64, type: 'f32', View: Float32Array },
-    mat4x4h: { numElements: 16, align: 8, size: 32, type: 'u16', View: Uint16Array },
-};
-const typeInfo = {
-    ...b,
-    'vec2<i32>': b.vec2f,
-    'vec2<u32>': b.vec2i,
-    'vec2<f32>': b.vec2u,
-    'vec2<f16>': b.vec2h,
-    'vec3<i32>': b.vec3i,
-    'vec3<u32>': b.vec3u,
-    'vec3<f32>': b.vec3f,
-    'vec3<f16>': b.vec3h,
-    'vec4<i32>': b.vec4i,
-    'vec4<u32>': b.vec4u,
-    'vec4<f32>': b.vec4f,
-    'vec4<f16>': b.vec4h,
-    'mat2x2<f32>': b.mat2x2f,
-    'mat2x2<f16>': b.mat2x2h,
-    'mat3x2<f32>': b.mat3x2f,
-    'mat3x2<f16>': b.mat3x2h,
-    'mat4x2<f32>': b.mat4x2f,
-    'mat4x2<f16>': b.mat4x2h,
-    'mat2x3<f32>': b.mat2x3f,
-    'mat2x3<f16>': b.mat2x3h,
-    'mat3x3<f32>': b.mat3x3f,
-    'mat3x3<f16>': b.mat3x3h,
-    'mat4x3<f32>': b.mat4x3f,
-    'mat4x3<f16>': b.mat4x3h,
-    'mat2x4<f32>': b.mat2x4f,
-    'mat2x4<f16>': b.mat2x4h,
-    'mat3x4<f32>': b.mat3x4f,
-    'mat3x4<f16>': b.mat3x4h,
-    'mat4x4<f32>': b.mat4x4f,
-    'mat4x4<f16>': b.mat4x4h,
-};
-/**
- * Creates a set of named TypedArray views on an ArrayBuffer
- * @param structDef Definition of the various types of views.
- * @param arrayBuffer Optional ArrayBuffer to use (if one provided one will be created)
- * @param offset Optional offset in existing ArrayBuffer to start the views.
- * @returns A bunch of named TypedArray views and the ArrayBuffer
- */
-function makeTypedArrayViews(structDef, arrayBuffer, offset) {
-    const baseOffset = offset || 0;
-    const buffer = arrayBuffer || new ArrayBuffer(structDef.size);
-    const makeViews = (structDef) => {
-        if (Array.isArray(structDef)) {
-            return structDef.map(elemDef => makeViews(elemDef));
-        }
-        else if (typeof structDef === 'string') {
-            throw Error('unreachable');
-        }
-        else {
-            const fields = structDef.fields;
-            if (fields) {
-                const views = {};
-                for (const [name, def] of Object.entries(fields)) {
-                    views[name] = makeViews(def);
-                }
-                return views;
-            }
-            else {
-                const { size, offset, type } = structDef;
-                try {
-                    const { View } = typeInfo[type];
-                    const numElements = size / View.BYTES_PER_ELEMENT;
-                    return new View(buffer, baseOffset + offset, numElements);
-                }
-                catch {
-                    throw new Error(`unknown type: ${type}`);
-                }
-            }
-        }
-    };
-    return { views: makeViews(structDef), arrayBuffer: buffer };
-}
-/**
- * Given a set of TypeArrayViews and matching JavaScript data
- * sets the content of the views.
- * @param data The new values
- * @param views TypedArray views as returned from {@link makeTypedArrayViews}
- */
-function setStructuredView(data, views) {
-    if (data === undefined) {
-        return;
-    }
-    else if (isTypedArray(views)) {
-        const view = views;
-        if (view.length === 1 && typeof data === 'number') {
-            view[0] = data;
-        }
-        else {
-            view.set(data);
-        }
-    }
-    else if (Array.isArray(views)) {
-        const asArray = views;
-        data.forEach((newValue, ndx) => {
-            setStructuredView(newValue, asArray[ndx]);
-        });
-    }
-    else {
-        const asViews = views;
-        for (const [key, newValue] of Object.entries(data)) {
-            const view = asViews[key];
-            if (view) {
-                setStructuredView(newValue, view);
-            }
-        }
-    }
-}
-/**
- * Given a StructDefinition, create matching TypedArray views
- * @param structDef A StructDefinition as returned from {@link makeShaderDataDefinitions}
- * @param arrayBuffer Optional ArrayBuffer for the views
- * @param offset Optional offset into the ArrayBuffer for the views
- * @returns TypedArray views for the various named fields of the structure as well
- *    as a `set` function to make them easy to set, and the arrayBuffer
- */
-function makeStructuredView(structDef, arrayBuffer, offset = 0) {
-    const views = makeTypedArrayViews(structDef, arrayBuffer, offset);
-    return {
-        ...views,
-        set(data) {
-            setStructuredView(data, views.views);
-        },
-    };
-}
-function addMember(reflect, m, offset) {
-    if (m.isArray) {
-        if (m.isStruct) {
-            return [
-                m.name,
-                new Array(m.arrayCount).fill(0).map((_, ndx) => {
-                    return addMembers(reflect, m.members, m.size / m.arrayCount, offset + (m.offset || 0) + m.size / m.arrayCount * ndx);
-                }),
-            ];
-        }
-        else {
-            return [
-                m.name,
-                {
-                    offset: offset + (m.offset || 0),
-                    size: m.size,
-                    type: m.type.format.format
-                        ? `${m.type.format.name}<${m.type.format.format.name}>`
-                        : m.type.format.name,
-                    numElements: m.arrayCount,
-                },
-            ];
-        }
-    }
-    else if (m.isStruct) {
-        return [
-            m.name,
-            addMembers(reflect, m.members, m.size, offset + (m.offset || 0)),
-        ];
-    }
-    else {
-        return [
-            m.name,
-            {
-                offset: offset + (m.offset || 0),
-                size: m.size,
-                type: m.type?.format
-                    ? `${m.type.name}<${m.type.format.name}>`
-                    : m.type?.name || m.name,
-            },
-        ];
-    }
-}
-function addMembers(reflect, members, size, offset = 0) {
-    const fields = Object.fromEntries(members.map(m => {
-        return addMember(reflect, m, offset);
-    }));
-    return {
-        fields,
-        size,
-    };
-}
 /**
  * Given a WGSL shader, returns data definitions for structures,
  * uniforms, and storage buffers
@@ -3074,54 +3400,217 @@ function makeShaderDataDefinitions(code) {
         uniforms,
     };
 }
-const s_views = new WeakMap();
-function getViewsByCtor(arrayBuffer) {
-    let viewsByCtor = s_views.get(arrayBuffer);
-    if (!viewsByCtor) {
-        viewsByCtor = new Map();
-        s_views.set(arrayBuffer, viewsByCtor);
-    }
-    return viewsByCtor;
-}
-function getView(arrayBuffer, Ctor) {
-    const viewsByCtor = getViewsByCtor(arrayBuffer);
-    let view = viewsByCtor.get(Ctor);
-    if (!view) {
-        view = new Ctor(arrayBuffer);
-        viewsByCtor.set(Ctor, view);
-    }
-    return view;
-}
-function setStructuredValues(fieldDef, data, arrayBuffer, offset = 0) {
-    const asIntrinsicDefinition = fieldDef;
-    if (asIntrinsicDefinition.type) {
-        const type = typeInfo[asIntrinsicDefinition.type];
-        const view = getView(arrayBuffer, type.View);
-        const index = (offset + asIntrinsicDefinition.offset) / view.BYTES_PER_ELEMENT;
-        if (typeof data === 'number') {
-            view[index] = data;
+function addMember(reflect, m, offset) {
+    if (m.isArray) {
+        if (m.isStruct) {
+            return [
+                m.name,
+                new Array(m.arrayCount).fill(0).map((_, ndx) => {
+                    return addMembers(reflect, m.members, m.size / m.arrayCount, offset + (m.offset || 0) + m.size / m.arrayCount * ndx);
+                }),
+            ];
         }
         else {
-            view.set(data, index);
+            return [
+                m.name,
+                {
+                    offset: offset + (m.offset || 0),
+                    size: m.size,
+                    type: m.type.format.format
+                        ? `${m.type.format.name}<${m.type.format.format.name}>`
+                        : m.type.format.name,
+                    numElements: m.arrayCount,
+                },
+            ];
         }
     }
-    else if (Array.isArray(fieldDef)) {
-        // It's IntrinsicDefinition[] or StructDefinition[]
-        data.forEach((newValue, ndx) => {
-            setStructuredValues(fieldDef[ndx], newValue, arrayBuffer, offset);
-        });
+    else if (m.isStruct) {
+        return [
+            m.name,
+            addMembers(reflect, m.members, m.size, offset + (m.offset || 0)),
+        ];
     }
     else {
-        // It's StructDefinition
-        const asStructDefinition = fieldDef;
-        for (const [key, newValue] of Object.entries(data)) {
-            const fieldDef = asStructDefinition.fields[key];
-            if (fieldDef) {
-                setStructuredValues(fieldDef, newValue, arrayBuffer, offset);
-            }
-        }
+        return [
+            m.name,
+            {
+                offset: offset + (m.offset || 0),
+                size: m.size,
+                type: m.type?.format
+                    ? `${m.type.name}<${m.type.format.name}>`
+                    : m.type?.name || m.name,
+            },
+        ];
     }
 }
+function addMembers(reflect, members, size, offset = 0) {
+    const fields = Object.fromEntries(members.map(m => {
+        return addMember(reflect, m, offset);
+    }));
+    return {
+        fields,
+        size,
+    };
+}
 
-export { TypedArrayViewGenerator, isTypedArray, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayViews, roundUpToMultipleOf, setStructuredValues, setStructuredView };
+function normalizeGPUExtent3Dict(size) {
+    return [size.width, size.height || 1, size.depthOrArrayLayers || 1];
+}
+function normalizeGPUExtent3D(size) {
+    return (Array.isArray(size) || isTypedArray(size))
+        ? Array.from(size)
+        : normalizeGPUExtent3Dict(size);
+}
+function numMipLevels(size) {
+    const sizes = normalizeGPUExtent3D(size);
+    const maxSize = Math.max(...sizes);
+    return 1 + Math.log2(maxSize) | 0;
+}
+// Use a WeakMap so the device can be destroyed and/or lost
+const byDevice = new WeakMap();
+function generateMipmap(device, texture) {
+    let perDeviceInfo = byDevice.get(device);
+    if (!perDeviceInfo) {
+        perDeviceInfo = {
+            pipelineByFormat: {},
+        };
+        byDevice.set(device, perDeviceInfo);
+    }
+    let { sampler, module, } = perDeviceInfo;
+    const { pipelineByFormat, } = perDeviceInfo;
+    if (!module) {
+        module = device.createShaderModule({
+            label: 'mip level generation',
+            code: `
+            struct VSOutput {
+               @builtin(position) position: vec4f,
+               @location(0) texcoord: vec2f,
+            };
+
+            @vertex fn vs(
+               @builtin(vertex_index) vertexIndex : u32
+            ) -> VSOutput {
+               var pos = array<vec2f, 3>(
+                  vec2f(-1.0, -1.0),
+                  vec2f(-1.0,  3.0),
+                  vec2f( 3.0, -1.0),
+               );
+
+               var vsOutput: VSOutput;
+               let xy = pos[vertexIndex];
+               vsOutput.position = vec4f(xy, 0.0, 1.0);
+               vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
+               return vsOutput;
+            }
+
+            @group(0) @binding(0) var ourSampler: sampler;
+            @group(0) @binding(1) var ourTexture: texture_2d<f32>;
+
+            @fragment fn fs(fsInput: VSOutput) -> @location(0) vec4f {
+               return textureSample(ourTexture, ourSampler, fsInput.texcoord);
+            }
+         `,
+        });
+        sampler = device.createSampler({
+            minFilter: 'linear',
+        });
+        perDeviceInfo.module = module;
+        perDeviceInfo.sampler = sampler;
+    }
+    if (!pipelineByFormat[texture.format]) {
+        pipelineByFormat[texture.format] = device.createRenderPipeline({
+            label: 'mip level generator pipeline',
+            layout: 'auto',
+            vertex: {
+                module,
+                entryPoint: 'vs',
+            },
+            fragment: {
+                module,
+                entryPoint: 'fs',
+                targets: [{ format: texture.format }],
+            },
+        });
+    }
+    const pipeline = pipelineByFormat[texture.format];
+    const encoder = device.createCommandEncoder({
+        label: 'mip gen encoder',
+    });
+    let width = texture.width;
+    let height = texture.height;
+    let baseMipLevel = 0;
+    while (width > 1 || height > 1) {
+        width = Math.max(1, width / 2 | 0);
+        height = Math.max(1, height / 2 | 0);
+        const bindGroup = device.createBindGroup({
+            layout: pipeline.getBindGroupLayout(0),
+            entries: [
+                { binding: 0, resource: sampler },
+                { binding: 1, resource: texture.createView({ baseMipLevel, mipLevelCount: 1 }) },
+            ],
+        });
+        ++baseMipLevel;
+        const renderPassDescriptor = {
+            label: 'mip gen renderPass',
+            colorAttachments: [
+                {
+                    view: texture.createView({ baseMipLevel, mipLevelCount: 1 }),
+                    loadOp: 'clear',
+                    storeOp: 'store',
+                },
+            ],
+        };
+        const pass = encoder.beginRenderPass(renderPassDescriptor);
+        pass.setPipeline(pipeline);
+        pass.setBindGroup(0, bindGroup);
+        pass.draw(3);
+        pass.end();
+    }
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+}
+
+function copySourceToTexture(device, texture, source, { flipY } = {}) {
+    device.queue.copyExternalImageToTexture({ source, flipY, }, { texture }, { width: source.width, height: source.height });
+    if (texture.mipLevelCount > 1) {
+        generateMipmap(device, texture);
+    }
+}
+function getSizeFromSource(source) {
+    if (source instanceof HTMLVideoElement) {
+        return [source.videoWidth, source.videoHeight];
+    }
+    else {
+        return [source.width, source.height];
+    }
+}
+function createTextureFromSource(device, source, options = {}) {
+    const size = getSizeFromSource(source);
+    const texture = device.createTexture({
+        format: options.format || 'rgba8unorm',
+        mipLevelCount: options.mips ? numMipLevels(size) : 1,
+        size,
+        usage: (options.usage ?? 0) |
+            GPUTextureUsage.TEXTURE_BINDING |
+            GPUTextureUsage.COPY_DST |
+            GPUTextureUsage.RENDER_ATTACHMENT,
+    });
+    copySourceToTexture(device, texture, source, options);
+    return texture;
+}
+async function loadImageBitmap(url, options = {}) {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const opt = {
+        ...options,
+        ...(options.colorSpaceConversion !== undefined && { colorSpaceConversion: 'none' }),
+    };
+    return await createImageBitmap(blob, opt);
+}
+async function createTextureFromImage(device, url, options = {}) {
+    const imgBitmap = await loadImageBitmap(url);
+    return createTextureFromSource(device, imgBitmap, options);
+}
+
+export { TypedArrayViewGenerator, copySourceToTexture, createTextureFromImage, createTextureFromSource, generateMipmap, getSizeFromSource, loadImageBitmap, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayViews, normalizeGPUExtent3D, numMipLevels, setStructuredValues, setStructuredView };
 //# sourceMappingURL=webgpu-utils.module.js.map

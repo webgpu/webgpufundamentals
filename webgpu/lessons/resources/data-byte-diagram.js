@@ -48,7 +48,7 @@ class GridBuilder {
   }
 
   addPadding(num) {
-    assert(!Number.isNaN(num));
+    assert(num >= 0);
     while (num) {
       this._prepRow();
       const paddingAvailableForRow = this.numColumns - this.currentCol;
@@ -181,6 +181,14 @@ function getColor(grid, color) {
   return color === undefined ? grid.getColor() : color;
 }
 
+function getSizeForType(type) {
+  if (Array.isArray(type)) {
+    return type.reduce((sum, type) => sum + getSizeForType(type), 0);
+  } else {
+    return type.size;
+  }
+}
+
 function addGridType(grid, type, name, color) {
   let startOffset;
   if (type.offset) {
@@ -215,7 +223,7 @@ function addGridType(grid, type, name, color) {
     grid.addElements(name, type.type, color);
   }
   if (startOffset !== undefined) {
-    grid.addPadding(type.size - (grid.byteOffset - startOffset));
+    grid.addPadding(getSizeForType(type) - (grid.byteOffset - startOffset));
   }
 }
 
@@ -224,7 +232,7 @@ const kNumBytesPerRow = 16;
 function addTypeToGrid(name, type) {
   const grid = new GridBuilder(kNumBytesPerRow);
   addGridType(grid, type, '');
-  grid.addPadding(type.size - grid.byteOffset);
+  grid.addPadding(getSizeForType(type) - grid.byteOffset);
   return grid.tableElem;
 }
 
