@@ -1363,7 +1363,7 @@ our original projection function we'd call it with
 
 {{{example url="../webgpu-orthographic-projection-step-7-ortho.html"}}}
 
-Next we'll go over [how to make it have perspective](webgpu-perspective.html).
+Next we'll go over [how to make it have perspective](webgpu-perspective-projection.html).
 
 <div class="webgpu_bottombar">
 <h3>Why's it called orthographic projection</h3>
