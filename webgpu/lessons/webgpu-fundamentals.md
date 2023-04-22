@@ -323,7 +323,7 @@ This designates it as a vertex shader function.
          ...
 ```
 
-It excepts one parameter we named `vertexIndex`. `vertexIndex` is a `u32` which
+It accepts one parameter we named `vertexIndex`. `vertexIndex` is a `u32` which
 means a *32bit unsigned integer*. It gets its value from the builtin called
 `vertex_index`. `vertex_index` is the iteration number just like `index` in
 JavaScript's `Array.map(function(value, index) { ... })`. If we tell the GPU to
