@@ -352,7 +352,6 @@ vertex buffer.</p>
 <p></p>
 <p>The state when the draw command is executed would look something like this</p>
 <div class="webgpu_center"><img src="resources/webgpu-draw-diagram-vertex-buffer.svg" style="width: 960px;"></div>
-<p>Note that we don’t actually need the struct. This vertex shader would also work</p>
 <p>The attribute <code class="notranslate" translate="no">format</code> field can be one of these types</p>
 <div class="webgpu_center data-table">
   <style>
@@ -449,7 +448,7 @@ struct VSOutput {
 We’re going to interleave the data like this</p>
 <div class="webgpu_center"><img src="resources/vertex-buffer-mixed.svg" style="width: 1024px;"></div>
 <p>So, the <code class="notranslate" translate="no">arrayStride</code> need to be change to cover our new data and we need
-to add the new attribute. Iit starts two 32bit floating point numbers is
+to add the new attribute. It starts after two 32bit floating point numbers
 so its <code class="notranslate" translate="no">offset</code> into the buffer is 8 bytes.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
     label: '2 attributes',
