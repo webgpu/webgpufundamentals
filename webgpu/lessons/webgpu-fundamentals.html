@@ -489,7 +489,7 @@ This designates it as a vertex shader function.</p>
       ) -&gt; @builtin(position) vec4f {
          ...
 </pre>
-<p>It excepts one parameter we named <code class="notranslate" translate="no">vertexIndex</code>. <code class="notranslate" translate="no">vertexIndex</code> is a <code class="notranslate" translate="no">u32</code> which
+<p>It accepts one parameter we named <code class="notranslate" translate="no">vertexIndex</code>. <code class="notranslate" translate="no">vertexIndex</code> is a <code class="notranslate" translate="no">u32</code> which
 means a <em>32bit unsigned integer</em>. It gets its value from the builtin called
 <code class="notranslate" translate="no">vertex_index</code>. <code class="notranslate" translate="no">vertex_index</code> is the iteration number just like <code class="notranslate" translate="no">index</code> in
 JavaScript’s <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array.map(function(value, index) { ... })"><code class="notranslate" translate="no">Array.map(function(value, index) { ... })</code></a>. If we tell the GPU to
