@@ -775,7 +775,7 @@ const generateMips = (src, srcWidth) => {
 };
 ```
 
-We'll go over how to do this on the GPU in [another article](webgpu-generate-mips.html).
+We'll go over how to do this on the GPU in [another article](webgpu-importing-textures.html).
 For now, we can use the code above to generate a mipmap.
 
 We pass our texture data to the function above, and it returns an array of mip level data.
