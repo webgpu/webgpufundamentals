@@ -345,7 +345,7 @@ coordinate that outside that range.
 If our texture is "🟥🟩🟦" then repeat goes "🟥🟩🟦🟥🟩🟦🟥🟩🟦🟥🟩🟦" and mirror-repeat
 goes "🟥🟩🟦🟦🟩🟥🟥🟩🟦🟦🟩🟥"
 
-Let's update the sample so we can draw the quad with all of these options.
+Let's update the sampler so we can draw the quad with all of these options.
 
 First let's create a sampler for each combination of settings.
 We'll also create a bind group that uses that sampler.
@@ -436,7 +436,7 @@ for when the texture is drawn smaller than its size. When set to 'linear'
 it also chooses 4 pixels and blends them following similar math to that above.
 
 The problem is, choosing 4 blended pixels from larger texture to render say 1
-pixel, the color will change an we'll get flickering.
+pixel, the color will change and we'll get flickering.
 
 Let's do it so we can see the issue
 
