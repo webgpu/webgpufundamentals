@@ -8,7 +8,7 @@ This is a big contrast to JavaScript and TypeScript where memory
 layout issues rarely come up.
 
 In WGSL when you write your shaders, it's common to define `struct`s.
-Structs are kind of line JavaScript objects, you declare members of
+Structs are kind of like JavaScript objects, you declare members of
 a struct, similar to properties of a JavaScript object. But, on top
 of giving each property a name, you also have to give it a type.
 **AND**, when providing the data **it's up to you** to compute where
