@@ -8,7 +8,7 @@ This is a big contrast to JavaScript and TypeScript where memory
 layout issues rarely come up.
 
 In WGSL when you write your shaders, it's common to define `struct`s.
-Structs are kind of line JavaScript objects, you declare members of
+Structs are kind of like JavaScript objects, you declare members of
 a struct, similar to properties of a JavaScript object. But, on top
 of giving each property a name, you also have to give it a type.
 **AND**, when providing the data **it's up to you** to compute where
@@ -182,60 +182,60 @@ They are:
       <tr><td><code>vec2&lt;i32&gt;</code></td></td><td>a type with 2  <code>i32</code>s</td><td><code>vec2i</code></td></tr>
       <tr><td><code>vec2&lt;f16&gt;</code></td></td><td>a type with 2  <code>f16</code>s</td><td><code>vec2h</code></td></tr>
       <tr></tr>
-      <tr><td><code>vec3&lt;f32&gt;</code></td></td><td>a type with 3  <code>f32</code>s</td><td><code>vec2f</code></td></tr>
-      <tr><td><code>vec3&lt;u32&gt;</code></td></td><td>a type with 3  <code>u32</code>s</td><td><code>vec2u</code></td></tr>
-      <tr><td><code>vec3&lt;i32&gt;</code></td></td><td>a type with 3  <code>i32</code>s</td><td><code>vec2i</code></td></tr>
-      <tr><td><code>vec3&lt;f16&gt;</code></td></td><td>a type with 3  <code>f16</code>s</td><td><code>vec2h</code></td></tr>
+      <tr><td><code>vec3&lt;f32&gt;</code></td></td><td>a type with 3  <code>f32</code>s</td><td><code>vec3f</code></td></tr>
+      <tr><td><code>vec3&lt;u32&gt;</code></td></td><td>a type with 3  <code>u32</code>s</td><td><code>vec3u</code></td></tr>
+      <tr><td><code>vec3&lt;i32&gt;</code></td></td><td>a type with 3  <code>i32</code>s</td><td><code>vec3i</code></td></tr>
+      <tr><td><code>vec3&lt;f16&gt;</code></td></td><td>a type with 3  <code>f16</code>s</td><td><code>vec3h</code></td></tr>
       <tr></tr>
-      <tr><td><code>vec4&lt;f32&gt;</code></td></td><td>a type with 4  <code>f32</code>s</td><td><code>vec2f</code></td></tr>
-      <tr><td><code>vec4&lt;u32&gt;</code></td></td><td>a type with 4  <code>u32</code>s</td><td><code>vec2u</code></td></tr>
-      <tr><td><code>vec4&lt;i32&gt;</code></td></td><td>a type with 4  <code>i32</code>s</td><td><code>vec2i</code></td></tr>
-      <tr><td><code>vec4&lt;f16&gt;</code></td></td><td>a type with 4  <code>f16</code>s</td><td><code>vec2h</code></td></tr>
+      <tr><td><code>vec4&lt;f32&gt;</code></td></td><td>a type with 4  <code>f32</code>s</td><td><code>vec4f</code></td></tr>
+      <tr><td><code>vec4&lt;u32&gt;</code></td></td><td>a type with 4  <code>u32</code>s</td><td><code>vec4u</code></td></tr>
+      <tr><td><code>vec4&lt;i32&gt;</code></td></td><td>a type with 4  <code>i32</code>s</td><td><code>vec4i</code></td></tr>
+      <tr><td><code>vec4&lt;f16&gt;</code></td></td><td>a type with 4  <code>f16</code>s</td><td><code>vec4h</code></td></tr>
       <tr></tr>
       <tr><td><code>mat2x2&lt;f32&gt;</code></td></td><td>a matrix of 2 <code>vec2&lt;f32&gt;</code>s</td><td><code>mat2x2f</code></td></tr>
       <tr><td><code>mat2x2&lt;u32&gt;</code></td></td><td>a matrix of 2 <code>vec2&lt;u32&gt;</code>s</td><td><code>mat2x2u</code></td></tr>
       <tr><td><code>mat2x2&lt;i32&gt;</code></td></td><td>a matrix of 2 <code>vec2&lt;i32&gt;</code>s</td><td><code>mat2x2i</code></td></tr>
       <tr><td><code>mat2x2&lt;f16&gt;</code></td></td><td>a matrix of 2 <code>vec2&lt;f16&gt;</code>s</td><td><code>mat2x2h</code></td></tr>
       <tr></tr>
-      <tr><td><code>mat2x3&lt;f32&gt;</code></td></td><td>a matrix of 2 <code>vec3&lt;f32&gt;</code>s</td><td><code>mat2x2f</code></td></tr>
-      <tr><td><code>mat2x3&lt;u32&gt;</code></td></td><td>a matrix of 2 <code>vec3&lt;u32&gt;</code>s</td><td><code>mat2x2u</code></td></tr>
-      <tr><td><code>mat2x3&lt;i32&gt;</code></td></td><td>a matrix of 2 <code>vec3&lt;i32&gt;</code>s</td><td><code>mat2x2i</code></td></tr>
-      <tr><td><code>mat2x3&lt;f16&gt;</code></td></td><td>a matrix of 2 <code>vec3&lt;f16&gt;</code>s</td><td><code>mat2x2h</code></td></tr>
+      <tr><td><code>mat2x3&lt;f32&gt;</code></td></td><td>a matrix of 2 <code>vec3&lt;f32&gt;</code>s</td><td><code>mat2x3f</code></td></tr>
+      <tr><td><code>mat2x3&lt;u32&gt;</code></td></td><td>a matrix of 2 <code>vec3&lt;u32&gt;</code>s</td><td><code>mat2x3u</code></td></tr>
+      <tr><td><code>mat2x3&lt;i32&gt;</code></td></td><td>a matrix of 2 <code>vec3&lt;i32&gt;</code>s</td><td><code>mat2x3i</code></td></tr>
+      <tr><td><code>mat2x3&lt;f16&gt;</code></td></td><td>a matrix of 2 <code>vec3&lt;f16&gt;</code>s</td><td><code>mat2x3h</code></td></tr>
       <tr></tr>
-      <tr><td><code>mat2x4&lt;f32&gt;</code></td></td><td>a matrix of 2 <code>vec4&lt;f32&gt;</code>s</td><td><code>mat2x2f</code></td></tr>
-      <tr><td><code>mat2x4&lt;u32&gt;</code></td></td><td>a matrix of 2 <code>vec4&lt;u32&gt;</code>s</td><td><code>mat2x2u</code></td></tr>
-      <tr><td><code>mat2x4&lt;i32&gt;</code></td></td><td>a matrix of 2 <code>vec4&lt;i32&gt;</code>s</td><td><code>mat2x2i</code></td></tr>
-      <tr><td><code>mat2x4&lt;f16&gt;</code></td></td><td>a matrix of 2 <code>vec4&lt;f16&gt;</code>s</td><td><code>mat2x2h</code></td></tr>
+      <tr><td><code>mat2x4&lt;f32&gt;</code></td></td><td>a matrix of 2 <code>vec4&lt;f32&gt;</code>s</td><td><code>mat2x4f</code></td></tr>
+      <tr><td><code>mat2x4&lt;u32&gt;</code></td></td><td>a matrix of 2 <code>vec4&lt;u32&gt;</code>s</td><td><code>mat2x4u</code></td></tr>
+      <tr><td><code>mat2x4&lt;i32&gt;</code></td></td><td>a matrix of 2 <code>vec4&lt;i32&gt;</code>s</td><td><code>mat2x4i</code></td></tr>
+      <tr><td><code>mat2x4&lt;f16&gt;</code></td></td><td>a matrix of 2 <code>vec4&lt;f16&gt;</code>s</td><td><code>mat2x4h</code></td></tr>
       <tr></tr>
-      <tr><td><code>mat3x2&lt;f32&gt;</code></td></td><td>a matrix of 3 <code>vec2&lt;f32&gt;</code>s</td><td><code>mat2x2f</code></td></tr>
-      <tr><td><code>mat3x2&lt;u32&gt;</code></td></td><td>a matrix of 3 <code>vec2&lt;u32&gt;</code>s</td><td><code>mat2x2u</code></td></tr>
-      <tr><td><code>mat3x2&lt;i32&gt;</code></td></td><td>a matrix of 3 <code>vec2&lt;i32&gt;</code>s</td><td><code>mat2x2i</code></td></tr>
-      <tr><td><code>mat3x2&lt;f16&gt;</code></td></td><td>a matrix of 3 <code>vec2&lt;f16&gt;</code>s</td><td><code>mat2x2h</code></td></tr>
+      <tr><td><code>mat3x2&lt;f32&gt;</code></td></td><td>a matrix of 3 <code>vec2&lt;f32&gt;</code>s</td><td><code>mat3x2f</code></td></tr>
+      <tr><td><code>mat3x2&lt;u32&gt;</code></td></td><td>a matrix of 3 <code>vec2&lt;u32&gt;</code>s</td><td><code>mat3x2u</code></td></tr>
+      <tr><td><code>mat3x2&lt;i32&gt;</code></td></td><td>a matrix of 3 <code>vec2&lt;i32&gt;</code>s</td><td><code>mat3x2i</code></td></tr>
+      <tr><td><code>mat3x2&lt;f16&gt;</code></td></td><td>a matrix of 3 <code>vec2&lt;f16&gt;</code>s</td><td><code>mat3x2h</code></td></tr>
       <tr></tr>
-      <tr><td><code>mat3x3&lt;f32&gt;</code></td></td><td>a matrix of 3 <code>vec3&lt;f32&gt;</code>s</td><td><code>mat2x2f</code></td></tr>
-      <tr><td><code>mat3x3&lt;u32&gt;</code></td></td><td>a matrix of 3 <code>vec3&lt;u32&gt;</code>s</td><td><code>mat2x2u</code></td></tr>
-      <tr><td><code>mat3x3&lt;i32&gt;</code></td></td><td>a matrix of 3 <code>vec3&lt;i32&gt;</code>s</td><td><code>mat2x2i</code></td></tr>
-      <tr><td><code>mat3x3&lt;f16&gt;</code></td></td><td>a matrix of 3 <code>vec3&lt;f16&gt;</code>s</td><td><code>mat2x2h</code></td></tr>
+      <tr><td><code>mat3x3&lt;f32&gt;</code></td></td><td>a matrix of 3 <code>vec3&lt;f32&gt;</code>s</td><td><code>mat3x3f</code></td></tr>
+      <tr><td><code>mat3x3&lt;u32&gt;</code></td></td><td>a matrix of 3 <code>vec3&lt;u32&gt;</code>s</td><td><code>mat3x3u</code></td></tr>
+      <tr><td><code>mat3x3&lt;i32&gt;</code></td></td><td>a matrix of 3 <code>vec3&lt;i32&gt;</code>s</td><td><code>mat3x3i</code></td></tr>
+      <tr><td><code>mat3x3&lt;f16&gt;</code></td></td><td>a matrix of 3 <code>vec3&lt;f16&gt;</code>s</td><td><code>mat3x3h</code></td></tr>
       <tr></tr>
-      <tr><td><code>mat3x4&lt;f32&gt;</code></td></td><td>a matrix of 3 <code>vec4&lt;f32&gt;</code>s</td><td><code>mat2x2f</code></td></tr>
-      <tr><td><code>mat3x4&lt;u32&gt;</code></td></td><td>a matrix of 3 <code>vec4&lt;u32&gt;</code>s</td><td><code>mat2x2u</code></td></tr>
-      <tr><td><code>mat3x4&lt;i32&gt;</code></td></td><td>a matrix of 3 <code>vec4&lt;i32&gt;</code>s</td><td><code>mat2x2i</code></td></tr>
-      <tr><td><code>mat3x4&lt;f16&gt;</code></td></td><td>a matrix of 3 <code>vec4&lt;f16&gt;</code>s</td><td><code>mat2x2h</code></td></tr>
+      <tr><td><code>mat3x4&lt;f32&gt;</code></td></td><td>a matrix of 3 <code>vec4&lt;f32&gt;</code>s</td><td><code>mat3x4f</code></td></tr>
+      <tr><td><code>mat3x4&lt;u32&gt;</code></td></td><td>a matrix of 3 <code>vec4&lt;u32&gt;</code>s</td><td><code>mat3x4u</code></td></tr>
+      <tr><td><code>mat3x4&lt;i32&gt;</code></td></td><td>a matrix of 3 <code>vec4&lt;i32&gt;</code>s</td><td><code>mat3x4i</code></td></tr>
+      <tr><td><code>mat3x4&lt;f16&gt;</code></td></td><td>a matrix of 3 <code>vec4&lt;f16&gt;</code>s</td><td><code>mat3x4h</code></td></tr>
       <tr></tr>
-      <tr><td><code>mat4x2&lt;f32&gt;</code></td></td><td>a matrix of 4 <code>vec2&lt;f32&gt;</code>s</td><td><code>mat2x2f</code></td></tr>
-      <tr><td><code>mat4x2&lt;u32&gt;</code></td></td><td>a matrix of 4 <code>vec2&lt;u32&gt;</code>s</td><td><code>mat2x2u</code></td></tr>
-      <tr><td><code>mat4x2&lt;i32&gt;</code></td></td><td>a matrix of 4 <code>vec2&lt;i32&gt;</code>s</td><td><code>mat2x2i</code></td></tr>
-      <tr><td><code>mat4x2&lt;f16&gt;</code></td></td><td>a matrix of 4 <code>vec2&lt;f16&gt;</code>s</td><td><code>mat2x2h</code></td></tr>
+      <tr><td><code>mat4x2&lt;f32&gt;</code></td></td><td>a matrix of 4 <code>vec2&lt;f32&gt;</code>s</td><td><code>mat4x2f</code></td></tr>
+      <tr><td><code>mat4x2&lt;u32&gt;</code></td></td><td>a matrix of 4 <code>vec2&lt;u32&gt;</code>s</td><td><code>mat4x2u</code></td></tr>
+      <tr><td><code>mat4x2&lt;i32&gt;</code></td></td><td>a matrix of 4 <code>vec2&lt;i32&gt;</code>s</td><td><code>mat4x2i</code></td></tr>
+      <tr><td><code>mat4x2&lt;f16&gt;</code></td></td><td>a matrix of 4 <code>vec2&lt;f16&gt;</code>s</td><td><code>mat4x2h</code></td></tr>
       <tr></tr>
-      <tr><td><code>mat4x3&lt;f32&gt;</code></td></td><td>a matrix of 4 <code>vec3&lt;f32&gt;</code>s</td><td><code>mat2x2f</code></td></tr>
-      <tr><td><code>mat4x3&lt;u32&gt;</code></td></td><td>a matrix of 4 <code>vec3&lt;u32&gt;</code>s</td><td><code>mat2x2u</code></td></tr>
-      <tr><td><code>mat4x3&lt;i32&gt;</code></td></td><td>a matrix of 4 <code>vec3&lt;i32&gt;</code>s</td><td><code>mat2x2i</code></td></tr>
-      <tr><td><code>mat4x3&lt;f16&gt;</code></td></td><td>a matrix of 4 <code>vec3&lt;f16&gt;</code>s</td><td><code>mat2x2h</code></td></tr>
+      <tr><td><code>mat4x3&lt;f32&gt;</code></td></td><td>a matrix of 4 <code>vec3&lt;f32&gt;</code>s</td><td><code>mat4x3f</code></td></tr>
+      <tr><td><code>mat4x3&lt;u32&gt;</code></td></td><td>a matrix of 4 <code>vec3&lt;u32&gt;</code>s</td><td><code>mat4x3u</code></td></tr>
+      <tr><td><code>mat4x3&lt;i32&gt;</code></td></td><td>a matrix of 4 <code>vec3&lt;i32&gt;</code>s</td><td><code>mat4x3i</code></td></tr>
+      <tr><td><code>mat4x3&lt;f16&gt;</code></td></td><td>a matrix of 4 <code>vec3&lt;f16&gt;</code>s</td><td><code>mat4x3h</code></td></tr>
       <tr></tr>
-      <tr><td><code>mat4x4&lt;f32&gt;</code></td></td><td>a matrix of 4 <code>vec4&lt;f32&gt;</code>s</td><td><code>mat2x2f</code></td></tr>
-      <tr><td><code>mat4x4&lt;u32&gt;</code></td></td><td>a matrix of 4 <code>vec4&lt;u32&gt;</code>s</td><td><code>mat2x2u</code></td></tr>
-      <tr><td><code>mat4x4&lt;i32&gt;</code></td></td><td>a matrix of 4 <code>vec4&lt;i32&gt;</code>s</td><td><code>mat2x2i</code></td></tr>
-      <tr><td><code>mat4x4&lt;f16&gt;</code></td></td><td>a matrix of 4 <code>vec4&lt;f16&gt;</code>s</td><td><code>mat2x2h</code></td></tr>
+      <tr><td><code>mat4x4&lt;f32&gt;</code></td></td><td>a matrix of 4 <code>vec4&lt;f32&gt;</code>s</td><td><code>mat4x4f</code></td></tr>
+      <tr><td><code>mat4x4&lt;u32&gt;</code></td></td><td>a matrix of 4 <code>vec4&lt;u32&gt;</code>s</td><td><code>mat4x4u</code></td></tr>
+      <tr><td><code>mat4x4&lt;i32&gt;</code></td></td><td>a matrix of 4 <code>vec4&lt;i32&gt;</code>s</td><td><code>mat4x4i</code></td></tr>
+      <tr><td><code>mat4x4&lt;f16&gt;</code></td></td><td>a matrix of 4 <code>vec4&lt;f16&gt;</code>s</td><td><code>mat4x4h</code></td></tr>
     </tbody>
   </table>
   </div>
@@ -257,13 +257,13 @@ Ready?
 
 <div class="webgpu_center" data-diagram="ourStructEx2"></div>
 
-What's up with that? It turns out every type as alignment requirements.
+What's up with that? It turns out every type has alignment requirements.
 For a given type it must be aligned to a multiple of a certain number
 of bytes.
 
 Here are the sizes and alignments of the various types.
 
-<div class="webgpu_center data-table"><div data-diagram="wgslTypeTable" style="width: 95%; columns: 14em;"></div></div>
+<div class="webgpu_center data-table" data-diagram="wgslTypeTable" style="width: 95%; columns: 14em;"></div>
 
 But wait, there's MORE!
 

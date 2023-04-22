@@ -345,7 +345,7 @@ coordinate that outside that range.
 If our texture is "🟥🟩🟦" then repeat goes "🟥🟩🟦🟥🟩🟦🟥🟩🟦🟥🟩🟦" and mirror-repeat
 goes "🟥🟩🟦🟦🟩🟥🟥🟩🟦🟦🟩🟥"
 
-Let's update the sample so we can draw the quad with all of these options.
+Let's update the sampler so we can draw the quad with all of these options.
 
 First let's create a sampler for each combination of settings.
 We'll also create a bind group that uses that sampler.
@@ -436,7 +436,7 @@ for when the texture is drawn smaller than its size. When set to 'linear'
 it also chooses 4 pixels and blends them following similar math to that above.
 
 The problem is, choosing 4 blended pixels from larger texture to render say 1
-pixel, the color will change an we'll get flickering.
+pixel, the color will change and we'll get flickering.
 
 Let's do it so we can see the issue
 
@@ -775,7 +775,7 @@ const generateMips = (src, srcWidth) => {
 };
 ```
 
-We'll go over how to do this on the GPU in [another article](webgpu-generate-mips.html).
+We'll go over how to do this on the GPU in [another article](webgpu-importing-textures.html).
 For now, we can use the code above to generate a mipmap.
 
 We pass our texture data to the function above, and it returns an array of mip level data.
@@ -1338,7 +1338,7 @@ as [the article about shadow maps](webgpu-shadow-maps.html).
 
 There's also a bunch compressed texture formats which we'll save for another article.
 
-Let's cover [importing external textures](webgpu-importing-textures.md) next.
+Let's cover [importing external textures](webgpu-importing-textures.html) next.
 
 <!-- keep this at the bottom of the article -->
 <script type="module" src="/3rdparty/pixel-perfect.js"></script>

@@ -155,8 +155,6 @@ The state when the draw command is executed would look something like this
 
 <div class="webgpu_center"><img src="resources/webgpu-draw-diagram-vertex-buffer.svg" style="width: 960px;"></div>
 
-Note that we don't actually need the struct. This vertex shader would also work
-
 The attribute `format` field can be one of these types
 
 <div class="webgpu_center data-table">
@@ -260,7 +258,7 @@ We're going to interleave the data like this
 <div class="webgpu_center"><img src="resources/vertex-buffer-mixed.svg" style="width: 1024px;"></div>
 
 So, the `arrayStride` need to be change to cover our new data and we need
-to add the new attribute. Iit starts two 32bit floating point numbers is
+to add the new attribute. It starts after two 32bit floating point numbers
 so its `offset` into the buffer is 8 bytes.
 
 ```js
