@@ -155,8 +155,6 @@ The state when the draw command is executed would look something like this
 
 <div class="webgpu_center"><img src="resources/webgpu-draw-diagram-vertex-buffer.svg" style="width: 960px;"></div>
 
-Note that we don't actually need the struct. This vertex shader would also work
-
 The attribute `format` field can be one of these types
 
 <div class="webgpu_center data-table">
