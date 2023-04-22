@@ -257,13 +257,13 @@ Ready?
 
 <div class="webgpu_center" data-diagram="ourStructEx2"></div>
 
-What's up with that? It turns out every type as alignment requirements.
+What's up with that? It turns out every type has alignment requirements.
 For a given type it must be aligned to a multiple of a certain number
 of bytes.
 
 Here are the sizes and alignments of the various types.
 
-<div class="webgpu_center data-table"><div data-diagram="wgslTypeTable" style="width: 95%; columns: 14em;"></div></div>
+<div class="webgpu_center data-table" data-diagram="wgslTypeTable" style="width: 95%; columns: 14em;"></div>
 
 But wait, there's MORE!
 
