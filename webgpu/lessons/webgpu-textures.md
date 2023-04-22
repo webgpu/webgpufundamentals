@@ -345,7 +345,7 @@ coordinate that outside that range.
 If our texture is "🟥🟩🟦" then repeat goes "🟥🟩🟦🟥🟩🟦🟥🟩🟦🟥🟩🟦" and mirror-repeat
 goes "🟥🟩🟦🟦🟩🟥🟥🟩🟦🟦🟩🟥"
 
-Let's update the sampler so we can draw the quad with all of these options.
+Let's update the example so we can draw the quad with all of these options.
 
 First let's create a sampler for each combination of settings.
 We'll also create a bind group that uses that sampler.

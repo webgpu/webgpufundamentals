@@ -257,7 +257,7 @@ We're going to interleave the data like this
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-mixed.svg" style="width: 1024px;"></div>
 
-So, the `arrayStride` need to be change to cover our new data and we need
+So, the `arrayStride` needs to be changed to cover our new data and we need
 to add the new attribute. It starts after two 32bit floating point numbers
 so its `offset` into the buffer is 8 bytes.
 
