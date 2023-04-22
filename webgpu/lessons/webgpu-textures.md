@@ -1338,7 +1338,7 @@ as [the article about shadow maps](webgpu-shadow-maps.html).
 
 There's also a bunch compressed texture formats which we'll save for another article.
 
-Let's cover [importing external textures](webgpu-importing-textures.md) next.
+Let's cover [importing external textures](webgpu-importing-textures.html) next.
 
 <!-- keep this at the bottom of the article -->
 <script type="module" src="/3rdparty/pixel-perfect.js"></script>
