@@ -24,6 +24,10 @@
   --column-rule-color: #888;
 }
 
+.x-axis, .x-axis * { color: red !important; }
+.y-axis, .y-axis * { color: green !important; }
+.z-axis, .z-axis * { color: blue !important; }
+
 @media (prefers-color-scheme: dark) {
   :root {
     --main-fg-color: #DDD;
@@ -45,6 +49,9 @@
     --selected-fg-color: orange;
     --diagram-bg-color: #222;
   }
+  .x-axis, .x-axis * { color: red !important;  }
+  .y-axis, .y-axis * { color: hsl(120, 100%, 40%) !important; }
+  .z-axis, .z-axis * { color: hsl(240, 100%, 80%) !important; }
 }
 
 html {
