@@ -495,7 +495,7 @@ blend with pixels on the opposite side of the texture. When set to
 texture coordinate is clamped so that it can’t go into the last half texel on
 each edge. This has the effect of showing the edge colors for any texture
 coordinate that outside that range.</p>
-<p>Let’s update the sampler so we can draw the quad with all of these options.</p>
+<p>Let’s update the example so we can draw the quad with all of these options.</p>
 <p>First let’s create a sampler for each combination of settings.
 We’ll also create a bind group that uses that sampler.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const bindGroups = [];
