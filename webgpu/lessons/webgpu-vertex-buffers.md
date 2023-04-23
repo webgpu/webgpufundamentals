@@ -638,7 +638,7 @@ Then we need to create an index buffer
 +  device.queue.writeBuffer(indexBuffer, 0, indexData);
 ```
 
-Notice we changed the usage `INDEX`.
+Notice we changed the usage to `INDEX`.
 
 Then finally at draw time we need to specify the index buffer
 
