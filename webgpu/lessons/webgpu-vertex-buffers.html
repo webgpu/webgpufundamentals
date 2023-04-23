@@ -796,7 +796,7 @@ use those 4 vertices 6 times by telling WebGPU to draw indices in this order</p>
 +  });
 +  device.queue.writeBuffer(indexBuffer, 0, indexData);
 </pre>
-<p>Notice we changed the usage <code class="notranslate" translate="no">INDEX</code>.</p>
+<p>Notice we changed the usage to <code class="notranslate" translate="no">INDEX</code>.</p>
 <p>Then finally at draw time we need to specify the index buffer</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    pass.setPipeline(pipeline);
     pass.setVertexBuffer(0, vertexBuffer);
