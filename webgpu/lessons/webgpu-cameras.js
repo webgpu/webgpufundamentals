@@ -124,8 +124,10 @@ function showMove(elem, mode) {
     }
   }
 
-  draw.circle(fRadius * 2).fill('none').stroke(colors.innerRadius).move(-fRadius, -fRadius);
-  draw.circle(fRadius * 3).fill('none').stroke(colors.outerRadius).move(-fRadius * 1.5, -fRadius * 1.5);
+  if (mode === 'camera-movement') {
+    draw.circle(fRadius * 2).fill('none').stroke(colors.innerRadius).move(-fRadius, -fRadius);
+    draw.circle(fRadius * 3).fill('none').stroke(colors.outerRadius).move(-fRadius * 1.5, -fRadius * 1.5);
+  }
 
   const cg = draw.group();
   const camGroup = cg.group();
@@ -142,14 +144,16 @@ function showMove(elem, mode) {
   ]).fill(colors.camera);
 
   const ig = draw.group();
-  ig.line(0, 0, 0, fRadius).stroke(colors.innerRadius).marker('end', iMarker);
-  const fRadiusText = ig.text('fRadius').move(10, -20).font(lineFont).fill(colors.innerRadius);
-  setRotation(fRadiusText, 0.5);
-  setRotation(ig, 1.25);
+  if (mode === 'camera-movement') {
+    ig.line(0, 0, 0, fRadius).stroke(colors.innerRadius).marker('end', iMarker);
+    const fRadiusText = ig.text('fRadius').move(10, -20).font(lineFont).fill(colors.innerRadius);
+    setRotation(fRadiusText, 0.5);
+    setRotation(ig, 1.25);
 
-  cg.line(0, 0, 0, fRadius * 1.5).stroke(colors.outerRadius).marker('end', oMarker);
-  const camRadiusText = cg.text('fRadius*1.5').move(10, -20).font(lineFont).fill(colors.outerRadius);
-  setRotation(camRadiusText, 0.5);
+    cg.line(0, 0, 0, fRadius * 1.5).stroke(colors.outerRadius).marker('end', oMarker);
+    const camRadiusText = cg.text('fRadius*1.5').move(10, -20).font(lineFont).fill(colors.outerRadius);
+    setRotation(camRadiusText, 0.5);
+  }
 
   switch (mode) {
     case 'camera-movement':
