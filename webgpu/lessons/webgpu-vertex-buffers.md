@@ -123,6 +123,7 @@ to `VERTEX` and remove it from the bind group.
 +    size: vertexData.byteLength,
 +    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
 +  });
++  device.queue.writeBuffer(vertexBuffer, 0, vertexData);
 
   const bindGroup = device.createBindGroup({
     label: 'bind group for objects',
