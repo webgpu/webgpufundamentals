@@ -501,7 +501,7 @@ translate to that position.
 And voila!  A camera that goes around the circle of 'F's.  Drag the
 `cameraAngle` slider to move the camera around.
 
-{{{example url="../webgpu-cameras-direct-math.html" }}}
+{{{example url="../webgpu-cameras-step-1-direct-math.html" }}}
 
 That's all fine but using rotate and translate to move a camera where you
 want it and point toward what you want to see is not always easy.  For
@@ -570,13 +570,13 @@ That's not enough info though.  Just a single vector gives us a point on a
 unit sphere but which orientation from that point to orient things?  We
 need to fill out the other parts of the matrix.  Specifically the X axis
 and Y axis parts.  We know that in general, these 3 parts are perpendicular
-to each other.  We also know that "in general" we don't point the camera
+to each other.  We also know that "in general", we don't point the camera
 straight up.  Given that, if we know which way is up, in this case
 (0,1,0), We can use that and something called a "cross product" to compute
 the X axis and Y axis for the matrix.
 
 I have no idea what a cross product means in mathematical terms.  What I
-do know is that if you have 2 unit vectors and you compute the cross
+do know is that, if you have 2 unit vectors and you compute the cross
 product of them you'll get a vector that is perpendicular to those 2
 vectors.  In other words, if you have a vector pointing south east, and a
 vector pointing up, and you compute the cross product you'll get a vector
@@ -705,12 +705,12 @@ const vec3 = {
 +  },
 ```
 
-Here's the code to compute a *lookAt* matrix. It follows the steps described above.
+Here's the code to compute a *camera* matrix. It follows the steps described above.
 
 ```js
 const mat4 = {
   ...
-  lookAt(eye, target, up, dst) {
+  cameraAim(eye, target, up, dst) {
     dst = dst || new Float32Array(16);
 
     const zAxis = vec3.normalize(vec3.subtract(eye, target));
@@ -747,8 +747,8 @@ as we move it.
 +
 +    const up = [0, 1, 0];
 +
-+    // Compute the camera's matrix using look at.
-+    const cameraMatrix = mat4.lookAt(eye, fPosition, up);
++    // Compute the camera's matrix using cameraAim
++    const cameraMatrix = mat4.cameraAim(eye, fPosition, up);
 
     // Make a view matrix from the camera matrix.
     const viewMatrix = mat4.inverse(cameraMatrix);
@@ -756,36 +756,196 @@ as we move it.
 
 And here's the result.
 
-{{{example url="../webgpu-cameras-look-at.html" }}}
+{{{example url="../webgpu-cameras-step-2-camera-aim.html" }}}
 
 Drag the slider and notice how the camera tracks a single 'F'.
 
-Note that you can use "lookAt" math for more than just cameras.  Common
-uses are making a character's head follow someone.  Making a turret aim at
-a target.  Making an object follow a path.  You compute where on the path
-the target is.  Then you compute where on the path the target would be a
-few moments in the future.  Plug those 2 values into your `lookAt`
-function and you'll get a matrix that makes your object follow the path
-and orient toward the path as well.
+Most math libraries don't have a `cameraAim` function. Instead they have a `lookAt` function
+which computes exactly what our `cameraAim` function does but ALSO converts it to a view matrix.
+Functionally `lookAt` could be implemented like this
 
-<div class="webgpu_bottombar">
-<h3><code>lookAt</code> standards</h3>
-<p>
-Most 3D math libraries have a <code>lookAt</code> function.  Often it is
-designed specifically to make a "view matrix" and not a "camera matrix".
-In other words, it makes a matrix that moves everything else in front of
-the camera rather than a matrix that moves the camera itself.
-</p>
-<p>
-I find that less useful.  As pointed out, a lookAt function has many uses.
-It's easy to call <code>inverse</code> when you need a view matrix but if
-you are using <code>lookAt</code> to make some character's head follow
-another character or some turret aim at its target it's much more useful
-if <code>lookAt</code> returns a matrix that orients and positions an
-object in world space in my opinion.
-</p>
-{{{example url="../webgpu-cameras-look-at-heads.html" }}}
-</div>
+```js
+const mat4 = {
+  ...
++  lookAt(eye, target, up, dst) {
++    return mat4.inverse(mat4.cameraAim(eye, target, up, dst), dst);
++  },
+  ...
+};
+```
+
+Using this `lookAt` function our code would change to this
+
+```js
+-    // Compute the camera's matrix using look at.
+-    const cameraMatrix = mat4.cameraAim(eye, fPosition, up);
+-
+-    // Make a view matrix from the camera matrix.
+-    const viewMatrix = mat4.inverse(cameraMatrix);
++    // Compute a view matrix
++    const viewMatrix = mat4.lookAt(eye, fPosition, up);
+```
+
+{{{example url="../webgpu-cameras-step-3-look-at.html" }}}
+
+Note that you can use this type of "aim" math for more than just cameras.
+Common uses are making a character's head follow some target.  Making a turret aim
+at a target.  Making an object follow a path.  You compute where on the path the
+target is.  Then you compute where on the path the target would be a few moments
+in the future.  Plug those 2 values into your `aim` function and you'll get a
+matrix that makes your object follow the path and orient toward the path as
+well.
+
+Usually to "aim" something you want it to point down the positive Z axis instead
+of the negative Z axis as our function above did so we need to 
+subtract `target` from `eye` instead of `eye` from `target`
+
+```js
+const mat4 = {
+  ...
++  aim(eye, target, up, dst) {
++    dst = dst || new Float32Array(16);
++
++    const zAxis = vec3.normalize(vec3.subtract(target, eye));
++    const xAxis = vec3.normalize(vec3.cross(up, zAxis));
++    const yAxis = vec3.normalize(vec3.cross(zAxis, xAxis));
++
++    dst[ 0] = xAxis[0];  dst[ 1] = xAxis[1];  dst[ 2] = xAxis[2];  dst[ 3] = 0;
++    dst[ 4] = yAxis[0];  dst[ 5] = yAxis[1];  dst[ 6] = yAxis[2];  dst[ 7] = 0;
++    dst[ 8] = zAxis[0];  dst[ 9] = zAxis[1];  dst[10] = zAxis[2];  dst[11] = 0;
++    dst[12] = eye[0];    dst[13] = eye[1];    dst[14] = eye[2];    dst[15] = 1;
++
++    return dst;
++  },
+
+  cameraAim(eye, target, up, dst) {
+    dst = dst || new Float32Array(16);
+
+    const zAxis = vec3.normalize(vec3.subtract(eye, target));
+    const xAxis = vec3.normalize(vec3.cross(up, zAxis));
+    const yAxis = vec3.normalize(vec3.cross(zAxis, xAxis));
+
+    dst[ 0] = xAxis[0];  dst[ 1] = xAxis[1];  dst[ 2] = xAxis[2];  dst[ 3] = 0;
+    dst[ 4] = yAxis[0];  dst[ 5] = yAxis[1];  dst[ 6] = yAxis[2];  dst[ 7] = 0;
+    dst[ 8] = zAxis[0];  dst[ 9] = zAxis[1];  dst[10] = zAxis[2];  dst[11] = 0;
+    dst[12] = eye[0];    dst[13] = eye[1];    dst[14] = eye[2];    dst[15] = 1;
+
+    return dst;
+  },
+...
+
+Let's make a bunch of Fs point at another F (yea, too many Fs but I don't want to clutter
+the example with more data). We'll make a grid of 5x5 Fs + 1 more
+for them to "aim" at
+
+```js
+-  const numFs = 5;
++  const numFs = 5 * 5 + 1;
+```
+
+Then we'll hard code a camera target and change the
+settings so we can move one of the Fs
+
+```js
+  const settings = {
+-    fieldOfView: degToRad(100),
+-    cameraAngle: 0,
++    target: [0, 200, 300],
++    targetAngle: 0,
+  };
+
+  const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
+
+  const gui = new GUI();
+  gui.onChange(render);
+-  gui.add(settings, 'fieldOfView', {min: 1, max: 179, converters: GUI.converters.radToDeg});
+-  gui.add(settings, 'cameraAngle', radToDegOptions);
++  gui.add(settings.target, '1', -100, 300).name('target height');
++  gui.add(settings, 'targetAngle', radToDegOptions).name('target angle');
+```
+
+And finally for the first 25 Fs we'll orient them in
+a grid using `aim` and *aim* them at the 26th F
+
+```js
++    // update target X,Z based on angle
++    settings.target[0] = Math.cos(settings.targetAngle) * radius;
++    settings.target[2] = Math.sin(settings.targetAngle) * radius;
+
+    const aspect = canvas.clientWidth / canvas.clientHeight;
+    const projection = mat4.perspective(
+-        settings.fieldOfView,
++        degToRad(60), // fieldOfView,
+        aspect,
+        1,      // zNear
+        2000,   // zFar
+    );
+
+-    // Compute the position of the first F
+-    const fPosition = [radius, 0, 0];
+-
+-    // Use matrix math to compute a position on a circle where
+-    // the camera is
+-    const tempMatrix = mat4.rotationY(settings.cameraAngle);
+-    mat4.translate(tempMatrix, [0, 0, radius * 1.5], tempMatrix);
+-
+-    // Get the camera's position from the matrix we computed
+-    const eye = tempMatrix.slice(12, 15);
++    const eye = [-500, 300, -500];
++    const target = [0, -100, 0];
+    const up = [0, 1, 0];
+
+    // Compute a view matrix
+-    const viewMatrix = mat4.lookAt(eye, fPosition, up);
++    const viewMatrix = mat4.lookAt(eye, target, up);
+
+    // combine the view and projection matrixes
+    const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
+
+    objectInfos.forEach(({
+      matrixValue,
+      uniformBuffer,
+      uniformValues,
+      bindGroup,
+    }, i) => {
+-      const angle = i / numFs * Math.PI * 2;
+-      const x = Math.cos(angle) * radius;
+-      const z = Math.sin(angle) * radius;
+-
+-      mat4.translate(viewProjectionMatrix, [x, 0, z], matrixValue);
+
++      const deep = 5;
++      const across = 5;
++      if (i < 25) {
++        // compute grid positions
++        const gridX = i % across;
++        const gridZ = i / across | 0;
++
++        // compute 0 to 1 positions
++        const u = gridX / (across - 1);
++        const v = gridZ / (deep - 1);
++
++        // center and spread out
++        const x = (u - 0.5) * across * 150;
++        const z = (v - 0.5) * deep * 150;
++
++        // aim this F from it's position toward the target F
++        const aimMatrix = mat4.aim([x, 0, z], settings.target, up);
++        mat4.multiply(viewProjectionMatrix, aimMatrix, matrixValue);
++      } else {
++        mat4.translate(viewProjectionMatrix, settings.target, matrixValue);
++      }
+
+      // upload the uniform values to the uniform buffer
+      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+```
+
+And now 25 Fs are facing (their front is positive Z), the 26th F
+
+{{{example url="../webgpu-cameras-step-4-aim-Fs.html" }}}
+
+Move the sliders and see all 25Fs *aim*.
+
 
 <!-- keep this at the bottom of the article -->
 <link href="webgpu-cameras.css" rel="stylesheet">

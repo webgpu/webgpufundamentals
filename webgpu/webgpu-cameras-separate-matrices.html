@@ -505,8 +505,13 @@ async function main() {
 
   const module = device.createShaderModule({
     code: `
-      struct Uniforms {
-        matrix: mat4x4f,
+      struct SharedViewUniforms {
+        projection: mat4x4f,
+        view: mat4x4f,
+      };
+
+      struct PerDrawUniforms {
+        model: mat4x4f,
       };
 
       struct Vertex {
@@ -519,11 +524,15 @@ async function main() {
         @location(0) color: vec4f,
       };
 
-      @group(0) @binding(0) var<uniform> uni: Uniforms;
+      @group(0) @binding(0) var<uniform> perDrawUni: PerDrawUniforms;
+      @group(1) @binding(0) var<uniform> sharedUni: SharedViewUniforms;
 
       @vertex fn vs(vert: Vertex) -> VSOutput {
         var vsOut: VSOutput;
-        vsOut.position = uni.matrix * vert.position;
+        vsOut.position = sharedUni.projection * 
+                         sharedUni.view * 
+                         perDrawUni.model *
+                         vert.position;
         vsOut.color = vert.color;
         return vsOut;
       }
@@ -565,13 +574,36 @@ async function main() {
     },
   });
 
+  // projection matrix, view matrix
+  const sharedUniformBufferSize = (16 + 16) * 4;
+  const sharedUniformBuffer = device.createBuffer({
+    label: 'shared uniforms',
+    size: sharedUniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const sharedUniformValues = new Float32Array(sharedUniformBufferSize / 4);
+
+  const kProjectionOffset = 0;
+  const kViewOffset = 16;
+  const projectionValue = sharedUniformValues.subarray(kProjectionOffset, kProjectionOffset + 16);
+  const viewValue = sharedUniformValues.subarray(kViewOffset, kViewOffset + 16);
+
+  const sharedBindGroup = device.createBindGroup({
+    label: 'shared bind group',
+    layout: pipeline.getBindGroupLayout(1),
+    entries: [
+      { binding: 0, resource: { buffer: sharedUniformBuffer }},
+    ],
+  });
+
+  const radius = 200;
   const numFs = 5;
   const objectInfos = [];
   for (let i = 0; i < numFs; ++i) {
-    // matrix
+    // model matrix
     const uniformBufferSize = (16) * 4;
     const uniformBuffer = device.createBuffer({
-      label: 'uniforms',
+      label: `object ${i} uniforms`,
       size: uniformBufferSize,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
@@ -583,8 +615,17 @@ async function main() {
 
     const matrixValue = uniformValues.subarray(kMatrixOffset, kMatrixOffset + 16);
 
+    const angle = i / numFs * Math.PI * 2;
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+
+    mat4.translation([x, 0, z], matrixValue);
+
+    // upload the uniform values to the uniform buffer
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+
     const bindGroup = device.createBindGroup({
-      label: 'bind group for object',
+      label: `bind group for object ${i}`,
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: uniformBuffer }},
@@ -626,7 +667,6 @@ async function main() {
 
   const degToRad = d => d * Math.PI / 180;
 
-  const radius = 200;
   const settings = {
     fieldOfView: degToRad(100),
     cameraAngle: 0,
@@ -666,14 +706,16 @@ async function main() {
     const encoder = device.createCommandEncoder();
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
+    pass.setBindGroup(1, sharedBindGroup);
     pass.setVertexBuffer(0, vertexBuffer);
 
     const aspect = canvas.clientWidth / canvas.clientHeight;
-    const projection = mat4.perspective(
+    mat4.perspective(
         settings.fieldOfView,
         aspect,
         1,      // zNear
         2000,   // zFar
+        projectionValue,
     );
 
     // Compute the position of the first F
@@ -686,33 +728,18 @@ async function main() {
 
     // Get the camera's position from the matrix we computed
     const eye = tempMatrix.slice(12, 15);
-
     const up = [0, 1, 0];
 
     // Compute the camera's matrix using look at.
     const cameraMatrix = mat4.lookAt(eye, fPosition, up);
 
     // Make a view matrix from the camera matrix.
-    const viewMatrix = mat4.inverse(cameraMatrix);
+    mat4.inverse(cameraMatrix, viewValue);
 
-    // combine the view and projection matrixes
-    const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
+    // upload the shared uniform values to the shared uniform buffer
+    device.queue.writeBuffer(sharedUniformBuffer, 0, sharedUniformValues);
 
-    objectInfos.forEach(({
-      matrixValue,
-      uniformBuffer,
-      uniformValues,
-      bindGroup,
-    }, i) => {
-      const angle = i / numFs * Math.PI * 2;
-      const x = Math.cos(angle) * radius;
-      const z = Math.sin(angle) * radius;
-
-      mat4.translate(viewProjectionMatrix, [x, 0, z], matrixValue);
-
-      // upload the uniform values to the uniform buffer
-      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
-
+    objectInfos.forEach(({ bindGroup }) => {
       pass.setBindGroup(0, bindGroup);
       pass.draw(numVertices);
     });

@@ -1209,8 +1209,7 @@ copy those to the corresponding uniform buffer, and encode the command to draw i
     const target = [0, 0, 0];
     const up = [0, 1, 0];
 
-    const camera = mat4.lookAt(eye, target, up);
-    const view = mat4.inverse(camera);
+    const view = mat4.lookAt(eye, target, up);
     const viewProjection = mat4.multiply(projection, view);
 
     gl.uniform3fv(u_lightDirectionLoc, vec3.normalize([1, 8, -10]));
@@ -1279,8 +1278,7 @@ copy those to the corresponding uniform buffer, and encode the command to draw i
     const target = [0, 0, 0];
     const up = [0, 1, 0];
 
-    const camera = mat4.lookAt(eye, target, up);
-    const view = mat4.inverse(camera);
+    const view = mat4.lookAt(eye, target, up);
     const viewProjection = mat4.multiply(projection, view);
 
     // the lighting info is shared so set these uniforms once
