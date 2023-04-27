@@ -334,8 +334,7 @@ async function main() {
     const target = [0, 0, 0];
     const up = [0, 1, 0];
 
-    const camera = mat4.lookAt(eye, target, up);
-    const view = mat4.inverse(camera);
+    const view = mat4.lookAt(eye, target, up);
     const viewProjection = mat4.multiply(projection, view);
 
     // the lighting info is shared so set these uniforms once

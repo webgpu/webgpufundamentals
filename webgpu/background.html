@@ -350,8 +350,7 @@ async function main() {
     const target = [0, 0, 0];
     const up = [0, 1, 0];//Math.cos(n), Math.sin(n), 0];
 
-    const camera = mat4.lookAt(eye, target, up);
-    const view = mat4.inverse(camera);
+    const view = mat4.lookAt(eye, target, up);
     mat4.multiply(projection, view, viewProjection);
 
     for (const {offset, time: timeOffset, mat} of infos) {

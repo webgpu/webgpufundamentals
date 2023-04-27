@@ -1,4 +1,4 @@
-/* wgpu-matrix@1.1.0, license MIT */
+/* wgpu-matrix@2.0.0, license MIT */
 var arrayLike = /*#__PURE__*/Object.freeze({
     __proto__: null
 });
@@ -2770,6 +2770,11 @@ function getScaling(m, dst) {
  * z-axis.  The matrix generated sends the viewing frustum to the unit box.
  * We assume a unit box extending from -1 to 1 in the x and y dimensions and
  * from 0 to 1 in the z dimension.
+ *
+ * Note: If you pass `Infinity` for zFar then it will produce a projection matrix
+ * returns -Infinity for Z when transforming coordinates with Z <= 0 and +Infinity for Z
+ * otherwise.
+ *
  * @param fieldOfViewYInRadians - The camera angle from top to bottom (in radians).
  * @param aspect - The aspect ratio width / height.
  * @param zNear - The depth (negative z coordinate)
@@ -2782,7 +2787,6 @@ function getScaling(m, dst) {
 function perspective(fieldOfViewYInRadians, aspect, zNear, zFar, dst) {
     dst = dst || new MatType(16);
     const f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewYInRadians);
-    const rangeInv = 1 / (zNear - zFar);
     dst[0] = f / aspect;
     dst[1] = 0;
     dst[2] = 0;
@@ -2793,12 +2797,19 @@ function perspective(fieldOfViewYInRadians, aspect, zNear, zFar, dst) {
     dst[7] = 0;
     dst[8] = 0;
     dst[9] = 0;
-    dst[10] = zFar * rangeInv;
     dst[11] = -1;
     dst[12] = 0;
     dst[13] = 0;
-    dst[14] = zNear * zFar * rangeInv;
     dst[15] = 0;
+    if (zFar === Infinity) {
+        dst[10] = -1;
+        dst[14] = -zNear;
+    }
+    else {
+        const rangeInv = 1 / (zNear - zFar);
+        dst[10] = zFar * rangeInv;
+        dst[14] = zFar * zNear * rangeInv;
+    }
     return dst;
 }
 /**
@@ -2814,7 +2825,7 @@ function perspective(fieldOfViewYInRadians, aspect, zNear, zFar, dst) {
  * @param far - The depth (negative z coordinate)
  *     of the far clipping plane.
  * @param dst - Output matrix. If not passed a new one is created.
- * @returns The perspective matrix.
+ * @returns The orthographic projection matrix.
  */
 function ortho(left, right, bottom, top, near, far, dst) {
     dst = dst || new MatType(16);
@@ -2881,24 +2892,25 @@ let xAxis;
 let yAxis;
 let zAxis;
 /**
- * Computes a 4-by-4 look-at transformation.
+ * Computes a 4-by-4 aim transformation.
  *
- * This is a matrix which positions the camera itself. If you want
- * a view matrix (a matrix which moves things in front of the camera)
- * take the inverse of this.
+ * This is a matrix which positions an object aiming down positive Z.
+ * toward the target.
  *
- * @param eye - The position of the eye.
- * @param target - The position meant to be viewed.
+ * Note: this is **NOT** the inverse of lookAt as lookAt looks at negative Z.
+ *
+ * @param position - The position of the object.
+ * @param target - The position meant to be aimed at.
  * @param up - A vector pointing up.
  * @param dst - matrix to hold result. If not passed a new one is created.
- * @returns The look-at matrix.
+ * @returns The aim matrix.
  */
-function lookAt(eye, target, up, dst) {
+function aim(position, target, up, dst) {
     dst = dst || new MatType(16);
     xAxis = xAxis || create$2();
     yAxis = yAxis || create$2();
     zAxis = zAxis || create$2();
-    normalize$1(subtract$1(eye, target, zAxis), zAxis);
+    normalize$1(subtract$1(target, position, zAxis), zAxis);
     normalize$1(cross(up, zAxis, xAxis), xAxis);
     normalize$1(cross(zAxis, xAxis, yAxis), yAxis);
     dst[0] = xAxis[0];
@@ -2913,9 +2925,47 @@ function lookAt(eye, target, up, dst) {
     dst[9] = zAxis[1];
     dst[10] = zAxis[2];
     dst[11] = 0;
-    dst[12] = eye[0];
-    dst[13] = eye[1];
-    dst[14] = eye[2];
+    dst[12] = position[0];
+    dst[13] = position[1];
+    dst[14] = position[2];
+    dst[15] = 1;
+    return dst;
+}
+/**
+ * Computes a 4-by-4 view transformation.
+ *
+ * This is a view matrix which transforms all other objects
+ * to be in the space of the view defined by the parameters.
+ *
+ * @param eye - The position of the object.
+ * @param target - The position meant to be aimed at.
+ * @param up - A vector pointing up.
+ * @param dst - matrix to hold result. If not passed a new one is created.
+ * @returns The look-at matrix.
+ */
+function lookAt(eye, target, up, dst) {
+    dst = dst || new MatType(16);
+    xAxis = xAxis || create$2();
+    yAxis = yAxis || create$2();
+    zAxis = zAxis || create$2();
+    normalize$1(subtract$1(eye, target, zAxis), zAxis);
+    normalize$1(cross(up, zAxis, xAxis), xAxis);
+    normalize$1(cross(zAxis, xAxis, yAxis), yAxis);
+    dst[0] = xAxis[0];
+    dst[1] = yAxis[0];
+    dst[2] = zAxis[0];
+    dst[3] = 0;
+    dst[4] = xAxis[1];
+    dst[5] = yAxis[1];
+    dst[6] = zAxis[1];
+    dst[7] = 0;
+    dst[8] = xAxis[2];
+    dst[9] = yAxis[2];
+    dst[10] = zAxis[2];
+    dst[11] = 0;
+    dst[12] = -(xAxis[0] * eye[0] + xAxis[1] * eye[1] + xAxis[2] * eye[2]);
+    dst[13] = -(yAxis[0] * eye[0] + yAxis[1] * eye[1] + yAxis[2] * eye[2]);
+    dst[14] = -(zAxis[0] * eye[0] + zAxis[1] * eye[1] + zAxis[2] * eye[2]);
     dst[15] = 1;
     return dst;
 }
@@ -3420,6 +3470,7 @@ var mat4Impl = /*#__PURE__*/Object.freeze({
     perspective: perspective,
     ortho: ortho,
     frustum: frustum,
+    aim: aim,
     lookAt: lookAt,
     translation: translation,
     translate: translate,
