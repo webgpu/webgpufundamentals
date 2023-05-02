@@ -1,39 +1,70 @@
-/* muigui@0.0.5, license MIT */
-const css = `
+/* muigui@0.0.6, license MIT */
+var css = `
+.muigui-colors {
+  --bg-color: #ddd;
+  --color: #222;
+  --value-color: #145 ;
+  --value-bg-color: #eeee;
+  --disabled-color: #999;
+  --menu-bg-color: #f8f8f8;
+  --menu-sep-color: #bbb;
+  --hover-bg-color: #999;
+  --focus-color: #68C;
+  --range-color: #888888;
+  --invalid-color: #FF0000;
+  --selected-color: rgb(255, 255, 255, 0.9);
+
+  --button-bg-color: var(--value-bg-color);
+
+  --range-left-color: var(--value-color);
+  --range-right-color: var(--value-bg-color); 
+  --range-right-hover-color: var(--hover-bg-color);
+
+  color: var(--color);
+  background-color: var(--bg-color);
+}
+
+@media (prefers-color-scheme: dark) {
+  .muigui-colors {
+    --bg-color: #222222;
+    --color: #dddddd;
+    --value-color: #43e5f7;
+    --value-bg-color: #444444;
+    --disabled-color: #666666;
+    --menu-bg-color: #080808;
+    --menu-sep-color: #444444;
+    --hover-bg-color: #666666;
+    --focus-color: #88AAFF;
+    --range-color: #888888;
+    --invalid-color: #FF6666;
+    --selected-color: rgba(255, 255, 255, 0.3);
+
+    --button-bg-color: var(--value-bg-color);
+
+    --range-left-color: var(--value-color);
+    --range-right-color: var(--value-bg-color); 
+    --range-right-hover-color: var(--hover-bg-color);
+
+    color: var(--color);
+    background-color: var(--bg-color);
+  }
+}
+
 .muigui {
   --width: 250px;
   --label-width: 45%;
   --number-width: 40%;
 
-  --bg-color: #222222;
-  --color: #dddddd;
-  --value-color: #43e5f7;
-  --value-bg-color: #444444;
-  --disabled-color: #666666;
-  --menu-bg-color: #000000;
-  --menu-sep-color: #444444;
-  --hover-bg-color: #666666;
-  --focus-color: #88AAFF;
-  --range-color: #888888;
-  --invalid-color: #FF6666;
-  --selected-color: rgba(255, 255, 255, 0.3);
-
-  --button-bg-color: var(--value-bg-color);
 
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   --font-size: 11px;
   --font-family-mono: Menlo, Monaco, Consolas, "Droid Sans Mono", monospace;
   --font-size-mono: 11px;
 
-  --range-left-color: var(--value-color);
-  --range-right-color: var(--value-bg-color);
-  --range-right-hover-color: var(--hover-bg-color);
   --line-height: 1.7em;
   --border-radius: 0px;
 
   width: var(--width);
-  color: var(--color);
-  background-color: var(--bg-color);
   font-family: var(--font-family);
   font-size: var(--font-size);
   box-sizing: border-box;
@@ -2389,7 +2420,7 @@ class GUI extends GUIFolder {
     if (title) {
       this.title(title);
     }
-    this.domElement.classList.add('muigui');
+    this.domElement.classList.add('muigui', 'muigui-colors');
   }
 }
 
