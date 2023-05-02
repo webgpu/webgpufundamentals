@@ -492,7 +492,7 @@ would work:</p>
 *  @location(1) the_texcoord: vec2f,
 *};
 
-@stage(fragment)
+@fragment
 *fn myFSMain(v: MyFSInput) -&gt; @location(0) vec4f
 {
 *  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.the_texcoord);
@@ -502,7 +502,7 @@ would work:</p>
 }
 </pre>
 <p>This would also work</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@stage(fragment)
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@fragment
 fn myFSMain(
 *  @location(1) uv: vec2f,
 *  @location(0) nrm: vec3f,
