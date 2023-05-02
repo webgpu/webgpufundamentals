@@ -1035,12 +1035,19 @@ function getActualLineNumberAndMoveTo(url, lineNo, colNo) {
 
 window.getActualLineNumberAndMoveTo = getActualLineNumberAndMoveTo;
 
+const darkMatcher = window.matchMedia("(prefers-color-scheme: dark)");
+darkMatcher.addEventListener('change', () => {
+  const isDarkMode = darkMatcher.matches;
+  monaco?.editor?.setTheme(isDarkMode ? 'vs-dark' : 'vs');
+});
+
 function runEditor(parent, source, language) {
+  const isDarkMode = darkMatcher.matches;
   return monaco.editor.create(parent, {
     value: source,
     language: language,
     //lineNumbers: false,
-    theme: 'vs-dark',
+    theme: isDarkMode ? 'vs-dark' : 'vs',
     disableTranslate3d: true,
  //   model: null,
     scrollBeyondLastLine: false,

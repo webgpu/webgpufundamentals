@@ -2,6 +2,45 @@
 <html>
 <head>
 <style>
+:root {
+  --tabs-bg-color: #CCC;
+  --frame-bg-color: #AAA;
+  --frame-fg-color: #444;
+  --file-selected-fg-color: black;
+  --file-selected-bg-color: #CCC;
+  --button-bg-color: #EEE;
+  --button-border-bottom-color: #888;
+  --button-hover-bg-color: orange;
+  --pane-logo-fg-color: #444;
+  --dialog-mask-bg-color: rgba(255, 255, 255, 0.8);
+  --dialog-bg-color: #CCC;
+  --dialog-fg-color: #000;
+  --dialog-a-fg-color: rgb(30, 92, 57);
+  --dialog-a-hover-fg-color: rgb(164, 90, 0);
+  --show-bg-color: #FFF;
+  --show-border-color: #AAA;  
+  --copy-area-bg-color: #DDD;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tabs-bg-color: #666;
+    --frame-bg-color: #444;
+    --frame-fg-color: #AAA;
+    --file-selected-fg-color: white;
+    --file-selected-bg-color: #666;
+    --button-bg-color: #AAA;
+    --button-border-bottom-color: black;
+    --pane-logo-fg-color: #CCC;
+    --dialog-mask-bg-color: rgba(0, 0, 0, 0.8);
+    --dialog-bg-color: #444;
+    --dialog-fg-color: #FFF;
+    --dialog-a-fg-color: lightseagreen;
+    --dialog-a-hover-fg-color: orange;
+    --show-bg-color: #FFF;
+    --show-border-color: #666;
+    --copy-area-bg-color: #222;
+  }  
+}
 html {
   box-sizing: border-box;
 }
@@ -21,20 +60,21 @@ a {
 iframe {
     display: block;
     border: none;
+    border-left: 1px solid black;
 }
 .frame {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #444;
-    color: #AAA;
+    background-color: var(--frame-bg-color);
+    color: var(--frame-fg-color)
 }
 .tabs {
     flex: 0 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #666;
+    background-color: var(--tabs-bg-color);
 }
 .panes {
     display: flex;
@@ -59,8 +99,8 @@ iframe {
     position: relative;
 }
 .panes .fileSelected {
-    color: white;
-    background: #666;
+    color: var(--file-selected-fg-color);
+    background-color: var(--file-selected-bg-color);
 }
 .panes .files > div {
     border: 1px solid black;
@@ -83,7 +123,7 @@ iframe {
 .result>iframe {
     width: 100%;
     height: 100%;
-    background: white;
+    background-color: white;
 }
 .result .console .log {
     white-space: pre-line;
@@ -115,14 +155,14 @@ iframe {
   top: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
+  background-color: var(--dialog-mask-bg-color);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 .dialog>div {
-  background: #444;
-  color: white;
+  background-color: var(--dialog-bg-color);
+  color: var(--dialog-fg-color);
   padding: 1em;
   outline: none;
 }
@@ -130,10 +170,10 @@ iframe {
   margin-left: 0.25em;
 }
 .dialog a {
-  color: lightseagreen;
+  color: var(--dialog-a-fg-color);
 }
 .dialog a:hover {
-  color: orange;
+  color: var(--dialog-a-hover-fg-color);
 }
 /* ---- */
 .export .export-buttons {
@@ -144,7 +184,7 @@ iframe {
   height: 8em;
   overflow: auto;
   user-select: all;
-  background: #222;
+  background-color: var(--copy-area-bg-color);
   padding: 0.5em;
 }
 /* ---- */
@@ -159,14 +199,14 @@ iframe {
 button {
     padding: 0.5em;
     border: none;
-    background: #AAA;
-    border-bottom: 5px solid black;
+    background-color: var(--button-bg-color);
+    border-bottom: 5px solid var(--button-border-bottom-color);
     margin: 0.25em;
     width: 5em;
     cursor: pointer;
 }
 button:hover {
-  background-color: orange;
+  background-color: var(--button-hover-bg-color);
 }
 button:focus {
     outline: none;
@@ -177,12 +217,12 @@ button:focus {
 .panelogo>*>* {
     vertical-align: middle;
     display: inline-block;
-    color: #CCC;
+    color: var(--pane-logo-fg-color);
 }
 .show {
-    background: #FFF !important;
+    background-color: var(--show-bg-color) !important;
     border-bottom: none !important;
-    border-top: 5px solid #666 !important;
+    border-top: 5px solid var(--show-border-color) !important;
 }
 .button-result {
     margin-left: 2em !important;

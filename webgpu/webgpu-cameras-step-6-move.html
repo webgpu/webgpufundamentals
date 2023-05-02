@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Cameras - Aim Fs - Step 4</title>
+    <title>WebGPU Cameras - Move - Step 5</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -34,8 +34,6 @@ canvas {
     <div id="circle"></div>
   </body>
   <script type="module">
-import GUI from '/3rdparty/muigui-0.x.module.js';
-
 function createFVertices() {
   const positions = [
     // left column
@@ -137,6 +135,17 @@ function createFVertices() {
 }
 
 const vec3 = {
+  getAxis(m, axis, dst) {
+    dst = dst || new Float32Array(3);
+
+    const off = axis * 4;
+    dst[0] = m[off + 0];
+    dst[1] = m[off + 1];
+    dst[2] = m[off + 2];
+
+    return dst;
+  },
+
   cross(a, b, dst) {
     dst = dst || new Float32Array(3);
 
@@ -151,12 +160,32 @@ const vec3 = {
     return dst;
   },
 
+  add(a, b, dst) {
+    dst = dst || new Float32Array(3);
+
+    dst[0] = a[0] + b[0];
+    dst[1] = a[1] + b[1];
+    dst[2] = a[2] + b[2];
+
+    return dst;
+  },
+
   subtract(a, b, dst) {
     dst = dst || new Float32Array(3);
 
     dst[0] = a[0] - b[0];
     dst[1] = a[1] - b[1];
     dst[2] = a[2] - b[2];
+
+    return dst;
+  },
+
+  mulScalar(v, s, dst) {
+    dst = dst || new Float32Array(3);
+
+    dst[0] = v[0] * s;
+    dst[1] = v[1] * s;
+    dst[2] = v[2] * s;
 
     return dst;
   },
@@ -584,7 +613,8 @@ async function main() {
     },
   });
 
-  const numFs = 5 * 5 + 1;
+  const gridSize = 10;
+  const numFs = gridSize * gridSize * gridSize;
   const objectInfos = [];
   for (let i = 0; i < numFs; ++i) {
     // matrix
@@ -645,18 +675,63 @@ async function main() {
 
   const degToRad = d => d * Math.PI / 180;
 
-  const radius = 200;
-  const settings = {
-    target: [0, 200, 300],
-    targetAngle: 0,
+  const camera = {
+    position: [0, 0, 0],
+    target: [0, 0, -1],
+    up: [0, 1, 0],
   };
 
-  const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
+  const xAxis = 0;
+  const yAxis = 1;
+  const zAxis = 2;
+  const moveSpeed = 5;
+  const turnSpeed = 0.02;
 
-  const gui = new GUI();
-  gui.onChange(render);
-  gui.add(settings.target, '1', -100, 300).name('target height');
-  gui.add(settings, 'targetAngle', radToDegOptions).name('target angle');
+  function move(axisIndex, direction, translate) {
+    const { position, target, up } = camera;
+    const cameraMatrix = mat4.aim(position, target, up);
+    const axis = vec3.getAxis(cameraMatrix, axisIndex);
+
+    const speed = translate ? moveSpeed : turnSpeed;
+    const velocity = vec3.mulScalar(axis, speed * direction);
+    vec3.add(target, velocity, target);
+    if (translate) {
+      vec3.add(position, velocity, position);
+    }
+
+    const newCameraMatrix = mat4.aim(position, target, up);
+    vec3.add(position, vec3.getAxis(newCameraMatrix, zAxis, target), target);
+    vec3.getAxis(newCameraMatrix, yAxis, up);
+    render();
+  }
+
+  window.addEventListener('keydown', (e) => {
+    const translate = e.shiftKey;
+    switch (e.code) {
+      case 'ArrowUp':
+      case 'KeyW':
+        move(zAxis,  1, true);
+      break;
+      case 'ArrowDown':
+      case 'KeyS':
+        move(zAxis, -1, true);
+        break;
+      case 'ArrowLeft':
+      case 'KeyA':
+        move(xAxis,  1, translate);
+        break;
+      case 'ArrowRight':
+      case 'KeyD':
+        move(xAxis, -1, translate);
+        break;
+      case 'KeyI':
+        move(yAxis,  1, translate);
+        break;
+      case 'KeyK':
+        move(yAxis, -1, translate);
+        break;
+    }
+  });
 
   let depthTexture;
 
@@ -687,10 +762,6 @@ async function main() {
     pass.setPipeline(pipeline);
     pass.setVertexBuffer(0, vertexBuffer);
 
-    // update target X,Z based on angle
-    settings.target[0] = Math.cos(settings.targetAngle) * radius;
-    settings.target[2] = Math.sin(settings.targetAngle) * radius;
-
     const aspect = canvas.clientWidth / canvas.clientHeight;
     const projection = mat4.perspective(
         degToRad(60), // fieldOfView,
@@ -699,13 +770,9 @@ async function main() {
         2000,   // zFar
     );
 
-    // Get the camera's position from the matrix we computed
-    const eye = [-500, 300, -500];
-    const target = [0, -100, 0];
-    const up = [0, 1, 0];
-
-    // Compute a view matrix
-    const viewMatrix = mat4.lookAt(eye, target, up);
+    // Compute a camera matrix
+    const cameraMatrix = mat4.cameraAim(camera.position, camera.target, camera.up);
+    const viewMatrix = mat4.inverse(cameraMatrix);
 
     // combine the view and projection matrixes
     const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
@@ -716,27 +783,24 @@ async function main() {
       uniformValues,
       bindGroup,
     }, i) => {
-      const deep = 5;
-      const across = 5;
-      if (i < 25) {
-        // compute grid positions
-        const gridX = i % across;
-        const gridZ = i / across | 0;
+      // compute grid positions
+      const gridX = i % gridSize;
+      const gridY = (i / gridSize | 0) % gridSize;
+      const gridZ = i / (gridSize * gridSize) | 0;
 
-        // compute 0 to 1 positions
-        const u = gridX / (across - 1);
-        const v = gridZ / (deep - 1);
+      // compute 0 to 1 positions
+      const u = gridX / (gridSize - 1);
+      const v = gridY / (gridSize - 1);
+      const w = gridZ / (gridSize - 1);
 
-        // center and spread out
-        const x = (u - 0.5) * across * 150;
-        const z = (v - 0.5) * deep * 150;
+      // center and spread out
+      const x = (u - 0.5) * gridSize * 250;
+      const y = (v - 0.5) * gridSize * 250;
+      const z = (w - 0.5) * gridSize * 250;
 
-        // aim this F from it's position toward the target F
-        const aimMatrix = mat4.aim([x, 0, z], settings.target, up);
-        mat4.multiply(viewProjectionMatrix, aimMatrix, matrixValue);
-      } else {
-        mat4.translate(viewProjectionMatrix, settings.target, matrixValue);
-      }
+      // aim this F from it's position toward the target F
+      const aimMatrix = mat4.translation([x, y, z]);
+      mat4.multiply(viewProjectionMatrix, aimMatrix, matrixValue);
 
       // upload the uniform values to the uniform buffer
       device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
