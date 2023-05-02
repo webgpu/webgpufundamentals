@@ -327,7 +327,7 @@ would work:
 *  @location(1) the_texcoord: vec2f,
 *};
 
-@stage(fragment)
+@fragment
 *fn myFSMain(v: MyFSInput) -> @location(0) vec4f
 {
 *  var diffuseColor = textureSample(diffuseTexture, diffuseSampler, v.the_texcoord);
@@ -340,7 +340,7 @@ would work:
 This would also work
 
 ```wgsl
-@stage(fragment)
+@fragment
 fn myFSMain(
 *  @location(1) uv: vec2f,
 *  @location(0) nrm: vec3f,
