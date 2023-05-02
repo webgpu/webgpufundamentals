@@ -1,4 +1,4 @@
-/* wgpu-matrix@2.0.0, license MIT */
+/* wgpu-matrix@2.1.0, license MIT */
 var arrayLike = /*#__PURE__*/Object.freeze({
     __proto__: null
 });
@@ -2932,6 +2932,46 @@ function aim(position, target, up, dst) {
     return dst;
 }
 /**
+ * Computes a 4-by-4 camera aim transformation.
+ *
+ * This is a matrix which positions an object aiming down negative Z.
+ * toward the target.
+ *
+ * Note: this is the inverse of `lookAt`
+ *
+ * @param eye - The position of the object.
+ * @param target - The position meant to be aimed at.
+ * @param up - A vector pointing up.
+ * @param dst - matrix to hold result. If not passed a new one is created.
+ * @returns The aim matrix.
+ */
+function cameraAim(eye, target, up, dst) {
+    dst = dst || new MatType(16);
+    xAxis = xAxis || create$2();
+    yAxis = yAxis || create$2();
+    zAxis = zAxis || create$2();
+    normalize$1(subtract$1(eye, target, zAxis), zAxis);
+    normalize$1(cross(up, zAxis, xAxis), xAxis);
+    normalize$1(cross(zAxis, xAxis, yAxis), yAxis);
+    dst[0] = xAxis[0];
+    dst[1] = xAxis[1];
+    dst[2] = xAxis[2];
+    dst[3] = 0;
+    dst[4] = yAxis[0];
+    dst[5] = yAxis[1];
+    dst[6] = yAxis[2];
+    dst[7] = 0;
+    dst[8] = zAxis[0];
+    dst[9] = zAxis[1];
+    dst[10] = zAxis[2];
+    dst[11] = 0;
+    dst[12] = eye[0];
+    dst[13] = eye[1];
+    dst[14] = eye[2];
+    dst[15] = 1;
+    return dst;
+}
+/**
  * Computes a 4-by-4 view transformation.
  *
  * This is a view matrix which transforms all other objects
@@ -3471,6 +3511,7 @@ var mat4Impl = /*#__PURE__*/Object.freeze({
     ortho: ortho,
     frustum: frustum,
     aim: aim,
+    cameraAim: cameraAim,
     lookAt: lookAt,
     translation: translation,
     translate: translate,
