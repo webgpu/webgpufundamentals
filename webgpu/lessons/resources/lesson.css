@@ -12,7 +12,7 @@
   --sidebar-bg-color: #EEE;
   --a-fg-color: #00E;
   --a-warn-fg-color: #8CF;
-  --codearea-shadow-color: #CCC;
+  --codearea-shadow-color: none;
   --compare-bg-color: #DDD;
   --warning-bg-color: #800;
   --warning-fg-color: white;
