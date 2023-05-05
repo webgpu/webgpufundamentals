@@ -19,6 +19,7 @@ Here are some other webgpu resources
 * [WebGPU Shadow Playground](https://toji.github.io/webgpu-shadow-playground/)
 * [WebGPU Metaballs](https://toji.github.io/webgpu-metaballs/)
 * [Shadertoy example in WebGPU](https://jsgist.org/?src=a17b03b88c86c08ac621298dae50e30b)
+* [Shader Graph WGSL](https://deepkolos.github.io/shader-graph-wgsl/)
 
 # Tools
 
