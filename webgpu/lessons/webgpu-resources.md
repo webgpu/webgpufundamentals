@@ -6,6 +6,7 @@ Here are some other webgpu resources
 
 # Articles
 
+* [Your first WebGPU app](https://codelabs.developers.google.com/your-first-webgpu-app#0)
 * [Tour of WGSL](https://google.github.io/tour-of-wgsl/)
 * [Efficiently rendering glTF models](https://toji.github.io/webgpu-gltf-case-study/)
 * [WebGPU Best Practices](https://toji.dev/webgpu-best-practices/)
