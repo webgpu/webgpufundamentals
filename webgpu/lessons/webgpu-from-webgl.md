@@ -263,7 +263,7 @@ struct Foo {  vec4: field; }
 var v: vec4f;
 
 // declare a function of type mat4x4f that takes a vec3f parameter
-fn someFunction(p: vec3f) => mat4x4f { ... }
+fn someFunction(p: vec3f) -> mat4x4f { ... }
 
 // declare a struct
 struct Foo {  field: vec4f; }
