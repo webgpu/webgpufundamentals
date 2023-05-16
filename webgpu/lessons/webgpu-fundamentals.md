@@ -191,7 +191,7 @@ graphics, 3D graphics, etc...
 # <a id="a-drawng-triangles-to-textures"></a>Drawing triangles to textures
 
 WebGPU can draw triangles to [textures](webgpu-textures.html). For the purpose
-if this article, a texture is a 2d rectangle of pixels. The `<canvas>` element
+of this article, a texture is a 2d rectangle of pixels. The `<canvas>` element
 represents a texture on a webpage. In WebGPU we can ask the canvas for a texture
 and then render to that texture.
 
