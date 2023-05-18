@@ -600,7 +600,7 @@ on `videoWidth` and `videoHeight`. So, let's update the code to handle that diff
     device.queue.copyExternalImageToTexture(
       { source, flipY, },
       { texture },
-      { width: source.width, height: source.height },
+-      { width: source.width, height: source.height },
 +      getSourceSize(source),
     );
 
