@@ -580,7 +580,7 @@ Here's a video
 
 <div class="webgpu_center">
   <div>
-     <video mute controls src="../resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm" style="width: 720px";></video>
+     <video muted controls src="../resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm" style="width: 720px";></video>
      <div class="copyright"><a href="https://commons.wikimedia.org/wiki/File:Golden_retriever_swimming_the_doggy_paddle.webm">CC-BY: Golden Woofs</a></div>
   </div>
 </div>
@@ -630,7 +630,7 @@ So then, lets setup a video element
 
 ```js
   const video = document.createElement('video');
-  video.mute = true;
+  video.muted = true;
   video.loop = true;
   video.preload = 'auto';
   video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
@@ -678,7 +678,7 @@ sadly, old browsers made it hard to know when it's safe to use a video 😅
 +  }
 
   const video = document.createElement('video');
-  video.mute = true;
+  video.muted = true;
   video.loop = true;
   video.preload = 'auto';
   video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
@@ -739,7 +739,7 @@ Then let's write a function to wait for it to be clicked and hide it.
 +  }
 
   const video = document.createElement('video');
-  video.mute = true;
+  video.muted = true;
   video.loop = true;
   video.preload = 'auto';
   video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
@@ -760,7 +760,7 @@ For example
 
 ```js
   const video = document.createElement('video');
-  video.mute = true;
+  video.muted = true;
   video.loop = true;
   video.preload = 'auto';
   video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
