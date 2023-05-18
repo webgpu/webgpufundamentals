@@ -417,7 +417,7 @@ for each pixel to be drawn/rasterized when drawing triangles/lines/points</p>
 start off by checking for requesting an adaptor, and requesting
 a device.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
-  const adapter = await gpu?.requestAdapter();
+  const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
   if (!device) {
     fail('need a browser that supports WebGPU');

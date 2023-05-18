@@ -278,7 +278,7 @@ struct VSOutput {
 <p>As you can see, it’s a small change. We declared a struct <code class="notranslate" translate="no">Vertex</code> to define the data
 for a vertex. The important part is declaring the position field with <code class="notranslate" translate="no">@location(0)</code></p>
 <p>Then, when we create the render pipeline, we have to tell WebGPU how to get data
-for <code class="notranslate" translate="no">@location0</code></p>
+for <code class="notranslate" translate="no">@location(0)</code></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
     label: 'vertex buffer pipeline',
     layout: 'auto',
