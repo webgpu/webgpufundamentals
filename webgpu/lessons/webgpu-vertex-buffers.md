@@ -67,7 +67,7 @@ As you can see, it's a small change. We declared a struct `Vertex` to define the
 for a vertex. The important part is declaring the position field with `@location(0)`
 
 Then, when we create the render pipeline, we have to tell WebGPU how to get data
-for `@location0`
+for `@location(0)`
 
 ```js
   const pipeline = device.createRenderPipeline({
