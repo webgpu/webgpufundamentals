@@ -172,7 +172,7 @@ device.submit([commandBuffer]);
 The diagram above represent the state at some `draw` command in the command
 buffer. Executing the commands will setup the *internal state* and then the
 *draw* command will tell the GPU to execute a vertex shader (and indirectly a
-fragment shader). The *dispatchWorkgroup* command will tell the GPU to execute a
+fragment shader). The `dispatchWorkgroup` command will tell the GPU to execute a
 compute shader.
 
 I hope that gave some mental image of the state you need to set up. Like
@@ -182,7 +182,7 @@ mentioned above, WebGPU has 2 basic things it can do
 
 2. [Run computations on the GPU](#a-run-computations-on-the-gpu)
 
-Following we'll go over a small example of doing each of those things. Other
+We'll go over a small example of doing each of those things. Other
 articles will show the various ways of providing data to these things. Note that
 this will be very basic. We need to build up a foundation of these basics. Later
 we'll show how to use them to do things people typically do with GPUs like 2D
@@ -191,9 +191,12 @@ graphics, 3D graphics, etc...
 # <a id="a-drawng-triangles-to-textures"></a>Drawing triangles to textures
 
 WebGPU can draw triangles to [textures](webgpu-textures.html). For the purpose
-of this article, a texture is a 2d rectangle of pixels. The `<canvas>` element
+of this article, a texture is a 2d rectangle of pixels.[^textures] The `<canvas>` element
 represents a texture on a webpage. In WebGPU we can ask the canvas for a texture
 and then render to that texture.
+
+[^textures]: Textures can also be 3d rectangles of pixels, cube maps (6 squares of pixels
+that form a cube), and a few other things but the most common textures are 2d rectangles of pixels.
 
 To draw triangles with WebGPU we have to supply 2 "shaders". Again, Shaders
 are functions that run on the GPU. These 2 shaders are
@@ -230,8 +233,7 @@ Then we need a `<script>` tag to hold our JavaScript.
 All of the JavaScript below will go inside this script tag
 
 WebGPU is an asynchronous API so it's easiest to use in an async function. We
-start off by checking for requesting an adaptor, and requesting
-a device.
+start off by requesting an adaptor, and then requesting a device from the adapter.
 
 ```js
 async function main() {
@@ -249,7 +251,7 @@ The code above is fairly self explanatory. First we request an adapter by using 
 [`?.` optional chaining operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining).
 so that if `navigator.gpu` does not exist then `adapter` will be undefined.
 If it does exist then we'll call `requestAdapter`. It turns its results asynchronously
-so we need the `await`. The adapter represents a specific GPU. Some devices
+so we need `await`. The adapter represents a specific GPU. Some devices
 have multiple GPUs.
 
 From the adapter we request the device but again use `?.` so that if adapter happens
@@ -277,8 +279,9 @@ from the canvas. We ask the system what the preferred canvas format is. This
 will be either `"rgba8unorm"` or `"bgra8unorm"`. It's not really that important
 what it is but by querying it it will make things fastest for the user's system.
 
-We pass that into the webgpu canvas context by calling `configure`. We pass in
-the `device` and the `format`.
+We pass that as `format` into the webgpu canvas context by calling `configure`.
+We also pass in the `device` which associates this canvas with the device we just
+created.
 
 Next we create a shader module. A shader module contains one or more shader
 functions. In our case we'll make 1 vertex shader function and 1 fragment shader
@@ -325,10 +328,13 @@ This designates it as a vertex shader function.
 
 It accepts one parameter we named `vertexIndex`. `vertexIndex` is a `u32` which
 means a *32bit unsigned integer*. It gets its value from the builtin called
-`vertex_index`. `vertex_index` is the iteration number just like `index` in
+`vertex_index`. `vertex_index` is the like an iteration number, similar to `index` in
 JavaScript's `Array.map(function(value, index) { ... })`. If we tell the GPU to
-execute this function 10 times, the first time `vertex_index` would be `0`, the
-2nd time it would be `1`, the 3rd time it would be `2`, etc...
+execute this function 10 times by calling `draw`, the first time `vertex_index` would be `0`, the
+2nd time it would be `1`, the 3rd time it would be `2`, etc...[^indices]
+
+[^indices]: We can also use in index buffer to specific `vertex_index`.
+This is covered in [the article on vertex-buffers](webgpu-vertex-buffers.html#a-index-buffers).
 
 Our `vs` function is declared as returning a `vec4f` which is vector of four
 32bit floating point values. Think of it as an array of 4 values or an object
@@ -497,6 +503,11 @@ the return value of the fragment shader.
 Next we create a command encoder. A command encoder is used to create a command
 buffer. We use it to encode commands and then "submit" the command buffer it
 created to have the commands executed.
+
+We then use the command encoder to create a render pass encoder by calling `beginRenderPass`. A render
+pass encoder is a specific encoder for creating commands related to rendering.
+We pass it our `renderPassDescriptor` to tell it which texture we want to
+render to.
 
 We encode the command, `setPipeline`, to set our pipeline and then tell it to
 execute our vertex shader 3 times by calling `draw` with 3. By default, every 3
@@ -668,7 +679,7 @@ buffer that exists on the GPU and copy the data to the buffer.
 Above we call `device.createBuffer` to create a buffer. `size` is the size in
 bytes, in this case it will be 12 because size in bytes of a `Float32Array` of 3
 values is 12. If you're not familiar with `Float32Array` and typed arrays then
-see [this article](webgpu-typedarrays.html).
+see [this article](webgpu-memory-layout.html).
 
 Every WebGPU buffer we create has to specify a `usage`. There are a bunch of
 flags we can pass for usage but not all of them can be used together. Here we
@@ -684,7 +695,7 @@ access to the buffer from WebGPU because the buffer might be in use and because
 it might only exist on the GPU.
 
 WebGPU buffers that can be mapped in JavaScript can't be used for much else. In
-other words, we can not map the buffer we just created above and we try to add
+other words, we can not map the buffer we just created above and if we try to add
 the flag to make it mappable we'll get an error that that is not compatible with
 usage `STORAGE`.
 
@@ -719,8 +730,9 @@ create a bindGroup
 ```
 
 We get the layout for the bindGroup from the pipeline. Then we setup bindGroup
-entries. The `{binding: 0 ...` of the `entries` corresponds to the `@binding(0)`
-in the shader.
+entries. The 0 in `pipeline.getBindGroupLayout(0)` corresponds to the
+`@group(0)` in the shader. The `{binding: 0 ...` of the `entries` corresponds to
+the `@group(0) @binding(0)` in the shader.
 
 Now we can start encoding commands
 
@@ -740,7 +752,7 @@ Now we can start encoding commands
 
 We create a command encoder. We start a compute pass. We set the pipeline, then
 we set the bindGroup. Here, the `0` in `pass.setBindGroup(0, bindGroup)`
-corresponds to `@group(0)` in the shader. We then `dispatchWorkgroups` and in
+corresponds to `@group(0)` in the shader. We then call `dispatchWorkgroups` and in
 this case we pass it `input.length` which is `3` telling WebGPU to run the
 compute shader 3 times. We then end the pass.
 
@@ -765,7 +777,7 @@ command buffer.
   device.queue.submit([commandBuffer]);
 ```
 
-Now we map the results buffer and get a copy of the data
+We then map the results buffer and get a copy of the data
 
 ```js
   // Read the results
@@ -801,6 +813,8 @@ fragment shaders, and compute shaders, run on your GPU. A GPU could have over
 10000 processors which means they can potentially do more than 10000
 calculations in parallel which is likely 3 or more orders of magnitude than your
 CPU can do in parallel.
+
+## Simple Canvas Resizing
 
 Before we move on, let's go back to our triangle drawing example and add some
 basic support for resizing a canvas. Sizing a canvas is actually a topic that
@@ -930,7 +944,10 @@ function main(device) {
 <code>device.lost</code> is a promise that starts off unresolved. It will resolve if and when the
 device is lost. A device can be lost for many reasons. Maybe the user ran a really intensive
 app and it crashed their GPU. Maybe the user updated their drivers. Maybe the user has
-an external GPU and unplugged it.
+an external GPU and unplugged it. Maybe another page used a lot of GPU, your
+tab was in the background and the browser decided to free up some memory by
+losing the device for background tabs. The point is being that for any serious
+apps you probably want to handle losing the device.
 </p>
 <p>
 Note that <code>requestDevice</code> always returns a device. It just might start lost.
