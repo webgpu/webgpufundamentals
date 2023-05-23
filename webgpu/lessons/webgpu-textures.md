@@ -314,6 +314,7 @@ what's called the `magFilter` or, the filter used when magnifying the texture.
 If we change it from `nearest` to to `linear` then it will linearly interpolate
 between 4 pixels.
 
+<a id="a-linear-interpolation"></a>
 <div class="webgpu-center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
 
 Texture coordinates are often called "UVs" (pronounced you-vees) so, in the
@@ -667,10 +668,11 @@ One reason is, the quad is positioned with real numbers but pixels are integers.
 The texture coordinates are interpolated from the real numbers, or rather, they
 are computed from the real numbers.
 
+<a id="a-pixel-to-texcoords"></a>
 <div class="webgpu-center center diagram">
-  <div>
+  <div class="fit-container">
     <div class="text-align: center">drag to move</div>
-    <div data-diagram="pixel-to-texcoords" style="display: inline-block; width: 600px;"></div>
+    <div class="fit-container" data-diagram="pixel-to-texcoords" style="display: inline-block; width: 600px;"></div>
   </div>
 </div>
 

@@ -320,6 +320,9 @@ div[data-diagram] {
   width: 100%;
   height: 100%;
 }
+.fit-container {
+  max-width: 100%;
+}
 .fullscreen {
     position: fixed !important;
     left: 0;
