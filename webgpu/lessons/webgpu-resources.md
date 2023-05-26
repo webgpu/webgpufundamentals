@@ -36,7 +36,7 @@ Here are some other webgpu resources
 ## Utilities
 
 * [webgpu-utils](https://github.com/greggman/webgpu-utils) - helps set uniform buffer data and more
-
+* [wgsl-struct-buffer](https://github.com/deepkolos/wgsl-struct-buffer) - wgsl's struct buffer view in ts with type check & infer
 
 
 
