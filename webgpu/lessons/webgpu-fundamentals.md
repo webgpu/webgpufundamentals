@@ -530,7 +530,7 @@ The result
 
 {{{example url="../webgpu-simple-triangle.html"}}}
 
-It's import to important to emphasize that all of these functions we called
+It's important to emphasize that all of these functions we called
 like `setPipeline`, and `draw` only add commands to a command buffer.
 They don't actually execute the commands. The commands are executed
 when we submit the command buffer to the device queue.
