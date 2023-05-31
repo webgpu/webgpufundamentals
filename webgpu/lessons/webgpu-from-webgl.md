@@ -140,12 +140,51 @@ responsibility.
   `gl.generateMipmap` and WebGL would generate all the other mip levels. WebGPU
   has no such function. If you want mips for your textures you have to generate
   them yourself.
+  
+  Note: [this article](webgpu-importing-taxture.html#a-generating-mips-on-the-gpu)
+  has code to generate mips.
 
 * WebGPU requires samplers
 
   In WebGL1, samplers did not exist or to put it another way, samplers were handled
   by WebGL internally. In WebGL2 using samplers was optional. In WebGPU
   samplers are required.
+
+* Buffers and Textures can not be resized
+
+  In WebGL you could create a buffer or texture and then at anytime, change its size.
+  For example if you called `gl.bufferData` the buffer would be reallocated. If you called
+  `gl.texImage2D` the texture would be reallocated. A common pattern with textures was
+  to create a 1x1 pixel placeholder that lets you start rendering immediately and then
+  loading an image asynchronously. When the image was finished loading you'd update
+  the texture in place.
+
+  In WebGPU texture and buffer sizes, usage, formats are immutable. You can change their
+  contents but you can not change anything else about them. This means, patterns in
+  WebGL where you were changing them, like the example mentioned above, need to be refactored
+  to create a new resource.
+
+  In other words, instead of
+
+  ```js
+  // pseudo code
+  const tex = createTexture()
+  fillTextureWith1x1PixelPlaceholder(tex)
+  imageLoad(url).then(img => updateTextureWithImage(tex, image));
+  ```
+
+  You need to change your code to effectively something like
+
+  ```js
+  // pseudo code
+  let tex = createTexture(size: [1, 1]);
+  fillTextureWith1x1PixelPlaceholder(tex)
+  imageLoad(url).then(img => {
+      tex.destroy();  // delete old texture
+      tex = createTexture(size: [img.width, img.height]);
+      copyImageToTexture(tex, image));
+  });
+  ```
 
 ## Let's compare WebGL to WebGPU
 
@@ -241,7 +280,8 @@ fn myFSMain(v: MyVSOutput) -> @location(0) vec4f {
 
 Notice in many ways they aren't all that different. The core parts of each
 function are very similar. `vec4` in GLSL becomes `vec4f` in WGSL, `mat4`
-becomes `mat4x4f`.
+becomes `mat4x4f`. Other examples include `int` -> `i32`, `uint` -> `u32`,
+`ivec2` to `vec2i`, `uvec3` to `vec3u`.
 
 GLSL is C/C++ like. WGSL is Rust like. One difference is
 types go on the left in GLSL and on the right in WGSL.
@@ -1368,8 +1408,8 @@ According to the spec, WebGL2 could support lines larger than 1 pixel, but in
 actual practice no implementations did. WebGL2 did generally support points larger
 than 1 pixel but, (a) lots of GPUs only supported a max size of 64 pixels and (b)
 different GPU would clip or not clip based on th center of the point. So, it's arguably
-a good thing WebGPU doesn't support points. This forces you to implement a portable
-solution.
+a good thing WebGPU doesn't support points of sizes other than 1. 
+This forces you to implement a portable point solution.
 
 ---
 
