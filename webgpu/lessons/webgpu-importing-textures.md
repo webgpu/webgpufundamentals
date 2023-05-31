@@ -91,7 +91,7 @@ And that works!
 
 {{{example url="../webgpu-simple-textured-quad-import-no-mips.html"}}}
 
-## Generating mips on the GPU
+## <a id="a-generating-mips-on-the-gpu"></a>Generating mips on the GPU
 
 In [the previous article we also generated a mipmap](webgpu-textures.html#a-mipmap-filter)
 but in that case we had easy access to the image data. When importing an image, we
