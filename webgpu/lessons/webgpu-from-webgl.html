@@ -331,12 +331,43 @@ render to multiple canvases. 🎉🤩</p>
 <code class="notranslate" translate="no">gl.generateMipmap</code> and WebGL would generate all the other mip levels. WebGPU
 has no such function. If you want mips for your textures you have to generate
 them yourself.</p>
+<p>Note: <a href="webgpu-importing-taxture.html#a-generating-mips-on-the-gpu">this article</a>
+has code to generate mips.</p>
 </li>
 <li>
 <p>WebGPU requires samplers</p>
 <p>In WebGL1, samplers did not exist or to put it another way, samplers were handled
 by WebGL internally. In WebGL2 using samplers was optional. In WebGPU
 samplers are required.</p>
+</li>
+<li>
+<p>Buffers and Textures can not be resized</p>
+<p>In WebGL you could create a buffer or texture and then at anytime, change its size.
+For example if you called <code class="notranslate" translate="no">gl.bufferData</code> the buffer would be reallocated. If you called
+<code class="notranslate" translate="no">gl.texImage2D</code> the texture would be reallocated. A common pattern with textures was
+to create a 1x1 pixel placeholder that lets you start rendering immediately and then
+loading an image asynchronously. When the image was finished loading you’d update
+the texture in place.</p>
+<p>In WebGPU texture and buffer sizes, usage, formats are immutable. You can change their
+contents but you can not change anything else about them. This means, patterns in
+WebGL where you were changing them, like the example mentioned above, need to be refactored
+to create a new resource.</p>
+<p>In other words, instead of</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// pseudo code
+const tex = createTexture()
+fillTextureWith1x1PixelPlaceholder(tex)
+imageLoad(url).then(img =&gt; updateTextureWithImage(tex, image));
+</pre>
+<p>You need to change your code to effectively something like</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// pseudo code
+let tex = createTexture(size: [1, 1]);
+fillTextureWith1x1PixelPlaceholder(tex)
+imageLoad(url).then(img =&gt; {
+    tex.destroy();  // delete old texture
+    tex = createTexture(size: [img.width, img.height]);
+    copyImageToTexture(tex, image));
+});
+</pre>
 </li>
 </ul>
 <h2 id="lets-compare-webgl-to-webgpu">Let’s compare WebGL to WebGPU</h2>
@@ -427,7 +458,8 @@ fn myFSMain(v: MyVSOutput) -&gt; @location(0) vec4f {
 </pre></div></div>
 <p>Notice in many ways they aren’t all that different. The core parts of each
 function are very similar. <code class="notranslate" translate="no">vec4</code> in GLSL becomes <code class="notranslate" translate="no">vec4f</code> in WGSL, <code class="notranslate" translate="no">mat4</code>
-becomes <code class="notranslate" translate="no">mat4x4f</code>.</p>
+becomes <code class="notranslate" translate="no">mat4x4f</code>. Other examples include <code class="notranslate" translate="no">int</code> -&gt; <code class="notranslate" translate="no">i32</code>, <code class="notranslate" translate="no">uint</code> -&gt; <code class="notranslate" translate="no">u32</code>,
+<code class="notranslate" translate="no">ivec2</code> to <code class="notranslate" translate="no">vec2i</code>, <code class="notranslate" translate="no">uvec3</code> to <code class="notranslate" translate="no">vec3u</code>.</p>
 <p>GLSL is C/C++ like. WGSL is Rust like. One difference is
 types go on the left in GLSL and on the right in WGSL.</p>
 <div class="webgpu_center compare"><div><div>GLSL</div><pre class="prettyprint showlinemods notranslate notranslate" translate="no">// declare a variable of type vec4
@@ -1428,8 +1460,8 @@ of a vertex shader or a field in a structure returned by the vertex shader</p>
 actual practice no implementations did. WebGL2 did generally support points larger
 than 1 pixel but, (a) lots of GPUs only supported a max size of 64 pixels and (b)
 different GPU would clip or not clip based on th center of the point. So, it’s arguably
-a good thing WebGPU doesn’t support points. This forces you to implement a portable
-solution.</p>
+a good thing WebGPU doesn’t support points of sizes other than 1.
+This forces you to implement a portable point solution.</p>
 <hr>
 <p>If you were already familiar with WebGL then I hope this article was useful.</p>
 
