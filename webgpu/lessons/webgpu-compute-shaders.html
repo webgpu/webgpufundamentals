@@ -221,7 +221,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="lesson">
     <div class="lesson-main">
       <p>This article continues from <a href="webgpu-fundamentals.html">the article on fundamentals</a>.
-In the <a href="webgpu-fundamentals.html">previous article</a> we made an extremely simple
+We’re going to start with some basic of compute shaders and then hopefully move on
+to examples of solving real world problems.</p>
+<p>In the <a href="webgpu-fundamentals.html">previous article</a> we made an extremely simple
 compute shader that doubled numbers in place.</p>
 <p>Here’s the shader</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
