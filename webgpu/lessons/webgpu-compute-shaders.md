@@ -3,6 +3,9 @@ Description: How to use compute shaders in WebGPU
 TOC: Compute Shaders
 
 This article continues from [the article on fundamentals](webgpu-fundamentals.html).
+We're going to start with some basic of compute shaders and then hopefully move on
+to examples of solving real world problems.
+
 In the [previous article](webgpu-fundamentals.html) we made an extremely simple
 compute shader that doubled numbers in place.
 
