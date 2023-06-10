@@ -642,6 +642,27 @@ function dispatchWorkgroup(workgroup_id) {
 }
 ```
 
+Since we set `@workgroup_size(1)`, effectively the pseudo code above becomes
+
+```js
+// pseudo code
+function dispatchWorkgroups(width, height, depth) {
+  for (z = 0; z < depth; ++z) {
+    for (y = 0; y < height; ++y) {
+      for (x = 0; x < width; ++x) {
+        const workgroup_id = {x, y, z};
+        dispatchWorkgroup(workgroup_id)
+      }
+    }
+  }
+}
+
+function dispatchWorkgroup(workgroup_id) {
+  const global_invocation_id = workgroup_id;
+  computeShader(global_invocation_id)
+}
+```
+
 Finally we use the `x` property of `id` to index `data` and multiply each value
 by 2
 
