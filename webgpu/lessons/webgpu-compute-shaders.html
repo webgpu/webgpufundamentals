@@ -220,7 +220,305 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>TBD</p>
+      <p>This article continues from <a href="webgpu-fundamentals.html">the article on fundamentals</a>.
+In the <a href="webgpu-fundamentals.html">previous article</a> we made an extremely simple
+compute shader that doubled numbers in place.</p>
+<p>Here’s the shader</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
+
+@compute @workgroup_size(1) fn computeSomething(
+  @builtin(global_invocation_id) id: vec3&lt;u32&gt;
+) {
+  let i = id.x;
+  data[i] = data[i] * 2.0;
+}
+</pre>
+<p>We then effectively ran the compute shader like this</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  ...
+  pass.dispatchWorkgroups(count);
+</pre>
+<p>We need to go over the definition of workgroup.</p>
+<p>You can think of a workgroup as small collection of threads. Each thread
+runs in parallel. You define the size of workgroup statically in WGSL.
+Workgroup sizes are defined in 3 dimensions but default to 1 so
+our <code class="notranslate" translate="no">@workgroup_size(1)</code> is equivalent to <code class="notranslate" translate="no">@workgroup_size(1, 1, 1)</code>.</p>
+<p><a id="a-local-invocation-id"></a>If we define a workgroup as say <code class="notranslate" translate="no">@workgroup_size(3, 4, 2)</code> then we’re
+defining 3 * 4 * 2 threads or another way put it, we’re defining a 24 thread workgroup.</p>
+<div class="webgpu_center">
+  <img src="resources/gpu-workgroup.svg" style="width: 500px;">
+  <div><code class="notranslate" translate="no">local_invocation_id</code> of a workgroup</div>
+</div>
+<p><a id="a-workgroup-id"></a>If we then call <code class="notranslate" translate="no">pass.dispatchWorkgroups(4, 3, 2)</code> we’re saying, execute a workgroup of 24 thread,
+4 * 3 * 2 times (24) for a total of 576 threads.</p>
+<div class="webgpu_center">
+  <img src="resources/gpu-workgroup-dispatch.svg" style="width: 500px;">
+  <div><code class="notranslate" translate="no">workgroup_id</code> of dispatched workgroups</div>
+</div>
+<p>Inside each “invocation” of our compute shader the following builtin variables
+are available.</p>
+<ul>
+<li>
+<p><code class="notranslate" translate="no">local_invocation_id</code>: The id of this thread within a workgroup</p>
+<p><a href="#a-local-invocation-id">See the diagram above</a>.</p>
+</li>
+<li>
+<p><code class="notranslate" translate="no">workgroup_id</code>: The id of the workgroup.</p>
+<p>Every thread within a workgroup will have the same workgroup id.
+<a href="#a-workgroup-id">See the diagram above</a>.</p>
+</li>
+<li>
+<p><code class="notranslate" translate="no">global_invocation_id</code>: A unique id for each thread</p>
+<p>You can think of this as</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">global_invocation_id = workgroup_id * workgroup_size + local_invocation_id
+</pre>
+</li>
+<li>
+<p><code class="notranslate" translate="no">num_workgroups</code>: What you passed to <code class="notranslate" translate="no">pass.dispatchWorkgroups</code></p>
+</li>
+<li>
+<p><code class="notranslate" translate="no">local_invocation_index</code>: The id of this thread linearized</p>
+<p>You can think of this as</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">rowSize = workgroup_size.x
+sliceSize = rowWidth * workgroup_size.y
+local_invocation_index =
+      local_invocation_id.x +
+      local_invocation_id.y + rowSize
+      local_invocation_id.z + sliceSize
+</pre>
+</li>
+</ul>
+<p>Let’s make a sample to use these values. We’ll just write the values
+from each invocation to buffers and then print out the values</p>
+<p>Here’s the shader</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const dispatchCount = [4, 3, 2];
+const workgroupSize = [2, 3, 4];
+
+// multiply all elements of an array
+const arrayProd = arr =&gt; arr.reduce((a, b) =&gt; a * b);
+
+const numThreadsPerWorkgroup = arrayProd(workgroupSize);
+
+const code = `
+// NOTE!: vec3u is padded to by 4 bytes
+@group(0) @binding(0) var&lt;storage, read_write&gt; workgroupResult: array&lt;vec3u&gt;;
+@group(0) @binding(1) var&lt;storage, read_write&gt; localResult: array&lt;vec3u&gt;;
+@group(0) @binding(2) var&lt;storage, read_write&gt; globalResult: array&lt;vec3u&gt;;
+
+@compute @workgroup_size(${workgroupSize}) fn computeSomething(
+    @builtin(workgroup_id) workgroup_id : vec3&lt;u32&gt;,
+    @builtin(local_invocation_id) local_invocation_id : vec3&lt;u32&gt;,
+    @builtin(global_invocation_id) global_invocation_id : vec3&lt;u32&gt;,
+    @builtin(local_invocation_index) local_invocation_index: u32,
+    @builtin(num_workgroups) num_workgroups: vec3&lt;u32&gt;
+) {
+  // workgroup_index is similar to local_invocation_index except for
+  // workgroups, not threads inside a workgroup.
+  // It is not a builtin so we compute it ourselves.
+
+  let workgroup_index =  
+     workgroup_id.x +
+     workgroup_id.y * num_workgroups.x +
+     workgroup_id.z * num_workgroups.x * num_workgroups.y;
+
+  // global_invocation_index is like local_invocation_index
+  // except linear across all invocations across all dispatched
+  // workgroups. It is not a builtin so we compute it ourselves.
+
+  let global_invocation_index =
+     workgroup_index * ${numThreadsPerWorkgroup} +
+     local_invocation_index;
+
+  // now we can write each of these builtins to our buffers.
+  workgroupResult[global_invocation_index] = workgroup_id;
+  localResult[global_invocation_index] = local_invocation_id;
+  globalResult[global_invocation_index] = global_invocation_id;
+`;
+</pre>
+<p>We used JavaScript template literal so we can update the workgroup size
+which ends up hard coded into the shader.</p>
+<p>Now that we have the shader we can make 3 buffers to store these results.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const numWorkgroups = arrayProd(dispatchCount);
+  const numResults = numWorkgroups * numThreadsPerWorkgroup;
+  const size = numResults * 4 * 4;  // vec3f * u32
+
+  let usage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC;
+  const workgroupBufferGPU = device.createBuffer({size, usage});
+  const localBufferGPU = device.createBuffer({size, usage});
+  const globalBufferGPU = device.createBuffer({size, usage});
+</pre>
+<p>As we pointed out before, we can not map storage buffers into
+JavaScript so we need some buffers to we can map. We’ll copy
+the results from the storage buffers to these mappable result
+buffers and then read the results.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  usage = GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST;
+  const workgroupReadBufferGPU = device.createBuffer({size, usage});
+  const localReadBufferGPU = device.createBuffer({size, usage});
+  const globalReadBufferGPU = device.createBuffer({size, usage});
+</pre>
+<p>We make a bindgroup to bind all our storage buffers</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: workgroupBufferGPU }},
+      { binding: 1, resource: { buffer: localBufferGPU }},
+      { binding: 2, resource: { buffer: globalBufferGPU }},
+    ],
+  });
+</pre>
+<p>We start an encoder and a compute pass encoder, the same as our previous
+example and add the commands to run the compute shader</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Encode commands to do the computation
+  const encoder = device.createCommandEncoder({ label: 'compute builtin encoder' });
+  const pass = encoder.beginComputePass({ label: 'compute builtin pass' });
+
+  pass.setPipeline(pipeline);
+  pass.setBindGroup(0, bindGroup);
+  pass.dispatchWorkgroups(...dispatchCount);
+  pass.end();
+</pre>
+<p>We need to copy the results from the storage buffers to the mappable
+result buffers.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  encoder.copyBufferToBuffer(workgroupBufferGPU, 0, workgroupReadBufferGPU, 0, size);
+  encoder.copyBufferToBuffer(localBufferGPU, 0, localReadBufferGPU, 0, size);
+  encoder.copyBufferToBuffer(globalBufferGPU, 0, globalReadBufferGPU, 0, size);
+</pre>
+<p>And then end the encoder and submit the command buffers</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Finish encoding and submit the commands
+  const commandBuffer = encoder.finish();
+  device.queue.submit([commandBuffer]);
+</pre>
+<p>Like before, to read the results we map the buffers and once they are
+ready we get typed array views of their contents.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Read the results
+   await Promise.all([
+    workgroupReadBufferGPU.mapAsync(GPUMapMode.READ),
+    localReadBufferGPU.mapAsync(GPUMapMode.READ),
+    globalReadBufferGPU.mapAsync(GPUMapMode.READ),
+  ]);
+
+  const workgroup = new Uint32Array(workgroupReadBufferGPU.getMappedRange());
+  const local = new Uint32Array(localReadBufferGPU.getMappedRange());
+  const global = new Uint32Array(globalReadBufferGPU.getMappedRange());
+</pre>
+<blockquote>
+<p>Important: We mapped 3 buffers here and used <code class="notranslate" translate="no">await Promise.all</code> to wait
+for them all to be ready to use. You can *<em>NOT</em> just wait on the last
+buffer. You must wait on all 3 buffers.</p>
+</blockquote>
+<p>Finally we can print them out</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const get3 = (arr, i) =&gt; {
+    const off = i * 4;
+    return `${arr[off]}, ${arr[off + 1]}, ${arr[off + 2]}`;
+  };
+
+  for (let i = 0; i &lt; numResults; ++i) {
+    if (i % numThreadsPerWorkgroup === 0) {
+      log(`\
+---------------------------------------
+global                 local     global   dispatch: ${i / numThreadsPerWorkgroup}
+invoc.    workgroup    invoc.    invoc.
+index     id           id        id
+---------------------------------------`);
+    }
+    log(`${i.toString().padStart(3)}:      ${get3(workgroup, i)}      ${get3(local, i)}   ${get3(global, i)}`)
+  }
+}
+
+function log(...args) {
+  const elem = document.createElement('pre');
+  elem.textContent = args.join(' ');
+  document.body.appendChild(elem);
+}
+</pre>
+<p>Here’s the result</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-compute-shaders-builtins.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-compute-shaders-builtins.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>These builtins are the generally the only inputs that change
+per thread of a compute shader for one call to <code class="notranslate" translate="no">pass.dispatchWorkgroups</code>
+so to be effective you need to figure out how to use them to design
+a compute shader function to do what you want, given these <code class="notranslate" translate="no">..._id</code>
+builtins as input.</p>
+<h2 id="workgroup-size">Workgroup Size</h2>
+<p>What size should you make a workgroup? The question often comes up,
+why not just always use <code class="notranslate" translate="no">@workgroup_size(1, 1, 1)</code> and then it would
+be more trivial to decide how many iterations to run by only your
+parameters to <code class="notranslate" translate="no">pass.dispatchWorkgroups</code>.</p>
+<p>The reason is multiple threads within a workgroup are faster than
+individual dispatches.</p>
+<p>For one, threads in a workgroup often run in lockstep so running
+16 of them is just as fast as running 1.</p>
+<p>The default limits for WebGPU are as follows</p>
+<ul>
+<li><code class="notranslate" translate="no">maxComputeInvocationsPerWorkgroup</code>: 256</li>
+<li><code class="notranslate" translate="no">maxComputeWorkgroupSizeX</code>: 256</li>
+<li><code class="notranslate" translate="no">maxComputeWorkgroupSizeY</code>:	256</li>
+<li><code class="notranslate" translate="no">maxComputeWorkgroupSizeZ</code>:	64</li>
+</ul>
+<p>As you can see, the first limit <code class="notranslate" translate="no">maxComputeInvocationsPerWorkgroup</code> means the 3 parameters
+to <code class="notranslate" translate="no">@workgroup_size</code> can not multiply to a number larger than 256. In other words</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">   @workgroup_size(256, 1, 1)   // ok
+   @workgroup_size(128, 2, 1)   // ok
+   @workgroup_size(16, 16, 1)   // ok
+   @workgroup_size(16, 16, 2)   // bad 16 * 16 * 2 = 512
+</pre>
+<p>Unfortunately, the perfect size is GPU dependent and WebGPU can not provide that info.
+<strong>The general advice for WebGPU is to choose a workgroup size of 64</strong> unless you have
+some specific reason to choose another size. Apparently most GPUs can efficiently
+run 64 things in lockstep. If you choose a higher number and the GPU can’t do it
+as a fast path it will chose a slower path. If on the other hand you chose a number
+below what the GPU can do then you may not get the maximum performance.</p>
+<h2 id="races-in-compute-shaders">Races in Compute Shaders</h2>
+<p>A common mistake in WebGPU is not handling race conditions. A race
+condition is where multiple threads are running at the same time and
+effectively they are in a race for who comes in first or last.</p>
+<p>Let’s say you had this compute shader</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage, read_write&gt; result: array&lt;f32&gt;;
+
+@compute @workgroup_size(32) fn computeSomething(
+    @builtin(local_invocation_id) local_invocation_id : vec3&lt;u32&gt;,
+) {
+  result[0] = local_invocation_id.x;
+`;
+</pre>
+<p>If that’s hard to read, here’s kind of the same JavaScript</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const result = [];
+for (let i = 0; i &lt; 32; ++i) {
+  result[0] = i;
+}
+</pre>
+<p>In the JavaScript case, after the code runs, <code class="notranslate" translate="no">result[0]</code> is clearly 31. In the compute shader case though,
+all 32 iterations of the shader are running in parallel. Which ever one finishes
+last is the one who’s value will be in <code class="notranslate" translate="no">result[0]</code>. Which one runs last is undefined.</p>
+<p>From the spec:</p>
+<blockquote>
+<p>WebGPU provides no guarantees about:</p>
+<ul>
+<li>
+<p>Whether invocations from different workgroups execute concurrently. That is,
+you cannot assume more than one workgroup executes at a time.</p>
+</li>
+<li>
+<p>Whether, once invocations from a workgroup begin executing, that other
+workgroups are blocked from execution. That is, you cannot assume that only
+one workgroup executes at a time. While a workgroup is executing, the
+implementation may choose to concurrently execute other workgroups as well,
+or other queued but unblocked work.</p>
+</li>
+<li>
+<p>Whether invocations from one particular workgroup begin executing before the
+invocations of another workgroup. That is, you cannot assume that workgroups
+are launched in a particular order.</p>
+</li>
+</ul>
+</blockquote>
+<p>We’ll go over some of the ways to deal with this issue in future examples. For now, our
+two examples have no race conditions as each iteration of the compute shader does something
+unaffected by the other iterations.</p>
+<p>More Examples: TBD</p>
 
     </div>
     <div class="lesson-sidebar">
@@ -258,6 +556,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/webgpu-cameras.html">Cameras</a></li>
 <li><a href="/webgpu/lessons/webgpu-matrix-stacks.html">Matrix Stacks</a></li>
 <li><a href="/webgpu/lessons/webgpu-scene-graphs.html">Scene Graphs</a></li>
+        </ul>
+  <li>Compute Shaders</li>
+        <ul>
+          <li><a href="/webgpu/lessons/webgpu-compute-shaders.html">Compute Shaders</a></li>
         </ul>
   <li>Misc</li>
         <ul>
