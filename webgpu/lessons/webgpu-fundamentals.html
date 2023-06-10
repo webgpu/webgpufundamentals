@@ -742,6 +742,24 @@ function dispatchWorkgroup(workgroup_id) {
   }
 }
 </pre>
+<p>Since we set <code class="notranslate" translate="no">@workgroup_size(1)</code>, effectively the pseudo code above becomes</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// pseudo code
+function dispatchWorkgroups(width, height, depth) {
+  for (z = 0; z &lt; depth; ++z) {
+    for (y = 0; y &lt; height; ++y) {
+      for (x = 0; x &lt; width; ++x) {
+        const workgroup_id = {x, y, z};
+        dispatchWorkgroup(workgroup_id)
+      }
+    }
+  }
+}
+
+function dispatchWorkgroup(workgroup_id) {
+  const global_invocation_id = workgroup_id;
+  computeShader(global_invocation_id)
+}
+</pre>
 <p>Finally we use the <code class="notranslate" translate="no">x</code> property of <code class="notranslate" translate="no">id</code> to index <code class="notranslate" translate="no">data</code> and multiply each value
 by 2</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let i = id.x;
