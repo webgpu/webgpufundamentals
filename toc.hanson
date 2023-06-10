@@ -23,6 +23,9 @@
     'webgpu-matrix-stacks.md',
     'webgpu-scene-graphs.md',
   ],
+  'compute-shaders': [
+    'webgpu-compute-shaders.md',
+  ],
   'misc': [
     'webgpu-from-webgl.md',
     'webgpu-resources.md',

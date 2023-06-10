@@ -609,16 +609,34 @@ iteration number. It's different in that compute shader iteration numbers are 3
 dimensional (have 3 values). We declare `id` to get its value from the built-in
 `global_invocation_id`.
 
-You can *kind of* think of compute shaders as running like this. This is an over
+You can *kind of* think of a compute shaders as running like this. This is an over
 simplification but it will do for now.
 
 ```js
 // pseudo code
-for (z = 0; z < depth; ++z) {
-  for (y = 0; y < height; ++y) {
-    for (x = 0; x < width; ++x) {
-      const global_invocation_id = {x, y, z};
-      computeShaderFn(global_invocation_id);
+function dispatchWorkgroups(width, height, depth) {
+  for (z = 0; z < depth; ++z) {
+    for (y = 0; y < height; ++y) {
+      for (x = 0; x < width; ++x) {
+        const workgroup_id = {x, y, z};
+        dispatchWorkgroup(workgroup_id)
+      }
+    }
+  }
+}
+
+function dispatchWorkgroup(workgroup_id) {
+  // from @workgroup_size in WGSL
+  const workgroup_size = shaderCode.workgroup_size;
+  const {x: width, y: height, z: depth} = workgroup.size;
+  for (z = 0; z < depth; ++z) {
+    for (y = 0; y < height; ++y) {
+      for (x = 0; x < width; ++x) {
+        const local_invocation_id = {x, y, z};
+        const global_invocation_id =
+            workgroup_id * workgroup_size + local_invocation_id;
+        computeShader(global_invocation_id)
+      }
     }
   }
 }
