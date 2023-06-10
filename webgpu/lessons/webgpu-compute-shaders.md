@@ -149,9 +149,9 @@ Now that we have the shader we can make 3 buffers to store these results.
   const size = numResults * 4 * 4;  // vec3f * u32
 
   let usage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC;
-  const workgroupBufferGPU = device.createBuffer({size, usage});
-  const localBufferGPU = device.createBuffer({size, usage});
-  const globalBufferGPU = device.createBuffer({size, usage});
+  const workgroupBuffer = device.createBuffer({size, usage});
+  const localBuffer = device.createBuffer({size, usage});
+  const globalBuffer = device.createBuffer({size, usage});
 ```
 
 As we pointed out before, we can not map storage buffers into
@@ -161,9 +161,9 @@ buffers and then read the results.
 
 ```js
   usage = GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST;
-  const workgroupReadBufferGPU = device.createBuffer({size, usage});
-  const localReadBufferGPU = device.createBuffer({size, usage});
-  const globalReadBufferGPU = device.createBuffer({size, usage});
+  const workgroupReadBuffer = device.createBuffer({size, usage});
+  const localReadBuffer = device.createBuffer({size, usage});
+  const globalReadBuffer = device.createBuffer({size, usage});
 ```
 
 We make a bindgroup to bind all our storage buffers
@@ -172,9 +172,9 @@ We make a bindgroup to bind all our storage buffers
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: workgroupBufferGPU }},
-      { binding: 1, resource: { buffer: localBufferGPU }},
-      { binding: 2, resource: { buffer: globalBufferGPU }},
+      { binding: 0, resource: { buffer: workgroupBuffer }},
+      { binding: 1, resource: { buffer: localBuffer }},
+      { binding: 2, resource: { buffer: globalBuffer }},
     ],
   });
 ```
@@ -197,9 +197,9 @@ We need to copy the results from the storage buffers to the mappable
 result buffers.
 
 ```js
-  encoder.copyBufferToBuffer(workgroupBufferGPU, 0, workgroupReadBufferGPU, 0, size);
-  encoder.copyBufferToBuffer(localBufferGPU, 0, localReadBufferGPU, 0, size);
-  encoder.copyBufferToBuffer(globalBufferGPU, 0, globalReadBufferGPU, 0, size);
+  encoder.copyBufferToBuffer(workgroupBuffer, 0, workgroupReadBuffer, 0, size);
+  encoder.copyBufferToBuffer(localBuffer, 0, localReadBuffer, 0, size);
+  encoder.copyBufferToBuffer(globalBuffer, 0, globalReadBuffer, 0, size);
 ```
 
 And then end the encoder and submit the command buffers
@@ -216,14 +216,14 @@ ready we get typed array views of their contents.
 ```js
   // Read the results
    await Promise.all([
-    workgroupReadBufferGPU.mapAsync(GPUMapMode.READ),
-    localReadBufferGPU.mapAsync(GPUMapMode.READ),
-    globalReadBufferGPU.mapAsync(GPUMapMode.READ),
+    workgroupReadBuffer.mapAsync(GPUMapMode.READ),
+    localReadBuffer.mapAsync(GPUMapMode.READ),
+    globalReadBuffer.mapAsync(GPUMapMode.READ),
   ]);
 
-  const workgroup = new Uint32Array(workgroupReadBufferGPU.getMappedRange());
-  const local = new Uint32Array(localReadBufferGPU.getMappedRange());
-  const global = new Uint32Array(globalReadBufferGPU.getMappedRange());
+  const workgroup = new Uint32Array(workgroupReadBuffer.getMappedRange());
+  const local = new Uint32Array(localReadBuffer.getMappedRange());
+  const global = new Uint32Array(globalReadBuffer.getMappedRange());
 ```
 
 > Important: We mapped 3 buffers here and used `await Promise.all` to wait
