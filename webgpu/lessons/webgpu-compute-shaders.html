@@ -248,9 +248,9 @@ our <code class="notranslate" translate="no">@workgroup_size(1)</code> is equiva
 defining 3 * 4 * 2 threads or another way put it, we’re defining a 24 thread workgroup.</p>
 <div class="webgpu_center">
   <img src="resources/gpu-workgroup.svg" style="width: 500px;">
-  <div><code class="notranslate" translate="no">local_invocation_id</code> of a workgroup</div>
+  <div><code class="notranslate" translate="no">local_invocation_id</code> of threads in a workgroup</div>
 </div>
-<p><a id="a-workgroup-id"></a>If we then call <code class="notranslate" translate="no">pass.dispatchWorkgroups(4, 3, 2)</code> we’re saying, execute a workgroup of 24 thread,
+<p><a id="a-workgroup-id"></a>If we then call <code class="notranslate" translate="no">pass.dispatchWorkgroups(4, 3, 2)</code> we’re saying, execute a workgroup of 24 threads,
 4 * 3 * 2 times (24) for a total of 576 threads.</p>
 <div class="webgpu_center">
   <img src="resources/gpu-workgroup-dispatch.svg" style="width: 500px;">
@@ -284,8 +284,8 @@ are available.</p>
 sliceSize = rowWidth * workgroup_size.y
 local_invocation_index =
       local_invocation_id.x +
-      local_invocation_id.y + rowSize
-      local_invocation_id.z + sliceSize
+      local_invocation_id.y * rowSize +
+      local_invocation_id.z * sliceSize
 </pre>
 </li>
 </ul>
@@ -336,8 +336,9 @@ const code = `
   globalResult[global_invocation_index] = global_invocation_id;
 `;
 </pre>
-<p>We used JavaScript template literal so we can update the workgroup size
-which ends up hard coded into the shader.</p>
+<p>We used a JavaScript template literal so we can set the workgroup size
+from the JavaScript variable <code class="notranslate" translate="no">workgroupSize</code>. This ends up being
+hard hard coded into the shader.</p>
 <p>Now that we have the shader we can make 3 buffers to store these results.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const numWorkgroups = arrayProd(dispatchCount);
   const numResults = numWorkgroups * numThreadsPerWorkgroup;
@@ -368,7 +369,7 @@ buffers and then read the results.</p>
   });
 </pre>
 <p>We start an encoder and a compute pass encoder, the same as our previous
-example and add the commands to run the compute shader</p>
+example, then add the commands to run the compute shader.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Encode commands to do the computation
   const encoder = device.createCommandEncoder({ label: 'compute builtin encoder' });
   const pass = encoder.beginComputePass({ label: 'compute builtin pass' });
@@ -384,7 +385,7 @@ result buffers.</p>
   encoder.copyBufferToBuffer(localBuffer, 0, localReadBuffer, 0, size);
   encoder.copyBufferToBuffer(globalBuffer, 0, globalReadBuffer, 0, size);
 </pre>
-<p>And then end the encoder and submit the command buffers</p>
+<p>And then end the encoder and submit the command buffer.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Finish encoding and submit the commands
   const commandBuffer = encoder.finish();
   device.queue.submit([commandBuffer]);
@@ -416,13 +417,13 @@ buffer. You must wait on all 3 buffers.</p>
   for (let i = 0; i &lt; numResults; ++i) {
     if (i % numThreadsPerWorkgroup === 0) {
       log(`\
----------------------------------------
-global                 local     global   dispatch: ${i / numThreadsPerWorkgroup}
-invoc.    workgroup    invoc.    invoc.
-index     id           id        id
----------------------------------------`);
+ ---------------------------------------
+ global                 local     global   dispatch: ${i / numThreadsPerWorkgroup}
+ invoc.    workgroup    invoc.    invoc.
+ index     id           id        id
+ ---------------------------------------`);
     }
-    log(`${i.toString().padStart(3)}:      ${get3(workgroup, i)}      ${get3(local, i)}   ${get3(global, i)}`)
+    log(` ${i.toString().padStart(3)}:      ${get3(workgroup, i)}      ${get3(local, i)}   ${get3(global, i)}`)
   }
 }
 
@@ -439,7 +440,7 @@ function log(...args) {
 </div>
 
 <p></p>
-<p>These builtins are the generally the only inputs that change
+<p>These builtins are generally the only inputs that change
 per thread of a compute shader for one call to <code class="notranslate" translate="no">pass.dispatchWorkgroups</code>
 so to be effective you need to figure out how to use them to design
 a compute shader function to do what you want, given these <code class="notranslate" translate="no">..._id</code>
@@ -447,7 +448,7 @@ builtins as input.</p>
 <h2 id="workgroup-size">Workgroup Size</h2>
 <p>What size should you make a workgroup? The question often comes up,
 why not just always use <code class="notranslate" translate="no">@workgroup_size(1, 1, 1)</code> and then it would
-be more trivial to decide how many iterations to run by only your
+be more trivial to decide how many iterations to run by only the
 parameters to <code class="notranslate" translate="no">pass.dispatchWorkgroups</code>.</p>
 <p>The reason is multiple threads within a workgroup are faster than
 individual dispatches.</p>
