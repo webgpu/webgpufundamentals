@@ -41,10 +41,10 @@ defining 3 * 4 * 2 threads or another way put it, we're defining a 24 thread wor
 
 <div class="webgpu_center">
   <img src="resources/gpu-workgroup.svg" style="width: 500px;">
-  <div><code>local_invocation_id</code> of a workgroup</div>
+  <div><code>local_invocation_id</code> of threads in a workgroup</div>
 </div>
 
-<a id="a-workgroup-id"></a>If we then call `pass.dispatchWorkgroups(4, 3, 2)` we're saying, execute a workgroup of 24 thread,
+<a id="a-workgroup-id"></a>If we then call `pass.dispatchWorkgroups(4, 3, 2)` we're saying, execute a workgroup of 24 threads,
 4 * 3 * 2 times (24) for a total of 576 threads.
 
 <div class="webgpu_center">
@@ -83,8 +83,8 @@ are available.
   sliceSize = rowWidth * workgroup_size.y
   local_invocation_index =
         local_invocation_id.x +
-        local_invocation_id.y + rowSize
-        local_invocation_id.z + sliceSize
+        local_invocation_id.y * rowSize +
+        local_invocation_id.z * sliceSize
   ```
 
 Let's make a sample to use these values. We'll just write the values
@@ -138,8 +138,9 @@ const code = `
 `;
 ```
 
-We used JavaScript template literal so we can update the workgroup size
-which ends up hard coded into the shader.
+We used a JavaScript template literal so we can set the workgroup size
+from the JavaScript variable `workgroupSize`. This ends up being
+hard hard coded into the shader.
 
 Now that we have the shader we can make 3 buffers to store these results.
 
@@ -180,7 +181,7 @@ We make a bindgroup to bind all our storage buffers
 ```
 
 We start an encoder and a compute pass encoder, the same as our previous
-example and add the commands to run the compute shader
+example, then add the commands to run the compute shader.
 
 ```js
   // Encode commands to do the computation
@@ -202,7 +203,7 @@ result buffers.
   encoder.copyBufferToBuffer(globalBuffer, 0, globalReadBuffer, 0, size);
 ```
 
-And then end the encoder and submit the command buffers
+And then end the encoder and submit the command buffer.
 
 ```js
   // Finish encoding and submit the commands
@@ -241,13 +242,13 @@ Finally we can print them out
   for (let i = 0; i < numResults; ++i) {
     if (i % numThreadsPerWorkgroup === 0) {
       log(`\
----------------------------------------
-global                 local     global   dispatch: ${i / numThreadsPerWorkgroup}
-invoc.    workgroup    invoc.    invoc.
-index     id           id        id
----------------------------------------`);
+ ---------------------------------------
+ global                 local     global   dispatch: ${i / numThreadsPerWorkgroup}
+ invoc.    workgroup    invoc.    invoc.
+ index     id           id        id
+ ---------------------------------------`);
     }
-    log(`${i.toString().padStart(3)}:      ${get3(workgroup, i)}      ${get3(local, i)}   ${get3(global, i)}`)
+    log(` ${i.toString().padStart(3)}:      ${get3(workgroup, i)}      ${get3(local, i)}   ${get3(global, i)}`)
   }
 }
 
@@ -262,7 +263,7 @@ Here's the result
 
 {{{example url="../webgpu-compute-shaders-builtins.html"}}}
 
-These builtins are the generally the only inputs that change
+These builtins are generally the only inputs that change
 per thread of a compute shader for one call to `pass.dispatchWorkgroups`
 so to be effective you need to figure out how to use them to design
 a compute shader function to do what you want, given these `..._id`
@@ -272,7 +273,7 @@ builtins as input.
 
 What size should you make a workgroup? The question often comes up,
 why not just always use `@workgroup_size(1, 1, 1)` and then it would
-be more trivial to decide how many iterations to run by only your
+be more trivial to decide how many iterations to run by only the
 parameters to `pass.dispatchWorkgroups`.
 
 The reason is multiple threads within a workgroup are faster than
