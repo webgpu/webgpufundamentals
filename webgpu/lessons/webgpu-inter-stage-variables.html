@@ -297,7 +297,7 @@ of the structure, fill it out, and return it</p>
 +        vsOutput.color = color[vertexIndex];
 +        return vsOutput;
 </pre>
-<p>In the fragment shader we declare it to take one of these structs as argument to
+<p>In the fragment shader we declare it to take one of these structs as an argument to
 the function</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
         return fsInput.color;
@@ -305,7 +305,7 @@ the function</p>
 </pre>
 <p>And just return the color</p>
 <p>If we run that we’ll see, every time the GPU called our fragment shader it
-passed in a color that interpolated between all 3 points.</p>
+passed in a color that was interpolated between all 3 points.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-inter-stage-variables-triangle.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-inter-stage-variables-triangle.html" target="_blank">click here to open in a separate window</a>
@@ -352,7 +352,7 @@ of the pixel the fragment shader is currently being asked to compute a color
 for.</p>
 <p>Pixel coordinates are specified by the edges of pixels. The values provided to
 the fragment shader are the coordinates of the center of the pixel</p>
-<p>If the texture we were drawing to was 3x2 pixels in size these we be the
+<p>If the texture we were drawing to was 3x2 pixels in size these would be the
 coordinate.</p>
 <div class="webgpu_center"><img src="resources/webgpu-pixels.svg" style="width: 500px;"></div>
 <p>We can change our shader to use this position. For example let’s draw a
@@ -403,7 +403,7 @@ checkerboard.</p>
 unsigned integers. It then divides them by 8 giving us a count that increases
 every 8 pixels. It then adds the <code class="notranslate" translate="no">x</code> and <code class="notranslate" translate="no">y</code> grid coordinates together, computes
 module 2, and compares the result to 1. This will give us a boolean that is true
-or false every other pixel. Finally it uses the WGSL function <code class="notranslate" translate="no">select</code> which
+or false every other integer. Finally it uses the WGSL function <code class="notranslate" translate="no">select</code> which
 given 2 values, selects one or the other based on a boolean condition. In
 JavaScript <code class="notranslate" translate="no">select</code> would be written like this</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// If condition is false return `a`, otherwise return `b`
@@ -429,16 +429,16 @@ implemented <a href="webgpu-textures.html">using textures</a>. In fact you’ll 
 if you size the window. Because the checkerboard is based on the pixel coordinates
 of the canvas it’s relative to the canvas, not relative to the triangle.</p>
 <h2 id="interpolation-settings"><a id="a-interpolate"></a>Interpolation Settings</h2>
-<p>We saw above that inter-stage variables, the outputs from a vertex shader are
+<p>We saw above that inter-stage variables, the outputs from a vertex shader, are
 interpolated when passed to the fragment shader. There are 2 sets of settings
-that can be changed for the interpolation happens. Setting them to anything
+that can be changed for how the interpolation happens. Setting them to anything
 other than the defaults is not extremely common but there are use cases which
 will be covered in other articles.</p>
 <p>Interpolation type:</p>
 <ul>
 <li><code class="notranslate" translate="no">perspective</code>: Values are interpolated in a perspective correct manner (<strong>default</strong>)</li>
 <li><code class="notranslate" translate="no">linear</code>: Values are interpolated in a linear, non-perspective correct manner.</li>
-<li><code class="notranslate" translate="no">flat</code>:Values are not interpolated. Interpolation sampling is not used with flat interpolated</li>
+<li><code class="notranslate" translate="no">flat</code>: Values are not interpolated. Interpolation sampling is not used with flat interpolated</li>
 </ul>
 <p>Interpolation sampling:</p>
 <ul>
