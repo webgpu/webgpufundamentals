@@ -97,7 +97,7 @@ of the structure, fill it out, and return it
 +        return vsOutput;
 ```
 
-In the fragment shader we declare it to take one of these structs as argument to
+In the fragment shader we declare it to take one of these structs as an argument to
 the function
 
 ```wgsl
@@ -109,7 +109,7 @@ the function
 And just return the color
 
 If we run that we'll see, every time the GPU called our fragment shader it
-passed in a color that interpolated between all 3 points.
+passed in a color that was interpolated between all 3 points.
 
 {{{example url="../webgpu-inter-stage-variables-triangle.html"}}}
 
@@ -164,7 +164,7 @@ for.
 Pixel coordinates are specified by the edges of pixels. The values provided to
 the fragment shader are the coordinates of the center of the pixel
 
-If the texture we were drawing to was 3x2 pixels in size these we be the
+If the texture we were drawing to was 3x2 pixels in size these would be the
 coordinate.
 
 <div class="webgpu_center"><img src="resources/webgpu-pixels.svg" style="width: 500px;"></div>
@@ -220,7 +220,7 @@ The code above takes `fsInput.position`, which was declared as
 unsigned integers. It then divides them by 8 giving us a count that increases
 every 8 pixels. It then adds the `x` and `y` grid coordinates together, computes
 module 2, and compares the result to 1. This will give us a boolean that is true
-or false every other pixel. Finally it uses the WGSL function `select` which
+or false every other integer. Finally it uses the WGSL function `select` which
 given 2 values, selects one or the other based on a boolean condition. In
 JavaScript `select` would be written like this
 
@@ -249,9 +249,9 @@ of the canvas it's relative to the canvas, not relative to the triangle.
 
 ## <a id="a-interpolate"></a>Interpolation Settings
 
-We saw above that inter-stage variables, the outputs from a vertex shader are
+We saw above that inter-stage variables, the outputs from a vertex shader, are
 interpolated when passed to the fragment shader. There are 2 sets of settings
-that can be changed for the interpolation happens. Setting them to anything
+that can be changed for how the interpolation happens. Setting them to anything
 other than the defaults is not extremely common but there are use cases which
 will be covered in other articles.
 
@@ -259,7 +259,7 @@ Interpolation type:
 
 * `perspective`: Values are interpolated in a perspective correct manner (**default**)
 * `linear`: Values are interpolated in a linear, non-perspective correct manner.
-* `flat`:Values are not interpolated. Interpolation sampling is not used with flat interpolated
+* `flat`: Values are not interpolated. Interpolation sampling is not used with flat interpolated
 
 Interpolation sampling:
 
