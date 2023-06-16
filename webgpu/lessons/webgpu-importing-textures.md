@@ -103,7 +103,7 @@ When we generated mip levels we did a bilinear interpolation which is exactly wh
 the GPU does with `minFilter: linear`. We can use that feature to generate mip levels
 on the GPU
 
-Let's modify the [minmapFilter example from the previous article](webgpu-textures.html#a-mipmap-filter)
+Let's modify the [mipmapFilter example from the previous article](webgpu-textures.html#a-mipmap-filter)
 to load images and generate mips using the GPU
 
 First, let's change the code that creates the texture to create mip levels. We need to know how many
