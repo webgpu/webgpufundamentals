@@ -1407,7 +1407,7 @@ You can see other builtin variables [here](https://www.w3.org/TR/WGSL/#builtin-v
 According to the spec, WebGL2 could support lines larger than 1 pixel, but in
 actual practice no implementations did. WebGL2 did generally support points larger
 than 1 pixel but, (a) lots of GPUs only supported a max size of 64 pixels and (b)
-different GPU would clip or not clip based on th center of the point. So, it's arguably
+different GPU would clip or not clip based on the center of the point. So, it's arguably
 a good thing WebGPU doesn't support points of sizes other than 1. 
 This forces you to implement a portable point solution.
 

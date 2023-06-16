@@ -275,6 +275,19 @@ let a = array<f32, 5>;   // an array of five f32s
 let b = array<vec4f, 6>; // an array of six vec4fs
 ```
 
+But there's also the `array` constructor. It takes any number of arguments
+and returns an array. The arguments must all be of the same type.
+
+```wgsl;
+let arrOf3Vec3fsA = array(vec3f(1,2,3), vec3f(4,5,6), vec3f(7,8,9));
+let arrOf3Vec3fsB = array<vec3f, 3>(vec3f(1,2,3), vec3f(4,5,6), vec3f(7,8,9));
+```
+
+Above `arrOf3Vec3fsA` is the same as `arrOf3Vec3fsB`.
+
+Unfortunately, as of version 1 of WGSL there is no way to get the size of
+fixed size array.
+
 ### runtime sized arrays
 
 Arrays that are at the root scope storage declarations
@@ -285,7 +298,14 @@ are the only arrays that can be specified with no size
 ```
 
 The number of elements in `foo` is defined by the settings of the bind group
-used at runtime
+used at runtime. You can query this size in your WGSL with `arrayLength`.
+
+```wgsl
+@group(0) @binding(0) var<storage> foo: array<mat4x4f>;
+
+...
+  let numMatrices = arrayLength(&foo);
+```
 
 ## functions
 

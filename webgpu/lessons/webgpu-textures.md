@@ -73,7 +73,7 @@ struct OurVertexShaderOutput {
 @vertex fn vs(
   @builtin(vertex_index) vertexIndex : u32
 ) -> OurVertexShaderOutput {
--  var pos = array<vec2f, 3>(
+-  let pos = array(
 -    vec2f( 0.0,  0.5),  // top center
 -    vec2f(-0.5, -0.5),  // bottom left
 -    vec2f( 0.5, -0.5)   // bottom right
@@ -83,7 +83,7 @@ struct OurVertexShaderOutput {
 -    vec4f(0, 1, 0, 1), // green
 -    vec4f(0, 0, 1, 1), // blue
 -  );
-+  var pos = array<vec2f, 6>(
++  let pos = array(
 +    // 1st triangle
 +    vec2f( 0.0,  0.0),  // center
 +    vec2f( 1.0,  0.0),  // right, center
@@ -493,7 +493,7 @@ struct OurVertexShaderOutput {
 @vertex fn vs(
   @builtin(vertex_index) vertexIndex : u32
 ) -> OurVertexShaderOutput {
-  var pos = array<vec2f, 6>(
+  let pos = array(
     // 1st triangle
     vec2f( 0.0,  0.0),  // center
     vec2f( 1.0,  0.0),  // right, center
@@ -990,7 +990,7 @@ struct Uniforms {
 @vertex fn vs(
   @builtin(vertex_index) vertexIndex : u32
 ) -> OurVertexShaderOutput {
-  var pos = array<vec2f, 6>(
+  let pos = array(
 
     vec2f( 0.0,  0.0),  // center
     vec2f( 1.0,  0.0),  // right, center
@@ -1282,8 +1282,19 @@ Here are the "color" formats though of course you don't have to store colors in 
 To read a format, like "rg16float". the first letters are the channels supported
 in the texture so "rg16float" supports "rg" or red and green (2 channels). The
 number, 16, means those channels are 16bits each. The word at the end is what
-kind of data is in the channel. "float" is floating point data, "unorm" is
-unsigned normalized data (0 to 1), "snorm" is signed normalized data (-1 to +1).
+kind of data is in the channel. "float" is floating point data.
+
+"unorm" is unsigned normalized data (0 to 1) meaning the data in the texture
+goes from 0 to N where N is the maximum integer value for that number of bits.
+That range of integers is then interpreted as a floating point range of (0 to
+1). In other words, for an 8unorm texture, that's 8 bits (so values from 0 to
+255) that get interpreted as values from (0 to 1).
+
+"snorm" is signed normalized data (-1 to +1) so the range of data goes from the
+most negative integer represented by the number of bits to the most positive.For
+example 8snorm is 8bits. As a signed integer the lowest number would be -128 and
+the highest is +127. That range gets converted to (-1 to +1).
+
 "sint" is signed integers. "uint" is unsigned integer. If there are multiple
 letter number combinations it's specifying the number of bits for each channel.
 For example "rg11b10ufloat" is "rg11" so 11bits each of red and green. "b10" so
@@ -1309,8 +1320,8 @@ For example "rg11b10ufloat" is "rg11" so 11bits each of red and green. "b10" so
   `texture_2d<u32>` in WGSL.
 
   In the sample type column, `unfilterable-float` means your sampler can only
-  use `nearest` for that format and it means you need to may have to manually
-  create a bind group layout, something me haven't done before as we've been
+  use `nearest` for that format and it means you may have to manually
+  create a bind group layout, something we haven't done before as we've been
   using `'auto'` layout. This mostly exists because desktop GPU can generally
   filter 32bit floating point textures but, at least as of 2023, most mobile
   devices can not. If your adaptor supports the `float32-filterable`
@@ -1335,7 +1346,7 @@ For example "rg11b10ufloat" is "rg11" so 11bits each of red and green. "b10" so
 
   Whether you're allowed to specify `GPUTextureUsage.COPY_DST`
 
-We'll use a depth texture in [an article in the series on 3d](webgpu-orthographic.html) as well
+We'll use a depth texture in [an article in the series on 3d](webgpu-orthographic-projection.html) as well
 as [the article about shadow maps](webgpu-shadow-maps.html).
 
 There's also a bunch compressed texture formats which we'll save for another article.

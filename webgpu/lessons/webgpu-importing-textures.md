@@ -187,7 +187,7 @@ Here's the code
             @vertex fn vs(
               @builtin(vertex_index) vertexIndex : u32
             ) -> VSOutput {
-              var pos = array<vec2f, 6>(
+              let pos = array(
 
                 vec2f( 0.0,  0.0),  // center
                 vec2f( 1.0,  0.0),  // right, center

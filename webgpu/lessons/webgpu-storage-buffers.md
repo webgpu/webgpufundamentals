@@ -99,7 +99,7 @@ Then we'll change the shader to use these values
   @builtin(vertex_index) vertexIndex : u32,
 +  @builtin(instance_index) instanceIndex: u32
 ) -> @builtin(position) {
-  var pos = array<vec2f, 3>(
+  let pos = array(
     vec2f( 0.0,  0.5),  // top center
     vec2f(-0.5, -0.5),  // bottom left
     vec2f( 0.5, -0.5)   // bottom right
@@ -144,7 +144,7 @@ struct VSOutput {
   @builtin(instance_index) instanceIndex: u32
 -) -> @builtin(position) vec4f {
 +) -> VSOutput {
-  var pos = array<vec2f, 3>(
+  let pos = array(
     vec2f( 0.0,  0.5),  // top center
     vec2f(-0.5, -0.5),  // bottom left
     vec2f( 0.5, -0.5)   // bottom right
@@ -332,7 +332,7 @@ struct VSOutput {
   @builtin(vertex_index) vertexIndex : u32,
   @builtin(instance_index) instanceIndex: u32
 ) -> VSOutput {
--  var pos = array<vec2f, 3>(
+-  let pos = array(
 -    vec2f( 0.0,  0.5),  // top center
 -    vec2f(-0.5, -0.5),  // bottom left
 -    vec2f( 0.5, -0.5)   // bottom right

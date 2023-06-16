@@ -294,7 +294,7 @@ function.
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -> @builtin(position) vec4f {
-        var pos = array<vec2f, 3>(
+        let pos = array(
           vec2f( 0.0,  0.5),  // top center
           vec2f(-0.5, -0.5),  // bottom left
           vec2f( 0.5, -0.5)   // bottom right
@@ -353,7 +353,7 @@ The `vs` function declares an array of 3 `vec2f`s. Each `vec2f` consists of two
 32bit floating point values. The code then fills out that array with 3 `vec2f`s.
 
 ```wgsl
-        var pos = array<vec2f, 3>(
+        let pos = array(
           vec2f( 0.0,  0.5),  // top center
           vec2f(-0.5, -0.5),  // bottom left
           vec2f( 0.5, -0.5)   // bottom right
@@ -985,7 +985,7 @@ device is lost. A device can be lost for many reasons. Maybe the user ran a real
 app and it crashed their GPU. Maybe the user updated their drivers. Maybe the user has
 an external GPU and unplugged it. Maybe another page used a lot of GPU, your
 tab was in the background and the browser decided to free up some memory by
-losing the device for background tabs. The point is being that for any serious
+losing the device for background tabs. The point to take away is that for any serious
 apps you probably want to handle losing the device.
 </p>
 <p>
