@@ -301,7 +301,7 @@ be lossy since how canvas 2D renders is intentionally implementation dependant.<
 <p>When we generated mip levels we did a bilinear interpolation which is exactly what
 the GPU does with <code class="notranslate" translate="no">minFilter: linear</code>. We can use that feature to generate mip levels
 on the GPU</p>
-<p>Let’s modify the <a href="webgpu-textures.html#a-mipmap-filter">minmapFilter example from the previous article</a>
+<p>Let’s modify the <a href="webgpu-textures.html#a-mipmap-filter">mipmapFilter example from the previous article</a>
 to load images and generate mips using the GPU</p>
 <p>First, let’s change the code that creates the texture to create mip levels. We need to know how many
 to create which we can calculate like this</p>
