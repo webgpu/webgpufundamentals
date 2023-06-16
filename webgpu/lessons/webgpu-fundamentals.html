@@ -462,7 +462,7 @@ function.</p>
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -&gt; @builtin(position) vec4f {
-        var pos = array&lt;vec2f, 3&gt;(
+        let pos = array(
           vec2f( 0.0,  0.5),  // top center
           vec2f(-0.5, -0.5),  // bottom left
           vec2f( 0.5, -0.5)   // bottom right
@@ -507,7 +507,7 @@ top. This is true regardless of the size of the texture we are drawing to.</p>
 <div class="webgpu_center"><img src="resources/clipspace.svg" style="width: 500px"></div>
 <p>The <code class="notranslate" translate="no">vs</code> function declares an array of 3 <code class="notranslate" translate="no">vec2f</code>s. Each <code class="notranslate" translate="no">vec2f</code> consists of two
 32bit floating point values. The code then fills out that array with 3 <code class="notranslate" translate="no">vec2f</code>s.</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        var pos = array&lt;vec2f, 3&gt;(
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let pos = array(
           vec2f( 0.0,  0.5),  // top center
           vec2f(-0.5, -0.5),  // bottom left
           vec2f( 0.5, -0.5)   // bottom right
@@ -1029,7 +1029,7 @@ device is lost. A device can be lost for many reasons. Maybe the user ran a real
 app and it crashed their GPU. Maybe the user updated their drivers. Maybe the user has
 an external GPU and unplugged it. Maybe another page used a lot of GPU, your
 tab was in the background and the browser decided to free up some memory by
-losing the device for background tabs. The point is being that for any serious
+losing the device for background tabs. The point to take away is that for any serious
 apps you probably want to handle losing the device.
 </p>
 <p>

@@ -73,7 +73,7 @@ async function main() {
         @builtin(vertex_index) vertexIndex : u32,
         @builtin(instance_index) instanceIndex: u32
       ) -> VSOutput {
-        var pos = array<vec2f, 3>(
+        let pos = array(
           vec2f( 0.0,  0.5),  // top center
           vec2f(-0.5, -0.5),  // bottom left
           vec2f( 0.5, -0.5)   // bottom right

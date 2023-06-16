@@ -305,7 +305,7 @@ arrays.</p>
   @builtin(vertex_index) vertexIndex : u32,
 +  @builtin(instance_index) instanceIndex: u32
 ) -&gt; @builtin(position) {
-  var pos = array&lt;vec2f, 3&gt;(
+  let pos = array(
     vec2f( 0.0,  0.5),  // top center
     vec2f(-0.5, -0.5),  // bottom left
     vec2f( 0.5, -0.5)   // bottom right
@@ -344,7 +344,7 @@ the color.</p>
   @builtin(instance_index) instanceIndex: u32
 -) -&gt; @builtin(position) vec4f {
 +) -&gt; VSOutput {
-  var pos = array&lt;vec2f, 3&gt;(
+  let pos = array(
     vec2f( 0.0,  0.5),  // top center
     vec2f(-0.5, -0.5),  // bottom left
     vec2f( 0.5, -0.5)   // bottom right
@@ -519,7 +519,7 @@ struct VSOutput {
   @builtin(vertex_index) vertexIndex : u32,
   @builtin(instance_index) instanceIndex: u32
 ) -&gt; VSOutput {
--  var pos = array&lt;vec2f, 3&gt;(
+-  let pos = array(
 -    vec2f( 0.0,  0.5),  // top center
 -    vec2f(-0.5, -0.5),  // bottom left
 -    vec2f( 0.5, -0.5)   // bottom right

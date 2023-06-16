@@ -399,13 +399,26 @@ let c = a * b;  // c is a vec4f and the result of a * b
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = array&lt;f32, 5&gt;;   // an array of five f32s
 let b = array&lt;vec4f, 6&gt;; // an array of six vec4fs
 </pre>
+<p>But there’s also the <code class="notranslate" translate="no">array</code> constructor. It takes any number of arguments
+and returns an array. The arguments must all be of the same type.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl;" translate="no">let arrOf3Vec3fsA = array(vec3f(1,2,3), vec3f(4,5,6), vec3f(7,8,9));
+let arrOf3Vec3fsB = array&lt;vec3f, 3&gt;(vec3f(1,2,3), vec3f(4,5,6), vec3f(7,8,9));
+</pre>
+<p>Above <code class="notranslate" translate="no">arrOf3Vec3fsA</code> is the same as <code class="notranslate" translate="no">arrOf3Vec3fsB</code>.</p>
+<p>Unfortunately, as of version 1 of WGSL there is no way to get the size of
+fixed size array.</p>
 <h3 id="runtime-sized-arrays">runtime sized arrays</h3>
 <p>Arrays that are at the root scope storage declarations
 are the only arrays that can be specified with no size</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage&gt; foo: array&lt;mat4x4f&gt;;
 </pre>
 <p>The number of elements in <code class="notranslate" translate="no">foo</code> is defined by the settings of the bind group
-used at runtime</p>
+used at runtime. You can query this size in your WGSL with <code class="notranslate" translate="no">arrayLength</code>.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage&gt; foo: array&lt;mat4x4f&gt;;
+
+...
+  let numMatrices = arrayLength(&amp;foo);
+</pre>
 <h2 id="functions">functions</h2>
 <p>Functions in WGSL follow the pattern <code class="notranslate" translate="no">fn name(parameters) -&gt; returnType { ..body... }</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">fn add(a: f32, b: f32) -&gt; f32 {

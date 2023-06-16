@@ -241,7 +241,7 @@ you ask the GPU to execute the shader.</p>
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -&gt; @builtin(position) vec4f {
-        var pos = array&lt;vec2f, 3&gt;(
+        let pos = array(
           vec2f( 0.0,  0.5),  // top center
           vec2f(-0.5, -0.5),  // bottom left
           vec2f( 0.5, -0.5)   // bottom right
@@ -557,7 +557,7 @@ that are updated each time we draw.</p>
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -&gt; @builtin(position) vec4f {
-        var pos = array&lt;vec2f, 3&gt;(
+        let pos = array(
           vec2f( 0.0,  0.5),  // top center
           vec2f(-0.5, -0.5),  // bottom left
           vec2f( 0.5, -0.5)   // bottom right

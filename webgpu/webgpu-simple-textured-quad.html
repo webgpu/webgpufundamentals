@@ -47,7 +47,7 @@ async function main() {
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -> OurVertexShaderOutput {
-        var pos = array<vec2f, 6>(
+        let pos = array(
           // 1st triangle
           vec2f( 0.0,  0.0),  // center
           vec2f( 1.0,  0.0),  // right, center

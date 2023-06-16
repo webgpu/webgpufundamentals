@@ -374,7 +374,7 @@ existing mip level, to the next level, with <code class="notranslate" translate=
             @vertex fn vs(
               @builtin(vertex_index) vertexIndex : u32
             ) -&gt; VSOutput {
-              var pos = array&lt;vec2f, 6&gt;(
+              let pos = array(
 
                 vec2f( 0.0,  0.0),  // center
                 vec2f( 1.0,  0.0),  // right, center
