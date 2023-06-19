@@ -95,7 +95,7 @@ likeWebGL(inputs);
 or like this
 
 ```js
-likeWebGP({color, position, normal});
+likeWebGL({color, position, normal});
 ```
 
 Notice because they are connected by names, the order of our parameters does not
