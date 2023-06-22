@@ -316,7 +316,7 @@ we can draw a bunch of individual things.
 +  }
 ```
 
-We're not setting the in our buffer yet because we want it to take into account
+We're not setting the values in our buffer yet because we want it to take into account
 the aspect of the canvas and we won't know the aspect of the canvas until
 render time.
 
