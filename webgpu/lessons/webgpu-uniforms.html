@@ -515,7 +515,7 @@ scale.</p>
   }
 </pre>
 <p>Again, remember that the <code class="notranslate" translate="no">encoder</code> and <code class="notranslate" translate="no">pass</code> objects are just encoding commands
-into a command buffer. So when the <code class="notranslate" translate="no">render</code> function exists we’ve effectively
+into a command buffer. So when the <code class="notranslate" translate="no">render</code> function exits we’ve effectively
 issued these <em>commands</em> in this order.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.writeBuffer(...) // update uniform buffer 0 with data for object 0
 device.queue.writeBuffer(...) // update uniform buffer 1 with data for object 1
