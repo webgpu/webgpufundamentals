@@ -358,7 +358,7 @@ scale.
 ```
 
 Again, remember that the `encoder` and `pass` objects are just encoding commands
-into a command buffer. So when the `render` function exists we've effectively
+into a command buffer. So when the `render` function exits we've effectively
 issued these *commands* in this order.
 
 ```js
