@@ -465,8 +465,8 @@ Next let's lower the resolution of the canvas in our `ResizeObserver` callback
 -      const height = entry.contentBoxSize[0].blockSize / 64 | 0;
 +      const width = entry.contentBoxSize[0].inlineSize / 64 | 0;
 +      const height = entry.contentBoxSize[0].blockSize / 64 | 0;
-      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
-      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+      canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+      canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
       // re-render
       render();
     }
@@ -596,8 +596,8 @@ We're going to animate this so we'll also change the code use
       const canvas = entry.target;
       const width = entry.contentBoxSize[0].inlineSize / 64 | 0;
       const height = entry.contentBoxSize[0].blockSize / 64 | 0;
-      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
-      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+      canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+      canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 -      // re-render
 -      render();
     }
@@ -1151,8 +1151,8 @@ in the `ResizeObserver` callback, and stopped making the resolution low.
 -      const height = entry.contentBoxSize[0].blockSize / 64 | 0;
 +      const width = entry.contentBoxSize[0].inlineSize;
 +      const height = entry.contentBoxSize[0].blockSize;
-      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
-      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+      canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+      canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 +      render();
     }
   });
@@ -1221,8 +1221,8 @@ limit is different for each type of texture "1d", "2d", and "3d". We've used the
 "2d" limit when setting the size of the canvas.
 
 ```js
-      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
-      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+      canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+      canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 ```
 
 Another is speed, at least for a 3d texture vs a 2d texture, with all the

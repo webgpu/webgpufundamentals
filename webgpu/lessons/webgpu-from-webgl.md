@@ -960,8 +960,8 @@ function resizeToDisplaySize(device, canvasInfo) {
     depthTexture,
     sampleCount,
   } = canvasInfo;
-  const width = Math.min(device.limits.maxTextureDimension2D, canvas.clientWidth);
-  const height = Math.min(device.limits.maxTextureDimension2D, canvas.clientHeight);
+  const width = Math.max(1, Math.min(device.limits.maxTextureDimension2D, canvas.clientWidth));
+  const height = Math.max(1, Math.min(device.limits.maxTextureDimension2D, canvas.clientHeight));
 
   const needResize = !canvasInfo.renderTarget ||
                      width !== canvas.width ||

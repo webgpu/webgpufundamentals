@@ -883,11 +883,12 @@ are blocky.
 
 {{{example url="../webgpu-simple-triangle-with-canvas-css.html"}}}
 
-`<canvas>` tags, by default, have a resolution of 300x150 pixels. We'd like to adjust
-the canvas to match the size. One good way to do this is with a `ResizeObserver`.
-You create a `ResizeObserver` and give it a function to call whenever the elements
-you've asked it to observe change their size. You then tell it which elements
-to observe.
+`<canvas>` tags, by default, have a resolution of 300x150 pixels. We'd like to
+adjust the canvas resolution of the canvas to match the size it is displayed.
+One good way to do this is with a `ResizeObserver`. You create a
+`ResizeObserver` and give it a function to call whenever the elements you've
+asked it to observe change their size. You then tell it which elements to
+observe.
 
 ```js
     ...
@@ -898,8 +899,8 @@ to observe.
 +        const canvas = entry.target;
 +        const width = entry.contentBoxSize[0].inlineSize;
 +        const height = entry.contentBoxSize[0].blockSize;
-+        canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
-+        canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
++        canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
++        canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 +        // re-render
 +        render();
 +      }
@@ -910,7 +911,9 @@ to observe.
 In the code above we go over all the entries but there should only ever be one
 because we're only observing our canvas. We need to limit the size of the canvas
 to the largest size our device supports otherwise WebGPU will start generating
-errors that we tried to make a texture that is too large.
+errors that we tried to make a texture that is too large. We also need to make
+sure it doesn't go to zero or again we'll get errors. 
+[See the longer article for details](webgpu-resizing-the-canvas.html).
 
 We call `render` to re-render the
 triangle at the new resolution. We removed the old call to `render` because
