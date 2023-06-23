@@ -595,8 +595,8 @@ our canvas. We can do this by setting the css as follows</p>
 -      const height = entry.contentBoxSize[0].blockSize / 64 | 0;
 +      const width = entry.contentBoxSize[0].inlineSize / 64 | 0;
 +      const height = entry.contentBoxSize[0].blockSize / 64 | 0;
-      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
-      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+      canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+      canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
       // re-render
       render();
     }
@@ -717,8 +717,8 @@ We’re going to animate this so we’ll also change the code use
       const canvas = entry.target;
       const width = entry.contentBoxSize[0].inlineSize / 64 | 0;
       const height = entry.contentBoxSize[0].blockSize / 64 | 0;
-      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
-      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+      canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+      canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 -      // re-render
 -      render();
     }
@@ -1222,8 +1222,8 @@ in the <code class="notranslate" translate="no">ResizeObserver</code> callback, 
 -      const height = entry.contentBoxSize[0].blockSize / 64 | 0;
 +      const width = entry.contentBoxSize[0].inlineSize;
 +      const height = entry.contentBoxSize[0].blockSize;
-      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
-      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+      canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+      canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 +      render();
     }
   });
@@ -1282,8 +1282,8 @@ depth of 1. And a “1d” texture is just a “2d” texture with a height of 1
 actual differences, textures are limited in their maximum allowed dimensions. The
 limit is different for each type of texture “1d”, “2d”, and “3d”. We’ve used the
 “2d” limit when setting the size of the canvas.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">      canvas.width = Math.min(width, device.limits.maxTextureDimension2D);
-      canvas.height = Math.min(height, device.limits.maxTextureDimension2D);
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">      canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+      canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 </pre>
 <p>Another is speed, at least for a 3d texture vs a 2d texture, with all the
 sampler filters set to <code class="notranslate" translate="no">linear</code>, sampling a 3d texture would require looking at
