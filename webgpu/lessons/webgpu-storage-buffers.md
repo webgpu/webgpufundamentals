@@ -134,10 +134,10 @@ To do this we'll use another struct like we did in
 [the article on inter-stage variables](webgpu-inter-stage-variables.html)
 
 ```wgsl
-struct VSOutput {
-  @builtin(position) position: vec4f,
-  @location(0) color: vec4f,
-}
++struct VSOutput {
++  @builtin(position) position: vec4f,
++  @location(0) color: vec4f,
++}
 
 @vertex fn vs(
   @builtin(vertex_index) vertexIndex : u32,
