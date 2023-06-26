@@ -334,10 +334,10 @@ would be more common to look up the color in the vertex shader and just pass
 the color.</p>
 <p>To do this we’ll use another struct like we did in
 <a href="webgpu-inter-stage-variables.html">the article on inter-stage variables</a></p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct VSOutput {
-  @builtin(position) position: vec4f,
-  @location(0) color: vec4f,
-}
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">+struct VSOutput {
++  @builtin(position) position: vec4f,
++  @location(0) color: vec4f,
++}
 
 @vertex fn vs(
   @builtin(vertex_index) vertexIndex : u32,
