@@ -530,7 +530,8 @@ struct VSOutput {
 
   var vsOut: VSOutput;
   vsOut.position = vec4f(
-      pos[vertexIndex].position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
+-      pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
++      pos[vertexIndex].position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
   vsOut.color = ourStruct.color;
   return vsOut;
 }
