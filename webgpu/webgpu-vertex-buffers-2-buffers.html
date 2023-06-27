@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Vertex Buffer vertices</title>
+    <title>WebGPU Vertex Buffer vertices - 2 buffers</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -43,16 +43,17 @@ function createCircleVertices({
   // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
   const numVertices = numSubdivisions * 3 * 2;
   const positionData = new Float32Array(numVertices * 2);
-  const colorData = new Float32Array(numVertices * 3);
+  const colorData = new Uint8Array(numVertices * 4);
 
-  let posOffset = 0;
+  let positionOffset = 0;
   let colorOffset = 0;
   const addVertex = (x, y, r, g, b) => {
-    positionData[posOffset++] = x;
-    positionData[posOffset++] = y;
-    colorData[colorOffset++] = r;
-    colorData[colorOffset++] = g;
-    colorData[colorOffset++] = b;
+    positionData[positionOffset++] = x;
+    positionData[positionOffset++] = y;
+    colorData[colorOffset++] = r * 255;
+    colorData[colorOffset++] = g * 255;
+    colorData[colorOffset++] = b * 255;
+    colorOffset += 1; // skip the extra byte
   };
 
   const innerColor = [1, 1, 1];
@@ -166,9 +167,9 @@ async function main() {
           ],
         },
         {
-          arrayStride: 3 * 4, // 3 floats, 4 bytes each
+          arrayStride: 4, // 4 bytes each
           attributes: [
-            {shaderLocation: 1, offset: 0, format: 'float32x3'},  // color
+            {shaderLocation: 1, offset: 0, format: 'unorm8x4'},  // color
           ],
         },
       ],

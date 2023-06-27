@@ -94,8 +94,8 @@ for `@location(0)`
 ```
 
 To the [`vertex`](GPUVertexState) entry of the [`pipeline` descriptor](GPURenderPipelineDescriptor) 
-we added a `buffers` array which is used to describe how to pull data out of a 1 or more vertex buffers.
-For the first and only buffer, we set an `arrayStride` in number of bytes. a *stride* in this case is
+we added a `buffers` array which is used to describe how to pull data out of 1 or more vertex buffers.
+For our first and only buffer, we set an `arrayStride` in number of bytes. a *stride* in this case is
 how many bytes to get from the data for one vertex in the buffer, to the next vertex in the buffer.
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-one.svg" style="width: 1024px;"></div>
@@ -147,7 +147,7 @@ use
 The `0` here corresponds to first element of the the render pipeline `buffers`
 array we specified above.
 
-And we that we've switched from using a storage buffer for vertices to a
+And with that we've switched from using a storage buffer for vertices to a
 vertex buffer.
 
 {{{example url="../webgpu-vertex-buffers.html"}}}
@@ -358,7 +358,82 @@ function createCircleVertices({
 
 And with that we get shaded circles
 
-{{{example url="../webgpu-vertex-buffers.html"}}}
+{{{example url="../webgpu-vertex-buffers-2-attributes.html"}}}
+
+We're using 32bit floating point values for colors. Each color has 3 values for a total of 12 bytes per color per vertex.
+We could optimize that by using 8bit values and telling WebGPU they should be normalized from 0 to 255 to 0.0 to 1.0
+
+Looking at the list of valid attribute formats there is no 3 value 8bit format but there is `'unorm8x4` so let's
+use that.
+
+First let's change the code that generates the vertices to store colors as 8bit values that
+will be normalized
+
+```js
+function createCircleVertices({
+  radius = 1,
+  numSubdivisions = 24,
+  innerRadius = 0,
+  startAngle = 0,
+  endAngle = Math.PI * 2,
+} = {}) {
+  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
+  const numVertices = numSubdivisions * 3 * 2;
+  const vertexData = new Float32Array(numVertices * (2 + 3));
++  const colorData = new Uint8Array(vertexData.buffer);
+
+  let offset = 0;
++  let colorOffset = 8;
+  const addVertex = (x, y, r, g, b) => {
+    vertexData[offset++] = x;
+    vertexData[offset++] = y;
+-    vertexData[offset++] = r;
+-    vertexData[offset++] = g;
+-    vertexData[offset++] = b;
++    offset += 1;  // skip the color
++    colorData[colorOffset++] = r * 255;
++    colorData[colorOffset++] = g * 255;
++    colorData[colorOffset++] = b * 255;
++    colorOffset += 9;  // skip extra byte and the position
+  };
+```
+
+Above we make `colorData` which is a `Uint8Array` view of the same
+data as `vertexData`
+
+We then use `colorData` to insert the colors, expanding them from 0 ↔ 1
+to 0 ↔ 255
+
+We then need to change the pipeline to pull out the data as 8bit unsigned
+values and to normalize them back to 0 ↔ 1 and update the stride to its
+new size.
+
+```js
+  const pipeline = device.createRenderPipeline({
+    ...
+    vertex: {
+      module,
+      entryPoint: 'vs',
+      buffers: [
+        {
+-          arrayStride: (2 + 3) * 4, // (2 + 3) floats, 4 bytes each
++          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes color
+          attributes: [
+            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
+-            {shaderLocation: 1, offset: 8, format: 'float32x3'},  // color
++            {shaderLocation: 1, offset: 8, format: 'unorm8x4'},  // color
+          ],
+        },
+      ],
+    },
+    ...
+  });
+```
+
+And with that we've save a little space. We were using 20 bytes per vertex,
+now we're using 12 bytes per vertex, a 40% savings.
+
+{{{example url="../webgpu-vertex-buffers-2-attributes-8bit-colors.html"}}}
 
 Note that we don't have to use a struct. This would work just as well
 
@@ -382,23 +457,26 @@ Note that we don't have to use a struct. This would work just as well
 }
 ```
 
+As again, all WebGPU cares about that we define `locations` in the shader
+and supply data to those locations via the API.
+
 We could also supply the data in separate buffers. Nothing changes
 in the shader. Instead we just update the pipeline
 
 ```js
       buffers: [
         {
--          arrayStride: (2 + 3) * 4, // (2 + 3) floats, 4 bytes each
+-          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes color
 +          arrayStride: 2 * 4, // 2 floats, 4 bytes each
           attributes: [
             {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
--            {shaderLocation: 1, offset: 8, format: 'float32x3'},  // color
+-            {shaderLocation: 1, offset: 8, format: 'unorm8x4'},  // color
           ],
         },
 +        {
-+          arrayStride: 3 * 4, // 3 floats, 4 bytes each
++          arrayStride: 4, // 4 bytes each
 +          attributes: [
-+            {shaderLocation: 1, offset: 0, format: 'float32x3'},  // color
++            {shaderLocation: 1, offset: 0, format: 'unorm8x4'},  // color
 +          ],
 +        },
       ],
@@ -417,42 +495,77 @@ function createCircleVertices({
   // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
   const numVertices = numSubdivisions * 3 * 2;
 -  const vertexData = new Float32Array(numVertices * (2 + 3));
--
--  let offset = 0;
--  const addVertex = (x, y, r, g, b) => {
--    vertexData[offset++] = x;
--    vertexData[offset++] = y;
--    vertexData[offset++] = r;
--    vertexData[offset++] = g;
--    vertexData[offset++] = b;
--  };
-+  // 2 triangles per subdivision, 3 verts per tri, 5 values (xy) and (rgb) each.
-+  const numVertices = numSubdivisions * 3 * 2;
-+  const positionData = new Float32Array(numVertices * 2);
-+  const colorData = new Float32Array(numVertices * 3);
-+
-+  let posOffset = 0;
-+  let colorOffset = 0;
-+  const addVertex = (x, y, r, g, b) => {
-+    positionData[posOffset++] = x;
-+    positionData[posOffset++] = y;
-+    colorData[colorOffset++] = r;
-+    colorData[colorOffset++] = g;
-+    colorData[colorOffset++] = b;
-+  };
+-  const colorData = new Uint8Array(vertexData.buffer);
++  const vertexData = new Float32Array(numVertices * 2);
++  const colorData = new Uint8Array(numVertices * 4);
+
+  let offset = 0;
+  let colorOffset = 0;
+  const addVertex = (x, y, r, g, b) => {
+    vertexData[offset++] = x;
+    vertexData[offset++] = y;
+-    offset += 1;  // skip the color
+    colorData[colorOffset++] = r * 255;
+    colorData[colorOffset++] = g * 255;
+    colorData[colorOffset++] = b * 255;
+-    colorOffset += 9;  // skip extra byte and the position
++    colorOffset += 1; // skip the extra byte
+  };
+
 
   ...
 
   return {
--    vertexData,
-+    positionData,
+    vertexData,
 +    colorData,
     numVertices,
   };
 }
 ```
 
-and create 2 buffers instead of 1
+In the interest of correctly naming things, lets change `vertexData` to `positionData`
+since our "vertex" is the combination of both a position and a color
+
+```js
+function createCircleVertices({
+  radius = 1,
+  numSubdivisions = 24,
+  innerRadius = 0,
+  startAngle = 0,
+  endAngle = Math.PI * 2,
+} = {}) {
+  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
+  const numVertices = numSubdivisions * 3 * 2;
+-  const vertexData = new Float32Array(numVertices * 2);
++  const positionData = new Float32Array(numVertices * 2);
+  const colorData = new Uint8Array(numVertices * 4);
+
+-  let offset = 0;
++  let positionOffset = 0;
+  let colorOffset = 0;
+  const addVertex = (x, y, r, g, b) => {
+-    vertexData[offset++] = x;
+-    vertexData[offset++] = y;
++    positionData[positionOffset++] = x;
++    positionData[positionOffset++] = y;
+    colorData[colorOffset++] = r * 255;
+    colorData[colorOffset++] = g * 255;
+    colorData[colorOffset++] = b * 255;
+    colorOffset += 1; // skip the extra byte
+  };
+
+  ...
+
+  return {
+-    vertexData,
++    positionData,
+    colorData,
+    numVertices,
+  };
+}
+```
+
+Then we need to create 2 buffers instead of 1
 
 ```js
 -  const { vertexData, numVertices } = createCircleVertices({
@@ -491,7 +604,7 @@ And then at render time we need to specify the both buffers
 
 {{{example url="../webgpu-vertex-buffers-2-buffers.html"}}}
 
-Like when we separate our first uniform buffer into 2 uniform buffers,
+Like when we separated our first uniform buffer into 2 uniform buffers,
 one reason you might want to separate vertex data into 2 buffers is if
 some of the vertex data was static and other vertex data was updated
 often.
@@ -532,17 +645,19 @@ function createCircleVertices({
   endAngle = Math.PI * 2,
 } = {}) {
   // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
-  const numVertices = numSubdivisions * 3 * 2;
   const numVertices = (numSubdivisions + 1) * 2;
-  const vertexData = new Float32Array(numVertices * (2 + 3));
+  const positionData = new Float32Array(numVertices * 2);
+  const colorData = new Uint8Array(numVertices * 4);
 
-  let offset = 0;
+  let positionOffset = 0;
+  let colorOffset = 0;
   const addVertex = (x, y, r, g, b) => {
-    vertexData[offset++] = x;
-    vertexData[offset++] = y;
-    vertexData[offset++] = r;
-    vertexData[offset++] = g;
-    vertexData[offset++] = b;
+    positionData[positionOffset++] = x;
+    positionData[positionOffset++] = y;
+    colorData[colorOffset++] = r * 255;
+    colorData[colorOffset++] = g * 255;
+    colorData[colorOffset++] = b * 255;
+    colorOffset += 1; // skip the extra byte
   };
 
   const innerColor = [1, 1, 1];
@@ -610,7 +725,8 @@ function createCircleVertices({
 +  }
 
   return {
-    vertexData,
+    positionData,
+    colorData,
 +    indexData,
     numVertices: indexData.length,
   };
@@ -620,17 +736,23 @@ function createCircleVertices({
 Then we need to create an index buffer
 
 ```js
--  const { vertexData, numVertices } = createCircleVertices({
-+  const { vertexData, indexData, numVertices } = createCircleVertices({
+-  const { positionData, colorData, numVertices } = createCircleVertices({
++  const { positionData, colorData, indexData, numVertices } = createCircleVertices({
     radius: 0.5,
     innerRadius: 0.25,
   });
-  const vertexBuffer = device.createBuffer({
-    label: 'vertex buffer vertices',
-    size: vertexData.byteLength,
+  const positionBuffer = device.createBuffer({
+    label: 'position buffer',
+    size: positionData.byteLength,
     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
-  device.queue.writeBuffer(vertexBuffer, 0, vertexData);
+  device.queue.writeBuffer(positionBuffer, 0, positionData);
+  const colorBuffer = device.createBuffer({
+    label: 'color buffer',
+    size: colorData.byteLength,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(colorBuffer, 0, colorData);
 +  const indexBuffer = device.createBuffer({
 +    label: 'index buffer',
 +    size: indexData.byteLength,
@@ -645,7 +767,8 @@ Then finally at draw time we need to specify the index buffer
 
 ```js
     pass.setPipeline(pipeline);
-    pass.setVertexBuffer(0, vertexBuffer);
+    pass.setVertexBuffer(0, positionBuffer);
+    pass.setVertexBuffer(1, colorBuffer);
 +    pass.setIndexBuffer(indexBuffer, 'uint32');
 ```
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Vertex Buffer vertices - index buffer</title>
+    <title>WebGPU Vertex Buffer vertices - 2 attributes 8bit colors</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -33,7 +33,6 @@ const rand = (min, max) => {
   return min + Math.random() * (max - min);
 };
 
-
 function createCircleVertices({
   radius = 1,
   numSubdivisions = 24,
@@ -42,19 +41,20 @@ function createCircleVertices({
   endAngle = Math.PI * 2,
 } = {}) {
   // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
-  const numVertices = (numSubdivisions + 1) * 2;
-  const positionData = new Float32Array(numVertices * 2);
-  const colorData = new Uint8Array(numVertices * 4);
+  const numVertices = numSubdivisions * 3 * 2;
+  const vertexData = new Float32Array(numVertices * (2 + 3));
+  const colorData = new Uint8Array(vertexData.buffer);
 
-  let positionOffset = 0;
-  let colorOffset = 0;
+  let offset = 0;
+  let colorOffset = 8;
   const addVertex = (x, y, r, g, b) => {
-    positionData[positionOffset++] = x;
-    positionData[positionOffset++] = y;
+    vertexData[offset++] = x;
+    vertexData[offset++] = y;
+    offset += 1;  // skip the color
     colorData[colorOffset++] = r * 255;
     colorData[colorOffset++] = g * 255;
     colorData[colorOffset++] = b * 255;
-    colorOffset += 1; // skip the extra byte
+    colorOffset += 9;  // skip extra byte and the position
   };
 
   const innerColor = [1, 1, 1];
@@ -62,45 +62,33 @@ function createCircleVertices({
 
   // 2 vertices per subdivision
   //
-  // 0  2  4  6  8 ...
-  //
-  // 1  3  5  7  9 ...
-  for (let i = 0; i <= numSubdivisions; ++i) {
-    const angle = startAngle + (i + 0) * (endAngle - startAngle) / numSubdivisions;
-
-    const c1 = Math.cos(angle);
-    const s1 = Math.sin(angle);
-
-    addVertex(c1 * radius, s1 * radius, ...outerColor);
-    addVertex(c1 * innerRadius, s1 * innerRadius, ...innerColor);
-  }
-
-  const indexData = new Uint32Array(numSubdivisions * 6);
-  let ndx = 0;
-
-  // 0---2---4---...
-  // | //| //|
-  // |// |// |//
-  // 1---3-- 5---...
+  // 0--1 4
+  // | / /|
+  // |/ / |
+  // 2 3--5
   for (let i = 0; i < numSubdivisions; ++i) {
-    const ndxOffset = i * 2;
+    const angle1 = startAngle + (i + 0) * (endAngle - startAngle) / numSubdivisions;
+    const angle2 = startAngle + (i + 1) * (endAngle - startAngle) / numSubdivisions;
+
+    const c1 = Math.cos(angle1);
+    const s1 = Math.sin(angle1);
+    const c2 = Math.cos(angle2);
+    const s2 = Math.sin(angle2);
 
     // first triangle
-    indexData[ndx++] = ndxOffset;
-    indexData[ndx++] = ndxOffset + 1;
-    indexData[ndx++] = ndxOffset + 2;
+    addVertex(c1 * radius, s1 * radius, ...outerColor);
+    addVertex(c2 * radius, s2 * radius, ...outerColor);
+    addVertex(c1 * innerRadius, s1 * innerRadius, ...innerColor);
 
     // second triangle
-    indexData[ndx++] = ndxOffset + 2;
-    indexData[ndx++] = ndxOffset + 1;
-    indexData[ndx++] = ndxOffset + 3;
+    addVertex(c1 * innerRadius, s1 * innerRadius, ...innerColor);
+    addVertex(c2 * radius, s2 * radius, ...outerColor);
+    addVertex(c2 * innerRadius, s2 * innerRadius, ...innerColor);
   }
 
   return {
-    positionData,
-    colorData,
-    indexData,
-    numVertices: indexData.length,
+    vertexData,
+    numVertices,
   };
 }
 
@@ -173,15 +161,10 @@ async function main() {
       entryPoint: 'vs',
       buffers: [
         {
-          arrayStride: 2 * 4, // 2 floats, 4 bytes each
+          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes color
           attributes: [
             {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
-          ],
-        },
-        {
-          arrayStride: 4, // 4 bytes each
-          attributes: [
-            {shaderLocation: 1, offset: 0, format: 'unorm8x4'},  // color
+            {shaderLocation: 1, offset: 8, format: 'unorm8x4'},  // color
           ],
         },
       ],
@@ -243,28 +226,16 @@ async function main() {
   // a typed array we can use to update the changingStorageBuffer
   const storageValues = new Float32Array(changingStorageBufferSize / 4);
 
-  const { positionData, colorData, indexData, numVertices } = createCircleVertices({
+  const { vertexData, numVertices } = createCircleVertices({
     radius: 0.5,
     innerRadius: 0.25,
   });
-  const positionBuffer = device.createBuffer({
-    label: 'position buffer',
-    size: positionData.byteLength,
+  const vertexBuffer = device.createBuffer({
+    label: 'vertex buffer vertices',
+    size: vertexData.byteLength,
     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
-  device.queue.writeBuffer(positionBuffer, 0, positionData);
-  const colorBuffer = device.createBuffer({
-    label: 'color buffer',
-    size: colorData.byteLength,
-    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-  });
-  device.queue.writeBuffer(colorBuffer, 0, colorData);
-  const indexBuffer = device.createBuffer({
-    label: 'index buffer',
-    size: indexData.byteLength,
-    usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
-  });
-  device.queue.writeBuffer(indexBuffer, 0, indexData);
+  device.queue.writeBuffer(vertexBuffer, 0, vertexData);
 
   const bindGroup = device.createBindGroup({
     label: 'bind group for objects',
@@ -296,9 +267,7 @@ async function main() {
     const encoder = device.createCommandEncoder();
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
-    pass.setVertexBuffer(0, positionBuffer);
-    pass.setVertexBuffer(1, colorBuffer);
-    pass.setIndexBuffer(indexBuffer, 'uint32');
+    pass.setVertexBuffer(0, vertexBuffer);
 
     // Set the uniform values in our JavaScript side Float32Array
     const aspect = canvas.width / canvas.height;
@@ -312,7 +281,7 @@ async function main() {
     device.queue.writeBuffer(changingStorageBuffer, 0, storageValues);
 
     pass.setBindGroup(0, bindGroup);
-    pass.drawIndexed(numVertices, kNumObjects);
+    pass.draw(numVertices, kNumObjects);
 
     pass.end();
 
