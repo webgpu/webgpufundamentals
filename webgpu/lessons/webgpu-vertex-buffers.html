@@ -302,8 +302,8 @@ for <code class="notranslate" translate="no">@location(0)</code></p>
   });
 </pre>
 <p>To the <a href="https://www.w3.org/TR/webgpu/#dictdef-gpuvertexstate"><code class="notranslate" translate="no">vertex</code></a> entry of the <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpipelinedescriptor"><code class="notranslate" translate="no">pipeline</code> descriptor</a>
-we added a <code class="notranslate" translate="no">buffers</code> array which is used to describe how to pull data out of a 1 or more vertex buffers.
-For the first and only buffer, we set an <code class="notranslate" translate="no">arrayStride</code> in number of bytes. a <em>stride</em> in this case is
+we added a <code class="notranslate" translate="no">buffers</code> array which is used to describe how to pull data out of 1 or more vertex buffers.
+For our first and only buffer, we set an <code class="notranslate" translate="no">arrayStride</code> in number of bytes. a <em>stride</em> in this case is
 how many bytes to get from the data for one vertex in the buffer, to the next vertex in the buffer.</p>
 <div class="webgpu_center"><img src="resources/vertex-buffer-one.svg" style="width: 1024px;"></div>
 <p>Since our data is <code class="notranslate" translate="no">vec2f</code>, which is two float32 numbers, we set the
@@ -343,7 +343,7 @@ use</p>
 </pre>
 <p>The <code class="notranslate" translate="no">0</code> here corresponds to first element of the the render pipeline <code class="notranslate" translate="no">buffers</code>
 array we specified above.</p>
-<p>And we that we’ve switched from using a storage buffer for vertices to a
+<p>And with that we’ve switched from using a storage buffer for vertices to a
 vertex buffer.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers.html"></iframe></div>
@@ -542,8 +542,76 @@ the inner vertices.</p>
 </pre>
 <p>And with that we get shaded circles</p>
 <p></p><div class="webgpu_example_container">
-  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers.html"></iframe></div>
-  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-vertex-buffers.html" target="_blank">click here to open in a separate window</a>
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers-2-attributes.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-vertex-buffers-2-attributes.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>We’re using 32bit floating point values for colors. Each color has 3 values for a total of 12 bytes per color per vertex.
+We could optimize that by using 8bit values and telling WebGPU they should be normalized from 0 to 255 to 0.0 to 1.0</p>
+<p>Looking at the list of valid attribute formats there is no 3 value 8bit format but there is <code class="notranslate" translate="no">'unorm8x4</code> so let’s
+use that.</p>
+<p>First let’s change the code that generates the vertices to store colors as 8bit values that
+will be normalized</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function createCircleVertices({
+  radius = 1,
+  numSubdivisions = 24,
+  innerRadius = 0,
+  startAngle = 0,
+  endAngle = Math.PI * 2,
+} = {}) {
+  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
+  const numVertices = numSubdivisions * 3 * 2;
+  const vertexData = new Float32Array(numVertices * (2 + 3));
++  const colorData = new Uint8Array(vertexData.buffer);
+
+  let offset = 0;
++  let colorOffset = 8;
+  const addVertex = (x, y, r, g, b) =&gt; {
+    vertexData[offset++] = x;
+    vertexData[offset++] = y;
+-    vertexData[offset++] = r;
+-    vertexData[offset++] = g;
+-    vertexData[offset++] = b;
++    offset += 1;  // skip the color
++    colorData[colorOffset++] = r * 255;
++    colorData[colorOffset++] = g * 255;
++    colorData[colorOffset++] = b * 255;
++    colorOffset += 9;  // skip extra byte and the position
+  };
+</pre>
+<p>Above we make <code class="notranslate" translate="no">colorData</code> which is a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array"><code class="notranslate" translate="no">Uint8Array</code></a> view of the same
+data as <code class="notranslate" translate="no">vertexData</code></p>
+<p>We then use <code class="notranslate" translate="no">colorData</code> to insert the colors, expanding them from 0 ↔ 1
+to 0 ↔ 255</p>
+<p>We then need to change the pipeline to pull out the data as 8bit unsigned
+values and to normalize them back to 0 ↔ 1 and update the stride to its
+new size.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    ...
+    vertex: {
+      module,
+      entryPoint: 'vs',
+      buffers: [
+        {
+-          arrayStride: (2 + 3) * 4, // (2 + 3) floats, 4 bytes each
++          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes color
+          attributes: [
+            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
+-            {shaderLocation: 1, offset: 8, format: 'float32x3'},  // color
++            {shaderLocation: 1, offset: 8, format: 'unorm8x4'},  // color
+          ],
+        },
+      ],
+    },
+    ...
+  });
+</pre>
+<p>And with that we’ve save a little space. We were using 20 bytes per vertex,
+now we’re using 12 bytes per vertex, a 40% savings.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers-2-attributes-8bit-colors.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-vertex-buffers-2-attributes-8bit-colors.html" target="_blank">click here to open in a separate window</a>
 </div>
 
 <p></p>
@@ -566,21 +634,23 @@ the inner vertices.</p>
   return vsOut;
 }
 </pre>
+<p>As again, all WebGPU cares about that we define <code class="notranslate" translate="no">locations</code> in the shader
+and supply data to those locations via the API.</p>
 <p>We could also supply the data in separate buffers. Nothing changes
 in the shader. Instead we just update the pipeline</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">      buffers: [
         {
--          arrayStride: (2 + 3) * 4, // (2 + 3) floats, 4 bytes each
+-          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes color
 +          arrayStride: 2 * 4, // 2 floats, 4 bytes each
           attributes: [
             {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
--            {shaderLocation: 1, offset: 8, format: 'float32x3'},  // color
+-            {shaderLocation: 1, offset: 8, format: 'unorm8x4'},  // color
           ],
         },
 +        {
-+          arrayStride: 3 * 4, // 3 floats, 4 bytes each
++          arrayStride: 4, // 4 bytes each
 +          attributes: [
-+            {shaderLocation: 1, offset: 0, format: 'float32x3'},  // color
++            {shaderLocation: 1, offset: 0, format: 'unorm8x4'},  // color
 +          ],
 +        },
       ],
@@ -596,41 +666,73 @@ in the shader. Instead we just update the pipeline</p>
   // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
   const numVertices = numSubdivisions * 3 * 2;
 -  const vertexData = new Float32Array(numVertices * (2 + 3));
--
+-  const colorData = new Uint8Array(vertexData.buffer);
++  const vertexData = new Float32Array(numVertices * 2);
++  const colorData = new Uint8Array(numVertices * 4);
+
+  let offset = 0;
+  let colorOffset = 0;
+  const addVertex = (x, y, r, g, b) =&gt; {
+    vertexData[offset++] = x;
+    vertexData[offset++] = y;
+-    offset += 1;  // skip the color
+    colorData[colorOffset++] = r * 255;
+    colorData[colorOffset++] = g * 255;
+    colorData[colorOffset++] = b * 255;
+-    colorOffset += 9;  // skip extra byte and the position
++    colorOffset += 1; // skip the extra byte
+  };
+
+
+  ...
+
+  return {
+    vertexData,
++    colorData,
+    numVertices,
+  };
+}
+</pre>
+<p>In the interest of correctly naming things, lets change <code class="notranslate" translate="no">vertexData</code> to <code class="notranslate" translate="no">positionData</code>
+since our “vertex” is the combination of both a position and a color</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function createCircleVertices({
+  radius = 1,
+  numSubdivisions = 24,
+  innerRadius = 0,
+  startAngle = 0,
+  endAngle = Math.PI * 2,
+} = {}) {
+  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
+  const numVertices = numSubdivisions * 3 * 2;
+-  const vertexData = new Float32Array(numVertices * 2);
++  const positionData = new Float32Array(numVertices * 2);
+  const colorData = new Uint8Array(numVertices * 4);
+
 -  let offset = 0;
--  const addVertex = (x, y, r, g, b) =&gt; {
++  let positionOffset = 0;
+  let colorOffset = 0;
+  const addVertex = (x, y, r, g, b) =&gt; {
 -    vertexData[offset++] = x;
 -    vertexData[offset++] = y;
--    vertexData[offset++] = r;
--    vertexData[offset++] = g;
--    vertexData[offset++] = b;
--  };
-+  // 2 triangles per subdivision, 3 verts per tri, 5 values (xy) and (rgb) each.
-+  const numVertices = numSubdivisions * 3 * 2;
-+  const positionData = new Float32Array(numVertices * 2);
-+  const colorData = new Float32Array(numVertices * 3);
-+
-+  let posOffset = 0;
-+  let colorOffset = 0;
-+  const addVertex = (x, y, r, g, b) =&gt; {
-+    positionData[posOffset++] = x;
-+    positionData[posOffset++] = y;
-+    colorData[colorOffset++] = r;
-+    colorData[colorOffset++] = g;
-+    colorData[colorOffset++] = b;
-+  };
++    positionData[positionOffset++] = x;
++    positionData[positionOffset++] = y;
+    colorData[colorOffset++] = r * 255;
+    colorData[colorOffset++] = g * 255;
+    colorData[colorOffset++] = b * 255;
+    colorOffset += 1; // skip the extra byte
+  };
 
   ...
 
   return {
 -    vertexData,
 +    positionData,
-+    colorData,
+    colorData,
     numVertices,
   };
 }
 </pre>
-<p>and create 2 buffers instead of 1</p>
+<p>Then we need to create 2 buffers instead of 1</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const { vertexData, numVertices } = createCircleVertices({
 +  const { positionData, colorData, numVertices } = createCircleVertices({
     radius: 0.5,
@@ -667,7 +769,7 @@ in the shader. Instead we just update the pipeline</p>
 </div>
 
 <p></p>
-<p>Like when we separate our first uniform buffer into 2 uniform buffers,
+<p>Like when we separated our first uniform buffer into 2 uniform buffers,
 one reason you might want to separate vertex data into 2 buffers is if
 some of the vertex data was static and other vertex data was updated
 often.</p>
@@ -694,17 +796,19 @@ use those 4 vertices 6 times by telling WebGPU to draw indices in this order</p>
   endAngle = Math.PI * 2,
 } = {}) {
   // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
-  const numVertices = numSubdivisions * 3 * 2;
   const numVertices = (numSubdivisions + 1) * 2;
-  const vertexData = new Float32Array(numVertices * (2 + 3));
+  const positionData = new Float32Array(numVertices * 2);
+  const colorData = new Uint8Array(numVertices * 4);
 
-  let offset = 0;
+  let positionOffset = 0;
+  let colorOffset = 0;
   const addVertex = (x, y, r, g, b) =&gt; {
-    vertexData[offset++] = x;
-    vertexData[offset++] = y;
-    vertexData[offset++] = r;
-    vertexData[offset++] = g;
-    vertexData[offset++] = b;
+    positionData[positionOffset++] = x;
+    positionData[positionOffset++] = y;
+    colorData[colorOffset++] = r * 255;
+    colorData[colorOffset++] = g * 255;
+    colorData[colorOffset++] = b * 255;
+    colorOffset += 1; // skip the extra byte
   };
 
   const innerColor = [1, 1, 1];
@@ -772,24 +876,31 @@ use those 4 vertices 6 times by telling WebGPU to draw indices in this order</p>
 +  }
 
   return {
-    vertexData,
+    positionData,
+    colorData,
 +    indexData,
     numVertices: indexData.length,
   };
 }
 </pre>
 <p>Then we need to create an index buffer</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const { vertexData, numVertices } = createCircleVertices({
-+  const { vertexData, indexData, numVertices } = createCircleVertices({
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const { positionData, colorData, numVertices } = createCircleVertices({
++  const { positionData, colorData, indexData, numVertices } = createCircleVertices({
     radius: 0.5,
     innerRadius: 0.25,
   });
-  const vertexBuffer = device.createBuffer({
-    label: 'vertex buffer vertices',
-    size: vertexData.byteLength,
+  const positionBuffer = device.createBuffer({
+    label: 'position buffer',
+    size: positionData.byteLength,
     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
-  device.queue.writeBuffer(vertexBuffer, 0, vertexData);
+  device.queue.writeBuffer(positionBuffer, 0, positionData);
+  const colorBuffer = device.createBuffer({
+    label: 'color buffer',
+    size: colorData.byteLength,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(colorBuffer, 0, colorData);
 +  const indexBuffer = device.createBuffer({
 +    label: 'index buffer',
 +    size: indexData.byteLength,
@@ -800,7 +911,8 @@ use those 4 vertices 6 times by telling WebGPU to draw indices in this order</p>
 <p>Notice we changed the usage to <code class="notranslate" translate="no">INDEX</code>.</p>
 <p>Then finally at draw time we need to specify the index buffer</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    pass.setPipeline(pipeline);
-    pass.setVertexBuffer(0, vertexBuffer);
+    pass.setVertexBuffer(0, positionBuffer);
+    pass.setVertexBuffer(1, colorBuffer);
 +    pass.setIndexBuffer(indexBuffer, 'uint32');
 </pre>
 <p>Because our buffer contains 32bit unsigned integer indices
