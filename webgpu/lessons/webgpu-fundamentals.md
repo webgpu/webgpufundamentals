@@ -938,11 +938,12 @@ Then we'll cover [the basics of WGSL](webgpu-wgsl.html).
 
 This order is from the simplest to the most complex. Inter-stage variables
 require no external setup to explain. We can see how to use them using nothing
-but changes to the WGSL we used above. Uniforms are effectively global variables and as such are
-used in all 3 kinds of shaders (vertex, fragment, and compute). Vertex buffers
-are only used in vertex shaders. They are more complex because they require
-describing the data layout to WebGPU. Textures are most complex as they have
-tons types and options.
+but changes to the WGSL we used above. Uniforms are effectively global variables
+and as such are used in all 3 kinds of shaders (vertex, fragment, and compute).
+Going from uniform buffers to storage buffers is trivial as shown at the top of
+the article on storage buffers. Vertex buffers are only used in vertex shaders.
+They are more complex because they require describing the data layout to WebGPU.
+Textures are most complex as they have tons types and options.
 
 I'm a little bit worried these article will be boring at first. Feel free to
 jump around if you'd like. Just remember if you don't understand something you
