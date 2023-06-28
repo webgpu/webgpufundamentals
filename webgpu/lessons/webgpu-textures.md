@@ -129,17 +129,17 @@ is the texture to sample. The 2nd parameter is the sampler to specify how
 to sample the texture. The 3rd is the texture coordinate for where to sample.
 
 > Note: It is not common to pass position values as texture coordinates
-> but in this particular case of unit quad (a 1 unit quad) it just so 
+> but in this particular case of unit quad (a quad one unit wide and one unit tall) it just so 
 > happens that the texture coordinates we need match the positions.
 > Doing it this way keeps the example smaller and simpler. It would be
 > far more common to provide texture coordinates via
 > [vertex-buffers](webgpu-vertex-buffers.html).
 
-Now we need to create a texture data. We'll make a 5x7 texel `F` [^texel]
+Now we need to create texture data. We'll make a 5x7 texel `F` [^texel]
 
-[^texel]: A texel is a "texture element" vs a pixel which is a "picture element".
+[^texel]: A texel is short for "texture element" vs a pixel which is short for "picture element".
 For me texel and pixel are basically synonymous but some people prefer to use
-the world *texel* when discussing textures.
+the word *texel* when discussing textures.
 
 ```js
   const kTextureWidth = 5;
@@ -164,7 +164,7 @@ left corner (the first value).
 We're going to create a `rgba8unorm` texture. `rgba8unorm` means the texture will
 have red, green, blue, and alpha values. Each value will be 8 bits unsigned, and
 will be normalized when used in the texture. `unorm` means `unsigned normalized`
-which is fancy way of saying the value will be converted from and unsigned byte
+which is fancy way of saying the value will be converted from an unsigned byte
 with values from (0 to 255) to a floating point value with values (0.0 to 1.0).
 
 In other words if the value we put in the texture is `[64, 128, 192, 255]` the value
@@ -188,7 +188,8 @@ means we want to be able to copy data to it.
 
 [^texture-binding]: Another common use for a texture is `GPUTextureUsage.RENDER_ATTACHMENT`
 which is used for a texture we want to render into. As an example, the canvas texture we
-get from `context.getCurrentTexture()` has its usage set to `GPUTextureUsage.RENDER_ATTACHMENT`.
+get from `context.getCurrentTexture()` has its usage set to `GPUTextureUsage.RENDER_ATTACHMENT`
+by default.
 
 Next we need to do just that and copy our data to it.
 
@@ -226,7 +227,7 @@ that match the `@binding(?)`s we put in the shader.
   });
 ```
 
-To update our rendering we need to specify the bind group and render 6 vertices
+To update our rendering, we need to specify the bind group and render 6 vertices
 to render our quad consisting of 2 triangles.
 
 ```js
@@ -295,9 +296,9 @@ To fix this there are 2 common solutions.
     ].flat());
    ```
 
-   Once we've flipped the data what used to be at the top is now at the bottom
+   Once we've flipped the data, what used to be at the top is now at the bottom
    and now the bottom left pixel of the original image is the first data
-   in the texture and now what texture coordinate 0,0 refers to. This is why
+   in the texture and becomes what texture coordinate 0,0 refers to. This is why
    often texture coordinates are considered to go from 0 at the bottom to 1 at
    the top.
 
@@ -327,7 +328,7 @@ right chosen pixel's center. `t2` is similar but vertically.
 `t1` is the used to *"mix"* between the top 2 pixels to produce an intermediate
 color. *mix* linearly interpolates between 2 values so when `t1` is 0 we get only
 the first color. When `t1` = 1 we get only the second color. Values between 0
-and 1 produce proportional mix. For example 0.3 would be would be 70% of the
+and 1 produce a proportional mix. For example 0.3 would be would be 70% of the
 first color and 30% of second color. Similarly, a second intermediate color is
 computed for the bottom 2 pixels. Finally, `t2` is used to mix the two
 intermediate colors into a final color.
@@ -340,7 +341,7 @@ blend with pixels on the opposite side of the texture. When set to
 'clamp-to-edge', for the purposes of calculating which color to return, the
 texture coordinate is clamped so that it can't go into the last half texel on
 each edge. This has the effect of showing the edge colors for any texture
-coordinate that outside that range.
+coordinate outside that range.
 
 [^mirror-repeat]: There is also one more address mode, "mirror-repeat".
 If our texture is "🟥🟩🟦" then repeat goes "🟥🟩🟦🟥🟩🟦🟥🟩🟦🟥🟩🟦" and mirror-repeat
@@ -396,7 +397,7 @@ bind group to use.
 
 Now all we need to do is provide some UI to let us change the settings
 and when the setting change we need to re-render. I'm using a library
-called "muigui" which at the moment has a API similar to [dat.GUI](https://github.com/dataarts/dat.gui)
+called "muigui" which at the moment has an API similar to [dat.GUI](https://github.com/dataarts/dat.gui)
 
 ```js
 import GUI from '/3rdparty/muigui-0.x.module.js';
@@ -521,7 +522,7 @@ struct OurVertexShaderOutput {
 }
 ```
 
-Now that we have uniforms we need to create a uniform buffer and
+Now that we have uniforms, we need to create a uniform buffer and
 add it to the bind group.
 
 ```js
@@ -677,7 +678,7 @@ are computed from the real numbers.
 </div>
 
 In the diagram above, the <span style="color: red;">red</span> rectangle
-represents the quad we asked the GPU to draw, based on the values we return
+represents the quad we asked the GPU to draw based on the values we return
 from our vertex shader. When the GPU draws, it computes which pixels' centers
 are inside our quad (our 2 triangles). Then, it computes what interpolated
 inter-stage variable value to pass to the fragment shader based on where the
@@ -700,10 +701,10 @@ end up with 1x1 texel texture.
 
 <div class="webgpu-center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
 
-Given a mipmap, we can then ask the GPU to choose a smaller mip level when
-smaller than the original size. This will look better because it has been
-"pre-blended" and better represents what the texture's color would be when
-scaled down.
+Given a mipmap, we can then ask the GPU to choose a smaller mip level when we're
+drawing something smaller than the original texture size. This will look better
+because it has been "pre-blended" and better represents what the texture's color
+would be when scaled down.
 
 The best algorithm for blending the pixels from one mip to the next is a topic
 of research as well as a matter of opinion. As a first idea, here's some code
@@ -1094,7 +1095,7 @@ At render time we [compute a viewProjection matrix](webgpu-cameras.html).
 ```
 
 Then for each plane, we select a bind group based on which texture we want to show
-and compute a unique matrix to position each plane
+and compute a unique matrix to position that plane.
 
 ```js
   let texNdx = 0;
@@ -1184,9 +1185,9 @@ draw with and re-renders
 
 {{{example url="../webgpu-simple-textured-quad-mipmapfilter.html"}}}
 
-Hopefully you can see the progression form the top left with all filtering
+Hopefully you can see the progression from the top left with all filtering
 set to `nearest` to the bottom right where all filtering is set to `linear`.
-In particular since we added `mipmapFilter` in this example, if you click
+In particular, since we added `mipmapFilter` in this example, if you click
 the image to show the checked texture where every mip level is a different
 color, you should be able to see that every plane at the top has
 `mipmapFilter` set to `nearest` so the point when switching from one mip level
@@ -1316,10 +1317,10 @@ For example "rg11b10ufloat" is "rg11" so 11bits each of red and green. "b10" so
 
   This has implications for what type of texture you need to declare it in WGSL
   and how you bind a sampler to a bind group. Above we used `texture_2d<f32>`
-  but for example, 'sint' would need `texture_2d<i32>` and `uint` would need
+  but for example, `sint` would need `texture_2d<i32>` and `uint` would need
   `texture_2d<u32>` in WGSL.
 
-  In the sample type column, `unfilterable-float` means your sampler can only
+  In the sampler type column, `unfilterable-float` means your sampler can only
   use `nearest` for that format and it means you may have to manually
   create a bind group layout, something we haven't done before as we've been
   using `'auto'` layout. This mostly exists because desktop GPU can generally
