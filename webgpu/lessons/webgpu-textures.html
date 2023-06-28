@@ -328,13 +328,13 @@ is the texture to sample. The 2nd parameter is the sampler to specify how
 to sample the texture. The 3rd is the texture coordinate for where to sample.</p>
 <blockquote>
 <p>Note: It is not common to pass position values as texture coordinates
-but in this particular case of unit quad (a 1 unit quad) it just so
+but in this particular case of unit quad (a quad one unit wide and one unit tall) it just so
 happens that the texture coordinates we need match the positions.
 Doing it this way keeps the example smaller and simpler. It would be
 far more common to provide texture coordinates via
 <a href="webgpu-vertex-buffers.html">vertex-buffers</a>.</p>
 </blockquote>
-<p>Now we need to create a texture data. We’ll make a 5x7 texel <code class="notranslate" translate="no">F</code> <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup></p>
+<p>Now we need to create texture data. We’ll make a 5x7 texel <code class="notranslate" translate="no">F</code> <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const kTextureWidth = 5;
   const kTextureHeight = 7;
   const _ = [255,   0,   0, 255];  // red
@@ -355,7 +355,7 @@ left corner (the first value).</p>
 <p>We’re going to create a <code class="notranslate" translate="no">rgba8unorm</code> texture. <code class="notranslate" translate="no">rgba8unorm</code> means the texture will
 have red, green, blue, and alpha values. Each value will be 8 bits unsigned, and
 will be normalized when used in the texture. <code class="notranslate" translate="no">unorm</code> means <code class="notranslate" translate="no">unsigned normalized</code>
-which is fancy way of saying the value will be converted from and unsigned byte
+which is fancy way of saying the value will be converted from an unsigned byte
 with values from (0 to 255) to a floating point value with values (0.0 to 1.0).</p>
 <p>In other words if the value we put in the texture is <code class="notranslate" translate="no">[64, 128, 192, 255]</code> the value
 in the shader will end up being <code class="notranslate" translate="no">[64 / 255, 128 / 255, 192 / 255, 255 / 255]</code> or to
@@ -397,7 +397,7 @@ that match the <code class="notranslate" translate="no">@binding(?)</code>s we p
     ],
   });
 </pre>
-<p>To update our rendering we need to specify the bind group and render 6 vertices
+<p>To update our rendering, we need to specify the bind group and render 6 vertices
 to render our quad consisting of 2 triangles.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
@@ -456,9 +456,9 @@ at the source.</p>
 +   b, _, _, _, _,
  ].flat());
 </pre>
-<p>Once we’ve flipped the data what used to be at the top is now at the bottom
+<p>Once we’ve flipped the data, what used to be at the top is now at the bottom
 and now the bottom left pixel of the original image is the first data
-in the texture and now what texture coordinate 0,0 refers to. This is why
+in the texture and becomes what texture coordinate 0,0 refers to. This is why
 often texture coordinates are considered to go from 0 at the bottom to 1 at
 the top.</p>
 <div class="webgpu_center"><img src="resources/texture-coordinates-y-flipped.svg" style="width: 500px;"></div>
@@ -483,7 +483,7 @@ right chosen pixel’s center. <code class="notranslate" translate="no">t2</code
 <p><code class="notranslate" translate="no">t1</code> is the used to <em>“mix”</em> between the top 2 pixels to produce an intermediate
 color. <em>mix</em> linearly interpolates between 2 values so when <code class="notranslate" translate="no">t1</code> is 0 we get only
 the first color. When <code class="notranslate" translate="no">t1</code> = 1 we get only the second color. Values between 0
-and 1 produce proportional mix. For example 0.3 would be would be 70% of the
+and 1 produce a proportional mix. For example 0.3 would be would be 70% of the
 first color and 30% of second color. Similarly, a second intermediate color is
 computed for the bottom 2 pixels. Finally, <code class="notranslate" translate="no">t2</code> is used to mix the two
 intermediate colors into a final color.</p>
@@ -495,7 +495,7 @@ blend with pixels on the opposite side of the texture. When set to
 ‘clamp-to-edge’, for the purposes of calculating which color to return, the
 texture coordinate is clamped so that it can’t go into the last half texel on
 each edge. This has the effect of showing the edge colors for any texture
-coordinate that outside that range.</p>
+coordinate outside that range.</p>
 <p>Let’s update the example so we can draw the quad with all of these options.</p>
 <p>First let’s create a sampler for each combination of settings.
 We’ll also create a bind group that uses that sampler.</p>
@@ -536,7 +536,7 @@ bind group to use.</p>
 </pre>
 <p>Now all we need to do is provide some UI to let us change the settings
 and when the setting change we need to re-render. I’m using a library
-called “muigui” which at the moment has a API similar to <a href="https://github.com/dataarts/dat.gui">dat.GUI</a></p>
+called “muigui” which at the moment has an API similar to <a href="https://github.com/dataarts/dat.gui">dat.GUI</a></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">import GUI from '/3rdparty/muigui-0.x.module.js';
 
 ...
@@ -647,7 +647,7 @@ like we did in the first example in <a href="webgpu-uniforms.html">the article o
   return textureSample(ourTexture, ourSampler, fsInput.texcoord);
 }
 </pre>
-<p>Now that we have uniforms we need to create a uniform buffer and
+<p>Now that we have uniforms, we need to create a uniform buffer and
 add it to the bind group.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  // create a buffer for the uniform values
 +  const uniformBufferSize =
@@ -793,7 +793,7 @@ are computed from the real numbers.</p>
   </div>
 </div>
 <p>In the diagram above, the <span style="color: red;">red</span> rectangle
-represents the quad we asked the GPU to draw, based on the values we return
+represents the quad we asked the GPU to draw based on the values we return
 from our vertex shader. When the GPU draws, it computes which pixels’ centers
 are inside our quad (our 2 triangles). Then, it computes what interpolated
 inter-stage variable value to pass to the fragment shader based on where the
@@ -812,10 +812,10 @@ In our example we have a 5x7 texel texture. Dividing by 2 in each dimension and
 rounding down gives us a 2x3 texel texture. We take that one and repeat so we
 end up with 1x1 texel texture.</p>
 <div class="webgpu-center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
-<p>Given a mipmap, we can then ask the GPU to choose a smaller mip level when
-smaller than the original size. This will look better because it has been
-“pre-blended” and better represents what the texture’s color would be when
-scaled down.</p>
+<p>Given a mipmap, we can then ask the GPU to choose a smaller mip level when we’re
+drawing something smaller than the original texture size. This will look better
+because it has been “pre-blended” and better represents what the texture’s color
+would be when scaled down.</p>
 <p>The best algorithm for blending the pixels from one mip to the next is a topic
 of research as well as a matter of opinion. As a first idea, here’s some code
 that generates each mip from the previous mip by bilinear filtering (as
@@ -1170,7 +1170,7 @@ buffer per location like we covered in <a href="webgpu-uniforms.html">the articl
     ...
 </pre>
 <p>Then for each plane, we select a bind group based on which texture we want to show
-and compute a unique matrix to position each plane</p>
+and compute a unique matrix to position that plane.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  let texNdx = 0;
 
   function render() {
@@ -1252,9 +1252,9 @@ draw with and re-renders</p>
 </div>
 
 <p></p>
-<p>Hopefully you can see the progression form the top left with all filtering
+<p>Hopefully you can see the progression from the top left with all filtering
 set to <code class="notranslate" translate="no">nearest</code> to the bottom right where all filtering is set to <code class="notranslate" translate="no">linear</code>.
-In particular since we added <code class="notranslate" translate="no">mipmapFilter</code> in this example, if you click
+In particular, since we added <code class="notranslate" translate="no">mipmapFilter</code> in this example, if you click
 the image to show the checked texture where every mip level is a different
 color, you should be able to see that every plane at the top has
 <code class="notranslate" translate="no">mipmapFilter</code> set to <code class="notranslate" translate="no">nearest</code> so the point when switching from one mip level
@@ -1369,9 +1369,9 @@ For example “rg11b10ufloat” is “rg11” so 11bits each of red and green. �
 <p><strong>sampler type</strong></p>
 <p>This has implications for what type of texture you need to declare it in WGSL
 and how you bind a sampler to a bind group. Above we used <code class="notranslate" translate="no">texture_2d&lt;f32&gt;</code>
-but for example, ‘sint’ would need <code class="notranslate" translate="no">texture_2d&lt;i32&gt;</code> and <code class="notranslate" translate="no">uint</code> would need
+but for example, <code class="notranslate" translate="no">sint</code> would need <code class="notranslate" translate="no">texture_2d&lt;i32&gt;</code> and <code class="notranslate" translate="no">uint</code> would need
 <code class="notranslate" translate="no">texture_2d&lt;u32&gt;</code> in WGSL.</p>
-<p>In the sample type column, <code class="notranslate" translate="no">unfilterable-float</code> means your sampler can only
+<p>In the sampler type column, <code class="notranslate" translate="no">unfilterable-float</code> means your sampler can only
 use <code class="notranslate" translate="no">nearest</code> for that format and it means you may have to manually
 create a bind group layout, something we haven’t done before as we’ve been
 using <code class="notranslate" translate="no">'auto'</code> layout. This mostly exists because desktop GPU can generally
@@ -1413,13 +1413,14 @@ as <a href="webgpu-shadow-maps.html">the article about shadow maps</a>.</p>
 a matter of perspective. What’s important is that texture coordinate 0,0 references the first data in
 the texture. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn2" class="footnote-item"><p>A texel is a “texture element” vs a pixel which is a “picture element”.
+<li id="fn2" class="footnote-item"><p>A texel is short for “texture element” vs a pixel which is short for “picture element”.
 For me texel and pixel are basically synonymous but some people prefer to use
-the world <em>texel</em> when discussing textures. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+the word <em>texel</em> when discussing textures. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
 </li>
 <li id="fn3" class="footnote-item"><p>Another common use for a texture is <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.RENDER_ATTACHMENT"><code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code></a>
 which is used for a texture we want to render into. As an example, the canvas texture we
-get from <code class="notranslate" translate="no">context.getCurrentTexture()</code> has its usage set to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.RENDER_ATTACHMENT"><code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code></a>. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+get from <code class="notranslate" translate="no">context.getCurrentTexture()</code> has its usage set to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.RENDER_ATTACHMENT"><code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code></a>
+by default. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
 </li>
 <li id="fn4" class="footnote-item"><p>There is also one more address mode, “mirror-repeat”.
 If our texture is “🟥🟩🟦” then repeat goes “🟥🟩🟦🟥🟩🟦🟥🟩🟦🟥🟩🟦” and mirror-repeat

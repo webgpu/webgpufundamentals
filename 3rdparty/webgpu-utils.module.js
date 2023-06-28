@@ -1,4 +1,4 @@
-/* webgpu-utils@0.3.0, license MIT */
+/* webgpu-utils@0.4.0, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
 // TODO: fix better?
 const isTypedArray = (arr) => arr && typeof arr.length === 'number' && arr.buffer instanceof ArrayBuffer && typeof arr.byteLength === 'number';
@@ -3456,11 +3456,29 @@ function addMembers(reflect, members, size, offset = 0) {
 function normalizeGPUExtent3Dict(size) {
     return [size.width, size.height || 1, size.depthOrArrayLayers || 1];
 }
+/**
+ * Converts a `GPUExtent3D` into an array of numbers
+ *
+ * `GPUExtent3D` has two forms `[width, height?, depth?]` or
+ * `{width: number, height?: number, depthOrArrayLayers?: number}`
+ *
+ * You pass one of those in here and it returns an array of 3 numbers
+ * so that your code doesn't have to deal with multiple forms.
+ *
+ * @param size
+ * @returns an array of 3 numbers, [width, height, depthOrArrayLayers]
+ */
 function normalizeGPUExtent3D(size) {
     return (Array.isArray(size) || isTypedArray(size))
-        ? Array.from(size)
+        ? [...size, 1, 1].slice(0, 3)
         : normalizeGPUExtent3Dict(size);
 }
+/**
+ * Given a GPUExtent3D returns the number of mip levels needed
+ *
+ * @param size
+ * @returns number of mip levels needed for the given size
+ */
 function numMipLevels(size) {
     const sizes = normalizeGPUExtent3D(size);
     const maxSize = Math.max(...sizes);
@@ -3468,6 +3486,15 @@ function numMipLevels(size) {
 }
 // Use a WeakMap so the device can be destroyed and/or lost
 const byDevice = new WeakMap();
+/**
+ * Generates mip levels from level 0 to the last mip for an existing texture
+ *
+ * The texture must have been created with TEXTURE_BINDING and
+ * RENDER_ATTACHMENT and been created with mip levels
+ *
+ * @param device
+ * @param texture
+ */
 function generateMipmap(device, texture) {
     let perDeviceInfo = byDevice.get(device);
     if (!perDeviceInfo) {
@@ -3490,7 +3517,7 @@ function generateMipmap(device, texture) {
             @vertex fn vs(
                @builtin(vertex_index) vertexIndex : u32
             ) -> VSOutput {
-               let pos = array(
+               var pos = array<vec2f, 3>(
                   vec2f(-1.0, -1.0),
                   vec2f(-1.0,  3.0),
                   vec2f( 3.0, -1.0),
@@ -3536,25 +3563,22 @@ function generateMipmap(device, texture) {
     const encoder = device.createCommandEncoder({
         label: 'mip gen encoder',
     });
-    let width = texture.width;
-    let height = texture.height;
-    let baseMipLevel = 0;
-    while (width > 1 || height > 1) {
-        width = Math.max(1, width / 2 | 0);
-        height = Math.max(1, height / 2 | 0);
+    texture.width;
+    texture.height;
+    let nextMipLevel = 1;
+    while (nextMipLevel < texture.mipLevelCount) {
         const bindGroup = device.createBindGroup({
             layout: pipeline.getBindGroupLayout(0),
             entries: [
                 { binding: 0, resource: sampler },
-                { binding: 1, resource: texture.createView({ baseMipLevel, mipLevelCount: 1 }) },
+                { binding: 1, resource: texture.createView({ baseMipLevel: nextMipLevel - 1, mipLevelCount: 1 }) },
             ],
         });
-        ++baseMipLevel;
         const renderPassDescriptor = {
             label: 'mip gen renderPass',
             colorAttachments: [
                 {
-                    view: texture.createView({ baseMipLevel, mipLevelCount: 1 }),
+                    view: texture.createView({ baseMipLevel: nextMipLevel, mipLevelCount: 1 }),
                     loadOp: 'clear',
                     storeOp: 'store',
                 },
@@ -3565,12 +3589,23 @@ function generateMipmap(device, texture) {
         pass.setBindGroup(0, bindGroup);
         pass.draw(3);
         pass.end();
+        ++nextMipLevel;
     }
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
 }
 
-function copySourceToTexture(device, texture, source, { flipY } = {}) {
+/**
+ * Copies a "source" (Video, Canvas, OffscreenCanvas, ImageBitmap)
+ * To a texture and then optional generates mip levels
+ *
+ * @param device
+ * @param texture The texture to copy to
+ * @param source The source to copy from
+ * @param options use `{flipY: true}` if you want the source flipped
+ */
+function copySourceToTexture(device, texture, source, options = {}) {
+    const { flipY } = options;
     device.queue.copyExternalImageToTexture({ source, flipY, }, { texture }, { width: source.width, height: source.height });
     if (texture.mipLevelCount > 1) {
         generateMipmap(device, texture);
@@ -3584,11 +3619,23 @@ function getSizeFromSource(source) {
         return [source.width, source.height];
     }
 }
+/**
+ * Create a texture from a source (Video, Canvas, OffscreenCanvas, ImageBitmap)
+ * and optionally create mip levels. If you set `mips: true` and don't set a mipLevelCount
+ * then it will automatically make the correct number of mip levels.
+ *
+ * @param device
+ * @param source
+ * @param options
+ * @returns the created Texture
+ */
 function createTextureFromSource(device, source, options = {}) {
     const size = getSizeFromSource(source);
     const texture = device.createTexture({
         format: options.format || 'rgba8unorm',
-        mipLevelCount: options.mips ? numMipLevels(size) : 1,
+        mipLevelCount: options.mipLevelCount
+            ? options.mipLevelCount
+            : options.mips ? numMipLevels(size) : 1,
         size,
         usage: (options.usage ?? 0) |
             GPUTextureUsage.TEXTURE_BINDING |
@@ -3598,6 +3645,12 @@ function createTextureFromSource(device, source, options = {}) {
     copySourceToTexture(device, texture, source, options);
     return texture;
 }
+/**
+ * Load an ImageBitmap
+ * @param url
+ * @param options
+ * @returns the loaded ImageBitmap
+ */
 async function loadImageBitmap(url, options = {}) {
     const res = await fetch(url);
     const blob = await res.blob();
@@ -3607,6 +3660,13 @@ async function loadImageBitmap(url, options = {}) {
     };
     return await createImageBitmap(blob, opt);
 }
+/**
+ * Load an image and create a texture from it, optionally generating mip levels
+ * @param device
+ * @param url
+ * @param options
+ * @returns the texture created from the loaded image.
+ */
 async function createTextureFromImage(device, url, options = {}) {
     const imgBitmap = await loadImageBitmap(url);
     return createTextureFromSource(device, imgBitmap, options);
