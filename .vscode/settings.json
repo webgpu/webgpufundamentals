@@ -42,11 +42,13 @@
     "tileable",
     "Tweakpane",
     "ufloat",
+    "uncapturederror",
     "unfilterable",
     "unmap",
     "unrenderable",
     "viewbox",
     "webgpu",
+    "webgpufundamentals",
     "wgpu"
   ]
 }
