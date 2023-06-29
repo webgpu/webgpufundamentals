@@ -29,6 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /* global globalThis */
+/* global GPUAdapter */
 const lessonSettings = window.lessonSettings || {};
 const topWindow = globalThis;
 
@@ -56,7 +57,10 @@ function setupConsole() {
   .console .console-line {
     white-space: pre-line;
   }
-  .console .log .warn {
+  .console .log,
+  .console .info {
+  }
+  .console .warn {
     color: brown;
   }
   .console .error {
@@ -88,6 +92,21 @@ function setupConsole() {
   .alert-hack button {
     margin: 1em;
     min-width: 3em;
+  }
+  @media (prefers-color-scheme: dark) {
+    .console {
+      background-color: #333;
+    }
+    .console .info,
+    .console .log {
+      color: #DDD;
+    }
+    .console .warn {
+      color: yellow;
+    }
+    .console .error {
+      color: red;
+    }
   }
   `;
   const parent = document.createElement('div');
@@ -164,6 +183,7 @@ function setupConsole() {
   window.console.log = wrapFunc(window.console, 'log', '');
   window.console.warn = wrapFunc(window.console, 'warn', '⚠');
   window.console.error = wrapFunc(window.console, 'error', '❌');
+  window.console.info = wrapFunc(window.console, 'info', '');
 }
 
 function reportJSError(url, lineNo, colNo, msg) {
@@ -347,7 +367,7 @@ let setupLesson = function(canvas /*, options = {} */) {
 
 // Replace requestAnimationFrame and cancelAnimationFrame with one
 // that only executes when the body is visible (we're in an iframe).
-// It's frustrating that th browsers don't do this automatically.
+// It's frustrating that the browsers don't do this automatically.
 // It's half of the point of rAF that it shouldn't execute when
 // content is not visible but browsers execute rAF in iframes even
 // if they are not visible.
@@ -511,50 +531,21 @@ function installWebGPULessonSetup() {
 }
 
 function installWebGPUDebugHelper() {
-  if (!self.webgpuDebugHelper) {
-    return;
+
+  // capture WebGPU errors
+  if (typeof GPUAdapter !== 'undefined') {
+    GPUAdapter.prototype.requestDevice = (function(origFn) {
+      return async function(...args) {
+        const device = await origFn.call(this, ...args);
+        if (device) {
+          device.addEventListener('uncapturederror', e => {
+            console.error(`WebGPU ${e.error.constructor.name}: ${e.error.message}`);
+          });
+        }
+        return device;
+      };
+    })(GPUAdapter.prototype.requestDevice);
   }
-
-  /*
-  const {
-    makeDebugContext,
-    glFunctionArgToString,
-    glEnumToString,
-  } = self.webgpuDebugHelper;
-
-  // capture GL errors
-  HTMLCanvasElement.prototype.getContext = (function(oldFn) {
-    return function() {
-      let ctx = oldFn.apply(this, arguments);
-      // Using bindTexture to see if it's WebGL. Could check for instanceof WebGLRenderingContext
-      // but that might fail if wrapped by debugging extension
-      if (ctx && ctx.bindTexture) {
-        ctx = makeDebugContext(ctx, {
-          maxDrawCalls: 100,
-          errorFunc: function(err, funcName, args) {
-            const numArgs = args.length;
-            const enumedArgs = [].map.call(args, function(arg, ndx) {
-              let str = glFunctionArgToString(funcName, numArgs, ndx, arg);
-              // shorten because of long arrays
-              if (str.length > 200) {
-                str = str.substring(0, 200) + '...';
-              }
-              return str;
-            });
-            const errorMsg = `WebGL error ${glEnumToString(err)} in ${funcName}(${enumedArgs.join(', ')})`;
-            const errorInfo = parseStack((new Error()).stack);
-            if (errorInfo) {
-              reportJSError(errorInfo.url, errorInfo.lineNo, errorInfo.colNo, errorMsg);
-            } else {
-              console.error(errorMsg)  // eslint-disable-line
-            }
-          },
-        });
-      }
-      return ctx;
-    };
-  }(HTMLCanvasElement.prototype.getContext));
-  */
 }
 
 installWebGPULessonSetup();
