@@ -560,9 +560,13 @@ will be normalized</p>
   startAngle = 0,
   endAngle = Math.PI * 2,
 } = {}) {
-  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
+-  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
++  // 2 triangles per subdivision, 3 verts per tri
   const numVertices = numSubdivisions * 3 * 2;
-  const vertexData = new Float32Array(numVertices * (2 + 3));
+-  const vertexData = new Float32Array(numVertices * (2 + 3));
++  // 2 32-bit values for position (xy) and 1 32-bit value for color (rgb)
++  // The 32-bit color value will be written/read as 4 8-bit values
++  const vertexData = new Float32Array(numVertices * (2 + 1));
 +  const colorData = new Uint8Array(vertexData.buffer);
 
   let offset = 0;
