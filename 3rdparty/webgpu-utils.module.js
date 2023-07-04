@@ -1,4 +1,4 @@
-/* webgpu-utils@0.4.0, license MIT */
+/* webgpu-utils@0.4.1, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
 // TODO: fix better?
 const isTypedArray = (arr) => arr && typeof arr.length === 'number' && arr.buffer instanceof ArrayBuffer && typeof arr.byteLength === 'number';
@@ -2724,21 +2724,25 @@ class WgslParser {
             return type;
         // The following type_decl's have an optional attribyte_list*
         const attrs = this._attribute();
+        // attribute* array
         // attribute* array less_than type_decl (comma element_count_expression)? greater_than
         if (this._match(TokenTypes.keywords.array)) {
+            let format = null;
+            let countInt = -1;
             const array = this._previous();
-            this._consume(TokenTypes.tokens.less_than, "Expected '<' for array type.");
-            let format = this._type_decl();
-            if (this._context.aliases.has(format.name)) {
-                format = this._context.aliases.get(format.name).type;
+            if (this._match(TokenTypes.tokens.less_than)) {
+                format = this._type_decl();
+                if (this._context.aliases.has(format.name)) {
+                    format = this._context.aliases.get(format.name).type;
+                }
+                let count = "";
+                if (this._match(TokenTypes.tokens.comma)) {
+                    let c = this._shift_expression();
+                    count = c.evaluate(this._context).toString();
+                }
+                this._consume(TokenTypes.tokens.greater_than, "Expected '>' for array.");
+                countInt = count ? parseInt(count) : 0;
             }
-            let count = "";
-            if (this._match(TokenTypes.tokens.comma)) {
-                let c = this._shift_expression();
-                count = c.evaluate(this._context).toString();
-            }
-            this._consume(TokenTypes.tokens.greater_than, "Expected '>' for array.");
-            let countInt = count ? parseInt(count) : 0;
             return new ArrayType(array.toString(), attrs, format, countInt);
         }
         return null;

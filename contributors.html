@@ -343,32 +343,6 @@ const settings = {
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/lesson.js"></script>
 <script>
-(function() {
-  if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
-      return;
-  }
-
-  function addScript(src, fn) {
-    const script = document.createElement('script');
-    const firstScript = document.getElementsByTagName('script')[0];
-    script.async = true;
-    script.defer = true;
-    if (fn) {
-      script.addEventListener('load', fn);
-    }
-    script.src = src;
-    firstScript.parentNode.insertBefore(script, firstScript);
-  }
-  /*
-  addScript('https://www.googletagmanager.com/gtag/js?id=UA-120733518-1', () => {
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'UA-120733518-1');
-  });
-  */
-}());
 </script>
 
 
