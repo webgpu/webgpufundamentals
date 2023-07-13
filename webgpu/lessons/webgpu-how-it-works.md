@@ -235,9 +235,9 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    and, depending on the settings, it may read as many as sixteen 4-float values
    to produce one 4-float value for us. That would be a lot of work to do manually.
 
-5. Varyings (fragment shaders only)
+5. Inter-Stage Variables (fragment shaders only)
 
-   Varyings are outputs from a vertex shader to a fragment shader. As was mentioned
+   Inter-Stage Variables are outputs from a vertex shader to a fragment shader. As was mentioned
    above, a vertex shader outputs positions that are used to draw/rasterize points,
    lines, and triangles. 
    
@@ -264,9 +264,13 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    // 11,11
    // 12,12
    ```
+   
+   Note: How `calcLine` and `calcLinePoint` work are unimportant, what's
+   important is that they do work and let the loop above provide
+   the pixel positions for a line. **Though if you're curious, see the live
+   code example near the bottom of the article.**
 
-   So, let's change our vertex shader so it outputs 2 values per iteration. We could do that in
-   many ways. Here's one.
+   So, let's change our vertex shader so it outputs 2 values per iteration. We could do that in many ways. Here's one.
 
    ```js
    const buffer1 = [5, 0, 25, 4];
@@ -283,7 +287,7 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    ```
 
    Now let's write some code that loops over points 2 at a time and 
-   calls `mapLine` to rasterize a line.
+   calls `rasterizeLines` to rasterize a line.
 
    ```js
    function rasterizeLines(dest, destWidth, inputs, fragShaderFn, bindings) {
@@ -357,7 +361,7 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
 
    Unfortunately, our fragment shader gets no input that changes each iteration so
    there is no way to output anything different for each pixel. This is where
-   varyings come in. Let's change our first shader to output an extra value.
+   inter-stage variables come in. Let's change our first shader to output an extra value.
 
    ```js
    const buffer1 = [5, 0, 25, 4];
@@ -376,8 +380,7 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    ...
    ```
 
-   If we changed nothing else, after the loop inside `draw`, `internalBuffer` would have
-   these values
+   If we changed nothing else, after the loop inside `draw`, `internalBuffer` would have these values
 
    ```js
     [ 
@@ -428,7 +431,7 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    +}
    ```
 
-   Now we can use those varyings in our fragment shader
+   Now we can use those inter-stage variables in our fragment shader
 
    ```js
    -const fragShader = (bindings) => 6;
@@ -448,11 +451,11 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    The first iteration of the vertex shader output `[[5,0], [9]` and
    the 2nd iteration output `[25,4], [3]` and you can see, 
    as the fragment shader was called, the 2nd value of each of those
-   varied (was interpolated) between the 2 values.
+   was interpolated between the two values.
 
    We could make another function `mapTriangle` that given 3 points
    rasterized a triangle calling the fragment shader function for each
-   point inside the triangle. It would interpolate the varyings
+   point inside the triangle. It would interpolate the inter-stage variables
    from 3 points instead of 2.
 
 Here are all the examples above running live in case you find it
@@ -461,7 +464,7 @@ useful to play around with them to understand them.
 {{{example url="../webgpu-javascript-analogies.html"}}}
 
 What happens in the JavaScript above is an analogy. The details
-of how varyings are actually interpolated, how lines are drawn, how
+of how inter-stage variables are actually interpolated, how lines are drawn, how
 buffers are accessed, how textures are sampled, uniforms, attributes specified,
 etc... are different in WebGPU, but the concepts are very similar so
 I hope this JavaScript analogy provided some help in getting a mental
@@ -474,7 +477,7 @@ each iteration in any order. Instead of 0, 1, 2, 3, 4 you could
 process them 3, 1, 4, 0, 2 and you'd get the exact same result.
 The fact that they are independent means each iteration can be
 run in parallel by a different processor. Modern 2021 top end
-GPUs have ~10000 processors. That means up to 10000 things can be
+GPUs have 10000 or more processors. That means up to 10000 things can be
 run in parallel. That is where the power of using the GPU comes from.
 By following these patterns the system can massively parallelize
 the work.
@@ -482,11 +485,11 @@ the work.
 The biggest limitations are:
 
 1. A shader function can only reference
-   its inputs (attributes, buffers, textures, uniforms, varyings).
+   its inputs (attributes, buffers, textures, uniforms, inter-stage variables).
 
 2. A shader can not allocate memory.
 
-3. A shader has to careful if it references its destination, the thing it's
+3. A shader has to be careful if it references things it writes to, the thing it's
    generating values for.
 
    When you think about it this makes sense. Imagine `fragShader`
