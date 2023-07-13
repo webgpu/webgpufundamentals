@@ -147,7 +147,7 @@ section('textures');
    // outputs [10, 27.5, 45, 62.5]
 }
 
-section('varyings: calcLine');
+section('interStageVariables: calcLine');
 {
    const line = calcLine([10, 10], [13, 13]);
    for (let i = 0; i < line.numPixels; ++i) {
@@ -156,7 +156,7 @@ section('varyings: calcLine');
    }
 }
 
-section('varyings: output 2 values per iteration');
+section('interStageVariables: output 2 values per iteration');
 {
    function getAttribs(attribs, ndx) {
      return attribs.map(({source, offset, stride}) => source[ndx * stride + offset]);
@@ -184,7 +184,7 @@ section('varyings: output 2 values per iteration');
    // outputs [[5, 0], [25, 4]]
 }
 
-section('varyings: draw line with constant value');
+section('interStageVariables: draw line with constant value');
 {
    function rasterizeLines(dest, destWidth, inputs, fragShaderFn, bindings) {
      for (let ndx = 0; ndx < inputs.length - 1; ndx += 2) {
@@ -237,7 +237,7 @@ section('varyings: draw line with constant value');
    logArray2D(pixels, width);
 }
 
-section('varyings: draw line with varying value');
+section('interStageVariables: draw line with varying value');
 {
    function rasterizeLines(dest, destWidth, inputs, fragShaderFn, bindings) {
      for (let ndx = 0; ndx < inputs.length - 1; ndx += 2) {
@@ -249,9 +249,9 @@ section('varyings: draw line with varying value');
        for (let i = 0; i < line.numPixels; ++i) {
          const p = calcLinePoint(line, i);
          const t = i / line.numPixels;
-         const varyings = interpolateArrays(v0, v1, t);
+         const interStageVariables = interpolateArrays(v0, v1, t);
          const offset = p[1] * destWidth + p[0];  // y * width + x
-         dest[offset] = fragShaderFn(bindings, varyings);
+         dest[offset] = fragShaderFn(bindings, interStageVariables);
        }
      }
    }
@@ -306,7 +306,8 @@ section('varyings: draw line with varying value');
    const width = 30;
    const height = 5;
    const pixels = new Array(width * height).fill(0);
-   const fragShader = (bindings, varyings) => varyings[0] | 0;
+   const fragShader = (bindings, interStageVariables) =>
+       interStageVariables[0] | 0;
 
    draw(
       pixels, width,

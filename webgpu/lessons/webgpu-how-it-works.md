@@ -51,7 +51,7 @@ system in your computer, the GPU. This means all the data you create and referen
 has to somehow be sent to the GPU and you then need to communicate to the shader
 where you put that data and how to access it.
 
-Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffers, Textures, Varyings, Constants.
+Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffers, Textures, Inter-Stage Variables, Constants.
 
 1. Uniforms
 
@@ -406,10 +406,10 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
        for (let i = 0; i < line.numPixels; ++i) {
          const p = calcLinePoint(line, i);
    +      const t = i / line.numPixels;
-   +      const varyings = interpolateArrays(v0, v1, t);
+   +      const interStageVariables = interpolateArrays(v0, v1, t);
          const offset = p[1] * destWidth + p[0];  // y * width + x
    -      dest[offset] = fragShaderFn(bindings);
-   +      dest[offset] = fragShaderFn(bindings, varyings);
+   +      dest[offset] = fragShaderFn(bindings, interStageVariables);
        }
      }
    }
@@ -435,7 +435,8 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
 
    ```js
    -const fragShader = (bindings) => 6;
-   +const fragShader = (bindings, varyings) => varyings[0] | 0; // convert to int
+   +const fragShader = (bindings, interStageVariables) => 
+   +    interStageVariables[0] | 0; // convert to int
    ```
 
    If we ran it now we'd see results like this
