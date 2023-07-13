@@ -256,7 +256,7 @@ draw(count, shader);
 system in your computer, the GPU. This means all the data you create and reference
 has to somehow be sent to the GPU and you then need to communicate to the shader
 where you put that data and how to access it.</p>
-<p>Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffers, Textures, Varyings, Constants.</p>
+<p>Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffers, Textures, Inter-Stage Variables, Constants.</p>
 <ol>
 <li>
 <p>Uniforms</p>
@@ -552,10 +552,10 @@ added.</p>
     for (let i = 0; i &lt; line.numPixels; ++i) {
       const p = calcLinePoint(line, i);
 +      const t = i / line.numPixels;
-+      const varyings = interpolateArrays(v0, v1, t);
++      const interStageVariables = interpolateArrays(v0, v1, t);
       const offset = p[1] * destWidth + p[0];  // y * width + x
 -      dest[offset] = fragShaderFn(bindings);
-+      dest[offset] = fragShaderFn(bindings, varyings);
++      dest[offset] = fragShaderFn(bindings, interStageVariables);
     }
   }
 }
@@ -578,7 +578,8 @@ added.</p>
 </pre>
 <p>Now we can use those inter-stage variables in our fragment shader</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-const fragShader = (bindings) =&gt; 6;
-+const fragShader = (bindings, varyings) =&gt; varyings[0] | 0; // convert to int
++const fragShader = (bindings, interStageVariables) =&gt; 
++    interStageVariables[0] | 0; // convert to int
 </pre>
 <p>If we ran it now we’d see results like this</p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">.....988......................
