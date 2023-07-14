@@ -860,7 +860,7 @@ const createNextMipLevelRgba8Unorm = ({data: src, width: srcWidth, height: srcHe
       // get the 4 pixels
       const tl = getSrcPixel(tx, ty);
       const tr = getSrcPixel(tx + 1, ty);
-      const bl = getSrcPixel(tx, ty);
+      const bl = getSrcPixel(tx, ty + 1);
       const br = getSrcPixel(tx + 1, ty + 1);
 
       // copy the "sampled" result into the dest.
