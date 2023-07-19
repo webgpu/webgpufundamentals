@@ -1171,7 +1171,7 @@ triangles facing in the correct direction, and with the ones facing away from us
 being culled, we still have places where triangles that should be in the back
 are being drawn over triangles that should be in front.
 
-Enter "Depth Textures"
+## <a id="a-depth-textures"></a>Enter "Depth Textures"
 
 A depth texture, sometimes called a depth-buffer or Z-Buffer, is a rectangle of *depth*
 texels, one depth texel for each color texel in the texture we're drawing to.
