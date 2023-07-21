@@ -330,7 +330,7 @@ let b = a.z;   // via x,y,z,w
 let c = a.b;   // via r,g,b,a
 let d = a[2];  // via array element accessors
 </pre>
-<p>Above, <code class="notranslate" translate="no">b</code>, <code class="notranslate" translate="no">c</code>, and <code class="notranslate" translate="no">d</code> are all the same. They are all accessing the 3rd element of <code class="notranslate" translate="no">a</code>.</p>
+<p>Above, <code class="notranslate" translate="no">b</code>, <code class="notranslate" translate="no">c</code>, and <code class="notranslate" translate="no">d</code> are all the same. They are all accessing the 3rd element of <code class="notranslate" translate="no">a</code>. They are all ‘3’.</p>
 <h3 id="swizzles">swizzles</h3>
 <p>You can also access more than 1 element.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4);
@@ -338,7 +338,7 @@ let b = a.zx;   // via x,y,z,w
 let c = a.br;   // via r,g,b,a
 let d = vec2&lt;f32&gt;(a[2], a[0]);
 </pre>
-<p>Above, <code class="notranslate" translate="no">b</code>, <code class="notranslate" translate="no">c</code>, and <code class="notranslate" translate="no">d</code> are all the same.</p>
+<p>Above, <code class="notranslate" translate="no">b</code>, <code class="notranslate" translate="no">c</code>, and <code class="notranslate" translate="no">d</code> are all the same. They are all a <code class="notranslate" translate="no">vec2&lt;f32&gt;(3, 1)</code>.</p>
 <p>You can also repeat elements</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4);
 let b = vec3&lt;f32&gt;(a.z, a.z, a.y);
@@ -378,7 +378,7 @@ let d = mix(a, b, vec4f(0, 0.5, 0.5, 1)); // d is vec4f(1, 4, 5, 8)
 <h2 id="matrices">matrices</h2>
 <p>WGSL has a bunch of matrix types. Matrices are arrays of vectors.
 The format is <code class="notranslate" translate="no">mat&lt;numVectors&gt;x&lt;vectorSize&gt;&lt;&lt;type&gt;&gt;</code> so for example
-<code class="notranslate" translate="no">mat3x4&lt;f32&gt;</code> is an array of 3 <code class="notranslate" translate="no">vec4&lt;32&gt;</code>s. Like vectors, matrices
+<code class="notranslate" translate="no">mat3x4&lt;f32&gt;</code> is an array of 3 <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>s. Like vectors, matrices
 have the same shortcuts</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a: mat4x4&lt;f32&gt; = ...
 let b: mat4x4f = ...
@@ -846,22 +846,26 @@ WGSL does not. WGSL does have <code class="notranslate" translate="no">select</c
 </pre>
 <h3 id="-and----are-statements-not-expressions"><code class="notranslate" translate="no">++</code> and <code class="notranslate" translate="no">--</code> are statements, not expressions.</h3>
 <p>Many languages have <em>pre-increment</em> and <em>post-increment</em> operators</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">let a = 5;
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// JavaScript
+let a = 5;
 let b = a++;  // b = 5, a = 6  (post-increment)
 let c = ++a;  // c = 7, a = 7  (pre-increment)
 </pre>
 <p>WGSL has neither. It just has the increment and decrement statements</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">var a = 5;
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">// WGSL
+var a = 5;
 a++;          // is now 6
 *++a;          // ERROR: no such thing has pre-increment
 *let b = a++;  // ERROR: a++ is not an expression, it's a statement
 </pre>
 <h2 id="---are-not-expressions-theyre-assignment-statements"><code class="notranslate" translate="no">+=</code>, <code class="notranslate" translate="no">-=</code> are not expressions, they’re assignment statements</h2>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">let a = 5;
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// JavaScript
+let a = 5;
 a += 2;          // a = 7
 let b = a += 2;  // a = 9, b = 9
 </pre>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = 5;
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">// WGSL
+let a = 5;
 a += 2;           // a is 7
 *let b = a += 2;  // ERROR: a += 2 is not an expression
 </pre>
@@ -869,7 +873,7 @@ a += 2;           // a is 7
 <p>In some languages but not WGSL</p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">var color = vec4f(0.25, 0.5, 0.75, 1);
 *color.rgb = color.bgr; // ERROR
-color = vec4(color.bgr, 1);  // Ok
+color = vec4(color.bgr, color.a);  // Ok
 </pre>
 <h2 id="phony-assignment-to-_">Phony assignment to <code class="notranslate" translate="no">_</code></h2>
 <p><code class="notranslate" translate="no">_</code> is a special variable you can assign to to make something appear used but not actually use it.</p>
