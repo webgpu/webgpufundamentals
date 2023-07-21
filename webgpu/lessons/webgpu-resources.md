@@ -37,6 +37,8 @@ Here are some other webgpu resources
 
 * [webgpu-utils](https://github.com/greggman/webgpu-utils) - helps set uniform buffer data and more
 * [wgsl-struct-buffer](https://github.com/deepkolos/wgsl-struct-buffer) - wgsl's struct buffer view in ts with type check & infer
+* [webgpu-memory](https://github.com/greggman/webgpu-memory) - tells you how much memory you're using
+* [webgpu-avoid-redundant-state-setting](https://github.com/greggman/webgpu-avoid-redundant-state-setting) - checks your code for redundant WebGPU calls
 
 
 
