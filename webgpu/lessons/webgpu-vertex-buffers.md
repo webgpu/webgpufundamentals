@@ -749,9 +749,9 @@ Note that we don't have to use a struct. This would work just as well
 -  vsOut.position = vec4f(
 -      vert.position * vert.scale + vert.offset, 0.0, 1.0);
 -  vsOut.color = vert.color * vec4f(vert.perVertexColor, 1);
--  vsOut.position = vec4f(
--      position * scale + offset, 0.0, 1.0);
--  vsOut.color = color * vec4f(perVertexColor, 1);
++  vsOut.position = vec4f(
++      position * scale + offset, 0.0, 1.0);
++  vsOut.color = color * vec4f(perVertexColor, 1);
   return vsOut;
 }
 ```
