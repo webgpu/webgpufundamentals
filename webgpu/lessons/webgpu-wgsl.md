@@ -162,7 +162,7 @@ let c = a.b;   // via r,g,b,a
 let d = a[2];  // via array element accessors
 ```
 
-Above, `b`, `c`, and `d` are all the same. They are all accessing the 3rd element of `a`.
+Above, `b`, `c`, and `d` are all the same. They are all accessing the 3rd element of `a`. They are all '3'.
 
 ### swizzles
 
@@ -175,7 +175,7 @@ let c = a.br;   // via r,g,b,a
 let d = vec2<f32>(a[2], a[0]);
 ```
 
-Above, `b`, `c`, and `d` are all the same.
+Above, `b`, `c`, and `d` are all the same. They are all a `vec2<f32>(3, 1)`.
 
 You can also repeat elements
 
@@ -238,7 +238,7 @@ let d = mix(a, b, vec4f(0, 0.5, 0.5, 1)); // d is vec4f(1, 4, 5, 8)
 
 WGSL has a bunch of matrix types. Matrices are arrays of vectors.
 The format is `mat<numVectors>x<vectorSize><<type>>` so for example
-`mat3x4<f32>` is an array of 3 `vec4<32>`s. Like vectors, matrices
+`mat3x4<f32>` is an array of 3 `vec4<f32>`s. Like vectors, matrices
 have the same shortcuts
 
 ```wgsl
@@ -822,6 +822,7 @@ WGSL does not. WGSL does have `select`
 Many languages have *pre-increment* and *post-increment* operators
 
 ```js
+// JavaScript
 let a = 5;
 let b = a++;  // b = 5, a = 6  (post-increment)
 let c = ++a;  // c = 7, a = 7  (pre-increment)
@@ -830,6 +831,7 @@ let c = ++a;  // c = 7, a = 7  (pre-increment)
 WGSL has neither. It just has the increment and decrement statements
 
 ```wgsl
+// WGSL
 var a = 5;
 a++;          // is now 6
 *++a;          // ERROR: no such thing has pre-increment
@@ -839,12 +841,14 @@ a++;          // is now 6
 ## `+=`, `-=` are not expressions, they're assignment statements
 
 ```js
+// JavaScript
 let a = 5;
 a += 2;          // a = 7
 let b = a += 2;  // a = 9, b = 9
 ```
 
 ```wgsl
+// WGSL
 let a = 5;
 a += 2;           // a is 7
 *let b = a += 2;  // ERROR: a += 2 is not an expression
@@ -857,7 +861,7 @@ In some languages but not WGSL
 ```
 var color = vec4f(0.25, 0.5, 0.75, 1);
 *color.rgb = color.bgr; // ERROR
-color = vec4(color.bgr, 1);  // Ok
+color = vec4(color.bgr, color.a);  // Ok
 ```
 
 ## Phony assignment to `_`
