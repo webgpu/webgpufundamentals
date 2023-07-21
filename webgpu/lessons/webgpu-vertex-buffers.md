@@ -212,6 +212,187 @@ The attribute `format` field can be one of these types
   </div>
 </div>
 
+Attributes can advance per vertex or per instance. Advancing them per instance is effectively
+the same thing we're doing when we index `otherStructs[instanceIndex]` and `ourStructs[instanceIndex]`.
+
+Let's get rid of the storage buffers and use vertex buffers to accomplish the same thing.
+First lets change the shader to use vertex attributes instead of storage buffers.
+
+```wgsl
+-struct OurStruct {
+-  color: vec4f,
+-  offset: vec2f,
+-};
+-
+-struct OtherStruct {
+-  scale: vec2f,
+-};
+
+struct Vertex {
+  @location(0) position: vec2f,
++  @location(1) color: vec4f,
++  @location(2) offset: vec2f,
++  @location(3) scale: vec2f,
+};
+
+struct VSOutput {
+  @builtin(position) position: vec4f,
+  @location(0) color: vec4f,
+};
+
+@group(0) @binding(0) var<storage, read> ourStructs: array<OurStruct>;
+@group(0) @binding(1) var<storage, read> otherStructs: array<OtherStruct>;
+
+@vertex fn vs(
+  vert: Vertex,
+-  @builtin(instance_index) instanceIndex: u32
+) -> VSOutput {
+-  let otherStruct = otherStructs[instanceIndex];
+-  let ourStruct = ourStructs[instanceIndex];
+
+  var vsOut: VSOutput;
+-  vsOut.position = vec4f(
+-      vert.position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
+-  vsOut.color = ourStruct.color;
++  vsOut.position = vec4f(
++      vert.position * vert.scale + vert.offset, 0.0, 1.0);
++  vsOut.color = vert.color;
+  return vsOut;
+}
+
+@fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
+  return vsOut.color;
+}
+```
+
+Now we need to update our render pipeline to tell it how we want
+to supply data to those attributes. To keep the changes to a minimum
+we'll use the data we created for the storage buffers almost as is.
+We'll use two buffers, one buffer will hold the `color` and `offset`
+per instance, the other will hold the `scale`.
+
+```js
+  const pipeline = device.createRenderPipeline({
+    label: 'flat colors',
+    layout: 'auto',
+    vertex: {
+      module,
+      entryPoint: 'vs',
+      buffers: [
+        {
+          arrayStride: 2 * 4, // 2 floats, 4 bytes each
+          attributes: [
+            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
+          ],
+        },
++        {
++          arrayStride: 6 * 4, // 6 floats, 4 bytes each
++          stepMode: 'instance',
++          attributes: [
++            {shaderLocation: 1, offset:  0, format: 'float32x4'},  // color
++            {shaderLocation: 2, offset: 16, format: 'float32x2'},  // offset
++          ],
++        },
++        {
++          arrayStride: 2 * 4, // 2 floats, 4 bytes each
++          stepMode: 'instance',
++          attributes: [
++            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
++          ],
++        },
+      ],
+    },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+```
+
+Above we added 2 entries to the `buffers` array so now there are 3 entries, meaning
+we're telling WebGPU we'll supply the data in 3 buffers.
+
+For our 2 new entires we set the `stepMode` to `instance`. This means this attribute
+will only advance to next value once per instance. The default is `stepMode: 'vertex'`
+which advances once per vertex (and starts over for each instance).
+
+Next we can change the code that sets up the buffers.
+
+```js
+  // create 2 storage buffers
+  const staticUnitSize =
+    4 * 4 + // color is 4 32bit floats (4bytes each)
+-    2 * 4 + // offset is 2 32bit floats (4bytes each)
+-    2 * 4;  // padding
++    2 * 4;  // offset is 2 32bit floats (4bytes each)
+
+  const changingUnitSize =
+    2 * 4;  // scale is 2 32bit floats (4bytes each)
+*  const staticVertexBufferSize = staticUnitSize * kNumObjects;
+*  const changingVertexBufferSize = changingUnitSize * kNumObjects;
+
+*  const staticStorageBuffer = device.createBuffer({
+*    label: 'static vertex for objects',
+*    size: staticVertexBufferSize,
+-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
++    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+
+*  const changingStorageBuffer = device.createBuffer({
+*    label: 'changing vertex for objects',
+*    size: changingVertexBufferSize,
+-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
++    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+
+```
+
+Vertex attributes do not have the same padding restrictions as structures
+in storage buffers so we no longer need the padding. Otherwise all we
+did was change the usage from `STORAGE` to `VERTEX` (and we renamed all the
+variables from "storage" to "vertex").
+
+Since we're no longer using the storage buffers we no longer need
+the bindGroup
+
+```js
+-  const bindGroup = device.createBindGroup({
+-    label: 'bind group for objects',
+-    layout: pipeline.getBindGroupLayout(0),
+-    entries: [
+-      { binding: 0, resource: { buffer: staticStorageBuffer }},
+-      { binding: 1, resource: { buffer: changingStorageBuffer }},
+-    ],
+-  });
+```
+
+And finally we don't need to set the bindGroup but we do need
+to set the vertex buffers
+
+```js
+    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.setVertexBuffer(0, vertexBuffer);
++    pass.setVertexBuffer(1, staticVertexBuffer);
++    pass.setVertexBuffer(2, changingVertexBuffer);
+
+    ...
+-    pass.setBindGroup(0, bindGroup);
+    pass.draw(numVertices, kNumObjects);
+
+    pass.end();
+```
+
+And here we have the same thing we had before but we're using all vertex buffers
+and no storage buffers
+
+{{{example url="../webgpu-vertex-buffers-instanced-colors"}}}
+
+---
+
+
 Let's add a 2nd attribute for color. First let's change the shader
 
 ```wgsl
