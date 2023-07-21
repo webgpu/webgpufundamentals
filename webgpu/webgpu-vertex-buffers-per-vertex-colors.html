@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Vertex Buffer vertices - 2 attributes 8bit colors</title>
+    <title>WebGPU Vertex Buffer vertices - per vertex colors</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -40,23 +40,17 @@ function createCircleVertices({
   startAngle = 0,
   endAngle = Math.PI * 2,
 } = {}) {
-  // 2 triangles per subdivision, 3 verts per tri
+  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
   const numVertices = numSubdivisions * 3 * 2;
-  // 2 32-bit values for position (xy) and 1 32-bit value for color (rgb)
-  // The 32-bit color value will be written/read as 4 8-bit values
-  const vertexData = new Float32Array(numVertices * (2 + 1));
-  const colorData = new Uint8Array(vertexData.buffer);
+  const vertexData = new Float32Array(numVertices * (2 + 3));
 
   let offset = 0;
-  let colorOffset = 8;
   const addVertex = (x, y, r, g, b) => {
     vertexData[offset++] = x;
     vertexData[offset++] = y;
-    offset += 1;  // skip the color
-    colorData[colorOffset++] = r * 255;
-    colorData[colorOffset++] = g * 255;
-    colorData[colorOffset++] = b * 255;
-    colorOffset += 9;  // skip extra byte and the position
+    vertexData[offset++] = r;
+    vertexData[offset++] = g;
+    vertexData[offset++] = b;
   };
 
   const innerColor = [1, 1, 1];
@@ -109,22 +103,16 @@ async function main() {
   context.configure({
     device,
     format: presentationFormat,
-      });
+  });
 
   const module = device.createShaderModule({
     code: `
-      struct OurStruct {
-        color: vec4f,
-        offset: vec2f,
-      };
-
-      struct OtherStruct {
-        scale: vec2f,
-      };
-
       struct Vertex {
         @location(0) position: vec2f,
-        @location(1) color: vec3f,
+        @location(1) color: vec4f,
+        @location(2) offset: vec2f,
+        @location(3) scale: vec2f,
+        @location(4) perVertexColor: vec3f,
       };
 
       struct VSOutput {
@@ -132,20 +120,13 @@ async function main() {
         @location(0) color: vec4f,
       };
 
-      @group(0) @binding(0) var<storage, read> ourStructs: array<OurStruct>;
-      @group(0) @binding(1) var<storage, read> otherStructs: array<OtherStruct>;
-
       @vertex fn vs(
         vert: Vertex,
-        @builtin(instance_index) instanceIndex: u32
       ) -> VSOutput {
-        let otherStruct = otherStructs[instanceIndex];
-        let ourStruct = ourStructs[instanceIndex];
-
         var vsOut: VSOutput;
         vsOut.position = vec4f(
-            vert.position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
-        vsOut.color = ourStruct.color * vec4f(vert.color, 1);
+            vert.position * vert.scale + vert.offset, 0.0, 1.0);
+        vsOut.color = vert.color * vec4f(vert.perVertexColor, 1);
         return vsOut;
       }
 
@@ -156,17 +137,32 @@ async function main() {
   });
 
   const pipeline = device.createRenderPipeline({
-    label: '2 attributes',
+    label: 'per vertex color',
     layout: 'auto',
     vertex: {
       module,
       entryPoint: 'vs',
       buffers: [
         {
-          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes color
+          arrayStride: 5 * 4, // 5 floats, 4 bytes each
           attributes: [
             {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
-            {shaderLocation: 1, offset: 8, format: 'unorm8x4'},  // color
+            {shaderLocation: 4, offset: 8, format: 'float32x3'},  // perVertexColor
+          ],
+        },
+        {
+          arrayStride: 6 * 4, // 6 floats, 4 bytes each
+          stepMode: 'instance',
+          attributes: [
+            {shaderLocation: 1, offset:  0, format: 'float32x4'},  // color
+            {shaderLocation: 2, offset: 16, format: 'float32x2'},  // offset
+          ],
+        },
+        {
+          arrayStride: 2 * 4, // 2 floats, 4 bytes each
+          stepMode: 'instance',
+          attributes: [
+            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
           ],
         },
       ],
@@ -181,26 +177,25 @@ async function main() {
   const kNumObjects = 100;
   const objectInfos = [];
 
-  // create 2 storage buffers
+  // create 2 vertex buffers
   const staticUnitSize =
     4 * 4 + // color is 4 32bit floats (4bytes each)
-    2 * 4 + // offset is 2 32bit floats (4bytes each)
-    2 * 4;  // padding
+    2 * 4;  // offset is 2 32bit floats (4bytes each)
   const changingUnitSize =
     2 * 4;  // scale is 2 32bit floats (4bytes each)
-  const staticStorageBufferSize = staticUnitSize * kNumObjects;
-  const changingStorageBufferSize = changingUnitSize * kNumObjects;
+  const staticVertexBufferSize = staticUnitSize * kNumObjects;
+  const changingVertexBufferSize = changingUnitSize * kNumObjects;
 
-  const staticStorageBuffer = device.createBuffer({
-    label: 'static storage for objects',
-    size: staticStorageBufferSize,
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  const staticVertexBuffer = device.createBuffer({
+    label: 'static vertex for objects',
+    size: staticVertexBufferSize,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
 
-  const changingStorageBuffer = device.createBuffer({
-    label: 'changing storage for objects',
-    size: changingStorageBufferSize,
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  const changingVertexBuffer = device.createBuffer({
+    label: 'changing vertex for objects',
+    size: changingVertexBufferSize,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
 
   // offsets to the various uniform values in float32 indices
@@ -210,23 +205,23 @@ async function main() {
   const kScaleOffset = 0;
 
   {
-    const staticStorageValues = new Float32Array(staticStorageBufferSize / 4);
+    const staticVertexValues = new Float32Array(staticVertexBufferSize / 4);
     for (let i = 0; i < kNumObjects; ++i) {
       const staticOffset = i * (staticUnitSize / 4);
 
       // These are only set once so set them now
-      staticStorageValues.set([rand(), rand(), rand(), 1], staticOffset + kColorOffset);        // set the color
-      staticStorageValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], staticOffset + kOffsetOffset);      // set the offset
+      staticVertexValues.set([rand(), rand(), rand(), 1], staticOffset + kColorOffset);        // set the color
+      staticVertexValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], staticOffset + kOffsetOffset);      // set the offset
 
       objectInfos.push({
         scale: rand(0.2, 0.5),
       });
     }
-    device.queue.writeBuffer(staticStorageBuffer, 0, staticStorageValues);
+    device.queue.writeBuffer(staticVertexBuffer, 0, staticVertexValues);
   }
 
   // a typed array we can use to update the changingStorageBuffer
-  const storageValues = new Float32Array(changingStorageBufferSize / 4);
+  const vertexValues = new Float32Array(changingVertexBufferSize / 4);
 
   const { vertexData, numVertices } = createCircleVertices({
     radius: 0.5,
@@ -238,15 +233,6 @@ async function main() {
     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
   device.queue.writeBuffer(vertexBuffer, 0, vertexData);
-
-  const bindGroup = device.createBindGroup({
-    label: 'bind group for objects',
-    layout: pipeline.getBindGroupLayout(0),
-    entries: [
-      { binding: 0, resource: { buffer: staticStorageBuffer }},
-      { binding: 1, resource: { buffer: changingStorageBuffer }},
-    ],
-  });
 
   const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
@@ -270,6 +256,8 @@ async function main() {
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
     pass.setVertexBuffer(0, vertexBuffer);
+    pass.setVertexBuffer(1, staticVertexBuffer);
+    pass.setVertexBuffer(2, changingVertexBuffer);
 
     // Set the uniform values in our JavaScript side Float32Array
     const aspect = canvas.width / canvas.height;
@@ -277,12 +265,11 @@ async function main() {
     // set the scales for each object
     objectInfos.forEach(({scale}, ndx) => {
       const offset = ndx * (changingUnitSize / 4);
-      storageValues.set([scale / aspect, scale], offset + kScaleOffset); // set the scale
+      vertexValues.set([scale / aspect, scale], offset + kScaleOffset); // set the scale
     });
     // upload all scales at once
-    device.queue.writeBuffer(changingStorageBuffer, 0, storageValues);
+    device.queue.writeBuffer(changingVertexBuffer, 0, vertexValues);
 
-    pass.setBindGroup(0, bindGroup);
     pass.draw(numVertices, kNumObjects);
 
     pass.end();

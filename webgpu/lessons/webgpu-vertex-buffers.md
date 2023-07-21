@@ -213,7 +213,8 @@ The attribute `format` field can be one of these types
 </div>
 
 Attributes can advance per vertex or per instance. Advancing them per instance is effectively
-the same thing we're doing when we index `otherStructs[instanceIndex]` and `ourStructs[instanceIndex]`.
+the same thing we're doing when we index `otherStructs[instanceIndex]` and `ourStructs[instanceIndex]`
+where `instanceIndex` got its value from `@builtin(instance_index)`.
 
 Let's get rid of the storage buffers and use vertex buffers to accomplish the same thing.
 First lets change the shader to use vertex attributes instead of storage buffers.
@@ -310,12 +311,22 @@ per instance, the other will hold the `scale`.
   });
 ```
 
-Above we added 2 entries to the `buffers` array so now there are 3 entries, meaning
+Above we added 2 entries to the `buffers` array on our pipleine description so now there are 3 buffer entries, meaning
 we're telling WebGPU we'll supply the data in 3 buffers.
 
 For our 2 new entires we set the `stepMode` to `instance`. This means this attribute
 will only advance to next value once per instance. The default is `stepMode: 'vertex'`
 which advances once per vertex (and starts over for each instance).
+
+We have 2 buffers. The one that hold just `scale` is simple. Just like our
+first buffer that holds `position` it's 2 32 floats per vertex.
+
+Our other buffer holds `color` and `offset` and they're going to be interleaved in the data like this
+
+<div class="webgpu_center"><img src="resources/vertex-buffer-f32x4-f32x2.svg" style="width: 1024px;"></div>
+
+So above we say the `arrayStride` to get from one set of data to the next is `6 * 4`, 6 32bit floats
+each 4 bytes (24 bytes total). The `color` starts at offset 0 but the `offset` starts 16 bytes in.
 
 Next we can change the code that sets up the buffers.
 
@@ -332,14 +343,14 @@ Next we can change the code that sets up the buffers.
 *  const staticVertexBufferSize = staticUnitSize * kNumObjects;
 *  const changingVertexBufferSize = changingUnitSize * kNumObjects;
 
-*  const staticStorageBuffer = device.createBuffer({
+*  const staticVertexBuffer = device.createBuffer({
 *    label: 'static vertex for objects',
 *    size: staticVertexBufferSize,
 -    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 +    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
 
-*  const changingStorageBuffer = device.createBuffer({
+*  const changingVertexBuffer = device.createBuffer({
 *    label: 'changing vertex for objects',
 *    size: changingVertexBufferSize,
 -    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
@@ -385,29 +396,23 @@ to set the vertex buffers
     pass.end();
 ```
 
-And here we have the same thing we had before but we're using all vertex buffers
-and no storage buffers
+Here, the first parameter to `setVertexBuffer` corresponds to the elements of
+the `buffers` array in the pipeline we created above.
+
+And with that we have the same thing we had before but we're using all vertex buffers
+and no storage buffers.
 
 {{{example url="../webgpu-vertex-buffers-instanced-colors"}}}
 
----
-
-
-Let's add a 2nd attribute for color. First let's change the shader
+Just for fun, lets add a second let's add a another attribute for a per vertex color. First let's change the shader
 
 ```wgsl
-struct OurStruct {
-  color: vec4f,
-  offset: vec2f,
-};
-
-struct OtherStruct {
-  scale: vec2f,
-};
-
 struct Vertex {
   @location(0) position: vec2f,
-+  @location(1) color: vec3f,
+  @location(1) color: vec4f,
+  @location(2) offset: vec2f,
+  @location(3) scale: vec2f,
++  @location(4) perVertexColor: vec3f,
 };
 
 struct VSOutput {
@@ -415,27 +420,24 @@ struct VSOutput {
   @location(0) color: vec4f,
 };
 
-@group(0) @binding(0) var<storage, read> ourStructs: array<OurStruct>;
-@group(0) @binding(1) var<storage, read> otherStructs: array<OtherStruct>;
-
 @vertex fn vs(
   vert: Vertex,
-  @builtin(instance_index) instanceIndex: u32
 ) -> VSOutput {
-  let otherStruct = otherStructs[instanceIndex];
-  let ourStruct = ourStructs[instanceIndex];
-
   var vsOut: VSOutput;
   vsOut.position = vec4f(
-      vert.position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
--  vsOut.color = ourStruct.color;
-+  vsOut.color = ourStruct.color * vec4f(vert.color, 1);
+      vert.position * vert.scale + vert.offset, 0.0, 1.0);
+-  vsOut.color = vert.color;
++  vsOut.color = vert.color * vec4f(vert.perVertexColor, 1);
   return vsOut;
+}
+
+@fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
+  return vsOut.color;
 }
 ```
 
 Then we need to update the pipeline to describe how we'll supply the data.
-We're going to interleave the data like this
+We're going to interleave the perVertexColor data with the position like this
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-mixed.svg" style="width: 1024px;"></div>
 
@@ -445,17 +447,33 @@ so its `offset` into the buffer is 8 bytes.
 
 ```js
   const pipeline = device.createRenderPipeline({
-    label: '2 attributes',
+    label: 'per vertex color',
     layout: 'auto',
     vertex: {
       module,
       entryPoint: 'vs',
       buffers: [
         {
-          arrayStride: (2 + 3) * 4, // (2 + 3) floats, 4 bytes each
+-          arrayStride: 2 * 4, // 2 floats, 4 bytes each
++          arrayStride: 5 * 4, // 5 floats, 4 bytes each
           attributes: [
-            {shaderLocation: 0, offset: 0, format: 'float32x2'}, // position
-+            {shaderLocation: 1, offset: 8, format: 'float32x3'}, // color
+            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
++            {shaderLocation: 4, offset: 8, format: 'float32x3'},  // perVertexColor
+          ],
+        },
+        {
+          arrayStride: 6 * 4, // 6 floats, 4 bytes each
+          stepMode: 'instance',
+          attributes: [
+            {shaderLocation: 1, offset:  0, format: 'float32x4'},  // color
+            {shaderLocation: 2, offset: 16, format: 'float32x2'},  // offset
+          ],
+        },
+        {
+          arrayStride: 2 * 4, // 2 floats, 4 bytes each
+          stepMode: 'instance',
+          attributes: [
+            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
           ],
         },
       ],
@@ -539,12 +557,14 @@ function createCircleVertices({
 
 And with that we get shaded circles
 
-{{{example url="../webgpu-vertex-buffers-2-attributes.html"}}}
+{{{example url="../webgpu-vertex-buffers-per-vertex-colors.html"}}}
 
-We're using 32bit floating point values for colors. Each color has 3 values for a total of 12 bytes per color per vertex.
-We could optimize that by using 8bit values and telling WebGPU they should be normalized from 0 to 255 to 0.0 to 1.0
+We're using 32bit floating point values for colors. Each `perVertexColor` has 3 values for a total of 12 bytes per color per vertex. Each `color` has 4 values
+for a total of 16 bytes per color per instance.
 
-Looking at the list of valid attribute formats there is no 3 value 8bit format but there is `'unorm8x4` so let's
+We could optimize that by using 8bit values and telling WebGPU they should be normalized from 0 ↔ 255 to 0.0 ↔ 1.0
+
+Looking at the list of valid attribute formats there is no 3 value 8bit format but there is `'unorm8x4'` so let's
 use that.
 
 First let's change the code that generates the vertices to store colors as 8bit values that
@@ -562,7 +582,7 @@ function createCircleVertices({
 +  // 2 triangles per subdivision, 3 verts per tri
   const numVertices = numSubdivisions * 3 * 2;
 -  const vertexData = new Float32Array(numVertices * (2 + 3));
-+  // 2 32-bit values for position (xy) and 1 32-bit value for color (rgb)
++  // 2 32-bit values for position (xy) and 1 32-bit value for color (rgb_)
 +  // The 32-bit color value will be written/read as 4 8-bit values
 +  const vertexData = new Float32Array(numVertices * (2 + 1));
 +  const colorData = new Uint8Array(vertexData.buffer);
@@ -589,36 +609,130 @@ data as `vertexData`
 We then use `colorData` to insert the colors, expanding them from 0 ↔ 1
 to 0 ↔ 255
 
+The memory layout of this data is like this
+
+<div class="webgpu_center"><img src="resources/vertex-buffer-f32x2-u8x4.svg" style="width: 1024px;"></div>
+
+We also need to update the per instance data.
+
+```js
+  const kNumObjects = 100;
+  const objectInfos = [];
+
+  // create 2 vertex buffers
+  const staticUnitSize =
+-    4 * 4 + // color is 4 32bit floats (4bytes each)
++    4 +     // color is 4 bytes
+    2 * 4;  // offset is 2 32bit floats (4bytes each)
+  const changingUnitSize =
+    2 * 4;  // scale is 2 32bit floats (4bytes each)
+  const staticVertexBufferSize = staticUnitSize * kNumObjects;
+  const changingVertexBufferSize = changingUnitSize * kNumObjects;
+
+  const staticVertexBuffer = device.createBuffer({
+    label: 'static vertex for objects',
+    size: staticVertexBufferSize,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+
+  const changingVertexBuffer = device.createBuffer({
+    label: 'changing storage for objects',
+    size: changingVertexBufferSize,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+
+  // offsets to the various uniform values in float32 indices
+  const kColorOffset = 0;
+  const kOffsetOffset = 1;
+
+  const kScaleOffset = 0;
+
+  {
+-    const staticVertexValues = new Float32Array(staticVertexBufferSize / 4);
++    const staticVertexValuesU8 = new Uint8Array(staticVertexBufferSize);
++    const staticVertexValuesF32 = new Float32Array(staticVertexValuesU8.buffer);
+    for (let i = 0; i < kNumObjects; ++i) {
+-      const staticOffset = i * (staticUnitSize / 4);
++      const staticOffsetU8 = i * staticUnitSize;
++      const staticOffsetF32 = staticOffsetU8 / 4;
+
+      // These are only set once so set them now
+-      staticVertexValues.set([rand(), rand(), rand(), 1], staticOffset + kColorOffset);        // set the color
+-      staticVertexValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], staticOffset + kOffsetOffset);      // set the offset
++      staticVertexValuesU8.set(        // set the color
++          [rand() * 255, rand() * 255, rand() * 255, 255],
++          staticOffsetU8 + kColorOffset);
++
++      staticVertexValuesF32.set(      // set the offset
++          [rand(-0.9, 0.9), rand(-0.9, 0.9)],
++          staticOffsetF32 + kOffsetOffset);
+
+      objectInfos.push({
+        scale: rand(0.2, 0.5),
+      });
+    }
+    device.queue.writeBuffer(staticVertexBuffer, 0, staticVertexValuesF32);
+  }
+```
+
+The layout for the per instance data is like this
+
+<div class="webgpu_center"><img src="resources/vertex-buffer-u8x4-f32x2.svg" style="width: 1024px;"></div>
+
 We then need to change the pipeline to pull out the data as 8bit unsigned
-values and to normalize them back to 0 ↔ 1 and update the stride to its
+values and to normalize them back to 0 ↔ 1, update the offsets, and update the stride to its
 new size.
 
 ```js
   const pipeline = device.createRenderPipeline({
-    ...
+    label: 'per vertex color',
+    layout: 'auto',
     vertex: {
       module,
       entryPoint: 'vs',
       buffers: [
         {
--          arrayStride: (2 + 3) * 4, // (2 + 3) floats, 4 bytes each
-+          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes color
+-          arrayStride: 5 * 4, // 5 floats, 4 bytes each
++          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes
           attributes: [
             {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
--            {shaderLocation: 1, offset: 8, format: 'float32x3'},  // color
-+            {shaderLocation: 1, offset: 8, format: 'unorm8x4'},  // color
+-            {shaderLocation: 4, offset: 8, format: 'float32x3'},  // perVertexColor
++            {shaderLocation: 4, offset: 8, format: 'unorm8x4'},   // perVertexColor
+          ],
+        },
+        {
+-          arrayStride: 6 * 4, // 6 floats, 4 bytes each
++          arrayStride: 4 + 2 * 4, // 4 bytes + 2 floats, 4 bytes each
+          stepMode: 'instance',
+          attributes: [
+-            {shaderLocation: 1, offset:  0, format: 'float32x4'},  // color
+-            {shaderLocation: 2, offset: 16, format: 'float32x2'},  // offset
++            {shaderLocation: 1, offset: 0, format: 'unorm8x4'},   // color
++            {shaderLocation: 2, offset: 4, format: 'float32x2'},  // offset
+          ],
+        },
+        {
+          arrayStride: 2 * 4, // 2 floats, 4 bytes each
+          stepMode: 'instance',
+          attributes: [
+            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
           ],
         },
       ],
     },
-    ...
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
   });
 ```
 
 And with that we've save a little space. We were using 20 bytes per vertex,
-now we're using 12 bytes per vertex, a 40% savings.
+now we're using 12 bytes per vertex, a 40% savings. And we were using 24 bytes
+per instance, now we're using 12, a 50% savings.
 
-{{{example url="../webgpu-vertex-buffers-2-attributes-8bit-colors.html"}}}
+{{{example url="../webgpu-vertex-buffers-8bit-colors.html"}}}
 
 Note that we don't have to use a struct. This would work just as well
 
@@ -626,173 +740,24 @@ Note that we don't have to use a struct. This would work just as well
 @vertex fn vs(
 -  vert: Vertex,
 +  @location(0) position: vec2f,
-+  @location(1) color: vec3f,
-  @builtin(instance_index) instanceIndex: u32
++  @location(1) color: vec4f,
++  @location(2) offset: vec2f,
++  @location(3) scale: vec2f,
++  @location(4) perVertexColor: vec3f,
 ) -> VSOutput {
-  let otherStruct = otherStructs[instanceIndex];
-  let ourStruct = ourStructs[instanceIndex];
-
   var vsOut: VSOutput;
-  vsOut.position = vec4f(
--      vert.position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
--  vsOut.color = ourStruct.color * vec4f(vert.color, 1);
-+      position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
-+  vsOut.color = ourStruct.color * vec4f(color, 1);
+-  vsOut.position = vec4f(
+-      vert.position * vert.scale + vert.offset, 0.0, 1.0);
+-  vsOut.color = vert.color * vec4f(vert.perVertexColor, 1);
+-  vsOut.position = vec4f(
+-      position * scale + offset, 0.0, 1.0);
+-  vsOut.color = color * vec4f(perVertexColor, 1);
   return vsOut;
 }
 ```
 
 As again, all WebGPU cares about that we define `locations` in the shader
 and supply data to those locations via the API.
-
-We could also supply the data in separate buffers. Nothing changes
-in the shader. Instead we just update the pipeline
-
-```js
-      buffers: [
-        {
--          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes color
-+          arrayStride: 2 * 4, // 2 floats, 4 bytes each
-          attributes: [
-            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
--            {shaderLocation: 1, offset: 8, format: 'unorm8x4'},  // color
-          ],
-        },
-+        {
-+          arrayStride: 4, // 4 bytes each
-+          attributes: [
-+            {shaderLocation: 1, offset: 0, format: 'unorm8x4'},  // color
-+          ],
-+        },
-      ],
-```
-
-And of course we need to separate the vertex data.
-
-```js
-function createCircleVertices({
-  radius = 1,
-  numSubdivisions = 24,
-  innerRadius = 0,
-  startAngle = 0,
-  endAngle = Math.PI * 2,
-} = {}) {
-  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
-  const numVertices = numSubdivisions * 3 * 2;
--  const vertexData = new Float32Array(numVertices * (2 + 3));
--  const colorData = new Uint8Array(vertexData.buffer);
-+  const vertexData = new Float32Array(numVertices * 2);
-+  const colorData = new Uint8Array(numVertices * 4);
-
-  let offset = 0;
-  let colorOffset = 0;
-  const addVertex = (x, y, r, g, b) => {
-    vertexData[offset++] = x;
-    vertexData[offset++] = y;
--    offset += 1;  // skip the color
-    colorData[colorOffset++] = r * 255;
-    colorData[colorOffset++] = g * 255;
-    colorData[colorOffset++] = b * 255;
--    colorOffset += 9;  // skip extra byte and the position
-+    colorOffset += 1; // skip the extra byte
-  };
-
-
-  ...
-
-  return {
-    vertexData,
-+    colorData,
-    numVertices,
-  };
-}
-```
-
-In the interest of correctly naming things, lets change `vertexData` to `positionData`
-since our "vertex" is the combination of both a position and a color
-
-```js
-function createCircleVertices({
-  radius = 1,
-  numSubdivisions = 24,
-  innerRadius = 0,
-  startAngle = 0,
-  endAngle = Math.PI * 2,
-} = {}) {
-  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
-  const numVertices = numSubdivisions * 3 * 2;
--  const vertexData = new Float32Array(numVertices * 2);
-+  const positionData = new Float32Array(numVertices * 2);
-  const colorData = new Uint8Array(numVertices * 4);
-
--  let offset = 0;
-+  let positionOffset = 0;
-  let colorOffset = 0;
-  const addVertex = (x, y, r, g, b) => {
--    vertexData[offset++] = x;
--    vertexData[offset++] = y;
-+    positionData[positionOffset++] = x;
-+    positionData[positionOffset++] = y;
-    colorData[colorOffset++] = r * 255;
-    colorData[colorOffset++] = g * 255;
-    colorData[colorOffset++] = b * 255;
-    colorOffset += 1; // skip the extra byte
-  };
-
-  ...
-
-  return {
--    vertexData,
-+    positionData,
-    colorData,
-    numVertices,
-  };
-}
-```
-
-Then we need to create 2 buffers instead of 1
-
-```js
--  const { vertexData, numVertices } = createCircleVertices({
-+  const { positionData, colorData, numVertices } = createCircleVertices({
-    radius: 0.5,
-    innerRadius: 0.25,
-  });
--  const vertexBuffer = device.createBuffer({
--    label: 'vertex buffer vertices',
--    size: vertexData.byteLength,
--    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
--  });
--  device.queue.writeBuffer(vertexBuffer, 0, vertexData);
-+  const positionBuffer = device.createBuffer({
-+    label: 'position buffer',
-+    size: positionData.byteLength,
-+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-+  });
-+  device.queue.writeBuffer(positionBuffer, 0, positionData);
-+  const colorBuffer = device.createBuffer({
-+    label: 'color buffer',
-+    size: colorData.byteLength,
-+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-+  });
-+  device.queue.writeBuffer(colorBuffer, 0, colorData);
-```
-
-And then at render time we need to specify the both buffers
-
-```js
-    pass.setPipeline(pipeline);
--    pass.setVertexBuffer(0, vertexBuffer);
-+    pass.setVertexBuffer(0, positionBuffer);
-+    pass.setVertexBuffer(1, colorBuffer);
-```
-
-{{{example url="../webgpu-vertex-buffers-2-buffers.html"}}}
-
-Like when we separated our first uniform buffer into 2 uniform buffers,
-one reason you might want to separate vertex data into 2 buffers is if
-some of the vertex data was static and other vertex data was updated
-often.
 
 ## <a id="a-index-buffers"></a>Index Buffers
 
@@ -829,22 +794,25 @@ function createCircleVertices({
   startAngle = 0,
   endAngle = Math.PI * 2,
 } = {}) {
-  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
-  const numVertices = (numSubdivisions + 1) * 2;
-  const positionData = new Float32Array(numVertices * 2);
-  const colorData = new Uint8Array(numVertices * 4);
+  // 2 triangles per subdivision, 3 verts per tri
+-  const numVertices = numSubdivisions * 3 * 2;
++  const numVertices = (numSubdivisions + 1) * 3 * 2;
+  // 2 32-bit values for position (xy) and 1 32-bit value for color (rgb)
+  // The 32-bit color value will be written/read as 4 8-bit values
+  const vertexData = new Float32Array(numVertices * (2 + 1));
+  const colorData = new Uint8Array(vertexData.buffer);
 
-  let positionOffset = 0;
-  let colorOffset = 0;
+  let offset = 0;
+  let colorOffset = 8;
   const addVertex = (x, y, r, g, b) => {
-    positionData[positionOffset++] = x;
-    positionData[positionOffset++] = y;
+    vertexData[offset++] = x;
+    vertexData[offset++] = y;
+    offset += 1;  // skip the color
     colorData[colorOffset++] = r * 255;
     colorData[colorOffset++] = g * 255;
     colorData[colorOffset++] = b * 255;
-    colorOffset += 1; // skip the extra byte
+    colorOffset += 9;  // skip extra byte and the position
   };
-
   const innerColor = [1, 1, 1];
   const outerColor = [0.1, 0.1, 0.1];
 
@@ -921,23 +889,17 @@ function createCircleVertices({
 Then we need to create an index buffer
 
 ```js
--  const { positionData, colorData, numVertices } = createCircleVertices({
-+  const { positionData, colorData, indexData, numVertices } = createCircleVertices({
+-  const { vertexData, numVertices } = createCircleVertices({
++  const { vertexData, indexData, numVertices } = createCircleVertices({
     radius: 0.5,
     innerRadius: 0.25,
   });
-  const positionBuffer = device.createBuffer({
-    label: 'position buffer',
-    size: positionData.byteLength,
+  const vertexBuffer = device.createBuffer({
+    label: 'vertex buffer',
+    size: vertexData.byteLength,
     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
-  device.queue.writeBuffer(positionBuffer, 0, positionData);
-  const colorBuffer = device.createBuffer({
-    label: 'color buffer',
-    size: colorData.byteLength,
-    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-  });
-  device.queue.writeBuffer(colorBuffer, 0, colorData);
+  device.queue.writeBuffer(vertexBuffer, 0, vertexData);
 +  const indexBuffer = device.createBuffer({
 +    label: 'index buffer',
 +    size: indexData.byteLength,
@@ -946,14 +908,15 @@ Then we need to create an index buffer
 +  device.queue.writeBuffer(indexBuffer, 0, indexData);
 ```
 
-Notice we changed the usage to `INDEX`.
+Notice we set the usage to `INDEX`.
 
 Then finally at draw time we need to specify the index buffer
 
 ```js
     pass.setPipeline(pipeline);
-    pass.setVertexBuffer(0, positionBuffer);
-    pass.setVertexBuffer(1, colorBuffer);
+    pass.setVertexBuffer(0, vertexBuffer);
+    pass.setVertexBuffer(1, staticVertexBuffer);
+    pass.setVertexBuffer(2, changingVertexBuffer);
 +    pass.setIndexBuffer(indexBuffer, 'uint32');
 ```
 
@@ -970,13 +933,14 @@ And we need to call `drawIndexed` instead of `draw`
 
 With that we saved some space (33%) and, potentially
 a similar amount of processing when computing vertices
-in the vertex shader.
+in the vertex shader as it's possible the GPU can reuse
+vertices it has already calculated.
 
 {{{example url="../webgpu-vertex-buffers-index-buffer.html"}}}
 
 Note that we could have also used an index buffer with the
 storage buffer example from [the previous article](webgpu-storage-buffers.html).
-In that case `vertex_index` that's passed in matches the index
+In that case the value from `@builtin(vertex_index)` that's passed in matches the index
 from the index buffer.
 
 Next up we'll cover [textures](webgpu-textures.html).
