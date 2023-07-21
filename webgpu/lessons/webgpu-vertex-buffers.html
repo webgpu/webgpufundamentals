@@ -408,19 +408,25 @@ vertex buffer.</p>
   </table>
   </div>
 </div>
-<p>Let’s add a 2nd attribute for color. First let’s change the shader</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct OurStruct {
-  color: vec4f,
-  offset: vec2f,
-};
-
-struct OtherStruct {
-  scale: vec2f,
-};
+<p>Attributes can advance per vertex or per instance. Advancing them per instance is effectively
+the same thing we’re doing when we index <code class="notranslate" translate="no">otherStructs[instanceIndex]</code> and <code class="notranslate" translate="no">ourStructs[instanceIndex]</code>
+where <code class="notranslate" translate="no">instanceIndex</code> got its value from <code class="notranslate" translate="no">@builtin(instance_index)</code>.</p>
+<p>Let’s get rid of the storage buffers and use vertex buffers to accomplish the same thing.
+First lets change the shader to use vertex attributes instead of storage buffers.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-struct OurStruct {
+-  color: vec4f,
+-  offset: vec2f,
+-};
+-
+-struct OtherStruct {
+-  scale: vec2f,
+-};
 
 struct Vertex {
   @location(0) position: vec2f,
-+  @location(1) color: vec3f,
++  @location(1) color: vec4f,
++  @location(2) offset: vec2f,
++  @location(3) scale: vec2f,
 };
 
 struct VSOutput {
@@ -433,37 +439,209 @@ struct VSOutput {
 
 @vertex fn vs(
   vert: Vertex,
-  @builtin(instance_index) instanceIndex: u32
+-  @builtin(instance_index) instanceIndex: u32
 ) -&gt; VSOutput {
-  let otherStruct = otherStructs[instanceIndex];
-  let ourStruct = ourStructs[instanceIndex];
+-  let otherStruct = otherStructs[instanceIndex];
+-  let ourStruct = ourStructs[instanceIndex];
 
   var vsOut: VSOutput;
-  vsOut.position = vec4f(
-      vert.position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
+-  vsOut.position = vec4f(
+-      vert.position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
 -  vsOut.color = ourStruct.color;
-+  vsOut.color = ourStruct.color * vec4f(vert.color, 1);
++  vsOut.position = vec4f(
++      vert.position * vert.scale + vert.offset, 0.0, 1.0);
++  vsOut.color = vert.color;
   return vsOut;
 }
+
+@fragment fn fs(vsOut: VSOutput) -&gt; @location(0) vec4f {
+  return vsOut.color;
+}
 </pre>
-<p>Then we need to update the pipeline to describe how we’ll supply the data.
-We’re going to interleave the data like this</p>
-<div class="webgpu_center"><img src="resources/vertex-buffer-mixed.svg" style="width: 1024px;"></div>
-<p>So, the <code class="notranslate" translate="no">arrayStride</code> needs to be changed to cover our new data and we need
-to add the new attribute. It starts after two 32bit floating point numbers
-so its <code class="notranslate" translate="no">offset</code> into the buffer is 8 bytes.</p>
+<p>Now we need to update our render pipeline to tell it how we want
+to supply data to those attributes. To keep the changes to a minimum
+we’ll use the data we created for the storage buffers almost as is.
+We’ll use two buffers, one buffer will hold the <code class="notranslate" translate="no">color</code> and <code class="notranslate" translate="no">offset</code>
+per instance, the other will hold the <code class="notranslate" translate="no">scale</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
-    label: '2 attributes',
+    label: 'flat colors',
     layout: 'auto',
     vertex: {
       module,
       entryPoint: 'vs',
       buffers: [
         {
-          arrayStride: (2 + 3) * 4, // (2 + 3) floats, 4 bytes each
+          arrayStride: 2 * 4, // 2 floats, 4 bytes each
           attributes: [
-            {shaderLocation: 0, offset: 0, format: 'float32x2'}, // position
-+            {shaderLocation: 1, offset: 8, format: 'float32x3'}, // color
+            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
+          ],
+        },
++        {
++          arrayStride: 6 * 4, // 6 floats, 4 bytes each
++          stepMode: 'instance',
++          attributes: [
++            {shaderLocation: 1, offset:  0, format: 'float32x4'},  // color
++            {shaderLocation: 2, offset: 16, format: 'float32x2'},  // offset
++          ],
++        },
++        {
++          arrayStride: 2 * 4, // 2 floats, 4 bytes each
++          stepMode: 'instance',
++          attributes: [
++            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
++          ],
++        },
+      ],
+    },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+</pre>
+<p>Above we added 2 entries to the <code class="notranslate" translate="no">buffers</code> array on our pipleine description so now there are 3 buffer entries, meaning
+we’re telling WebGPU we’ll supply the data in 3 buffers.</p>
+<p>For our 2 new entires we set the <code class="notranslate" translate="no">stepMode</code> to <code class="notranslate" translate="no">instance</code>. This means this attribute
+will only advance to next value once per instance. The default is <code class="notranslate" translate="no">stepMode: 'vertex'</code>
+which advances once per vertex (and starts over for each instance).</p>
+<p>We have 2 buffers. The one that hold just <code class="notranslate" translate="no">scale</code> is simple. Just like our
+first buffer that holds <code class="notranslate" translate="no">position</code> it’s 2 32 floats per vertex.</p>
+<p>Our other buffer holds <code class="notranslate" translate="no">color</code> and <code class="notranslate" translate="no">offset</code> and they’re going to be interleaved in the data like this</p>
+<div class="webgpu_center"><img src="resources/vertex-buffer-f32x4-f32x2.svg" style="width: 1024px;"></div>
+<p>So above we say the <code class="notranslate" translate="no">arrayStride</code> to get from one set of data to the next is <code class="notranslate" translate="no">6 * 4</code>, 6 32bit floats
+each 4 bytes (24 bytes total). The <code class="notranslate" translate="no">color</code> starts at offset 0 but the <code class="notranslate" translate="no">offset</code> starts 16 bytes in.</p>
+<p>Next we can change the code that sets up the buffers.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // create 2 storage buffers
+  const staticUnitSize =
+    4 * 4 + // color is 4 32bit floats (4bytes each)
+-    2 * 4 + // offset is 2 32bit floats (4bytes each)
+-    2 * 4;  // padding
++    2 * 4;  // offset is 2 32bit floats (4bytes each)
+
+  const changingUnitSize =
+    2 * 4;  // scale is 2 32bit floats (4bytes each)
+*  const staticVertexBufferSize = staticUnitSize * kNumObjects;
+*  const changingVertexBufferSize = changingUnitSize * kNumObjects;
+
+*  const staticVertexBuffer = device.createBuffer({
+*    label: 'static vertex for objects',
+*    size: staticVertexBufferSize,
+-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
++    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+
+*  const changingVertexBuffer = device.createBuffer({
+*    label: 'changing vertex for objects',
+*    size: changingVertexBufferSize,
+-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
++    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+
+</pre>
+<p>Vertex attributes do not have the same padding restrictions as structures
+in storage buffers so we no longer need the padding. Otherwise all we
+did was change the usage from <code class="notranslate" translate="no">STORAGE</code> to <code class="notranslate" translate="no">VERTEX</code> (and we renamed all the
+variables from “storage” to “vertex”).</p>
+<p>Since we’re no longer using the storage buffers we no longer need
+the bindGroup</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const bindGroup = device.createBindGroup({
+-    label: 'bind group for objects',
+-    layout: pipeline.getBindGroupLayout(0),
+-    entries: [
+-      { binding: 0, resource: { buffer: staticStorageBuffer }},
+-      { binding: 1, resource: { buffer: changingStorageBuffer }},
+-    ],
+-  });
+</pre>
+<p>And finally we don’t need to set the bindGroup but we do need
+to set the vertex buffers</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.setVertexBuffer(0, vertexBuffer);
++    pass.setVertexBuffer(1, staticVertexBuffer);
++    pass.setVertexBuffer(2, changingVertexBuffer);
+
+    ...
+-    pass.setBindGroup(0, bindGroup);
+    pass.draw(numVertices, kNumObjects);
+
+    pass.end();
+</pre>
+<p>Here, the first parameter to <code class="notranslate" translate="no">setVertexBuffer</code> corresponds to the elements of
+the <code class="notranslate" translate="no">buffers</code> array in the pipeline we created above.</p>
+<p>And with that we have the same thing we had before but we’re using all vertex buffers
+and no storage buffers.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers-instanced-colors"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-vertex-buffers-instanced-colors" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>Just for fun, lets add a second let’s add a another attribute for a per vertex color. First let’s change the shader</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Vertex {
+  @location(0) position: vec2f,
+  @location(1) color: vec4f,
+  @location(2) offset: vec2f,
+  @location(3) scale: vec2f,
++  @location(4) perVertexColor: vec3f,
+};
+
+struct VSOutput {
+  @builtin(position) position: vec4f,
+  @location(0) color: vec4f,
+};
+
+@vertex fn vs(
+  vert: Vertex,
+) -&gt; VSOutput {
+  var vsOut: VSOutput;
+  vsOut.position = vec4f(
+      vert.position * vert.scale + vert.offset, 0.0, 1.0);
+-  vsOut.color = vert.color;
++  vsOut.color = vert.color * vec4f(vert.perVertexColor, 1);
+  return vsOut;
+}
+
+@fragment fn fs(vsOut: VSOutput) -&gt; @location(0) vec4f {
+  return vsOut.color;
+}
+</pre>
+<p>Then we need to update the pipeline to describe how we’ll supply the data.
+We’re going to interleave the perVertexColor data with the position like this</p>
+<div class="webgpu_center"><img src="resources/vertex-buffer-mixed.svg" style="width: 1024px;"></div>
+<p>So, the <code class="notranslate" translate="no">arrayStride</code> needs to be changed to cover our new data and we need
+to add the new attribute. It starts after two 32bit floating point numbers
+so its <code class="notranslate" translate="no">offset</code> into the buffer is 8 bytes.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: 'per vertex color',
+    layout: 'auto',
+    vertex: {
+      module,
+      entryPoint: 'vs',
+      buffers: [
+        {
+-          arrayStride: 2 * 4, // 2 floats, 4 bytes each
++          arrayStride: 5 * 4, // 5 floats, 4 bytes each
+          attributes: [
+            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
++            {shaderLocation: 4, offset: 8, format: 'float32x3'},  // perVertexColor
+          ],
+        },
+        {
+          arrayStride: 6 * 4, // 6 floats, 4 bytes each
+          stepMode: 'instance',
+          attributes: [
+            {shaderLocation: 1, offset:  0, format: 'float32x4'},  // color
+            {shaderLocation: 2, offset: 16, format: 'float32x2'},  // offset
+          ],
+        },
+        {
+          arrayStride: 2 * 4, // 2 floats, 4 bytes each
+          stepMode: 'instance',
+          attributes: [
+            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
           ],
         },
       ],
@@ -543,14 +721,15 @@ the inner vertices.</p>
 </pre>
 <p>And with that we get shaded circles</p>
 <p></p><div class="webgpu_example_container">
-  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers-2-attributes.html"></iframe></div>
-  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-vertex-buffers-2-attributes.html" target="_blank">click here to open in a separate window</a>
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers-per-vertex-colors.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-vertex-buffers-per-vertex-colors.html" target="_blank">click here to open in a separate window</a>
 </div>
 
 <p></p>
-<p>We’re using 32bit floating point values for colors. Each color has 3 values for a total of 12 bytes per color per vertex.
-We could optimize that by using 8bit values and telling WebGPU they should be normalized from 0 to 255 to 0.0 to 1.0</p>
-<p>Looking at the list of valid attribute formats there is no 3 value 8bit format but there is <code class="notranslate" translate="no">'unorm8x4</code> so let’s
+<p>We’re using 32bit floating point values for colors. Each <code class="notranslate" translate="no">perVertexColor</code> has 3 values for a total of 12 bytes per color per vertex. Each <code class="notranslate" translate="no">color</code> has 4 values
+for a total of 16 bytes per color per instance.</p>
+<p>We could optimize that by using 8bit values and telling WebGPU they should be normalized from 0 ↔ 255 to 0.0 ↔ 1.0</p>
+<p>Looking at the list of valid attribute formats there is no 3 value 8bit format but there is <code class="notranslate" translate="no">'unorm8x4'</code> so let’s
 use that.</p>
 <p>First let’s change the code that generates the vertices to store colors as 8bit values that
 will be normalized</p>
@@ -565,7 +744,7 @@ will be normalized</p>
 +  // 2 triangles per subdivision, 3 verts per tri
   const numVertices = numSubdivisions * 3 * 2;
 -  const vertexData = new Float32Array(numVertices * (2 + 3));
-+  // 2 32-bit values for position (xy) and 1 32-bit value for color (rgb)
++  // 2 32-bit values for position (xy) and 1 32-bit value for color (rgb_)
 +  // The 32-bit color value will be written/read as 4 8-bit values
 +  const vertexData = new Float32Array(numVertices * (2 + 1));
 +  const colorData = new Uint8Array(vertexData.buffer);
@@ -589,34 +768,121 @@ will be normalized</p>
 data as <code class="notranslate" translate="no">vertexData</code></p>
 <p>We then use <code class="notranslate" translate="no">colorData</code> to insert the colors, expanding them from 0 ↔ 1
 to 0 ↔ 255</p>
+<p>The memory layout of this data is like this</p>
+<div class="webgpu_center"><img src="resources/vertex-buffer-f32x2-u8x4.svg" style="width: 1024px;"></div>
+<p>We also need to update the per instance data.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const kNumObjects = 100;
+  const objectInfos = [];
+
+  // create 2 vertex buffers
+  const staticUnitSize =
+-    4 * 4 + // color is 4 32bit floats (4bytes each)
++    4 +     // color is 4 bytes
+    2 * 4;  // offset is 2 32bit floats (4bytes each)
+  const changingUnitSize =
+    2 * 4;  // scale is 2 32bit floats (4bytes each)
+  const staticVertexBufferSize = staticUnitSize * kNumObjects;
+  const changingVertexBufferSize = changingUnitSize * kNumObjects;
+
+  const staticVertexBuffer = device.createBuffer({
+    label: 'static vertex for objects',
+    size: staticVertexBufferSize,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+
+  const changingVertexBuffer = device.createBuffer({
+    label: 'changing storage for objects',
+    size: changingVertexBufferSize,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+
+  // offsets to the various uniform values in float32 indices
+  const kColorOffset = 0;
+  const kOffsetOffset = 1;
+
+  const kScaleOffset = 0;
+
+  {
+-    const staticVertexValues = new Float32Array(staticVertexBufferSize / 4);
++    const staticVertexValuesU8 = new Uint8Array(staticVertexBufferSize);
++    const staticVertexValuesF32 = new Float32Array(staticVertexValuesU8.buffer);
+    for (let i = 0; i &lt; kNumObjects; ++i) {
+-      const staticOffset = i * (staticUnitSize / 4);
++      const staticOffsetU8 = i * staticUnitSize;
++      const staticOffsetF32 = staticOffsetU8 / 4;
+
+      // These are only set once so set them now
+-      staticVertexValues.set([rand(), rand(), rand(), 1], staticOffset + kColorOffset);        // set the color
+-      staticVertexValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], staticOffset + kOffsetOffset);      // set the offset
++      staticVertexValuesU8.set(        // set the color
++          [rand() * 255, rand() * 255, rand() * 255, 255],
++          staticOffsetU8 + kColorOffset);
++
++      staticVertexValuesF32.set(      // set the offset
++          [rand(-0.9, 0.9), rand(-0.9, 0.9)],
++          staticOffsetF32 + kOffsetOffset);
+
+      objectInfos.push({
+        scale: rand(0.2, 0.5),
+      });
+    }
+    device.queue.writeBuffer(staticVertexBuffer, 0, staticVertexValuesF32);
+  }
+</pre>
+<p>The layout for the per instance data is like this</p>
+<div class="webgpu_center"><img src="resources/vertex-buffer-u8x4-f32x2.svg" style="width: 1024px;"></div>
 <p>We then need to change the pipeline to pull out the data as 8bit unsigned
-values and to normalize them back to 0 ↔ 1 and update the stride to its
+values and to normalize them back to 0 ↔ 1, update the offsets, and update the stride to its
 new size.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
-    ...
+    label: 'per vertex color',
+    layout: 'auto',
     vertex: {
       module,
       entryPoint: 'vs',
       buffers: [
         {
--          arrayStride: (2 + 3) * 4, // (2 + 3) floats, 4 bytes each
-+          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes color
+-          arrayStride: 5 * 4, // 5 floats, 4 bytes each
++          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes
           attributes: [
             {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
--            {shaderLocation: 1, offset: 8, format: 'float32x3'},  // color
-+            {shaderLocation: 1, offset: 8, format: 'unorm8x4'},  // color
+-            {shaderLocation: 4, offset: 8, format: 'float32x3'},  // perVertexColor
++            {shaderLocation: 4, offset: 8, format: 'unorm8x4'},   // perVertexColor
+          ],
+        },
+        {
+-          arrayStride: 6 * 4, // 6 floats, 4 bytes each
++          arrayStride: 4 + 2 * 4, // 4 bytes + 2 floats, 4 bytes each
+          stepMode: 'instance',
+          attributes: [
+-            {shaderLocation: 1, offset:  0, format: 'float32x4'},  // color
+-            {shaderLocation: 2, offset: 16, format: 'float32x2'},  // offset
++            {shaderLocation: 1, offset: 0, format: 'unorm8x4'},   // color
++            {shaderLocation: 2, offset: 4, format: 'float32x2'},  // offset
+          ],
+        },
+        {
+          arrayStride: 2 * 4, // 2 floats, 4 bytes each
+          stepMode: 'instance',
+          attributes: [
+            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
           ],
         },
       ],
     },
-    ...
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
   });
 </pre>
 <p>And with that we’ve save a little space. We were using 20 bytes per vertex,
-now we’re using 12 bytes per vertex, a 40% savings.</p>
+now we’re using 12 bytes per vertex, a 40% savings. And we were using 24 bytes
+per instance, now we’re using 12, a 50% savings.</p>
 <p></p><div class="webgpu_example_container">
-  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers-2-attributes-8bit-colors.html"></iframe></div>
-  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-vertex-buffers-2-attributes-8bit-colors.html" target="_blank">click here to open in a separate window</a>
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers-8bit-colors.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-vertex-buffers-8bit-colors.html" target="_blank">click here to open in a separate window</a>
 </div>
 
 <p></p>
@@ -624,160 +890,23 @@ now we’re using 12 bytes per vertex, a 40% savings.</p>
 <pre class="prettyprint showlinemods notranslate lang-WGSL" translate="no">@vertex fn vs(
 -  vert: Vertex,
 +  @location(0) position: vec2f,
-+  @location(1) color: vec3f,
-  @builtin(instance_index) instanceIndex: u32
++  @location(1) color: vec4f,
++  @location(2) offset: vec2f,
++  @location(3) scale: vec2f,
++  @location(4) perVertexColor: vec3f,
 ) -&gt; VSOutput {
-  let otherStruct = otherStructs[instanceIndex];
-  let ourStruct = ourStructs[instanceIndex];
-
   var vsOut: VSOutput;
-  vsOut.position = vec4f(
--      vert.position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
--  vsOut.color = ourStruct.color * vec4f(vert.color, 1);
-+      position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
-+  vsOut.color = ourStruct.color * vec4f(color, 1);
+-  vsOut.position = vec4f(
+-      vert.position * vert.scale + vert.offset, 0.0, 1.0);
+-  vsOut.color = vert.color * vec4f(vert.perVertexColor, 1);
+-  vsOut.position = vec4f(
+-      position * scale + offset, 0.0, 1.0);
+-  vsOut.color = color * vec4f(perVertexColor, 1);
   return vsOut;
 }
 </pre>
 <p>As again, all WebGPU cares about that we define <code class="notranslate" translate="no">locations</code> in the shader
 and supply data to those locations via the API.</p>
-<p>We could also supply the data in separate buffers. Nothing changes
-in the shader. Instead we just update the pipeline</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">      buffers: [
-        {
--          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes color
-+          arrayStride: 2 * 4, // 2 floats, 4 bytes each
-          attributes: [
-            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
--            {shaderLocation: 1, offset: 8, format: 'unorm8x4'},  // color
-          ],
-        },
-+        {
-+          arrayStride: 4, // 4 bytes each
-+          attributes: [
-+            {shaderLocation: 1, offset: 0, format: 'unorm8x4'},  // color
-+          ],
-+        },
-      ],
-</pre>
-<p>And of course we need to separate the vertex data.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function createCircleVertices({
-  radius = 1,
-  numSubdivisions = 24,
-  innerRadius = 0,
-  startAngle = 0,
-  endAngle = Math.PI * 2,
-} = {}) {
-  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
-  const numVertices = numSubdivisions * 3 * 2;
--  const vertexData = new Float32Array(numVertices * (2 + 3));
--  const colorData = new Uint8Array(vertexData.buffer);
-+  const vertexData = new Float32Array(numVertices * 2);
-+  const colorData = new Uint8Array(numVertices * 4);
-
-  let offset = 0;
-  let colorOffset = 0;
-  const addVertex = (x, y, r, g, b) =&gt; {
-    vertexData[offset++] = x;
-    vertexData[offset++] = y;
--    offset += 1;  // skip the color
-    colorData[colorOffset++] = r * 255;
-    colorData[colorOffset++] = g * 255;
-    colorData[colorOffset++] = b * 255;
--    colorOffset += 9;  // skip extra byte and the position
-+    colorOffset += 1; // skip the extra byte
-  };
-
-
-  ...
-
-  return {
-    vertexData,
-+    colorData,
-    numVertices,
-  };
-}
-</pre>
-<p>In the interest of correctly naming things, lets change <code class="notranslate" translate="no">vertexData</code> to <code class="notranslate" translate="no">positionData</code>
-since our “vertex” is the combination of both a position and a color</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function createCircleVertices({
-  radius = 1,
-  numSubdivisions = 24,
-  innerRadius = 0,
-  startAngle = 0,
-  endAngle = Math.PI * 2,
-} = {}) {
-  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
-  const numVertices = numSubdivisions * 3 * 2;
--  const vertexData = new Float32Array(numVertices * 2);
-+  const positionData = new Float32Array(numVertices * 2);
-  const colorData = new Uint8Array(numVertices * 4);
-
--  let offset = 0;
-+  let positionOffset = 0;
-  let colorOffset = 0;
-  const addVertex = (x, y, r, g, b) =&gt; {
--    vertexData[offset++] = x;
--    vertexData[offset++] = y;
-+    positionData[positionOffset++] = x;
-+    positionData[positionOffset++] = y;
-    colorData[colorOffset++] = r * 255;
-    colorData[colorOffset++] = g * 255;
-    colorData[colorOffset++] = b * 255;
-    colorOffset += 1; // skip the extra byte
-  };
-
-  ...
-
-  return {
--    vertexData,
-+    positionData,
-    colorData,
-    numVertices,
-  };
-}
-</pre>
-<p>Then we need to create 2 buffers instead of 1</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const { vertexData, numVertices } = createCircleVertices({
-+  const { positionData, colorData, numVertices } = createCircleVertices({
-    radius: 0.5,
-    innerRadius: 0.25,
-  });
--  const vertexBuffer = device.createBuffer({
--    label: 'vertex buffer vertices',
--    size: vertexData.byteLength,
--    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
--  });
--  device.queue.writeBuffer(vertexBuffer, 0, vertexData);
-+  const positionBuffer = device.createBuffer({
-+    label: 'position buffer',
-+    size: positionData.byteLength,
-+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-+  });
-+  device.queue.writeBuffer(positionBuffer, 0, positionData);
-+  const colorBuffer = device.createBuffer({
-+    label: 'color buffer',
-+    size: colorData.byteLength,
-+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-+  });
-+  device.queue.writeBuffer(colorBuffer, 0, colorData);
-</pre>
-<p>And then at render time we need to specify the both buffers</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    pass.setPipeline(pipeline);
--    pass.setVertexBuffer(0, vertexBuffer);
-+    pass.setVertexBuffer(0, positionBuffer);
-+    pass.setVertexBuffer(1, colorBuffer);
-</pre>
-<p></p><div class="webgpu_example_container">
-  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers-2-buffers.html"></iframe></div>
-  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-vertex-buffers-2-buffers.html" target="_blank">click here to open in a separate window</a>
-</div>
-
-<p></p>
-<p>Like when we separated our first uniform buffer into 2 uniform buffers,
-one reason you might want to separate vertex data into 2 buffers is if
-some of the vertex data was static and other vertex data was updated
-often.</p>
 <h2 id="index-buffers"><a id="a-index-buffers"></a>Index Buffers</h2>
 <p>One last thing to cover here are index buffers. Index buffers describe
 the order to process and use the vertices.</p>
@@ -800,22 +929,25 @@ use those 4 vertices 6 times by telling WebGPU to draw indices in this order</p>
   startAngle = 0,
   endAngle = Math.PI * 2,
 } = {}) {
-  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
-  const numVertices = (numSubdivisions + 1) * 2;
-  const positionData = new Float32Array(numVertices * 2);
-  const colorData = new Uint8Array(numVertices * 4);
+  // 2 triangles per subdivision, 3 verts per tri
+-  const numVertices = numSubdivisions * 3 * 2;
++  const numVertices = (numSubdivisions + 1) * 3 * 2;
+  // 2 32-bit values for position (xy) and 1 32-bit value for color (rgb)
+  // The 32-bit color value will be written/read as 4 8-bit values
+  const vertexData = new Float32Array(numVertices * (2 + 1));
+  const colorData = new Uint8Array(vertexData.buffer);
 
-  let positionOffset = 0;
-  let colorOffset = 0;
+  let offset = 0;
+  let colorOffset = 8;
   const addVertex = (x, y, r, g, b) =&gt; {
-    positionData[positionOffset++] = x;
-    positionData[positionOffset++] = y;
+    vertexData[offset++] = x;
+    vertexData[offset++] = y;
+    offset += 1;  // skip the color
     colorData[colorOffset++] = r * 255;
     colorData[colorOffset++] = g * 255;
     colorData[colorOffset++] = b * 255;
-    colorOffset += 1; // skip the extra byte
+    colorOffset += 9;  // skip extra byte and the position
   };
-
   const innerColor = [1, 1, 1];
   const outerColor = [0.1, 0.1, 0.1];
 
@@ -889,23 +1021,17 @@ use those 4 vertices 6 times by telling WebGPU to draw indices in this order</p>
 }
 </pre>
 <p>Then we need to create an index buffer</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const { positionData, colorData, numVertices } = createCircleVertices({
-+  const { positionData, colorData, indexData, numVertices } = createCircleVertices({
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const { vertexData, numVertices } = createCircleVertices({
++  const { vertexData, indexData, numVertices } = createCircleVertices({
     radius: 0.5,
     innerRadius: 0.25,
   });
-  const positionBuffer = device.createBuffer({
-    label: 'position buffer',
-    size: positionData.byteLength,
+  const vertexBuffer = device.createBuffer({
+    label: 'vertex buffer',
+    size: vertexData.byteLength,
     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   });
-  device.queue.writeBuffer(positionBuffer, 0, positionData);
-  const colorBuffer = device.createBuffer({
-    label: 'color buffer',
-    size: colorData.byteLength,
-    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-  });
-  device.queue.writeBuffer(colorBuffer, 0, colorData);
+  device.queue.writeBuffer(vertexBuffer, 0, vertexData);
 +  const indexBuffer = device.createBuffer({
 +    label: 'index buffer',
 +    size: indexData.byteLength,
@@ -913,11 +1039,12 @@ use those 4 vertices 6 times by telling WebGPU to draw indices in this order</p>
 +  });
 +  device.queue.writeBuffer(indexBuffer, 0, indexData);
 </pre>
-<p>Notice we changed the usage to <code class="notranslate" translate="no">INDEX</code>.</p>
+<p>Notice we set the usage to <code class="notranslate" translate="no">INDEX</code>.</p>
 <p>Then finally at draw time we need to specify the index buffer</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    pass.setPipeline(pipeline);
-    pass.setVertexBuffer(0, positionBuffer);
-    pass.setVertexBuffer(1, colorBuffer);
+    pass.setVertexBuffer(0, vertexBuffer);
+    pass.setVertexBuffer(1, staticVertexBuffer);
+    pass.setVertexBuffer(2, changingVertexBuffer);
 +    pass.setIndexBuffer(indexBuffer, 'uint32');
 </pre>
 <p>Because our buffer contains 32bit unsigned integer indices
@@ -929,7 +1056,8 @@ unsigned indices in which case we’d pass in <code class="notranslate" translat
 </pre>
 <p>With that we saved some space (33%) and, potentially
 a similar amount of processing when computing vertices
-in the vertex shader.</p>
+in the vertex shader as it’s possible the GPU can reuse
+vertices it has already calculated.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers-index-buffer.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-vertex-buffers-index-buffer.html" target="_blank">click here to open in a separate window</a>
@@ -938,7 +1066,7 @@ in the vertex shader.</p>
 <p></p>
 <p>Note that we could have also used an index buffer with the
 storage buffer example from <a href="webgpu-storage-buffers.html">the previous article</a>.
-In that case <code class="notranslate" translate="no">vertex_index</code> that’s passed in matches the index
+In that case the value from <code class="notranslate" translate="no">@builtin(vertex_index)</code> that’s passed in matches the index
 from the index buffer.</p>
 <p>Next up we’ll cover <a href="webgpu-textures.html">textures</a>.</p>
 
