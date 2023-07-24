@@ -188,7 +188,7 @@ this will be very basic. We need to build up a foundation of these basics. Later
 we'll show how to use them to do things people typically do with GPUs like 2D
 graphics, 3D graphics, etc...
 
-# <a id="a-drawng-triangles-to-textures"></a>Drawing triangles to textures
+# <a id="a-drawing-triangles-to-textures"></a>Drawing triangles to textures
 
 WebGPU can draw triangles to [textures](webgpu-textures.html). For the purpose
 of this article, a texture is a 2d rectangle of pixels.[^textures] The `<canvas>` element
