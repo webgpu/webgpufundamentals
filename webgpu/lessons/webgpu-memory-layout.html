@@ -348,8 +348,8 @@ of <code class="notranslate" translate="no">someTypedArray</code>.</p>
   1 ; // frameCount
 const ourStructData = new Float32Array(kOurStructSizeFloat32Units)
 const velocityView = ourStructData.subarray(0, 1)
-const accelerationView = new Float32Array(ourStructData, 1, 2);
-const frameCountView = new Uint32Array(ourStructData, 2, 3);
+const accelerationView = ourStructData.subarray(1, 2);
+const frameCountView = new Uint32Array(ourStructData, 8, 1);
 
 velocityView[0] = 1.2;
 accelerationView[0] = 3.4;

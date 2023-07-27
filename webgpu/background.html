@@ -358,6 +358,7 @@ async function main() {
       mat4.translation(offset, mat);
       mat4.rotateZ(mat, t, mat);
       mat4.rotateX(mat, t * 0.9, mat);
+      mat4.scale(mat, [3, 3, 3], mat);
     }
 
     lightPosition.set([2, 3, 6]);
