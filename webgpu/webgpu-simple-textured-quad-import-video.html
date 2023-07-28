@@ -305,11 +305,19 @@ async function main() {
   await waitForClick();
   await startPlayingAndWaitForVideo(video);
 
+  canvas.addEventListener('click', () => {
+    if (video.paused) {
+      video.play();
+    } else {
+      video.pause();
+    }
+  });
+
   const texture = createTextureFromSource(device, video, {mips: true});
 
-  const textures = await Promise.all([
+  const textures = [
     texture,
-  ]);
+  ];
 
   // offsets to the various uniform values in float32 indices
   const kMatrixOffset = 0;

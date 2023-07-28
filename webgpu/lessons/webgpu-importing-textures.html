@@ -35,23 +35,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="How to load an Image into a texture">
+<meta name="description" content="How to load an Image/Canvas/Video into a texture">
 <meta name="keywords" content="webgpu graphics">
 <meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-importing-textures_en.jpg">
 
-<meta property="og:title" content="WebGPU Importing Images into Textures">
+<meta property="og:title" content="WebGPU Loading Images into Textures">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-importing-textures_en.jpg">
-<meta property="og:description" content="How to load an Image into a texture">
+<meta property="og:description" content="How to load an Image/Canvas/Video into a texture">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Importing Images into Textures">
+<meta name="twitter:title" content="WebGPU Loading Images into Textures">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html">
-<meta name="twitter:description" content="How to load an Image into a texture">
+<meta name="twitter:description" content="How to load an Image/Canvas/Video into a texture">
 <meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-importing-textures_en.jpg">
 
 <script type="application/ld+json">
@@ -76,7 +76,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html#webpage",
       "url":"https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html",
       "inLanguage":"en",
-      "name":"WebGPU Importing Images into Textures",
+      "name":"WebGPU Loading Images into Textures",
       "keywords":"webgpu graphics programming",
       "isPartOf":{
         "@id":"https://webgpufundamentals.org/#website"
@@ -89,7 +89,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
 </script>
 
-<title>WebGPU Importing Images into Textures</title>
+<title>WebGPU Loading Images into Textures</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
 <link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
@@ -217,17 +217,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Importing Images into Textures</h1>
+    <h1>WebGPU Loading Images into Textures</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
       <p>We covered some basics about using textures <a href="webgpu-textures.html">in the previous article</a>.
-In this article we’ll cover importing a texture from an image.</p>
+In this article we’ll cover loading an image into a texture
+as well as generating mipmaps on the GPU.</p>
 <p>In the previous article we’d created a texture by calling <code class="notranslate" translate="no">device.createTexture</code> and then
 put data in the texture by calling <code class="notranslate" translate="no">device.queue.writeTexture</code>. There’s another function
 on <code class="notranslate" translate="no">device.queue</code> called <code class="notranslate" translate="no">device.queue.copyExternalImageToTexture</code> that let’s us copy
 an image into a texture.</p>
-<p>It can take an <a href="https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap"><code class="notranslate" translate="no">ImageBitmap</code></a> so let’s take <a href="webgpu-textures.html#a-mag-filter">the magFilter example from the previous article</a> and change it to import a few images.</p>
+<p>It can take an <a href="https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap"><code class="notranslate" translate="no">ImageBitmap</code></a> so let’s take <a href="webgpu-textures.html#a-mag-filter">the magFilter example from the previous article</a> and change it to load a few images.</p>
 <p>First we need some code to get an <a href="https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap"><code class="notranslate" translate="no">ImageBitmap</code></a> from an image</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  async function loadImageBitmap(url) {
     const res = await fetch(url);
@@ -295,7 +296,7 @@ we can specify <code class="notranslate" translate="no">flipY: true</code> if we
 <p></p>
 <h2 id="generating-mips-on-the-gpu"><a id="a-generating-mips-on-the-gpu"></a>Generating mips on the GPU</h2>
 <p>In <a href="webgpu-textures.html#a-mipmap-filter">the previous article we also generated a mipmap</a>
-but in that case we had easy access to the image data. When importing an image, we
+but in that case we had easy access to the image data. When loading an image, we
 could draw that image into a 2D canvas, the call <code class="notranslate" translate="no">getImageData</code> to get the data, and
 finally generate mips and upload. That would be pretty slow. It would also potentially
 be lossy since how canvas 2D renders is intentionally implementation dependant.</p>
@@ -636,7 +637,7 @@ is this</p>
 </div>
 
 <p></p>
-<h2 id="import-canvas">Import Canvas</h2>
+<h2 id="loading-canvas">Loading Canvas</h2>
 <p><code class="notranslate" translate="no">copyExternalImageToTexture</code> takes other <em>sources</em>. Another is an <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement"><code class="notranslate" translate="no">HTMLCanvasElement</code></a>.
 We can use this to draw things in a 2d canvas, and then get the result in a texture in WebGPU.
 Of course you can use WebGPU to draw to a texture and use that texture you just drew too
@@ -682,7 +683,7 @@ requestAnimationFrame(render);
 </div>
 
 <p></p>
-<p>To import that canvas into WebGPU only a few changes are needed to our previous example.</p>
+<p>To load that canvas into WebGPU only a few changes are needed to our previous example.</p>
 <p>We need to create a texture of the right size. The easiest way it just to use the same
 code we wrote above</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const texture = createTextureFromSource(device, ctx.canvas, {mips: true});
@@ -735,8 +736,8 @@ then upload it to WebGPU</p>
 </div>
 
 <p></p>
-<h2 id="importing-video">Importing Video</h2>
-<p>Importing video this way is no different. We can create a <code class="notranslate" translate="no">&lt;video&gt;</code> element and pass
+<h2 id="loading-video">Loading Video</h2>
+<p>Loading video this way is no different. We can create a <code class="notranslate" translate="no">&lt;video&gt;</code> element and pass
 it to the same functions we passed the canvas to in the previous example and it should
 just work with minor adjustments</p>
 <p>Here’s a video</p>
@@ -884,6 +885,23 @@ a play button.</p>
 
   const texture = createTextureFromSource(device, video, {mips: true});
 </pre>
+<p>Let’s also add a wait to pause the video</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const video = document.createElement('video');
+  video.muted = true;
+  video.loop = true;
+  video.preload = 'auto';
+  video.src = 'resources/videos/pexels-anna-bondarenko-5534310 (540p).mp4'; /* webgpufundamentals: url */
+  await waitForClick();
+  await startPlayingAndWaitForVideo(video);
+
++  canvas.addEventListener('click', () =&gt; {
++    if (video.paused) {
++      video.play();
++    } else {
++      video.pause();
++    }
++  });
+</pre>
 <p>And with that we should get video in a texture</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-textured-quad-import-video.html"></iframe></div>
@@ -965,7 +983,8 @@ They seem to change over time so we won’t go into solutions here. <a href="#fn
 <li><a href="/webgpu/lessons/webgpu-storage-buffers.html">Storage Buffers</a></li>
 <li><a href="/webgpu/lessons/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
 <li><a href="/webgpu/lessons/webgpu-textures.html">Textures</a></li>
-<li><a href="/webgpu/lessons/webgpu-importing-textures.html">Importing Images</a></li>
+<li><a href="/webgpu/lessons/webgpu-importing-textures.html">Loading Images</a></li>
+<li><a href="/webgpu/lessons/webgpu-textures-external-video.html">Using Video</a></li>
 <li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
 <li><a href="/webgpu/lessons/webgpu-wgsl.html">WGSL</a></li>
@@ -1022,7 +1041,7 @@ They seem to change over time so we won’t go into solutions here. <a href="#fn
         <script>
             var disqus_config = function () {
               this.page.url = `${window.location.origin}${window.location.pathname}`;
-              this.page.identifier = `WebGPU Importing Images into Textures`;
+              this.page.identifier = `WebGPU Loading Images into Textures`;
             };
             (function() { // DON'T EDIT BELOW THIS LINE
                 if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
