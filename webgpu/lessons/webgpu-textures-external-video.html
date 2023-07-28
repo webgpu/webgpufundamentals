@@ -465,14 +465,16 @@ to make a copy. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 <li id="fn2" class="footnote-item"><p>The spec actually says the implementation
 can return the same texture but it is not required to. If you
 want to check if you got the same texture, compare it to the previous
-texture as in </p><pre class="prettyprint showlinemods notranslate notranslate" translate="no">newTexture = device.importExternalTexture(…);<br>same = oldTexture === newTexture;</pre> <a href="#fnref2" class="footnote-backref">↩︎</a><p></p>
+texture as in </p><pre class="prettyprint showlinemods notranslate notranslate" translate="no">const newTexture = device.importExternalTexture(…);<br>const same = oldTexture === newTexture;</pre> If it is
+the same texture then you can reuse your existing bindgroup and
+referenced <code class="notranslate" translate="no">oldTexture</code>. <a href="#fnref2" class="footnote-backref">↩︎</a><p></p>
 </li>
 <li id="fn3" class="footnote-item"><p>You can also use <code class="notranslate" translate="no">textureLoad</code> with external textures. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
 </li>
 <li id="fn4" class="footnote-item"><p>We could split the bind groups so there’s
 one that holds the sampler and uniformBuffer which we could create
-in advance and another that just references the external texture.
-Whether that’s worth it is up to your particular needs. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+in advance and another that just references the external texture that
+we create at render time. Whether that’s worth it is up to your particular needs. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>
