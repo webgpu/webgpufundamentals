@@ -37,7 +37,9 @@ There are a few big caveats to using an texture from `importExternalTexture`.
   [^bindgroup-exception]: The spec actually says the implementation
   can return the same texture but it is not required to. If you
   want to check if you got the same texture, compare it to the previous
-  texture as in <pre><code>newTexture = device.importExternalTexture(...);<br>same = oldTexture === newTexture;</code></pre>
+  texture as in <pre><code>const newTexture = device.importExternalTexture(...);<br>const same = oldTexture === newTexture;</code></pre> If it is
+  the same texture then you can reuse your existing bindgroup and
+  referenced `oldTexture`.
 
 * ## You must use `texture_external` in your shaders
 
@@ -173,8 +175,8 @@ create them later . [^bindgroups-in-advance]
 
 [^bindgroups-in-advance]: We could split the bind groups so there's
 one that holds the sampler and uniformBuffer which we could create
-in advance and another that just references the external texture.
-Whether that's worth it is up to your particular needs.
+in advance and another that just references the external texture that
+we create at render time. Whether that's worth it is up to your particular needs.
 
 ```js
   const objectInfos = [];
