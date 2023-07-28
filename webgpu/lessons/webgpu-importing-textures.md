@@ -1,16 +1,17 @@
-Title: WebGPU Importing Images into Textures
-Description: How to load an Image into a texture
-TOC: Importing Images
+Title: WebGPU Loading Images into Textures
+Description: How to load an Image/Canvas/Video into a texture
+TOC: Loading Images
 
 We covered some basics about using textures [in the previous article](webgpu-textures.html).
-In this article we'll cover importing a texture from an image.
+In this article we'll cover loading an image into a texture
+as well as generating mipmaps on the GPU.
 
 In the previous article we'd created a texture by calling `device.createTexture` and then
 put data in the texture by calling `device.queue.writeTexture`. There's another function
 on `device.queue` called `device.queue.copyExternalImageToTexture` that let's us copy
 an image into a texture.
 
-It can take an `ImageBitmap` so let's take [the magFilter example from the previous article](webgpu-textures.html#a-mag-filter) and change it to import a few images.
+It can take an `ImageBitmap` so let's take [the magFilter example from the previous article](webgpu-textures.html#a-mag-filter) and change it to load a few images.
 
 First we need some code to get an `ImageBitmap` from an image
 
@@ -94,7 +95,7 @@ And that works!
 ## <a id="a-generating-mips-on-the-gpu"></a>Generating mips on the GPU
 
 In [the previous article we also generated a mipmap](webgpu-textures.html#a-mipmap-filter)
-but in that case we had easy access to the image data. When importing an image, we
+but in that case we had easy access to the image data. When loading an image, we
 could draw that image into a 2D canvas, the call `getImageData` to get the data, and
 finally generate mips and upload. That would be pretty slow. It would also potentially
 be lossy since how canvas 2D renders is intentionally implementation dependant.
@@ -465,7 +466,7 @@ And here it is
 
 {{{example url="../webgpu-simple-textured-quad-import.html"}}}
 
-## Import Canvas
+## Loading Canvas
 
 `copyExternalImageToTexture` takes other *sources*. Another is an `HTMLCanvasElement`.
 We can use this to draw things in a 2d canvas, and then get the result in a texture in WebGPU.
@@ -513,7 +514,7 @@ requestAnimationFrame(render);
 
 {{{example url="../canvas-2d-animation.html"}}}
 
-To import that canvas into WebGPU only a few changes are needed to our previous example.
+To load that canvas into WebGPU only a few changes are needed to our previous example.
 
 We need to create a texture of the right size. The easiest way it just to use the same
 code we wrote above
@@ -570,9 +571,9 @@ With that we're able to upload a canvas AND generate mips levels for it
 
 {{{example url="../webgpu-simple-textured-quad-import-canvas.html"}}}
 
-## Importing Video
+## Loading Video
 
-Importing video this way is no different. We can create a `<video>` element and pass
+Loading video this way is no different. We can create a `<video>` element and pass
 it to the same functions we passed the canvas to in the previous example and it should
 just work with minor adjustments
 
@@ -747,6 +748,26 @@ Then let's write a function to wait for it to be clicked and hide it.
   await startPlayingAndWaitForVideo(video);
 
   const texture = createTextureFromSource(device, video, {mips: true});
+```
+
+Let's also add a wait to pause the video
+
+```js
+  const video = document.createElement('video');
+  video.muted = true;
+  video.loop = true;
+  video.preload = 'auto';
+  video.src = 'resources/videos/pexels-anna-bondarenko-5534310 (540p).mp4'; /* webgpufundamentals: url */
+  await waitForClick();
+  await startPlayingAndWaitForVideo(video);
+
++  canvas.addEventListener('click', () => {
++    if (video.paused) {
++      video.play();
++    } else {
++      video.pause();
++    }
++  });
 ```
 
 And with that we should get video in a texture
