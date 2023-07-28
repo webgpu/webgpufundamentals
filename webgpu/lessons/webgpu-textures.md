@@ -1238,12 +1238,12 @@ A "cube" texture is a texture that represents the 6 faces of a cube. We'll cover
 that in [the article on cube maps](webgpu-cube-maps.html)
 
 A "2d-array" is an array of 2d textures. You can then choose which texture of
-the array to access in your shader. They commonly used for terrain rendering
+the array to access in your shader. They are commonly used for terrain rendering
 among other things.
 
 A "cube-array" is an array of cube textures.
 
-Each type of texture has it's own corresponding type in WGSL.
+Each type of texture has its own corresponding type in WGSL.
 
 * "1d": `texture_1d` or `texture_storage_1d`
 
@@ -1271,7 +1271,7 @@ layers
 ## Texture Formats
 
 For now, this is the basics of textures.
-Textures are a huge topic and there's a bunch more to cover
+Textures are a huge topic and there's a bunch more to cover.
 
 We've used `rgba8unorm` textures through out this article but there are
 a ton of different texture formats.
