@@ -324,7 +324,7 @@ const mat4 = {
     return dst;
   },
 
-  lookAt(eye, target, up, dst) {
+  cameraAim(eye, target, up, dst) {
     dst = dst || new Float32Array(16);
 
     const zAxis = vec3.normalize(vec3.subtract(eye, target));
@@ -337,6 +337,10 @@ const mat4 = {
     dst[12] = eye[0];    dst[13] = eye[1];    dst[14] = eye[2];    dst[15] = 1;
 
     return dst;
+  },
+
+  lookAt(eye, target, up, dst) {
+    return mat4.inverse(mat4.cameraAim(eye, target, up, dst), dst);
   },
 
   translation([tx, ty, tz], dst) {
@@ -611,11 +615,8 @@ async function main() {
     const target = [0, -100, 0];
     const up = [0, 1, 0];
 
-    // Compute the camera's matrix using look at.
-    const cameraMatrix = mat4.lookAt(eye, target, up);
-
-    // Make a view matrix from the camera matrix.
-    const viewMatrix = mat4.inverse(cameraMatrix);
+    // Compute the view matrix using look at.
+    const viewMatrix = mat4.lookAt(eye, target, up);
 
     // combine the view and projection matrixes
     const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
@@ -635,7 +636,7 @@ async function main() {
         const z = (v - 0.5) * deep * 150;
         const u = xx / (across - 1);
         const x = (u - 0.5) * across * 150;
-        const lookAtMatrix = mat4.lookAt([x, 0, z], settings.target, up);
+        const lookAtMatrix = mat4.cameraAim([x, 0, z], settings.target, up);
         mat4.multiply(viewProjectionMatrix, lookAtMatrix, matrixValue);
       } else {
         mat4.translate(viewProjectionMatrix, settings.target, matrixValue);
