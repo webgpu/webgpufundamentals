@@ -223,8 +223,7 @@ async function main() {
     const cameraPosition = [0, 0, 2];
     const up = [0, 1, 0];
     const target = [0, 0, 0];
-    const cameraMatrix = mat4.lookAt(cameraPosition, target, up);
-    const viewMatrix = mat4.inverse(cameraMatrix);
+    const viewMatrix = mat4.lookAt(cameraPosition, target, up);
     const viewProjectionMatrix = mat4.multiply(projectionMatrix, viewMatrix);
 
     // Get the current texture from the canvas context and
@@ -252,7 +251,7 @@ async function main() {
 
       const xSpacing = 1.2;
       const ySpacing = 0.5;
-      const zDepth = 8;
+      const zDepth = 1;
 
       const x = i % 2 - .5;
       const y = i < 2 ? 1 : -1;

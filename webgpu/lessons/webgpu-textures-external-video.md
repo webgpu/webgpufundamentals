@@ -248,10 +248,10 @@ and not stretch them out 50 to 1 like we had before.
       const bindGroup = bindGroups[texNdx];
 
       const xSpacing = 1.2;
--      const ySpacing = 0.5;
--      const zDepth = 8;
-+      const ySpacing = 0.7;
-+      const zDepth = 50;
+-      const ySpacing = 0.7;
+-      const zDepth = 50;
++      const ySpacing = 0.5;
++      const zDepth = 1;
 
 -      const x = i % 4 - 1.5;
 -      const y = i < 4 ? 1 : -1;

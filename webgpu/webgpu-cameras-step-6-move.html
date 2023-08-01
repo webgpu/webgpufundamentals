@@ -770,9 +770,8 @@ async function main() {
         2000,   // zFar
     );
 
-    // Compute a camera matrix
-    const cameraMatrix = mat4.cameraAim(camera.position, camera.target, camera.up);
-    const viewMatrix = mat4.inverse(cameraMatrix);
+    // Compute a view matrix
+    const viewMatrix = mat4.lookAt(camera.position, camera.target, camera.up);
 
     // combine the view and projection matrixes
     const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
