@@ -31,8 +31,6 @@ async function main() {
 
   // Get a WebGPU context from the canvas and configure it
   const canvas = document.querySelector('canvas');
-  canvas.width = 10;
-  canvas.height = 10;
   const context = canvas.getContext('webgpu');
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   context.configure({
