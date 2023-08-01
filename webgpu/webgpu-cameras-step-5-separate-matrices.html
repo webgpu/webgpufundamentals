@@ -730,11 +730,8 @@ async function main() {
     const eye = tempMatrix.slice(12, 15);
     const up = [0, 1, 0];
 
-    // Compute the camera's matrix using look at.
-    const cameraMatrix = mat4.lookAt(eye, fPosition, up);
-
-    // Make a view matrix from the camera matrix.
-    mat4.inverse(cameraMatrix, viewValue);
+    // Compute a view matrix using look at.
+    mat4.lookAt(eye, fPosition, up, viewValue);
 
     // upload the shared uniform values to the shared uniform buffer
     device.queue.writeBuffer(sharedUniformBuffer, 0, sharedUniformValues);
