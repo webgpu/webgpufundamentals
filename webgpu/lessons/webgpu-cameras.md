@@ -797,7 +797,7 @@ matrix that makes your object follow the path and orient toward the path as
 well.
 
 Usually to "aim" something you want it to point down the positive Z axis instead
-of the negative Z axis as our function above did so we need to 
+of the negative Z axis as our function above did. So, we need to 
 subtract `target` from `eye` instead of `eye` from `target`
 
 ```js
