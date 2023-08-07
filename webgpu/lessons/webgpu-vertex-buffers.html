@@ -357,8 +357,7 @@ vertex buffer.</p>
 <p>The attribute <code class="notranslate" translate="no">format</code> field can be one of these types</p>
 <div class="webgpu_center data-table">
   <style>
-    .vertex-type td:nth-child(3),
-    .vertex-type td:nth-child(4) {
+    .vertex-type {
       text-align: center;
     }
   </style>
@@ -374,36 +373,36 @@ vertex buffer.</p>
      </tr>
     </thead>
     <tbody>
-      <tr><td><code class="notranslate" translate="no">"uint8x2"</code></td><td>unsigned int </td><td>2 </td><td>2 </td><td><code class="notranslate" translate="no">vec2&lt;u32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"uint8x4"</code></td><td>unsigned int </td><td>4 </td><td>4 </td><td><code class="notranslate" translate="no">vec4&lt;u32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"sint8x2"</code></td><td>signed int </td><td>2 </td><td>2 </td><td><code class="notranslate" translate="no">vec2&lt;i32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"sint8x4"</code></td><td>signed int </td><td>4 </td><td>4 </td><td><code class="notranslate" translate="no">vec4&lt;i32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"unorm8x2"</code></td><td>unsigned normalized </td><td>2 </td><td>2 </td><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"unorm8x4"</code></td><td>unsigned normalized </td><td>4 </td><td>4 </td><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"snorm8x2"</code></td><td>signed normalized </td><td>2 </td><td>2 </td><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"snorm8x4"</code></td><td>signed normalized </td><td>4 </td><td>4 </td><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"uint16x2"</code></td><td>unsigned int </td><td>2 </td><td>4 </td><td><code class="notranslate" translate="no">vec2&lt;u32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"uint16x4"</code></td><td>unsigned int </td><td>4 </td><td>8 </td><td><code class="notranslate" translate="no">vec4&lt;u32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"sint16x2"</code></td><td>signed int </td><td>2 </td><td>4 </td><td><code class="notranslate" translate="no">vec2&lt;i32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"sint16x4"</code></td><td>signed int </td><td>4 </td><td>8 </td><td><code class="notranslate" translate="no">vec4&lt;i32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"unorm16x2"</code></td><td>unsigned normalized </td><td>2 </td><td>4 </td><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"unorm16x4"</code></td><td>unsigned normalized </td><td>4 </td><td>8 </td><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"snorm16x2"</code></td><td>signed normalized </td><td>2 </td><td>4 </td><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"snorm16x4"</code></td><td>signed normalized </td><td>4 </td><td>8 </td><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"float16x2"</code></td><td>float </td><td>2 </td><td>4 </td><td><code class="notranslate" translate="no">vec2&lt;f16&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"float16x4"</code></td><td>float </td><td>4 </td><td>8 </td><td><code class="notranslate" translate="no">vec4&lt;f16&gt;</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"uint8x2"</code></td><td>unsigned int </td><td>2 </td><td>2 </td><td><code class="notranslate" translate="no">vec2&lt;u32&gt;</code>, <code class="notranslate" translate="no">vec2u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"uint8x4"</code></td><td>unsigned int </td><td>4 </td><td>4 </td><td><code class="notranslate" translate="no">vec4&lt;u32&gt;</code>, <code class="notranslate" translate="no">vec4u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"sint8x2"</code></td><td>signed int </td><td>2 </td><td>2 </td><td><code class="notranslate" translate="no">vec2&lt;i32&gt;</code>, <code class="notranslate" translate="no">vec2i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"sint8x4"</code></td><td>signed int </td><td>4 </td><td>4 </td><td><code class="notranslate" translate="no">vec4&lt;i32&gt;</code>, <code class="notranslate" translate="no">vec4i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"unorm8x2"</code></td><td>unsigned normalized </td><td>2 </td><td>2 </td><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code>, <code class="notranslate" translate="no">vec2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"unorm8x4"</code></td><td>unsigned normalized </td><td>4 </td><td>4 </td><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code>, <code class="notranslate" translate="no">vec4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"snorm8x2"</code></td><td>signed normalized </td><td>2 </td><td>2 </td><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code>, <code class="notranslate" translate="no">vec2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"snorm8x4"</code></td><td>signed normalized </td><td>4 </td><td>4 </td><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code>, <code class="notranslate" translate="no">vec4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"uint16x2"</code></td><td>unsigned int </td><td>2 </td><td>4 </td><td><code class="notranslate" translate="no">vec2&lt;u32&gt;</code>, <code class="notranslate" translate="no">vec2u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"uint16x4"</code></td><td>unsigned int </td><td>4 </td><td>8 </td><td><code class="notranslate" translate="no">vec4&lt;u32&gt;</code>, <code class="notranslate" translate="no">vec4u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"sint16x2"</code></td><td>signed int </td><td>2 </td><td>4 </td><td><code class="notranslate" translate="no">vec2&lt;i32&gt;</code>, <code class="notranslate" translate="no">vec2i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"sint16x4"</code></td><td>signed int </td><td>4 </td><td>8 </td><td><code class="notranslate" translate="no">vec4&lt;i32&gt;</code>, <code class="notranslate" translate="no">vec4i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"unorm16x2"</code></td><td>unsigned normalized </td><td>2 </td><td>4 </td><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code>, <code class="notranslate" translate="no">vec2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"unorm16x4"</code></td><td>unsigned normalized </td><td>4 </td><td>8 </td><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code>, <code class="notranslate" translate="no">vec4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"snorm16x2"</code></td><td>signed normalized </td><td>2 </td><td>4 </td><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code>, <code class="notranslate" translate="no">vec2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"snorm16x4"</code></td><td>signed normalized </td><td>4 </td><td>8 </td><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code>, <code class="notranslate" translate="no">vec4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"float16x2"</code></td><td>float </td><td>2 </td><td>4 </td><td><code class="notranslate" translate="no">vec2&lt;f16&gt;</code>, <code class="notranslate" translate="no">vec2h</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"float16x4"</code></td><td>float </td><td>4 </td><td>8 </td><td><code class="notranslate" translate="no">vec4&lt;f16&gt;</code>, <code class="notranslate" translate="no">vec4h</code></td></tr>
       <tr><td><code class="notranslate" translate="no">"float32"</code></td><td>float </td><td>1 </td><td>4 </td><td><code class="notranslate" translate="no">f32</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"float32x2"</code></td><td>float </td><td>2 </td><td>8 </td><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"float32x3"</code></td><td>float </td><td>3 </td><td>12 </td><td><code class="notranslate" translate="no">vec3&lt;f32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"float32x4"</code></td><td>float </td><td>4 </td><td>16 </td><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"float32x2"</code></td><td>float </td><td>2 </td><td>8 </td><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code>, <code class="notranslate" translate="no">vec2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"float32x3"</code></td><td>float </td><td>3 </td><td>12 </td><td><code class="notranslate" translate="no">vec3&lt;f32&gt;</code>, <code class="notranslate" translate="no">vec3f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"float32x4"</code></td><td>float </td><td>4 </td><td>16 </td><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code>, <code class="notranslate" translate="no">vec4f</code></td></tr>
       <tr><td><code class="notranslate" translate="no">"uint32"</code></td><td>unsigned int </td><td>1 </td><td>4 </td><td><code class="notranslate" translate="no">u32</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"uint32x2"</code></td><td>unsigned int </td><td>2 </td><td>8 </td><td><code class="notranslate" translate="no">vec2&lt;u32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"uint32x3"</code></td><td>unsigned int </td><td>3 </td><td>12 </td><td><code class="notranslate" translate="no">vec3&lt;u32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"uint32x4"</code></td><td>unsigned int </td><td>4 </td><td>16 </td><td><code class="notranslate" translate="no">vec4&lt;u32&gt;</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"uint32x2"</code></td><td>unsigned int </td><td>2 </td><td>8 </td><td><code class="notranslate" translate="no">vec2&lt;u32&gt;</code>, <code class="notranslate" translate="no">vec2u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"uint32x3"</code></td><td>unsigned int </td><td>3 </td><td>12 </td><td><code class="notranslate" translate="no">vec3&lt;u32&gt;</code>, <code class="notranslate" translate="no">vec3u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"uint32x4"</code></td><td>unsigned int </td><td>4 </td><td>16 </td><td><code class="notranslate" translate="no">vec4&lt;u32&gt;</code>, <code class="notranslate" translate="no">vec4u</code></td></tr>
       <tr><td><code class="notranslate" translate="no">"sint32"</code></td><td>signed int </td><td>1 </td><td>4 </td><td><code class="notranslate" translate="no">i32</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"sint32x2"</code></td><td>signed int </td><td>2 </td><td>8 </td><td><code class="notranslate" translate="no">vec2&lt;i32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"sint32x3"</code></td><td>signed int </td><td>3 </td><td>12 </td><td><code class="notranslate" translate="no">vec3&lt;i32&gt;</code></td></tr>
-      <tr><td><code class="notranslate" translate="no">"sint32x4"</code></td><td>signed int </td><td>4 </td><td>16 </td><td><code class="notranslate" translate="no">vec4&lt;i32&gt;</code> </td></tr>
+      <tr><td><code class="notranslate" translate="no">"sint32x2"</code></td><td>signed int </td><td>2 </td><td>8 </td><td><code class="notranslate" translate="no">vec2&lt;i32&gt;</code>, <code class="notranslate" translate="no">vec2i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"sint32x3"</code></td><td>signed int </td><td>3 </td><td>12 </td><td><code class="notranslate" translate="no">vec3&lt;i32&gt;</code>, <code class="notranslate" translate="no">vec3i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">"sint32x4"</code></td><td>signed int </td><td>4 </td><td>16 </td><td><code class="notranslate" translate="no">vec4&lt;i32&gt;</code>, <code class="notranslate" translate="no">vec4i</code></td></tr>
     </tbody>
   </table>
   </div>
@@ -726,6 +725,69 @@ the inner vertices.</p>
 </div>
 
 <p></p>
+<h2 id="attributes-in-wgsl-do-not-have-to-match-attributes-in-javascript"><a id="a-default-values"></a>Attributes in WGSL do not have to match attributes in JavaScript</h2>
+<p>Above in WGSL we declared the <code class="notranslate" translate="no">perVertexColor</code> attribute as a <code class="notranslate" translate="no">vec3f</code> like this</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Vertex {
+  @location(0) position: vec2f,
+  @location(1) color: vec4f,
+  @location(2) offset: vec2f,
+  @location(3) scale: vec2f,
+*  @location(4) perVertexColor: vec3f,
+};
+</pre>
+<p>And used it like this</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@vertex fn vs(
+  vert: Vertex,
+) -&gt; VSOutput {
+  var vsOut: VSOutput;
+  vsOut.position = vec4f(
+      vert.position * vert.scale + vert.offset, 0.0, 1.0);
+*  vsOut.color = vert.color * vec4f(vert.perVertexColor, 1);
+  return vsOut;
+}
+</pre>
+<p>We could also declare it as a <code class="notranslate" translate="no">vec4f</code> and use it like this</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Vertex {
+  @location(0) position: vec2f,
+  @location(1) color: vec4f,
+  @location(2) offset: vec2f,
+  @location(3) scale: vec2f,
+-  @location(4) perVertexColor: vec3f,
++  @location(4) perVertexColor: vec4f,
+};
+
+...
+
+@vertex fn vs(
+  vert: Vertex,
+) -&gt; VSOutput {
+  var vsOut: VSOutput;
+  vsOut.position = vec4f(
+      vert.position * vert.scale + vert.offset, 0.0, 1.0);
+-  vsOut.color = vert.color * vec4f(vert.perVertexColor, 1);
++  vsOut.color = vert.color * vert.perVertexColor;
+  return vsOut;
+}
+</pre>
+<p>And change nothing else. In JavaScript we’re still only supplying the data as
+3 floats per vertex.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    {
+      arrayStride: 5 * 4, // 5 floats, 4 bytes each
+      attributes: [
+        {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
+*        {shaderLocation: 4, offset: 8, format: 'float32x3'},  // perVertexColor
+      ],
+    },
+</pre>
+<p>This works because attributes always have 4 values available in the shader. They default
+to <code class="notranslate" translate="no">0, 0, 0, 1</code> so any values we don’t supply get these defaults.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-vertex-buffers-per-vertex-colors-3-in-4-out.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-vertex-buffers-per-vertex-colors-3-in-4-out.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<h2 id="using-normalized-values-to-save-space"><a id="a-normalized-attributes"></a>Using normalized values to save space</h2>
 <p>We’re using 32bit floating point values for colors. Each <code class="notranslate" translate="no">perVertexColor</code> has 3 values for a total of 12 bytes per color per vertex. Each <code class="notranslate" translate="no">color</code> has 4 values
 for a total of 16 bytes per color per instance.</p>
 <p>We could optimize that by using 8bit values and telling WebGPU they should be normalized from 0 ↔ 255 to 0.0 ↔ 1.0</p>
