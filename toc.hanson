@@ -31,5 +31,6 @@
     'webgpu-from-webgl.md',
     'webgpu-resources.md',
     'webgpu-wgsl-function-reference.md',
+    'webgpu-wgsl-offset-computer.md',
   ],
 }
