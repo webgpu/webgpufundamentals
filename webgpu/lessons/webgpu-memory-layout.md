@@ -113,7 +113,7 @@ do this. `TypeArray`s have a constructor that takes various forms. For example
 
    This makes a new `Float32Array` on an **existing buffer**. The view
    starts at `byteOffset` and is `length` units long. So if we passed 3
-   or length the view would be 3 float32 values long (12 bytes) of
+   for length the view would be 3 float32 values long (12 bytes) of
    `someArrayBuffer`
 
 Using this last form we could change the code above to this
@@ -157,7 +157,7 @@ const kOurStructSizeFloat32Units =
 const ourStructData = new Float32Array(kOurStructSizeFloat32Units)
 const velocityView = ourStructData.subarray(0, 1)
 const accelerationView = ourStructData.subarray(1, 2);
-const frameCountView = new Uint32Array(ourStructData, 8, 1);
+const frameCountView = new Uint32Array(ourStructData, 2, 3);
 
 velocityView[0] = 1.2;
 accelerationView[0] = 3.4;
