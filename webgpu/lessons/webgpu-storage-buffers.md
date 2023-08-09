@@ -71,6 +71,8 @@ The major differences between uniform buffers and storage buffers are:
    We saw an example of writing to a storage buffer in the compute shader
    example in [the first article](webgpu-fundamentals.html).
 
+## <a id="a-instancing"></a>Instancing with Storage Buffers
+
 Given the first 2 points above, lets take our last example and change it
 to draw all 100 triangles in a single draw call. This is a use-case that
 *might* fit storage buffers. I say might because again, WebGPU is similar
