@@ -1,3 +1,5 @@
+<!-- eslint-disable no-sparse-arrays -->
+<!-- eslint-disable no-sparse-arrays -->
 <!DOCTYPE html>
 <html>
   <head>
@@ -13,25 +15,32 @@ canvas {
   width: 100%;     /* make the canvas fill its container */
   height: 100%;
 }
-:root {
-  --bg-color: #fff;
+#ui {
+  position: fixed;
+  left: 0;
+  top: 0;
+  user-select: none;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #000;
-  }
-}
-canvas {
-  display: block;  /* make the canvas act like a block   */
-  width: 100%;     /* make the canvas fill its container */
-  height: 100%;
-  background-color: var(--bg-color);
+#ui table td {
+  font-size: 20px;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
 }
     </style>
   </head>
   <body>
     <canvas></canvas>
-    <div id="circle"></div>
+    <div id="ui">
+      <table>
+        <tbody>
+          <tr><td colspan="3">turn</td><td colspan="3">slide</td></tr>
+          <tr><td> </td><td>▲</td><td> </td><td> </td><td>▲</td><td> </td></tr>
+          <tr><td>◀</td><td>⚪</td><td>▶</td><td>◀</td><td>⭕️</td><td>▶</td></tr>
+          <tr><td> </td><td>▼</td><td> </td><td> </td><td>▼</td><td> </td></tr>
+        </tbody>
+      </table>
+    </div>
   </body>
   <script type="module">
 import {vec3, mat4} from '/3rdparty/wgpu-matrix.module.js';
@@ -720,6 +729,38 @@ async function main() {
     'KeyI': kUp,
     'KeyK': kDown,
   };
+
+  // This is a bad design. A touch interface
+  // should handle sliding on/off the buttons.
+  // Often it should handle starting from anywhere and sliding in a direction
+  // Further, this code shouldn't insert keys. Rather, both the keys and this
+  // code should set direction bits. But, the point of this example is not
+  // to make perfect controls, it's to demonstrate matrix axes.
+  const directionToCode = Object.fromEntries(Object.entries(codeToDirection).map(([k, v]) => [v, k]));
+  const moveElem = document.querySelector('#ui table');
+  const moveTable = [
+    [ -1    , kUp     , -1      , -1            , kUp + 0x10      , -1             ],
+    [ kLeft , kForward, kRight  , kLeft + 0x10  , kBackward + 0x10, kRight + 0x10  ],
+    [ -1    , kDown   , -1      , -1            , kDown + 0x10    , -1             ],
+  ];
+  moveTable.forEach((columns, rowNdx) => {
+    columns.forEach((direction, colNdx) => {
+      if (direction >= 0) {
+        const newStrafe = !!(direction & 0x10);
+        direction &= 0xF;
+        const elem = moveElem.rows[rowNdx + 1].cells[colNdx];
+        elem.addEventListener('pointerdown', () => {
+            strafe = newStrafe;
+            keyState[directionToCode[direction]] = ++keyCount;
+            requestAnimation();
+        });
+        elem.addEventListener('pointerup', () => {
+            strafe = false;
+            keyState[directionToCode[direction]] = 0;
+        });
+      }
+    });
+  });
 
   const keyState = {};
   let keyCount = 0;
