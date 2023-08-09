@@ -154,10 +154,11 @@ const kOurStructSizeFloat32Units =
   1 + // velocity
   1 + // acceleration
   1 ; // frameCount
-const ourStructData = new Float32Array(kOurStructSizeFloat32Units)
-const velocityView = ourStructData.subarray(0, 1)
-const accelerationView = ourStructData.subarray(1, 2);
-const frameCountView = new Uint32Array(ourStructData, 2, 3);
+const ourStructDataAsF32 = new Float32Array(kOurStructSizeFloat32Units);
+const ourStructDataAsU32 = new Uint32Array(ourStructDataAsU32);
+const velocityView = ourStructDataAsF32.subarray(0, 1);
+const accelerationView = ourStructDataAsF32.subarray(1, 2);
+const frameCountView = ourStructDataAsU32(ourStructData, 2, 3);
 
 velocityView[0] = 1.2;
 accelerationView[0] = 3.4;
