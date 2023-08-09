@@ -211,6 +211,8 @@ The attribute `format` field can be one of these types
   </div>
 </div>
 
+## <a id="a-instancing"></a>Instancing with Vertex Buffers
+
 Attributes can advance per vertex or per instance. Advancing them per instance is effectively
 the same thing we're doing when we index `otherStructs[instanceIndex]` and `ourStructs[instanceIndex]`
 where `instanceIndex` got its value from `@builtin(instance_index)`.
