@@ -28,7 +28,7 @@ Here are some other webgpu resources
 
 # Libraries
 
-## Frameworks
+## 3D Libraries
 
 * [three.js](https://threejs.org) [Examples](https://threejs.org/examples/?q=webgpu)
 * [babylon.js](https://www.babylonjs.com/)
@@ -39,7 +39,7 @@ Here are some other webgpu resources
 * [wgsl-struct-buffer](https://github.com/deepkolos/wgsl-struct-buffer) - wgsl's struct buffer view in ts with type check & infer
 * [webgpu-memory](https://github.com/greggman/webgpu-memory) - tells you how much memory you're using
 * [webgpu-avoid-redundant-state-setting](https://github.com/greggman/webgpu-avoid-redundant-state-setting) - checks your code for redundant WebGPU calls
-
+* [webgpu_recorder](https://github.com/brendan-duncan/webgpu_recorder) - records WebGPU to an .HTML fil. Helpful for making a standalone repo of a bug/issue.
 
 
 
