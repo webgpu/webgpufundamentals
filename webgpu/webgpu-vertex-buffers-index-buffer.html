@@ -40,8 +40,8 @@ function createCircleVertices({
   startAngle = 0,
   endAngle = Math.PI * 2,
 } = {}) {
-  // 2 triangles per subdivision, 3 verts per tri
-  const numVertices = (numSubdivisions + 1) * 3 * 2;
+  // 2 vertices at each subdivision, + 1 to wrap around the circle.
+  const numVertices = (numSubdivisions + 1) * 2;
   // 2 32-bit values for position (xy) and 1 32-bit value for color (rgb)
   // The 32-bit color value will be written/read as 4 8-bit values
   const vertexData = new Float32Array(numVertices * (2 + 1));
