@@ -22,6 +22,7 @@
   --selected-fg-color: orange;
   --diagram-bg-color: #DDD;
   --column-rule-color: #888;
+  --line-through-color: rgba(0, 0, 0, 0.3);
 }
 
 .x-axis, .x-axis * { color: red !important; }
@@ -48,6 +49,7 @@
     --table-even-bg-color: rgba(255, 255, 255, 0.05);
     --selected-fg-color: orange;
     --diagram-bg-color: #222;
+    --line-through-color: rgba(255, 255, 255, 0.4);
   }
   .x-axis, .x-axis * { color: red !important;  }
   .y-axis, .y-axis * { color: hsl(120, 100%, 40%) !important; }
@@ -567,6 +569,7 @@ pre.prettyprint ul.modifiedlines li.linedeleted {
     list-style-type: none;
     background-color: hsl(0, 58%, 89%);
     text-decoration: line-through;
+    text-decoration-color: var(--line-through-color);
 }
 pre.prettyprint ul.modifiedlines li.lineadded {
     list-style-type: none;
