@@ -340,7 +340,10 @@ Now let's change our shader to use a matrix
 struct Uniforms {
   color: vec4f,
   resolution: vec2f,
-  matrix: mat3x3f,
+-  translation: vec2f,
+-  rotation: vec2f,
+-  scale: vec2f,
++  matrix: mat3x3f,
 };
 
 ...
