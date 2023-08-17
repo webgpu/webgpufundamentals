@@ -369,7 +369,7 @@ put it another way <code class="notranslate" translate="no">[0.25, 0.50, 0.75, 1
   });
 </pre>
 <p>For <code class="notranslate" translate="no">device.createTexture</code>, the <code class="notranslate" translate="no">size</code> parameter should be pretty obvious. The
-format is <code class="notranslate" translate="no">rgba8unorm</code> as mentioned above. For the <code class="notranslate" translate="no">usage</code>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.TEXTURE_BINDING"><code class="notranslate" translate="no">GPUTextureUsage.TEXTURE_BINDING</code></a>
+format is <code class="notranslate" translate="no">rgba8unorm</code> as mentioned above. For the <code class="notranslate" translate="no">usage</code>, <code class="notranslate" translate="no">GPUTextureUsage.TEXTURE_BINDING</code>
 says we want to be able to bind this texture into a bind group <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> and <code class="notranslate" translate="no">COPY_DST</code>
 means we want to be able to copy data to it.</p>
 <p>Next we need to do just that and copy our data to it.</p>
@@ -1356,7 +1356,7 @@ For example “rg11b10ufloat” is “rg11” so 11bits each of red and green. �
 <ul>
 <li>
 <p><strong>renderable</strong></p>
-<p>True means you can render to it (set its usage to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.RENDER_ATTACHMENT"><code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code></a>)</p>
+<p>True means you can render to it (set its usage to <code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code>)</p>
 </li>
 <li>
 <p><strong>multisample</strong></p>
@@ -1393,11 +1393,11 @@ other changes.</p>
 </li>
 <li>
 <p><strong>copy src</strong></p>
-<p>Whether you’re allowed to specify <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.COPY_SRC"><code class="notranslate" translate="no">GPUTextureUsage.COPY_SRC</code></a></p>
+<p>Whether you’re allowed to specify <code class="notranslate" translate="no">GPUTextureUsage.COPY_SRC</code></p>
 </li>
 <li>
 <p><strong>copy dst</strong></p>
-<p>Whether you’re allowed to specify <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.COPY_DST"><code class="notranslate" translate="no">GPUTextureUsage.COPY_DST</code></a></p>
+<p>Whether you’re allowed to specify <code class="notranslate" translate="no">GPUTextureUsage.COPY_DST</code></p>
 </li>
 </ul>
 <p>We’ll use a depth texture in <a href="webgpu-orthographic-projection.html">an article in the series on 3d</a> as well
@@ -1418,9 +1418,9 @@ the texture. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 For me texel and pixel are basically synonymous but some people prefer to use
 the word <em>texel</em> when discussing textures. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn3" class="footnote-item"><p>Another common use for a texture is <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.RENDER_ATTACHMENT"><code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code></a>
+<li id="fn3" class="footnote-item"><p>Another common use for a texture is <code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code>
 which is used for a texture we want to render into. As an example, the canvas texture we
-get from <code class="notranslate" translate="no">context.getCurrentTexture()</code> has its usage set to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.RENDER_ATTACHMENT"><code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code></a>
+get from <code class="notranslate" translate="no">context.getCurrentTexture()</code> has its usage set to <code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code>
 by default. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
 </li>
 <li id="fn4" class="footnote-item"><p>There is also one more address mode, “mirror-repeat”.

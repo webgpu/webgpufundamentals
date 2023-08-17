@@ -536,7 +536,7 @@ WebGPUで生成するオブジェクトは、ほぼすべてについて<code cl
 「レンダーターゲット」というのは、書き込み先とするテクスチャのことです。
 パイプラインを生成し、このパイプラインの書き出し先となるテクスチャのフォーマットを指定する必要があります。</p>
 <p>配列<code class="notranslate" translate="no">targets</code>の最初の(0番目の)要素は、先にフラグメントシェーダの返り値の設定で記述した「location(0)」に当たるものです。canvasとの関連付けはもう少し後で行ないます。</p>
-<p>次は<a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a>を設定します。
+<p>次は<code class="notranslate" translate="no">GPURenderPassDescriptor</code>を設定します。
 これは、描画対象とするテクスチャの指定と、そのテクスチャをどう扱うかの設定です。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
@@ -550,7 +550,7 @@ WebGPUで生成するオブジェクトは、ほぼすべてについて<code cl
     ],
   };  
 </pre>
-<p><a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a>のプロパティ<code class="notranslate" translate="no">colorAttachments</code>は配列です。
+<p><code class="notranslate" translate="no">GPURenderPassDescriptor</code>のプロパティ<code class="notranslate" translate="no">colorAttachments</code>は配列です。
 この配列は、「描画対象となるテクスチャ」です。
 また、「各テクスチャをどう扱うか」という情報も記述されます。
 このタイミングでは「描画対象となるテクスチャ」の指定は保留して、「各テクスチャをどう扱うか」の設定を行っています。
@@ -734,9 +734,9 @@ WebGPUでこのデータを利用するには、GPU上にバッファを用意�
 <code class="notranslate" translate="no">usage</code>に指定できるフラグは多数あり、同時に指定できないフラグなどもあります。
 今回のケースでは、</p>
 <ul>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.STORAGE"><code class="notranslate" translate="no">GPUBufferUsage.STORAGE</code></a>を指定して、<code class="notranslate" translate="no">storage</code>として利用できるようにしています。この設定は、シェーダの方で<code class="notranslate" translate="no">var&lt;storage,...&gt;</code>と設定したものと対応しています。</li>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.COPY_DST"><code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code></a>を指定して、このバッファをデータのコピー先とできるようにしています。</li>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.COPY_SRC"><code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code></a>を指定して、このバッファをデータのコピー元とできるようにしています。</li>
+<li><code class="notranslate" translate="no">GPUBufferUsage.STORAGE</code>を指定して、<code class="notranslate" translate="no">storage</code>として利用できるようにしています。この設定は、シェーダの方で<code class="notranslate" translate="no">var&lt;storage,...&gt;</code>と設定したものと対応しています。</li>
+<li><code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code>を指定して、このバッファをデータのコピー先とできるようにしています。</li>
+<li><code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code>を指定して、このバッファをデータのコピー元とできるようにしています。</li>
 </ul>
 <p>ここでひとつ注意なのですが、WebGPUのバッファの中身は、JavaScript側から直接見ることができません。
 直接見るのではなく、WebGPUのバッファ上のデータを、JavaScript側へマップする必要があります。というのも、そうしないと、読みだしている最中にバッファの内容が更新中であった場合に問題が起きるからです。また、そもそもバッファのデータはCPU側のメモリには存在せず、GPU側のメモリにあるから、というのも理由の一つです。</p>

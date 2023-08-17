@@ -486,7 +486,7 @@ struct FSIn {
 <p>Above, the vertex shader <code class="notranslate" translate="no">foo</code> passes <code class="notranslate" translate="no">color</code> as <code class="notranslate" translate="no">vec4f</code> on <code class="notranslate" translate="no">location(0)</code> and <code class="notranslate" translate="no">texcoords</code> as a <code class="notranslate" translate="no">vec2f</code> on <code class="notranslate" translate="no">location(1)</code>.
 The fragment shader <code class="notranslate" translate="no">bar</code> receives them as <code class="notranslate" translate="no">uv</code> and <code class="notranslate" translate="no">diffuse</code> because their locations match.</p>
 <h4 id="fragment-shader-outputs">fragment shader outputs</h4>
-<p>For fragment shaders <code class="notranslate" translate="no">@location</code> specifies which <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor.colorAttachment"><code class="notranslate" translate="no">GPURenderPassDescriptor.colorAttachment</code></a> to store the result in.</p>
+<p>For fragment shaders <code class="notranslate" translate="no">@location</code> specifies which <code class="notranslate" translate="no">GPURenderPassDescriptor.colorAttachment</code> to store the result in.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct FSOut {
   @location(0) albedo: vec4f;
   @location(1) normal: vec4f;

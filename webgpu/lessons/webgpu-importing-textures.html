@@ -269,7 +269,7 @@ see its orientation.</p>
 +  });
 </pre>
 <p>Note that <code class="notranslate" translate="no">copyExternalImageToTexture</code> requires that we include to
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.COPY_DST"><code class="notranslate" translate="no">GPUTextureUsage.COPY_DST</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.RENDER_ATTACHMENT"><code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code></a>
+<code class="notranslate" translate="no">GPUTextureUsage.COPY_DST</code> and <code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code>
 usage flags.</p>
 <p>So then we can copy the <a href="https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap"><code class="notranslate" translate="no">ImageBitmap</code></a> to the texture</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  device.queue.writeTexture(
@@ -473,7 +473,7 @@ What’s changed</p>
 <li>
 <p>We make a closure to hold on to 3 variables. <code class="notranslate" translate="no">module</code>, <code class="notranslate" translate="no">sampler</code>, <code class="notranslate" translate="no">pipelineByFormat</code>.
 For <code class="notranslate" translate="no">module</code> and <code class="notranslate" translate="no">sampler</code> we check if they have not be set and if not, we create a <code class="notranslate" translate="no">GPUSShaderModule</code>
-and <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUSampler"><code class="notranslate" translate="no">GPUSampler</code></a> which we can hold on to and use in the future.</p>
+and <code class="notranslate" translate="no">GPUSampler</code> which we can hold on to and use in the future.</p>
 </li>
 <li>
 <p>We have a pair of shaders that are almost exactly the same as all the examples. The only difference

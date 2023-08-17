@@ -424,7 +424,7 @@ It defaults to <code class="notranslate" translate="no">'opaque'</code>.</p>
 +    alphaMode: 'premultiplied',
   });
 </pre>
-<p>Then we need to clear the canvas to 0, 0, 0, 0 in our <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a>.
+<p>Then we need to clear the canvas to 0, 0, 0, 0 in our <code class="notranslate" translate="no">GPURenderPassDescriptor</code>.
 Because the default <code class="notranslate" translate="no">clearValue</code> is 0, 0, 0, 0 we can just delete the line that
 was setting it to something else.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {

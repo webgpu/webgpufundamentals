@@ -221,16 +221,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>In most of the articles to date, we’ve use the function
-<code class="notranslate" translate="no">writeBuffer</code> and <code class="notranslate" translate="no">writeTexture</code> to put data in a buffer
-or texture.</p>
-<p>There are several ways to put data into a buffer or a texture.</p>
-<ul>
-<li>
-<p><code class="notranslate" translate="no">writeBuffer</code></p>
-<p>copies data from a <code class="notranslate" translate="no">typedarray</code> in JavaScript to a buffer.
-This is arguably the most straight forward way to get
-data into a buffer.</p>
+      <p>In most of the articles to date, we’ve used the functions
+<code class="notranslate" translate="no">writeBuffer</code> to put data in a buffer and <code class="notranslate" translate="no">writeTexture</code>
+to put data in a texture. There are several ways to put
+data into a buffer or a texture.</p>
+<h2 id="writebuffer"><code class="notranslate" translate="no">writeBuffer</code></h2>
+<p><code class="notranslate" translate="no">writeBuffer</code> copies data from a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> or <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> in JavaScript to a buffer.
+This is arguably the most straight forward way to get data into a buffer.</p>
 <p><code class="notranslate" translate="no">writeBuffer</code> follows this format</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.writeBuffer(
   destBuffer,  // the buffer to write to
@@ -243,7 +240,7 @@ data into a buffer.</p>
 <p>If <code class="notranslate" translate="no">srcOffset</code> is not passed it’s <code class="notranslate" translate="no">0</code>. If <code class="notranslate" translate="no">size</code> is not passed
 it’s the size of <code class="notranslate" translate="no">srcData</code>.</p>
 <blockquote>
-<p>Important: <code class="notranslate" translate="no">srcOffset</code> and <code class="notranslate" translate="no">size`` are in elements of </code>srcData`</p>
+<p>Important: <code class="notranslate" translate="no">srcOffset</code> and <code class="notranslate" translate="no">size</code> are in elements of <code class="notranslate" translate="no">srcData</code></p>
 <p>In other words,</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.writeBuffer(
   someBuffer,
@@ -254,12 +251,12 @@ it’s the size of <code class="notranslate" translate="no">srcData</code>.</p>
 )
 </pre>
 <p>the code above will copy from float32 #6, 7 float32s of data.
-To put it another way it will copy 28 bytes starting at byte 24</p>
+To put it another way it will copy 28 bytes starting at byte 24
+from the portion of the arrayBuffer that <code class="notranslate" translate="no">someFloat32Array</code> is
+a view of.</p>
 </blockquote>
-</li>
-<li>
-<p><code class="notranslate" translate="no">writeTexture</code></p>
-<p>copies data from a <code class="notranslate" translate="no">typedarray</code> in JavaScript to a texture.</p>
+<h2 id="writetexture"><code class="notranslate" translate="no">writeTexture</code></h2>
+<p><code class="notranslate" translate="no">writeTexture</code> copies data from a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> or <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> in JavaScript to a texture.</p>
 <p><code class="notranslate" translate="no">writeTexture</code> has this signature</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.writeTexture(
   // details of the destination
@@ -278,7 +275,7 @@ To put it another way it will copy 28 bytes starting at byte 24</p>
 <p>Things to note:</p>
 <ul>
 <li>
-<p><code class="notranslate" translate="no">texture</code> must have a usage of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.COPY_DST"><code class="notranslate" translate="no">GPUTextureUsage.COPY_DST</code></a></p>
+<p><code class="notranslate" translate="no">texture</code> must have a usage of <code class="notranslate" translate="no">GPUTextureUsage.COPY_DST</code></p>
 </li>
 <li>
 <p><code class="notranslate" translate="no">mipLevel</code>, <code class="notranslate" translate="no">origin</code>, and <code class="notranslate" translate="no">aspect</code> all have defaults so they often do not need to be specified</p>
@@ -316,7 +313,7 @@ this value.</p>
       }
    }
 </pre>
-<p><strong>block row</strong></p>
+<h3 id="block-row"><a id="a-block-rows"></a><strong>block row</strong></h3>
 <p>Textures are organized into blocks. For most <em>regular</em> textures the block width
 and block height are both 1. For compressed textures that changes. For example
 the format, <code class="notranslate" translate="no">bc1-rgba-unorm</code> as a block width of 4 and a block height of 4.
@@ -324,26 +321,37 @@ That means if you set the width to 8, and the height to 12, only 6 blocks will b
 2 blocks for the first row, 2 for the 2nd row, 3 for the 3rd.</p>
 <p>For compressed textures, size and origin must be aligned to blocks sizes.</p>
 <blockquote>
-<p>Important: Anywhere in the WebGPU that takes size (defined as GPUExtent3D)
+<p>Important: Anywhere in the WebGPU that takes size (defined as a <code class="notranslate" translate="no">GPUExtent3D</code>)
 can either be an array of 1 to 3 numbers, or it can be an object with 1 to
 3 properties. <code class="notranslate" translate="no">height</code> and <code class="notranslate" translate="no">depthOrArrayLayers</code> default to 1 so</p>
 <ul>
 <li><code class="notranslate" translate="no">[2]</code> a size where width = 2, height = 1, depthOrArrayLayers = 1</li>
 <li><code class="notranslate" translate="no">[2, 3]</code> a size where width = 2, height = 3, depthOrArrayLayers = 1</li>
 <li><code class="notranslate" translate="no">[2, 3, 4]</code> a size where width = 2, height = 3, depthOrArrayLayers = 4</li>
-<li><code class="notranslate" translate="no">{ width: 2}</code> a size where width = 1, height = 1, depthOrArrayLayers = 1</li>
+<li><code class="notranslate" translate="no">{ width: 2 }</code> a size where width = 1, height = 1, depthOrArrayLayers = 1</li>
 <li><code class="notranslate" translate="no">{ width: 2, height: 3 }</code> a size where width = 2, height = 3, depthOrArrayLayers = 1</li>
 <li><code class="notranslate" translate="no">{ width: 2, height: 3, depthOrArrayLayers: 4 }</code> a size where width = 2, height = 3, depthOrArrayLayers = 4</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>In the same way, Anywhere an origin appears (default aa a <code class="notranslate" translate="no">GPUOrigin3D</code>), you can either have an array
+of 3 numbers, or a object with <code class="notranslate" translate="no">x</code>, <code class="notranslate" translate="no">y</code>, <code class="notranslate" translate="no">z</code> properties. All of them default to
+0 so</p>
+<ul>
+<li><code class="notranslate" translate="no">[5]</code> an origin where x = 5, y = 0, z = 0</li>
+<li><code class="notranslate" translate="no">[5, 6]</code> an origin where x = 5, y = 6, z = 0</li>
+<li><code class="notranslate" translate="no">[5, 6, 7]</code> an origin where x = 5, y = 6, z = 7</li>
+<li><code class="notranslate" translate="no">{ x: 5 }</code> an origin where x = 5, y = 0, z = 0</li>
+<li><code class="notranslate" translate="no">{ x: 5, y: 6 }</code> an origin where x = 5, y = 6, z = 0</li>
+<li><code class="notranslate" translate="no">{ x: 5, y: 6, z: 7 }</code> an origin where x = 5, y = 0, z = 0</li>
 </ul>
 </blockquote>
 <ul>
 <li><code class="notranslate" translate="no">aspect</code> really only comes into play when copying data to a depth-stencil format.
 You can only copy to one aspect at a time, either the <code class="notranslate" translate="no">depth-only</code> or the <code class="notranslate" translate="no">stencil-only</code>.</li>
 </ul>
-</li>
-<li>
-<p><code class="notranslate" translate="no">copyBufferToBuffer</code></p>
-<p>like the name suggests, copies data from one buffer to another.</p>
+<h2 id="copybuffertobuffer"><code class="notranslate" translate="no">copyBufferToBuffer</code></h2>
+<p><code class="notranslate" translate="no">copyBufferToBuffer</code>, like the name suggests, copies data from one buffer to another.</p>
 <p>signature:</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">encoder.copyBufferToBuffer(
   source,       // buffer to copy from
@@ -354,14 +362,12 @@ You can only copy to one aspect at a time, either the <code class="notranslate" 
 )
 </pre>
 <ul>
-<li><code class="notranslate" translate="no">source</code> must have a usage of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.COPY_SRC"><code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code></a></li>
-<li><code class="notranslate" translate="no">dest</code> must have a usage of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.COPY_DST"><code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code></a></li>
+<li><code class="notranslate" translate="no">source</code> must have a usage of <code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code></li>
+<li><code class="notranslate" translate="no">dest</code> must have a usage of <code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code></li>
 <li><code class="notranslate" translate="no">size</code> must be a multiple of 4</li>
 </ul>
-</li>
-<li>
-<p><code class="notranslate" translate="no">copyBufferToTexture</code></p>
-<p>like the name suggests, copies data from a buffer to a texture.</p>
+<h2 id="copybuffertotexture"><code class="notranslate" translate="no">copyBufferToTexture</code></h2>
+<p><code class="notranslate" translate="no">copyBufferToTexture</code>, like the name suggests, copies data from a buffer to a texture.</p>
 <p>signature:</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">encode.copyBufferToTexture(
   // details of the destination texture
@@ -378,14 +384,11 @@ You can only copy to one aspect at a time, either the <code class="notranslate" 
 The biggest difference is that <code class="notranslate" translate="no">bytesPerRow</code> <strong>must be
 a multiple of 256!!</strong></p>
 <ul>
-<li><code class="notranslate" translate="no">texture</code> must have a usage of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.COPY_DST"><code class="notranslate" translate="no">GPUTextureUsage.COPY_DST</code></a></li>
-<li><code class="notranslate" translate="no">buffer</code> must have a usage of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.COPY_SRC"><code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code></a></li>
+<li><code class="notranslate" translate="no">texture</code> must have a usage of <code class="notranslate" translate="no">GPUTextureUsage.COPY_DST</code></li>
+<li><code class="notranslate" translate="no">buffer</code> must have a usage of <code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code></li>
 </ul>
-</li>
-<li>
-<p><code class="notranslate" translate="no">copyTextureToBuffer</code></p>
-<p>like the name suggests, copies data from a texture to
-a buffer.</p>
+<h2 id="copytexturetobuffer"><code class="notranslate" translate="no">copyTextureToBuffer</code></h2>
+<p><code class="notranslate" translate="no">copyTextureToBuffer</code> like the name suggests, copies data from a texture to a buffer.</p>
 <p>signature:</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">encode.copyTextureToBuffer(
   // details of the source texture
@@ -403,26 +406,28 @@ It’s texture becomes the source and the buffer becomes the
 destination. Like <code class="notranslate" translate="no">copyTextureToBuffer</code>, <code class="notranslate" translate="no">bytesPerRow</code> <strong>must be
 a multiple of 256!!</strong></p>
 <ul>
-<li><code class="notranslate" translate="no">texture</code> must have a usage of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.COPY_SRC"><code class="notranslate" translate="no">GPUTextureUsage.COPY_SRC</code></a></li>
-<li><code class="notranslate" translate="no">buffer</code> must have a usage of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.COPY_DST"><code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code></a></li>
+<li><code class="notranslate" translate="no">texture</code> must have a usage of <code class="notranslate" translate="no">GPUTextureUsage.COPY_SRC</code></li>
+<li><code class="notranslate" translate="no">buffer</code> must have a usage of <code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code></li>
 </ul>
-</li>
-<li>
-<p><code class="notranslate" translate="no">copyTextureToTexture</code></p>
-<p>copies a portion of one texture to another.</p>
+<h2 id="copytexturetotexture"><code class="notranslate" translate="no">copyTextureToTexture</code></h2>
+<p><code class="notranslate" translate="no">copyTextureToTexture</code> copies a portion of one texture to another.</p>
 <p>The two textures must be must either be the same format, or they
 must only differ by the suffix <code class="notranslate" translate="no">'-srgb'</code>.</p>
-<p>encode.copyTextureToBuffer(
-// details of the source texture
-src: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: “all” },</p>
-<p>// details of the destination texture
-dst: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: “all” },</p>
-<p>// size:
-[ width, height, depthOrArrayLayers ]
-);</p>
+<p>signature:</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">encode.copyTextureToBuffer(
+  // details of the source texture
+  src: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
+
+  // details of the destination texture
+  dst: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
+
+  // size:
+  [ width, height, depthOrArrayLayers ]
+);
+</pre>
 <ul>
-<li>src.<code class="notranslate" translate="no">texture</code> must have a usage of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.COPY_SRC"><code class="notranslate" translate="no">GPUTextureUsage.COPY_SRC</code></a></li>
-<li>dst.<code class="notranslate" translate="no">texture</code> must have a usage of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUTextureUsage.COPY_DST"><code class="notranslate" translate="no">GPUTextureUsage.COPY_DST</code></a></li>
+<li>src.<code class="notranslate" translate="no">texture</code> must have a usage of <code class="notranslate" translate="no">GPUTextureUsage.COPY_SRC</code></li>
+<li>dst.<code class="notranslate" translate="no">texture</code> must have a usage of <code class="notranslate" translate="no">GPUTextureUsage.COPY_DST</code></li>
 <li><code class="notranslate" translate="no">width</code> must be a multiple of block width</li>
 <li><code class="notranslate" translate="no">height</code> must be a multiple of block height</li>
 <li>src.<code class="notranslate" translate="no">origin[0]</code> or <code class="notranslate" translate="no">.x</code> must be a multiple block width</li>
@@ -430,15 +435,12 @@ dst: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: “all” },</p>
 <li>dst.<code class="notranslate" translate="no">origin[0]</code> or <code class="notranslate" translate="no">.x</code> must be a multiple block width</li>
 <li>dst.<code class="notranslate" translate="no">origin[1]</code> or <code class="notranslate" translate="no">.y</code> must be a multiple block height</li>
 </ul>
-</li>
-<li>
-<p><code class="notranslate" translate="no">shaders</code></p>
+<h2 id="shaders">Shaders</h2>
 <p>Shaders can write to storage buffers, storage textures,
 and indirectly they can render to textures. Those are all ways
-of getting data into buffers and textures.</p>
-</li>
-</ul>
-<h2 id="mapping-buffer">Mapping Buffer</h2>
+of getting data into buffers and textures. In other words
+you can write shaders to generate data.</p>
+<h2 id="mapping-buffers">Mapping Buffers</h2>
 <p>You can map a buffer. Mapping a buffer means making it
 available to read or write from JavaScript.
 At least in version 1 of WebGPU,
@@ -451,13 +453,13 @@ index buffer, storage buffer, etc…) <sup class="footnote-ref"><a href="#fn1" i
 of usage flags.</p>
 <ul>
 <li>
-<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.MAP_READ | GPU_BufferUsage.COPY_DST"><code class="notranslate" translate="no">GPUBufferUsage.MAP_READ | GPU_BufferUsage.COPY_DST</code></a></p>
+<p><code class="notranslate" translate="no">GPUBufferUsage.MAP_READ | GPU_BufferUsage.COPY_DST</code></p>
 <p>This is a buffer you can use the copy commands above to copy
 data to from a another buffer or a texture, then map it to
 read the values in JavaScript</p>
 </li>
 <li>
-<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.MAP_WRITE | GPU_BufferUsage.COPY_SRC"><code class="notranslate" translate="no">GPUBufferUsage.MAP_WRITE | GPU_BufferUsage.COPY_SRC</code></a></p>
+<p><code class="notranslate" translate="no">GPUBufferUsage.MAP_WRITE | GPU_BufferUsage.COPY_SRC</code></p>
 <p>This is a buffer you can map in JavaScript, you can then put
 data in it from JavaScript, and finally unmap it and use the
 and the copy commands above to copy its contents to another
@@ -468,7 +470,7 @@ buffer or texture.</p>
 <code class="notranslate" translate="no">buffer.mapAsync(mode, offset = 0, size?)</code> where <code class="notranslate" translate="no">offset</code>
 and <code class="notranslate" translate="no">size</code> are in bytes. If <code class="notranslate" translate="no">size</code> is not specified it’s
 the size of the entire buffer. <code class="notranslate" translate="no">mode</code> must be either
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUMapMode.READ"><code class="notranslate" translate="no">GPUMapMode.READ</code></a> or <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUMapMode.WRITE"><code class="notranslate" translate="no">GPUMapMode.WRITE</code></a> and must of course
+<code class="notranslate" translate="no">GPUMapMode.READ</code> or <code class="notranslate" translate="no">GPUMapMode.WRITE</code> and must of course
 match the <code class="notranslate" translate="no">MAP_</code> usage flag you passed in when you created
 the buffer.</p>
 <p><code class="notranslate" translate="no">mapAsync</code> returns a Promise.
@@ -496,7 +498,7 @@ buffer.unmap();
 <p>Note: Once mapped, the buffer is not usable by WebGPU until you call <code class="notranslate" translate="no">unmap</code>.
 The moment <code class="notranslate" translate="no">unmap</code> is called the buffer disappears from JavaScript. In other words,
 take the example above</p>
-<pre class="prettyprint showlinemods notranslate notranslate" translate="no">const f32 = new Float32Array(buffer.getMappedRange())
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const f32 = new Float32Array(buffer.getMappedRange())
 
 f32[0] = 123;
 console.log(f32[0]); // prints 123
@@ -511,33 +513,33 @@ in a storage buffer and the copied the results to a mappable buffer and mapped i
 <p>Another is the article on <a href="webgpu-compute-shaders.md">compute shader basics</a>
 where we output the various <code class="notranslate" translate="no">@builtin</code> compute shader values to a storage buffer.
 We then copied those results to a mappable buffer and mapped it read out the results.</p>
-<h2 id="mappedatcreation"><a id="a-mapped-at-creation">mappedAtCreation</a></h2><a id="a-mapped-at-creation">
+<h2 id="mappedatcreation"><a id="a-mapped-at-creation"></a>mappedAtCreation</h2>
 <p><code class="notranslate" translate="no">mappedAtCreation: true</code> is a flag you can add when you
 create a buffer. In this case, the buffer does not need
-the usage flags <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.COPY_DST"><code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code></a> nor <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.MAP_WRITE"><code class="notranslate" translate="no">GPUBufferUsage.MAP_WRITE</code></a>.</p>
+the usage flags <code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code> nor <code class="notranslate" translate="no">GPUBufferUsage.MAP_WRITE</code>.</p>
 <p>This is a special flag solely to let you put data in the
 buffer on creation. You add the flat <code class="notranslate" translate="no">mappedAtCreation: true</code> when you create the
 buffer. The buffer is created, already mapped for writing. Example:</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const buffer = device.createBuffer({
-  size: 16,
-  usage: GPUBufferUsage.UNIFORM,
-  mappedAtCreation: true,
-});
-const arrayBuffer = buffer.getMappedRange(0, buffer.size);
-const f32 = new Float32Array(arrayBuffer);
-f32.set([1, 2, 3, 4]);
-buffer.unmap();
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no"> const buffer = device.createBuffer({
+   size: 16,
+   usage: GPUBufferUsage.UNIFORM,
+   mappedAtCreation: true,
+ });
+ const arrayBuffer = buffer.getMappedRange(0, buffer.size);
+ const f32 = new Float32Array(arrayBuffer);
+ f32.set([1, 2, 3, 4]);
+ buffer.unmap();
 </pre>
 <p>Or, more tersely</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const buffer = device.createBuffer({
-  size: 16,
-  usage: GPUBufferUsage.UNIFORM,
-  mappedAtCreation: true,
-});
-new Float32Array(buffer.getMappedRange(0, buffer.size)).set([1, 2, 3, 4]);
-buffer.unmap();
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no"> const buffer = device.createBuffer({
+   size: 16,
+   usage: GPUBufferUsage.UNIFORM,
+   mappedAtCreation: true,
+ });
+ new Float32Array(buffer.getMappedRange(0, buffer.size)).set([1, 2, 3, 4]);
+ buffer.unmap();
 </pre>
-</a><h2 id="efficiently-using-mappable-buffers"><a id="a-mapped-at-creation"></a><a id="a-efficient"></a><a>Efficiently using mappable buffers</a></h2><a>
+<h2 id="efficiently-using-mappable-buffers"><a id="a-efficient"></a>Efficiently using mappable buffers</h2>
 <p>Above we saw that mapping a buffer is asynchronous. This means there’s
 an indeterminate amount of time from the point we ask for the buffer
 to be mapped by calling <code class="notranslate" translate="no">mapAsync</code>, until the time it’s mapped and we can call <code class="notranslate" translate="no">getMappedRange</code>.</p>
@@ -550,10 +552,10 @@ need a mapped buffer and none are available you create a new one and add
 it to the pool.</p>
 <p>TBD: Example</p>
 <hr class="footnotes-sep">
-</a><section class="footnotes"><a>
-</a><ol class="footnotes-list"><a>
-</a><li id="fn1" class="footnote-item"><a></a><p><a>The exception is if you set <code class="notranslate" translate="no">mappedAtCreation: true</code>
-See </a><a href="#a-mapped-at-creation">mappedAtCreation</a>. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>The exception is if you set <code class="notranslate" translate="no">mappedAtCreation: true</code>
+See <a href="#a-mapped-at-creation">mappedAtCreation</a>. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>

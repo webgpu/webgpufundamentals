@@ -229,7 +229,7 @@ by calling <code class="notranslate" translate="no">copyExternalImageToTexture</
 the current frame of video from the video itself into a pre-existing
 texture that we created.</p>
 <p>WebGPU has another method for using video. It’s called <code class="notranslate" translate="no">importExternalTexture</code>
-and, like the name suggests, it provides a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUExternalTexture"><code class="notranslate" translate="no">GPUExternalTexture</code></a>. This external
+and, like the name suggests, it provides a <code class="notranslate" translate="no">GPUExternalTexture</code>. This external
 texture represents the data in the video directly. No copy is made. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>
 You pass <code class="notranslate" translate="no">importExternalTexture</code> a video and it returns a texture, ready to use.</p>
 <p>There are a few big caveats to using an texture from <code class="notranslate" translate="no">importExternalTexture</code>.</p>

@@ -573,7 +573,7 @@ eventually render to.</p>
 <p>Element 0 for the <code class="notranslate" translate="no">targets</code> array corresponds to location 0 as we specified for
 the fragment shader’s return value. Later, well set that target to be a texture
 for the canvas.</p>
-<p>Next up we prepare a <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a> which describes which textures
+<p>Next up we prepare a <code class="notranslate" translate="no">GPURenderPassDescriptor</code> which describes which textures
 we want to draw and how to use them.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
@@ -587,7 +587,7 @@ we want to draw and how to use them.</p>
     ],
   };  
 </pre>
-<p>A <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a> has an array for <code class="notranslate" translate="no">colorAttachments</code> which lists
+<p>A <code class="notranslate" translate="no">GPURenderPassDescriptor</code> has an array for <code class="notranslate" translate="no">colorAttachments</code> which lists
 the textures we will render to and how to treat the textures.
 We’ll wait to fill in which texture we actually want to render to. For now,
 we setup a clear value of semi-dark gray, and a <code class="notranslate" translate="no">loadOp</code> and <code class="notranslate" translate="no">storeOp</code>.
@@ -803,10 +803,10 @@ see <a href="webgpu-memory-layout.html">this article</a>.</p>
 <p>Every WebGPU buffer we create has to specify a <code class="notranslate" translate="no">usage</code>. There are a bunch of
 flags we can pass for usage but not all of them can be used together. Here we
 say we want this buffer to be usable as <code class="notranslate" translate="no">storage</code> by passing
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.STORAGE"><code class="notranslate" translate="no">GPUBufferUsage.STORAGE</code></a>. This makes it compatible with <code class="notranslate" translate="no">var&lt;storage,...&gt;</code> from
+<code class="notranslate" translate="no">GPUBufferUsage.STORAGE</code>. This makes it compatible with <code class="notranslate" translate="no">var&lt;storage,...&gt;</code> from
 the shader. Further, we want to able to copy data to this buffer so we include
-the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.COPY_DST"><code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code></a> flag. And finally we want to be able to copy data
-from the buffer so we include <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GPUBufferUsage.COPY_SRC"><code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code></a>.</p>
+the <code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code> flag. And finally we want to be able to copy data
+from the buffer so we include <code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code>.</p>
 <p>Note that you can not directly read the contents of a WebGPU buffer from
 JavaScript. Instead you have to “map” it which is another way of requesting
 access to the buffer from WebGPU because the buffer might be in use and because
