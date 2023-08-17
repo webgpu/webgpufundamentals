@@ -141,7 +141,7 @@ responsibility.
   has no such function. If you want mips for your textures you have to generate
   them yourself.
   
-  Note: [this article](webgpu-importing-taxture.html#a-generating-mips-on-the-gpu)
+  Note: [this article](webgpu-importing-textures.html#a-generating-mips-on-the-gpu)
   has code to generate mips.
 
 * WebGPU requires samplers
