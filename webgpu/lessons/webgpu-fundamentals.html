@@ -251,7 +251,8 @@ for many apps it will likely require a large amount of code and some serious
 organization of data. As an example, <a href="https://threejs.org">three.js</a> which
 supports WebGPU consists of ~600k minified JavaScript, and that’s just its
 base library. That does not include loaders, controls, post processing, and
-many other features.</p>
+many other features. Similarly, <a href="https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-webgpu">tensor flow with WebGPU backend</a>
+is ~500k of minified JavaScript.</p>
 <p>The point being, if you just want to get something on the screen you’re far
 better off choosing a library that provides the large amount of code you’re
 going to have to write when doing it yourself.</p>
@@ -1105,6 +1106,7 @@ never use a bind group with multiple pipelines . We’ll cover explicit layouts 
 <li><a href="/webgpu/lessons/webgpu-textures-external-video.html">Using Video</a></li>
 <li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/webgpu-wgsl.html">WGSL</a></li>
 <li><a href="/webgpu/lessons/webgpu-how-it-works.html">How It Works</a></li>
         </ul>
@@ -1122,7 +1124,7 @@ never use a bind group with multiple pipelines . We’ll cover explicit layouts 
         </ul>
   <li>Compute Shaders</li>
         <ul>
-          <li><a href="/webgpu/lessons/webgpu-compute-shaders.html">Compute Shaders</a></li>
+          <li><a href="/webgpu/lessons/webgpu-compute-shaders.html">Compute Shader Basics</a></li>
         </ul>
   <li>Misc</li>
         <ul>

@@ -32,23 +32,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --><html lang="ru"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Buffers">
+<meta property="og:title" content="WebGPU Copying Data">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="How to use Buffers">
-<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ru/webgpu-buffers.html">
+<meta property="og:description" content="Copying Data to/from buffers and textures">
+<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ru/webgpu-copying-data.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Buffers">
-<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ru/webgpu-buffers.html">
-<meta name="twitter:description" content="How to use Buffers">
+<meta name="twitter:title" content="WebGPU Copying Data">
+<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ru/webgpu-copying-data.html">
+<meta name="twitter:description" content="Copying Data to/from buffers and textures">
 <meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
 
 
-<title>WebGPU Buffers</title>
+<title>WebGPU Copying Data</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
@@ -56,11 +56,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="webgpu_navbar">
   <div>
     <select class="language">
-    <option value="/webgpu/lessons/webgpu-buffers.html">English
-    </option><option value="/webgpu/lessons/ja/webgpu-buffers.html">日本語
-    </option><option value="/webgpu/lessons/ko/webgpu-buffers.html">한국어
-    </option><option value="/webgpu/lessons/ru/webgpu-buffers.html" selected="">Русский
-    </option><option value="/webgpu/lessons/zh_cn/webgpu-buffers.html">简体中文
+    <option value="/webgpu/lessons/webgpu-copying-data.html">English
+    </option><option value="/webgpu/lessons/ja/webgpu-copying-data.html">日本語
+    </option><option value="/webgpu/lessons/ko/webgpu-copying-data.html">한국어
+    </option><option value="/webgpu/lessons/ru/webgpu-copying-data.html" selected="">Русский
+    </option><option value="/webgpu/lessons/zh_cn/webgpu-copying-data.html">简体中文
 </option></select>
 
 
@@ -174,21 +174,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Buffers</h1>
+    <h1>WebGPU Copying Data</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
       <p>К сожалению, страница ещё не переведена. <a href="https://github.com/gfxfundamentals/webgpufundamentals">Я всегда рад переводчикам</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-buffers.html">А пока можете почитать статью на английском языке</a>.</p>
+<p><a href="/webgpu/lessons/webgpu-copying-data.html">А пока можете почитать статью на английском языке</a>.</p>
 
     </div>
     <div class="lesson-sidebar">
         <select class="language">
-    <option value="/webgpu/lessons/webgpu-buffers.html">English
-    </option><option value="/webgpu/lessons/ja/webgpu-buffers.html">日本語
-    </option><option value="/webgpu/lessons/ko/webgpu-buffers.html">한국어
-    </option><option value="/webgpu/lessons/ru/webgpu-buffers.html" selected="">Русский
-    </option><option value="/webgpu/lessons/zh_cn/webgpu-buffers.html">简体中文
+    <option value="/webgpu/lessons/webgpu-copying-data.html">English
+    </option><option value="/webgpu/lessons/ja/webgpu-copying-data.html">日本語
+    </option><option value="/webgpu/lessons/ko/webgpu-copying-data.html">한국어
+    </option><option value="/webgpu/lessons/ru/webgpu-copying-data.html" selected="">Русский
+    </option><option value="/webgpu/lessons/zh_cn/webgpu-copying-data.html">简体中文
 </option></select>
 
 
@@ -204,6 +204,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/ru/webgpu-textures-external-video.html">Using Video</a></li>
 <li><a href="/webgpu/lessons/ru/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/ru/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/ru/webgpu-wgsl.html">WGSL</a></li>
 <li><a href="/webgpu/lessons/ru/webgpu-how-it-works.html">How It Works</a></li>
         </ul>
@@ -221,7 +222,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         </ul>
   <li>Compute Shaders</li>
         <ul>
-          <li><a href="/webgpu/lessons/ru/webgpu-compute-shaders.html">Compute Shaders</a></li>
+          <li><a href="/webgpu/lessons/ru/webgpu-compute-shaders.html">Compute Shader Basics</a></li>
         </ul>
   <li>Разное</li>
         <ul>
