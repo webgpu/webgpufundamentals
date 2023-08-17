@@ -38,6 +38,22 @@ function removeDotDotSlash(url) {
   return newUrl;
 }
 
+async function getText(url) {
+  const req = await fetch(url);
+  return await req.text();
+}
+
+async function initEditor() {
+  /* global monaco */
+  if (typeof monaco !== 'undefined') {
+    const basePath = '/types/webgpu/dist/index.d.ts';
+    const text = await getText(basePath);
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(text, '');
+  }
+
+
+}
+
 /**
  * Fix any local URLs into fully qualified urls.
  *
@@ -200,6 +216,7 @@ window.lessonEditorSettings = {
   lessonSettings,
   prepHTML,
   getWorkerPreamble,
+  initEditor,
   tags: ['webgpu', 'webgpufundamentals.org'],
   name: 'WebGPUFundamentals',
   icon: '/webgpu/lessons/resources/webgpufundamentals-icon-256.png',
