@@ -37,6 +37,9 @@ module.exports = function fixLinks(html) {
   function getKeywordLink(keyword) {
     const dotNdx = keyword.indexOf('.');
     if (dotNdx) {
+      if (keyword.startsWith('GPU')) {
+        return undefined;
+      }
       const before = keyword.substring(0, dotNdx);
       const link = codeKeywordLinks[before];
       if (link) {

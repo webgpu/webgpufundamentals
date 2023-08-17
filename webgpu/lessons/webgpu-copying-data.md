@@ -2,245 +2,260 @@ Title: WebGPU Copying Data
 Description: Copying Data to/from buffers and textures
 TOC: Copying Data
 
-In most of the articles to date, we've use the function
-`writeBuffer` and `writeTexture` to put data in a buffer
-or texture.
+In most of the articles to date, we've used the functions
+`writeBuffer` to put data in a buffer and `writeTexture`
+to put data in a texture. There are several ways to put
+data into a buffer or a texture.
 
-There are several ways to put data into a buffer or a texture.
+## `writeBuffer`
 
-* `writeBuffer`
+`writeBuffer` copies data from a `TypedArray` or `ArrayBuffer` in JavaScript to a buffer.
+This is arguably the most straight forward way to get data into a buffer.
 
-  copies data from a `typedarray` in JavaScript to a buffer.
-  This is arguably the most straight forward way to get
-  data into a buffer.
+`writeBuffer` follows this format
 
-  `writeBuffer` follows this format
+```js
+device.queue.writeBuffer(
+  destBuffer,  // the buffer to write to
+  destOffset,  // where in the destination buffer to start writing
+  srcData,     // a typedArray or arrayBuffer
+  srcOffset?,  // offset in **elements** in srcData to start copying
+  size?,       // size in **elements** of srcData to copy
+)
+```
 
-  ```js
-  device.queue.writeBuffer(
-    destBuffer,  // the buffer to write to
-    destOffset,  // where in the destination buffer to start writing
-    srcData,     // a typedArray or arrayBuffer
-    srcOffset?,  // offset in **elements** in srcData to start copying
-    size?,       // size in **elements** of srcData to copy
-  )
-  ```
+If `srcOffset` is not passed it's `0`. If `size` is not passed
+it's the size of `srcData`.
 
-  If `srcOffset` is not passed it's `0`. If `size` is not passed
-  it's the size of `srcData`.
+> Important: `srcOffset` and `size` are in elements of `srcData`
+>
+> In other words,
+>
+> ```js
+> device.queue.writeBuffer(
+>   someBuffer,
+>   someOffset,
+>   someFloat32Array,
+>   6,
+>   7,
+> )
+> ``` 
+>
+> the code above will copy from float32 #6, 7 float32s of data.
+> To put it another way it will copy 28 bytes starting at byte 24
+> from the portion of the arrayBuffer that `someFloat32Array` is
+> a view of.
 
-  > Important: `srcOffset` and `size`` are in elements of `srcData`
-  >
-  > In other words,
-  >
-  > ```js
-  > device.queue.writeBuffer(
-  >   someBuffer,
-  >   someOffset,
-  >   someFloat32Array,
-  >   6,
-  >   7,
-  > )
-  > ``` 
-  >
-  > the code above will copy from float32 #6, 7 float32s of data.
-  > To put it another way it will copy 28 bytes starting at byte 24
+## `writeTexture`
 
-* `writeTexture`
-
-  copies data from a `typedarray` in JavaScript to a texture.
+`writeTexture` copies data from a `TypedArray` or `ArrayBuffer` in JavaScript to a texture.
   
-  `writeTexture` has this signature
+`writeTexture` has this signature
 
-  ```js
-  device.writeTexture(
-    // details of the destination
-    { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
+```js
+device.writeTexture(
+  // details of the destination
+  { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
-    // the source data
-    srcData,
+  // the source data
+  srcData,
 
-    // details of the source data
-    { offset: 0, bytesPerRow, rowsPerImage },
+  // details of the source data
+  { offset: 0, bytesPerRow, rowsPerImage },
 
-    // size:
-    [ width, height, depthOrArrayLayers ]
-  )
-  ```
+  // size:
+  [ width, height, depthOrArrayLayers ]
+)
+```
 
-  Things to note:
+Things to note:
 
-  * `texture` must have a usage of `GPUTextureUsage.COPY_DST`
+* `texture` must have a usage of `GPUTextureUsage.COPY_DST`
 
-  * `mipLevel`, `origin`, and `aspect` all have defaults so they often do not need to be specified
+* `mipLevel`, `origin`, and `aspect` all have defaults so they often do not need to be specified
 
-  * `bytesPerRow`: This is how many bytes to advance to get to the next *block row* of data.
+* `bytesPerRow`: This is how many bytes to advance to get to the next *block row* of data.
 
-     This is required if you are copying more than 1 *block row*. It is almost
-     always true that you're copying more than 1 *block row* so it is therefore
-     almost always required.
+   This is required if you are copying more than 1 *block row*. It is almost
+   always true that you're copying more than 1 *block row* so it is therefore
+   almost always required.
 
-  * `rowsPerImage`: This is the number of *block rows* to advance to get from the
-     the start of one image to the next image.
+* `rowsPerImage`: This is the number of *block rows* to advance to get from the
+   the start of one image to the next image.
 
-     This is required if you are copying more than 1 layer. In other words,
-     if `depthOrArrayLayers` in the size argument is > 1 then you need to supply
-     this value.
+   This is required if you are copying more than 1 layer. In other words,
+   if `depthOrArrayLayers` in the size argument is > 1 then you need to supply
+   this value.
 
-  You can think of the copy as working like this
- 
-  ```js
-     // pseudo code
-     const [x, y, z] = origin || [0, 0, 0];
-     const [blockWidth, blockHeight] = getBlockSizeForTextureFormat(texture.format);
+You can think of the copy as working like this
 
-     const blocksAcross = width / blockWidth;
-     const blocksDown = height / blockHeight;
+```js
+   // pseudo code
+   const [x, y, z] = origin || [0, 0, 0];
+   const [blockWidth, blockHeight] = getBlockSizeForTextureFormat(texture.format);
 
-     for (layer = 0; layer < depthOrArrayLayers; layer) {
-        for (row = 0; row < blocksDown; ++row) {
-          const start = offset + (layer * rowsPerImage + row) * bytesPerRow;
-          copyRowToTexture(
-              texture,               // texture to copy to
-              x, y + row, z + layer, // where in texture to copy to
-              srcDataAsBytes + start,
-              bytesPerRow);
-        }
-     }
-  ```
- 
-  **block row**
+   const blocksAcross = width / blockWidth;
+   const blocksDown = height / blockHeight;
 
-  Textures are organized into blocks. For most *regular* textures the block width
-  and block height are both 1. For compressed textures that changes. For example
-  the format, `bc1-rgba-unorm` as a block width of 4 and a block height of 4.
-  That means if you set the width to 8, and the height to 12, only 6 blocks will be copied.
-  2 blocks for the first row, 2 for the 2nd row, 3 for the 3rd.
+   for (layer = 0; layer < depthOrArrayLayers; layer) {
+      for (row = 0; row < blocksDown; ++row) {
+        const start = offset + (layer * rowsPerImage + row) * bytesPerRow;
+        copyRowToTexture(
+            texture,               // texture to copy to
+            x, y + row, z + layer, // where in texture to copy to
+            srcDataAsBytes + start,
+            bytesPerRow);
+      }
+   }
+```
 
-  For compressed textures, size and origin must be aligned to blocks sizes.
+### <a id="a-block-rows"></a>**block row**
 
-  > Important: Anywhere in the WebGPU that takes size (defined as GPUExtent3D)
-  > can either be an array of 1 to 3 numbers, or it can be an object with 1 to
-  > 3 properties. `height` and `depthOrArrayLayers` default to 1 so
-  >
-  > * `[2]` a size where width = 2, height = 1, depthOrArrayLayers = 1
-  > * `[2, 3]` a size where width = 2, height = 3, depthOrArrayLayers = 1
-  > * `[2, 3, 4]` a size where width = 2, height = 3, depthOrArrayLayers = 4
-  > * `{ width: 2}` a size where width = 1, height = 1, depthOrArrayLayers = 1
-  > * `{ width: 2, height: 3 }` a size where width = 2, height = 3, depthOrArrayLayers = 1
-  > * `{ width: 2, height: 3, depthOrArrayLayers: 4 }` a size where width = 2, height = 3, depthOrArrayLayers = 4
+Textures are organized into blocks. For most *regular* textures the block width
+and block height are both 1. For compressed textures that changes. For example
+the format, `bc1-rgba-unorm` as a block width of 4 and a block height of 4.
+That means if you set the width to 8, and the height to 12, only 6 blocks will be copied.
+2 blocks for the first row, 2 for the 2nd row, 3 for the 3rd.
 
-  * `aspect` really only comes into play when copying data to a depth-stencil format.
-    You can only copy to one aspect at a time, either the `depth-only` or the `stencil-only`.
+For compressed textures, size and origin must be aligned to blocks sizes.
 
-* `copyBufferToBuffer`
+> Important: Anywhere in the WebGPU that takes size (defined as a `GPUExtent3D`)
+> can either be an array of 1 to 3 numbers, or it can be an object with 1 to
+> 3 properties. `height` and `depthOrArrayLayers` default to 1 so
+>
+> * `[2]` a size where width = 2, height = 1, depthOrArrayLayers = 1
+> * `[2, 3]` a size where width = 2, height = 3, depthOrArrayLayers = 1
+> * `[2, 3, 4]` a size where width = 2, height = 3, depthOrArrayLayers = 4
+> * `{ width: 2 }` a size where width = 1, height = 1, depthOrArrayLayers = 1
+> * `{ width: 2, height: 3 }` a size where width = 2, height = 3, depthOrArrayLayers = 1
+> * `{ width: 2, height: 3, depthOrArrayLayers: 4 }` a size where width = 2, height = 3, depthOrArrayLayers = 4
 
-  like the name suggests, copies data from one buffer to another.
+> In the same way, Anywhere an origin appears (default aa a `GPUOrigin3D`), you can either have an array
+> of 3 numbers, or a object with `x`, `y`, `z` properties. All of them default to
+> 0 so
+>
+> * `[5]` an origin where x = 5, y = 0, z = 0
+> * `[5, 6]` an origin where x = 5, y = 6, z = 0
+> * `[5, 6, 7]` an origin where x = 5, y = 6, z = 7
+> * `{ x: 5 }` an origin where x = 5, y = 0, z = 0
+> * `{ x: 5, y: 6 }` an origin where x = 5, y = 6, z = 0
+> * `{ x: 5, y: 6, z: 7 }` an origin where x = 5, y = 0, z = 0
 
-  signature:
+* `aspect` really only comes into play when copying data to a depth-stencil format.
+  You can only copy to one aspect at a time, either the `depth-only` or the `stencil-only`.
 
-  ```js
-  encoder.copyBufferToBuffer(
-    source,       // buffer to copy from
-    sourceOffset, // where to start copying from
-    dest,         // buffer to copy to
-    destOffset,   // where to start copying to
-    size,         // how many bytes to copy
-  )
-  ```
+## `copyBufferToBuffer`
 
-  * `source` must have a usage of `GPUBufferUsage.COPY_SRC`
-  * `dest` must have a usage of `GPUBufferUsage.COPY_DST`
-  * `size` must be a multiple of 4
+`copyBufferToBuffer`, like the name suggests, copies data from one buffer to another.
 
-* `copyBufferToTexture`
+signature:
 
-  like the name suggests, copies data from a buffer to a texture.
+```js
+encoder.copyBufferToBuffer(
+  source,       // buffer to copy from
+  sourceOffset, // where to start copying from
+  dest,         // buffer to copy to
+  destOffset,   // where to start copying to
+  size,         // how many bytes to copy
+)
+```
 
-  signature:
+* `source` must have a usage of `GPUBufferUsage.COPY_SRC`
+* `dest` must have a usage of `GPUBufferUsage.COPY_DST`
+* `size` must be a multiple of 4
 
-  ```js
-  encode.copyBufferToTexture(
-    // details of the destination texture
-    { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
+## `copyBufferToTexture`
 
-    // details of the source buffer
-    { buffer, offset: 0, bytesPerRow, rowsPerImage },
+`copyBufferToTexture`, like the name suggests, copies data from a buffer to a texture.
 
-    // size:
-    [ width, height, depthOrArrayLayers ]
-  )
-  ```
+signature:
 
-  This has almost exactly the same parameters as `writeTexture`.
-  The biggest difference is that `bytesPerRow` **must be
-  a multiple of 256!!**
+```js
+encode.copyBufferToTexture(
+  // details of the destination texture
+  { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
-  * `texture` must have a usage of `GPUTextureUsage.COPY_DST`
-  * `buffer` must have a usage of `GPUBufferUsage.COPY_SRC`
+  // details of the source buffer
+  { buffer, offset: 0, bytesPerRow, rowsPerImage },
 
-* `copyTextureToBuffer`
+  // size:
+  [ width, height, depthOrArrayLayers ]
+)
+```
 
-  like the name suggests, copies data from a texture to
-  a buffer.
-  
-  signature:
+This has almost exactly the same parameters as `writeTexture`.
+The biggest difference is that `bytesPerRow` **must be
+a multiple of 256!!**
 
-  ```js
-  encode.copyTextureToBuffer(
-    // details of the source texture
-    { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
+* `texture` must have a usage of `GPUTextureUsage.COPY_DST`
+* `buffer` must have a usage of `GPUBufferUsage.COPY_SRC`
 
-    // details of the destination buffer
-    { buffer, offset: 0, bytesPerRow, rowsPerImage },
+## `copyTextureToBuffer`
 
-    // size:
-    [ width, height, depthOrArrayLayers ]
-  )
-  ```
+`copyTextureToBuffer` like the name suggests, copies data from a texture to a buffer.
 
-  This has exactly the same parameters as `copyBufferToTexture`,
-  It's texture becomes the source and the buffer becomes the
-  destination. Like `copyTextureToBuffer`, `bytesPerRow` **must be
-  a multiple of 256!!**
+signature:
 
-  * `texture` must have a usage of `GPUTextureUsage.COPY_SRC`
-  * `buffer` must have a usage of `GPUBufferUsage.COPY_DST`
+```js
+encode.copyTextureToBuffer(
+  // details of the source texture
+  { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
-* `copyTextureToTexture`
+  // details of the destination buffer
+  { buffer, offset: 0, bytesPerRow, rowsPerImage },
 
-  copies a portion of one texture to another. 
+  // size:
+  [ width, height, depthOrArrayLayers ]
+)
+```
 
-  The two textures must be must either be the same format, or they
-  must only differ by the suffix `'-srgb'`.
+This has exactly the same parameters as `copyBufferToTexture`,
+It's texture becomes the source and the buffer becomes the
+destination. Like `copyTextureToBuffer`, `bytesPerRow` **must be
+a multiple of 256!!**
 
-  encode.copyTextureToBuffer(
-    // details of the source texture
-    src: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
+* `texture` must have a usage of `GPUTextureUsage.COPY_SRC`
+* `buffer` must have a usage of `GPUBufferUsage.COPY_DST`
 
-    // details of the destination texture
-    dst: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
+## `copyTextureToTexture`
 
-    // size:
-    [ width, height, depthOrArrayLayers ]
-  );
+`copyTextureToTexture` copies a portion of one texture to another. 
 
-  * src.`texture` must have a usage of `GPUTextureUsage.COPY_SRC`
-  * dst.`texture` must have a usage of `GPUTextureUsage.COPY_DST`
-  * `width` must be a multiple of block width
-  * `height` must be a multiple of block height
-  * src.`origin[0]` or `.x` must be a multiple block width
-  * src.`origin[1]` or `.y` must be a multiple block height
-  * dst.`origin[0]` or `.x` must be a multiple block width
-  * dst.`origin[1]` or `.y` must be a multiple block height
+The two textures must be must either be the same format, or they
+must only differ by the suffix `'-srgb'`.
 
-* `shaders`
+signature:
 
-  Shaders can write to storage buffers, storage textures,
-  and indirectly they can render to textures. Those are all ways
-  of getting data into buffers and textures.
+```js
+encode.copyTextureToBuffer(
+  // details of the source texture
+  src: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
-## Mapping Buffer
+  // details of the destination texture
+  dst: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
+
+  // size:
+  [ width, height, depthOrArrayLayers ]
+);
+```
+
+* src.`texture` must have a usage of `GPUTextureUsage.COPY_SRC`
+* dst.`texture` must have a usage of `GPUTextureUsage.COPY_DST`
+* `width` must be a multiple of block width
+* `height` must be a multiple of block height
+* src.`origin[0]` or `.x` must be a multiple block width
+* src.`origin[1]` or `.y` must be a multiple block height
+* dst.`origin[0]` or `.x` must be a multiple block width
+* dst.`origin[1]` or `.y` must be a multiple block height
+
+## Shaders
+
+Shaders can write to storage buffers, storage textures,
+and indirectly they can render to textures. Those are all ways
+of getting data into buffers and textures. In other words
+you can write shaders to generate data.
+
+## Mapping Buffers
 
 You can map a buffer. Mapping a buffer means making it
 available to read or write from JavaScript. 
@@ -308,7 +323,7 @@ Note: Once mapped, the buffer is not usable by WebGPU until you call `unmap`.
 The moment `unmap` is called the buffer disappears from JavaScript. In other words,
 take the example above
 
-```
+```js
 const f32 = new Float32Array(buffer.getMappedRange())
 
 f32[0] = 123;
@@ -328,7 +343,7 @@ where we output the various `@builtin` compute shader values to a storage buffer
 We then copied those results to a mappable buffer and mapped it read out the results.
 
 
-## <a id="a-mapped-at-creation">mappedAtCreation
+## <a id="a-mapped-at-creation"></a>mappedAtCreation
 
 `mappedAtCreation: true` is a flag you can add when you
 create a buffer. In this case, the buffer does not need
@@ -338,31 +353,31 @@ This is a special flag solely to let you put data in the
 buffer on creation. You add the flat `mappedAtCreation: true` when you create the
 buffer. The buffer is created, already mapped for writing. Example:
 
-   ```js
-   const buffer = device.createBuffer({
-     size: 16,
-     usage: GPUBufferUsage.UNIFORM,
-     mappedAtCreation: true,
-   });
-   const arrayBuffer = buffer.getMappedRange(0, buffer.size);
-   const f32 = new Float32Array(arrayBuffer);
-   f32.set([1, 2, 3, 4]);
-   buffer.unmap();
-   ```
+```js
+ const buffer = device.createBuffer({
+   size: 16,
+   usage: GPUBufferUsage.UNIFORM,
+   mappedAtCreation: true,
+ });
+ const arrayBuffer = buffer.getMappedRange(0, buffer.size);
+ const f32 = new Float32Array(arrayBuffer);
+ f32.set([1, 2, 3, 4]);
+ buffer.unmap();
+```
 
-   Or, more tersely
+Or, more tersely
 
-   ```js
-   const buffer = device.createBuffer({
-     size: 16,
-     usage: GPUBufferUsage.UNIFORM,
-     mappedAtCreation: true,
-   });
-   new Float32Array(buffer.getMappedRange(0, buffer.size)).set([1, 2, 3, 4]);
-   buffer.unmap();
-   ```
+```js
+ const buffer = device.createBuffer({
+   size: 16,
+   usage: GPUBufferUsage.UNIFORM,
+   mappedAtCreation: true,
+ });
+ new Float32Array(buffer.getMappedRange(0, buffer.size)).set([1, 2, 3, 4]);
+ buffer.unmap();
+```
 
-## <a id="a-efficient"><a/>Efficiently using mappable buffers
+## <a id="a-efficient"></a>Efficiently using mappable buffers
 
 Above we saw that mapping a buffer is asynchronous. This means there's
 an indeterminate amount of time from the point we ask for the buffer
