@@ -11,6 +11,7 @@ const {
   runOnResize,
   getWorkerPreamble,
   prepHTML,
+  initEditor = () => { /* */ },
 } = lessonEditorSettings;
 
 function getQuery(s) {
@@ -391,6 +392,9 @@ function cantGetHTML(e) {  // eslint-disable-line
 }
 
 async function main() {
+  if (typeof monaco !== 'undefined') {
+    await initEditor();
+  }
   const query = getQuery();
   g.url = getFQUrl(query.url);
   g.query = getSearch(g.url);

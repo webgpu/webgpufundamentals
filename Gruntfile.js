@@ -12,6 +12,7 @@ const path = require('path');
 const liveEditor = require('@gfxfundamentals/live-editor');
 const fixLinks = require('./build/fix-links.js');
 const liveEditorPath = path.dirname(require.resolve('@gfxfundamentals/live-editor'));
+const webgpuTypesPath = path.join(__dirname, 'node_modules', '@webgpu', 'types');
 
 module.exports = function(grunt) {
 
@@ -63,6 +64,7 @@ module.exports = function(grunt) {
           { expand: false, src: '*', dest: 'out/', filter: noMdsNoFolders, },
           { expand: true, cwd: `${liveEditor.monacoEditor}/`, src: 'min/**', dest: 'out/monaco-editor/', nonull: true, },
           { expand: true, cwd: `${liveEditorPath}/src/`, src: '**', dest: 'out/webgpu/resources/', nonull: true, },
+          { expand: true, cwd: `${webgpuTypesPath}/`, src: 'dist/**', dest: 'out/types/webgpu/', nonull: true, },
           { expand: true, src: 'webgpu/**', dest: 'out/', filter: noMds, },
           { expand: true, src: '3rdparty/**', dest: 'out/', },
         ],
