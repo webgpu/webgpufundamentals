@@ -34,7 +34,8 @@ for many apps it will likely require a large amount of code and some serious
 organization of data. As an example, [three.js](https://threejs.org) which
 supports WebGPU consists of ~600k minified JavaScript, and that's just its
 base library. That does not include loaders, controls, post processing, and
-many other features.
+many other features. Similarly, [tensor flow with WebGPU backend](https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-webgpu)
+is ~500k of minified JavaScript.
 
 The point being, if you just want to get something on the screen you're far
 better off choosing a library that provides the large amount of code you're
