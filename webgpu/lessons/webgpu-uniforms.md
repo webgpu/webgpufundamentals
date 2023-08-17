@@ -96,7 +96,7 @@ This is an area where, if you never dealt with native data and sizes
 there's a bunch to learn. It's a big topic so [here is an separate
 article about the topic](webgpu-memory-layout.html). If you don't
 know how to layout structs in memory, please [go read the article](webgpu-memory-layout.html). Then come back here. This article
-will assume you already read [it](webgpu-memory-layout.html).
+will assume you [already read it](webgpu-memory-layout.html).
 
 Having read [the article](webgpu-memory-layout.html), we can
 now go ahead fill out a buffer with data that matches the
@@ -168,6 +168,9 @@ We'll do it at the top of our `render` function.
     // copy the values from JavaScript to the GPU
     device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
 ```
+
+> Note: `writeBuffer` is one way to copy data to a buffer. 
+> There are several other ways covered in [this article](webgpu-copying-data.html).
 
 We're setting the scale to half size AND taking into account the aspect of the canvas
 so the triangle will keep the same width to height ratio regardless

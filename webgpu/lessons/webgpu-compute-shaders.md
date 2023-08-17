@@ -1,6 +1,6 @@
-Title: WebGPU Compute Shaders
+Title: WebGPU Compute Shader Basics
 Description: How to use compute shaders in WebGPU
-TOC: Compute Shaders
+TOC: Compute Shader Basics
 
 This article continues from [the article on fundamentals](webgpu-fundamentals.html).
 We're going to start with some basic of compute shaders and then hopefully move on

@@ -10,6 +10,7 @@
     'webgpu-textures-external-video.md',
     'webgpu-constants.md',
     'webgpu-memory-layout.md',
+    'webgpu-copying-data.md',
     'webgpu-wgsl.md',
     'webgpu-how-it-works.md',
   ],
