@@ -1269,7 +1269,27 @@ from a texture when all filtering is set to nearest is faster then reading
 <p>TBD: Repeat</p>
 <p>TBD: Anisotropic filtering</p>
 <h2 id="texture-types-and-texture-views">Texture Types and Texture Views</h2>
-<p>Until this point we’ve only used 2d textures. There are 6 types of textures</p>
+<p>Until this point we’ve only used 2d textures. There are 3 types of textures</p>
+<ul>
+<li>“1d”</li>
+<li>“2d”</li>
+<li>“3d”</li>
+</ul>
+<p>In some way you can <em>kind of</em> consider a “2d” texture just a “3d” texture with a
+depth of 1. And a “1d” texture is just a “2d” texture with a height of 1. Two
+actual differences, textures are limited in their maximum allowed dimensions. The
+limit is different for each type of texture “1d”, “2d”, and “3d”. We’ve used the
+“2d” limit when setting the size of the canvas.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
+</pre>
+<p>Another is speed, at least for a 3d texture vs a 2d texture, with all the
+sampler filters set to <code class="notranslate" translate="no">linear</code>, sampling a 3d texture would require looking at
+16 texels and blending them all together. Sampling a 2d texture only needs 8
+texels. It’s possible a 1d texture only needs 4 but I have no idea if any GPUs
+actually optimize for 1d textures.</p>
+<h3 id="texture-views">Texture Views</h3>
+<p>There are 6 types of texture views</p>
 <ul>
 <li>“1d”</li>
 <li>“2d”</li>
@@ -1278,57 +1298,53 @@ from a texture when all filtering is set to nearest is faster then reading
 <li>“cube”</li>
 <li>“cube-array”</li>
 </ul>
-<p>In some way you can <em>kind of</em> consider a “2d” texture just a “3d” texture with a
-depth of 1. And a “1d” texture is just a “2d” texture with a height of 1. Two
-actual differences, textures are limited in their maximum allowed dimensions. The
-limit is different for each type of texture “1d”, “2d”, and “3d”. We’ve used the
-“2d” limit when setting the size of the canvas.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">      canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-      canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
-</pre>
-<p>Another is speed, at least for a 3d texture vs a 2d texture, with all the
-sampler filters set to <code class="notranslate" translate="no">linear</code>, sampling a 3d texture would require looking at
-16 texels and blending them all together. Sampling a 2d texture only needs 8
-texels. It’s possible a 1d texture only needs 4 but I have no idea if any GPUs
-actually optimize for 1d textures.</p>
+<p>“1d” textures can only have a “1d” view. “3d” textures can only have a “3d” view.
+“2d” texture can have a “2d-array” view. If a “2d” texture has 6 layers it can
+have a “cube” view. If it has a multiple of 6 layers it can have a “cube-array”
+view. You can choose how to view a texture when you call <code class="notranslate" translate="no">someTexture.createView</code>.
+Texture views default to the same as their dimension but you can pass a different
+dimension to <code class="notranslate" translate="no">someTexture.createView</code>.</p>
 <p>We’ll cover “3d” textures <a href="webgpu-3dluts.html">in the article on tone mapping / 3dLUTs</a></p>
-<p>A “cube” texture is a texture that represents the 6 faces of a cube. We’ll cover
+<p>A “cube” texture is a texture that represents the 6 faces of a cube. Cube textures
+are often used to draw sky boxes and for reflections and environment maps. We’ll cover
 that in <a href="webgpu-cube-maps.html">the article on cube maps</a></p>
 <p>A “2d-array” is an array of 2d textures. You can then choose which texture of
 the array to access in your shader. They are commonly used for terrain rendering
 among other things.</p>
 <p>A “cube-array” is an array of cube textures.</p>
 <p>Each type of texture has its own corresponding type in WGSL.</p>
-<ul>
-<li>
-<p>“1d”: <code class="notranslate" translate="no">texture_1d</code> or <code class="notranslate" translate="no">texture_storage_1d</code></p>
-</li>
-<li>
-<p>“2d”: <code class="notranslate" translate="no">texture_2d</code> or <code class="notranslate" translate="no">texture_storage_2d</code> or <code class="notranslate" translate="no">texture_multisampled_2d</code>
-as well as a special case for in certain situations <code class="notranslate" translate="no">texture_depth_2d</code> and <code class="notranslate" translate="no">texture_depth_multisampled_2d</code></p>
-</li>
-<li>
-<p>“2d-array”: <code class="notranslate" translate="no">texture_2d_array</code> or <code class="notranslate" translate="no">texture_storage_2d_array</code> and sometimes <code class="notranslate" translate="no">texture_depth_2d_array</code></p>
-</li>
-<li>
-<p>“3d”: <code class="notranslate" translate="no">texture_3d</code> or <code class="notranslate" translate="no">texture_storage_3d</code></p>
-</li>
-<li>
-<p>“cube”: <code class="notranslate" translate="no">texture_cube</code> and sometimes <code class="notranslate" translate="no">texture_depth_cube</code></p>
-</li>
-<li>
-<p>“cube-array”: <code class="notranslate" translate="no">texture_cube_array</code> and sometimes <code class="notranslate" translate="no">texture_depth_cube_array</code></p>
-</li>
-</ul>
+<div class="webgpu_center data-table" style="max-width: 500px;">
+  <style>
+    .texture-type {
+      text-align: left;
+      font-size: large;
+      line-height: 1.5em;
+    }
+    .texture-type td:nth-child(1) {
+      white-space: nowrap;
+    }
+  </style>
+  <table class="texture-type">
+   <thead>
+    <tr>
+     <th>type</th>
+     <th>WGSL types</th>
+    </tr>
+   </thead>
+   <tbody>
+    <tr><td>"1d"</td><td><code class="notranslate" translate="no">texture_1d</code> or <code class="notranslate" translate="no">texture_storage_1d</code></td></tr>
+    <tr><td>"2d"</td><td><code class="notranslate" translate="no">texture_2d</code> or <code class="notranslate" translate="no">texture_storage_2d</code> or <code class="notranslate" translate="no">texture_multisampled_2d</code> as well as a special case for in certain situations <code class="notranslate" translate="no">texture_depth_2d</code> and <code class="notranslate" translate="no">texture_depth_multisampled_2d</code></td></tr>
+    <tr><td>"2d-array"</td><td><code class="notranslate" translate="no">texture_2d_array</code> or <code class="notranslate" translate="no">texture_storage_2d_array</code> and sometimes <code class="notranslate" translate="no">texture_depth_2d_array</code></td></tr>
+    <tr><td>"3d"</td><td><code class="notranslate" translate="no">texture_3d</code> or <code class="notranslate" translate="no">texture_storage_3d</code></td></tr>
+    <tr><td>"cube"</td><td><code class="notranslate" translate="no">texture_cube</code> and sometimes <code class="notranslate" translate="no">texture_depth_cube</code></td></tr>
+    <tr><td>"cube-array"</td><td><code class="notranslate" translate="no">texture_cube_array</code> and sometimes <code class="notranslate" translate="no">texture_depth_cube_array</code></td></tr>
+   </tbody>
+  </table>
+</div>
 <p>We’ll cover some of this in actual use but, it can be a little confusing that
 when creating a texture (calling <code class="notranslate" translate="no">device.createTexture</code>), there is only “1d”,
 “2d”, or “3d” as options and the default is “2d” so we have not had to specify
 the dimensions yet.</p>
-<p>When we create a texture view, by calling <code class="notranslate" translate="no">someTexture.createView</code> we can
-specify a type of view from the 6 above. A “2d-array” is just a view of a 2d
-texture multiple array layers. A “cube” is also just a view of 2d texture with 6
-array layers. A “cube-array” is a 2d texture with some multiple of 6 array
-layers</p>
 <h2 id="texture-formats">Texture Formats</h2>
 <p>For now, this is the basics of textures.
 Textures are a huge topic and there’s a bunch more to cover.</p>
