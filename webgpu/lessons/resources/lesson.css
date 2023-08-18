@@ -67,7 +67,7 @@ body {
   margin: 0;
   font-family: Georgia, serif;
   font-size: 19px;
-  line-height: 150%;
+  line-height: 1.5em;
   background: var(--main-bg-color);
   color: var(--main-fg-color);
 }
@@ -811,7 +811,7 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
 .data-table {
   overflow-x: auto;
   font-size: medium;
-  line-height: 110%;
+  line-height: 1.25em;
   max-width: 90%;
 }
 .data-table pre {

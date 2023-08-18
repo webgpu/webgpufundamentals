@@ -1206,14 +1206,11 @@ TBD: Anisotropic filtering
 
 ## Texture Types and Texture Views
 
-Until this point we've only used 2d textures. There are 6 types of textures
+Until this point we've only used 2d textures. There are 3 types of textures
 
 * "1d"
 * "2d"
-* "2d-array"
 * "3d"
-* "cube"
-* "cube-array"
 
 In some way you can *kind of* consider a "2d" texture just a "3d" texture with a
 depth of 1. And a "1d" texture is just a "2d" texture with a height of 1. Two
@@ -1222,8 +1219,8 @@ limit is different for each type of texture "1d", "2d", and "3d". We've used the
 "2d" limit when setting the size of the canvas.
 
 ```js
-      canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-      canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
+canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 ```
 
 Another is speed, at least for a 3d texture vs a 2d texture, with all the
@@ -1232,9 +1229,28 @@ sampler filters set to `linear`, sampling a 3d texture would require looking at
 texels. It's possible a 1d texture only needs 4 but I have no idea if any GPUs
 actually optimize for 1d textures.
 
+### Texture Views
+
+There are 6 types of texture views
+
+* "1d"
+* "2d"
+* "2d-array"
+* "3d"
+* "cube"
+* "cube-array"
+
+"1d" textures can only have a "1d" view. "3d" textures can only have a "3d" view.
+"2d" texture can have a "2d-array" view. If a "2d" texture has 6 layers it can
+have a "cube" view. If it has a multiple of 6 layers it can have a "cube-array"
+view. You can choose how to view a texture when you call `someTexture.createView`.
+Texture views default to the same as their dimension but you can pass a different
+dimension to `someTexture.createView`.
+
 We'll cover "3d" textures [in the article on tone mapping / 3dLUTs](webgpu-3dluts.html)
 
-A "cube" texture is a texture that represents the 6 faces of a cube. We'll cover
+A "cube" texture is a texture that represents the 6 faces of a cube. Cube textures
+are often used to draw sky boxes and for reflections and environment maps. We'll cover
 that in [the article on cube maps](webgpu-cube-maps.html)
 
 A "2d-array" is an array of 2d textures. You can then choose which texture of
@@ -1245,28 +1261,39 @@ A "cube-array" is an array of cube textures.
 
 Each type of texture has its own corresponding type in WGSL.
 
-* "1d": `texture_1d` or `texture_storage_1d`
-
-* "2d": `texture_2d` or `texture_storage_2d` or `texture_multisampled_2d`
-    as well as a special case for in certain situations `texture_depth_2d` and `texture_depth_multisampled_2d`
-* "2d-array": `texture_2d_array` or `texture_storage_2d_array` and sometimes `texture_depth_2d_array`
-
-* "3d": `texture_3d` or `texture_storage_3d`
-
-* "cube": `texture_cube` and sometimes `texture_depth_cube`
-
-* "cube-array": `texture_cube_array` and sometimes `texture_depth_cube_array`
+<div class="webgpu_center data-table" style="max-width: 500px;">
+  <style>
+    .texture-type {
+      text-align: left;
+      font-size: large;
+      line-height: 1.5em;
+    }
+    .texture-type td:nth-child(1) {
+      white-space: nowrap;
+    }
+  </style>
+  <table class="texture-type">
+   <thead>
+    <tr>
+     <th>type</th>
+     <th>WGSL types</th>
+    </tr>
+   </thead>
+   <tbody>
+    <tr><td>"1d"</td><td><code>texture_1d</code> or <code>texture_storage_1d</code></td></tr>
+    <tr><td>"2d"</td><td><code>texture_2d</code> or <code>texture_storage_2d</code> or <code>texture_multisampled_2d</code> as well as a special case for in certain situations <code>texture_depth_2d</code> and <code>texture_depth_multisampled_2d</code></td></tr>
+    <tr><td>"2d-array"</td><td><code>texture_2d_array</code> or <code>texture_storage_2d_array</code> and sometimes <code>texture_depth_2d_array</code></td></tr>
+    <tr><td>"3d"</td><td><code>texture_3d</code> or <code>texture_storage_3d</code></td></tr>
+    <tr><td>"cube"</td><td><code>texture_cube</code> and sometimes <code>texture_depth_cube</code></td></tr>
+    <tr><td>"cube-array"</td><td><code>texture_cube_array</code> and sometimes <code>texture_depth_cube_array</code></td></tr>
+   </tbody>
+  </table>
+</div>
 
 We'll cover some of this in actual use but, it can be a little confusing that
 when creating a texture (calling `device.createTexture`), there is only "1d",
 "2d", or "3d" as options and the default is "2d" so we have not had to specify
 the dimensions yet.
-
-When we create a texture view, by calling `someTexture.createView` we can
-specify a type of view from the 6 above. A "2d-array" is just a view of a 2d
-texture multiple array layers. A "cube" is also just a view of 2d texture with 6
-array layers. A "cube-array" is a 2d texture with some multiple of 6 array
-layers
 
 ## Texture Formats
 
