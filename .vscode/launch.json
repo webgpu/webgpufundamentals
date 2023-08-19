@@ -19,7 +19,7 @@
       "name": "Debug Build",
       "program": "${workspaceFolder}/node_modules/grunt/bin/grunt",
       "env": {
-        "ARTICLE_FILTER_XXX": "webgl"
+        "ARTICLE_FILTER_XXX": "funda"
       },
       "args": [
         "buildlessons"
