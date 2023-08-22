@@ -420,11 +420,89 @@ select = (a, b, condition) =&gt; condition ? b : a;
 <p>Even if you don’t use <code class="notranslate" translate="no">@builtin(position)</code> in a fragment shader, it’s convenient
 that it’s there because it means we can use the same struct for both a vertex
 shader and a fragment shader. What was important to takeaway is that the <code class="notranslate" translate="no">position</code> struct
-field in the vertex shader vs the fragment shader is entire unrelated. They’re
-entirely different variables.</p>
+field in the vertex shader vs the fragment shader is entirely unrelated. They’re
+completely different variables.</p>
 <p>As pointed out above though, for inter-stage variables, all that matters is the
 <code class="notranslate" translate="no">@location(?)</code>. So, it’s not uncommon to declare different structs for a vertex
 shader’s output vs a fragment shaders input.</p>
+<p>To hopefully make this more clear, the fact that the vertex shader and
+fragment shader are in the same string in our examples it just a convenience.
+We could also split them into separate modules</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const module = device.createShaderModule({
+-    label: 'hardcoded checkerboard triangle shaders',
++  const vsModule = device.createShaderModule({
++    label: 'hardcoded triangle',
+    code: `
+      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+        var vsOutput: OurVertexShaderOutput;
+        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+        return vsOutput;
+      }
++    `,
++  });
++
++  const fsModule = device.createShaderModule({
++    label: 'checkerboard',
++    code: `
+-      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -&gt; @location(0) vec4f {
++      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -&gt; @location(0) vec4f {
+        let red = vec4f(1, 0, 0, 1);
+        let cyan = vec4f(0, 1, 1, 1);
+
+-        let grid = vec2u(fsInput.position.xy) / 8;
++        let grid = vec2u(pixelPosition.xy) / 8;
+        let checker = (grid.x + grid.y) % 2 == 1;
+
+        return select(red, cyan, checker);
+      }
+    `,
+  });
+</pre>
+<p>And we’d have to update our pipeline creation to use these</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: 'hardcoded checkerboard triangle pipeline',
+    layout: 'auto',
+    vertex: {
+-      module,
++      module: vsModule,
+      entryPoint: 'vs',
+    },
+    fragment: {
+-      module,
++      module: fsModule,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+
+</pre>
+<p>And this would also work</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-fragment-shader-builtin-position-separate-modules.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-fragment-shader-builtin-position-separate-modules.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>The point is, the fact that both shaders are in the same string in most WebGPU
+examples is just a convenience. In reality, first WebGPU parses the WGSL to make
+sure it’s syntactically correct. Then, WebGPU looks at the <code class="notranslate" translate="no">entryPoint</code>
+you specify. From that it goes and looks at the parts that entryPoint references
+and nothing else for that entryPoint. It’s useful because you don’t have to type
+things like structures or binding and group locations twice if two or more shaders
+share bindings or structures or constants or functions. But, from the POV of WebGPU,
+it’s as though you did duplicate all of them, once for each entryPoint.</p>
 <p>Note: It is not that common to generate a checkerboard using the
 <code class="notranslate" translate="no">@builtin(position)</code>. Checkerboards or other patterns are far more commonly
 implemented <a href="webgpu-textures.html">using textures</a>. In fact you’ll see an issue
