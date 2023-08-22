@@ -234,12 +234,94 @@ select = (a, b, condition) => condition ? b : a;
 Even if you don't use `@builtin(position)` in a fragment shader, it's convenient
 that it's there because it means we can use the same struct for both a vertex
 shader and a fragment shader. What was important to takeaway is that the `position` struct
-field in the vertex shader vs the fragment shader is entire unrelated. They're
-entirely different variables.
+field in the vertex shader vs the fragment shader is entirely unrelated. They're
+completely different variables.
 
 As pointed out above though, for inter-stage variables, all that matters is the
 `@location(?)`. So, it's not uncommon to declare different structs for a vertex
 shader's output vs a fragment shaders input.
+
+To hopefully make this more clear, the fact that the vertex shader and
+fragment shader are in the same string in our examples it just a convenience.
+We could also split them into separate modules
+
+```js
+-  const module = device.createShaderModule({
+-    label: 'hardcoded checkerboard triangle shaders',
++  const vsModule = device.createShaderModule({
++    label: 'hardcoded triangle',
+    code: `
+      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -> OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+        var vsOutput: OurVertexShaderOutput;
+        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+        return vsOutput;
+      }
++    `,
++  });
++
++  const fsModule = device.createShaderModule({
++    label: 'checkerboard',
++    code: `
+-      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -> @location(0) vec4f {
++      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -> @location(0) vec4f {
+        let red = vec4f(1, 0, 0, 1);
+        let cyan = vec4f(0, 1, 1, 1);
+
+-        let grid = vec2u(fsInput.position.xy) / 8;
++        let grid = vec2u(pixelPosition.xy) / 8;
+        let checker = (grid.x + grid.y) % 2 == 1;
+
+        return select(red, cyan, checker);
+      }
+    `,
+  });
+```
+
+And we'd have to update our pipeline creation to use these
+
+```js
+  const pipeline = device.createRenderPipeline({
+    label: 'hardcoded checkerboard triangle pipeline',
+    layout: 'auto',
+    vertex: {
+-      module,
++      module: vsModule,
+      entryPoint: 'vs',
+    },
+    fragment: {
+-      module,
++      module: fsModule,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+
+```
+
+And this would also work
+
+{{{example url="../webgpu-fragment-shader-builtin-position-separate-modules.html"}}}
+
+The point is, the fact that both shaders are in the same string in most WebGPU
+examples is just a convenience. In reality, first WebGPU parses the WGSL to make
+sure it's syntactically correct. Then, WebGPU looks at the `entryPoint`
+you specify. From that it goes and looks at the parts that entryPoint references
+and nothing else for that entryPoint. It's useful because you don't have to type
+things like structures or binding and group locations twice if two or more shaders
+share bindings or structures or constants or functions. But, from the POV of WebGPU,
+it's as though you did duplicate all of them, once for each entryPoint.
 
 Note: It is not that common to generate a checkerboard using the
 `@builtin(position)`. Checkerboards or other patterns are far more commonly
