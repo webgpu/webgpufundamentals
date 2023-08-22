@@ -112,6 +112,7 @@
       #errors {
         font-size: small;
         padding: 1em;
+        background-color: var(--error-bg-color);
       }
       pre {
         margin: 0;
@@ -371,7 +372,6 @@ const dataTypes = {
   },
 };
 
-let updateURL = false;
 function updateResults(code, style) {
   try {
     const defs = makeShaderDataDefinitions(code);
@@ -398,20 +398,6 @@ function updateResults(code, style) {
       resultsElem.textContent = results.join('\n\n');
       window.prettyPrint(resultsElem);
     }
-
-    if (updateURL) {
-      const save = JSON.stringify({
-        c: compileElem.checked ? 1 : 0,
-        x: code,
-      });
-      compressor.compress(save, 1, function(bytes) {
-        const hex = convertBytesToHex(bytes);
-        const params = new URLSearchParams({x: hex});
-        window.location.replace(`#${params.toString()}`);
-      },
-      () => { /* */ });
-    }
-    updateURL = true;
   } catch (e) {
     errorsElem.style.display = '';
     errorsElem.appendChild(el(
@@ -421,8 +407,18 @@ function updateResults(code, style) {
         el('div', {textContent: `wgsl errors: ${e}`}),
       ],
     ));
-
   }
+
+  const save = JSON.stringify({
+    c: compileElem.checked ? 1 : 0,
+    x: code,
+  });
+  compressor.compress(save, 1, function(bytes) {
+    const hex = convertBytesToHex(bytes);
+    const params = new URLSearchParams({x: hex});
+    window.location.replace(`#${params.toString()}`);
+  },
+  () => { /* */ });
 }
 
 /* global require */
