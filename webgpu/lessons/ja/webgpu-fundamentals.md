@@ -31,6 +31,7 @@ WebGPUは、２つのことをやるためのAPIです。
 
 WebGPUは極端に「低レベルなAPI」です。小さなサンプルプログラムを作る場合であっても、とてもたくさんのコードや、シビアなデータ構造の実装が必要となります。
 たとえば、[three.js](https://threejs.org)はWebGPUをサポートしていますが、そのサイズは600Kbytesにもなります。MinifyしたJavaSciprtコードの状態、もっと言えば、ローダや入力コントロール、ポストプロセスなどの機能を除いた、コア部分だけで、です。
+[TensorFlow.jsのWebGPUバックエンド](https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-webgpu)でも同様です。こちらはMinifyした状態で500k程度となっています。
 
 「画面に何か表示したい」といった観点で言えば、WebGPUを直接使うのではなく、ライブラリを使う方が、遥かに、良いです。
 
