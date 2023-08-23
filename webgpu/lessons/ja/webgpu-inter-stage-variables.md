@@ -245,8 +245,90 @@ select = (a, b, condition) => condition ? b : a;
 
 inter-stage変数の本質は、ロケーション、`@location(?)`の部分です。
 重要なのは「ロケーションを合わせること」なので、
-頂点シェーダの出力、フラグメントシェーダの入力で、共通ではない、別の構造体を使う書き方は、
-それほど珍しいことではありません。
+「頂点シェーダの出力」と「フラグメントシェーダの入力」で同じ構造体を使う必要はなく、
+それぞれで別の書き方をするのはそれほど珍しいことではありません。
+
+このことは、頂点シェーダ、フラグメントシェーダのソースコードが別々になっている場合を考えるとわかりやすいでしょう。
+
+```js
+-  const module = device.createShaderModule({
+-    label: 'hardcoded checkerboard triangle shaders',
++  const vsModule = device.createShaderModule({
++    label: 'hardcoded triangle',
+    code: `
+      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -> OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+        var vsOutput: OurVertexShaderOutput;
+        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+        return vsOutput;
+      }
++    `,
++  });
++
++  const fsModule = device.createShaderModule({
++    label: 'checkerboard',
++    code: `
+-      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -> @location(0) vec4f {
++      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -> @location(0) vec4f {
+        let red = vec4f(1, 0, 0, 1);
+        let cyan = vec4f(0, 1, 1, 1);
+
+-        let grid = vec2u(fsInput.position.xy) / 8;
++        let grid = vec2u(pixelPosition.xy) / 8;
+        let checker = (grid.x + grid.y) % 2 == 1;
+
+        return select(red, cyan, checker);
+      }
+    `,
+  });
+```
+
+シェーダモジュールが２つになるので、パイプラインの生成コードをそれに合わせて修正します。
+
+```js
+  const pipeline = device.createRenderPipeline({
+    label: 'hardcoded checkerboard triangle pipeline',
+    layout: 'auto',
+    vertex: {
+-      module,
++      module: vsModule,
+      entryPoint: 'vs',
+    },
+    fragment: {
+-      module,
++      module: fsModule,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+
+```
+
+以上の変更後も、同じように動作します。
+
+{{{example url="../webgpu-fragment-shader-builtin-position-separate-modules.html"}}}
+
+WebGPUのサンプルプログラムではよく、２つのシェーダで１つの構造体を利用する書き方をします。
+が、これは「便利だから」という以上の意味はない、というのが、この話題のポイントです。
+実際のところ、この点においてはWebGPUは「WGSLが文法上正しいか」のチェックしかしません。
+WebGPUは次に、指定した`entryPoint`を確認しますが、これもentryPointがどこか、以上のチェックはしません。
+頂点シェーダとフラグメントシェーダで@builtin(position)が別々の解釈をされても問題ありません。
+
+プログラマの視点からすると、構造体やバインドグループの記述を各シェーダについて別々に書かずに済むのは、便利です。
+一方で、WebGPUの視点からすると、構造体やバインドグループの記述は各シェーダそれぞれに書かれているように解釈されます。
+ソースコード的には同じことが書かれていても、それぞれのシェーダで違った解釈がされる。それでも問題ない。ということです。
+
 
 注：今回、市松模様を描くために`@builtin(position)`を使っていますが、
 これはあまり一般的なやり方ではありません。
