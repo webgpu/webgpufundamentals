@@ -167,7 +167,7 @@ commandBuffer = encoder.finish();
 Once you create a command buffer you can *submit* to be executed
 
 ```js
-device.submit([commandBuffer]);
+device.queue.submit([commandBuffer]);
 ```
 
 The diagram above represent the state at some `draw` command in the command

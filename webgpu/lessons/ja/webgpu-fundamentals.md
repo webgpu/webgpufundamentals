@@ -100,7 +100,7 @@ GPU上でシェーダを動かすためには、以上のような各種リソ�
 
 コマンドバッファを*submit*します。これによって、WebGPUがコマンドを実行できます。
 
-以下は疑似コードです(訳注：実コードでは？)。コマンドバッファをエンコードしてコマンドバッファが生成される様子を示しています。
+以下は疑似コードです。コマンドバッファをエンコードしてコマンドバッファが生成される様子を示しています。
 
 <div class="webgpu_center side-by-side"><div style="min-width: 300px; max-width: 400px; flex: 1 1;"><pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 encoder = device.createCommandEncoder()
@@ -142,7 +142,7 @@ commandBuffer = encoder.finish();
 コマンドバッファの生成が済んだら、*submit*(送信)して実行できます。
 
 ```js
-device.submit([commandBuffer]);
+device.queue.submit([commandBuffer]);
 ```
 
 上の例のコマンドバッファでは、いくつかの`draw`コマンドが登場しています。
