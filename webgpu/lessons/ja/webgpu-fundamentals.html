@@ -296,7 +296,7 @@ JavaScript側では、「バッファ」や「テクスチャ」といった「�
 <p>コマンドバッファを生成します。いくつかのステートは、コマンドバッファ生成時に設定され、コマンドバッファが実行されます。コマンドバッファは、名前通り、コマンドのバッファです。</p>
 <p>エンコーダを生成します。エンコーダは、コマンドを、コマンドバッファへエンコードします。以上を実行したら、エンコーダを<em>finish</em>します。これによって、生成されたコマンドバッファが得られます。</p>
 <p>コマンドバッファを<em>submit</em>します。これによって、WebGPUがコマンドを実行できます。</p>
-<p>以下は疑似コードです(訳注：実コードでは？)。コマンドバッファをエンコードしてコマンドバッファが生成される様子を示しています。</p>
+<p>以下は疑似コードです。コマンドバッファをエンコードしてコマンドバッファが生成される様子を示しています。</p>
 <div class="webgpu_center side-by-side"><div style="min-width: 300px; max-width: 400px; flex: 1 1;"><pre class="prettyprint showlinemods notranslate notranslate" translate="no">encoder = device.createCommandEncoder()
 // 何かを描画する
 {
@@ -333,7 +333,7 @@ commandBuffer = encoder.finish();
 <div><img src="../resources/webgpu-command-buffer.svg" style="width: 300px;"></div>
 </div>
 <p>コマンドバッファの生成が済んだら、<em>submit</em>(送信)して実行できます。</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.submit([commandBuffer]);
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.submit([commandBuffer]);
 </pre>
 <p>上の例のコマンドバッファでは、いくつかの<code class="notranslate" translate="no">draw</code>コマンドが登場しています。
 各コマンドが実行されると<em>internal state</em>(内部ステート)が設定されていきます。

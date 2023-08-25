@@ -362,7 +362,7 @@ commandBuffer = encoder.finish();
 <div><img src="resources/webgpu-command-buffer.svg" style="width: 300px;"></div>
 </div>
 <p>Once you create a command buffer you can <em>submit</em> to be executed</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.submit([commandBuffer]);
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.submit([commandBuffer]);
 </pre>
 <p>The diagram above represent the state at some <code class="notranslate" translate="no">draw</code> command in the command
 buffer. Executing the commands will setup the <em>internal state</em> and then the
