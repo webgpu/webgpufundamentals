@@ -371,11 +371,11 @@ You can only copy to one aspect at a time, either the <code class="notranslate" 
 <p><code class="notranslate" translate="no">copyBufferToTexture</code>, like the name suggests, copies data from a buffer to a texture.</p>
 <p>signature:</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">encode.copyBufferToTexture(
-  // details of the destination texture
-  { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
-
   // details of the source buffer
   { buffer, offset: 0, bytesPerRow, rowsPerImage },
+
+  // details of the destination texture
+  { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
   // size:
   [ width, height, depthOrArrayLayers ]
@@ -402,9 +402,9 @@ a multiple of 256!!</strong></p>
   [ width, height, depthOrArrayLayers ]
 )
 </pre>
-<p>This has exactly the same parameters as <code class="notranslate" translate="no">copyBufferToTexture</code>,
-It’s texture becomes the source and the buffer becomes the
-destination. Like <code class="notranslate" translate="no">copyTextureToBuffer</code>, <code class="notranslate" translate="no">bytesPerRow</code> <strong>must be
+<p>This has similar parameters to <code class="notranslate" translate="no">copyBufferToTexture</code>
+just the texture (now the source) and the buffer (now the destination)
+are swapped. Like <code class="notranslate" translate="no">copyTextureToBuffer</code>, <code class="notranslate" translate="no">bytesPerRow</code> <strong>must be
 a multiple of 256!!</strong></p>
 <ul>
 <li><code class="notranslate" translate="no">texture</code> must have a usage of <code class="notranslate" translate="no">GPUTextureUsage.COPY_SRC</code></li>
