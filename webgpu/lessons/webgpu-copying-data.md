@@ -172,11 +172,11 @@ signature:
 
 ```js
 encode.copyBufferToTexture(
-  // details of the destination texture
-  { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
-
   // details of the source buffer
   { buffer, offset: 0, bytesPerRow, rowsPerImage },
+
+  // details of the destination texture
+  { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
   // size:
   [ width, height, depthOrArrayLayers ]
@@ -209,9 +209,9 @@ encode.copyTextureToBuffer(
 )
 ```
 
-This has exactly the same parameters as `copyBufferToTexture`,
-It's texture becomes the source and the buffer becomes the
-destination. Like `copyTextureToBuffer`, `bytesPerRow` **must be
+This has similar parameters to `copyBufferToTexture`
+just the texture (now the source) and the buffer (now the destination)
+are swapped. Like `copyTextureToBuffer`, `bytesPerRow` **must be
 a multiple of 256!!**
 
 * `texture` must have a usage of `GPUTextureUsage.COPY_SRC`
