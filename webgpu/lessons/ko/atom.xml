@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id/>
+    <title>WebGPU 기초</title>
+    <updated>2023-08-28T07:39:36.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <author>
+        <name>webgpufundamentals Contributors</name>
+        <uri>https://webgpufundamentals.org/contributors.html</uri>
+    </author>
+    <link rel="alternate" href="https://webgpufundamentals.org/webgpu/lessons/ko"/>
+    <subtitle>WebGPU 기초를 배워봅시다.</subtitle>
+    <logo>https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg</logo>
+    <entry>
+        <title type="html"><![CDATA[WebGPU 컴퓨트 셰이더 기초]]></title>
+        <id>https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-compute-shaders.html</id>
+        <link href="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-compute-shaders.html"/>
+        <updated>2023-08-28T07:39:36.000Z</updated>
+        <author>
+            <name>webgpufundamentals Contributors</name>
+            <uri>https://webgpufundamentals.org/contributors.html</uri>
+        </author>
+        <published>2023-08-28T07:39:36.000Z</published>
+    </entry>
+</feed>
