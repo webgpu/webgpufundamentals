@@ -1182,7 +1182,7 @@ Z, clip space is 0 to +1.
 
 Before WebGPU draws a color pixel it will check the corresponding depth
 pixel.  If the depth (Z) value for the pixel it's about to draw does not match
-some condition relative to the value of the corresponding depth pixel. then WebGPU will not draw
+some condition relative to the value of the corresponding depth pixel then WebGPU will not draw
 the new color pixel. Otherwise it draws both the new color pixel with the
 color from your fragment shader AND it draws the depth pixel with the new
 depth value. This means, pixels that are behind other pixels won't get
@@ -1225,14 +1225,14 @@ To setup and use a depth texture we need to update our pipeline
 
 Above we're setting `depthCompare: 'less'`. This means, only draw the new pixel,
 if the Z value for the new pixel is "less" than the corresponding pixel in the depth
-texture. other options include `never`, `equal`, `less-equal`, `greater`, `not-equal`,
+texture. Other options include `never`, `equal`, `less-equal`, `greater`, `not-equal`,
 `greater-equal`, `always`.
 
 `depthWriteEnabled: true` means, if we pass the `depthCompare` test, then write
 the Z value of our new pixel to the depth texture. In our case, this means
 each time a pixel we're drawing has a Z value less than what's already in the depth
 texture, we'll draw that pixel and update the depth texture. In this way, if we later try
-to draw a pixel that's further back (has a higher Z value) it will not be draw.
+to draw a pixel that's further back (has a higher Z value) it will not be drawn.
 
 `format` is similar to `fragment.targets[?].format`. It's the format of
 the depth texture we will use. The available depth texture formats were listed

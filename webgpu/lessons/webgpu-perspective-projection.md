@@ -246,27 +246,27 @@ A Matrix like this
 
 will copy z to w. You can look at each of those rows as
 
-<div class="webgpu_math_center"><pre class="webgpu_math">
+<div class="webgpu_math_center"><pre class="webgpu_math">{{#escapehtml}}
 x_out = x_in * 1 +
         y_in * 0 +
         z_in * 0 +
         w_in * 0 ;
-
+ 
 y_out = x_in * 0 +
         y_in * 1 +
         z_in * 0 +
         w_in * 0 ;
-
+ 
 z_out = x_in * 0 +
         y_in * 0 +
         z_in * 1 +
         w_in * 0 ;
-
+ 
 w_out = x_in * 0 +
         y_in * 0 +
         z_in * 1 +
         w_in * 0 ;
-</pre></div>
+{{/escapehtml}}</pre></div>
 
 
 which when simplified is
