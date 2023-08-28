@@ -322,7 +322,7 @@ We can also make X and Y rotation matrices
           <td class="m24">0</td>
         </tr>
         <tr>
-          <td class="m31"></td>
+          <td class="m31">0</td>
           <td class="m32">0</td>
           <td class="m33">1</td>
           <td class="m34">0</td>
