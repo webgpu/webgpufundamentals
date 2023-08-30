@@ -1,0 +1,7 @@
+.limits table,
+.features table {
+  text-align: left;
+}
+.features td:nth-child(2) {
+  text-align: center;
+}
