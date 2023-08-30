@@ -19,10 +19,11 @@ const adapter = await navigator.gpu?.requestAdapter();
 console.log(adapter.limits.maxColorAttachments);
 ```
 
-Might print `8` to the console
+Might print `8` to the console meaning the adapter supports a maximum
+of 8 color attachments.
 
 Here is a list of all the limits, including the limits of your default adapter
-and the the minimum limits.
+as well as the the minimum required limits.
 
 <div class="webgpu_center data-table limits" data-diagram="limits"></div>
 
@@ -48,8 +49,14 @@ Here is the list of features available on your default adapter.
 
 ## Requesting limits and features
 
-Given the available limits and features, you request them when you call `requestDefault` by
-passing the limits as `requiredLimits` and the features as `requiredFeatures`. For example
+By default, when you request a device, you get the minimum limits
+(the right column above) and you get no optional features. The
+hope is, if you stay under the minimum limits, then your app will
+run on all devices that support WebGPU.
+
+But, given the available limits and features listed on the adapter,
+you can request them when you call `requestDefault` by
+passing your desired limits as `requiredLimits` and your desired features as `requiredFeatures`. For example
 
 ```js
 const k1Gig = 1024 * 1024 * 1024;
@@ -100,12 +107,24 @@ async function main() {
 }
 ```
 
-This seems like a tempting, simple, and clear way to check for limits and features. The
+This seems like a simple and clear way to check for limits and features[^objliketoobj]. The
 problem with this pattern is you might be accidentally exceeding limits and not
 know it. For example lets say you created an `'rgba32float'` texture and filtered it
 with `'linear'` filtering.
 It would magically just work on your desktop machine because you happened to have
 enabled it.
+
+[^objliketoobj]: What is this `objLikeToObj` and why do I needed
+it? It's an esoteric Web spec issue. The spec lists `requiredLimits` as
+`record<DOMString, GPUSize64>`. The Web IDL spec says, when converting
+an object from something to `record<DOMString, GPUSize64>` copy 
+only the properties that are actually the object's *own* properties.
+The `limits` object on the adapter is listed as an `interface`. The
+things that appear to be properties there are not properties, they're
+getters that exist on the object prototype, they are not actually the
+object's own properties. So, they aren't copied
+when converted to `record<DOMString, GPUSize64>` and so you have
+copy them yourself.
 
 On the user's phone, your program fails mysteriously because the `'float32-filterable'`
 feature didn't exist and you happened to be using it without realizing that it's
@@ -152,7 +171,7 @@ Doing it this way, if you happen to ask for a Uniform buffer larger than 128k yo
 Similarly if you happen to try to use a feature you didn't request you'll get an error.
 You can then make a conscience decision if you want to increase your required limits (and therefore
 refuse to run on more devices) or if you want to keep the limits, or if you want to structure
-your code to do different things if the features or limits are available.
+your code to do different things if the features or limits are or are not available.
 
 <!-- keep this at the bottom of the article -->
 <link rel="stylesheet" href="webgpu-limits-and-features.css">
