@@ -29,8 +29,28 @@ const c = (tag, children = [], textContent = '') => {
   return createElem(tag, {textContent}, children);
 };
 
+/**
+ * ```
+ * const addRow = makeTable(parent, ['name', 'location']);
+ * addRow(['Gregg', 'SF']);
+ * addRow(['Tami', 'Glendora']);
+ * addRow(['Mom', 'Temecula']);
+ * addRow([['red', 'apple'], ['yellow', 'banana']]);
+ *   // makes
+ *   // <tr>
+ *   //   <td><span class="red">apple</span></td>
+ *   //   <td><span class="green">banana</span></td>
+ *   // </tr>
+ * addRow([createElem('div')])
+ * ```
+*/
 export function makeTable(parent, columnNames) {
-  const makeRow = (arr, tag = 'td') => c('tr', arr.map(v => c(tag, [], v)));
+  const makeRow = (arr, tag = 'td') => c('tr', arr.map(
+    v => v instanceof HTMLElement
+      ? createElem(tag, {}, [v])
+      : Array.isArray(v)
+        ? createElem(tag, {className: v[0], textContent: v[1]})
+        : c(tag, [], v)));
 
   const tbody = c('tbody');
   parent.appendChild(c('table', [
@@ -41,13 +61,6 @@ export function makeTable(parent, columnNames) {
     tbody.appendChild(makeRow(columnData));
   };
 }
-
-/*
-const addRow = makeTable(parent, ['name', 'location']);
-addRow(['Gregg', 'SF']);
-addRow(['Tami', 'Glendora']);
-addRow(['Mom', 'Temecula']);
-*/
 
 export function radio(label, options, value, callback) {
   const name = crypto.randomUUID();
