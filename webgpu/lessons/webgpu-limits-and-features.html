@@ -232,9 +232,10 @@ on <code class="notranslate" translate="no">adapter.features</code>.  For exampl
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const adapter = await navigator.gpu?.requestAdapter();
 console.log(adapter.limits.maxColorAttachments);
 </pre>
-<p>Might print <code class="notranslate" translate="no">8</code> to the console</p>
+<p>Might print <code class="notranslate" translate="no">8</code> to the console meaning the adapter supports a maximum
+of 8 color attachments.</p>
 <p>Here is a list of all the limits, including the limits of your default adapter
-and the the minimum limits.</p>
+as well as the the minimum required limits.</p>
 <div class="webgpu_center data-table limits" data-diagram="limits"></div>
 <p>The minimum limits are the limits you can count on all devices that support WebGPU
 to have.</p>
@@ -251,8 +252,13 @@ you those features are available if you request them.</p>
 <p>Note: You can check all of your system’s adapter’s features and limits at <a href="https://webgpureport.org">webgpureport.org</a>.</p>
 </blockquote>
 <h2 id="requesting-limits-and-features">Requesting limits and features</h2>
-<p>Given the available limits and features, you request them when you call <code class="notranslate" translate="no">requestDefault</code> by
-passing the limits as <code class="notranslate" translate="no">requiredLimits</code> and the features as <code class="notranslate" translate="no">requiredFeatures</code>. For example</p>
+<p>By default, when you request a device, you get the minimum limits
+(the right column above) and you get no optional features. The
+hope is, if you stay under the minimum limits, then your app will
+run on all devices that support WebGPU.</p>
+<p>But, given the available limits and features listed on the adapter,
+you can request them when you call <code class="notranslate" translate="no">requestDefault</code> by
+passing your desired limits as <code class="notranslate" translate="no">requiredLimits</code> and your desired features as <code class="notranslate" translate="no">requiredFeatures</code>. For example</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const k1Gig = 1024 * 1024 * 1024;
 const adapter = await navigator.gpu?.requestAdapter();
 const device = adapter?.requestDevice({
@@ -293,7 +299,7 @@ async function main() {
   const canIndirectFirstInstance = device.features.has('indirect-first-instance');
 }
 </pre>
-<p>This seems like a tempting, simple, and clear way to check for limits and features. The
+<p>This seems like a simple and clear way to check for limits and features<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>. The
 problem with this pattern is you might be accidentally exceeding limits and not
 know it. For example lets say you created an <code class="notranslate" translate="no">'rgba32float'</code> texture and filtered it
 with <code class="notranslate" translate="no">'linear'</code> filtering.
@@ -337,10 +343,27 @@ must have and only request those limits.</p>
 Similarly if you happen to try to use a feature you didn’t request you’ll get an error.
 You can then make a conscience decision if you want to increase your required limits (and therefore
 refuse to run on more devices) or if you want to keep the limits, or if you want to structure
-your code to do different things if the features or limits are available.</p>
+your code to do different things if the features or limits are or are not available.</p>
 <!-- keep this at the bottom of the article -->
 <link rel="stylesheet" href="webgpu-limits-and-features.css">
 <script type="module" src="webgpu-limits-and-features.js"></script>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>What is this <code class="notranslate" translate="no">objLikeToObj</code> and why do I needed
+it? It’s an esoteric Web spec issue. The spec lists <code class="notranslate" translate="no">requiredLimits</code> as
+<code class="notranslate" translate="no">record&lt;DOMString, GPUSize64&gt;</code>. The Web IDL spec says, when converting
+an object from something to <code class="notranslate" translate="no">record&lt;DOMString, GPUSize64&gt;</code> copy
+only the properties that are actually the object’s <em>own</em> properties.
+The <code class="notranslate" translate="no">limits</code> object on the adapter is listed as an <code class="notranslate" translate="no">interface</code>. The
+things that appear to be properties there are not properties, they’re
+getters that exist on the object prototype, they are not actually the
+object’s own properties. So, they aren’t copied
+when converted to <code class="notranslate" translate="no">record&lt;DOMString, GPUSize64&gt;</code> and so you have
+copy them yourself. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
