@@ -92,3 +92,13 @@ export const rgba8unormFromCSS = (() => {
     return Array.from(imgData.data);
   };
 })();
+
+export const shortSize = (function() {
+  const suffixes = ['b', 'k', 'mb', 'gb', 'tb', 'pb'];
+  return function(size) {
+    const suffixNdx = Math.log2(Math.abs(size)) / 10 | 0;
+    const suffix = suffixes[Math.min(suffixNdx, suffixes.length - 1)];
+    const base = 2 ** (suffixNdx * 10);
+    return `${(size / base).toFixed(0)}${suffix}`;
+  };
+})();
