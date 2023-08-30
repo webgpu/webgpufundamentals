@@ -23,6 +23,7 @@
   --diagram-bg-color: #DDD;
   --column-rule-color: #888;
   --line-through-color: rgba(0, 0, 0, 0.3);
+  --good-fg-color: green;
 }
 
 .x-axis, .x-axis * { color: red !important; }
@@ -50,6 +51,7 @@
     --selected-fg-color: orange;
     --diagram-bg-color: #222;
     --line-through-color: rgba(255, 255, 255, 0.4);
+    --good-fg-color: hsl(120, 100%, 40%);
   }
   .x-axis, .x-axis * { color: red !important;  }
   .y-axis, .y-axis * { color: hsl(120, 100%, 40%) !important; }

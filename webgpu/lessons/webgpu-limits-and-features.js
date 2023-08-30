@@ -78,14 +78,14 @@ window.k = kFeatures;
 const adapter = await navigator.gpu?.requestAdapter();
 
 function withShortSize(v) {
-  return `${v} (${shortSize(v)})`;
+  return v >= 1024 ? `${v} (${shortSize(v)})` : `${v}`;
 }
 
 renderDiagrams({
   limits(elem) {
-    const addRow = makeTable(elem, ['limit', 'your device', 'min']);
+    const addRow = makeTable(elem, ['limit name', 'your device', 'min']);
     for (const key in adapter.limits) {
-      addRow([key, withShortSize(adapter.limits[key]), withShortSize(kLimitInfo[key].default)]);
+      addRow([key, [adapter.limits[key] > kLimitInfo[key].default ? 'exceeds-limit' : '', withShortSize(adapter.limits[key])], withShortSize(kLimitInfo[key].default)]);
     }
   },
 
