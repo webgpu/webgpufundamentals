@@ -456,7 +456,7 @@ We could also split them into separate modules</p>
 +  const fsModule = device.createShaderModule({
 +    label: 'checkerboard',
 +    code: `
--      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -&gt; @location(0) vec4f {
+-      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
 +      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -&gt; @location(0) vec4f {
         let red = vec4f(1, 0, 0, 1);
         let cyan = vec4f(0, 1, 1, 1);
