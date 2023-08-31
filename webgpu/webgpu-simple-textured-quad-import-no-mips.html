@@ -100,7 +100,7 @@ async function main() {
   const url = 'resources/images/f-texture.png'; /* webgpufundamentals: url */
   const source = await loadImageBitmap(url);
   const texture = device.createTexture({
-    labe: url,
+    label: url,
     format: 'rgba8unorm',
     size: [source.width, source.height],
     usage: GPUTextureUsage.TEXTURE_BINDING |
