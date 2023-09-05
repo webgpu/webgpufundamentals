@@ -81,10 +81,20 @@ function withShortSize(v) {
   return v >= 1024 ? `${v} (${shortSize(v)})` : `${v}`;
 }
 
+const sortAlphabetically = (a, b) => a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0;
+
+function getObjLikeKeys(objLike) {
+  const keys = [];
+  for (const key in objLike) {
+    keys.push(key);
+  }
+  return keys;
+}
+
 renderDiagrams({
   limits(elem) {
     const addRow = makeTable(elem, ['limit name', 'your device', 'min']);
-    for (const key in adapter.limits) {
+    for (const key of getObjLikeKeys(adapter.limits).sort(sortAlphabetically)) {
       addRow([key, [adapter.limits[key] > kLimitInfo[key].default ? 'exceeds-limit' : '', withShortSize(adapter.limits[key])], withShortSize(kLimitInfo[key].default)]);
     }
   },
@@ -92,8 +102,7 @@ renderDiagrams({
   features(elem) {
     const addRow = makeTable(elem, ['feature', 'your device']);
     const allKeys = new Set([...kFeatures, ...adapter.features]);
-    console.log(allKeys);
-    for (const key of allKeys.keys()) {
+    for (const key of [...allKeys.keys()].sort(sortAlphabetically)) {
       addRow([key, adapter.features.has(key) ? '✅' : kFeatures.has(key) ? '🚫' : '🤷‍♂️']);
     }
   },
