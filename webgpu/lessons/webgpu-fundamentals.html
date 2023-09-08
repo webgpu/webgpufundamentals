@@ -364,7 +364,7 @@ commandBuffer = encoder.finish();
 <p>Once you create a command buffer you can <em>submit</em> to be executed</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.submit([commandBuffer]);
 </pre>
-<p>The diagram above represent the state at some <code class="notranslate" translate="no">draw</code> command in the command
+<p>The diagram above represents the state at some <code class="notranslate" translate="no">draw</code> command in the command
 buffer. Executing the commands will setup the <em>internal state</em> and then the
 <em>draw</em> command will tell the GPU to execute a vertex shader (and indirectly a
 fragment shader). The <code class="notranslate" translate="no">dispatchWorkgroup</code> command will tell the GPU to execute a
@@ -431,14 +431,14 @@ main();
 <p>The code above is fairly self explanatory. First we request an adapter by using the
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining"><code class="notranslate" translate="no">?.</code> optional chaining operator</a>.
 so that if <code class="notranslate" translate="no">navigator.gpu</code> does not exist then <code class="notranslate" translate="no">adapter</code> will be undefined.
-If it does exist then we’ll call <code class="notranslate" translate="no">requestAdapter</code>. It turns its results asynchronously
+If it does exist then we’ll call <code class="notranslate" translate="no">requestAdapter</code>. It returns its results asynchronously
 so we need <code class="notranslate" translate="no">await</code>. The adapter represents a specific GPU. Some devices
 have multiple GPUs.</p>
 <p>From the adapter we request the device but again use <code class="notranslate" translate="no">?.</code> so that if adapter happens
 to be undefined then device will also be undefined.</p>
 <p>If the <code class="notranslate" translate="no">device</code> not set it’s likely the user has an old browser.</p>
 <p>Next up we look up the canvas and create a <code class="notranslate" translate="no">webgpu</code> context for it. This will
-let us get a texture to render to that will be used to render the canvas in the
+let us get a texture to render to. That texture will be used to display the canvas in the
 webpage.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Get a WebGPU context from the canvas and configure it
   const canvas = document.querySelector('canvas');
@@ -509,7 +509,7 @@ on the left to +1.0 on the right, Y goes from -1.0 at the bottom to +1.0 at the
 top. This is true regardless of the size of the texture we are drawing to.</p>
 <div class="webgpu_center"><img src="resources/clipspace.svg" style="width: 500px"></div>
 <p>The <code class="notranslate" translate="no">vs</code> function declares an array of 3 <code class="notranslate" translate="no">vec2f</code>s. Each <code class="notranslate" translate="no">vec2f</code> consists of two
-32bit floating point values. The code then fills out that array with 3 <code class="notranslate" translate="no">vec2f</code>s.</p>
+32bit floating point values.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let pos = array(
           vec2f( 0.0,  0.5),  // top center
           vec2f(-0.5, -0.5),  // bottom left
@@ -528,7 +528,7 @@ the remaining 2 values.</p>
 </pre>
 <p>This function takes no parameters and returns a <code class="notranslate" translate="no">vec4f</code> at <code class="notranslate" translate="no">location(0)</code>.
 This means it will write to the first render target. We’ll make the first
-render target our canvas later.</p>
+render target our canvas texture later.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        return vec4f(1, 0, 0, 1);
 </pre>
 <p>The code returns <code class="notranslate" translate="no">1, 0, 0, 1</code> which is red. Colors in WebGPU are usually
@@ -575,7 +575,7 @@ eventually render to.</p>
 the fragment shader’s return value. Later, well set that target to be a texture
 for the canvas.</p>
 <p>Next up we prepare a <code class="notranslate" translate="no">GPURenderPassDescriptor</code> which describes which textures
-we want to draw and how to use them.</p>
+we want to draw to and how to use them.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
     colorAttachments: [
@@ -589,7 +589,7 @@ we want to draw and how to use them.</p>
   };  
 </pre>
 <p>A <code class="notranslate" translate="no">GPURenderPassDescriptor</code> has an array for <code class="notranslate" translate="no">colorAttachments</code> which lists
-the textures we will render to and how to treat the textures.
+the textures we will render to and how to treat them.
 We’ll wait to fill in which texture we actually want to render to. For now,
 we setup a clear value of semi-dark gray, and a <code class="notranslate" translate="no">loadOp</code> and <code class="notranslate" translate="no">storeOp</code>.
 <code class="notranslate" translate="no">loadOp: 'clear'</code> specifies to clear the texture to the clear value before
@@ -623,9 +623,9 @@ which would throw away what we draw. We’ll cover why we might want to do that 
 <p>First we call <code class="notranslate" translate="no">context.getCurrentTexture()</code> to get a texture that will appear in the
 canvas. Calling <code class="notranslate" translate="no">createView</code> gets a view into a specific part of a texture but
 with no parameters it will return the default part which is what we want in this
-case. In this case our only <code class="notranslate" translate="no">colorAttachment</code> is a texture view from our
+case. For now our only <code class="notranslate" translate="no">colorAttachment</code> is a texture view from our
 canvas which we get via the context we created at the start. Again, element 0 of
-the <code class="notranslate" translate="no">colorAttachments</code> array corresponds to <code class="notranslate" translate="no">location(0)</code> as we specified for
+the <code class="notranslate" translate="no">colorAttachments</code> array corresponds to <code class="notranslate" translate="no">@location(0)</code> as we specified for
 the return value of the fragment shader.</p>
 <p>Next we create a command encoder. A command encoder is used to create a command
 buffer. We use it to encode commands and then “submit” the command buffer it
@@ -638,7 +638,7 @@ render to.</p>
 execute our vertex shader 3 times by calling <code class="notranslate" translate="no">draw</code> with 3. By default, every 3
 times our vertex shader is executed a triangle will be drawn by connecting the 3
 values just returned from the vertex shader.</p>
-<p>Finally we end the render pass, and then finish the encoder. This gives us a
+<p>We end the render pass, and then finish the encoder. This gives us a
 command buffer that represents the steps we just specified. Finally we submit
 the command buffer to be executed.</p>
 <p>When the <code class="notranslate" translate="no">draw</code> command is executed, this will be our state</p>
@@ -863,7 +863,7 @@ this case we pass it <code class="notranslate" translate="no">input.length</code
 compute shader 3 times. We then end the pass.</p>
 <p>Here’s what the situation will be when <code class="notranslate" translate="no">dispatchWorkgroups</code> is executed</p>
 <div class="webgpu_center"><img src="resources/webgpu-simple-compute-diagram.svg" style="width: 553px;"></div>
-<p>After the computation is finished we ask WebGPU to copy from <code class="notranslate" translate="no">buffer</code> to
+<p>After the computation is finished we ask WebGPU to copy from <code class="notranslate" translate="no">workBuffer</code> to
 <code class="notranslate" translate="no">resultBuffer</code></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Encode a command to copy the results to a mappable buffer.
   encoder.copyBufferToBuffer(workBuffer, 0, resultBuffer, 0, resultBuffer.size);
@@ -886,10 +886,10 @@ command buffer.</p>
 </pre>
 <p>To map the results buffer we call <code class="notranslate" translate="no">mapAsync</code> and have to <code class="notranslate" translate="no">await</code> for it to
 finish. Once mapped, we can call <code class="notranslate" translate="no">resultBuffer.getMappedRange()</code> which with no
-parameters will return an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> of entire buffer. We put that in a
+parameters will return an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> of the entire buffer. We put that in a
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> typed array view and then we can look at the values. One
 important detail, the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> returned by <code class="notranslate" translate="no">getMappedRange</code> is only valid
-until we called <code class="notranslate" translate="no">unmap</code>. After <code class="notranslate" translate="no">unmap</code> its length with be set to 0 and its data
+until we call <code class="notranslate" translate="no">unmap</code>. After <code class="notranslate" translate="no">unmap</code> its length with be set to 0 and its data
 no longer accessible.</p>
 <p>Running that we can see we got the result back, all the numbers have been
 doubled.</p>
@@ -993,7 +993,7 @@ and as such are used in all 3 kinds of shaders (vertex, fragment, and compute).
 Going from uniform buffers to storage buffers is trivial as shown at the top of
 the article on storage buffers. Vertex buffers are only used in vertex shaders.
 They are more complex because they require describing the data layout to WebGPU.
-Textures are most complex as they have tons types and options.</p>
+Textures are most complex as they have tons of types and options.</p>
 <p>I’m a little bit worried these article will be boring at first. Feel free to
 jump around if you’d like. Just remember if you don’t understand something you
 probably need to read or review these basics. Once we get the basics down we’ll
@@ -1073,12 +1073,12 @@ pixel represents. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
 <li id="fn3" class="footnote-item"><p>Textures can also be 3d rectangles of pixels, cube maps (6 squares of pixels
 that form a cube), and a few other things but the most common textures are 2d rectangles of pixels. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn4" class="footnote-item"><p>We can also use in index buffer to specific <code class="notranslate" translate="no">vertex_index</code>.
+<li id="fn4" class="footnote-item"><p>We can also use an index buffer to specify <code class="notranslate" translate="no">vertex_index</code>.
 This is covered in <a href="webgpu-vertex-buffers.html#a-index-buffers">the article on vertex-buffers</a>. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
 </li>
 <li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code> is convenient but, it’s impossible to share bind groups
 across pipelines using <code class="notranslate" translate="no">layout: 'auto'</code>. Most of the examples on this site
-never use a bind group with multiple pipelines . We’ll cover explicit layouts in <a href="webgpu-drawing-multiple-things.html">another article</a>. <a href="#fnref5" class="footnote-backref">↩︎</a></p>
+never use a bind group with multiple pipelines. We’ll cover explicit layouts in <a href="webgpu-drawing-multiple-things.html">another article</a>. <a href="#fnref5" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>
