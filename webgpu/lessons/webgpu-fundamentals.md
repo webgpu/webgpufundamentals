@@ -536,6 +536,19 @@ like `setPipeline`, and `draw` only add commands to a command buffer.
 They don't actually execute the commands. The commands are executed
 when we submit the command buffer to the device queue.
 
+WebGPU takes every 3 vertices we return from our vertex shader uses
+them to rasterize a triangle. It does this by determining which pixels'
+centers are inside the triangle. It then calls our fragment shader for
+each pixel to ask what color to make it.
+
+Imagine the texture we are rendering
+to was 15x11 pixels. These are the pixels that would be drawn to
+
+<div class="webgpu_center">
+  <div data-diagram="clip-space-to-texels" style="display: inline-block; width: 500px;"></div>
+  <div>drag the vertices</div>
+</div>
+
 So, now we've seen a very small working WebGPU example. It should be pretty
 obvious that hard coding a triangle inside a shader is not very flexible. We
 need ways to provide data and we'll cover those in the following articles. The
@@ -1010,6 +1023,8 @@ when the <code>lost</code> promise resolves.
 </p>
 </div>
 
+<!-- keep this at the bottom of the article -->
+<script type="module" src="webgpu-fundamentals.js"></script>
 
 
 
