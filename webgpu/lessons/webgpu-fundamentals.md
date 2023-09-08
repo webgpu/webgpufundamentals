@@ -170,7 +170,7 @@ Once you create a command buffer you can *submit* to be executed
 device.queue.submit([commandBuffer]);
 ```
 
-The diagram above represent the state at some `draw` command in the command
+The diagram above represents the state at some `draw` command in the command
 buffer. Executing the commands will setup the *internal state* and then the
 *draw* command will tell the GPU to execute a vertex shader (and indirectly a
 fragment shader). The `dispatchWorkgroup` command will tell the GPU to execute a
@@ -251,7 +251,7 @@ main();
 The code above is fairly self explanatory. First we request an adapter by using the
 [`?.` optional chaining operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining).
 so that if `navigator.gpu` does not exist then `adapter` will be undefined.
-If it does exist then we'll call `requestAdapter`. It turns its results asynchronously
+If it does exist then we'll call `requestAdapter`. It returns its results asynchronously
 so we need `await`. The adapter represents a specific GPU. Some devices
 have multiple GPUs.
 
@@ -261,7 +261,7 @@ to be undefined then device will also be undefined.
 If the `device` not set it's likely the user has an old browser.
 
 Next up we look up the canvas and create a `webgpu` context for it. This will
-let us get a texture to render to that will be used to render the canvas in the
+let us get a texture to render to. That texture will be used to display the canvas in the
 webpage.
 
 ```js
@@ -334,7 +334,7 @@ JavaScript's `Array.map(function(value, index) { ... })`. If we tell the GPU to
 execute this function 10 times by calling `draw`, the first time `vertex_index` would be `0`, the
 2nd time it would be `1`, the 3rd time it would be `2`, etc...[^indices]
 
-[^indices]: We can also use in index buffer to specific `vertex_index`.
+[^indices]: We can also use an index buffer to specify `vertex_index`.
 This is covered in [the article on vertex-buffers](webgpu-vertex-buffers.html#a-index-buffers).
 
 Our `vs` function is declared as returning a `vec4f` which is vector of four
@@ -351,7 +351,7 @@ top. This is true regardless of the size of the texture we are drawing to.
 <div class="webgpu_center"><img src="resources/clipspace.svg" style="width: 500px"></div>
 
 The `vs` function declares an array of 3 `vec2f`s. Each `vec2f` consists of two
-32bit floating point values. The code then fills out that array with 3 `vec2f`s.
+32bit floating point values.
 
 ```wgsl
         let pos = array(
@@ -379,7 +379,7 @@ The shader module also declares a function called `fs` that is declared with
 
 This function takes no parameters and returns a `vec4f` at `location(0)`.
 This means it will write to the first render target. We'll make the first
-render target our canvas later.
+render target our canvas texture later.
 
 ```wgsl
         return vec4f(1, 0, 0, 1);
@@ -441,7 +441,7 @@ the fragment shader's return value. Later, well set that target to be a texture
 for the canvas.
 
 Next up we prepare a `GPURenderPassDescriptor` which describes which textures
-we want to draw and how to use them.
+we want to draw to and how to use them.
 
 ```js
   const renderPassDescriptor = {
@@ -458,7 +458,7 @@ we want to draw and how to use them.
 ```
 
 A `GPURenderPassDescriptor` has an array for `colorAttachments` which lists
-the textures we will render to and how to treat the textures.
+the textures we will render to and how to treat them.
 We'll wait to fill in which texture we actually want to render to. For now,
 we setup a clear value of semi-dark gray, and a `loadOp` and `storeOp`.
 `loadOp: 'clear'` specifies to clear the texture to the clear value before
@@ -496,9 +496,9 @@ Now it's time to render.
 First we call `context.getCurrentTexture()` to get a texture that will appear in the
 canvas. Calling `createView` gets a view into a specific part of a texture but
 with no parameters it will return the default part which is what we want in this
-case. In this case our only `colorAttachment` is a texture view from our
+case. For now our only `colorAttachment` is a texture view from our
 canvas which we get via the context we created at the start. Again, element 0 of
-the `colorAttachments` array corresponds to `location(0)` as we specified for
+the `colorAttachments` array corresponds to `@location(0)` as we specified for
 the return value of the fragment shader.
 
 Next we create a command encoder. A command encoder is used to create a command
@@ -515,7 +515,7 @@ execute our vertex shader 3 times by calling `draw` with 3. By default, every 3
 times our vertex shader is executed a triangle will be drawn by connecting the 3
 values just returned from the vertex shader.
 
-Finally we end the render pass, and then finish the encoder. This gives us a
+We end the render pass, and then finish the encoder. This gives us a
 command buffer that represents the steps we just specified. Finally we submit
 the command buffer to be executed.
 
@@ -693,7 +693,7 @@ created and we want to call the `computeSomething` function. `layout` is
 
 [^layout-auto]: `layout: 'auto'` is convenient but, it's impossible to share bind groups
 across pipelines using `layout: 'auto'`. Most of the examples on this site
-never use a bind group with multiple pipelines . We'll cover explicit layouts in [another article](webgpu-drawing-multiple-things.html).
+never use a bind group with multiple pipelines. We'll cover explicit layouts in [another article](webgpu-drawing-multiple-things.html).
 
 Next we need some data
 
@@ -800,7 +800,7 @@ Here's what the situation will be when `dispatchWorkgroups` is executed
 
 <div class="webgpu_center"><img src="resources/webgpu-simple-compute-diagram.svg" style="width: 553px;"></div>
 
-After the computation is finished we ask WebGPU to copy from `buffer` to
+After the computation is finished we ask WebGPU to copy from `workBuffer` to
 `resultBuffer`
 
 ```js
@@ -832,10 +832,10 @@ We then map the results buffer and get a copy of the data
 
 To map the results buffer we call `mapAsync` and have to `await` for it to
 finish. Once mapped, we can call `resultBuffer.getMappedRange()` which with no
-parameters will return an `ArrayBuffer` of entire buffer. We put that in a
+parameters will return an `ArrayBuffer` of the entire buffer. We put that in a
 `Float32Array` typed array view and then we can look at the values. One
 important detail, the `ArrayBuffer` returned by `getMappedRange` is only valid
-until we called `unmap`. After `unmap` its length with be set to 0 and its data
+until we call `unmap`. After `unmap` its length with be set to 0 and its data
 no longer accessible.
 
 Running that we can see we got the result back, all the numbers have been
@@ -944,7 +944,7 @@ and as such are used in all 3 kinds of shaders (vertex, fragment, and compute).
 Going from uniform buffers to storage buffers is trivial as shown at the top of
 the article on storage buffers. Vertex buffers are only used in vertex shaders.
 They are more complex because they require describing the data layout to WebGPU.
-Textures are most complex as they have tons types and options.
+Textures are most complex as they have tons of types and options.
 
 I'm a little bit worried these article will be boring at first. Feel free to
 jump around if you'd like. Just remember if you don't understand something you
