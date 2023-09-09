@@ -64,11 +64,16 @@ const makeText = (parent, t) => {
     });
 };
 
-async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
+async function initWebGPUPixelRender(webgpuCanvas) {
   const device = await devicePromise;
-
-  webgpuCanvas.width = 15;
-  webgpuCanvas.height = 11;
+  if (!device) {
+    webgpuCanvas.parentElement.insertBefore(
+      el('div', {className: 'fill-container center'}, [
+        el('div', {textContent: 'Need WebGPU', style: { color: 'red'}}),
+      ]),
+      webgpuCanvas);
+    return () => { /* */ };
+  }
 
   const context = webgpuCanvas.getContext('webgpu');
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -76,12 +81,6 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
     device,
     format: presentationFormat,
   });
-
-  const points = [
-    [  0.0,  0.5, ],
-    [ -0.5, -0.5, ],
-    [  0.5, -0.5, ],
-  ];
 
   const module = device.createShaderModule({
     label: 'our hardcoded "a" triangle',
@@ -144,6 +143,38 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
     ],
   };
 
+  return points => {
+    device.queue.writeBuffer(vertexBuffer, 0, new Float32Array(points.flat()));
+
+    renderPassDescriptor.colorAttachments[0].view =
+        context.getCurrentTexture().createView();
+
+    const encoder = device.createCommandEncoder({
+      label: 'render quad encoder',
+    });
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.setVertexBuffer(0, vertexBuffer);
+    pass.draw(3);
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+  }
+}
+
+async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
+  webgpuCanvas.width = 15;
+  webgpuCanvas.height = 11;
+
+  const points = [
+    [  0.0,  0.5, ],
+    [ -0.5, -0.5, ],
+    [  0.5, -0.5, ],
+  ];
+
+  const webgpuPixelRender = await initWebGPUPixelRender(webgpuCanvas);
+
   const svgWidth = 750;
   const svgHeight = 550;
   const draw = svg().addTo(infoCanvas).viewbox(0, 0, svgWidth, svgHeight);
@@ -179,7 +210,8 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
   const triangle = draw.path('').stroke(colorScheme.main).fill('none');
   const triPoints = points.map((_, i) => {
     const group = draw.group();
-    const rect = group.rect(20, 20).center(0, 0).fill(colorScheme.handle);
+    group.rect(20, 20).center(0, 0).fill(colorScheme.handle);
+    const rect = group.rect(50, 50).center(0, 0).fill('rgba(0,0,0,0)');
     rect.on('pointerdown', (e) => onDown(e, i), {passive: false});
     return {
       group,
@@ -205,7 +237,6 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
   function getRelativePointerClipSpacePosition(e) {
     return getRelativePointerPosition(e).map((v, i) => (v / svgSize[i] * 2 - 1) * clipFlip[i]);
   }
-
 
   function onMove(e) {
     e.preventDefault();
@@ -233,7 +264,6 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
   }
 
   function updatePoints() {
-    device.queue.writeBuffer(vertexBuffer, 0, new Float32Array(points.flat()));
     const ps = points.map((p, i) => {
       const {group, text} = triPoints[i];
       const pp = clipSpaceToSVG(...p);
@@ -255,20 +285,7 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
     updatePoints();
     //info.textContent = points.map((p, i) => `p${i}: ${p.map(v => t2(v)).join(', ')}`).join('\n');
 
-    renderPassDescriptor.colorAttachments[0].view =
-        context.getCurrentTexture().createView();
-
-    const encoder = device.createCommandEncoder({
-      label: 'render quad encoder',
-    });
-    const pass = encoder.beginRenderPass(renderPassDescriptor);
-    pass.setPipeline(pipeline);
-    pass.setVertexBuffer(0, vertexBuffer);
-    pass.draw(3);
-    pass.end();
-
-    const commandBuffer = encoder.finish();
-    device.queue.submit([commandBuffer]);
+    webgpuPixelRender(points);
   }
   render();
 }
