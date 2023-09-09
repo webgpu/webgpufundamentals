@@ -545,7 +545,7 @@ Imagine the texture we are rendering
 to was 15x11 pixels. These are the pixels that would be drawn to
 
 <div class="webgpu_center">
-  <div data-diagram="clip-space-to-texels" style="display: inline-block; width: 500px;"></div>
+  <div data-diagram="clip-space-to-texels" style="display: inline-block; max-width: 500px; width: 100%"></div>
   <div>drag the vertices</div>
 </div>
 
