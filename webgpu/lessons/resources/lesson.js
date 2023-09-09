@@ -69,13 +69,18 @@ $(document).ready(function($) {
     });
   if (window.prettyPrint) {
     window.prettyPrint();
-    document.querySelectorAll('pre:has(.linedeleted)').forEach(e => {
-      const b = $('<button>').text('hide deleted').addClass('linedeleted-button').attr('type', 'button').on('click', () => {
-        const hide = e.classList.toggle('hide-linedeleted');
-        b.text(hide ? 'show deleted' : 'hide deleted');
+    // Firefox doesn't support the has() css selector as of 2023-09-09
+    try {
+      document.querySelectorAll('pre:has(.linedeleted)').forEach(e => {
+        const b = $('<button>').text('hide deleted').addClass('linedeleted-button').attr('type', 'button').on('click', () => {
+          const hide = e.classList.toggle('hide-linedeleted');
+          b.text(hide ? 'show deleted' : 'hide deleted');
+        });
+        $(e).append(b);
       });
-      $(e).append(b);
-    });
+    } catch (e) {
+      console.error(e);
+    }
   }
   $('span[class=com]')
     .addClass('translate yestranslate')
