@@ -212,7 +212,8 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
     const group = draw.group();
     group.rect(20, 20).center(0, 0).fill(colorScheme.handle);
     const rect = group.rect(50, 50).center(0, 0).fill('rgba(0,0,0,0)');
-    rect.on('pointerdown', (e) => onDown(e, i), {passive: false});
+    rect.node.addEventListener('pointerdown', (e) => onDown(e, i), {passive: false});
+    rect.node.addEventListener('touchstart', preventScroll, {passive: false});
     return {
       group,
       text: makeText(group, `p${i}`),
@@ -238,8 +239,13 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
     return getRelativePointerPosition(e).map((v, i) => (v / svgSize[i] * 2 - 1) * clipFlip[i]);
   }
 
+  function preventScroll(e) {
+    e.preventDefault();
+  }
+
   function onMove(e) {
     e.preventDefault();
+    e.stopPropagation();
 
     const p = getRelativePointerClipSpacePosition(e);
     points[handleNdx] = startHandlePos.map((startHandlePos, ndx) =>
@@ -250,6 +256,7 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
   }
 
   function onUp() {
+    window.addEventListener('touchmove', preventScroll);
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', onUp);
   }
@@ -258,6 +265,7 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
     startMousePos = getRelativePointerClipSpacePosition(e);
     startHandlePos = points[_handleNdx].slice();
     handleNdx = _handleNdx;
+    window.addEventListener('touchmove', preventScroll, {passive: false});
     window.addEventListener('pointermove', onMove, {passive: false});
     window.addEventListener('pointerup', onUp);
     onMove(e);
@@ -288,6 +296,13 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
     webgpuPixelRender(points);
   }
   render();
+
+  const waitRAF = () => new Promise(resolve => requestAnimationFrame(resolve));
+  // workaround chrome image-rendering bug
+  await waitRAF();
+  webgpuCanvas.style.display = 'inline-block';
+  await waitRAF();
+  webgpuCanvas.style.display = 'block';
 }
 
 renderDiagrams({
