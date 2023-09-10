@@ -259,6 +259,7 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
     window.addEventListener('touchmove', preventScroll);
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', onUp);
+    window.removeEventListener('touchend', onUp);
   }
 
   function onDown(e, _handleNdx) {
@@ -268,6 +269,7 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
     window.addEventListener('touchmove', preventScroll, {passive: false});
     window.addEventListener('pointermove', onMove, {passive: false});
     window.addEventListener('pointerup', onUp);
+    window.addEventListener('touchend', onUp);
     onMove(e);
   }
 
