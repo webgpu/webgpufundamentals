@@ -256,7 +256,7 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
   }
 
   function onUp() {
-    window.addEventListener('touchmove', preventScroll);
+    window.removeEventListener('touchmove', preventScroll);
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', onUp);
     window.removeEventListener('touchend', onUp);
@@ -266,10 +266,10 @@ async function showClipSpaceToTexels({webgpuCanvas, infoCanvas}) {
     startMousePos = getRelativePointerClipSpacePosition(e);
     startHandlePos = points[_handleNdx].slice();
     handleNdx = _handleNdx;
-    window.addEventListener('touchmove', preventScroll, {passive: false});
-    window.addEventListener('pointermove', onMove, {passive: false});
-    window.addEventListener('pointerup', onUp);
-    window.addEventListener('touchend', onUp);
+    //window.addEventListener('touchmove', preventScroll, {passive: false});
+    //window.addEventListener('pointermove', onMove, {passive: false});
+    //window.addEventListener('pointerup', onUp);
+    //window.addEventListener('touchend', onUp);
     onMove(e);
   }
 
