@@ -536,7 +536,7 @@ like `setPipeline`, and `draw` only add commands to a command buffer.
 They don't actually execute the commands. The commands are executed
 when we submit the command buffer to the device queue.
 
-WebGPU takes every 3 vertices we return from our vertex shader uses
+<a id="a-rasterization"></a>WebGPU takes every 3 vertices we return from our vertex shader uses
 them to rasterize a triangle. It does this by determining which pixels'
 centers are inside the triangle. It then calls our fragment shader for
 each pixel to ask what color to make it.
