@@ -150,23 +150,21 @@ WebGPU 能够绘制三角形到 [纹理](webgpu-textures.html). 在本文中，�
 
 1. 顶点着色器
 
-    Vertex shaders are functions that compute vertex positions for drawing
-    triangles/lines/points
+    顶点着色器是计算顶点位置的函数，用于绘制三角形/线/点
 
 2. 片元着色器
 
-    Fragment shaders are functions that compute the color (or other data)
-    for each pixel to be drawn/rasterized when drawing triangles/lines/points
+    片段着色器是在绘制三角形/线/点时计算每个待绘制/光栅化像素的颜色（或其他数据）的函数
 
-Let's start with a very small WebGPU program to draw a triangle.
+让我们从一个非常小的 WebGPU 程序开始，画一个三角形。
 
-We need a canvas to display our triangle
+我们需要一块画布来显示我们的三角形
 
 ```html
 <canvas></canvas>
 ```
 
-Then we need a `<script>` tag to hold our JavaScript.
+然后，我们需要一个 `<script>` 标签来保存我们的 JavaScript。
 
 ```html
 <canvas></canvas> +
@@ -178,10 +176,9 @@ Then we need a `<script>` tag to hold our JavaScript.
 </script>
 ```
 
-All of the JavaScript below will go inside this script tag
+下面所有的 JavaScript 都将放在该脚本标记中
 
-WebGPU is an asynchronous API so it's easiest to use in an async function. We
-start off by requesting an adaptor, and then requesting a device from the adapter.
+WebGPU 是异步 API，因此在异步函数中使用最为方便。我们首先请求一个*适配器*(_adapter_)，然后从适配器中请求一个*设备*(_device_)。
 
 ```js
 async function main() {
@@ -195,21 +192,16 @@ async function main() {
 main();
 ```
 
-The code above is fairly self explanatory. First we request an adapter by using the
-[`?.` optional chaining operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining).
-so that if `navigator.gpu` does not exist then `adapter` will be undefined.
-If it does exist then we'll call `requestAdapter`. It returns its results asynchronously
-so we need `await`. The adapter represents a specific GPU. Some devices
-have multiple GPUs.
+上面的代码不言自明。 首先，我们使用
+[`?.` 可选链操作符](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining)来请求一个*适配器*(_adapter_)。
+如果 `navigator.gpu` 不存在的话，那么 `adapter` 将会是 `undefined`。
+倘若它的确存在，那么我们将调用 `requestAdapter`。 它将以异步的方式返回结果，因此我们需要`await`。_适配器_(_adapter_)代表一个特定的 GPU，因为有些设备拥有多个 GPU。
 
-From the adapter we request the device but again use `?.` so that if adapter happens
-to be undefined then device will also be undefined.
+从*适配器*(_adapter_)上请求*设备*(_device_)时，我们同样使用了`?`可选链操作符。因此如果*适配器*(_adapter_)为`undefined`，那么*设备*(_device_)也将为 `undefined`。
 
-If the `device` not set it's likely the user has an old browser.
+如果`device`为`undefined`，用户使用的很可能是旧版浏览器。
 
-Next up we look up the canvas and create a `webgpu` context for it. This will
-let us get a texture to render to. That texture will be used to display the canvas in the
-webpage.
+接下来，我们查找画布并为其创建 Webgpu 上下文。这样我们就可以获得一个纹理来进行渲染。该纹理将用于在网页中显示画布。
 
 ```js
 // Get a WebGPU context from the canvas and configure it
@@ -222,18 +214,12 @@ context.configure({
 });
 ```
 
-Again the code above is pretty self explanatory. We get a `"webgpu"` context
-from the canvas. We ask the system what the preferred canvas format is. This
-will be either `"rgba8unorm"` or `"bgra8unorm"`. It's not really that important
-what it is but by querying it it will make things fastest for the user's system.
+同样，上面的代码很容易理解。 我们从画布中获取一个 `"webgpu"` 上下文。
+我们会询问系统首选的画布格式是什么。这将是 `rgba8unorm` 或 `bgra8unorm`。这其实并不重要，重要的是通过查询，可以让用户的系统以最快的速度运行。
 
-We pass that as `format` into the webgpu canvas context by calling `configure`.
-We also pass in the `device` which associates this canvas with the device we just
-created.
+我们通过调用 `configure` 将`format`传入 webgpu 画布上下文。我们还将`device`传入画布，从而将画布与我们刚刚创建的设备关联起来。
 
-Next we create a shader module. A shader module contains one or more shader
-functions. In our case we'll make 1 vertex shader function and 1 fragment shader
-function.
+接下来，我们创建一个着色器模块。着色器模块包含一个或多个着色器函数。在本例中，我们将创建一个顶点着色器函数和一个片段着色器函数。
 
 ```js
 const module = device.createShaderModule({
@@ -258,14 +244,10 @@ const module = device.createShaderModule({
 });
 ```
 
-Shaders are written in a language called
-[WebGPU Shading Language (WGSL)](https://gpuweb.github.io/gpuweb/wgsl/) which is
-often pronounced wig-sil. WGSL is a strongly typed language
-which we'll try to go over more details in [another article](webgpu-wgsl.html).
-For now I'm hoping with a little explanation you can infer some basics.
+着色器是用一种名为
+[WebGPU Shading Language (WGSL)](https://gpuweb.github.io/gpuweb/wgsl/) 的语言编写的，它的发音通常是 wig-sil。WGSL 是一种强类型语言，我们将在[另一篇文章](webgpu-wgsl.html)中详细介绍。现在，我希望在稍作解释后，你能推断出一些基本知识。
 
-Above we see a function called `vs` is declared with the `@vertex` attribute.
-This designates it as a vertex shader function.
+上面我们看到一个名为 `vs` 的函数声明了 `@vertex` 属性。这表明它是一个顶点着色器函数。
 
 ```wgsl
       @vertex fn vs(
@@ -274,32 +256,21 @@ This designates it as a vertex shader function.
          ...
 ```
 
-It accepts one parameter we named `vertexIndex`. `vertexIndex` is a `u32` which
-means a _32bit unsigned integer_. It gets its value from the builtin called
-`vertex_index`. `vertex_index` is the like an iteration number, similar to `index` in
-JavaScript's `Array.map(function(value, index) { ... })`. If we tell the GPU to
-execute this function 10 times by calling `draw`, the first time `vertex_index` would be `0`, the
-2nd time it would be `1`, the 3rd time it would be `2`, etc...[^indices]
+它接受一个名为 `vertexIndex`的参数。 `vertexIndex` 是 `u32` 类型，即是*32 位无符号整数*。
+它从名为 `vertex_index`的内置函数中获取值。 `vertex_index` 就像是一个迭代数, 类似于 JavaScript 中的
+`Array.map(function(value, index) { ... })`中的 `index`。 如果我们通过调用 `draw` 告诉 GPU 执行此函数 10 次,那么第 1 次的`vertex_index` 将会是`0`，第 2 次会是`1`，第 3 次为`2`等等……[^indices]
 
 [^indices]:
     We can also use an index buffer to specify `vertex_index`.
     This is covered in [the article on vertex-buffers](webgpu-vertex-buffers.html#a-index-buffers).
 
-Our `vs` function is declared as returning a `vec4f` which is vector of four
-32bit floating point values. Think of it as an array of 4 values or an object
-with 4 properties like `{x: 0, y: 0, z: 0, w: 0}`. This returned value will be
-assigned to the `position` builtin. In "triangle-list" mode, every 3 times the
-vertex shader is executed a triangle will be drawn connecting the 3 `position`
-values we return.
+我们的 `vs` 函数被声明为返回一个 `vec4f`的函数，它是由四个 32 位浮点数值组成的向量。把它想象成一个包含 4 个值的数组，或者一个包含 4 个属性的对象，如 {x: 0, y：0, z: 0, w: 0}。返回值将分配给位置内置程序。在 "triangle-list "模式下，顶点着色器每执行 3 次，就会在我们返回的 3 个位置之间绘制一个三角形。
 
-Positions in WebGPU need to be returned in _clip space_ where X goes from -1.0
-on the left to +1.0 on the right, Y goes from -1.0 at the bottom to +1.0 at the
-top. This is true regardless of the size of the texture we are drawing to.
+WebGPU 中的位置需要在*裁剪空间*(_clip space_)中返回，其中 X 从左侧的 -1.0 到右侧的 +1.0，Y 从底部的 -1.0 到顶部的 +1.0。无论我们绘制的纹理大小如何，都是如此。
 
 <div class="webgpu_center"><img src="resources/clipspace.svg" style="width: 500px"></div>
 
-The `vs` function declares an array of 3 `vec2f`s. Each `vec2f` consists of two
-32bit floating point values.
+`vs` 函数声明了一个由 3 个 `vec2f` 组成的数组。每个 `vec2f` 由两个 32 位浮点数值组成。
 
 ```wgsl
         let pos = array(
@@ -309,53 +280,33 @@ The `vs` function declares an array of 3 `vec2f`s. Each `vec2f` consists of two
         );
 ```
 
-Finally it uses `vertexIndex` to return one of the 3 values from the array.
-Since the function requires 4 floating point values for its return type, and
-since `pos` is an array of `vec2f`, the code supplies `0.0` and `1.0` for
-the remaining 2 values.
+最后，它使用 `vertexIndex` 从数组中返回 3 个值中的一个。由于函数的返回类型需要 4 个浮点数值，而 `pos` 是一个 `vec2f` 数组，因此代码为剩余的 2 个数值提供了 `0.0` 和 `1.0`。
 
 ```wgsl
         return vec4f(pos[vertexIndex], 0.0, 1.0);
 ```
 
-The shader module also declares a function called `fs` that is declared with
-`@fragment` attribute making it a fragment shader function.
+着色器模块还声明了一个名为 `fs` 的函数，该函数带有 `@fragment` 属性，因此是一个片段着色器函数。
 
 ```wgsl
       @fragment fn fs() -> @location(0) vec4f {
 ```
 
-This function takes no parameters and returns a `vec4f` at `location(0)`.
-This means it will write to the first render target. We'll make the first
-render target our canvas texture later.
+此函数不需要任何参数，并返回一个位于 `location(0)` 处的 `vec4f`。这意味着它会写入第一个渲染目标。稍后我们将把第一个渲染目标设为画布纹理。
 
 ```wgsl
         return vec4f(1, 0, 0, 1);
 ```
 
-The code returns `1, 0, 0, 1` which is red. Colors in WebGPU are usually
-specified as floating point values from `0.0` to `1.0` where the 4 values above
-correspond to red, green, blue, and alpha respectively.
+代码返回 `1, 0, 0, 1`，即红色。WebGPU 中的颜色通常指定为 `0.0` 至 `1.0` 的浮点数值，上述 4 个数值分别对应红色、绿色、蓝色和透明度。
 
-When the GPU rasterizes the triangle (draws it with pixels), it will call
-the fragment shader to find out what color to make each pixel. In our case
-we're just returning red.
+当 GPU 对三角形进行光栅化（用像素绘制）时，它会调用片段着色器来确定每个像素的颜色。在我们的例子中，我们只返回红色。
 
-One more thing to note is the `label`. Nearly every object you can create with
-WebGPU can take a `label`. Labels are entirely optional but it's considered
-_best practice_ to label everything you make. The reason is, when you get an
-error, most WebGPU implementations will print an error message that includes the
-labels of the things related to the error.
+还需要注意的一点是`label`。几乎所有使用 WebGPU 创建的对象都可以使用`label`。`label`完全是可选的，但*最佳做法*是给你创建的所有对象都加上标签。因为当出现错误时，大多数 WebGPU 实现都会打印一条错误信息，其中包括与错误相关的标签。
 
-In a normal app you'd have 100s or 1000s of buffers, textures, shader modules,
-pipelines, etc... If you get an error like `"WGSL syntax error in shaderModule
-at line 10"`, if you have 100 shader modules, which one got the error? If you
-label the module then you'll get an error more like `"WGSL syntax error in
-shaderModule('our hardcoded red triangle shaders') at line 10` which is a way
-more useful error message and will save you a ton of time tracking down the
-issue.
+在普通应用程序中，您会有 100 或 1000 个缓冲区、纹理、着色器模块、管道等......如果您收到类似 `WGSL syntax error in shaderModule at line 10 `的错误，如果您有 100 个着色器模块，哪个模块出错了？如果给模块贴上标签，就会得到类似 `WGSL syntax error in shaderModule('our hardcoded red triangle shaders') at line 10 `的错误信息，这会一种非常有用的能够帮助你节约大量解决 Bug 的时间。
 
-Now that we've created a shader module, we next need to make a render pipeline
+现在我们已经创建了着色器模块，接下来需要制作一个渲染管道
 
 ```js
 const pipeline = device.createRenderPipeline({
@@ -373,23 +324,13 @@ const pipeline = device.createRenderPipeline({
 });
 ```
 
-In this case there isn't much to see. We set `layout` to `'auto'` which means
-to ask WebGPU to derive the layout of data from the shaders. We're not using
-any data though.
+在这种情况下，没有太多的东西可看。我们将`layout`设置为 `auto`，这意味着要求 WebGPU 从着色器中推断出数据布局。不过我们并没有使用任何数据。
 
-We then tell the render pipeline to use the `vs` function from our shader module
-for a vertex shader and the `fs` function for our fragment shader. Otherwise we
-tell it the format of the first render target. "render target" means the texture
-we will render to. We create a pipeline
-we have to specify the format for the texture(s) we'll use this pipeline to
-eventually render to.
+然后，我们告诉渲染流水线在使用顶点着色器时使用着色器模块中的 `vs` 函数，在使用片段着色器时使用 `fs` 函数。除此之外，我们还要告诉它第一个渲染目标的格式。`render target`指的是我们要渲染的纹理。创建管道后，我们必须指定该管道最终渲染到的纹理的格式。
 
-Element 0 for the `targets` array corresponds to location 0 as we specified for
-the fragment shader's return value. Later, well set that target to be a texture
-for the canvas.
+`targets`数组第 0 号元素与我们为片段着色器的返回值指定的位置 0 相对应。稍后，我们将该目标设置为画布的纹理。
 
-Next up we prepare a `GPURenderPassDescriptor` which describes which textures
-we want to draw to and how to use them.
+接下来我们准备一个 `GPURenderPassDescriptor`，它描述了我们要绘制的纹理以及如何使用它们。
 
 ```js
 const renderPassDescriptor = {
@@ -405,18 +346,9 @@ const renderPassDescriptor = {
 };
 ```
 
-A `GPURenderPassDescriptor` has an array for `colorAttachments` which lists
-the textures we will render to and how to treat them.
-We'll wait to fill in which texture we actually want to render to. For now,
-we setup a clear value of semi-dark gray, and a `loadOp` and `storeOp`.
-`loadOp: 'clear'` specifies to clear the texture to the clear value before
-drawing. The other option is `'load'` which means load the existing contents of
-the texture into the GPU so we can draw over what's already there.
-`storeOp: 'store'` means store the result of what we draw. We could also pass `'discard'`
-which would throw away what we draw. We'll cover why we might want to do that in
-[another article](webgpu-multisampling.html).
+`GPURenderPassDescriptor` 有一个 `colorAttachments` 数组，其中列出了我们要渲染的纹理以及如何处理它们。我们将等待填入实际要渲染的纹理。目前，我们设置了一个半深灰色的清除值，以及一个`loadOp`和`storeOp`。`loadOp: clear` 指定在绘制前将纹理清除为`clearValue`。另一个选项是 `load`，意思是将纹理的现有内容加载到 GPU 中，这样我们就可以在已有内容上绘图了。`storeOp: 'store'`表示存储绘制结果。我们也可以通过 `discard`来丢弃绘制的结果。我们将在[另一篇文章](webgpu-multisampling.html)中介绍为什么要这样做。
 
-Now it's time to render.
+现在是渲染的时候了。
 
 ```js
 function render() {
@@ -442,78 +374,50 @@ function render() {
 render();
 ```
 
-First we call `context.getCurrentTexture()` to get a texture that will appear in the
-canvas. Calling `createView` gets a view into a specific part of a texture but
-with no parameters it will return the default part which is what we want in this
-case. For now our only `colorAttachment` is a texture view from our
-canvas which we get via the context we created at the start. Again, element 0 of
-the `colorAttachments` array corresponds to `@location(0)` as we specified for
-the return value of the fragment shader.
+首先，我们调用 `context.getCurrentTexture()` 获取将出现在画布中的纹理。调用 `createView` 可获取纹理特定部分的视图，但如果没有参数，它将返回默认部分，而这正是我们在本例中想要的。目前，我们唯一的 `colorAttachment` 是画布中的纹理视图，我们通过开始时创建的上下文来获取该视图。同样，`colorAttachments` 数组第 0 号元素与我们为片段着色器的返回值指定的 `@location(0)` 相对应。
 
-Next we create a command encoder. A command encoder is used to create a command
-buffer. We use it to encode commands and then "submit" the command buffer it
-created to have the commands executed.
+接下来，我们创建一个命令编码器。命令编码器用于创建命令缓冲区。我们用它对命令进行编码，然后 "提交 "它创建的命令缓冲区以执行命令。
 
-We then use the command encoder to create a render pass encoder by calling `beginRenderPass`. A render
-pass encoder is a specific encoder for creating commands related to rendering.
-We pass it our `renderPassDescriptor` to tell it which texture we want to
-render to.
+然后，我们通过调用 `beginRenderPass`，使用命令编码器创建一个`render pass`编码器。`render pass`编码器是一种特定的编码器，用于创建与渲染相关的命令。我们将 `renderPassDescriptor` 传递给它，告诉它我们要渲染到哪个纹理。
 
-We encode the command, `setPipeline`, to set our pipeline and then tell it to
-execute our vertex shader 3 times by calling `draw` with 3. By default, every 3
-times our vertex shader is executed a triangle will be drawn by connecting the 3
-values just returned from the vertex shader.
+我们对命令 `setPipeline` 进行编码，以设置我们的流水线，然后通过调用 `draw` 3 次 来告诉它执行顶点着色器 3 次。 默认情况下，顶点着色器每执行 3 次，就会通过连接刚从顶点着色器返回的 3 个值来绘制一个三角形。
 
-We end the render pass, and then finish the encoder. This gives us a
-command buffer that represents the steps we just specified. Finally we submit
-the command buffer to be executed.
+我们结束`render pass`，然后完成编码器。这样我们就得到了一个命令缓冲区，它代表了我们刚刚指定的步骤。最后，我们将命令缓冲区提交执行。
 
-When the `draw` command is executed, this will be our state
+执行`draw`命令时，这将是我们的状态：
 
 <div class="webgpu_center"><img src="resources/webgpu-simple-triangle-diagram.svg" style="width: 723px;"></div>
 
-We've got no textures, no buffers, no bindGroups but we do have a pipeline, a
-vertex and fragment shader, and a render pass descriptor that tells our shader
-to render to the the canvas texture.
+我们没有`texture`，没有`buffer`，也没有 `bindGroups`，但我们有一个`pipeline`、一个顶点着色器和一个片段着色器，以及一个告诉着色器渲染画布纹理的`render pass descriptor`
 
-The result
+结果如下：
 
 {{{example url="../webgpu-simple-triangle.html"}}}
 
-It's important to emphasize that all of these functions we called
-like `setPipeline`, and `draw` only add commands to a command buffer.
-They don't actually execute the commands. The commands are executed
-when we submit the command buffer to the device queue.
+需要强调的是，我们调用的所有这些函数，如 `setPipeline` 和 `draw`，都只是将命令添加到命令缓冲区。它们实际上并不执行命令。当我们将命令缓冲区提交到设备队列时，命令才会被执行。
 
-<a id="a-rasterization"></a>WebGPU takes every 3 vertices we return from our vertex shader uses
-them to rasterize a triangle. It does this by determining which pixels'
-centers are inside the triangle. It then calls our fragment shader for
-each pixel to ask what color to make it.
+<a id="a-rasterization"></a>WebGPU 从顶点着色器中获取每 3 个顶点，并将其光栅化为一个三角形。为此，WebGPU 会确定三角形内的像素中心。然后，WebGPU 会调用片段着色器，询问每个像素的颜色。
 
-Imagine the texture we are rendering
-to was 15x11 pixels. These are the pixels that would be drawn to
+想象一下，我们要渲染的纹理是 15x11 像素。这些像素将被绘制。
 
 <div class="webgpu_center">
   <div data-diagram="clip-space-to-texels" style="display: inline-block; max-width: 500px; width: 100%"></div>
   <div>drag the vertices</div>
 </div>
 
-So, now we've seen a very small working WebGPU example. It should be pretty
-obvious that hard coding a triangle inside a shader is not very flexible. We
-need ways to provide data and we'll cover those in the following articles. The
-points to take away from the code above,
+现在，我们已经看到了一个非常小的 WebGPU 工作示例。显而易见，在着色器中硬编码三角形并不灵活。我们需要一些提供数据的方法，我们将在接下来的文章中介绍这些方法。从上面的代码中可以看出以下几点：
 
--   WebGPU just runs shaders. Its up to you to fill them with code to do useful things
--   Shaders are specified in a shader module and then turned into a pipeline
--   WebGPU can draw triangles
--   WebGPU draws to textures (we happened to get a texture from the canvas)
--   WebGPU works by encoding commands and then submitting them.
+-   WebGPU 只是运行着色器。你可以在其中填充代码，做一些有用的事情
+-   着色器在着色器模块中指定，然后转化为流水线
+-   WebGPU 可以绘制三角形
+-   WebGPU 可绘制纹理（我们恰巧从画布上获取了纹理）
+-   WebGPU 的工作方式是对命令进行编码，然后提交命令。
 
-# <a id="a-run-computations-on-the-gpu"></a>Run computations on the GPU
+# <a id="a-run-computations-on-the-gpu"></a>在 GPU 上进行计算
 
-Let's write a basic example for doing some computation on the GPU
+让我们编写一个在 GPU 上进行计算的基本示例
 
-We start off with the same code to get a WebGPU device
+我们首先使用相同的代码来获取 WebGPU 设备
 
 ```js
 async function main() {
@@ -525,7 +429,7 @@ async function main() {
   }
 ```
 
-When we create a shader module
+当我们创建着色器模块时
 
 ```js
 const module = device.createShaderModule({
@@ -543,19 +447,15 @@ const module = device.createShaderModule({
 });
 ```
 
-First we declare a variable called `data` of type `storage` that we want to be
-able to both read from and write to.
+首先，我们声明一个名为 `data` 的变量，它的类型是`storage`，我们希望它既能被读取，也能被写入。
 
 ```wgsl
       @group(0) @binding(0) var<storage, read_write> data: array<f32>;
 ```
 
-We declare its type as `array<f32>` which means an array of 32bit floating point
-values. We tell it we're going to specify this array on binding location 0 (the
-`binding(0)`) in bindGroup 0 (the `@group(0)`).
+我们将其类型声明为 `array<f32>`，即 32 位浮点数值数组。我们告诉它，我们将在 bindGroup 0（`@group(0)`）中的绑定位置 0（`binding(0)`）上设置这个`data`数组。
 
-Then we declare a function called `computeSomething` with the `@compute`
-attribute which makes it a compute shader.
+然后，我们使用 `@compute` 属性声明一个名为 `computeSomething` 的函数，使其成为一个计算着色器。
 
 ```wgsl
       @compute @workgroup_size(1) fn computeSomething(
@@ -564,16 +464,9 @@ attribute which makes it a compute shader.
         ...
 ```
 
-Compute shaders are required to declare a workgroup size which we will cover
-later. For now we'll just set it to 1 with the attribute `@workgroup_size(1)`.
-We declare it to have one parameter `id` which uses a `vec3u`. A `vec3u` is
-three unsigned 32 integer values. Like our vertex shader above, this is the
-iteration number. It's different in that compute shader iteration numbers are 3
-dimensional (have 3 values). We declare `id` to get its value from the built-in
-`global_invocation_id`.
+计算着色器需要声明*工作组*大小，我们稍后会介绍。现在，我们只需使用属性 `@workgroup_size(1)` 将其设置为 1。我们声明它有一个使用 `vec3u` 的参数 `id`。`vec3u` 是三个无符号 32 位整数值。与上面的顶点着色器一样，它是一个迭代数。不同的是，计算着色器的迭代次数是三维的（有 3 个值）。我们声明 `id`以便从内置的 `global_invocation_id` 获取其值。
 
-You can _kind of_ think of a compute shaders as running like this. This is an over
-simplification but it will do for now.
+你可以把计算着色器*想象成*是下面这样运行的。虽然过于简化，但现在也可以这么做。
 
 ```js
 // pseudo code
@@ -605,7 +498,7 @@ function dispatchWorkgroup(workgroup_id) {
 }
 ```
 
-Since we set `@workgroup_size(1)`, effectively the pseudo code above becomes
+由于我们设置了 `@workgroup_size(1)`，上面的伪代码实际上就变成了
 
 ```js
 // pseudo code
@@ -626,17 +519,16 @@ function dispatchWorkgroup(workgroup_id) {
 }
 ```
 
-Finally we use the `x` property of `id` to index `data` and multiply each value
-by 2
+最后，我们使用 `id` 的 `x` 属性对数据进行索引，并将每个值乘以 2
 
 ```wgsl
         let i = id.x;
         data[i] = data[i] * 2.0;
 ```
 
-Above, `i` is just the first of the 3 iteration numbers.
+上面，i 是 3 个迭代数中的第一个。
 
-Now that we've created the shader we need to create a pipeline
+现在我们已经创建了着色器，需要创建一个流水线
 
 ```js
 const pipeline = device.createComputePipeline({
@@ -649,23 +541,20 @@ const pipeline = device.createComputePipeline({
 });
 ```
 
-Here we just tell it we're using a `compute` stage from the shader `module` we
-created and we want to call the `computeSomething` function. `layout` is
-`'auto'` again, telling WebGPU to figure out the layout from the shaders. [^layout-auto]
+在这里，我们只需告诉它，我们正在使用我们创建的着色器模块中的`compute`阶段，并希望调用 `computeSomething` 函数。 layout 还是 "auto"，告诉 WebGPU 从着色器中找出布局。[^layout-auto]
 
 [^layout-auto]:
     `layout: 'auto'` is convenient but, it's impossible to share bind groups
     across pipelines using `layout: 'auto'`. Most of the examples on this site
     never use a bind group with multiple pipelines. We'll cover explicit layouts in [another article](webgpu-drawing-multiple-things.html).
 
-Next we need some data
+接下来我们需要一些数据
 
 ```js
 const input = new Float32Array([1, 3, 5]);
 ```
 
-That data only exists in JavaScript. For WebGPU to use it we need to make a
-buffer that exists on the GPU and copy the data to the buffer.
+这些数据只存在于 JavaScript 中。要使用 WebGPU，我们需要在 GPU 上创建一个缓冲区，并将数据复制到缓冲区中。
 
 ```js
 // create a buffer on the GPU to hold our computation
@@ -682,32 +571,15 @@ const workBuffer = device.createBuffer({
 device.queue.writeBuffer(workBuffer, 0, input);
 ```
 
-Above we call `device.createBuffer` to create a buffer. `size` is the size in
-bytes, in this case it will be 12 because size in bytes of a `Float32Array` of 3
-values is 12. If you're not familiar with `Float32Array` and typed arrays then
-see [this article](webgpu-memory-layout.html).
+上面我们调用 `device.createBuffer` 来创建缓冲区。`size` 是以字节为单位的大小，在本例中为 12，因为包含 3 个值的 `Float32Array` 的字节大小为 12。如果您不熟悉 `Float32Array` 和类型数组，请[参阅本文](webgpu-memory-layout.html)。
 
-Every WebGPU buffer we create has to specify a `usage`. There are a bunch of
-flags we can pass for usage but not all of them can be used together. Here we
-say we want this buffer to be usable as `storage` by passing
-`GPUBufferUsage.STORAGE`. This makes it compatible with `var<storage,...>` from
-the shader. Further, we want to able to copy data to this buffer so we include
-the `GPUBufferUsage.COPY_DST` flag. And finally we want to be able to copy data
-from the buffer so we include `GPUBufferUsage.COPY_SRC`.
+我们创建的每个 WebGPU 缓冲区都必须指定`usage`。我们可以为用途传递一系列标志，但并非所有标志都能同时使用。在这里，我们通过传递 `GPUBufferUsage.STORAGE` 来表示我们希望将此缓冲区用作`storage`用途。这样就可以与着色器中的 `var<storage,...>` 兼容。此外，我们希望能将数据复制到此缓冲区，因此我们加入了 `GPUBufferUsage.COPY_DST` 标志。最后，我们希望能从该缓冲区复制数据，因此加入了 `GPUBufferUsage.COPY_SRC`。
 
-Note that you can not directly read the contents of a WebGPU buffer from
-JavaScript. Instead you have to "map" it which is another way of requesting
-access to the buffer from WebGPU because the buffer might be in use and because
-it might only exist on the GPU.
+请注意，您不能直接从 JavaScript 中读取 WebGPU 缓冲区的内容。相反，您必须 "映射 "它，这是从 WebGPU 请求访问缓冲区的另一种方式，因为缓冲区可能正在使用中，而且可能只存在于 GPU 上。
 
-WebGPU buffers that can be mapped in JavaScript can't be used for much else. In
-other words, we can not map the buffer we just created above and if we try to add
-the flag to make it mappable we'll get an error that that is not compatible with
-usage `STORAGE`.
+可以在 JavaScript 中映射的 WebGPU 缓冲区不能用于其他用途。换句话说，我们无法映射刚刚创建的缓冲区，如果我们尝试添加标记使其可以映射，就会得到一个与使用 `STORAGE` 不兼容的错误信息。
 
-So, in order to see the result of our computation, we'll need another buffer.
-After running the computation, we'll copy the buffer above to this result buffer
-and set its flags so we can map it.
+因此，为了查看计算结果，我们需要另一个缓冲区。运行计算后，我们将把上面的缓冲区复制到这个结果缓冲区，并设置其标志，以便进行映射。
 
 ```js
 // create a buffer on the GPU to get a copy of the results
@@ -718,10 +590,9 @@ const resultBuffer = device.createBuffer({
 });
 ```
 
-`MAP_READ` means we want to be able to map this buffer for reading data.
+`MAP_READ` 表示我们希望能够映射该缓冲区以读取数据。
 
-In order to tell our shader about the buffer we want it to work on we need to
-create a bindGroup
+为了告诉着色器我们希望它在哪个缓冲区上工作，我们需要创建一个 bindGroup
 
 ```js
 // Setup a bindGroup to tell the shader which
