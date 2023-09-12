@@ -3,7 +3,6 @@ Description: WebGPU 的基础知识
 TOC: Fundamentals
 
 本文将向您介绍 WebGPU 的基础知识。
-This article will try to teach you the very fundamentals of WebGPU.
 
 <div class="warn">
 希望你在阅读本文之前已经了解 JavaScript。本文将大量使用
@@ -38,7 +37,7 @@ WebGPU 是一个极其低层次的 API. 虽然您可以制作一些小型示例�
 
 顶点着色器负责计算顶点。着色器会返回顶点位置。对于每组 3 个顶点，它会返回在这 3 个位置之间绘制的三角形 [^primitives]
 
-[^primitives]: There are actually 5 modes.
+[^primitives]: 有以下 5 种模式：
 
     -   `'point-list'`: 对于每个顶点，绘制一个点
     -   `'line-list'`: 每 2 个点绘制一条线
@@ -48,10 +47,7 @@ WebGPU 是一个极其低层次的 API. 虽然您可以制作一些小型示例�
 
 片段着色器负责计算颜色 [^fragment-output]。 在绘制三角形时，GPU 会为每个要绘制的像素调用片段着色器。片段着色器会返回一种颜色。
 
-[^fragment-output]:
-    Fragment shaders indirectly write data to textures. That data does not
-    have to be colors. For example, it's common to output the direction of the surface that
-    pixel represents.
+[^fragment-output]: 片段着色器间接将数据写入纹理。这些数据不一定是颜色。例如，输出像素所代表表面的方向向量是一种很常见的场景。
 
 而计算着色器则更加的通用。它实际上只是一个函数，你调用它，然后说 "执行这个函数 N 次"。GPU 每次调用你的函数时都会传递迭代次数，因此你可以在每次迭代时使用该次数做一些独特的事情。
 
@@ -142,9 +138,7 @@ device.queue.submit([commandBuffer]);
 
 WebGPU 能够绘制三角形到 [纹理](webgpu-textures.html). 在本文中，纹理是指像素组成的 2D 矩形区域.[^textures] `<canvas>` 元素表示了网页上的纹理。在 WebGPU 中，我们可以向画布请求纹理并将结果渲染到纹理（画布）上。
 
-[^textures]:
-    Textures can also be 3d rectangles of pixels, cube maps (6 squares of pixels
-    that form a cube), and a few other things but the most common textures are 2d rectangles of pixels.
+[^textures]: 纹理也可以是 3d 矩形像素、立方体贴图（由 6 个正方形像素组成的立方体）和其他一些东西，但最常见的纹理是 2d 矩形像素。
 
 要使用 WebGPU 绘制三角形，我们必须提供 2 个 "着色器"。再说一次，着色器就是在 GPU 上运行的函数。这两个着色器是
 
@@ -260,9 +254,7 @@ const module = device.createShaderModule({
 它从名为 `vertex_index`的内置函数中获取值。 `vertex_index` 就像是一个迭代数, 类似于 JavaScript 中的
 `Array.map(function(value, index) { ... })`中的 `index`。 如果我们通过调用 `draw` 告诉 GPU 执行此函数 10 次,那么第 1 次的`vertex_index` 将会是`0`，第 2 次会是`1`，第 3 次为`2`等等……[^indices]
 
-[^indices]:
-    We can also use an index buffer to specify `vertex_index`.
-    This is covered in [the article on vertex-buffers](webgpu-vertex-buffers.html#a-index-buffers).
+[^indices]: 我们还可以使用索引缓冲区来指定顶点索引。[有关顶点缓冲区的文章](webgpu-vertex-buffers.html#a-index-buffers)对此进行了介绍。︎
 
 我们的 `vs` 函数被声明为返回一个 `vec4f`的函数，它是由四个 32 位浮点数值组成的向量。把它想象成一个包含 4 个值的数组，或者一个包含 4 个属性的对象，如 {x: 0, y：0, z: 0, w: 0}。返回值将分配给位置内置程序。在 "triangle-list "模式下，顶点着色器每执行 3 次，就会在我们返回的 3 个位置之间绘制一个三角形。
 
@@ -543,10 +535,7 @@ const pipeline = device.createComputePipeline({
 
 在这里，我们只需告诉它，我们正在使用我们创建的着色器模块中的`compute`阶段，并希望调用 `computeSomething` 函数。 layout 还是 "auto"，告诉 WebGPU 从着色器中找出布局。[^layout-auto]
 
-[^layout-auto]:
-    `layout: 'auto'` is convenient but, it's impossible to share bind groups
-    across pipelines using `layout: 'auto'`. Most of the examples on this site
-    never use a bind group with multiple pipelines. We'll cover explicit layouts in [another article](webgpu-drawing-multiple-things.html).
+[^layout-auto]: `layout: 'auto'`很方便，但使用 `layout: 'auto'` 布局无法在不同管道中共享绑定组。本网站上的大多数示例从未在多个管道中使用过绑定组。我们将在另一篇文章中介绍[显式布局](webgpu-drawing-multiple-things.html)。︎
 
 接下来我们需要一些数据
 
@@ -604,12 +593,9 @@ const bindGroup = device.createBindGroup({
 });
 ```
 
-We get the layout for the bindGroup from the pipeline. Then we setup bindGroup
-entries. The 0 in `pipeline.getBindGroupLayout(0)` corresponds to the
-`@group(0)` in the shader. The `{binding: 0 ...` of the `entries` corresponds to
-the `@group(0) @binding(0)` in the shader.
+我们从管道中获取 bindGroup 的布局。然后设置 bindGroup 的`entries`。`pipeline.getBindGroupLayout(0)` 中的 0 对应着着色器中的 `@group(0)`。`{binding：0 ...` `entry`对应着着色器中的 `@group(0) @binding(0)`。
 
-Now we can start encoding commands
+现在我们可以开始对命令进行编码
 
 ```js
 // Encode commands to do the computation
@@ -625,26 +611,20 @@ pass.dispatchWorkgroups(input.length);
 pass.end();
 ```
 
-We create a command encoder. We start a compute pass. We set the pipeline, then
-we set the bindGroup. Here, the `0` in `pass.setBindGroup(0, bindGroup)`
-corresponds to `@group(0)` in the shader. We then call `dispatchWorkgroups` and in
-this case we pass it `input.length` which is `3` telling WebGPU to run the
-compute shader 3 times. We then end the pass.
+我们创建一个命令编码器。启动`compute pass`。我们设置管道，然后设置 bindGroup。这里，`pass.setBindGroup(0, bindGroup)` 中的 0 对应着着色器中的 `@group(0)`。然后，我们调用 `dispatchWorkgroups`，在本例中，我们将 `input.length` 设为 `3`，告诉 WebGPU 运行计算着色器 3 次。然后结束`compute pass`。
 
-Here's what the situation will be when `dispatchWorkgroups` is executed
+下面是执行 `dispatchWorkgroups` 时的情况
 
 <div class="webgpu_center"><img src="resources/webgpu-simple-compute-diagram.svg" style="width: 553px;"></div>
 
-After the computation is finished we ask WebGPU to copy from `workBuffer` to
-`resultBuffer`
+计算完成后，我们要求 WebGPU 从 `workBuffer` 复制到 `resultBuffer`
 
 ```js
 // Encode a command to copy the results to a mappable buffer.
 encoder.copyBufferToBuffer(workBuffer, 0, resultBuffer, 0, resultBuffer.size);
 ```
 
-Now we can `finish` the encoder to get a command buffer and then submit that
-command buffer.
+现在，我们可以完成编码器以获取命令缓冲区，然后提交该命令缓冲区。
 
 ```js
 // Finish encoding and submit the commands
@@ -652,7 +632,7 @@ const commandBuffer = encoder.finish();
 device.queue.submit([commandBuffer]);
 ```
 
-We then map the results buffer and get a copy of the data
+然后，我们映射结果缓冲区并获取数据副本
 
 ```js
 // Read the results
@@ -665,38 +645,21 @@ console.log('result', result);
 resultBuffer.unmap();
 ```
 
-To map the results buffer we call `mapAsync` and have to `await` for it to
-finish. Once mapped, we can call `resultBuffer.getMappedRange()` which with no
-parameters will return an `ArrayBuffer` of the entire buffer. We put that in a
-`Float32Array` typed array view and then we can look at the values. One
-important detail, the `ArrayBuffer` returned by `getMappedRange` is only valid
-until we call `unmap`. After `unmap` its length with be set to 0 and its data
-no longer accessible.
+要映射结果缓冲区，我们需要调用 `mapAsync` 并需要使用`await`等待其完成。映射完成后，我们可以调用 `resultBuffer.getMappedRange()`（无参数），它将返回整个缓冲区的 `ArrayBuffer`。我们将其放入 `Float32Array` 类型的数组视图中，然后就可以查看数值了。一个重要的细节是，getMappedRange 返回的 `ArrayBuffer` 仅在调用 `unmap` 之前有效。在`unmap`之后，其长度将被设置为 0，数据也不再可访问。
 
-Running that we can see we got the result back, all the numbers have been
-doubled.
+运行后，我们可以看到结果已经返回，所有数字都翻了一番。
 
 {{{example url="../webgpu-simple-compute.html"}}}
 
-We'll cover how to really use compute shaders in other articles. For now, you
-hopefully have gleaned some understanding of what WebGPU does. EVERYTHING ELSE
-IS UP TO YOU! Think of WebGPU as similar to other programming languages. It
-provides a few basic features, and leaves the rest to your creativity.
+我们将在其他文章中介绍如何真正使用计算着色器。现在，希望你已经对 WebGPU 的作用有了一些了解。其他一切都取决于你！WebGPU 与其他编程语言类似。它提供了一些基本功能，剩下的就看你的创造力了。
 
-What makes WebGPU programming special is these functions, vertex shaders,
-fragment shaders, and compute shaders, run on your GPU. A GPU could have over
-10000 processors which means they can potentially do more than 10000
-calculations in parallel which is likely 3 or more orders of magnitude than your
-CPU can do in parallel.
+WebGPU 编程的特别之处在于这些功能（顶点着色器、片段着色器和计算着色器）都在 GPU 上运行。GPU 可以有超过 10000 个处理器，这意味着它们可以并行进行超过 10000 次计算，这可能比 CPU 的并行计算能力高出 3 个或更多数量级。
 
-## Simple Canvas Resizing
+## 简要调整画布大小
 
-Before we move on, let's go back to our triangle drawing example and add some
-basic support for resizing a canvas. Sizing a canvas is actually a topic that
-can have many subtleties so [there is an entire article on it](webgpu-resizing-the-canvas.html).
-For now though let's just add some basic support
+在继续之前，让我们回到三角形绘制示例，并为调整画布大小添加一些基本支持。画布大小的调整实际上是一个有很多微妙之处的话题，因此[有一整篇文章](webgpu-resizing-the-canvas.html)来讨论这个问题。现在，我们只需添加一些基本支持。
 
-First we'll add some CSS to make our canvas fill the page
+首先，我们要添加一些 CSS，使画布填满页面。
 
 ```html
 <style>
@@ -713,19 +676,11 @@ First we'll add some CSS to make our canvas fill the page
 </style>
 ```
 
-That CSS alone will make the canvas get displayed to cover the page but it won't change
-the resolution of the canvas itself so you might notice if you make the example below
-large, like if you click the full screen button, you'll see the edges of the triangle
-are blocky.
+单凭 CSS 就能让画布显示覆盖整个页面，但它不会改变画布本身的分辨率，所以如果将下面的示例放大，比如点击全屏按钮，你可能会发现三角形的边缘是块状的。
 
 {{{example url="../webgpu-simple-triangle-with-canvas-css.html"}}}
 
-`<canvas>` tags, by default, have a resolution of 300x150 pixels. We'd like to
-adjust the canvas resolution of the canvas to match the size it is displayed.
-One good way to do this is with a `ResizeObserver`. You create a
-`ResizeObserver` and give it a function to call whenever the elements you've
-asked it to observe change their size. You then tell it which elements to
-observe.
+`<canvas>` 标签的默认分辨率为 300x150 像素。我们希望调整画布的分辨率，使其与显示的尺寸相匹配。一个很好的方法就是使用 `ResizeObserver`。您可以创建一个 `ResizeObserver`，并给它一个函数，每当您要求它观察的元素尺寸发生变化时，就调用该函数。然后告诉它要观察哪些元素。
 
 ```js
     ...
@@ -745,24 +700,15 @@ observe.
 +    observer.observe(canvas);
 ```
 
-In the code above we go over all the entries but there should only ever be one
-because we're only observing our canvas. We need to limit the size of the canvas
-to the largest size our device supports otherwise WebGPU will start generating
-errors that we tried to make a texture that is too large. We also need to make
-sure it doesn't go to zero or again we'll get errors.
-[See the longer article for details](webgpu-resizing-the-canvas.html).
+在上面的代码中，我们查看了所有条目，但应该只有一个，因为我们只观察画布。我们需要将画布的大小限制在设备支持的最大尺寸内，否则 WebGPU 将开始生成错误，提示我们试图制作过大的纹理。我们还需要确保它不会归零，否则同样会出错。详情请参见[另一篇更长的文章](webgpu-resizing-the-canvas.html)。
 
-We call `render` to re-render the
-triangle at the new resolution. We removed the old call to `render` because
-it's not needed. A `ResizeObserver` will always call its callback at least once
-to report the size of the elements when they started being observed.
+我们调用 `render` 以新的分辨率重新渲染三角形。我们删除了对 `render` 的旧调用，因为不需要它。`ResizeObserver` 总是会至少调用一次回调，以报告元素开始被观察时的大小。
 
-The new size texture is created when we call `context.getCurrentTexture()`
-inside `render` so there's nothing left to do.
+当我们在 `render` 中调用 `context.getCurrentTexture()` 时，就会创建新大小的纹理，因此没有什么可做的了。
 
 {{{example url="../webgpu-simple-triangle-with-canvas-resize.html"}}}
 
-In the following articles we'll cover various ways to pass data into shaders.
+在以下文章中，我们将介绍向着色器传递数据的各种方法。
 
 -   [inter-stage variables](webgpu-inter-stage-variables.html)
 -   [uniforms](webgpu-uniforms.html)
@@ -771,30 +717,19 @@ In the following articles we'll cover various ways to pass data into shaders.
 -   [textures](webgpu-textures.html)
 -   [constants](webgpu-constants.html)
 
-Then we'll cover [the basics of WGSL](webgpu-wgsl.html).
+我们接着介绍 [WGSL 的基础知识](webgpu-wgsl.html)。
 
-This order is from the simplest to the most complex. Inter-stage variables
-require no external setup to explain. We can see how to use them using nothing
-but changes to the WGSL we used above. Uniforms are effectively global variables
-and as such are used in all 3 kinds of shaders (vertex, fragment, and compute).
-Going from uniform buffers to storage buffers is trivial as shown at the top of
-the article on storage buffers. Vertex buffers are only used in vertex shaders.
-They are more complex because they require describing the data layout to WebGPU.
-Textures are most complex as they have tons of types and options.
+这个顺序从最简单到最复杂。`inter-stage`不需要外部设置来解释。我们只需更改上面使用的 WGSL，就能知道如何使用它们。`uniform`实际上是全局变量，因此可用于所有三种着色器（顶点、片段和计算）。从`uniform`到`storage buffer`的转换非常简单，如文章顶部的`storage buffer`所示。`vertex buffer`仅用于顶点着色器。它们更为复杂，因为需要向 WebGPU 描述数据布局。`texture`最为复杂，因为它们有大量类型和选项。
 
-I'm a little bit worried these article will be boring at first. Feel free to
-jump around if you'd like. Just remember if you don't understand something you
-probably need to read or review these basics. Once we get the basics down we'll
-start going over actual techniques.
+我有点担心这些文章一开始会很无聊。如果你愿意，可以随意跳读。请记住，如果你有不明白的地方，你可能需要阅读或复习这些基础知识。一旦我们掌握了基础知识，我们就会开始讲解实际的技术。
 
-One other thing. All of the example programs can be edited live in the webpage.
-Further, they can all easily be exported to [jsfiddle](https://jsfiddle.net) and [codepen](https://codepen.io)
-and even [stackoverflow](https://stackoverflow.com). Just click "Export".
+还有一件事。所有示例程序都可以在网页中进行实时编辑。此外，它们都可以轻松导出到 [jsfiddle](https://jsfiddle.net) 和 [codepen](https://codepen.io)，甚至 [stackoverflow](https://stackoverflow.com)。只需点击 "导出 "即可。
 
 <div class="webgpu_bottombar">
 <p>
-The code above gets a WebGPU device in very terse way. A more verbose
-way would be something like
+
+上面的代码以非常简洁的方式获取 WebGPU 设备。一种更啰嗦的方式是：
+
 </p>
 <pre class="prettyprint showmods">{{#escapehtml}}
 async function start() {
@@ -831,20 +766,11 @@ function main(device) {
 {{/escapehtml}}</pre>
 
 <p>
-<code>device.lost</code> is a promise that starts off unresolved. It will resolve if and when the
-device is lost. A device can be lost for many reasons. Maybe the user ran a really intensive
-app and it crashed their GPU. Maybe the user updated their drivers. Maybe the user has
-an external GPU and unplugged it. Maybe another page used a lot of GPU, your
-tab was in the background and the browser decided to free up some memory by
-losing the device for background tabs. The point to take away is that for any serious
-apps you probably want to handle losing the device.
+<code>device.lost</code> 是一个unresolved的Promise。如果设备丢失，它就会变为resolved。设备丢失的原因有很多。也许用户运行了一个非常密集的应用程序，导致 GPU 崩溃。也许用户更新了驱动程序。也许用户有一个外置 GPU，但拔掉了。也许另一个页面使用了大量 GPU，而你的标签页在后台，浏览器决定通过丢失后台标签页的设备来释放一些内存。需要注意的是，对于任何重要的应用程序，你可能都希望能处理丢失设备的问题。
 </p>
 <p>
-Note that <code>requestDevice</code> always returns a device. It just might start lost.
-WebGPU is designed so that, for the most part, the device will appear to work,
-at least from an API level. Calls to create things and use them will appear
-to succeed but they won't actually function. It's up to you to take action
-when the <code>lost</code> promise resolves.
+请注意，<code>requestDevice</code> 始终会返回一个设备。只是开始时可能会丢失。WebGPU 的设计使设备在大多数情况下都能正常工作，至少从 API 层面来看是这样。创建和使用设备的调用看起来会成功，但实际上并不能运行。当<code>lost</code>promise变为resolved后，您就可以采取一些措施了。
+
 </p>
 </div>
 
