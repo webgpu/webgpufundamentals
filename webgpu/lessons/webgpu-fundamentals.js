@@ -42,7 +42,7 @@ const updateColorScheme = () => {
 updateColorScheme();
 
 const devicePromise = navigator.gpu?.requestAdapter()
-   .then(adapter => adapter.requestDevice());
+   .then(adapter => adapter?.requestDevice());
 
 const makeText = (parent, t) => {
   return parent.text(t)
