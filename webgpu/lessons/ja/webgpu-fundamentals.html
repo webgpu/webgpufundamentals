@@ -233,7 +233,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">es6 modules</a>,
 といった仕様です。説明する内容によってはこれ以外の知識が必要となる場合もあります。
 </div>
-<div class="warn">WebGLの知識を持っている読者は、「<a href="webgpu-from-webgl.html">WebGLからWebGPUへ</a>」の記事から読むのもよいでしょう。</div>
+<div class="warn">WebGLの知識を持っている読者は、「<a href="../webgpu-from-webgl.html">WebGLからWebGPUへ</a>」の記事から読むのもよいでしょう。</div>
 <p>WebGPUは、２つのことをやるためのAPIです。</p>
 <ol>
 <li>
@@ -354,7 +354,7 @@ commandBuffer = encoder.finish();
 ここから上へ上へと積み上げていくために必要な、だいじな基礎部分です。
 基礎部分が積み上がったら、GPUを使う典型的なアプリケーション、2Dグラフィクスや3Dグラフィクスのようなプログラムでその基礎がどう活用されるのか、紹介していきます。</p>
 <h1 id="三角形を、テクスチャに描く"><a id="a-drawing-triangles-to-textures"></a>三角形を、テクスチャに描く</h1>
-<p>WebGPUは、<a href="webgpu-textures.html">テクスチャ</a>に三角形を描くことができます。
+<p>WebGPUは、<a href="../webgpu-textures.html">テクスチャ</a>に三角形を描くことができます。
 この記事では、テクスチャは「二次元の長方形に並んだピクセル<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>」としておきます。
 HTMLの<code class="notranslate" translate="no">&lt;canvas&gt;</code>要素ははWebページ中にテクスチャを提供するためのものです。WebGPUでは、canvasにテクスチャを要求して、そのテクスチャにレンダリングすることができます。</p>
 <p>WebGPUで三角形を描くためには、２つの「シェーダ」を用意する必要があります。
@@ -442,7 +442,7 @@ WebGPUコンテキストに対して、<code class="notranslate" translate="no">
   });
 </pre>
 <p>シェーダは<a href="https://gpuweb.github.io/gpuweb/wgsl/">WGSL (WebGPU Shading Language)</a>と呼ばれる言語で記述されます。WGSLは、しばしば「ウィグシル」と発音されているようです。
-WGSLは「強い型付け言語」の一種です。詳細については別途「<a href="webgpu-wgsl.html">WGSLについて</a>」で説明することとして、ここでは、大ざっぱに見通せる程度のそれなりな説明に留めたいと思います。</p>
+WGSLは「強い型付け言語」の一種です。詳細については別途「<a href="../webgpu-wgsl.html">WGSLについて</a>」で説明することとして、ここでは、大ざっぱに見通せる程度のそれなりな説明に留めたいと思います。</p>
 <p>上のソースコードでは、<code class="notranslate" translate="no">vs</code>と名付けた関数を、<code class="notranslate" translate="no">@vertex</code>属性を付けて宣言しています。
 <code class="notranslate" translate="no">@vertex</code>属性は、この関数が頂点シェーダであることを示します。</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
@@ -558,7 +558,7 @@ WebGPUで生成するオブジェクトは、ほぼすべてについて<code cl
 このタイミングでは「描画対象となるテクスチャ」の指定は保留して、「各テクスチャをどう扱うか」の設定を行っています。
 <code class="notranslate" translate="no">clearValue</code>は、背景色、つまり全体を一色で塗りつぶす際の指定色です。暗めの灰色<code class="notranslate" translate="no">[0.3, 0.3, 0.3, 1]</code>を指定しています。
 <code class="notranslate" translate="no">loadOp: 'clear'</code>は、「描画開始前にテクスチャ全体を背景色でクリアする」という設定です。<code class="notranslate" translate="no">loadOp: 'load'</code>とした場合は、「その時点のテクスチャの内容をGPUにロードして、そこに上書きで描画していく」という意味になります。
-<code class="notranslate" translate="no">storeOp: 'store'</code>は、描画内容をテクスチャに保存する、という意味です。<code class="notranslate" translate="no">storeOp: 'discard'</code>とすると、描画内容を破棄します。<code class="notranslate" translate="no">'discard'</code>がどういう場面で役に立つのか、については別の記事、「<a href="webgpu-multisampling.html">マルチサンプリング</a>」で説明します.</p>
+<code class="notranslate" translate="no">storeOp: 'store'</code>は、描画内容をテクスチャに保存する、という意味です。<code class="notranslate" translate="no">storeOp: 'discard'</code>とすると、描画内容を破棄します。<code class="notranslate" translate="no">'discard'</code>がどういう場面で役に立つのか、については別の記事、「<a href="../webgpu-multisampling.html">マルチサンプリング</a>」で説明します.</p>
 <p>さて。レンダリングする(描画する)時が来ました。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
     // canvasのコンテキストから、カレントテクスチャを得る。
@@ -731,7 +731,7 @@ WebGPUでこのデータを利用するには、GPU上にバッファを用意�
 <p>上のコードでは、まず<code class="notranslate" translate="no">device.createBuffer</code>でバッファを生成しています。
 <code class="notranslate" translate="no">size</code>はバッファのサイズで、単位はバイトです。
 今回の例では<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>の値を３つ扱うので12バイトになります。
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>については「<a href="webgpu-memory-layout.html">メモリレイアウト</a>」で説明しているので、<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>なじみがないという人は読んでみると良いでしょう。</p>
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>については「<a href="../webgpu-memory-layout.html">メモリレイアウト</a>」で説明しているので、<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>なじみがないという人は読んでみると良いでしょう。</p>
 <p>WebGPUで利用するバッファでは、必ず<code class="notranslate" translate="no">usage</code>を指定する必要があります。
 <code class="notranslate" translate="no">usage</code>に指定できるフラグは多数あり、同時に指定できないフラグなどもあります。
 今回のケースでは、</p>
@@ -828,7 +828,7 @@ WebGPUの学習はプログラム言語の学習のようなものです。WebGP
 GPUは、ものによっては１つのGPUで10000個にも及ぶプロセッサを内包しています。
 これは、ポテンシャルとしては10000回の計算を並列で実行できるということです。並列性の規模は、CPUとは実に三桁もの違いがあります。</p>
 <h2 id="簡単なcanvasリサイズ">簡単なcanvasリサイズ</h2>
-<p>別の話題に移る前に、三角形を描くサンプルを利用して「canvasをリサイズする仕組み」を紹介しておきます。canvasサイズの変更については「<a href="webgpu-resizing-the-canvas.html">canvasのリサイズ</a>」で記事一本丸ごと使って詳しく説明しています。
+<p>別の話題に移る前に、三角形を描くサンプルを利用して「canvasをリサイズする仕組み」を紹介しておきます。canvasサイズの変更については「<a href="../webgpu-resizing-the-canvas.html">canvasのリサイズ</a>」で記事一本丸ごと使って詳しく説明しています。
 ここで紹介するのは簡易版です。</p>
 <p>最初に、CSSを追加してcanvasがページ全体を覆うようにします。</p>
 <pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;style&gt;
@@ -872,7 +872,7 @@ canvas {
 +    observer.observe(canvas);
 </pre>
 <p>上のコードでは<code class="notranslate" translate="no">entries</code>の全ての要素をforで走査していますが、実際に操作対象となるのは<code class="notranslate" translate="no">observe</code>で指定したcanvas一つだけです。canvasのサイズには、デバイスによる上限の制限があるので、それに配慮しています。この上限を超えてしまうと、WebGPUは、大きすぎるテクスチャを生成しようとしてエラーを出力することになります。また、サイズが0の場合も同様にエラーとなります。
-これについては、「<a href="webgpu-resizing-the-canvas.html">canvasのリサイズ</a>」の記事で説明します。</p>
+これについては、「<a href="../webgpu-resizing-the-canvas.html">canvasのリサイズ</a>」の記事で説明します。</p>
 <p>canvasの解像度が適切に更新できたところで<code class="notranslate" translate="no">render</code>を呼んで再描画しています。元のコードでは無条件で<code class="notranslate" translate="no">render</code>を呼んでいましたが、その部分は不要なのでコードから削除しています。<code class="notranslate" translate="no">ResizeObserver</code>は、observeを開始した時点でのcanvas要素のサイズを報告するため、コールバックを必ず１回は実行するためです。</p>
 <p>リサイズ後のサイズの新たなテクスチャの生成は、<code class="notranslate" translate="no">render</code>の中に書いた<code class="notranslate" translate="no">context.getCurrentTexture()</code>が行なうので、observerは関与しません。</p>
 <p></p><div class="webgpu_example_container">
@@ -883,14 +883,14 @@ canvas {
 <p></p>
 <p>以下の記事では、シェーダにデータを渡す様々な方法、について説明しています。</p>
 <ul>
-<li><a href="webgpu-inter-stage-variables.html">inter-stage variables</a></li>
-<li><a href="webgpu-uniforms.html">uniforms</a></li>
-<li><a href="webgpu-storage-buffers.html">storage buffers</a></li>
-<li><a href="webgpu-vertex-buffers.html">vertex buffers</a></li>
-<li><a href="webgpu-textures.html">textures</a></li>
-<li><a href="webgpu-constants.html">constants</a></li>
+<li><a href="../webgpu-inter-stage-variables.html">inter-stage variables</a></li>
+<li><a href="../webgpu-uniforms.html">uniforms</a></li>
+<li><a href="../webgpu-storage-buffers.html">storage buffers</a></li>
+<li><a href="../webgpu-vertex-buffers.html">vertex buffers</a></li>
+<li><a href="../webgpu-textures.html">textures</a></li>
+<li><a href="../webgpu-constants.html">constants</a></li>
 </ul>
-<p>また「<a href="webgpu-wgsl.html">WGSLの基礎</a>」では、WGSLについて説明します。</p>
+<p>また「<a href="../webgpu-wgsl.html">WGSLの基礎</a>」では、WGSLについて説明します。</p>
 <p>上に記事順は、簡単なものから複雑なもの、の順です。</p>
 <p><code class="notranslate" translate="no">inter-stage variable</code>(ステージ間変数)の利用は、WGSLのコードの中で完結できるので、
 外部での設定の説明は必要がありません。WGSLのコードの変更だけで利用できます。
@@ -970,9 +970,9 @@ WebGPUはそういうデザインになっている。多くの場合、デバ�
 </li>
 <li id="fn3" class="footnote-item"><p>テクスチャは「二次元の長方形に並んだピクセル」以外に、「三次元の直方体に並んだピクセル」、「キューブマップ(立方体の６面に並んだピクセル)」のほか、いくつかの形がある。ともあれ、一番一般的なテクスチャは「二次元の長方形に並んだピクセル」である。 <a href="#fnref3" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn4" class="footnote-item"><p><code class="notranslate" translate="no">vertex_index</code>の値について、記事中の例では0から増分1でカウントしているが、そうではなく、index bufferを使って任意の数列でカウントするやり方もある。詳しくは「<a href="webgpu-vertex-buffers.html#a-index-buffers">頂点バッファについて</a>」で説明する。 <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+<li id="fn4" class="footnote-item"><p><code class="notranslate" translate="no">vertex_index</code>の値について、記事中の例では0から増分1でカウントしているが、そうではなく、index bufferを使って任意の数列でカウントするやり方もある。詳しくは「<a href="../webgpu-vertex-buffers.html#a-index-buffers">頂点バッファについて</a>」で説明する。 <a href="#fnref4" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code>は強力で便利な仕組みだが、複数のパイプラインでバインドグループを共有することができない。このサイトでは、複数のパイプラインでバインドグループを共有するサンプルはほとんど扱っていない。autoではない、明示的なレイアウトについては、別途「<a href="webgpu-drawing-multiple-things.html">複数のものを描画する</a>」で説明する。 <a href="#fnref5" class="footnote-backref">↩︎</a></p>
+<li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code>は強力で便利な仕組みだが、複数のパイプラインでバインドグループを共有することができない。このサイトでは、複数のパイプラインでバインドグループを共有するサンプルはほとんど扱っていない。autoではない、明示的なレイアウトについては、別途「<a href="../webgpu-drawing-multiple-things.html">複数のものを描画する</a>」で説明する。 <a href="#fnref5" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>
