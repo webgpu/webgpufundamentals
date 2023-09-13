@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/webgpu-fundamentals.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,70 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="zh-cn"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Fundamentals">
+
+<meta name="description" content="WebGPU 的基础知识">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_zh-cn.jpg">
+
+<meta property="og:title" content="WebGPU 基础">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="The fundamentals of WebGPU">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_zh-cn.jpg">
+<meta property="og:description" content="WebGPU 的基础知识">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-fundamentals.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Fundamentals">
+<meta name="twitter:title" content="WebGPU 基础">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-fundamentals.html">
-<meta name="twitter:description" content="The fundamentals of WebGPU">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="WebGPU 的基础知识">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_zh-cn.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-fundamentals.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_zh-cn.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-fundamentals.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-fundamentals.html",
+      "inLanguage":"zh-cn",
+      "name":"WebGPU 基础",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-fundamentals.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Fundamentals</title>
+<title>WebGPU 基础</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -175,13 +218,632 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Fundamentals</h1>
+    <h1>WebGPU 基础</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>本课程还没有简体中文版翻译哦  (~￣△￣)~</p>
-<p><a href="https://github.com/gfxfundamentals/webgpufundamentals">欢迎参加翻译</a>! 😄
-<a href="/webgpu/lessons/webgpu-fundamentals.html">英文原版地址</a></p>
+      <p>本文将向您介绍 WebGPU 的基础知识。</p>
+<div class="warn">
+希望你在阅读本文之前已经了解 JavaScript。本文将大量使用
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">数组映射</a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">解构赋值</a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">展开语法</a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async/await 函数</a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">es6 模块</a>,
+等概念。
+</div>
+<div class="warn">如果您已经了解 WebGL, <a href="../webgpu-from-webgl.html">请阅读此文</a>.</div>
+<p>WebGPU 是一个应用程序接口，可让您做两件基本的事情。</p>
+<ol>
+<li>
+<p><a href="#a-drawing-triangles-to-textures">绘制三角形/点/线到纹理上</a></p>
+</li>
+<li>
+<p><a href="#a-run-computations-on-the-gpu">在 GPU 上进行计算</a></p>
+</li>
+</ol>
+<p>就是这样！
+之后有关 WebGPU 的一切都取决于您。这就像学习 JavaScript、Rust 或 C++ 等计算机语言一样。首先要学习基础知识，然后才能创造性地使用这些基础知识来解决问题。</p>
+<p>WebGPU 是一个极其低层次的 API. 虽然您可以制作一些小型示例，但对于许多应用程序来说，这可能需要大量代码和大量数据。 举例来说，支持 WebGPU 的 <a href="https://threejs.org">three.js</a> 包含约 600k 的 JavaScript，这还只是它的基础库。这还不包括加载器、控件、后处理和许多其他功能。 同样的, <a href="https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-webgpu">带有 WebGPU 后端的 TensorFlow</a>也需要大约 500K 的 JavaScript 压缩包。</p>
+<p>重点是，如果你只想在屏幕上显示一些东西，那么选择一个能提供大量基础代码的库会好得多。</p>
+<p>另一方面，也许你有一个自定义用例，也许你想修改一个现有库，也许你只是好奇它是如何工作的。在这种情况下，请继续阅读！</p>
+<h1 id="起步">起步</h1>
+<p>很难决定从哪里开始。从某种程度上说，WebGPU 是一个非常简单的系统。它所做的就是在 GPU 上运行 3 种功能：顶点着色器、片段着色器和计算着色器。</p>
+<p>顶点着色器负责计算顶点。着色器会返回顶点位置。对于每组 3 个顶点，它会返回在这 3 个位置之间绘制的三角形 <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<p>片段着色器负责计算颜色 <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>。 在绘制三角形时，GPU 会为每个要绘制的像素调用片段着色器。片段着色器会返回一种颜色。</p>
+<p>而计算着色器则更加的通用。它实际上只是一个函数，你调用它，然后说 “执行这个函数 N 次”。GPU 每次调用你的函数时都会传递迭代次数，因此你可以在每次迭代时使用该次数做一些独特的事情。</p>
+<p>如果你仔细观察，就会发现这些函数类似于传递给
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach"><code class="notranslate" translate="no">array.forEach</code></a>
+或
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map"><code class="notranslate" translate="no">array.map</code></a> 函数。
+在 GPU 上运行的函数只是函数，就像 JavaScript 函数一样。不同之处在于它们是在 GPU 上运行的，因此要运行它们，您需要以缓冲区和纹理的形式将您希望它们访问的所有数据复制到 GPU 上，而且它们只能输出到这些缓冲区和纹理。您需要在函数中指定函数将在哪些绑定或位置查找数据。回到 JavaScript 中，你需要将保存数据的缓冲区和纹理绑定到这些绑定或位置。一旦完成这些后，您就可以告诉 GPU 执行函数了。</p>
+<p><a id="a-draw-diagram"></a>也许下面的图片会有所帮助。以下是使用顶点着色器和片段着色器绘制三角形的 WebGPU 设置简图</p>
+<div class="webgpu_center"><img src="../resources/webgpu-draw-diagram.svg" style="width: 960px;"></div>
+<p>上图的注意事项：</p>
+<ul>
+<li>
+<p><strong>管道(Pipeline)</strong>. 它包含 GPU 将运行的顶点着色器和片段着色器。您也可以在管道(Pipeline)中加入计算着色器。</p>
+</li>
+<li>
+<p>着色器通过**绑定组(Bind Groups)**间接引用资源（缓冲区(buffer)、纹理(texture)、采样器(sampler)）。</p>
+</li>
+<li>
+<p>管道定义了通过内部状态间接引用缓冲区的属性</p>
+</li>
+<li>
+<p>属性从缓冲区中提取数据，并将数据输入顶点着色器</p>
+</li>
+<li>
+<p>顶点着色器可将数据输入片段着色器</p>
+</li>
+<li>
+<p>片段着色器通过 render pass description 间接写入纹理</p>
+</li>
+</ul>
+<p>要在 GPU 上执行着色器，需要创建所有这些资源并设置状态。创建资源相对简单。有趣的是，大多数 WebGPU 资源在创建后都无法更改。您可以更改它们的内容，但是无法更改它们的大小、用途、格式等等。如果要更改这些内容，需要创建一个新资源并销毁旧资源。</p>
+<p>有些状态是通过创建和执行命令缓冲区来设置的。命令缓冲区顾名思义。它们是一个命令缓冲区。你可以创建编码器。编码器将命令编码到命令缓冲区。编码器<em>完成</em>(<em>finish</em>)编码后，就会向你提供它创建的命令缓冲区。然后，您就可以<em>提交</em>(<em>submit</em>)该命令缓冲区，让 WebGPU 执行命令。</p>
+<p>下面是一些对命令缓冲区进行编码的伪代码，以及所创建的命令缓冲区的表示方法。</p>
+<div class="webgpu_center side-by-side"><div style="min-width: 300px; max-width: 400px; flex: 1 1;"><pre class="prettyprint showlinemods notranslate notranslate" translate="no">encoder = device.createCommandEncoder()
+// draw something
+{
+  pass = encoder.beginRenderPass(...)
+  pass.setPipeline(...)
+  pass.setVertexBuffer(0, …)
+  pass.setVertexBuffer(1, …)
+  pass.setIndexBuffer(...)
+  pass.setBindGroup(0, …)
+  pass.setBindGroup(1, …)
+  pass.draw(...)
+  pass.end()
+}
+// draw something else
+{
+  pass = encoder.beginRenderPass(...)
+  pass.setPipeline(...)
+  pass.setVertexBuffer(0, …)
+  pass.setBindGroup(0, …)
+  pass.draw(...)
+  pass.end()
+}
+// compute something
+{
+  pass = encoder.beginComputePass(...)
+  pass.beginComputePass(...)
+  pass.setBindGroup(0, …)
+  pass.setPipeline(...)
+  pass.dispatchWorkgroups(...)
+  pass.end();
+}
+commandBuffer = encoder.finish();
+</pre></div>
+<div><img src="../resources/webgpu-command-buffer.svg" style="width: 300px;"></div>
+</div>
+<p>创建命令缓冲区后，就可以<em>提交</em>(<em>submit</em>)执行了</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.submit([commandBuffer]);
+</pre>
+<p>上图表示命令缓冲区中某个绘制命令时的状态。执行命令会设置<em>内部状态</em>(<em>internal state</em>)，然后<em>绘制</em>(<em>draw</em>)命令会告诉 GPU 执行顶点着色器（并间接执行片段着色器）。<code class="notranslate" translate="no">dispatchWorkgroup</code> 命令将告诉 GPU 执行计算着色器。</p>
+<p>我希望这能让你对需要设置的状态有一些心理上的印象。如上所述，WebGPU 有两个基本功能：</p>
+<ol>
+<li>
+<p><a href="#a-drawing-triangles-to-textures">绘制三角形/点/线到纹理上</a></p>
+</li>
+<li>
+<p><a href="#a-run-computations-on-the-gpu">在 GPU 上进行计算</a></p>
+</li>
+</ol>
+<p>我们将以一个小例子逐一说明。其他文章将介绍向这些设备提供数据的各种方法。请注意，这将是非常基础的内容。我们需要为这些基础知识打下基础。稍后我们将展示如何使用它们来完成人们通常使用 GPU 完成的工作，如 2D 图形、3D 图形等。</p>
+<h1 id="绘制三角形到纹理上"><a id="a-drawing-triangles-to-textures"></a>绘制三角形到纹理上</h1>
+<p>WebGPU 能够绘制三角形到 <a href="../webgpu-textures.html">纹理</a>. 在本文中，纹理是指像素组成的 2D 矩形区域.<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> <code class="notranslate" translate="no">&lt;canvas&gt;</code> 元素表示了网页上的纹理。在 WebGPU 中，我们可以向画布请求纹理并将结果渲染到纹理（画布）上。</p>
+<p>要使用 WebGPU 绘制三角形，我们必须提供 2 个 “着色器”。再说一次，着色器就是在 GPU 上运行的函数。这两个着色器是</p>
+<ol>
+<li>
+<p>顶点着色器</p>
+<p>顶点着色器是计算顶点位置的函数，用于绘制三角形/线/点</p>
+</li>
+<li>
+<p>片元着色器</p>
+<p>片段着色器是在绘制三角形/线/点时计算每个待绘制/光栅化像素的颜色（或其他数据）的函数</p>
+</li>
+</ol>
+<p>让我们从一个非常小的 WebGPU 程序开始，画一个三角形。</p>
+<p>我们需要一块画布来显示我们的三角形</p>
+<pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;canvas&gt;&lt;/canvas&gt;
+</pre>
+<p>然后，我们需要一个 <code class="notranslate" translate="no">&lt;script&gt;</code> 标签来保存我们的 JavaScript。</p>
+<pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;canvas&gt;&lt;/canvas&gt; +
+&lt;script type="module"&gt;
+
+    ... javascript goes here ...
+
+    +
+&lt;/script&gt;
+</pre>
+<p>下面所有的 JavaScript 都将放在该脚本标记中</p>
+<p>WebGPU 是异步 API，因此在异步函数中使用最为方便。我们首先请求一个<em>适配器</em>(<em>adapter</em>)，然后从适配器中请求一个<em>设备</em>(<em>device</em>)。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
+    const adapter = await navigator.gpu?.requestAdapter();
+    const device = await adapter?.requestDevice();
+    if (!device) {
+        fail('need a browser that supports WebGPU');
+        return;
+    }
+}
+main();
+</pre>
+<p>上面的代码不言自明。 首先，我们使用
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining"><code class="notranslate" translate="no">?.</code> 可选链操作符</a>来请求一个<em>适配器</em>(<em>adapter</em>)。
+如果 <code class="notranslate" translate="no">navigator.gpu</code> 不存在的话，那么 <code class="notranslate" translate="no">adapter</code> 将会是 <code class="notranslate" translate="no">undefined</code>。
+倘若它的确存在，那么我们将调用 <code class="notranslate" translate="no">requestAdapter</code>。 它将以异步的方式返回结果，因此我们需要<code class="notranslate" translate="no">await</code>。<em>适配器</em>(<em>adapter</em>)代表一个特定的 GPU，因为有些设备拥有多个 GPU。</p>
+<p>从<em>适配器</em>(<em>adapter</em>)上请求<em>设备</em>(<em>device</em>)时，我们同样使用了<code class="notranslate" translate="no">?</code>可选链操作符。因此如果<em>适配器</em>(<em>adapter</em>)为<code class="notranslate" translate="no">undefined</code>，那么<em>设备</em>(<em>device</em>)也将为 <code class="notranslate" translate="no">undefined</code>。</p>
+<p>如果<code class="notranslate" translate="no">device</code>为<code class="notranslate" translate="no">undefined</code>，用户使用的很可能是旧版浏览器。</p>
+<p>接下来，我们查找画布并为其创建 Webgpu 上下文。这样我们就可以获得一个纹理来进行渲染。该纹理将用于在网页中显示画布。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// Get a WebGPU context from the canvas and configure it
+const canvas = document.querySelector('canvas');
+const context = canvas.getContext('webgpu');
+const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+context.configure({
+    device,
+    format: presentationFormat,
+});
+</pre>
+<p>同样，上面的代码很容易理解。 我们从画布中获取一个 <code class="notranslate" translate="no">"webgpu"</code> 上下文。
+我们会询问系统首选的画布格式是什么。这将是 <code class="notranslate" translate="no">rgba8unorm</code> 或 <code class="notranslate" translate="no">bgra8unorm</code>。这其实并不重要，重要的是通过查询，可以让用户的系统以最快的速度运行。</p>
+<p>我们通过调用 <code class="notranslate" translate="no">configure</code> 将<code class="notranslate" translate="no">format</code>传入 webgpu 画布上下文。我们还将<code class="notranslate" translate="no">device</code>传入画布，从而将画布与我们刚刚创建的设备关联起来。</p>
+<p>接下来，我们创建一个着色器模块。着色器模块包含一个或多个着色器函数。在本例中，我们将创建一个顶点着色器函数和一个片段着色器函数。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const module = device.createShaderModule({
+    label: 'our hardcoded red triangle shaders',
+    code: `
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; @builtin(position) vec4f {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+        return vec4f(pos[vertexIndex], 0.0, 1.0);
+      }
+
+      @fragment fn fs() -&gt; @location(0) vec4f {
+        return vec4f(1.0, 0.0, 0.0, 1.0);
+      }
+    `,
+});
+</pre>
+<p>着色器是用一种名为
+<a href="https://gpuweb.github.io/gpuweb/wgsl/">WebGPU Shading Language (WGSL)</a> 的语言编写的，它的发音通常是 wig-sil。WGSL 是一种强类型语言，我们将在<a href="../webgpu-wgsl.html">另一篇文章</a>中详细介绍。现在，我希望在稍作解释后，你能推断出一些基本知识。</p>
+<p>上面我们看到一个名为 <code class="notranslate" translate="no">vs</code> 的函数声明了 <code class="notranslate" translate="no">@vertex</code> 属性。这表明它是一个顶点着色器函数。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; @builtin(position) vec4f {
+         ...
+</pre>
+<p>它接受一个名为 <code class="notranslate" translate="no">vertexIndex</code>的参数。 <code class="notranslate" translate="no">vertexIndex</code> 是 <code class="notranslate" translate="no">u32</code> 类型，即是<em>32 位无符号整数</em>。
+它从名为 <code class="notranslate" translate="no">vertex_index</code>的内置函数中获取值。 <code class="notranslate" translate="no">vertex_index</code> 就像是一个迭代数, 类似于 JavaScript 中的
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array.map(function(value, index) { ... })"><code class="notranslate" translate="no">Array.map(function(value, index) { ... })</code></a>中的 <code class="notranslate" translate="no">index</code>。 如果我们通过调用 <code class="notranslate" translate="no">draw</code> 告诉 GPU 执行此函数 10 次,那么第 1 次的<code class="notranslate" translate="no">vertex_index</code> 将会是<code class="notranslate" translate="no">0</code>，第 2 次会是<code class="notranslate" translate="no">1</code>，第 3 次为<code class="notranslate" translate="no">2</code>等等……<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup></p>
+<p>我们的 <code class="notranslate" translate="no">vs</code> 函数被声明为返回一个 <code class="notranslate" translate="no">vec4f</code>的函数，它是由四个 32 位浮点数值组成的向量。把它想象成一个包含 4 个值的数组，或者一个包含 4 个属性的对象，如 {x: 0, y：0, z: 0, w: 0}。返回值将分配给位置内置程序。在 "triangle-list "模式下，顶点着色器每执行 3 次，就会在我们返回的 3 个位置之间绘制一个三角形。</p>
+<p>WebGPU 中的位置需要在<em>裁剪空间</em>(<em>clip space</em>)中返回，其中 X 从左侧的 -1.0 到右侧的 +1.0，Y 从底部的 -1.0 到顶部的 +1.0。无论我们绘制的纹理大小如何，都是如此。</p>
+<div class="webgpu_center"><img src="../resources/clipspace.svg" style="width: 500px"></div>
+<p><code class="notranslate" translate="no">vs</code> 函数声明了一个由 3 个 <code class="notranslate" translate="no">vec2f</code> 组成的数组。每个 <code class="notranslate" translate="no">vec2f</code> 由两个 32 位浮点数值组成。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+</pre>
+<p>最后，它使用 <code class="notranslate" translate="no">vertexIndex</code> 从数组中返回 3 个值中的一个。由于函数的返回类型需要 4 个浮点数值，而 <code class="notranslate" translate="no">pos</code> 是一个 <code class="notranslate" translate="no">vec2f</code> 数组，因此代码为剩余的 2 个数值提供了 <code class="notranslate" translate="no">0.0</code> 和 <code class="notranslate" translate="no">1.0</code>。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        return vec4f(pos[vertexIndex], 0.0, 1.0);
+</pre>
+<p>着色器模块还声明了一个名为 <code class="notranslate" translate="no">fs</code> 的函数，该函数带有 <code class="notranslate" translate="no">@fragment</code> 属性，因此是一个片段着色器函数。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs() -&gt; @location(0) vec4f {
+</pre>
+<p>此函数不需要任何参数，并返回一个位于 <code class="notranslate" translate="no">location(0)</code> 处的 <code class="notranslate" translate="no">vec4f</code>。这意味着它会写入第一个渲染目标。稍后我们将把第一个渲染目标设为画布纹理。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        return vec4f(1, 0, 0, 1);
+</pre>
+<p>代码返回 <code class="notranslate" translate="no">1, 0, 0, 1</code>，即红色。WebGPU 中的颜色通常指定为 <code class="notranslate" translate="no">0.0</code> 至 <code class="notranslate" translate="no">1.0</code> 的浮点数值，上述 4 个数值分别对应红色、绿色、蓝色和透明度。</p>
+<p>当 GPU 对三角形进行光栅化（用像素绘制）时，它会调用片段着色器来确定每个像素的颜色。在我们的例子中，我们只返回红色。</p>
+<p>还需要注意的一点是<code class="notranslate" translate="no">label</code>。几乎所有使用 WebGPU 创建的对象都可以使用<code class="notranslate" translate="no">label</code>。<code class="notranslate" translate="no">label</code>完全是可选的，但<em>最佳做法</em>是给你创建的所有对象都加上标签。因为当出现错误时，大多数 WebGPU 实现都会打印一条错误信息，其中包括与错误相关的标签。</p>
+<p>在普通应用程序中，您会有 100 或 1000 个缓冲区、纹理、着色器模块、管道等…如果您收到类似 <code class="notranslate" translate="no">WGSL syntax error in shaderModule at line 10 </code>的错误，如果您有 100 个着色器模块，哪个模块出错了？如果给模块贴上标签，就会得到类似 <code class="notranslate" translate="no">WGSL syntax error in shaderModule('our hardcoded red triangle shaders') at line 10 </code>的错误信息，这会一种非常有用的能够帮助你节约大量解决 Bug 的时间。</p>
+<p>现在我们已经创建了着色器模块，接下来需要制作一个渲染管道</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const pipeline = device.createRenderPipeline({
+    label: 'our hardcoded red triangle pipeline',
+    layout: 'auto',
+    vertex: {
+        module,
+        entryPoint: 'vs',
+    },
+    fragment: {
+        module,
+        entryPoint: 'fs',
+        targets: [{ format: presentationFormat }],
+    },
+});
+</pre>
+<p>在这种情况下，没有太多的东西可看。我们将<code class="notranslate" translate="no">layout</code>设置为 <code class="notranslate" translate="no">auto</code>，这意味着要求 WebGPU 从着色器中推断出数据布局。不过我们并没有使用任何数据。</p>
+<p>然后，我们告诉渲染流水线在使用顶点着色器时使用着色器模块中的 <code class="notranslate" translate="no">vs</code> 函数，在使用片段着色器时使用 <code class="notranslate" translate="no">fs</code> 函数。除此之外，我们还要告诉它第一个渲染目标的格式。<code class="notranslate" translate="no">render target</code>指的是我们要渲染的纹理。创建管道后，我们必须指定该管道最终渲染到的纹理的格式。</p>
+<p><code class="notranslate" translate="no">targets</code>数组第 0 号元素与我们为片段着色器的返回值指定的位置 0 相对应。稍后，我们将该目标设置为画布的纹理。</p>
+<p>接下来我们准备一个 <code class="notranslate" translate="no">GPURenderPassDescriptor</code>，它描述了我们要绘制的纹理以及如何使用它们。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const renderPassDescriptor = {
+    label: 'our basic canvas renderPass',
+    colorAttachments: [
+        {
+            // view: &lt;- to be filled out when we render
+            clearValue: [0.3, 0.3, 0.3, 1],
+            loadOp: 'clear',
+            storeOp: 'store',
+        },
+    ],
+};
+</pre>
+<p><code class="notranslate" translate="no">GPURenderPassDescriptor</code> 有一个 <code class="notranslate" translate="no">colorAttachments</code> 数组，其中列出了我们要渲染的纹理以及如何处理它们。我们将等待填入实际要渲染的纹理。目前，我们设置了一个半深灰色的清除值，以及一个<code class="notranslate" translate="no">loadOp</code>和<code class="notranslate" translate="no">storeOp</code>。<code class="notranslate" translate="no">loadOp: clear</code> 指定在绘制前将纹理清除为<code class="notranslate" translate="no">clearValue</code>。另一个选项是 <code class="notranslate" translate="no">load</code>，意思是将纹理的现有内容加载到 GPU 中，这样我们就可以在已有内容上绘图了。<code class="notranslate" translate="no">storeOp: 'store'</code>表示存储绘制结果。我们也可以通过 <code class="notranslate" translate="no">discard</code>来丢弃绘制的结果。我们将在<a href="../webgpu-multisampling.html">另一篇文章</a>中介绍为什么要这样做。</p>
+<p>现在是渲染的时候了。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function render() {
+    // Get the current texture from the canvas context and
+    // set it as the texture to render to.
+    renderPassDescriptor.colorAttachments[0].view = context
+        .getCurrentTexture()
+        .createView();
+
+    // make a command encoder to start encoding commands
+    const encoder = device.createCommandEncoder({ label: 'our encoder' });
+
+    // make a render pass encoder to encode render specific commands
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.draw(3); // call our vertex shader 3 times
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+}
+
+render();
+</pre>
+<p>首先，我们调用 <code class="notranslate" translate="no">context.getCurrentTexture()</code> 获取将出现在画布中的纹理。调用 <code class="notranslate" translate="no">createView</code> 可获取纹理特定部分的视图，但如果没有参数，它将返回默认部分，而这正是我们在本例中想要的。目前，我们唯一的 <code class="notranslate" translate="no">colorAttachment</code> 是画布中的纹理视图，我们通过开始时创建的上下文来获取该视图。同样，<code class="notranslate" translate="no">colorAttachments</code> 数组第 0 号元素与我们为片段着色器的返回值指定的 <code class="notranslate" translate="no">@location(0)</code> 相对应。</p>
+<p>接下来，我们创建一个命令编码器。命令编码器用于创建命令缓冲区。我们用它对命令进行编码，然后 "提交 "它创建的命令缓冲区以执行命令。</p>
+<p>然后，我们通过调用 <code class="notranslate" translate="no">beginRenderPass</code>，使用命令编码器创建一个<code class="notranslate" translate="no">render pass</code>编码器。<code class="notranslate" translate="no">render pass</code>编码器是一种特定的编码器，用于创建与渲染相关的命令。我们将 <code class="notranslate" translate="no">renderPassDescriptor</code> 传递给它，告诉它我们要渲染到哪个纹理。</p>
+<p>我们对命令 <code class="notranslate" translate="no">setPipeline</code> 进行编码，以设置我们的流水线，然后通过调用 <code class="notranslate" translate="no">draw</code> 3 次 来告诉它执行顶点着色器 3 次。 默认情况下，顶点着色器每执行 3 次，就会通过连接刚从顶点着色器返回的 3 个值来绘制一个三角形。</p>
+<p>我们结束<code class="notranslate" translate="no">render pass</code>，然后完成编码器。这样我们就得到了一个命令缓冲区，它代表了我们刚刚指定的步骤。最后，我们将命令缓冲区提交执行。</p>
+<p>执行<code class="notranslate" translate="no">draw</code>命令时，这将是我们的状态：</p>
+<div class="webgpu_center"><img src="../resources/webgpu-simple-triangle-diagram.svg" style="width: 723px;"></div>
+<p>我们没有<code class="notranslate" translate="no">texture</code>，没有<code class="notranslate" translate="no">buffer</code>，也没有 <code class="notranslate" translate="no">bindGroups</code>，但我们有一个<code class="notranslate" translate="no">pipeline</code>、一个顶点着色器和一个片段着色器，以及一个告诉着色器渲染画布纹理的<code class="notranslate" translate="no">render pass descriptor</code></p>
+<p>结果如下：</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>需要强调的是，我们调用的所有这些函数，如 <code class="notranslate" translate="no">setPipeline</code> 和 <code class="notranslate" translate="no">draw</code>，都只是将命令添加到命令缓冲区。它们实际上并不执行命令。当我们将命令缓冲区提交到设备队列时，命令才会被执行。</p>
+<p><a id="a-rasterization"></a>WebGPU 从顶点着色器中获取每 3 个顶点，并将其光栅化为一个三角形。为此，WebGPU 会确定三角形内的像素中心。然后，WebGPU 会调用片段着色器，询问每个像素的颜色。</p>
+<p>想象一下，我们要渲染的纹理是 15x11 像素。这些像素将被绘制。</p>
+<div class="webgpu_center">
+  <div data-diagram="clip-space-to-texels" style="display: inline-block; max-width: 500px; width: 100%"></div>
+  <div>drag the vertices</div>
+</div>
+<p>现在，我们已经看到了一个非常小的 WebGPU 工作示例。显而易见，在着色器中硬编码三角形并不灵活。我们需要一些提供数据的方法，我们将在接下来的文章中介绍这些方法。从上面的代码中可以看出以下几点：</p>
+<ul>
+<li>WebGPU 只是运行着色器。你可以在其中填充代码，做一些有用的事情</li>
+<li>着色器在着色器模块中指定，然后转化为流水线</li>
+<li>WebGPU 可以绘制三角形</li>
+<li>WebGPU 可绘制纹理（我们恰巧从画布上获取了纹理）</li>
+<li>WebGPU 的工作方式是对命令进行编码，然后提交命令。</li>
+</ul>
+<h1 id="在-gpu-上进行计算"><a id="a-run-computations-on-the-gpu"></a>在 GPU 上进行计算</h1>
+<p>让我们编写一个在 GPU 上进行计算的基本示例</p>
+<p>我们首先使用相同的代码来获取 WebGPU 设备</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
+  const adapter = await gpu?.requestAdapter();
+  const device = await adapter?.requestDevice();
+  if (!device) {
+    fail('need a browser that supports WebGPU');
+    return;
+  }
+</pre>
+<p>当我们创建着色器模块时</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const module = device.createShaderModule({
+    label: 'doubling compute module',
+    code: `
+      @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
+
+      @compute @workgroup_size(1) fn computeSomething(
+        @builtin(global_invocation_id) id: vec3&lt;u32&gt;
+      ) {
+        let i = id.x;
+        data[i] = data[i] * 2.0;
+      }
+    `,
+});
+</pre>
+<p>首先，我们声明一个名为 <code class="notranslate" translate="no">data</code> 的变量，它的类型是<code class="notranslate" translate="no">storage</code>，我们希望它既能被读取，也能被写入。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
+</pre>
+<p>我们将其类型声明为 <code class="notranslate" translate="no">array&lt;f32&gt;</code>，即 32 位浮点数值数组。我们告诉它，我们将在 bindGroup 0（<code class="notranslate" translate="no">@group(0)</code>）中的绑定位置 0（<code class="notranslate" translate="no">binding(0)</code>）上设置这个<code class="notranslate" translate="no">data</code>数组。</p>
+<p>然后，我们使用 <code class="notranslate" translate="no">@compute</code> 属性声明一个名为 <code class="notranslate" translate="no">computeSomething</code> 的函数，使其成为一个计算着色器。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @compute @workgroup_size(1) fn computeSomething(
+        @builtin(global_invocation_id) id: vec3u
+      ) {
+        ...
+</pre>
+<p>计算着色器需要声明<em>工作组</em>大小，我们稍后会介绍。现在，我们只需使用属性 <code class="notranslate" translate="no">@workgroup_size(1)</code> 将其设置为 1。我们声明它有一个使用 <code class="notranslate" translate="no">vec3u</code> 的参数 <code class="notranslate" translate="no">id</code>。<code class="notranslate" translate="no">vec3u</code> 是三个无符号 32 位整数值。与上面的顶点着色器一样，它是一个迭代数。不同的是，计算着色器的迭代次数是三维的（有 3 个值）。我们声明 <code class="notranslate" translate="no">id</code>以便从内置的 <code class="notranslate" translate="no">global_invocation_id</code> 获取其值。</p>
+<p>你可以把计算着色器<em>想象成</em>是下面这样运行的。虽然过于简化，但现在也可以这么做。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// pseudo code
+function dispatchWorkgroups(width, height, depth) {
+    for (z = 0; z &lt; depth; ++z) {
+        for (y = 0; y &lt; height; ++y) {
+            for (x = 0; x &lt; width; ++x) {
+                const workgroup_id = { x, y, z };
+                dispatchWorkgroup(workgroup_id);
+            }
+        }
+    }
+}
+
+function dispatchWorkgroup(workgroup_id) {
+    // from @workgroup_size in WGSL
+    const workgroup_size = shaderCode.workgroup_size;
+    const { x: width, y: height, z: depth } = workgroup.size;
+    for (z = 0; z &lt; depth; ++z) {
+        for (y = 0; y &lt; height; ++y) {
+            for (x = 0; x &lt; width; ++x) {
+                const local_invocation_id = { x, y, z };
+                const global_invocation_id =
+                    workgroup_id * workgroup_size + local_invocation_id;
+                computeShader(global_invocation_id);
+            }
+        }
+    }
+}
+</pre>
+<p>由于我们设置了 <code class="notranslate" translate="no">@workgroup_size(1)</code>，上面的伪代码实际上就变成了</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// pseudo code
+function dispatchWorkgroups(width, height, depth) {
+    for (z = 0; z &lt; depth; ++z) {
+        for (y = 0; y &lt; height; ++y) {
+            for (x = 0; x &lt; width; ++x) {
+                const workgroup_id = { x, y, z };
+                dispatchWorkgroup(workgroup_id);
+            }
+        }
+    }
+}
+
+function dispatchWorkgroup(workgroup_id) {
+    const global_invocation_id = workgroup_id;
+    computeShader(global_invocation_id);
+}
+</pre>
+<p>最后，我们使用 <code class="notranslate" translate="no">id</code> 的 <code class="notranslate" translate="no">x</code> 属性对数据进行索引，并将每个值乘以 2</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let i = id.x;
+        data[i] = data[i] * 2.0;
+</pre>
+<p>上面，i 是 3 个迭代数中的第一个。</p>
+<p>现在我们已经创建了着色器，需要创建一个流水线</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const pipeline = device.createComputePipeline({
+    label: 'doubling compute pipeline',
+    layout: 'auto',
+    compute: {
+        module,
+        entryPoint: 'computeSomething',
+    },
+});
+</pre>
+<p>在这里，我们只需告诉它，我们正在使用我们创建的着色器模块中的<code class="notranslate" translate="no">compute</code>阶段，并希望调用 <code class="notranslate" translate="no">computeSomething</code> 函数。 layout 还是 “auto”，告诉 WebGPU 从着色器中找出布局。<sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup></p>
+<p>接下来我们需要一些数据</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const input = new Float32Array([1, 3, 5]);
+</pre>
+<p>这些数据只存在于 JavaScript 中。要使用 WebGPU，我们需要在 GPU 上创建一个缓冲区，并将数据复制到缓冲区中。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// create a buffer on the GPU to hold our computation
+// input and output
+const workBuffer = device.createBuffer({
+    label: 'work buffer',
+    size: input.byteLength,
+    usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
+});
+// Copy our input data to that buffer
+device.queue.writeBuffer(workBuffer, 0, input);
+</pre>
+<p>上面我们调用 <code class="notranslate" translate="no">device.createBuffer</code> 来创建缓冲区。<code class="notranslate" translate="no">size</code> 是以字节为单位的大小，在本例中为 12，因为包含 3 个值的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 的字节大小为 12。如果您不熟悉 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 和类型数组，请<a href="../webgpu-memory-layout.html">参阅本文</a>。</p>
+<p>我们创建的每个 WebGPU 缓冲区都必须指定<code class="notranslate" translate="no">usage</code>。我们可以为用途传递一系列标志，但并非所有标志都能同时使用。在这里，我们通过传递 <code class="notranslate" translate="no">GPUBufferUsage.STORAGE</code> 来表示我们希望将此缓冲区用作<code class="notranslate" translate="no">storage</code>用途。这样就可以与着色器中的 <code class="notranslate" translate="no">var&lt;storage,...&gt;</code> 兼容。此外，我们希望能将数据复制到此缓冲区，因此我们加入了 <code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code> 标志。最后，我们希望能从该缓冲区复制数据，因此加入了 <code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code>。</p>
+<p>请注意，您不能直接从 JavaScript 中读取 WebGPU 缓冲区的内容。相反，您必须 "映射 "它，这是从 WebGPU 请求访问缓冲区的另一种方式，因为缓冲区可能正在使用中，而且可能只存在于 GPU 上。</p>
+<p>可以在 JavaScript 中映射的 WebGPU 缓冲区不能用于其他用途。换句话说，我们无法映射刚刚创建的缓冲区，如果我们尝试添加标记使其可以映射，就会得到一个与使用 <code class="notranslate" translate="no">STORAGE</code> 不兼容的错误信息。</p>
+<p>因此，为了查看计算结果，我们需要另一个缓冲区。运行计算后，我们将把上面的缓冲区复制到这个结果缓冲区，并设置其标志，以便进行映射。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// create a buffer on the GPU to get a copy of the results
+const resultBuffer = device.createBuffer({
+    label: 'result buffer',
+    size: input.byteLength,
+    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
+});
+</pre>
+<p><code class="notranslate" translate="no">MAP_READ</code> 表示我们希望能够映射该缓冲区以读取数据。</p>
+<p>为了告诉着色器我们希望它在哪个缓冲区上工作，我们需要创建一个 bindGroup</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// Setup a bindGroup to tell the shader which
+// buffer to use for the computation
+const bindGroup = device.createBindGroup({
+    label: 'bindGroup for work buffer',
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [{ binding: 0, resource: { buffer: workBuffer } }],
+});
+</pre>
+<p>我们从管道中获取 bindGroup 的布局。然后设置 bindGroup 的<code class="notranslate" translate="no">entries</code>。<code class="notranslate" translate="no">pipeline.getBindGroupLayout(0)</code> 中的 0 对应着着色器中的 <code class="notranslate" translate="no">@group(0)</code>。<code class="notranslate" translate="no">{binding：0 ...</code> <code class="notranslate" translate="no">entry</code>对应着着色器中的 <code class="notranslate" translate="no">@group(0) @binding(0)</code>。</p>
+<p>现在我们可以开始对命令进行编码</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// Encode commands to do the computation
+const encoder = device.createCommandEncoder({
+    label: 'doubling encoder',
+});
+const pass = encoder.beginComputePass({
+    label: 'doubling compute pass',
+});
+pass.setPipeline(pipeline);
+pass.setBindGroup(0, bindGroup);
+pass.dispatchWorkgroups(input.length);
+pass.end();
+</pre>
+<p>我们创建一个命令编码器。启动<code class="notranslate" translate="no">compute pass</code>。我们设置管道，然后设置 bindGroup。这里，<code class="notranslate" translate="no">pass.setBindGroup(0, bindGroup)</code> 中的 0 对应着着色器中的 <code class="notranslate" translate="no">@group(0)</code>。然后，我们调用 <code class="notranslate" translate="no">dispatchWorkgroups</code>，在本例中，我们将 <code class="notranslate" translate="no">input.length</code> 设为 <code class="notranslate" translate="no">3</code>，告诉 WebGPU 运行计算着色器 3 次。然后结束<code class="notranslate" translate="no">compute pass</code>。</p>
+<p>下面是执行 <code class="notranslate" translate="no">dispatchWorkgroups</code> 时的情况</p>
+<div class="webgpu_center"><img src="../resources/webgpu-simple-compute-diagram.svg" style="width: 553px;"></div>
+<p>计算完成后，我们要求 WebGPU 从 <code class="notranslate" translate="no">workBuffer</code> 复制到 <code class="notranslate" translate="no">resultBuffer</code></p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// Encode a command to copy the results to a mappable buffer.
+encoder.copyBufferToBuffer(workBuffer, 0, resultBuffer, 0, resultBuffer.size);
+</pre>
+<p>现在，我们可以完成编码器以获取命令缓冲区，然后提交该命令缓冲区。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// Finish encoding and submit the commands
+const commandBuffer = encoder.finish();
+device.queue.submit([commandBuffer]);
+</pre>
+<p>然后，我们映射结果缓冲区并获取数据副本</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// Read the results
+await resultBuffer.mapAsync(GPUMapMode.READ);
+const result = new Float32Array(resultBuffer.getMappedRange());
+
+console.log('input', input);
+console.log('result', result);
+
+resultBuffer.unmap();
+</pre>
+<p>要映射结果缓冲区，我们需要调用 <code class="notranslate" translate="no">mapAsync</code> 并需要使用<code class="notranslate" translate="no">await</code>等待其完成。映射完成后，我们可以调用 <code class="notranslate" translate="no">resultBuffer.getMappedRange()</code>（无参数），它将返回整个缓冲区的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>。我们将其放入 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 类型的数组视图中，然后就可以查看数值了。一个重要的细节是，getMappedRange 返回的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> 仅在调用 <code class="notranslate" translate="no">unmap</code> 之前有效。在<code class="notranslate" translate="no">unmap</code>之后，其长度将被设置为 0，数据也不再可访问。</p>
+<p>运行后，我们可以看到结果已经返回，所有数字都翻了一番。</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-compute.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-compute.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>我们将在其他文章中介绍如何真正使用计算着色器。现在，希望你已经对 WebGPU 的作用有了一些了解。其他一切都取决于你！WebGPU 与其他编程语言类似。它提供了一些基本功能，剩下的就看你的创造力了。</p>
+<p>WebGPU 编程的特别之处在于这些功能（顶点着色器、片段着色器和计算着色器）都在 GPU 上运行。GPU 可以有超过 10000 个处理器，这意味着它们可以并行进行超过 10000 次计算，这可能比 CPU 的并行计算能力高出 3 个或更多数量级。</p>
+<h2 id="简要调整画布大小">简要调整画布大小</h2>
+<p>在继续之前，让我们回到三角形绘制示例，并为调整画布大小添加一些基本支持。画布大小的调整实际上是一个有很多微妙之处的话题，因此<a href="../webgpu-resizing-the-canvas.html">有一整篇文章</a>来讨论这个问题。现在，我们只需添加一些基本支持。</p>
+<p>首先，我们要添加一些 CSS，使画布填满页面。</p>
+<pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;style&gt;
+    html,
+    body {
+        margin: 0; /* remove the default margin          */
+        height: 100%; /* make the html,body fill the page   */
+    }
+    canvas {
+        display: block; /* make the canvas act like a block   */
+        width: 100%; /* make the canvas fill its container */
+        height: 100%;
+    }
+&lt;/style&gt;
+</pre>
+<p>单凭 CSS 就能让画布显示覆盖整个页面，但它不会改变画布本身的分辨率，所以如果将下面的示例放大，比如点击全屏按钮，你可能会发现三角形的边缘是块状的。</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-with-canvas-css.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-with-canvas-css.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p><code class="notranslate" translate="no">&lt;canvas&gt;</code> 标签的默认分辨率为 300x150 像素。我们希望调整画布的分辨率，使其与显示的尺寸相匹配。一个很好的方法就是使用 <code class="notranslate" translate="no">ResizeObserver</code>。您可以创建一个 <code class="notranslate" translate="no">ResizeObserver</code>，并给它一个函数，每当您要求它观察的元素尺寸发生变化时，就调用该函数。然后告诉它要观察哪些元素。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    ...
+-    render();
+
++    const observer = new ResizeObserver(entries =&gt; {
++      for (const entry of entries) {
++        const canvas = entry.target;
++        const width = entry.contentBoxSize[0].inlineSize;
++        const height = entry.contentBoxSize[0].blockSize;
++        canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
++        canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
++        // re-render
++        render();
++      }
++    });
++    observer.observe(canvas);
+</pre>
+<p>在上面的代码中，我们查看了所有条目，但应该只有一个，因为我们只观察画布。我们需要将画布的大小限制在设备支持的最大尺寸内，否则 WebGPU 将开始生成错误，提示我们试图制作过大的纹理。我们还需要确保它不会归零，否则同样会出错。详情请参见<a href="../webgpu-resizing-the-canvas.html">另一篇更长的文章</a>。</p>
+<p>我们调用 <code class="notranslate" translate="no">render</code> 以新的分辨率重新渲染三角形。我们删除了对 <code class="notranslate" translate="no">render</code> 的旧调用，因为不需要它。<code class="notranslate" translate="no">ResizeObserver</code> 总是会至少调用一次回调，以报告元素开始被观察时的大小。</p>
+<p>当我们在 <code class="notranslate" translate="no">render</code> 中调用 <code class="notranslate" translate="no">context.getCurrentTexture()</code> 时，就会创建新大小的纹理，因此没有什么可做的了。</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-with-canvas-resize.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-with-canvas-resize.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>在以下文章中，我们将介绍向着色器传递数据的各种方法。</p>
+<ul>
+<li><a href="../webgpu-inter-stage-variables.html">inter-stage variables</a></li>
+<li><a href="../webgpu-uniforms.html">uniforms</a></li>
+<li><a href="../webgpu-storage-buffers.html">storage buffers</a></li>
+<li><a href="../webgpu-vertex-buffers.html">vertex buffers</a></li>
+<li><a href="../webgpu-textures.html">textures</a></li>
+<li><a href="../webgpu-constants.html">constants</a></li>
+</ul>
+<p>我们接着介绍 <a href="../webgpu-wgsl.html">WGSL 的基础知识</a>。</p>
+<p>这个顺序从最简单到最复杂。<code class="notranslate" translate="no">inter-stage</code>不需要外部设置来解释。我们只需更改上面使用的 WGSL，就能知道如何使用它们。<code class="notranslate" translate="no">uniform</code>实际上是全局变量，因此可用于所有三种着色器（顶点、片段和计算）。从<code class="notranslate" translate="no">uniform</code>到<code class="notranslate" translate="no">storage buffer</code>的转换非常简单，如文章顶部的<code class="notranslate" translate="no">storage buffer</code>所示。<code class="notranslate" translate="no">vertex buffer</code>仅用于顶点着色器。它们更为复杂，因为需要向 WebGPU 描述数据布局。<code class="notranslate" translate="no">texture</code>最为复杂，因为它们有大量类型和选项。</p>
+<p>我有点担心这些文章一开始会很无聊。如果你愿意，可以随意跳读。请记住，如果你有不明白的地方，你可能需要阅读或复习这些基础知识。一旦我们掌握了基础知识，我们就会开始讲解实际的技术。</p>
+<p>还有一件事。所有示例程序都可以在网页中进行实时编辑。此外，它们都可以轻松导出到 <a href="https://jsfiddle.net">jsfiddle</a> 和 <a href="https://codepen.io">codepen</a>，甚至 <a href="https://stackoverflow.com">stackoverflow</a>。只需点击 "导出 "即可。</p>
+<div class="webgpu_bottombar">
+<p>
+</p><p>上面的代码以非常简洁的方式获取 WebGPU 设备。一种更啰嗦的方式是：</p>
+<p></p>
+<pre class="prettyprint showmods">async function start() {
+  if (!navigator.gpu) {
+    fail('this browser does not support WebGPU');
+    return;
+  }
+
+const adapter = await navigator.gpu.requestAdapter();
+if (!adapter) {
+fail('this browser supports webgpu but it appears disabled');
+return;
+}
+
+const device = await adapter?.requestDevice();
+device.lost.then((info) =&gt; {
+console.error(`WebGPU device was lost: ${info.message}`);
+
+    // 'reason' will be 'destroyed' if we intentionally destroy the device.
+    if (info.reason !== 'destroyed') {
+      // try again
+      start();
+    }
+
+});
+
+main(device);
+}
+start();
+
+function main(device) {
+... do webgpu ...
+}
+</pre>
+<p>
+<code class="notranslate" translate="no">device.lost</code> 是一个unresolved的Promise。如果设备丢失，它就会变为resolved。设备丢失的原因有很多。也许用户运行了一个非常密集的应用程序，导致 GPU 崩溃。也许用户更新了驱动程序。也许用户有一个外置 GPU，但拔掉了。也许另一个页面使用了大量 GPU，而你的标签页在后台，浏览器决定通过丢失后台标签页的设备来释放一些内存。需要注意的是，对于任何重要的应用程序，你可能都希望能处理丢失设备的问题。
+</p>
+<p>
+请注意，<code class="notranslate" translate="no">requestDevice</code> 始终会返回一个设备。只是开始时可能会丢失。WebGPU 的设计使设备在大多数情况下都能正常工作，至少从 API 层面来看是这样。创建和使用设备的调用看起来会成功，但实际上并不能运行。当<code class="notranslate" translate="no">lost</code>promise变为resolved后，您就可以采取一些措施了。
+</p>
+</div>
+<!-- keep this at the bottom of the article -->
+<script type="module" src="../webgpu-fundamentals.js"></script>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>有以下 5 种模式：</p>
+<ul>
+<li><code class="notranslate" translate="no">'point-list'</code>: 对于每个顶点，绘制一个点</li>
+<li><code class="notranslate" translate="no">'line-list'</code>: 每 2 个点绘制一条线</li>
+<li><code class="notranslate" translate="no">'line-strip'</code>: 绘制最新点与前一点的连接线</li>
+<li><code class="notranslate" translate="no">'triangle-list'</code>: 每 3 个点绘制一个三角形 (<strong>默认</strong>)</li>
+<li><code class="notranslate" translate="no">'triangle-strip'</code>: 对于每个新位置，从它和最后 2 个位置中画出一个三角形</li>
+</ul>
+ <a href="#fnref1" class="footnote-backref">↩︎</a></li>
+<li id="fn2" class="footnote-item"><p>片段着色器间接将数据写入纹理。这些数据不一定是颜色。例如，输出像素所代表表面的方向向量是一种很常见的场景。 <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p>纹理也可以是 3d 矩形像素、立方体贴图（由 6 个正方形像素组成的立方体）和其他一些东西，但最常见的纹理是 2d 矩形像素。 <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn4" class="footnote-item"><p>我们还可以使用索引缓冲区来指定顶点索引。<a href="../webgpu-vertex-buffers.html#a-index-buffers">有关顶点缓冲区的文章</a>对此进行了介绍。︎ <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code>很方便，但使用 <code class="notranslate" translate="no">layout: 'auto'</code> 布局无法在不同管道中共享绑定组。本网站上的大多数示例从未在多个管道中使用过绑定组。我们将在另一篇文章中介绍<a href="../webgpu-drawing-multiple-things.html">显式布局</a>。︎ <a href="#fnref5" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
@@ -195,7 +857,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>基础概念</li>
+        <div id="toc">
+          <ul>  <li>基础概念</li>
         <ul>
           <li><a href="/webgpu/lessons/zh_cn/webgpu-fundamentals.html">Fundamentals</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html">Inter-stage Variables</a></li>
@@ -212,7 +875,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/zh_cn/webgpu-wgsl.html">WGSL</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-how-it-works.html">How It Works</a></li>
         </ul>
-  <li>3D Math</li>
+  <li>3D数学</li>
         <ul>
           <li><a href="/webgpu/lessons/zh_cn/webgpu-translation.html">Translation</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-rotation.html">Rotation</a></li>
@@ -224,7 +887,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/zh_cn/webgpu-matrix-stacks.html">Matrix Stacks</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-scene-graphs.html">Scene Graphs</a></li>
         </ul>
-  <li>Compute Shaders</li>
+  <li>计算着色器</li>
         <ul>
           <li><a href="/webgpu/lessons/zh_cn/webgpu-compute-shaders.html">Compute Shader Basics</a></li>
         </ul>
@@ -244,10 +907,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://webgpureport.org">WebGPUReport.org</a></li>
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>有疑问? <a href="https://stackoverflow.com/questions/tagged/webgpu">在stackoverflow上提问</a>.</div>
+<div>Issue/Bug? <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues">在GitHub上提issue</a>.</div>
+<div class="lesson-comment-notes">
+   使用 <b>&lt;pre&gt;&lt;code&gt;</b> 代码 <b>&lt;/code&gt;&lt;/pre&gt;</b> 的格式编写代码块
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU 基础`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "感谢 <a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a><br>的 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 次贡献</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
 <script src="/webgpu/lessons/resources/lesson.js"></script>

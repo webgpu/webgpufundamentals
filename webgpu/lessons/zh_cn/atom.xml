@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id/>
-    <title>WebGPU 기초</title>
+    <title>WebGPU 理论基础</title>
     <updated>2023-09-13T16:15:53.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <author>
         <name>webgpufundamentals Contributors</name>
         <uri>https://webgpufundamentals.org/contributors.html</uri>
     </author>
-    <link rel="alternate" href="https://webgpufundamentals.org/webgpu/lessons/ko"/>
-    <subtitle>WebGPU 기초를 배워봅시다.</subtitle>
+    <link rel="alternate" href="https://webgpufundamentals.org/webgpu/lessons/zh_cn"/>
+    <subtitle>从理论基础开始学习WebGPU, 并不复杂哦~</subtitle>
     <logo>https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg</logo>
     <entry>
-        <title type="html"><![CDATA[WebGPU 컴퓨트 셰이더 기초]]></title>
-        <id>https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-compute-shaders.html</id>
-        <link href="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-compute-shaders.html"/>
+        <title type="html"><![CDATA[WebGPU 基础]]></title>
+        <id>https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-fundamentals.html</id>
+        <link href="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-fundamentals.html"/>
         <updated>2023-09-13T16:15:53.000Z</updated>
         <author>
             <name>webgpufundamentals Contributors</name>

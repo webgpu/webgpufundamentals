@@ -22,5 +22,8 @@
   categoryMapping: {
     'basics': "基础概念",
     'misc': "杂项",
+    '3d-math': '3D数学',
+    'reference': '参考',
+    'compute-shaders': '计算着色器',
   },
 }
