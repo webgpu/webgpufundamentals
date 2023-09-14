@@ -119,7 +119,7 @@ The site is built into the `out` folder
 Steps
 
     git clone https://github.com/gfxfundamentals/webgpufundamentals.git
-    npm install
+    npm ci
     npm run build
     npm start
 
