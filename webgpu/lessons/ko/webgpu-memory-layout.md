@@ -359,4 +359,4 @@ myUniformValues.set({
 만약, 수동으로 계산하고자 한다면, [여기에 오프셋을 계산해주는 페이지](resources/wgsl-offset-computer.html)가 있습니다.
 
 <!-- keep this at the bottom of the article -->
-<script type="module" src="./../webgpu-memory-layout.js"></script>
+<script type="module" src="webgpu-memory-layout.js"></script>
