@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/webgpu-memory-layout.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,70 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="ko"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Data Memory Layout">
+
+<meta name="description" content="WebGPU를 위한 데이터 메모리 레이아웃과 준비 방법">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-memory-layout_ko.jpg">
+
+<meta property="og:title" content="WebGPU 데이터 메모리 레이아웃">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="How to layout and prepare data for WebGPU">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-memory-layout_ko.jpg">
+<meta property="og:description" content="WebGPU를 위한 데이터 메모리 레이아웃과 준비 방법">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-memory-layout.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Data Memory Layout">
+<meta name="twitter:title" content="WebGPU 데이터 메모리 레이아웃">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-memory-layout.html">
-<meta name="twitter:description" content="How to layout and prepare data for WebGPU">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="WebGPU를 위한 데이터 메모리 레이아웃과 준비 방법">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-memory-layout_ko.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-memory-layout.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-memory-layout_ko.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-memory-layout.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-memory-layout.html",
+      "inLanguage":"ko",
+      "name":"WebGPU 데이터 메모리 레이아웃",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-memory-layout.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Data Memory Layout</title>
+<title>WebGPU 데이터 메모리 레이아웃</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -175,13 +218,312 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Data Memory Layout</h1>
+    <h1>WebGPU 데이터 메모리 레이아웃</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>죄송합니다. 이 글은 아직 번역이 되지 않았습니다.</p>
-<p><a href="https://github.com/gfxfundamentals/webgpufundamentals">번역을 도와주세요</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-memory-layout.html">여기서 원문을 볼 수 있습니다</a>.</p>
+      <p>WebGPU에서는 거의 모든 데이터가 셰이더에서 정의한 것과 일치하도록 메모리에 배치되어야 합니다.
+이는 JavaScript와 TypeScript에서는 메모리 레이아웃 문제가 거의 발생하지 않는다는 점에서 큰 차이점입니다.</p>
+<p>WGSL에서는 여러분이 셰이더를 작성할 때, <code class="notranslate" translate="no">struct</code>(구조체)를 정의하는 것이 일반적입니다.
+구조체는 JavaScript의 객체와 유사하며, JavaScript 객체의 프로퍼티를 선언하는 것과 유사하게 구조체의 멤버를 선언합니다.
+그러나, 각 프로퍼티에 이름을 지정하는 것 외에도 타입을 지정해야 합니다.
+<strong>또한</strong>, 데이터를 제공할 때 <strong>여러분이 직접</strong> 버퍼에서 구조체의 특정 멤버가 나타나는 위치를 계산해야 합니다.</p>
+<p><a href="../webgpu-wgsl.html">WGSL</a> v1에서는 4가지 기본 타입이 있습니다.</p>
+<ul>
+<li><code class="notranslate" translate="no">f32</code> (32비트 부동 소수점) - 32bit floating point number</li>
+<li><code class="notranslate" translate="no">i32</code> (32비트 정수) - 32bit integer</li>
+<li><code class="notranslate" translate="no">u32</code> (32비트 부호 없는 정수) - 32bit unsigned integer</li>
+<li><code class="notranslate" translate="no">f16</code> (16비트 부동 소수점) - 16bit floating point number <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></li>
+</ul>
+<p>1바이트(byte)는 8비트(bit)입니다. 따라서 32비트는 4바이트를, 16비트는 2바이트를 차지합니다.</p>
+<p>만약에 다음과 같은 구조체를 선언했다고 합시다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct OurStruct {
+  velocity: f32,
+  acceleration: f32,
+  frameCount: u32,
+};
+</pre>
+<p>이 구조체를 시각적으로 나타내보면 다음과 같습니다.</p>
+<div class="webgpu_center" data-diagram="ourStructV1"></div>
+<p>각각의 네모 블럭은 1바이트입니다. 따라서 위 그림의 데이터는 총 12바이트를 차지합니다.
+<code class="notranslate" translate="no">velocity</code>는 처음의 4바이트, <code class="notranslate" translate="no">acceleration</code>은 그 다음 4바이트, <code class="notranslate" translate="no">frameCount</code>가 마지막의 4바이트를 차지합니다.</p>
+<p>셰이더에 데이터를 넘기기 위해서, 우리는 <code class="notranslate" translate="no">OurStruct</code>의 메모리 레이아웃과 일치하도록 데이터를 준비해야 합니다.
+이를 위해서는 12바이트의 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>를 만들고, 올바른 타입의 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> 뷰를 설정하여 채워 넣어야 합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const kOurStructSizeBytes =
+  4 + // velocity
+  4 + // acceleration
+  4 ; // frameCount
+const ourStructData = new ArrayBuffer(kOurStructSizeBytes);
+const ourStructValuesAsF32 = new Float32Array(ourStructData);
+const ourStructValuesAsU32 = new Uint32Array(ourStructData);
+</pre>
+<p>위에서, <code class="notranslate" translate="no">ourStructData</code>는 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>로 메모리의 한 덩어리입니다.
+이 메모리의 내용을 확인하기 위해서는 뷰를 만들어야 합니다.
+<code class="notranslate" translate="no">ourStructValuesAsF32</code>는 메모리를 32비트 부동 소수점 값으로 보는 뷰입니다.
+<code class="notranslate" translate="no">ourStructDataAsU32</code>는 <strong>동일한 메모리</strong>를 32비트 부호 없는 정수 값으로 보는 뷰입니다.</p>
+<p>이제 저희는 하나의 버퍼와 2개의 뷰를 가지고 있습니다. 이제 구조체의 데이터를 설정할 수 있습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const kVelocityOffset = 0;
+const kAccelerationOffset = 1;
+const kFrameCountOffset = 2;
+
+ourStructValuesAsF32[kVelocityOffset] = 1.2;
+ourStructValuesAsF32[kAccelerationOffset] = 3.4;
+ourStructValuesAsU32[kFrameCountOffset] = 56;    // 정수값
+</pre>
+<p>유의할 것은, 이를 수행하기 위한 방법에는 수많은 방법이 존재한다는 겁니다.
+<code class="notranslate" translate="no">TypeArray</code>의 생성자는 다양한 형태를 가질 수 있습니다.</p>
+<p>예를 들어 아래와 같습니다.</p>
+<ul>
+<li>
+<p><code class="notranslate" translate="no">new Float32Array(12)</code></p>
+<p>이는 <strong>새로운</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>를 만듭니다. 이 경우 12 * 4바이트의 크기를 가집니다. 그리고 이를 보기 위한 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>를 만듭니다.</p>
+</li>
+<li>
+<p><code class="notranslate" translate="no">new Float32Array([4, 5, 6])</code></p>
+<p>이는 <strong>새로운</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>를 만듭니다. 이 경우 3 * 4바이트의 크기를 가집니다. 그리고 이를 보기 위한 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>를 만듭니다. 그리고 초기값을 4, 5, 6으로 설정합니다.</p>
+<p>다른 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>도 전달할 수 있다는 점에 유의하세요. 예를 들어</p>
+<p><code class="notranslate" translate="no">new Float32Array(someUint8ArrayOf6Values)</code>는 <strong>새로운</strong> 6 * 4 바이트의 크기를 갖는 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>를 만들고, 이를 보기 위한 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>를 만듭니다. 그리고는 기존 뷰에서 새로운 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>로 값을 복사합니다. 이 값들은 이진값으로 복사되는 것이 아니라, 숫자로 복사됩니다. 즉, 다음과 같습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">srcArray.forEach((v, i) =&gt; dstArray[i] = v);
+</pre>
+</li>
+<li>
+<p><code class="notranslate" translate="no">new Float32Array(someArrayBuffer)</code></p>
+<p>이건 저희가 이전에 사용해봤습니다. <strong>기존에 있던 버퍼</strong>를 보기 위한 새로운 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 뷰를 만듭니다.</p>
+</li>
+<li>
+<p><code class="notranslate" translate="no">new Float32Array(someArrayBuffer, byteOffset)</code></p>
+<p>이는 <strong>기존에 있던 버퍼</strong>를 보기 위한 새로운 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 뷰를 만듭니다. 그러나 <code class="notranslate" translate="no">byteOffset</code>에서부터 시작합니다.</p>
+</li>
+<li>
+<p><code class="notranslate" translate="no">new Float32Array(someArrayBuffer, byteOffset, length)</code></p>
+<p>이는 <strong>기존에 있던 버퍼</strong>를 보기 위한 새로운 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 뷰를 만듭니다. 뷰는 <code class="notranslate" translate="no">byteOffset</code>에서 시작하고, <code class="notranslate" translate="no">length</code>만큼의 크기를 갖습니다. 예를 들어, <code class="notranslate" translate="no">length</code>에 3을 전달하면 뷰는 3개의 f32 값(=12바이트)을 갖습니다.</p>
+</li>
+</ul>
+<p>이 마지막 형태를 사용하면 위쪽의 코드를 다음과 같이 변경할 수 있습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const kOurStructSizeBytes =
+  4 + // velocity
+  4 + // acceleration
+  4 ; // frameCount
+const ourStructData = new ArrayBuffer(kOurStructSizeBytes);
+const velocityView = new Float32Array(ourStructData, 0, 1);
+const accelerationView = new Float32Array(ourStructData, 4, 1);
+const frameCountView = new Uint32Array(ourStructData, 8, 1);
+
+velocityView[0] = 1.2;
+accelerationView[0] = 3.4;
+frameCountView[0] = 56;
+</pre>
+<p>여기에, 모든 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>는 다음과 같은 프로퍼티를 가집니다.</p>
+<ul>
+<li><code class="notranslate" translate="no">length</code>: 요소의 개수</li>
+<li><code class="notranslate" translate="no">byteLength</code>: 바이트 기반의 크기</li>
+<li><code class="notranslate" translate="no">byteOffset</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>에 대한 <code class="notranslate" translate="no">TypeArray</code>의 오프셋</li>
+<li><code class="notranslate" translate="no">buffer</code>: 이 <code class="notranslate" translate="no">TypeArray</code>가 바라보고 있는 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a></li>
+</ul>
+<p>그리고 <code class="notranslate" translate="no">TypeArray</code>는 여러 메서드를 갖고 있습니다.
+많은 메서드들은 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array"><code class="notranslate" translate="no">Array</code></a>에 있는 것과 유사하지만, <code class="notranslate" translate="no">subarray</code>는 그렇지 않습니다.
+이는 동일한 타입의 새로운 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> 뷰를 만듭니다.
+파라미터는 <code class="notranslate" translate="no">subarray(begin, end)</code>이며, <code class="notranslate" translate="no">end</code>는 포함되지 않습니다.
+따라서 <code class="notranslate" translate="no">someTypedArray.subarray(5, 10)</code>은 <code class="notranslate" translate="no">someTypedArray</code>의 5부터 9까지의 요소로 <strong>동일한</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>를 갖는 새로운 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>를 만듭니다.</p>
+<p>따라서 위의 코드를 다음과 같이 변경할 수 있습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const kOurStructSizeFloat32Units =
+  1 + // velocity
+  1 + // acceleration
+  1 ; // frameCount
+const ourStructDataAsF32 = new Float32Array(kOurStructSizeFloat32Units);
+const ourStructDataAsU32 = new Uint32Array(ourStructDataAsU32);
+const velocityView = ourStructDataAsF32.subarray(0, 1);
+const accelerationView = ourStructDataAsF32.subarray(1, 2);
+const frameCountView = ourStructDataAsU32(ourStructData, 2, 3);
+
+velocityView[0] = 1.2;
+accelerationView[0] = 3.4;
+frameCountView[0] = 56;
+</pre>
+<p><a href="../webgpu-wgsl.html">WGSL</a>는 4개의 기본 타입에서 비롯된 여러 타입들을 갖고 있습니다.
+아래처럼요.</p>
+<div class="webgpu_center data-table">
+  <div>
+  <style>
+    .wgsl-types tr:nth-child(5n) { height: 1em };
+  </style>
+  <table class="wgsl-types">
+    <thead>
+      <tr><th>type</th><th>description</th><th>short name</th></tr><tr>
+    </tr></thead>
+    <tbody>
+      <tr><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">f32</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec2&lt;u32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">u32</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec2u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec2&lt;i32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">i32</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec2i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec2&lt;f16&gt;</code></td><td>2개의 <code class="notranslate" translate="no">f16</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec2h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">vec3&lt;f32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">f32</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec3f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec3&lt;u32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">u32</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec3u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec3&lt;i32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">i32</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec3i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec3&lt;f16&gt;</code></td><td>3개의 <code class="notranslate" translate="no">f16</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec3h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">f32</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec4&lt;u32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">u32</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec4u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec4&lt;i32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">i32</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec4i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec4&lt;f16&gt;</code></td><td>4개의 <code class="notranslate" translate="no">f16</code>를 갖는 타입</td><td><code class="notranslate" translate="no">vec4h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x2&lt;f32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec2&lt;f32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x2&lt;u32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec2&lt;u32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x2u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x2&lt;i32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec2&lt;i32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x2i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x2&lt;f16&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec2&lt;f16&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x2h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x3&lt;f32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec3&lt;f32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x3f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x3&lt;u32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec3&lt;u32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x3u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x3&lt;i32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec3&lt;i32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x3i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x3&lt;f16&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec3&lt;f16&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x3h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x4&lt;f32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x4&lt;u32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec4&lt;u32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x4u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x4&lt;i32&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec4&lt;i32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x4i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x4&lt;f16&gt;</code></td><td>2개의 <code class="notranslate" translate="no">vec4&lt;f16&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat2x4h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x2&lt;f32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec2&lt;f32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x2&lt;u32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec2&lt;u32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x2u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x2&lt;i32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec2&lt;i32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x2i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x2&lt;f16&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec2&lt;f16&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x2h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x3&lt;f32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec3&lt;f32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x3f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x3&lt;u32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec3&lt;u32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x3u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x3&lt;i32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec3&lt;i32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x3i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x3&lt;f16&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec3&lt;f16&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x3h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x4&lt;f32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x4&lt;u32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec4&lt;u32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x4u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x4&lt;i32&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec4&lt;i32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x4i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x4&lt;f16&gt;</code></td><td>3개의 <code class="notranslate" translate="no">vec4&lt;f16&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat3x4h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x2&lt;f32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec2&lt;f32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x2&lt;u32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec2&lt;u32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x2u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x2&lt;i32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec2&lt;i32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x2i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x2&lt;f16&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec2&lt;f16&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x2h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x3&lt;f32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec3&lt;f32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x3f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x3&lt;u32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec3&lt;u32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x3u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x3&lt;i32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec3&lt;i32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x3i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x3&lt;f16&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec3&lt;f16&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x3h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x4&lt;f32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x4&lt;u32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec4&lt;u32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x4u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x4&lt;i32&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec4&lt;i32&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x4i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x4&lt;f16&gt;</code></td><td>4개의 <code class="notranslate" translate="no">vec4&lt;f16&gt;</code>를 갖는 행렬</td><td><code class="notranslate" translate="no">mat4x4h</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+<p>하나의 <code class="notranslate" translate="no">vec3f</code>는 3개의 <code class="notranslate" translate="no">f32</code>를 갖는 타입이고, <code class="notranslate" translate="no">mat4x4f</code>는 <code class="notranslate" translate="no">f32</code>의 4x4 행렬이므로, 16개의 <code class="notranslate" translate="no">f32</code>를 갖습니다.
+그렇다면 다음과 같은 구조체는 메모리에서 어떻게 보일까요?</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Ex2 {
+  scale: f32,
+  offset: vec3f,
+  projection: mat4x4f,
+};
+</pre>
+<p>답을 아시겠나요?</p>
+<div class="webgpu_center" data-diagram="ourStructEx2"></div>
+<p>무슨 일이 있는 걸까요? 사실 모든 타입에는 요구되는 정렬(align)이 있습니다.
+주어진 타입에는 특정 바이트의 배수로 정렬되어야 합니다.</p>
+<p>다음은 다양한 타입이 갖는 크기와 정렬입니다.</p>
+<div class="webgpu_center data-table" data-diagram="wgslTypeTable" style="width: 95%; columns: 14em;"></div>
+<p>잠깐만요. 이게 끝이 아닙니다!</p>
+<p>아래 구조체는 어떤 레이아웃을 가질 것 같나요?</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Ex3 {
+  transform: mat3x3f,
+  directions: array&lt;vec3f, 4&gt;,
+};
+</pre>
+<p><code class="notranslate" translate="no">count</code> 개의 요소를 갖는 <code class="notranslate" translate="no">type</code> 배열을 정의하는 <code class="notranslate" translate="no">array&lt;type, count&gt;</code> 구문입니다.</p>
+<p>확인해봅시다…</p>
+<div class="webgpu_center" data-diagram="ourStructEx3"></div>
+<p>위에서 보여드린 정렬 테이블을 살펴보면, <code class="notranslate" translate="no">vec3&lt;f32&gt;</code>는 16바이트의 정렬을 갖습니다.
+이는 행렬이나 배열에 있더라도 각각의 <code class="notranslate" translate="no">vec3&lt;f32&gt;</code>가 추가적인 공간을 갖는다는 것을 의미합니다.</p>
+<p>다른 것도 살펴봅시다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Ex4a {
+  velocity: vec3f,
+};
+
+struct Ex4 {
+  orientation: vec3f,
+  size: f32,
+  direction: array&lt;vec3f, 1&gt;,
+  scale: f32,
+  info: Ex4a,
+  friction: f32,
+};
+</pre>
+<div class="webgpu_center" data-diagram="ourStructEx4"></div>
+<p><code class="notranslate" translate="no">size</code>는 <code class="notranslate" translate="no">orientation</code> 바로 뒤에 있는 12바이트에 위치한 반면, 왜 <code class="notranslate" translate="no">scale</code>과 <code class="notranslate" translate="no">friction</code>은 32바이트와 64바이트로 오프셋이 밀렸을까요?</p>
+<p>이는 배열과 구조체가 자신만의 특별한 정렬 규칙을 갖기 때문입니다.
+따라서 오직 하나의 <code class="notranslate" translate="no">vec3f</code>만 가진 배열과 오직 하나의 <code class="notranslate" translate="no">vec3f</code>만 가진 <code class="notranslate" translate="no">Ex4a</code> 구조체는 별도의 룰에 따라 정렬됩니다.</p>
+<h1 id="오프셋과-크기를-계산하는-것은-아주-번거로운-일입니다">오프셋과 크기를 계산하는 것은 아주 번거로운 일입니다!</h1>
+<p>WGSL에서의 데이터 크기와 오프셋을 계산하는 것은 아마도 WebGPU의 가장 큰 고통일 것입니다.
+여러분은 이러한 오프셋을 직접 계산하고, 최신 상태로 유지해야 합니다.
+만약 여러분이 셰이더의 구조체 중간에 멤버를 추가한다면, 여러분은 자바스크립트로 돌아가서 모든 오프셋을 업데이트해야 합니다.
+하나라도 바이트나 길이를 잘못 계산하면, 여러분이 셰이더에 전달하는 데이터는 잘못될 것입니다.
+여러분은 코드를 작성하는 시점에서 에러를 받지 않을 것이지만, 여러분의 셰이더는 잘못된 데이터를 보고할 것입니다.
+여러분의 모델은 그려지지 않을 것이고, 여러분의 계산은 잘못된 결과를 만들 것입니다.</p>
+<p>다행히, 이를 돕기 위한 라이브러리들이 존재합니다.</p>
+<p><a href="https://github.com/greggman/webgpu-utils">webgpu-utils</a>가 그 중 하나입니다.</p>
+<p>WGSL 코드를 제공하면 API가 이 모든 작업을 대신 수행합니다.
+이렇게하면 구조체만 변경하더라도 대부분의 경우, 모든 것이 잘 작동합니다.</p>
+<p>예를 들어, 마지막 예제를 아래처럼 <code class="notranslate" translate="no">webgpu-utils</code>에 전달할 수 있습니다.</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">import {
+  makeShaderDataDefinitions,
+  makeStructuredView,
+} from 'https://greggman.github.io/webgpu-utils/dist/0.x/webgpu-utils.module.js';
+
+const code = `
+struct Ex4a {
+  velocity: vec3f,
+};
+
+struct Ex4 {
+  orientation: vec3f,
+  size: f32,
+  direction: array&lt;vec3f, 1&gt;,
+  scale: f32,
+  info: Ex4a,
+  friction: f32,
+};
+@group(0) @binding(0) var&lt;uniform&gt; myUniforms: Ex4;
+
+...
+`;
+
+const defs = makeShaderDataDefinitions(code);
+const myUniformValues = makeStructuredView(defs.uniforms.myUniforms);
+
+// set으로 일부 값들을 설정합니다.
+myUniformValues.set({
+  orientation: [1, 0, -1],
+  size: 2,
+  direction: [0, 1, 0],
+  scale: 1.5,
+  info: {
+    velocity: [2, 3, 4],
+  },
+  friction: 0.1,
+});
+
+// 이제 필요한 경우에 myUniformValues.buffer를 WebGPU에 전달하면 됩니다.
+</pre>
+<p>이 라이브러리를 사용할지, 다른 것을 사용할지, 아예 사용하지 않을지는 여러분의 선택에 달려있습니다.
+제 경우, 무엇인가 작동하지 않는 이유를 알기 위해 20분, 30분, 60분 동안 고민하다가 결국 수동으로 계산한 오프셋이나 크기가 잘못된 것이 문제였던 일이 많았습니다.
+결국 차라리 라이브러리를 사용하여 이러한 수고를 피하고 싶었습니다.</p>
+<p>만약, 수동으로 계산하고자 한다면, <a href="../resources/wgsl-offset-computer.html">여기에 오프셋을 계산해주는 페이지</a>가 있습니다.</p>
+<!-- keep this at the bottom of the article -->
+<script type="module" src="../webgpu-memory-layout.js"></script>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p><code class="notranslate" translate="no">f16</code> 지원은 <a href="../webgpu-limits-and-features.html">선택적인 기능</a>입니다. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
@@ -195,7 +537,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>기초</li>
+        <div id="toc">
+          <ul>  <li>기초</li>
         <ul>
           <li><a href="/webgpu/lessons/ko/webgpu-fundamentals.html">Fundamentals</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-inter-stage-variables.html">Inter-stage Variables</a></li>
@@ -206,7 +549,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/ko/webgpu-importing-textures.html">Loading Images</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-textures-external-video.html">Using Video</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-constants.html">Constants</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-memory-layout.html">데이터 메모리 레이아웃</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-wgsl.html">WGSL</a></li>
@@ -246,10 +589,53 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
 
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>질문이 있나요? <a href="http://stackoverflow.com/questions/tagged/webgpu">Stack Overflow</a>에 물어보세요.</div>
+<div>
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">제안</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">요청 사항</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">이슈</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">버그</a>
+</div>
+<div class="lesson-comment-notes">
+   코드 블럭의 경우 <b>&lt;pre&gt;&lt;code&gt;</b>코드<b>&lt;/code&gt;&lt;/pre&gt;</b>을 사용하세요.
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU 데이터 메모리 레이아웃`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "<a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a>님<br> 당신의 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 기여에 감사드립니다.</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
 <script src="/webgpu/lessons/resources/lesson.js"></script>
