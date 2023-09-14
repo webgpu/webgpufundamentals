@@ -395,12 +395,12 @@ HTMLの<code class="notranslate" translate="no">&lt;canvas&gt;</code>要素は�
 main();
 </pre>
 <p>上のコードは、見た通りで説明は不要かも知れません。
-まず、<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining"><code class="notranslate" translate="no">?.</code> optional chaining operator</a>を使ってアダプタをリクエストしています。
+まず、<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Optional_chaining"><code class="notranslate" translate="no">?.</code> オプショナルチェーン演算子</a>を使ってアダプタをリクエストしています。
 このため、<code class="notranslate" translate="no">navigator.gpu</code>が存在しない場合、<code class="notranslate" translate="no">adapter</code>はundefinedになります。
-<code class="notranslate" translate="no">navigator.gpu</code>が存在する場合は、<code class="notranslate" translate="no">requestAdapter</code>を呼びます。<code class="notranslate" translate="no">requestAdapter</code>の結果は非同期に帰されるので、<code class="notranslate" translate="no">await</code>する必要があります。アダプタは、特定の１つのGPUを表すものです。デバイスによっては、複数のGPUを持っている場合もあります。</p>
-<p>得られたアダプタから、デバイスを取得します。ここでも<code class="notranslate" translate="no">?</code>を使います。従って、アダプタがundefinedである場合は、デバイスもundefinedとなります。
+<code class="notranslate" translate="no">navigator.gpu</code>が存在する場合は、<code class="notranslate" translate="no">requestAdapter</code>を呼びます。<code class="notranslate" translate="no">requestAdapter</code>の結果は非同期に返されるので、<code class="notranslate" translate="no">await</code>で待つ必要があります。アダプタは、特定の１つのGPUを表すものです。デバイスによっては、複数のGPUを持っている場合もあります。</p>
+<p>得られたアダプタから、デバイスを取得します。ここでも<code class="notranslate" translate="no">?.</code>を使います。従って、アダプタがundefinedである場合は、デバイスもundefinedとなります。
 この時点で<code class="notranslate" translate="no">device</code>が設定されていない場合は、古いブラウザを使っている、ということです。</p>
-<p>次はcanvasを参照して<code class="notranslate" translate="no">webgpu</code>コンテキストを生成します。これによって得られたテクスチャに対してレンダリングすると、Webページ上のcanvasにレンダリングされます。</p>
+<p>次はcanvasを参照して<code class="notranslate" translate="no">webgpu</code>コンテキストを生成します。このコンテキストからは、シェーダの描画対象となるテクスチャが得られます。ブラウザはこのテクスチャを使って、Webページ上のcanvasに描画結果を表示します。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // canvasからWebGPUコンテキストを取得して、configureする
   const canvas = document.querySelector('canvas');
   const context = canvas.getContext('webgpu');
@@ -469,8 +469,7 @@ Xの左端が-1.0、右端が+1.0、Yの下端が-1.0、上端が+1.0です。
 これは描画対象のテクスチャのサイズと無関係で、常に-1.0から1.0の範囲です。</p>
 <div class="webgpu_center"><img src="../resources/clipspace.svg" style="width: 500px"></div>
 <p>関数<code class="notranslate" translate="no">vs</code>の中では、「<code class="notranslate" translate="no">vec2f</code>型の値３つを持つ配列(array)」が宣言されています。
-<code class="notranslate" translate="no">vec2f</code>は、32ビット浮動小数点数の値２つを持ちます。
-コードではこの<code class="notranslate" translate="no">vec2f</code>を３つ、配列に入れています。</p>
+<code class="notranslate" translate="no">vec2f</code>は、32ビット浮動小数点数の値２つを持ちます。</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let pos = array(
           vec2f( 0.0,  0.5),  // top center
           vec2f(-0.5, -0.5),  // bottom left
@@ -490,7 +489,7 @@ Xの左端が-1.0、右端が+1.0、Yの下端が-1.0、上端が+1.0です。
 </pre>
 <p>関数<code class="notranslate" translate="no">fs</code>は、引数なし、返り値は<code class="notranslate" translate="no">vec4f</code>型で<code class="notranslate" translate="no">location(0)</code>に返されます。
 <code class="notranslate" translate="no">location(0)</code>というのは、「一つめのレンダーターゲット」という意味で、結果はそこに書き込まれます。
-「一つめのレンダーターゲット」は描画対象のcanvas、としたいのですが、その設定の仕方については後ほど説明します。</p>
+今回は「一つめのレンダーターゲット」を、「用意しておいたcanvasのテクスチャ」としたいのですが、その設定の仕方については後ほど説明します。</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        return vec4f(1, 0, 0, 1);
 </pre>
 <p>このコードでは<code class="notranslate" translate="no">1, 0, 0, 1</code>を返しています。これは「赤」です。
@@ -539,7 +538,7 @@ WebGPUで生成するオブジェクトは、ほぼすべてについて<code cl
 パイプラインを生成し、このパイプラインの書き出し先となるテクスチャのフォーマットを指定する必要があります。</p>
 <p>配列<code class="notranslate" translate="no">targets</code>の最初の(0番目の)要素は、先にフラグメントシェーダの返り値の設定で記述した「location(0)」に当たるものです。canvasとの関連付けはもう少し後で行ないます。</p>
 <p>次は<code class="notranslate" translate="no">GPURenderPassDescriptor</code>を設定します。
-これは、描画対象とするテクスチャの指定と、そのテクスチャをどう扱うかの設定です。</p>
+これは、描画先とするテクスチャの指定と、そのテクスチャをどう扱うかの設定です。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
     colorAttachments: [
@@ -588,7 +587,7 @@ WebGPUで生成するオブジェクトは、ほぼすべてについて<code cl
 <p>次は、コマンドエンコーダの<code class="notranslate" translate="no">beginRenderPass</code>を使って、レンダーパスエンコーダを生成しています。レンダーパスエンコーダは、レンダリング関連のコマンドを生成することに特化したエンコーダです。
 レンダーパスエンコーダに<code class="notranslate" translate="no">renderPassDescriptor</code>を渡すことで、描画対象とするテクスチャを指定しています。</p>
 <p><code class="notranslate" translate="no">setPipeline</code>コマンドでパイプラインをセット、次の<code class="notranslate" translate="no">draw(3)</code>コマンドで、頂点シェーダを３回実行します。デフォルトでは、頂点シェーダが３回実行されるたびに、３つの頂点シェーダが返した３つの点を結ぶ三角形が描画されます。</p>
-<p>最後の部分ではレンダーパスを終了し、エンコーダをfinishしています。finishを実行することで、先ほどコマンドを並べて定義した手順が入ったコマンドバッファが得られます。最後に、このコマンドバッファをsubmit(送信)し、レンダリングを実行しています。</p>
+<p>レンダーパスを終了し、エンコーダをfinishしています。finishを実行することで、先ほどコマンドを並べて定義した手順が入ったコマンドバッファが得られます。最後に、このコマンドバッファをsubmit(送信)し、レンダリングを実行しています。</p>
 <p><code class="notranslate" translate="no">draw</code>が実行される段階での各種ステートは以下のようになっています。</p>
 <div class="webgpu_center"><img src="../resources/webgpu-simple-triangle-diagram.svg" style="width: 723px;"></div>
 <p>今回の例では、入力としては、テクスチャ、バッファ、バインドグループは一切ありません。使っているのは、パイプライン、頂点シェーダ、フラグメントシェーダ、出力先のcanvasテクスチャを指定しているレンダーパスディスクリプタ、です。</p>
@@ -599,7 +598,15 @@ WebGPUで生成するオブジェクトは、ほぼすべてについて<code cl
 </div>
 
 <p></p>
-<p>今回使った<code class="notranslate" translate="no">setPipeline</code>や<code class="notranslate" translate="no">draw</code>といったAPIは、「コマンドバッファにコマンドを追記するだけのもの」であるという点は、重要です。これらのAPIを実行した時点では、コマンドの実行は起きません。コマンドの実行は、デバイスキューにコマンドバッファをsubmit(送信)して初めて行なわれます。</p>
+<p>今回使った<code class="notranslate" translate="no">setPipeline</code>や<code class="notranslate" translate="no">draw</code>といったAPIは「コマンドバッファにコマンドを追記するだけのもの」である、という点は、重要です。これらのAPIを実行した時点では、コマンドの実行は起きません。コマンドの実行は、デバイスキューにコマンドバッファをsubmit(送信)して初めて行なわれます。</p>
+<p><a id="a-rasterization"></a>WebGPUは、頂点シェーダを３回呼び出して得た頂点を３つを集めて、三角形をラスタライズします。
+WebGPUはこの際、「各ピクセルの中心点が三角形の内側にあるかどうか」を見ることで、どのピクセルを描画するか判断しています。
+描画することになったピクセルには、フラグメントシェーダを呼んで得られた色が塗られることになります。</p>
+<p>例えば、15x11ピクセルのテクスチャに三角形を描画する場合、ラスタライズは以下図のような仕組みで行われます。</p>
+<div class="webgpu_center">
+  <div data-diagram="clip-space-to-texels" style="display: inline-block; max-width: 500px; width: 100%"></div>
+  <div>頂点をドラッグで動かしてみよう</div>
+</div>
 <p>ここまで、WebGPUのごく小さなサンプルプログラムを作ってきました。お気づきと思いますが、シェーダコード中に三角形がハードコードされた今回のコードは、柔軟性が全くありません。一般にはシェーダの外からデータを与えることになるわけですが、それについては今後の記事で紹介することとします。</p>
 <p>今回のサンプルプログラムで示したかったことをまとめます。</p>
 <ul>
@@ -791,7 +798,7 @@ bindGroupのエントリを設定します。
 <code class="notranslate" translate="no">end</code>でコンピュートパスを終了しています。</p>
 <p>これは<code class="notranslate" translate="no">dispatchWorkgroups</code>の実行時点の、各種ステートです。</p>
 <div class="webgpu_center"><img src="../resources/webgpu-simple-compute-diagram.svg" style="width: 553px;"></div>
-<p>計算が終わったら、<code class="notranslate" translate="no">buffer</code>に書き込まれたデータをGPUの外へ持ち出すために<code class="notranslate" translate="no">resultBuffer</code>へコピーします。</p>
+<p>計算が終わったら、<code class="notranslate" translate="no">workBuffer</code>に書き込まれたデータをGPUの外へ持ち出すために<code class="notranslate" translate="no">resultBuffer</code>へコピーします。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // 「得られた結果をマップ可能なバッファへコピーするコマンド」をエンコードする。
   encoder.copyBufferToBuffer(workBuffer, 0, resultBuffer, 0, resultBuffer.size);
 </pre>
@@ -811,10 +818,10 @@ bindGroupのエントリを設定します。
 
   resultBuffer.unmap();
 </pre>
-<p>バッファをマップするために<code class="notranslate" translate="no">mapAsync</code>を使用します。この関数を利用する際は、処理の完了を<code class="notranslate" translate="no">await</code>する必要があります。
+<p>バッファをマップするために<code class="notranslate" translate="no">mapAsync</code>を使用します。この関数を利用する際は、処理の完了を<code class="notranslate" translate="no">await</code>で待つ必要があります。
 マップの処理が完了したら<code class="notranslate" translate="no">resultBuffer.getMappedRange()</code>で<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>を取得しています。引数なしで読んだ場合、<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>全体が返されます。
 得られたバイト列である<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>を、型付き配列である<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>のビューとすることで、シェーダの計算結果を数値として見ることができます。
-一つ注意なのですが、<code class="notranslate" translate="no">getMappedRange</code>が返した<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>が有効なのは、<code class="notranslate" translate="no">unmap</code>を呼ぶまでの間だけです。<code class="notranslate" translate="no">unmap</code>を実行すると、<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>のlengthは0となり、データにアクセスすることはできなくなります。</p>
+一つ重要な注意点なのですが、<code class="notranslate" translate="no">getMappedRange</code>が返した<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>が有効なのは、<code class="notranslate" translate="no">unmap</code>を呼ぶまでの間だけ、となっています。<code class="notranslate" translate="no">unmap</code>を実行すると、<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>のlengthは0となり、データにアクセスすることはできなくなります。</p>
 <p>これが実行結果です。３つの数値をGPUに渡して、GPU上のシェーダで計算して、二倍になった値をJavaScript側へ取得して、表示しています。</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-compute.html"></iframe></div>
@@ -954,6 +961,8 @@ function main(device) {
 WebGPUはそういうデザインになっている。多くの場合、デバイスは「APIレベルでは動いているように見える」。デバイスがロストしている状態では、各種リソースをcreateしたり使用したりする段階で各種メソッドは「正常終了はする」が「機能はしていない」といったことが起きる。<code class="notranslate" translate="no">device.lost</code>プロミスがresolveされる可能性を意識して、どう対処するか(しないか)は、あなた次第である。
 </p>
 </div>
+<!-- keep this at the bottom of the article -->
+<script type="module" src="../webgpu-fundamentals.js"></script>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
