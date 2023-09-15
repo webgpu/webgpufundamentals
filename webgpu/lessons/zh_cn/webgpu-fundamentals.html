@@ -225,11 +225,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <p>本文将向您介绍 WebGPU 的基础知识。</p>
 <div class="warn">
 希望你在阅读本文之前已经了解 JavaScript。本文将大量使用
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">数组映射</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">解构赋值</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">展开语法</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async/await 函数</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">es6 模块</a>,
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Global_Objects/Array/map">数组映射</a>,
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">解构赋值</a>,
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Operators/Spread_syntax">展开语法</a>,
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Statements/async_function">async/await 函数</a>,
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Guide/Modules">es6 模块</a>,
 等概念。
 </div>
 <div class="warn">如果您已经了解 WebGL, <a href="../webgpu-from-webgl.html">请阅读此文</a>.</div>
@@ -253,9 +253,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>片段着色器负责计算颜色 <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>。 在绘制三角形时，GPU 会为每个要绘制的像素调用片段着色器。片段着色器会返回一种颜色。</p>
 <p>而计算着色器则更加的通用。它实际上只是一个函数，你调用它，然后说 “执行这个函数 N 次”。GPU 每次调用你的函数时都会传递迭代次数，因此你可以在每次迭代时使用该次数做一些独特的事情。</p>
 <p>如果你仔细观察，就会发现这些函数类似于传递给
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach"><code class="notranslate" translate="no">array.forEach</code></a>
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach"><code class="notranslate" translate="no">array.forEach</code></a>
 或
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map"><code class="notranslate" translate="no">array.map</code></a> 函数。
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Global_Objects/Array/map"><code class="notranslate" translate="no">array.map</code></a> 函数。
 在 GPU 上运行的函数只是函数，就像 JavaScript 函数一样。不同之处在于它们是在 GPU 上运行的，因此要运行它们，您需要以缓冲区和纹理的形式将您希望它们访问的所有数据复制到 GPU 上，而且它们只能输出到这些缓冲区和纹理。您需要在函数中指定函数将在哪些绑定或位置查找数据。回到 JavaScript 中，你需要将保存数据的缓冲区和纹理绑定到这些绑定或位置。一旦完成这些后，您就可以告诉 GPU 执行函数了。</p>
 <p><a id="a-draw-diagram"></a>也许下面的图片会有所帮助。以下是使用顶点着色器和片段着色器绘制三角形的 WebGPU 设置简图</p>
 <div class="webgpu_center"><img src="../resources/webgpu-draw-diagram.svg" style="width: 960px;"></div>
@@ -371,7 +371,7 @@ commandBuffer = encoder.finish();
 main();
 </pre>
 <p>上面的代码不言自明。 首先，我们使用
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining"><code class="notranslate" translate="no">?.</code> 可选链操作符</a>来请求一个<em>适配器</em>(<em>adapter</em>)。
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Operators/Optional_chaining"><code class="notranslate" translate="no">?.</code> 可选链操作符</a>来请求一个<em>适配器</em>(<em>adapter</em>)。
 如果 <code class="notranslate" translate="no">navigator.gpu</code> 不存在的话，那么 <code class="notranslate" translate="no">adapter</code> 将会是 <code class="notranslate" translate="no">undefined</code>。
 倘若它的确存在，那么我们将调用 <code class="notranslate" translate="no">requestAdapter</code>。 它将以异步的方式返回结果，因此我们需要<code class="notranslate" translate="no">await</code>。<em>适配器</em>(<em>adapter</em>)代表一个特定的 GPU，因为有些设备拥有多个 GPU。</p>
 <p>从<em>适配器</em>(<em>adapter</em>)上请求<em>设备</em>(<em>device</em>)时，我们同样使用了<code class="notranslate" translate="no">?</code>可选链操作符。因此如果<em>适配器</em>(<em>adapter</em>)为<code class="notranslate" translate="no">undefined</code>，那么<em>设备</em>(<em>device</em>)也将为 <code class="notranslate" translate="no">undefined</code>。</p>
