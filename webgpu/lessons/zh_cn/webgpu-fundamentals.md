@@ -6,11 +6,11 @@ TOC: Fundamentals
 
 <div class="warn">
 希望你在阅读本文之前已经了解 JavaScript。本文将大量使用
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">数组映射</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">解构赋值</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">展开语法</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async/await 函数</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">es6 模块</a>,
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Global_Objects/Array/map">数组映射</a>,
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">解构赋值</a>,
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Operators/Spread_syntax">展开语法</a>,
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Statements/async_function">async/await 函数</a>,
+<a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Guide/Modules">es6 模块</a>,
 等概念。
 </div>
 
@@ -52,9 +52,9 @@ WebGPU 是一个极其低层次的 API. 虽然您可以制作一些小型示例�
 而计算着色器则更加的通用。它实际上只是一个函数，你调用它，然后说 "执行这个函数 N 次"。GPU 每次调用你的函数时都会传递迭代次数，因此你可以在每次迭代时使用该次数做一些独特的事情。
 
 如果你仔细观察，就会发现这些函数类似于传递给
-[`array.forEach`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
+[`array.forEach`](https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
 或
-[`array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) 函数。
+[`array.map`](https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Global_Objects/Array/map) 函数。
 在 GPU 上运行的函数只是函数，就像 JavaScript 函数一样。不同之处在于它们是在 GPU 上运行的，因此要运行它们，您需要以缓冲区和纹理的形式将您希望它们访问的所有数据复制到 GPU 上，而且它们只能输出到这些缓冲区和纹理。您需要在函数中指定函数将在哪些绑定或位置查找数据。回到 JavaScript 中，你需要将保存数据的缓冲区和纹理绑定到这些绑定或位置。一旦完成这些后，您就可以告诉 GPU 执行函数了。
 
 <a id="a-draw-diagram"></a>也许下面的图片会有所帮助。以下是使用顶点着色器和片段着色器绘制三角形的 WebGPU 设置简图
@@ -187,7 +187,7 @@ main();
 ```
 
 上面的代码不言自明。 首先，我们使用
-[`?.` 可选链操作符](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining)来请求一个*适配器*(_adapter_)。
+[`?.` 可选链操作符](https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Reference/Operators/Optional_chaining)来请求一个*适配器*(_adapter_)。
 如果 `navigator.gpu` 不存在的话，那么 `adapter` 将会是 `undefined`。
 倘若它的确存在，那么我们将调用 `requestAdapter`。 它将以异步的方式返回结果，因此我们需要`await`。_适配器_(_adapter_)代表一个特定的 GPU，因为有些设备拥有多个 GPU。
 
