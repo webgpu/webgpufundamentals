@@ -7,11 +7,11 @@ TOC: 基本
 <div class="warn">
 この記事は、JavaScriptについて知識を持っている読者を想定しています。
 この記事で使用するのは、JavaScriptの、
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">mapping arrays</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">destructuring assignment</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">spreading values</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async/await</a>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">es6 modules</a>,
+<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array/map">mapping arrays</a>,
+<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">destructuring assignment</a>,
+<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Spread_syntax">spreading values</a>,
+<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Statements/async_function">async/await</a>,
+<a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Guide/Modules">es6 modules</a>,
 といった仕様です。説明する内容によってはこれ以外の知識が必要となる場合もあります。
 </div>
 
@@ -61,9 +61,9 @@ WebGPUは、「GPU上で３種類の関数を実行する」ことしかしま�
 コンピュートシェーダ(Compute Shader)は、もっと一般的な用途で利用されます。コンピュートシェーダは実質上、単なる関数であると考えてよいです。「これを何回実行します」という宣言を付けて実行されます。GPUはコンピュートシェーダを何度も呼び出すに際して、「何回目の呼び出しであるか」の情報をコンピュートシェーダに渡すので、その値を使って各呼び出しで挙動が変化するような書き方をする事ができます。
 
 注意深い人は、これがJavaScriptの
-[`array.forEach`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
+[`array.forEach`](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
 や、
-[`array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
+[`array.map`](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
 といった仕組みに似ていることに気付くかもしれません。
 
 GPU上で実行される関数は、あくまで関数にすぎません。JavaScriptの関数と同じように考えてもよいです。
