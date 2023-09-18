@@ -1,6 +1,6 @@
 Title: WebGPU 基础
 Description: WebGPU 的基础知识
-TOC: Fundamentals
+TOC: 基础知识
 
 本文将向您介绍 WebGPU 的基础知识。
 
