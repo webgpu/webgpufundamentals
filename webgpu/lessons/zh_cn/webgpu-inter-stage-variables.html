@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/webgpu-inter-stage-variables.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,70 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="zh-cn"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Inter-stage Variables">
+
+<meta name="description" content="从顶点着色器传递数据到片段着色器">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_zh-cn.jpg">
+
+<meta property="og:title" content="WebGPU Inter-stage 变量">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="Passing Data from a Vertex Shader to a Fragment Shader">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_zh-cn.jpg">
+<meta property="og:description" content="从顶点着色器传递数据到片段着色器">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Inter-stage Variables">
+<meta name="twitter:title" content="WebGPU Inter-stage 变量">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html">
-<meta name="twitter:description" content="Passing Data from a Vertex Shader to a Fragment Shader">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="从顶点着色器传递数据到片段着色器">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_zh-cn.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_zh-cn.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html",
+      "inLanguage":"zh-cn",
+      "name":"WebGPU Inter-stage 变量",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Inter-stage Variables</title>
+<title>WebGPU Inter-stage 变量</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -175,13 +218,265 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Inter-stage Variables</h1>
+    <h1>WebGPU Inter-stage 变量</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>本课程还没有简体中文版翻译哦  (~￣△￣)~</p>
-<p><a href="https://github.com/gfxfundamentals/webgpufundamentals">欢迎参加翻译</a>! 😄
-<a href="/webgpu/lessons/webgpu-inter-stage-variables.html">英文原版地址</a></p>
+      <p>在<a href="../webgpu-fundamentals.html">上一篇文章</a>中，我们介绍了有关 WebGPU 的一些基础知识。在本文中，我们将介绍 Inter-stage 变量的基础知识。</p>
+<p>Inter-stage 变量在顶点着色器和片段着色器之间发挥作用。</p>
+<p>当顶点着色器输出 3 个位置时，一个三角形就会被光栅化。顶点着色器可以在每个位置输出额外的值，默认情况下，这些值将在 3 个点之间进行插值。</p>
+<p>让我们举一个小例子。我们从上一篇文章中的三角形着色器开始。我们要做的就是更改着色器。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+-    label: 'our hardcoded red triangle shaders',
++    label: 'our hardcoded rgb triangle shaders',
+    code: `
++      struct OurVertexShaderOutput {
++        @builtin(position) position: vec4f,
++        @location(0) color: vec4f,
++      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+-      ) -&gt; @builtin(position) vec4f {
++      ) -&gt; OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
++        var color = array&lt;vec4f, 3&gt;(
++          vec4f(1, 0, 0, 1), // red
++          vec4f(0, 1, 0, 1), // green
++          vec4f(0, 0, 1, 1), // blue
++        );
+
+-        return vec4f(pos[vertexIndex], 0.0, 1.0);
++        var vsOutput: OurVertexShaderOutput;
++        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
++        vsOutput.color = color[vertexIndex];
++        return vsOutput;
+      }
+
+-      @fragment fn fs() -&gt; @location(0) vec4f {
+-        return vec4f(1, 0, 0, 1);
++      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
++        return fsInput.color;
+      }
+    `,
+  });
+</pre>
+<p>首先，我们声明一个结构体<code class="notranslate" translate="no">struct</code>。这是在顶点着色器和片段着色器之间增加 Inter-stage 变量的一种简便方法。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+        @location(0) color: vec4f,
+      };
+</pre>
+<p>然后，我们声明顶点着色器将返回该类型的结构体</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+-      ) -&gt; @builtin(position) vec4f {
++      ) -&gt; OurVertexShaderOutput {
+</pre>
+<p>我们创建一个有 3 种颜色的数组。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        var color = array&lt;vec4f, 3&gt;(
+          vec4f(1, 0, 0, 1), // red
+          vec4f(0, 1, 0, 1), // green
+          vec4f(0, 0, 1, 1), // blue
+        );
+</pre>
+<p>然后，我们不再只返回一个表示位置的 <code class="notranslate" translate="no">vec4f</code>，而是声明一个结构体的实例，填充并返回它。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-        return vec4f(pos[vertexIndex], 0.0, 1.0);
++        var vsOutput: OurVertexShaderOutput;
++        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
++        vsOutput.color = color[vertexIndex];
++        return vsOutput;
+</pre>
+<p>在片段着色器中，我们声明将其中一个结构体作为函数的参数</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
+        return fsInput.color;
+      }
+</pre>
+<p>并且返回结构体中的颜色</p>
+<p>如果我们运行它，就会发现每次 GPU 调用片段着色器时，都会传入一个在所有 3 个点之间插值的颜色。</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-inter-stage-variables-triangle.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-inter-stage-variables-triangle.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>Inter-stage 变量最常用于在三角形内进行纹理坐标插值，我们将在<a href="../webgpu-textures.html">有关纹理的文章</a>中介绍这一点。另一个常用的方法是在三角形内对法线进行插值，这将在<a href="../webgpu-lighting-directional.html">第一篇关于光照的文章</a>中介绍。</p>
+<h2 id="inter-stage-变量通过-location-连接">Inter-stage 变量通过 <code class="notranslate" translate="no">location</code> 连接</h2>
+<p>重要的一点是，与 WebGPU 中的几乎所有功能一样，顶点着色器和片段着色器之间是通过索引连接的。对于 Inter-stage 变量，它们也是通过 location 索引进行连接。</p>
+<p>为了理解我的意思，让我们只更改片段着色器，在 <code class="notranslate" translate="no">location(0)</code> 处获取 <code class="notranslate" translate="no">vec4f</code> 参数，而不是通过 struct 获取参数。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs(@location(0) color: vec4f) -&gt; @location(0) vec4f {
+        return color;
+      }
+</pre>
+<p>运行后，我们发现它仍然起作用。</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-inter-stage-variables-triangle-by-fn-param.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-inter-stage-variables-triangle-by-fn-param.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<h2 id="builtinposition"><code class="notranslate" translate="no">@builtin(position)</code></h2>
+<p>这有助于指出另一个怪异之处。我们最初的着色器在顶点着色器和片段着色器中使用了相同的结构体，其中有一个名为 <code class="notranslate" translate="no">position</code> 的字段，但它并没有 location。相反，它被声明为 <code class="notranslate" translate="no">@builtin(position)</code>。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      struct OurVertexShaderOutput {
+*        @builtin(position) position: vec4f,
+        @location(0) color: vec4f,
+      };
+</pre>
+<p>该字段<strong>不是</strong> Inter-stage 变量。相反，它是一个内置变量(<code class="notranslate" translate="no">builtin</code>)。@builtin(position) 在顶点着色器和片段着色器中的意义是不同的。</p>
+<p>在顶点着色器中，<code class="notranslate" translate="no">@builtin(position)</code> 是 GPU 绘制三角形/线/点所需的输出。</p>
+<p>在片段着色器中，<code class="notranslate" translate="no">@builtin(position)</code> 是一个输入。它是片段着色器当前被要求计算颜色的像素坐标。</p>
+<p>像素坐标由像素边缘指定。而提供给片段着色器的值则是像素的中心坐标。</p>
+<p>如果我们要绘制的纹理大小为 3x2 像素，下图中的黑点表示的则是片段着色器中的坐标。</p>
+<div class="webgpu_center"><img src="../resources/webgpu-pixels.svg" style="width: 500px;"></div>
+<p>我们可以更改着色器来使用这个位置。例如，让我们画一个棋盘格。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const module = device.createShaderModule({
+    label: 'our hardcoded checkerboard triangle shaders',
+    code: `
+      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+-        @location(0) color: vec4f,
+      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+-        var color = array&lt;vec4f, 3&gt;(
+-          vec4f(1, 0, 0, 1), // red
+-          vec4f(0, 1, 0, 1), // green
+-          vec4f(0, 0, 1, 1), // blue
+-        );
+
+        var vsOutput: OurVertexShaderOutput;
+        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+-        vsOutput.color = color[vertexIndex];
+        return vsOutput;
+      }
+
+      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
+-        return fsInput.color;
++        let red = vec4f(1, 0, 0, 1);
++        let cyan = vec4f(0, 1, 1, 1);
++
++        let grid = vec2u(fsInput.position.xy) / 8;
++        let checker = (grid.x + grid.y) % 2 == 1;
++
++        return select(red, cyan, checker);
+      }
+    `,
+});
+</pre>
+<p>上面的代码使用了声明为 <code class="notranslate" translate="no">@builtin(position)</code>的变量 <code class="notranslate" translate="no">fsInput.position</code> ，并将其 <code class="notranslate" translate="no">xy</code> 坐标转换为 <code class="notranslate" translate="no">vec2u</code>类型，即 2 维无符号整数。然后将其除以 8，得出每 8 个像素增加一个计数。然后将 x 和 y 网格坐标相加，计算除以 2 的余数，并将结果与 1 比较。最后，它使用 WGSL 函数 <code class="notranslate" translate="no">select</code>，在给定 2 个值的情况下，根据布尔条件选择其中一个。在 JavaScript 中，<code class="notranslate" translate="no">select</code> 的写法如下</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// If condition is false return `a`, otherwise return `b`
+select = (a, b, condition) =&gt; (condition ? b : a);
+</pre>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-fragment-shader-builtin-position.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-fragment-shader-builtin-position.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>即使在片段着色器中不使用 <code class="notranslate" translate="no">@builtin(position)</code>，它在此处也同样很方便，因为这意味着我们可以在顶点着色器和片段着色器中使用相同的结构。重要的是，顶点着色器中的 <code class="notranslate" translate="no">position</code> 字段与片段着色器中的 <code class="notranslate" translate="no">position</code> 字段完全无关。它们是完全不同的变量。</p>
+<p>但如上所述，对于 Inter-stage 变量来说，重要的是 <code class="notranslate" translate="no">@location(?)</code>。因此，为顶点着色器的输出和片段着色器的输入声明不同的结构并不罕见。</p>
+<p>为了能让大家更清楚地了解这一点，在我们的示例中为了方便起见，顶点着色器和片段着色器在同一个字符串中。我们也可以将它们分成不同的模块</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const module = device.createShaderModule({
+-    label: 'hardcoded checkerboard triangle shaders',
++  const vsModule = device.createShaderModule({
++    label: 'hardcoded triangle',
+    code: `
+      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+        var vsOutput: OurVertexShaderOutput;
+        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+        return vsOutput;
+      }
++    `,
++  });
++
++  const fsModule = device.createShaderModule({
++    label: 'checkerboard',
++    code: `
+-      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
++      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -&gt; @location(0) vec4f {
+        let red = vec4f(1, 0, 0, 1);
+        let cyan = vec4f(0, 1, 1, 1);
+
+-        let grid = vec2u(fsInput.position.xy) / 8;
++        let grid = vec2u(pixelPosition.xy) / 8;
+        let checker = (grid.x + grid.y) % 2 == 1;
+
+        return select(red, cyan, checker);
+      }
+    `,
+  });
+</pre>
+<p>同样的，我们必须使用下面的代码更新我们创建管道时的配置</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: 'hardcoded checkerboard triangle pipeline',
+    layout: 'auto',
+    vertex: {
+-      module,
++      module: vsModule,
+      entryPoint: 'vs',
+    },
+    fragment: {
+-      module,
++      module: fsModule,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+
+</pre>
+<p>修改代码后，这同样能够运行</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-fragment-shader-builtin-position-separate-modules.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-fragment-shader-builtin-position-separate-modules.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>关键在于，在大多数 WebGPU 示例中，两个着色器都在同一个字符串中只是为了方便。实际上，WebGPU 首先会解析 WGSL，确保其语法正确。然后，WebGPU 会查看您指定的 <code class="notranslate" translate="no">entryPoint</code>。然后，WebGPU 会查看该入口点所引用的部分，而不会查看该入口点的其他部分。这很有用，因为如果两个或多个着色器共享绑定、结构、常量或函数，就不必重复键入结构、绑定和分组位置等内容。但是，从 WebGPU 的角度来看，这就好像你一次性为每个入口点都复制了一次所有的内容。</p>
+<p>注：使用 <code class="notranslate" translate="no">@builtin(position)</code> 生成棋盘格并不常见。<a href="../webgpu-textures.html">使用纹理</a>.生成棋盘格或其他图案更为常见。事实上，如果您调整窗口大小，就会发现一个问题。因为棋盘格是基于画布的像素坐标生成的，它是相对于画布的，而不是相对于三角形的。</p>
+<h2 id="插值设置"><a id="a-interpolate"></a>插值设置</h2>
+<p>我们在上文看到，Inter-stage 变量从顶点着色器的输出在传递给片段着色器时会进行插值。对于如何进行插值，有两组设置可以更改。将它们设置为默认值以外的值并不常见，但在其他文章中会介绍一些用例。</p>
+<p>插值类型:</p>
+<ul>
+<li><code class="notranslate" translate="no">perspective</code>: 以正确的透视方式插值 (<strong>默认</strong>)</li>
+<li><code class="notranslate" translate="no">linear</code>: 以线性、非透视正确的方式内插数值。</li>
+<li><code class="notranslate" translate="no">flat</code>: 不对数值进行插值。使用 flat 插值时不使用插值采样。</li>
+</ul>
+<p>插值采样:</p>
+<ul>
+<li><code class="notranslate" translate="no">center</code>: 插值在像素中心进行 (<strong>默认</strong>)</li>
+<li><code class="notranslate" translate="no">centroid</code>: 插值是在当前基元中片段所覆盖的所有样本内的某一点上进行的。该值对基元中的所有样本都是相同的。</li>
+<li><code class="notranslate" translate="no">sample</code>: 每次采样时执行插值。应用此属性时，每次采样都会调用一次片段着色器.</li>
+</ul>
+<p>您可以将其指定为属性。例如：</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  @location(2) @interpolate(linear, center) myVariableFoo: vec4f;
+  @location(3) @interpolate(flat) myVariableBar: vec4f;
+</pre>
+<p>请注意，如果 Inter-stage 变量是整数类型，则必须将其插值设置为<code class="notranslate" translate="no">flat</code>。</p>
+<p>如果将插值类型设置为<code class="notranslate" translate="no">flat</code>，那么传递给片段着色器的值就是该三角形中第一个顶点的 Inter-stage 变量值。</p>
+<p><a href="../webgpu-uniforms.html">在下一篇文章中，我们将介绍 uniforms</a>，它是一种向着色器传递数据的另一种方法。</p>
 
     </div>
     <div class="lesson-sidebar">
@@ -195,10 +490,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>基础概念</li>
+        <div id="toc">
+          <ul>  <li>基础概念</li>
         <ul>
-          <li><a href="/webgpu/lessons/zh_cn/webgpu-fundamentals.html">Fundamentals</a></li>
-<li><a href="/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html">Inter-stage Variables</a></li>
+          <li><a href="/webgpu/lessons/zh_cn/webgpu-fundamentals.html">基础知识</a></li>
+<li><a href="/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html">Inter-stage 变量</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-uniforms.html">Uniforms</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-storage-buffers.html">Storage Buffers</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
@@ -206,7 +502,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/zh_cn/webgpu-importing-textures.html">Loading Images</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-textures-external-video.html">Using Video</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-constants.html">Constants</a></li>
-<li><a href="/webgpu/lessons/zh_cn/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/zh_cn/webgpu-memory-layout.html">数据内存布局</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-wgsl.html">WGSL</a></li>
@@ -244,10 +540,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://webgpureport.org">WebGPUReport.org</a></li>
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>有疑问? <a href="https://stackoverflow.com/questions/tagged/webgpu">在stackoverflow上提问</a>.</div>
+<div>Issue/Bug? <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues">在GitHub上提issue</a>.</div>
+<div class="lesson-comment-notes">
+   使用 <b>&lt;pre&gt;&lt;code&gt;</b> 代码 <b>&lt;/code&gt;&lt;/pre&gt;</b> 的格式编写代码块
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU Inter-stage 变量`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "感谢 <a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a><br>的 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 次贡献</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
 <script src="/webgpu/lessons/resources/lesson.js"></script>

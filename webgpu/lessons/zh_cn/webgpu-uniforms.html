@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/webgpu-uniforms.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,13 +29,20 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="zh-cn"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="传递常量数据到 Shader">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-uniforms_zh-cn.jpg">
+
 <meta property="og:title" content="WebGPU Uniforms">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="Passing Constant Data to a Shader">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-uniforms_zh-cn.jpg">
+<meta property="og:description" content="传递常量数据到 Shader">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-uniforms.html">
 
 <meta name="twitter:card" content="summary_large_image">
@@ -44,12 +51,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <meta name="twitter:domain" content="webgpufundamentals.org">
 <meta name="twitter:title" content="WebGPU Uniforms">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-uniforms.html">
-<meta name="twitter:description" content="Passing Constant Data to a Shader">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="传递常量数据到 Shader">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-uniforms_zh-cn.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-uniforms.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-uniforms_zh-cn.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-uniforms.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-uniforms.html",
+      "inLanguage":"zh-cn",
+      "name":"WebGPU Uniforms",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-uniforms.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
 <title>WebGPU Uniforms</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -179,9 +222,391 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>本课程还没有简体中文版翻译哦  (~￣△￣)~</p>
-<p><a href="https://github.com/gfxfundamentals/webgpufundamentals">欢迎参加翻译</a>! 😄
-<a href="/webgpu/lessons/webgpu-uniforms.html">英文原版地址</a></p>
+      <p>上一篇文章介绍了<a href="../webgpu-inter-stage-variables.html">Inter-stage 变量</a>。本文将介绍 uniforms。</p>
+<p>uniforms 就像是着色器的全局变量。你可以在执行着色器之前设置它们的值，然后在着色器的每次迭代中都使用这些值。在下次 GPU 执行着色器时，你可以将其设置为其他值。</p>
+<p>我们从<a href="../webgpu-fundamentals.html">第一篇文章</a>中的三角形示例开始，对其进行修改以使用 uniforms 值。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const module = device.createShaderModule({
+    label: 'triangle shaders with uniforms',
+    code: `
++      struct OurStruct {
++        color: vec4f,
++        scale: vec2f,
++        offset: vec2f,
++      };
++
++      @group(0) @binding(0) var&lt;uniform&gt; ourStruct: OurStruct;
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; @builtin(position) vec4f {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+-        return vec4f(pos[vertexIndex], 0.0, 1.0);
++        return vec4f(
++          pos[vertexIndex] * ourStruct.scale + ourStruct.offset, 0.0, 1.0);
+      }
+
+      @fragment fn fs() -&gt; @location(0) vec4f {
+-        return vec4f(1, 0, 0, 1);
++        return ourStruct.color;
+      }
+    `,
+});
+</pre>
+<p>首先，我们声明了一个包含 3 个成员的结构体</p>
+<pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">      struct OurStruct {
+        color: vec4f,
+        scale: vec2f,
+        offset: vec2f,
+      };
+</pre>
+<p>然后，我们声明了一个类型为该结构体的 uniform 变量。变量名为 <code class="notranslate" translate="no">ourStruct</code>，类型为 <code class="notranslate" translate="no">OurStruct</code>。
+Then we declared a uniform variable with a type of that struct.
+The variable is <code class="notranslate" translate="no">ourStruct</code> and its type is <code class="notranslate" translate="no">OurStruct</code>.</p>
+<pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">      @group(0) @binding(0) var&lt;uniform&gt; ourStruct: OurStruct;
+</pre>
+<p>接下来，我们更改顶点着色器返回的内容，以使用 uniforms。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
+         ...
+      ) ... {
+        ...
+        return vec4f(
+          pos[vertexIndex] * ourStruct.scale + ourStruct.offset, 0.0, 1.0);
+      }
+</pre>
+<p>可以看到，我们将顶点位置乘以 scale，然后加上 offset。这样我们就可以设置三角形的大小并对其进行定位。</p>
+<p>我们还修改了片段着色器，以返回 uniforms 的颜色</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs() -&gt; @location(0) vec4f {
+        return ourStruct.color;
+      }
+</pre>
+<p>既然我们已经设置了着色器来使用 uniforms 值，就需要在 GPU 上创建一个缓冲区来保存 uniform 的值。</p>
+<p>在继续这个话题之前，如果你从未处理过内存数据和大小，那么你有很多东西需要学习。这是一个很大的话题，因此这里有一篇关于这个话题的独立文章。如果你不知道如何在内存中布局结构体，请先<a href="../webgpu-memory-layout.html">阅读这篇文章</a>。然后再回到这里。本文将假定你已经<a href="../webgpu-memory-layout.html">阅读过这篇文章</a>。</p>
+<p><a href="../webgpu-memory-layout.html">阅读完这篇文章</a>后，我们就可以在缓冲区中填入与着色器中的结构体相匹配的数据了。</p>
+<p>首先，我们创建一个缓冲区，并为其分配使用标志，这样它就可以与 uniforms 一起使用，我们也可以通过向其复制数据来进行更新。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const uniformBufferSize =
+    4 * 4 + // color is 4 32bit floats (4bytes each)
+    2 * 4 + // scale is 2 32bit floats (4bytes each)
+    2 * 4; // offset is 2 32bit floats (4bytes each)
+const uniformBuffer = device.createBuffer({
+    size: uniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+});
+</pre>
+<p>然后，我们创建一个<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>，这样就可以在 JavaScript 中设置值了</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// create a typedarray to hold the values for the uniforms in JavaScript
+const uniformValues = new Float32Array(uniformBufferSize / 4);
+</pre>
+<p>并填写结构体中 2 个以后不会改变的值。偏移量的计算方法我们在<a href="../webgpu-memory-layout.html">有关内存布局的文章</a>中已经介绍过。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// offsets to the various uniform values in float32 indices
+const kColorOffset = 0;
+const kScaleOffset = 4;
+const kOffsetOffset = 6;
+
+uniformValues.set([0, 1, 0, 1], kColorOffset); // set the color
+uniformValues.set([-0.5, -0.25], kOffsetOffset); // set the offset
+</pre>
+<p>上面我们将颜色设置为绿色。偏移量将使三角形向画布左侧移动 1/4，向下移动 1/8（请记住，剪辑空间从 -1 到 1 的宽度为 2 个单位，因此 0.25 是 2 的 1/8）。</p>
+<p>接下来，正如<a href="../webgpu-fundamentals.html#a-draw-diagram">第一篇文章</a>中的图表所示，要让着色器了解我们的缓冲区，我们需要创建一个绑定组，并将缓冲区绑定到我们在着色器中设置的<code class="notranslate" translate="no"> @binding(?)</code> 上。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
+});
+</pre>
+<p>现在，在提交命令缓冲区之前，我们需要设置 <code class="notranslate" translate="no">uniformValues</code> 的剩余值，然后将这些值复制到 GPU 上的缓冲区。我们将
+在<code class="notranslate" translate="no">render</code>函数的顶层完成这项工作。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
+    // Set the uniform values in our JavaScript side Float32Array
+    const aspect = canvas.width / canvas.height;
+    uniformValues.set([0.5 / aspect, 0.5], kScaleOffset); // set the scale
+
+    // copy the values from JavaScript to the GPU
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+</pre>
+<blockquote>
+<p>注：<code class="notranslate" translate="no">writeBuffer</code> 是将数据复制到缓冲区的一种方法。
+<a href="../webgpu-copying-data.html">这篇文章</a>还介绍了其他几种方法。</p>
+</blockquote>
+<p>我们将缩放比例设置为一半大小，同时考虑画布的纵横比，这样无论画布大小如何，三角形都能保持相同的宽高比例。</p>
+<p>最后，我们需要在绘制前设置绑定组</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">pass.setPipeline(pipeline);
++pass.setBindGroup(0, bindGroup);
+pass.draw(3); // call our vertex shader 3 times
+pass.end();
+</pre>
+<p>这样，我们就得到了一个绿色三角形，如图所示</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-uniforms.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-uniforms.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>对于这个三角形，我们在执行绘制命令时的状态是这样的</p>
+<div class="webgpu_center"><img src="../resources/webgpu-draw-diagram-triangle-uniform.svg" style="width: 863px;"></div>
+<p>到目前为止，我们在着色器中使用的所有数据都是硬编码（顶点着色器中的三角形顶点位置和片段着色器中的颜色）。现在我们可以在着色器中传递数值，从而使用不同的数据多次调用<code class="notranslate" translate="no">draw</code>。</p>
+<p>我们可以通过更新单个缓冲区，在不同的地方以不同的偏移、比例和颜色进行绘制。但需要注意的是，我们的命令会被放入命令缓冲区，直到我们提交命令后才会真正执行。因此，我们<strong>不能这样做</strong></p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// BAD!
+for (let x = -1; x &lt; 1; x += 0.1) {
+    uniformValues.set([x, x], kOffsetOffset);
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+    pass.draw(3);
+}
+pass.end();
+
+// Finish encoding and submit the commands
+const commandBuffer = encoder.finish();
+device.queue.submit([commandBuffer]);
+</pre>
+<p>因为，如上图所示，<code class="notranslate" translate="no">device.queue.xxx</code> 函数发生在 <code class="notranslate" translate="no">queue</code> 中，而 <code class="notranslate" translate="no">pass.xxx</code> 函数只是对命令缓冲区中的命令进行编码。当我们使用命令缓冲区实际调用<code class="notranslate" translate="no">submit</code>时，缓冲区中唯一的内容就是我们最后写入的值。</p>
+<p>我们可以将其改为</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// BAD! Slow!
+for (let x = -1; x &lt; 1; x += 0.1) {
+    uniformValues.set([x, 0], kOffsetOffset);
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+
+    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.setBindGroup(0, bindGroup);
+    pass.draw(3);
+    pass.end();
+
+    // Finish encoding and submit the commands
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+}
+</pre>
+<p>上面的代码更新了一个缓冲区，创建了一个命令缓冲区，添加了绘制一样东西的命令，然后完成命令缓冲区并提交。这样做是可行的，但速度很慢，原因是多方面的。最佳实践是在一个命令缓冲区中完成更多工作。</p>
+<p>因此，我们可以为每个要绘制的对象创建一个统一的缓冲区。而且，由于缓冲区是通过绑定组间接使用的，因此我们也需要为每个要绘制的对象创建一个绑定组。然后，我们就可以把所有要绘制的内容都放到一个命令缓冲区中。</p>
+<p>让我们开始吧</p>
+<p>首先编写一个随机函数</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// A random number between [min and max)
+// With 1 argument it will be [0 to min)
+// With no arguments it will be [0 to 1)
+const rand = (min, max) =&gt; {
+    if (min === undefined) {
+        min = 0;
+        max = 1;
+    } else if (max === undefined) {
+        max = min;
+        min = 0;
+    }
+    return min + Math.random() * (max - min);
+};
+</pre>
+<p>现在，让我们用各种颜色和偏移量设置缓冲区，然后就可以绘制各种单独的东西了。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // offsets to the various uniform values in float32 indices
+  const kColorOffset = 0;
+  const kScaleOffset = 4;
+  const kOffsetOffset = 6;
+
++  const kNumObjects = 100;
++  const objectInfos = [];
++
++  for (let i = 0; i &lt; kNumObjects; ++i) {
++    const uniformBuffer = device.createBuffer({
++      label: `uniforms for obj: ${i}`,
++      size: uniformBufferSize,
++      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
++    });
++
++    // create a typedarray to hold the values for the uniforms in JavaScript
++    const uniformValues = new Float32Array(uniformBufferSize / 4);
+-    uniformValues.set([0, 1, 0, 1], kColorOffset);        // set the color
+-    uniformValues.set([-0.5, -0.25], kOffsetOffset);      // set the offset
++    uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // set the color
++    uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset);      // set the offset
++
++    const bindGroup = device.createBindGroup({
++      label: `bind group for obj: ${i}`,
++      layout: pipeline.getBindGroupLayout(0),
++      entries: [
++        { binding: 0, resource: { buffer: uniformBuffer }},
++      ],
++    });
++
++    objectInfos.push({
++      scale: rand(0.2, 0.5),
++      uniformBuffer,
++      uniformValues,
++      bindGroup,
++    });
++  }
+</pre>
+<p>我们还没有在缓冲区中设置值，因为我们希望缓冲区考虑到画布的长宽比，而在渲染之前我们不会知道画布的长宽比。</p>
+<p>在渲染时，我们会用调整后的正确比例更新所有缓冲区。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
+-    // Set the uniform values in our JavaScript side Float32Array
+-    const aspect = canvas.width / canvas.height;
+-    uniformValues.set([0.5 / aspect, 0.5], kScaleOffset); // set the scale
+-
+-    // copy the values from JavaScript to the GPU
+-    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+
+    // Get the current texture from the canvas context and
+    // set it as the texture to render to.
+    renderPassDescriptor.colorAttachments[0].view =
+        context.getCurrentTexture().createView();
+
+    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+
+    // Set the uniform values in our JavaScript side Float32Array
+    const aspect = canvas.width / canvas.height;
+
++    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
++      uniformValues.set([scale / aspect, scale], kScaleOffset); // set the scale
++      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+       pass.setBindGroup(0, bindGroup);
+       pass.draw(3);  // call our vertex shader 3 times
++    }
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+  }
+</pre>
+<p>请再次记住，<code class="notranslate" translate="no">encoder</code>和<code class="notranslate" translate="no">pass</code>对象只是将命令编码到命令缓冲区中。因此，当<code class="notranslate" translate="no">render</code>函数退出时，我们实际上已经按照这个顺序发出了这些<em>命令</em>。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.writeBuffer(...) // update uniform buffer 0 with data for object 0
+device.queue.writeBuffer(...) // update uniform buffer 1 with data for object 1
+device.queue.writeBuffer(...) // update uniform buffer 2 with data for object 2
+device.queue.writeBuffer(...) // update uniform buffer 3 with data for object 3
+...
+// execute commands that draw 100 things, each with their own uniform buffer.
+device.queue.submit([commandBuffer]);
+</pre>
+<p>这是结果</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-uniforms-multiple.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-uniforms-multiple.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>说到这里，还有一件事需要说明。你可以在着色器中自由引用多个 uniform 缓冲区。在上面的示例中，每次绘制时我们都会更新<code class="notranslate" translate="no">scale</code>，然后通过 <code class="notranslate" translate="no">writeBuffer</code> 将对象的 <code class="notranslate" translate="no">uniformValues</code> 上传到相应的 uniform 缓冲区。但是，只有<code class="notranslate" translate="no">scale</code>在更新，颜色和偏移量没有更新，因此我们在上传颜色和偏移量上浪费了时间。</p>
+<p>我们可以将<code class="notranslate" translate="no">uniforms</code>分为需要设置一次的<code class="notranslate" translate="no">uniforms</code>和每次绘制时都要更新的<code class="notranslate" translate="no">uniforms</code>。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const module = device.createShaderModule({
+    code: `
+      struct OurStruct {
+        color: vec4f,
+-        scale: vec2f,
+        offset: vec2f,
+      };
+
++      struct OtherStruct {
++        scale: vec2f,
++      };
+
+      @group(0) @binding(0) var&lt;uniform&gt; ourStruct: OurStruct;
++      @group(0) @binding(1) var&lt;uniform&gt; otherStruct: OtherStruct;
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; @builtin(position) vec4f {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+        return vec4f(
+-          pos[vertexIndex] * ourStruct.scale + ourStruct.offset, 0.0, 1.0);
++          pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
+      }
+
+      @fragment fn fs() -&gt; @location(0) vec4f {
+        return ourStruct.color;
+      }
+    `,
+});
+</pre>
+<p>当我们需要为每个要绘制的对象设置 2 个<code class="notranslate" translate="no">uniform</code>缓冲区时</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  // create a buffer for the uniform values
+-  const uniformBufferSize =
+-    4 * 4 + // color is 4 32bit floats (4bytes each)
+-    2 * 4 + // scale is 2 32bit floats (4bytes each)
+-    2 * 4;  // offset is 2 32bit floats (4bytes each)
+-  // offsets to the various uniform values in float32 indices
+-  const kColorOffset = 0;
+-  const kScaleOffset = 4;
+-  const kOffsetOffset = 6;
++  // create 2 buffers for the uniform values
++  const staticUniformBufferSize =
++    4 * 4 + // color is 4 32bit floats (4bytes each)
++    2 * 4 + // offset is 2 32bit floats (4bytes each)
++    2 * 4;  // padding
++  const uniformBufferSize =
++    2 * 4;  // scale is 2 32bit floats (4bytes each)
++
++  // offsets to the various uniform values in float32 indices
++  const kColorOffset = 0;
++  const kOffsetOffset = 4;
++
++  const kScaleOffset = 0;
+
+  const kNumObjects = 100;
+  const objectInfos = [];
+
+  for (let i = 0; i &lt; kNumObjects; ++i) {
++    const staticUniformBuffer = device.createBuffer({
++      label: `static uniforms for obj: ${i}`,
++      size: staticUniformBufferSize,
++      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
++    });
++
++    // These are only set once so set them now
++    {
+-      const uniformValues = new Float32Array(uniformBufferSize / 4);
++      const uniformValues = new Float32Array(staticUniformBufferSize / 4);
+      uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // set the color
+      uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset);      // set the offset
+
+      // copy these values to the GPU
+-      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
++      device.queue.writeBuffer(staticUniformBuffer, 0, uniformValues);
+    }
+
++    // create a typedarray to hold the values for the uniforms in JavaScript
++    const uniformValues = new Float32Array(uniformBufferSize / 4);
++    const uniformBuffer = device.createBuffer({
++      label: `changing uniforms for obj: ${i}`,
++      size: uniformBufferSize,
++      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
++    });
+
+    const bindGroup = device.createBindGroup({
+      label: `bind group for obj: ${i}`,
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: staticUniformBuffer }},
++        { binding: 1, resource: { buffer: uniformBuffer }},
+      ],
+    });
+
+    objectInfos.push({
+      scale: rand(0.2, 0.5),
+      uniformBuffer,
+      uniformValues,
+      bindGroup,
+    });
+  }
+</pre>
+<p>我们的渲染代码没有任何变化。每个对象的绑定组都包含对每个对象的两个<code class="notranslate" translate="no">uniform</code>缓冲区的引用。就像之前一样，我们正在更新<code class="notranslate" translate="no">scale</code>。但现在我们只在调用 <code class="notranslate" translate="no">device.queue.writeBuffer</code> 时更新 scale 的值，而之前我们更新的是每个对象的<code class="notranslate" translate="no">color</code> + <code class="notranslate" translate="no">offset</code> + <code class="notranslate" translate="no">scale</code>。</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-uniforms-split.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-uniforms-split.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>在这个简单的例子中，分割成多个<code class="notranslate" translate="no">uniform</code>缓冲区可能是矫枉过正，但根据什么变化和何时变化进行分割是很常见的。例子中可能包括共享矩阵的<code class="notranslate" translate="no">uniform</code>缓冲区。例如透视矩阵、视图矩阵、摄像机矩阵。由于我们要绘制的所有对象通常都使用相同的矩阵，因此我们只需制作一个缓冲区，让所有对象使用相同的统一缓冲区即可。</p>
+<p>另外，我们的着色器可能会引用另一个<code class="notranslate" translate="no">uniform</code>缓冲区，该缓冲区只包含该对象特有的内容，如其世界/模型矩阵和法线矩阵。</p>
+<p>另一个统一缓冲区可能包含材质设置。这些设置可能由多个对象共享。</p>
+<p>我们将在讲解绘制 3D 时详细介绍这些内容。</p>
+<p>接下来是<a href="../webgpu-storage-buffers.html">存储缓冲区(storage buffers)</a></p>
 
     </div>
     <div class="lesson-sidebar">
@@ -195,10 +620,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>基础概念</li>
+        <div id="toc">
+          <ul>  <li>基础概念</li>
         <ul>
-          <li><a href="/webgpu/lessons/zh_cn/webgpu-fundamentals.html">Fundamentals</a></li>
-<li><a href="/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html">Inter-stage Variables</a></li>
+          <li><a href="/webgpu/lessons/zh_cn/webgpu-fundamentals.html">基础知识</a></li>
+<li><a href="/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html">Inter-stage 变量</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-uniforms.html">Uniforms</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-storage-buffers.html">Storage Buffers</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
@@ -206,7 +632,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/zh_cn/webgpu-importing-textures.html">Loading Images</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-textures-external-video.html">Using Video</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-constants.html">Constants</a></li>
-<li><a href="/webgpu/lessons/zh_cn/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/zh_cn/webgpu-memory-layout.html">数据内存布局</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-wgsl.html">WGSL</a></li>
@@ -244,10 +670,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://webgpureport.org">WebGPUReport.org</a></li>
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>有疑问? <a href="https://stackoverflow.com/questions/tagged/webgpu">在stackoverflow上提问</a>.</div>
+<div>Issue/Bug? <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues">在GitHub上提issue</a>.</div>
+<div class="lesson-comment-notes">
+   使用 <b>&lt;pre&gt;&lt;code&gt;</b> 代码 <b>&lt;/code&gt;&lt;/pre&gt;</b> 的格式编写代码块
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU Uniforms`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "感谢 <a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a><br>的 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 次贡献</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
 <script src="/webgpu/lessons/resources/lesson.js"></script>

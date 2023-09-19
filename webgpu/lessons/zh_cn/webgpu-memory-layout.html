@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/webgpu-memory-layout.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,70 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="zh-cn"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Data Memory Layout">
+
+<meta name="description" content="如何为 WebGPU 布局及准备数据">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-memory-layout_zh-cn.jpg">
+
+<meta property="og:title" content="WebGPU 数据内存布局">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="How to layout and prepare data for WebGPU">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-memory-layout_zh-cn.jpg">
+<meta property="og:description" content="如何为 WebGPU 布局及准备数据">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-memory-layout.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Data Memory Layout">
+<meta name="twitter:title" content="WebGPU 数据内存布局">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-memory-layout.html">
-<meta name="twitter:description" content="How to layout and prepare data for WebGPU">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="如何为 WebGPU 布局及准备数据">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-memory-layout_zh-cn.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-memory-layout.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-memory-layout_zh-cn.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-memory-layout.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-memory-layout.html",
+      "inLanguage":"zh-cn",
+      "name":"WebGPU 数据内存布局",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-memory-layout.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Data Memory Layout</title>
+<title>WebGPU 数据内存布局</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -175,13 +218,284 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Data Memory Layout</h1>
+    <h1>WebGPU 数据内存布局</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>本课程还没有简体中文版翻译哦  (~￣△￣)~</p>
-<p><a href="https://github.com/gfxfundamentals/webgpufundamentals">欢迎参加翻译</a>! 😄
-<a href="/webgpu/lessons/webgpu-memory-layout.html">英文原版地址</a></p>
+      <p>在 WebGPU 中，您提供的几乎所有数据都需要在内存中进行布局，以便与着色器中的定义相匹配。这与 JavaScript 和 TypeScript 形成了巨大反差，在 JavaScript 和 TypeScript 中，内存布局问题很少出现。</p>
+<p>在 WGSL 中，当您编写着色器时，通常会定义 <code class="notranslate" translate="no">struct</code>结构体。结构体有点像 JavaScript 中的对象。结构体的成员，类似于 JavaScript 对象的属性。但是除了给每个属性命名外，您还必须给它定义一个类型。<strong>此外</strong>，在提供数据时，<strong>您还需要计算</strong>结构体中的特定成员将出现在缓冲区的哪个位置。</p>
+<p>在<a href="../webgpu-wgsl.html">WGSL</a> v1 中, 有 4 中基本类型</p>
+<ul>
+<li><code class="notranslate" translate="no">f32</code> (32 位浮点数)</li>
+<li><code class="notranslate" translate="no">i32</code> (32 位整数)</li>
+<li><code class="notranslate" translate="no">u32</code> (32 位无符号整数)</li>
+<li><code class="notranslate" translate="no">f16</code> (16 位浮点数) <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></li>
+</ul>
+<p>1 个字节为 8 位，所以一个 32 位的值需要 4 个字节，一个 16 位的值则需要 2 个字节。</p>
+<p>如果我们定义个类似下面这样的结构体</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct OurStruct {
+  velocity: f32,
+  acceleration: f32,
+  frameCount: u32,
+};
+</pre>
+<p>这种结构体的可视化表示可能是这样的</p>
+<div class="webgpu_center" data-diagram="ourStructV1"></div>
+<p>每个方形块为一个字节。正如图中所示，一共需要 12 个字节，<code class="notranslate" translate="no">velocity</code>占前 4 个字节，<code class="notranslate" translate="no">acceleration</code>占后 4 个字节，<code class="notranslate" translate="no">frameCount</code>占最后 4 个字节。</p>
+<p>要将数据传递给着色器，我们需要准备数据以匹配内存布局 <code class="notranslate" translate="no">OurStruct</code>。为此，我们需要创建一个 12 字节的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> 然后设置正确类型的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> 视图，这样我们就可以将其填满。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const kOurStructSizeBytes =
+    4 + // velocity
+    4 + // acceleration
+    4; // frameCount
+const ourStructData = new ArrayBuffer(kOurStructSizeBytes);
+const ourStructValuesAsF32 = new Float32Array(ourStructData);
+const ourStructValuesAsU32 = new Uint32Array(ourStructData);
+</pre>
+<p>在上面，<code class="notranslate" translate="no">ourStructData</code> 是一个 ArrayBuffer，它是一块内存空间。，<code class="notranslate" translate="no">ourStructValuesAsF32</code>与<code class="notranslate" translate="no">ourStructValuesAsU32</code>的内存空间是同一个，但是显示的方式不同，一个是以 32 位浮点数显示值的内存视图，另一个则是以 32 位无符号整数显示值得内存视图。</p>
+<p>现在我们有了一个缓冲区和两个视图，可以在结构体上设置数据了。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const kVelocityOffset = 0;
+const kAccelerationOffset = 1;
+const kFrameCountOffset = 2;
+
+ourStructValuesAsF32[kVelocityOffset] = 1.2;
+ourStructValuesAsF32[kAccelerationOffset] = 3.4;
+ourStructValuesAsU32[kFrameCountOffset] = 56; // an integer value
+</pre>
+<p>请注意，就像编程中的许多事情一样，我们有多种方法可以做到这一点。TypedArray 的构造函数有多种形式。例如</p>
+<ul>
+<li>
+<p><code class="notranslate" translate="no">new Float32Array(12)</code>
+该版本创建了一个<strong>新的</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>，在本例中为 12 * 4 字节。然后创建 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>类型的内存视图 来查看它。</p>
+</li>
+<li>
+<p><code class="notranslate" translate="no">new Float32Array([4, 5, 6])</code>
+该版本创建了一个<strong>新的</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>，在本例中为 3 * 4 字节。然后创建 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>类型的内存视图 来查看它。并且设置其初始值为 4, 5, 6。</p>
+<p>请注意，您也可以传递另一个 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>作为参数。例如</p>
+<p><code class="notranslate" translate="no">new Float32Array(someUint8ArrayOf6Values)</code> 将新建一个大小为 6 * 4 的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>，然后创建一个 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 来查看它，再将现有视图中的值复制到新的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 中。数值是按数字而不是二进制复制的。换句话说，它们是这样被复制的</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">srcArray.forEach((v, i) =&gt; (dstArray[i] = v));
+</pre>
+</li>
+<li>
+<p><code class="notranslate" translate="no">new Float32Array(someArrayBuffer)</code>
+这就是我们之前使用的例子。在<strong>现有缓冲区</strong>上新建一个 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 视图。</p>
+</li>
+<li>
+<p><code class="notranslate" translate="no">new Float32Array(someArrayBuffer, byteOffset)</code></p>
+<p>这将在<strong>现有缓冲区上</strong>创建一个新的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>，但会从<code class="notranslate" translate="no">byteOffset</code>偏移处开始创建视图</p>
+</li>
+<li>
+<p><code class="notranslate" translate="no">new Float32Array(someArrayBuffer, byteOffset, length)</code>
+这会在现有缓冲区上新建一个 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>。视图从 <code class="notranslate" translate="no">byteOffset</code>偏移处开始，且具有<code class="notranslate" translate="no">length</code>个单位长度。因此，如果我们以 3 为长度，该视图将是 3 个 float32 值（12 字节）的 <code class="notranslate" translate="no">someArrayBuffer</code></p>
+</li>
+</ul>
+<p>使用最后一种形式，我们可以将上面的代码改为</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const kOurStructSizeBytes =
+    4 + // velocity
+    4 + // acceleration
+    4; // frameCount
+const ourStructData = new ArrayBuffer(kOurStructSizeBytes);
+const velocityView = new Float32Array(ourStructData, 0, 1);
+const accelerationView = new Float32Array(ourStructData, 4, 1);
+const frameCountView = new Uint32Array(ourStructData, 8, 1);
+
+velocityView[0] = 1.2;
+accelerationView[0] = 3.4;
+frameCountView[0] = 56;
+</pre>
+<p>此外，每个类型数组都具有以下属性</p>
+<ul>
+<li><code class="notranslate" translate="no">length</code>: 单元数量</li>
+<li><code class="notranslate" translate="no">byteLength</code>: 字节长度</li>
+<li><code class="notranslate" translate="no">byteOffset</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>在其<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>中的偏移起始位置</li>
+<li><code class="notranslate" translate="no">buffer</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>正在查看的<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a></li>
+</ul>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> 有多种方法，其中许多方法与 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array"><code class="notranslate" translate="no">Array</code></a> 相似，但有一种方法与 Array 不同，那就是 <code class="notranslate" translate="no">subarray</code>。它可以创建一个新的相同类型的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> 视图。它的参数是 <code class="notranslate" translate="no">subarray(begin，end)</code>， end 索引的元素不在其中。因此，<code class="notranslate" translate="no">someTypedArray.subarray(5, 10)</code> 将创建一个新的<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>，其中的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> 与原来的<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>中的<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>是同一个。其中包含 <code class="notranslate" translate="no">someTypedArray</code> 的第 5 至 9 个元素。</p>
+<p>所以我们能够将上面的代码改下如下</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const kOurStructSizeFloat32Units =
+    1 + // velocity
+    1 + // acceleration
+    1; // frameCount
+const ourStructDataAsF32 = new Float32Array(kOurStructSizeFloat32Units);
+const ourStructDataAsU32 = new Uint32Array(ourStructDataAsU32);
+const velocityView = ourStructDataAsF32.subarray(0, 1);
+const accelerationView = ourStructDataAsF32.subarray(1, 2);
+const frameCountView = ourStructDataAsU32(ourStructData, 2, 3);
+
+velocityView[0] = 1.2;
+accelerationView[0] = 3.4;
+frameCountView[0] = 56;
+</pre>
+<p><a href="../webgpu-wgsl.html">WGSL</a> 有 4 种基本类型。它们是：</p>
+<div class="webgpu_center data-table">
+  <div>
+  <style>
+    .wgsl-types tr:nth-child(5n) { height: 1em };
+  </style>
+  <table class="wgsl-types">
+    <thead>
+      <tr><th>type</th><th>description</th><th>short name</th></tr><tr>
+    </tr></thead>
+    <tbody>
+      <tr><td><code class="notranslate" translate="no">vec2&lt;f32&gt;</code></td><td>a type with 2  <code class="notranslate" translate="no">f32</code>s</td><td><code class="notranslate" translate="no">vec2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec2&lt;u32&gt;</code></td><td>a type with 2  <code class="notranslate" translate="no">u32</code>s</td><td><code class="notranslate" translate="no">vec2u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec2&lt;i32&gt;</code></td><td>a type with 2  <code class="notranslate" translate="no">i32</code>s</td><td><code class="notranslate" translate="no">vec2i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec2&lt;f16&gt;</code></td><td>a type with 2  <code class="notranslate" translate="no">f16</code>s</td><td><code class="notranslate" translate="no">vec2h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">vec3&lt;f32&gt;</code></td><td>a type with 3  <code class="notranslate" translate="no">f32</code>s</td><td><code class="notranslate" translate="no">vec3f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec3&lt;u32&gt;</code></td><td>a type with 3  <code class="notranslate" translate="no">u32</code>s</td><td><code class="notranslate" translate="no">vec3u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec3&lt;i32&gt;</code></td><td>a type with 3  <code class="notranslate" translate="no">i32</code>s</td><td><code class="notranslate" translate="no">vec3i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec3&lt;f16&gt;</code></td><td>a type with 3  <code class="notranslate" translate="no">f16</code>s</td><td><code class="notranslate" translate="no">vec3h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">vec4&lt;f32&gt;</code></td><td>a type with 4  <code class="notranslate" translate="no">f32</code>s</td><td><code class="notranslate" translate="no">vec4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec4&lt;u32&gt;</code></td><td>a type with 4  <code class="notranslate" translate="no">u32</code>s</td><td><code class="notranslate" translate="no">vec4u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec4&lt;i32&gt;</code></td><td>a type with 4  <code class="notranslate" translate="no">i32</code>s</td><td><code class="notranslate" translate="no">vec4i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">vec4&lt;f16&gt;</code></td><td>a type with 4  <code class="notranslate" translate="no">f16</code>s</td><td><code class="notranslate" translate="no">vec4h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x2&lt;f32&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec2&lt;f32&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x2&lt;u32&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec2&lt;u32&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x2u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x2&lt;i32&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec2&lt;i32&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x2i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x2&lt;f16&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec2&lt;f16&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x2h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x3&lt;f32&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec3&lt;f32&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x3f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x3&lt;u32&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec3&lt;u32&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x3u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x3&lt;i32&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec3&lt;i32&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x3i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x3&lt;f16&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec3&lt;f16&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x3h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x4&lt;f32&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x4&lt;u32&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec4&lt;u32&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x4u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x4&lt;i32&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec4&lt;i32&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x4i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat2x4&lt;f16&gt;</code></td><td>a matrix of 2 <code class="notranslate" translate="no">vec4&lt;f16&gt;</code>s</td><td><code class="notranslate" translate="no">mat2x4h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x2&lt;f32&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec2&lt;f32&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x2&lt;u32&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec2&lt;u32&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x2u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x2&lt;i32&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec2&lt;i32&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x2i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x2&lt;f16&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec2&lt;f16&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x2h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x3&lt;f32&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec3&lt;f32&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x3f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x3&lt;u32&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec3&lt;u32&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x3u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x3&lt;i32&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec3&lt;i32&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x3i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x3&lt;f16&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec3&lt;f16&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x3h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x4&lt;f32&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x4&lt;u32&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec4&lt;u32&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x4u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x4&lt;i32&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec4&lt;i32&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x4i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat3x4&lt;f16&gt;</code></td><td>a matrix of 3 <code class="notranslate" translate="no">vec4&lt;f16&gt;</code>s</td><td><code class="notranslate" translate="no">mat3x4h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x2&lt;f32&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec2&lt;f32&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x2f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x2&lt;u32&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec2&lt;u32&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x2u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x2&lt;i32&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec2&lt;i32&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x2i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x2&lt;f16&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec2&lt;f16&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x2h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x3&lt;f32&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec3&lt;f32&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x3f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x3&lt;u32&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec3&lt;u32&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x3u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x3&lt;i32&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec3&lt;i32&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x3i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x3&lt;f16&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec3&lt;f16&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x3h</code></td></tr>
+      <tr></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x4&lt;f32&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec4&lt;f32&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x4f</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x4&lt;u32&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec4&lt;u32&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x4u</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x4&lt;i32&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec4&lt;i32&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x4i</code></td></tr>
+      <tr><td><code class="notranslate" translate="no">mat4x4&lt;f16&gt;</code></td><td>a matrix of 4 <code class="notranslate" translate="no">vec4&lt;f16&gt;</code>s</td><td><code class="notranslate" translate="no">mat4x4h</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+<p>已知 <code class="notranslate" translate="no">vec3f</code> 是一个有 3 个 <code class="notranslate" translate="no">f32</code> 的类型，而 <code class="notranslate" translate="no">mat4x4f</code> 是一个由 <code class="notranslate" translate="no">f32</code> 组成的 4x4 矩阵，因此它有 16 个 <code class="notranslate" translate="no">f32</code>，那么你认为下面的结构在内存中是什么样子的？</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Ex2 {
+  scale: f32,
+  offset: vec3f,
+  projection: mat4x4f,
+};
+</pre>
+<p>想好了吗？</p>
+<div class="webgpu_center" data-diagram="ourStructEx2"></div>
+<p>这是怎么回事？原来，每种类型都有对齐要求。对于给定的类型，它必须对齐到一定字节数的倍数。</p>
+<p>以下是各种类型的尺寸和对齐方式。</p>
+<div class="webgpu_center data-table" data-diagram="wgslTypeTable" style="width: 95%; columns: 14em;"></div>
+<p>但等等，还有一个问题！</p>
+<p>你认为这个结构体的布局会是怎样的？</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Ex3 {
+  transform: mat3x3f,
+  directions: array&lt;vec3f, 4&gt;,
+};
+</pre>
+<p><code class="notranslate" translate="no">array&lt;type, count&gt;</code> 语法定义了一个具有<code class="notranslate" translate="no">count</code>元素的数组类型。</p>
+<p>请看…</p>
+<div class="webgpu_center" data-diagram="ourStructEx3"></div>
+<p>如果查看对齐表，你会发现 <code class="notranslate" translate="no">vec3&lt;f32&gt;</code> 的对齐方式为 16 字节。这意味着，无论是矩阵还是数组中的每个 <code class="notranslate" translate="no">vec3&lt;f32&gt;</code> 最终都有一个额外的空格。</p>
+<p>这是另一个结构体，看看它的内存布局</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Ex4a {
+  velocity: vec3f,
+};
+
+struct Ex4 {
+  orientation: vec3f,
+  size: f32,
+  direction: array&lt;vec3f, 1&gt;,
+  scale: f32,
+  info: Ex4a,
+  friction: f32,
+};
+</pre>
+<div class="webgpu_center" data-diagram="ourStructEx4"></div>
+<p>为什么<code class="notranslate" translate="no">size</code>最终就在<code class="notranslate" translate="no">orientation</code>之后，位于字节偏移量 12。而<code class="notranslate" translate="no">scale</code>和<code class="notranslate" translate="no">friction</code>却被移到了偏移量 32 和 64？</p>
+<p>这是因为数组和结构体有自己特殊的对齐规则，所以即使数组是单个 <code class="notranslate" translate="no">vec3f</code>，<code class="notranslate" translate="no">Ex4a</code> 结构体也是单个 <code class="notranslate" translate="no">vec3f</code>，它们也会按照不同的规则对齐。</p>
+<h1 id="计算偏移和大小很麻烦！">计算偏移和大小很麻烦！!</h1>
+<p>计算 WGSL 中数据的大小和偏移可能是 WebGPU 最大的痛点。您需要自己计算这些偏移量并保持更新。如果您在着色器中的结构体中间添加了一个成员，您就需要返回 JavaScript 更新所有偏移量。如果弄错了一个字节或长度，你传给着色器的数据就会出错。虽然不会出错，但着色器很可能会做错事情，因为它看到的是错误的数据。你的模型将无法绘制，或者你的计算将产生糟糕的结果。</p>
+<p>幸运的是，有现成的库可以帮助我们。</p>
+<p>这里有一个：<a href="https://github.com/greggman/webgpu-utils">webgpu-utils</a></p>
+<p>你只需将 WGSL 代码交给它，它就会提供一个 API 来帮你完成所有这些工作。通过这种方式您就可以更改结构，而且通常情况下，一切都能正常工作。</p>
+<p>例如，在最后一个例子中，我们可以像这样将值传递给 <code class="notranslate" translate="no">webgpu-utils</code></p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">import {
+  makeShaderDataDefinitions,
+  makeStructuredView,
+} from 'https://greggman.github.io/webgpu-utils/dist/0.x/webgpu-utils.module.js';
+
+const code = `
+struct Ex4a {
+  velocity: vec3f,
+};
+
+struct Ex4 {
+  orientation: vec3f,
+  size: f32,
+  direction: array&lt;vec3f, 1&gt;,
+  scale: f32,
+  info: Ex4a,
+  friction: f32,
+};
+@group(0) @binding(0) var&lt;uniform&gt; myUniforms: Ex4;
+
+...
+`;
+
+const defs = makeShaderDataDefinitions(code);
+const myUniformValues = makeStructuredView(defs.uniforms.myUniforms);
+
+// Set some values via set
+myUniformValues.set({
+  orientation: [1, 0, -1],
+  size: 2,
+  direction: [0, 1, 0],
+  scale: 1.5,
+  info: {
+    velocity: [2, 3, 4],
+  },
+  friction: 0.1,
+});
+
+// now pass myUniformValues.arrayBuffer to WebGPU when needed.
+</pre>
+<p>至于你是使用这个特定的库，还是使用其他库，或者根本不使用，这取决于你自己。对我来说，我经常要花上二三十到六十分钟的时间来弄清为什么有些东西不能工作，最后才发现是我手动计算的偏移或尺寸出错了，所以对于我自己的工作来说，我宁愿使用一个库来避免这种痛苦。</p>
+<p>如果您想手动计算，<a href="../resources/wgsl-offset-computer.html">这里有一个页面可以为您计算偏移量</a></p>
+<!-- keep this at the bottom of the article -->
+<script type="module" src="../webgpu-memory-layout.js"></script>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p><code class="notranslate" translate="no">f16</code> 类型支持是 <a href="../webgpu-limits-and-features.html">可选的特性</a> <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
@@ -195,10 +509,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>基础概念</li>
+        <div id="toc">
+          <ul>  <li>基础概念</li>
         <ul>
-          <li><a href="/webgpu/lessons/zh_cn/webgpu-fundamentals.html">Fundamentals</a></li>
-<li><a href="/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html">Inter-stage Variables</a></li>
+          <li><a href="/webgpu/lessons/zh_cn/webgpu-fundamentals.html">基础知识</a></li>
+<li><a href="/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html">Inter-stage 变量</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-uniforms.html">Uniforms</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-storage-buffers.html">Storage Buffers</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
@@ -206,7 +521,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/zh_cn/webgpu-importing-textures.html">Loading Images</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-textures-external-video.html">Using Video</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-constants.html">Constants</a></li>
-<li><a href="/webgpu/lessons/zh_cn/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/zh_cn/webgpu-memory-layout.html">数据内存布局</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-wgsl.html">WGSL</a></li>
@@ -244,10 +559,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://webgpureport.org">WebGPUReport.org</a></li>
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>有疑问? <a href="https://stackoverflow.com/questions/tagged/webgpu">在stackoverflow上提问</a>.</div>
+<div>Issue/Bug? <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues">在GitHub上提issue</a>.</div>
+<div class="lesson-comment-notes">
+   使用 <b>&lt;pre&gt;&lt;code&gt;</b> 代码 <b>&lt;/code&gt;&lt;/pre&gt;</b> 的格式编写代码块
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU 数据内存布局`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "感谢 <a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a><br>的 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 次贡献</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
 <script src="/webgpu/lessons/resources/lesson.js"></script>
