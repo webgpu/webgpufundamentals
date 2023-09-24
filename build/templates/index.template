@@ -73,6 +73,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
+{{#ifexists filename="/webgpu/lessons/{{langCode}}/lang.css" langCode=langInfo.baseDirname}}
+<link rel="stylesheet" href="/webgpu/lessons/{{langInfo.baseDirname}}/lang.css">
+{{/ifexists}}
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css" />
 <link rel="stylesheet" href="/webgpu/lessons/resources/index.css" />
 </head>
