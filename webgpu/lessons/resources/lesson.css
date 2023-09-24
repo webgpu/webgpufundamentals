@@ -67,7 +67,7 @@ html {
 
 body {
   margin: 0;
-  font-family: Georgia, serif;
+  font-family: var(--article-font-family);
   font-size: 19px;
   line-height: 1.5em;
   background: var(--main-bg-color);
@@ -147,7 +147,7 @@ pre.prettyprint li {
 }
 pre.prettyprint code, .dos {
     color: #CCC;
-    font-family: "Lucida Console", Monaco, monospace;
+    font-family: var(--code-block-font-family);
     display: block;
 }
 
@@ -172,7 +172,7 @@ div[data-diagram] {
   flex: 1 1 100%;
 }
 .spread .code {
-  font-family: monospace;
+  font-family: var(--code-font-family);
 }
 .spread .code>div {
   text-align: left;
@@ -364,7 +364,7 @@ div[data-diagram] {
     text-indent: -1em;
 }
 h1, h2, h3, h4 {
-  font-family: sans-serif;
+  font-family: var(--headline-font-family);
   line-height: 1.2;
 }
 h3 {
@@ -372,7 +372,7 @@ h3 {
 }
 code {
     color: var(--code-fg-color);
-    font-family: monospace;
+    font-family: var(--code-font-family);
     background-color: var(--code-bg-color);
     padding: 0.1em 0.2em 0.1em 0.2em;
     border-radius: 0.5em;
@@ -465,7 +465,7 @@ div[data-diagram] {
 table.vertex_table {
   border: 1px solid black;
   border-collapse: collapse;
-  font-family: monospace;
+  font-family: var(--code-font-family);
   font-size: small;
 }
 
@@ -548,7 +548,7 @@ pre.prettyprint, code.prettyprint, .dos {
     border: 1px solid #000;
     box-shadow: 10px 10px 0px var(--codearea-shadow-color);
     font-size: 9pt;
-    font-family: "Lucida Console", Monaco, monospace;
+    font-family: var(--code-block-font-family);
     margin: auto;
     padding: 1em;
     text-align: left;           /* override justify on body */
@@ -714,7 +714,7 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
         color: #000;
         background: #EEE;
         font-size: 8pt;
-        font-family: "Lucida Console", Monaco, monospace;
+        font-family: var(--code-block-font-family);
         width: 95%;
         margin: auto;
         padding: 1em;
@@ -830,7 +830,7 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
 }
 .data-table table {
   border-collapse: collapse;
-  font-family: monospace;
+  font-family: var(--code-font-family);
 }
 .data-table thead {
   background-color: var(--table-head-bg-color);
@@ -886,7 +886,7 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
 .byte-diagram td.elem-start { border-left: 1px solid var(--byte-table-border-color); }
 .byte-diagram td.elem-end { border-right: 1px solid var(--byte-table-border-color); }
 .byte-diagram .offset {
-  font-family: monospace;
+  font-family: var(--code-font-family);
   border: 1px solid var(--byte-table-border-color);
 }
 .byte-diagram .field-names {
