@@ -1,8 +1,4 @@
 :root {
-  --article-font-family: Georgia, serif;
-  --headline-font-family: sans-serif;
-  /* a block of code */
-  --code-block-font-family: "Lucida Console", Monaco, monospace;
-  /* a word in a sentence */
-  --code-font-family: monospace;
+  --article-font-family: Apple SD Gothic Neo, Malgun Gothic, sans-serif;
+  --headline-font-family: Apple SD Gothic Neo, Malgun Gothic, sans-serif;
 }
