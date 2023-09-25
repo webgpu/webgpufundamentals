@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/webgpu-storage-buffers.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,73 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="zh-cn"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Storage Buffers">
+
+<meta name="description" content="向着色器中传递大量数据">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-storage-buffers_zh-cn.jpg">
+
+<meta property="og:title" content="WebGPU 存储缓冲区(Storage Buffer)">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="Passing Large Data to Shaders">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-storage-buffers_zh-cn.jpg">
+<meta property="og:description" content="向着色器中传递大量数据">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-storage-buffers.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Storage Buffers">
+<meta name="twitter:title" content="WebGPU 存储缓冲区(Storage Buffer)">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-storage-buffers.html">
-<meta name="twitter:description" content="Passing Large Data to Shaders">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="向着色器中传递大量数据">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-storage-buffers_zh-cn.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-storage-buffers.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-storage-buffers_zh-cn.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-storage-buffers.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-storage-buffers.html",
+      "inLanguage":"zh-cn",
+      "name":"WebGPU 存储缓冲区(Storage Buffer)",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-storage-buffers.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Storage Buffers</title>
+<title>WebGPU 存储缓冲区(Storage Buffer)</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
+<link rel="stylesheet" href="/webgpu/lessons/zh_cn/lang.css">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -175,13 +221,402 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Storage Buffers</h1>
+    <h1>WebGPU 存储缓冲区(Storage Buffer)</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>本课程还没有简体中文版翻译哦  (~￣△￣)~</p>
-<p><a href="https://github.com/gfxfundamentals/webgpufundamentals">欢迎参加翻译</a>! 😄
-<a href="/webgpu/lessons/webgpu-storage-buffers.html">英文原版地址</a></p>
+      <p>这篇文章是关于存储缓冲区(Storage buffer)的，是<a href="../webgpu-uniforms.html">上一篇文章</a>的延续。</p>
+<p>存储缓冲区在很多方面与 uniform 缓冲区相似。如果我们只需将 JavaScript 中的 <code class="notranslate" translate="no">UNIFORM</code> 改为 <code class="notranslate" translate="no">STORAGE</code>，将 WGSL 中的 <code class="notranslate" translate="no">var&lt;uniform&gt;</code> 改为 <code class="notranslate" translate="no">var&lt;storage,read&gt;</code>，上一篇文章中的示例就可以正常工作了。</p>
+<p>事实上，在不对变量重新命名的情况下，它们的区别如下。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    const staticUniformBuffer = device.createBuffer({
+      label: `static uniforms for obj: ${i}`,
+      size: staticUniformBufferSize,
+-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
++      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+    });
+
+
+...
+
+    const uniformBuffer = device.createBuffer({
+      label: `changing uniforms for obj: ${i}`,
+      size: uniformBufferSize,
+-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
++      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+    });
+</pre>
+<p>在 WSGL 中修改如下：</p>
+<pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">      @group(0) @binding(0) var&lt;storage, read&gt; ourStruct: OurStruct;
+      @group(0) @binding(1) var&lt;storage, read&gt; otherStruct: OtherStruct;
+</pre>
+<p>没有任何其他改动，它就能正常工作，就和之前一样</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-storage-split-minimal-changes.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-storage-split-minimal-changes.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<h2 id="uniform-缓冲区与存储缓冲区的区别">uniform 缓冲区与存储缓冲区的区别</h2>
+<p>uniform 缓冲区和存储缓冲区的主要区别在于：</p>
+<ol>
+<li>
+<p>uniform 缓冲区在典型的使用情况下速度更快
+这确实取决于用例。一个典型的应用程序需要绘制大量不同的内容。比方说，这是一款 3D 游戏。应用程序可能会绘制汽车、建筑物、岩石、灌木丛、人物等…每一种都需要传递方向和材质属性，与我们上面的示例所传递的类似。在这种情况下，建议使用统一缓冲区。</p>
+</li>
+<li>
+<p>存储缓冲区的大小可以比 uniform 缓冲区大得多。</p>
+<ul>
+<li>uniform 缓冲区的最小最大值为 64KiB(65536 bytes)</li>
+<li>存储缓冲区的最小最大值为 128MiB(134217728 bytes)</li>
+</ul>
+<p>所谓的最小最大值，是指某类缓冲区的最大容量。对于 uniform 缓冲区，最大大小至少为 64KiB。对于存储缓冲区，则至少为 128 MiB。我们将在<a href="../webgpu-limits-and-features.html">另一篇文章</a>中介绍这类限制。</p>
+</li>
+<li>
+<p>存储缓冲区可读写，uniform 缓冲区只能读</p>
+<p>在<a href="../webgpu-fundamentals.html">第一篇文章</a>的计算着色器示例中，我们看到了向存储缓冲区写入数据的示例。</p>
+</li>
+</ol>
+<h2 id="使用存储缓冲区进行多实例绘制"><a id="a-instancing"></a>使用存储缓冲区进行多实例绘制</h2>
+<p>鉴于上述前两点，让我们以最后一个示例为例，将其改为在一次绘制调用中绘制所有 100 个三角形。这是一个可能适合存储缓冲区的例子。我之所以说 “可能”，是因为 WebGPU 与其他编程语言类似。有许多方法可以实现相同的目标：<code class="notranslate" translate="no">array.forEach</code> vs <code class="notranslate" translate="no">for (const elem of array)</code> vs <code class="notranslate" translate="no">for (let i = 0; i &lt; array.length; ++i)</code>。每种方法都有其用途。WebGPU 也是如此。我们要做的每一件事都有多种方法可以实现。在绘制三角形时，WebGPU 只需从顶点着色器返回<code class="notranslate" translate="no">builtin(position)</code>，并从片段着色器返回<code class="notranslate" translate="no">location(0)</code>的颜色/值即可。<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<p>我们要做的第一件事就是将结构体声明更改为运行时确定大小的数组。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-@group(0) @binding(0) var&lt;storage, read&gt; ourStruct: OurStruct;
+-@group(0) @binding(1) var&lt;storage, read&gt; otherStruct: OtherStruct;
++@group(0) @binding(0) var&lt;storage, read&gt; ourStructs: array&lt;OurStruct&gt;;
++@group(0) @binding(1) var&lt;storage, read&gt; otherStructs: array&lt;OtherStruct&gt;;
+</pre>
+<p>然后，我们将更改着色器以使用这些值</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@vertex fn vs(
+  @builtin(vertex_index) vertexIndex : u32,
++  @builtin(instance_index) instanceIndex: u32
+) -&gt; @builtin(position) {
+  let pos = array(
+    vec2f( 0.0,  0.5),  // top center
+    vec2f(-0.5, -0.5),  // bottom left
+    vec2f( 0.5, -0.5)   // bottom right
+  );
+
++  let otherStruct = otherStructs[instanceIndex];
++  let ourStruct = ourStructs[instanceIndex];
+
+   return vec4f(
+     pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
+}
+</pre>
+<p>我们为顶点着色器添加了一个名为 <code class="notranslate" translate="no">instanceIndex</code> 的新参数，并赋予其 <code class="notranslate" translate="no">@builtin(instance_index)</code> 属性，这意味着每绘制一个 “实例”，它就会从 WebGPU 获取一个值。当我们调用<code class="notranslate" translate="no">draw</code>时，我们可以传递第二个参数 “实例数”，每绘制一个实例，正在被处理的实例数就会传递给我们的函数。</p>
+<p>使用<code class="notranslate" translate="no">instanceIndex</code>，我们就能够从数组中获取到特定的结构体元素。</p>
+<p>我们还需要从正确的数组元素中获取颜色，并将其用于片段着色器。片段着色器无法访问 <code class="notranslate" translate="no">@builtin(instance_index)</code>，因为这样做毫无意义。但更常见的做法是在顶点着色器中查找颜色，将其作为<a href="../webgpu-inter-stage-variables.html">inter-stage 变量</a>传递颜色到片段着色器。</p>
+<p>为此，我们将使用另一个结构体，就像在关于<a href="../webgpu-inter-stage-variables.html">inter-stage 变量</a>的文章中所做的那样。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">+struct VSOutput {
++  @builtin(position) position: vec4f,
++  @location(0) color: vec4f,
++}
+
+@vertex fn vs(
+  @builtin(vertex_index) vertexIndex : u32,
+  @builtin(instance_index) instanceIndex: u32
+-) -&gt; @builtin(position) vec4f {
++) -&gt; VSOutput {
+  let pos = array(
+    vec2f( 0.0,  0.5),  // top center
+    vec2f(-0.5, -0.5),  // bottom left
+    vec2f( 0.5, -0.5)   // bottom right
+  );
+
+  let otherStruct = otherStructs[instanceIndex];
+  let ourStruct = ourStructs[instanceIndex];
+
+-  return vec4f(
+-    pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
++  var vsOut: VSOutput;
++  vsOut.position = vec4f(
++      pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
++  vsOut.color = ourStruct.color;
++  return vsOut;
+}
+
+-@fragment fn fs() -&gt; @location(0) vec4f {
+-  return ourStruct.color;
++@fragment fn fs(vsOut: VSOutput) -&gt; @location(0) vec4f {
++  return vsOut.color;
+}
+
+</pre>
+<p>现在我们已经修改了 WGSL 着色器，让我们更新 JavaScript 代码。</p>
+<p>设置如下</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const kNumObjects = 100;
+const objectInfos = [];
+
+// create 2 storage buffers
+const staticUnitSize =
+    4 * 4 + // color is 4 32bit floats (4bytes each)
+    2 * 4 + // offset is 2 32bit floats (4bytes each)
+    2 * 4; // padding
+const changingUnitSize = 2 * 4; // scale is 2 32bit floats (4bytes each)
+const staticStorageBufferSize = staticUnitSize * kNumObjects;
+const changingStorageBufferSize = changingUnitSize * kNumObjects;
+
+const staticStorageBuffer = device.createBuffer({
+    label: 'static storage for objects',
+    size: staticStorageBufferSize,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+});
+
+const changingStorageBuffer = device.createBuffer({
+    label: 'changing storage for objects',
+    size: changingStorageBufferSize,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+});
+
+// offsets to the various uniform values in float32 indices
+const kColorOffset = 0;
+const kOffsetOffset = 4;
+
+const kScaleOffset = 0;
+
+{
+    const staticStorageValues = new Float32Array(staticStorageBufferSize / 4);
+    for (let i = 0; i &lt; kNumObjects; ++i) {
+        const staticOffset = i * (staticUnitSize / 4);
+
+        // These are only set once so set them now
+        staticStorageValues.set(
+            [rand(), rand(), rand(), 1],
+            staticOffset + kColorOffset
+        ); // set the color
+        staticStorageValues.set(
+            [rand(-0.9, 0.9), rand(-0.9, 0.9)],
+            staticOffset + kOffsetOffset
+        ); // set the offset
+
+        objectInfos.push({
+            scale: rand(0.2, 0.5),
+        });
+    }
+    device.queue.writeBuffer(staticStorageBuffer, 0, staticStorageValues);
+}
+
+// a typed array we can use to update the changingStorageBuffer
+const storageValues = new Float32Array(changingStorageBufferSize / 4);
+
+const bindGroup = device.createBindGroup({
+    label: 'bind group for objects',
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+        { binding: 0, resource: { buffer: staticStorageBuffer } },
+        { binding: 1, resource: { buffer: changingStorageBuffer } },
+    ],
+});
+</pre>
+<p>上面我们创建了 2 个存储缓冲区。一个用于保存 <code class="notranslate" translate="no">OurStruct</code> 数组数据，另一个用于 <code class="notranslate" translate="no">OtherStruct</code> 数组。</p>
+<p>然后，我们用偏移和颜色填充 <code class="notranslate" translate="no">OurStruct</code> 数组的值，然后将数据上传到 <code class="notranslate" translate="no">staticStorageBuffer</code>。</p>
+<p>我们只需创建一个绑定组来引用两个缓冲区。</p>
+<p>新的渲染代码如下</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
+    // Get the current texture from the canvas context and
+    // set it as the texture to render to.
+    renderPassDescriptor.colorAttachments[0].view =
+        context.getCurrentTexture().createView();
+
+    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+
+    // Set the uniform values in our JavaScript side Float32Array
+    const aspect = canvas.width / canvas.height;
+
+-    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
+-      uniformValues.set([scale / aspect, scale], kScaleOffset); // set the scale
+-      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+-
+-      pass.setBindGroup(0, bindGroup);
+-      pass.draw(3);  // call our vertex shader 3 times
+-    }
+
++    // set the scales for each object
++    objectInfos.forEach(({scale}, ndx) =&gt; {
++      const offset = ndx * (changingUnitSize / 4);
++      storageValues.set([scale / aspect, scale], offset + kScaleOffset); // set the scale
++    });
++    // upload all scales at once
++    device.queue.writeBuffer(changingStorageBuffer, 0, storageValues);
++
++    pass.setBindGroup(0, bindGroup);
++    pass.draw(3, kNumObjects);  // call our vertex shader 3 times for each instance
+
+
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+  }
+</pre>
+<p>上面的代码将绘制 <code class="notranslate" translate="no">kNumObjects</code> 个实例。对于每个实例，WebGPU 将调用顶点着色器 3 次，<code class="notranslate" translate="no">vertex_index</code> 设置为 0、1、2，<code class="notranslate" translate="no">instance_index</code> 设置为 0、kNumObjects - 1。</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-storage-buffer-split.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-storage-buffer-split.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>我们只需一次绘制调用，就能绘制出所有 100 个三角形，每个三角形都有不同的比例、颜色和偏移量。在需要绘制同一对象的大量实例时，这也是一种方法。</p>
+<h2 id="为顶点数据使用存储缓冲区">为顶点数据使用存储缓冲区</h2>
+<p>在此之前，我们一直在着色器中直接使用硬编码的三角形。存储缓冲区的一个用例是存储顶点数据。就像我们在上面的示例中用 <code class="notranslate" translate="no">instance_index</code> 对当前存储缓冲区进行索引一样，我们也可以用 <code class="notranslate" translate="no">vertex_index</code> 对另一个存储缓冲区进行索引，以获取顶点数据。</p>
+<p>让我们开始吧！</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct OurStruct {
+  color: vec4f,
+  offset: vec2f,
+};
+
+struct OtherStruct {
+  scale: vec2f,
+};
+
++struct Vertex {
++  position: vec2f,
++};
+
+struct VSOutput {
+  @builtin(position) position: vec4f,
+  @location(0) color: vec4f,
+};
+
+@group(0) @binding(0) var&lt;storage, read&gt; ourStructs: array&lt;OurStruct&gt;;
+@group(0) @binding(1) var&lt;storage, read&gt; otherStructs: array&lt;OtherStruct&gt;;
++@group(0) @binding(2) var&lt;storage, read&gt; pos: array&lt;Vertex&gt;;
+
+@vertex fn vs(
+  @builtin(vertex_index) vertexIndex : u32,
+  @builtin(instance_index) instanceIndex: u32
+) -&gt; VSOutput {
+-  let pos = array(
+-    vec2f( 0.0,  0.5),  // top center
+-    vec2f(-0.5, -0.5),  // bottom left
+-    vec2f( 0.5, -0.5)   // bottom right
+-  );
+
+  let otherStruct = otherStructs[instanceIndex];
+  let ourStruct = ourStructs[instanceIndex];
+
+  var vsOut: VSOutput;
+  vsOut.position = vec4f(
+-      pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
++      pos[vertexIndex].position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
+  vsOut.color = ourStruct.color;
+  return vsOut;
+}
+
+@fragment fn fs(vsOut: VSOutput) -&gt; @location(0) vec4f {
+  return vsOut.color;
+}
+</pre>
+<p>现在，我们需要为顶点数据再设置一个存储缓冲区。首先，让我们创建一个函数来生成顶点数据。让我们制作一个圆。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function createCircleVertices({
+    radius = 1,
+    numSubdivisions = 24,
+    innerRadius = 0,
+    startAngle = 0,
+    endAngle = Math.PI * 2,
+} = {}) {
+    // 2 triangles per subdivision, 3 verts per tri, 2 values (xy) each.
+    const numVertices = numSubdivisions * 3 * 2;
+    const vertexData = new Float32Array(numSubdivisions * 2 * 3 * 2);
+
+    let offset = 0;
+    const addVertex = (x, y) =&gt; {
+        vertexData[offset++] = x;
+        vertexData[offset++] = y;
+    };
+
+    // 2 vertices per subdivision
+    //
+    // 0--1 4
+    // | / /|
+    // |/ / |
+    // 2 3--5
+    for (let i = 0; i &lt; numSubdivisions; ++i) {
+        const angle1 =
+            startAngle + ((i + 0) * (endAngle - startAngle)) / numSubdivisions;
+        const angle2 =
+            startAngle + ((i + 1) * (endAngle - startAngle)) / numSubdivisions;
+
+        const c1 = Math.cos(angle1);
+        const s1 = Math.sin(angle1);
+        const c2 = Math.cos(angle2);
+        const s2 = Math.sin(angle2);
+
+        // first triangle
+        addVertex(c1 * radius, s1 * radius);
+        addVertex(c2 * radius, s2 * radius);
+        addVertex(c1 * innerRadius, s1 * innerRadius);
+
+        // second triangle
+        addVertex(c1 * innerRadius, s1 * innerRadius);
+        addVertex(c2 * radius, s2 * radius);
+        addVertex(c2 * innerRadius, s2 * innerRadius);
+    }
+
+    return {
+        vertexData,
+        numVertices,
+    };
+}
+</pre>
+<p>上面的代码是这样用三角形画圆的</p>
+<div class="webgpu_center"><div class="center"><div data-diagram="circle" style="width: 300px;"></div></div></div>
+<p>因此，我们可以用它来将圆的顶点填充到存储缓冲区中</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// setup a storage buffer with vertex data
+const { vertexData, numVertices } = createCircleVertices({
+    radius: 0.5,
+    innerRadius: 0.25,
+});
+const vertexStorageBuffer = device.createBuffer({
+    label: 'storage buffer vertices',
+    size: vertexData.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+});
+device.queue.writeBuffer(vertexStorageBuffer, 0, vertexData);
+</pre>
+<p>然后，我们需要将其添加到绑定组中。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const bindGroup = device.createBindGroup({
+    label: 'bind group for objects',
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+        { binding: 0, resource: { buffer: staticStorageBuffer } },
+        { binding: 1, resource: { buffer: changingStorageBuffer } },
+        +{ binding: 2, resource: { buffer: vertexStorageBuffer } },
+    ],
+});
+</pre>
+<p>最后在渲染时，我们需要要求渲染圆中的所有顶点。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-pass.draw(3, kNumObjects); // call our vertex shader 3 times for several instances
++pass.draw(numVertices, kNumObjects);
+</pre>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-storage-buffer-vertices.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-storage-buffer-vertices.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>上面我们使用了</p>
+<pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">struct Vertex {
+  pos: vec2f;
+};
+
+@group(0) @binding(2) var&lt;storage, read&gt; pos: array&lt;Vertex&gt;;
+</pre>
+<p>我们完全可以不使用结构体，直接使用 <code class="notranslate" translate="no">vec2f</code>。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(2) var&lt;storage, read&gt; pos: vec2f;
+</pre>
+<p>但是，如果把它变成一个结构体，以后添加每个顶点的数据会不会更容易呢？</p>
+<p>通过存储缓冲区传递顶点的方法越来越受欢迎。不过我听说在一些较老的设备上，这种方式比传统方式要慢，我们将在下一篇关于<a href="../webgpu-vertex-buffers.html">顶点缓冲区</a>的文章中介绍这种方式。</p>
+<!-- keep this at the bottom of the article -->
+<script type="module" src=".././webgpu-storage-buffers.js"></script>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>我们可以有多个颜色附件，然后我们需要为 <code class="notranslate" translate="no">location(1)</code>、<code class="notranslate" translate="no">location(2)</code> 等返回更多颜色/值… ︎ <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
@@ -195,12 +630,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>基础概念</li>
+        <div id="toc">
+          <ul>  <li>基础概念</li>
         <ul>
           <li><a href="/webgpu/lessons/zh_cn/webgpu-fundamentals.html">基础知识</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html">Inter-stage 变量</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-uniforms.html">Uniforms</a></li>
-<li><a href="/webgpu/lessons/zh_cn/webgpu-storage-buffers.html">Storage Buffers</a></li>
+<li><a href="/webgpu/lessons/zh_cn/webgpu-storage-buffers.html">存储缓冲区（Storage Buffer）</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-textures.html">Textures</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-importing-textures.html">Loading Images</a></li>
@@ -244,10 +680,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://webgpureport.org">WebGPUReport.org</a></li>
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>有疑问? <a href="https://stackoverflow.com/questions/tagged/webgpu">在stackoverflow上提问</a>.</div>
+<div>Issue/Bug? <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues">在GitHub上提issue</a>.</div>
+<div class="lesson-comment-notes">
+   使用 <b>&lt;pre&gt;&lt;code&gt;</b> 代码 <b>&lt;/code&gt;&lt;/pre&gt;</b> 的格式编写代码块
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU 存储缓冲区(Storage Buffer)`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "感谢 <a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a><br>的 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 次贡献</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
 <script src="/webgpu/lessons/resources/lesson.js"></script>
