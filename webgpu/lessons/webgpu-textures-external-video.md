@@ -277,6 +277,3 @@ and not stretch them out 50 to 1 like we had before.
 And with that we get a zero copy video texture in WebGPU
 
 {{{example url="../webgpu-simple-textured-quad-external-video.html"}}}
-
-> PS: There's a bug in Chrome 115 that makes the video stutter.
-> It should be fixed in Chrome 116.
