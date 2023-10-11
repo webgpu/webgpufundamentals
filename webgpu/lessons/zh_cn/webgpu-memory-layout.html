@@ -317,9 +317,9 @@ frameCountView[0] = 56;
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const kOurStructSizeFloat32Units =
     1 + // velocity
     1 + // acceleration
-    1; // frameCount
+    1 ; // frameCount
 const ourStructDataAsF32 = new Float32Array(kOurStructSizeFloat32Units);
-const ourStructDataAsU32 = new Uint32Array(ourStructDataAsU32);
+const ourStructDataAsU32 = new Uint32Array(ourStructDataAsF32.buffer);
 const velocityView = ourStructDataAsF32.subarray(0, 1);
 const accelerationView = ourStructDataAsF32.subarray(1, 2);
 const frameCountView = ourStructDataAsU32(ourStructData, 2, 3);
