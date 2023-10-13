@@ -125,7 +125,7 @@ will be passed to our function.
 Using `instanceIndex` we can get specific struct elements from our arrays
 of structs.
 
-We also need to some get the color from the correct array element and use
+We also need to get the color from the correct array element and use
 it in our fragment shader. The fragment shader doesn't have access to
 `@builtin(instance_index)` because that would make no sense. We could pass
 it as an [inter-stage variable](webgpu-inter-stage-variables.html) but it
