@@ -331,7 +331,7 @@ and for each instance drawn, the number of the instance being processed
 will be passed to our function.</p>
 <p>Using <code class="notranslate" translate="no">instanceIndex</code> we can get specific struct elements from our arrays
 of structs.</p>
-<p>We also need to some get the color from the correct array element and use
+<p>We also need to get the color from the correct array element and use
 it in our fragment shader. The fragment shader doesn’t have access to
 <code class="notranslate" translate="no">@builtin(instance_index)</code> because that would make no sense. We could pass
 it as an <a href="webgpu-inter-stage-variables.html">inter-stage variable</a> but it
