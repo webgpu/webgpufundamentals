@@ -1,7 +1,5 @@
-/* webgpu-utils@0.4.1, license MIT */
+/* webgpu-utils@0.12.2, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
-// TODO: fix better?
-const isTypedArray = (arr) => arr && typeof arr.length === 'number' && arr.buffer instanceof ArrayBuffer && typeof arr.byteLength === 'number';
 
 class TypedArrayViewGenerator {
     arrayBuffer;
@@ -22,6 +20,12 @@ class TypedArrayViewGenerator {
         return view;
     }
 }
+function subarray(arr, offset, length) {
+    return arr.subarray(offset, offset + length);
+}
+// TODO: fix better?
+const isTypedArray = (arr) => arr && typeof arr.length === 'number' && arr.buffer instanceof ArrayBuffer && typeof arr.byteLength === 'number';
+
 const b = {
     i32: { numElements: 1, align: 4, size: 4, type: 'i32', View: Int32Array },
     u32: { numElements: 1, align: 4, size: 4, type: 'u32', View: Uint32Array },
@@ -93,54 +97,107 @@ const typeInfo = {
     'mat4x4<f16>': b.mat4x4h,
 };
 // This needs to be fixed! 😱
-function getSizeOfStructDef(fieldDef) {
-    if (Array.isArray(fieldDef)) {
-        return fieldDef.length * getSizeOfStructDef(fieldDef[0]);
+function getSizeOfTypeDef(typeDef) {
+    const asArrayDef = typeDef;
+    const elementType = asArrayDef.elementType;
+    if (elementType) {
+        if (isIntrinsic(elementType)) {
+            const asIntrinsicDef = elementType;
+            const { align } = typeInfo[asIntrinsicDef.type];
+            return roundUpToMultipleOf(typeDef.size, align) * asArrayDef.numElements;
+        }
+        else {
+            return asArrayDef.numElements * getSizeOfTypeDef(elementType);
+        }
     }
     else {
-        return fieldDef.size;
+        const asStructDef = typeDef;
+        const numElements = asArrayDef.numElements || 1;
+        if (asStructDef.fields) {
+            return typeDef.size * numElements;
+        }
+        else {
+            const asIntrinsicDef = typeDef;
+            const { align } = typeInfo[asIntrinsicDef.type];
+            return numElements > 1
+                ? roundUpToMultipleOf(typeDef.size, align) * numElements
+                : typeDef.size;
+        }
     }
+}
+function range(count, fn) {
+    return new Array(count).fill(0).map((_, i) => fn(i));
+}
+// If numElements is undefined this is NOT an array. If it is defined then it IS an array
+// Sizes for arrays are different than sizes for non-arrays. Example
+// a vec3f non array is Float32Array(3)
+// a vec3f array of 2 is Float32Array(4 * 2)
+// a vec3f array of 1 is Float32Array(4 * 1)
+function makeIntrinsicTypedArrayView(typeDef, buffer, baseOffset, numElements) {
+    const { size, type } = typeDef;
+    try {
+        const { View, align } = typeInfo[type];
+        const isArray = numElements !== undefined;
+        const sizeInBytes = isArray
+            ? roundUpToMultipleOf(size, align)
+            : size;
+        const baseNumElements = sizeInBytes / View.BYTES_PER_ELEMENT;
+        return new View(buffer, baseOffset, baseNumElements * (numElements || 1));
+    }
+    catch {
+        throw new Error(`unknown type: ${type}`);
+    }
+}
+function isIntrinsic(typeDef) {
+    return !typeDef.fields &&
+        !typeDef.elementType;
 }
 /**
  * Creates a set of named TypedArray views on an ArrayBuffer
- * @param structDef Definition of the various types of views.
+ * @param typeDef Definition of the various types of views.
  * @param arrayBuffer Optional ArrayBuffer to use (if one provided one will be created)
  * @param offset Optional offset in existing ArrayBuffer to start the views.
  * @returns A bunch of named TypedArray views and the ArrayBuffer
  */
-function makeTypedArrayViews(structDef, arrayBuffer, offset) {
+function makeTypedArrayViews(typeDef, arrayBuffer, offset) {
     const baseOffset = offset || 0;
-    const buffer = arrayBuffer || new ArrayBuffer(getSizeOfStructDef(structDef));
-    const makeViews = (structDef) => {
-        if (Array.isArray(structDef)) {
-            return structDef.map(elemDef => makeViews(elemDef));
+    const buffer = arrayBuffer || new ArrayBuffer(getSizeOfTypeDef(typeDef));
+    const makeViews = (typeDef, baseOffset) => {
+        const asArrayDef = typeDef;
+        const elementType = asArrayDef.elementType;
+        if (elementType) {
+            // TODO: Should be optional? Per Type? Depth set? Per field?
+            // The issue is, if we have `array<vec4, 1000>` we don't likely
+            // want 1000 `Float32Array(4)` views. We want 1 `Float32Array(1000 * 4)` view.
+            // On the other hand, if we have `array<mat4x4, 10>` the maybe we do want
+            // 10 `Float32Array(16)` views since you might want to do
+            // `mat4.perspective(fov, aspect, near, far, foo.bar.arrayOf10Mat4s[3])`;
+            if (isIntrinsic(elementType)) {
+                return makeIntrinsicTypedArrayView(elementType, buffer, baseOffset, asArrayDef.numElements);
+            }
+            else {
+                const elementSize = getSizeOfTypeDef(elementType);
+                return range(asArrayDef.numElements, i => makeViews(elementType, baseOffset + elementSize * i));
+            }
         }
-        else if (typeof structDef === 'string') {
+        else if (typeof typeDef === 'string') {
             throw Error('unreachable');
         }
         else {
-            const fields = structDef.fields;
+            const fields = typeDef.fields;
             if (fields) {
                 const views = {};
-                for (const [name, def] of Object.entries(fields)) {
-                    views[name] = makeViews(def);
+                for (const [name, { type, offset }] of Object.entries(fields)) {
+                    views[name] = makeViews(type, baseOffset + offset);
                 }
                 return views;
             }
             else {
-                const { size, offset, type } = structDef;
-                try {
-                    const { View } = typeInfo[type];
-                    const numElements = size / View.BYTES_PER_ELEMENT;
-                    return new View(buffer, baseOffset + offset, numElements);
-                }
-                catch {
-                    throw new Error(`unknown type: ${type}`);
-                }
+                return makeIntrinsicTypedArrayView(typeDef, buffer, baseOffset);
             }
         }
     };
-    return { views: makeViews(structDef), arrayBuffer: buffer };
+    return { views: makeViews(typeDef, baseOffset), arrayBuffer: buffer };
 }
 /**
  * Given a set of TypeArrayViews and matching JavaScript data
@@ -162,7 +219,7 @@ function setStructuredView(data, views) {
                 // complete hack!
                 // there's no type data here so let's guess based on the user's data
                 const dataLen = data[0].length;
-                const stride = dataLen == 3 ? 4 : dataLen;
+                const stride = dataLen === 3 ? 4 : dataLen;
                 for (let i = 0; i < data.length; ++i) {
                     const offset = i * stride;
                     view.set(data[i], offset);
@@ -190,15 +247,17 @@ function setStructuredView(data, views) {
     }
 }
 /**
- * Given a StructDefinition, create matching TypedArray views
- * @param structDef A StructDefinition as returned from {@link makeShaderDataDefinitions}
+ * Given a VariableDefinition, create matching TypedArray views
+ * @param varDef A VariableDefinition as returned from {@link makeShaderDataDefinitions}
  * @param arrayBuffer Optional ArrayBuffer for the views
  * @param offset Optional offset into the ArrayBuffer for the views
  * @returns TypedArray views for the various named fields of the structure as well
  *    as a `set` function to make them easy to set, and the arrayBuffer
  */
-function makeStructuredView(structDef, arrayBuffer, offset = 0) {
-    const views = makeTypedArrayViews(structDef, arrayBuffer, offset);
+function makeStructuredView(varDef, arrayBuffer, offset = 0) {
+    const asVarDef = varDef;
+    const typeDef = asVarDef.group === undefined ? varDef : asVarDef.typeDefinition;
+    const views = makeTypedArrayViews(typeDef, arrayBuffer, offset);
     return {
         ...views,
         set(data) {
@@ -224,35 +283,57 @@ function getView(arrayBuffer, Ctor) {
     }
     return view;
 }
-function setStructuredValues(fieldDef, data, arrayBuffer, offset = 0) {
-    const asIntrinsicDefinition = fieldDef;
-    if (asIntrinsicDefinition.type) {
-        const type = typeInfo[asIntrinsicDefinition.type];
-        const view = getView(arrayBuffer, type.View);
-        const index = (offset + asIntrinsicDefinition.offset) / view.BYTES_PER_ELEMENT;
-        if (typeof data === 'number') {
-            view[index] = data;
-        }
-        else {
-            view.set(data, index);
-        }
-    }
-    else if (Array.isArray(fieldDef)) {
-        // It's IntrinsicDefinition[] or StructDefinition[]
-        data.forEach((newValue, ndx) => {
-            setStructuredValues(fieldDef[ndx], newValue, arrayBuffer, offset);
-        });
+// Is this something like [1,2,3]?
+function isArrayLikeOfNumber(data) {
+    return isTypedArray(data) || Array.isArray(data) && typeof data[0] === 'number';
+}
+function setIntrinsicFromArrayLikeOfNumber(typeDef, data, arrayBuffer, offset) {
+    const asIntrinsicDefinition = typeDef;
+    const type = typeInfo[asIntrinsicDefinition.type];
+    const view = getView(arrayBuffer, type.View);
+    const index = offset / view.BYTES_PER_ELEMENT;
+    if (typeof data === 'number') {
+        view[index] = data;
     }
     else {
+        view.set(data, index);
+    }
+}
+function setTypedValues(typeDef, data, arrayBuffer, offset = 0) {
+    const asArrayDef = typeDef;
+    const elementType = asArrayDef.elementType;
+    if (elementType) {
+        // It's ArrayDefinition
+        if (isIntrinsic(elementType)) {
+            const asIntrinsicDef = elementType;
+            if (isArrayLikeOfNumber(data)) {
+                setIntrinsicFromArrayLikeOfNumber(asIntrinsicDef, data, arrayBuffer, offset);
+                return;
+            }
+        }
+        data.forEach((newValue, ndx) => {
+            setTypedValues(elementType, newValue, arrayBuffer, offset + elementType.size * ndx);
+        });
+        return;
+    }
+    const asStructDef = typeDef;
+    const fields = asStructDef.fields;
+    if (fields) {
         // It's StructDefinition
-        const asStructDefinition = fieldDef;
         for (const [key, newValue] of Object.entries(data)) {
-            const fieldDef = asStructDefinition.fields[key];
+            const fieldDef = fields[key];
             if (fieldDef) {
-                setStructuredValues(fieldDef, newValue, arrayBuffer, offset);
+                setTypedValues(fieldDef.type, newValue, arrayBuffer, offset + fieldDef.offset);
             }
         }
     }
+    else {
+        // It's IntrinsicDefinition
+        setIntrinsicFromArrayLikeOfNumber(typeDef, data, arrayBuffer, offset);
+    }
+}
+function setStructuredValues(varDef, data, arrayBuffer, offset = 0) {
+    setTypedValues(varDef.typeDefinition, data, arrayBuffer, offset);
 }
 
 class ParseContext {
@@ -339,6 +420,20 @@ class While extends Statement {
     }
 }
 /**
+ * @class Continuing
+ * @extends Statement
+ * @category AST
+ */
+class Continuing extends Statement {
+    constructor(body) {
+        super();
+        this.body = body;
+    }
+    get astNodeType() {
+        return "continuing";
+    }
+}
+/**
  * @class For
  * @extends Statement
  * @category AST
@@ -371,6 +466,22 @@ class Var extends Statement {
     }
     get astNodeType() {
         return "var";
+    }
+}
+/**
+ * @class Override
+ * @extends Statement
+ * @category AST
+ */
+class Override extends Statement {
+    constructor(name, type, value) {
+        super();
+        this.name = name;
+        this.type = type;
+        this.value = value;
+    }
+    get astNodeType() {
+        return "override";
     }
 }
 /**
@@ -557,29 +668,6 @@ class Return extends Statement {
     }
 }
 /**
- * @class Struct
- * @extends Statement
- * @category AST
- */
-class Struct extends Statement {
-    constructor(name, members) {
-        super();
-        this.name = name;
-        this.members = members;
-    }
-    get astNodeType() {
-        return "struct";
-    }
-    /// Return the index of the member with the given name, or -1 if not found.
-    getMemberIndex(name) {
-        for (let i = 0; i < this.members.length; i++) {
-            if (this.members[i].name == name)
-                return i;
-        }
-        return -1;
-    }
-}
-/**
  * @class Enable
  * @extends Statement
  * @category AST
@@ -649,16 +737,47 @@ class Continue extends Statement {
 }
 /**
  * @class Type
- * @extends Node
+ * @extends Statement
  * @category AST
  */
-class Type extends Node {
+class Type extends Statement {
     constructor(name) {
         super();
         this.name = name;
     }
     get astNodeType() {
         return "type";
+    }
+    get isStruct() {
+        return false;
+    }
+    get isArray() {
+        return false;
+    }
+}
+/**
+ * @class StructType
+ * @extends Type
+ * @category AST
+ */
+class Struct extends Type {
+    constructor(name, members) {
+        super(name);
+        this.members = members;
+    }
+    get astNodeType() {
+        return "struct";
+    }
+    get isStruct() {
+        return true;
+    }
+    /// Return the index of the member with the given name, or -1 if not found.
+    getMemberIndex(name) {
+        for (let i = 0; i < this.members.length; i++) {
+            if (this.members[i].name == name)
+                return i;
+        }
+        return -1;
     }
 }
 /**
@@ -706,6 +825,9 @@ class ArrayType extends Type {
     }
     get astNodeType() {
         return "array";
+    }
+    get isArray() {
+        return true;
     }
 }
 /**
@@ -1288,6 +1410,7 @@ TokenTypes.keywords = {
     texture_depth_cube: new TokenType("texture_depth_cube", TokenClass.keyword, "texture_depth_cube"),
     texture_depth_cube_array: new TokenType("texture_depth_cube_array", TokenClass.keyword, "texture_depth_cube_array"),
     texture_depth_multisampled_2d: new TokenType("texture_depth_multisampled_2d", TokenClass.keyword, "texture_depth_multisampled_2d"),
+    texture_external: new TokenType("texture_external", TokenClass.keyword, "texture_external"),
     u32: new TokenType("u32", TokenClass.keyword, "u32"),
     vec2: new TokenType("vec2", TokenClass.keyword, "vec2"),
     vec3: new TokenType("vec3", TokenClass.keyword, "vec3"),
@@ -1301,7 +1424,6 @@ TokenTypes.keywords = {
     default: new TokenType("default", TokenClass.keyword, "default"),
     discard: new TokenType("discard", TokenClass.keyword, "discard"),
     else: new TokenType("else", TokenClass.keyword, "else"),
-    elseif: new TokenType("elseif", TokenClass.keyword, "elseif"),
     enable: new TokenType("enable", TokenClass.keyword, "enable"),
     fallthrough: new TokenType("fallthrough", TokenClass.keyword, "fallthrough"),
     false: new TokenType("false", TokenClass.keyword, "false"),
@@ -1324,6 +1446,7 @@ TokenTypes.keywords = {
     type: new TokenType("type", TokenClass.keyword, "type"),
     uniform: new TokenType("uniform", TokenClass.keyword, "uniform"),
     var: new TokenType("var", TokenClass.keyword, "var"),
+    override: new TokenType("override", TokenClass.keyword, "override"),
     workgroup: new TokenType("workgroup", TokenClass.keyword, "workgroup"),
     write: new TokenType("write", TokenClass.keyword, "write"),
     r8unorm: new TokenType("r8unorm", TokenClass.keyword, "r8unorm"),
@@ -1370,9 +1493,9 @@ TokenTypes.keywords = {
         pointer: new TokenType("ptr", TokenClass.keyword, "ptr"),*/
 };
 TokenTypes.tokens = {
-    decimal_float_literal: new TokenType("decimal_float_literal", TokenClass.token, /((-?[0-9]*\.[0-9]+|-?[0-9]+\.[0-9]*)((e|E)(\+|-)?[0-9]+)?f?)|(-?[0-9]+(e|E)(\+|-)?[0-9]+f?)/),
+    decimal_float_literal: new TokenType("decimal_float_literal", TokenClass.token, /((-?[0-9]*\.[0-9]+|-?[0-9]+\.[0-9]*)((e|E)(\+|-)?[0-9]+)?f?)|(-?[0-9]+(e|E)(\+|-)?[0-9]+f?)|([0-9]+f)/),
     hex_float_literal: new TokenType("hex_float_literal", TokenClass.token, /-?0x((([0-9a-fA-F]*\.[0-9a-fA-F]+|[0-9a-fA-F]+\.[0-9a-fA-F]*)((p|P)(\+|-)?[0-9]+f?)?)|([0-9a-fA-F]+(p|P)(\+|-)?[0-9]+f?))/),
-    int_literal: new TokenType("int_literal", TokenClass.token, /-?0x[0-9a-fA-F]+|0|-?[1-9][0-9]*/),
+    int_literal: new TokenType("int_literal", TokenClass.token, /-?0x[0-9a-fA-F]+|0i?|-?[1-9][0-9]*i?/),
     uint_literal: new TokenType("uint_literal", TokenClass.token, /0x[0-9a-fA-F]+u|0u|[1-9][0-9]*u/),
     ident: new TokenType("ident", TokenClass.token, /[a-zA-Z][0-9a-zA-Z_]*/),
     and: new TokenType("and", TokenClass.token, "&"),
@@ -1464,11 +1587,13 @@ TokenTypes.depth_texture_type = [
     _a.keywords.texture_depth_cube_array,
     _a.keywords.texture_depth_multisampled_2d,
 ];
+TokenTypes.texture_external_type = [_a.keywords.texture_external];
 TokenTypes.any_texture_type = [
     ..._a.sampled_texture_type,
     ..._a.multisampled_texture_type,
     ..._a.storage_texture_type,
     ..._a.depth_texture_type,
+    ..._a.texture_external_type,
 ];
 TokenTypes.texel_format = [
     _a.keywords.r8unorm,
@@ -1900,6 +2025,13 @@ class WgslParser {
             this._consume(TokenTypes.tokens.semicolon, "Expected ';'.");
             return _var;
         }
+        if (this._check(TokenTypes.keywords.override)) {
+            const _override = this._override_variable_decl();
+            if (_override != null)
+                _override.attributes = attrs;
+            this._consume(TokenTypes.tokens.semicolon, "Expected ';'.");
+            return _override;
+        }
         if (this._check(TokenTypes.keywords.let)) {
             const _let = this._global_let_decl();
             if (_let != null)
@@ -1985,6 +2117,7 @@ class WgslParser {
         // variable_statement semicolon
         // break_statement semicolon
         // continue_statement semicolon
+        // continuing_statement compound_statement
         // discard semicolon
         // assignment_statement semicolon
         // compound_statement
@@ -2004,6 +2137,8 @@ class WgslParser {
             return this._for_statement();
         if (this._check(TokenTypes.keywords.while))
             return this._while_statement();
+        if (this._check(TokenTypes.keywords.continuing))
+            return this._continuing_statement();
         if (this._check(TokenTypes.keywords.static_assert))
             return this._static_assert_statement();
         if (this._check(TokenTypes.tokens.brace_left))
@@ -2044,6 +2179,12 @@ class WgslParser {
         let condition = this._optional_paren_expression();
         const block = this._compound_statement();
         return new While(condition, block);
+    }
+    _continuing_statement() {
+        if (!this._match(TokenTypes.keywords.continuing))
+            return null;
+        const block = this._compound_statement();
+        return new Continuing(block);
     }
     _for_statement() {
         // for paren_left for_header paren_right compound_statement
@@ -2170,7 +2311,7 @@ class WgslParser {
         const statements = [];
         let statement = this._statement();
         while (statement !== null) {
-            if (statement instanceof (Array)) {
+            if (Array.isArray(statement)) {
                 for (let s of statement) {
                     statements.push(s);
                 }
@@ -2258,22 +2399,32 @@ class WgslParser {
             return null;
         const condition = this._optional_paren_expression();
         const block = this._compound_statement();
-        let elseif = null;
-        if (this._match(TokenTypes.keywords.elseif))
-            elseif = this._elseif_statement();
+        let elseif = [];
+        if (this._match_elseif()) {
+            elseif = this._elseif_statement(elseif);
+        }
         let _else = null;
         if (this._match(TokenTypes.keywords.else))
             _else = this._compound_statement();
         return new If(condition, block, elseif, _else);
     }
-    _elseif_statement() {
+    _match_elseif() {
+        if (this._tokens[this._current].type === TokenTypes.keywords.else &&
+            this._tokens[this._current + 1].type === TokenTypes.keywords.if) {
+            this._advance();
+            this._advance();
+            return true;
+        }
+        return false;
+    }
+    _elseif_statement(elseif = []) {
         // else_if optional_paren_expression compound_statement elseif_statement?
-        const elseif = [];
         const condition = this._optional_paren_expression();
         const block = this._compound_statement();
         elseif.push(new ElseIf(condition, block));
-        if (this._match(TokenTypes.keywords.elseif))
-            elseif.push(this._elseif_statement()[0]);
+        if (this._match_elseif()) {
+            this._elseif_statement(elseif);
+        }
         return elseif;
     }
     _return_statement() {
@@ -2550,6 +2701,13 @@ class WgslParser {
             _var.value = this._const_expression();
         return _var;
     }
+    _override_variable_decl() {
+        // attribute* override_decl (equal const_expression)?
+        const _override = this._override_decl();
+        if (_override && this._match(TokenTypes.tokens.equal))
+            _override.value = this._const_expression();
+        return _override;
+    }
     _global_const_decl() {
         // attribute* const (ident variable_ident_decl) global_const_initializer?
         if (!this._match(TokenTypes.keywords.const))
@@ -2564,7 +2722,7 @@ class WgslParser {
         }
         let value = null;
         if (this._match(TokenTypes.tokens.equal)) {
-            let valueExpr = this._short_circuit_or_expression();
+            const valueExpr = this._short_circuit_or_expression();
             if (valueExpr instanceof CreateExpr) {
                 value = valueExpr;
             }
@@ -2573,8 +2731,13 @@ class WgslParser {
                 value = valueExpr.initializer;
             }
             else {
-                let constValue = valueExpr.evaluate(this._context);
-                value = new LiteralExpr(constValue);
+                try {
+                    const constValue = valueExpr.evaluate(this._context);
+                    value = new LiteralExpr(constValue);
+                }
+                catch (_a) {
+                    value = valueExpr;
+                }
             }
         }
         const c = new Const(name.toString(), type, "", "", value);
@@ -2639,6 +2802,20 @@ class WgslParser {
         }
         return new Var(name.toString(), type, storage, access, null);
     }
+    _override_decl() {
+        // override (ident variable_ident_decl)
+        if (!this._match(TokenTypes.keywords.override))
+            return null;
+        const name = this._consume(TokenTypes.tokens.ident, "Expected variable name");
+        let type = null;
+        if (this._match(TokenTypes.tokens.colon)) {
+            const attrs = this._attribute();
+            type = this._type_decl();
+            if (type != null)
+                type.attributes = attrs;
+        }
+        return new Override(name.toString(), type, null);
+    }
     _enable_directive() {
         // enable ident semicolon
         const name = this._consume(TokenTypes.tokens.ident, "identity expected.");
@@ -2690,6 +2867,13 @@ class WgslParser {
             TokenTypes.keywords.u32,
         ])) {
             const type = this._advance();
+            const typeName = type.toString();
+            if (this._context.structs.has(typeName)) {
+                return this._context.structs.get(typeName);
+            }
+            if (this._context.aliases.has(typeName)) {
+                return this._context.aliases.get(typeName).type;
+            }
             return new Type(type.toString());
         }
         if (this._check(TokenTypes.template_types)) {
@@ -2836,69 +3020,172 @@ class WgslParser {
 /**
  * @author Brendan Duncan / https://github.com/brendan-duncan
  */
-class VariableInfo {
-    constructor(node, group, binding) {
-        this.group = group;
-        this.binding = binding;
-        this.node = node;
-    }
-    get name() {
-        return this.node.name;
-    }
-    get type() {
-        return this.node.type;
-    }
-    get attributes() {
-        return this.node.attributes;
-    }
-}
-class FunctionInfo {
-    constructor(node) {
-        this.inputs = [];
-        this.node = node;
-    }
-    get name() {
-        return this.node.name;
-    }
-    get returnType() {
-        return this.node.returnType;
-    }
-    get args() {
-        return this.node.args;
-    }
-    get attributes() {
-        return this.node.attributes;
-    }
-}
-class InputInfo {
-    constructor(name, type, input, locationType, location) {
+class TypeInfo {
+    constructor(name, attributes) {
         this.name = name;
-        this.type = type;
-        this.input = input;
-        this.locationType = locationType;
-        this.location = location;
-        this.interpolation = this.interpolation;
+        this.attributes = attributes;
+        this.size = 0;
+    }
+    get isArray() {
+        return false;
+    }
+    get isStruct() {
+        return false;
+    }
+    get isTemplate() {
+        return false;
     }
 }
 class MemberInfo {
+    constructor(name, type, attributes) {
+        this.name = name;
+        this.type = type;
+        this.attributes = attributes;
+        this.offset = 0;
+        this.size = 0;
+    }
+    get isArray() {
+        return this.type.isArray;
+    }
+    get isStruct() {
+        return this.type.isStruct;
+    }
+    get isTemplate() {
+        return this.type.isTemplate;
+    }
+    get align() {
+        return this.type.isStruct ? this.type.align : 0;
+    }
+    get members() {
+        return this.type.isStruct ? this.type.members : null;
+    }
+    get format() {
+        return this.type.isArray
+            ? this.type.format
+            : this.type.isTemplate
+                ? this.type.format
+                : null;
+    }
+    get count() {
+        return this.type.isArray ? this.type.count : 0;
+    }
+    get stride() {
+        return this.type.isArray ? this.type.stride : this.size;
+    }
 }
-class TypeInfo {
+class StructInfo extends TypeInfo {
+    constructor(name, attributes) {
+        super(name, attributes);
+        this.members = [];
+        this.align = 0;
+    }
+    get isStruct() {
+        return true;
+    }
+}
+class ArrayInfo extends TypeInfo {
+    constructor(name, attributes) {
+        super(name, attributes);
+        this.count = 0;
+        this.stride = 0;
+    }
+    get isArray() {
+        return true;
+    }
+}
+class TemplateInfo extends TypeInfo {
+    constructor(name, format, attributes) {
+        super(name, attributes);
+        this.format = format;
+    }
+    get isTemplate() {
+        return true;
+    }
+}
+var ResourceType;
+(function (ResourceType) {
+    ResourceType[ResourceType["Uniform"] = 0] = "Uniform";
+    ResourceType[ResourceType["Storage"] = 1] = "Storage";
+    ResourceType[ResourceType["Texture"] = 2] = "Texture";
+    ResourceType[ResourceType["Sampler"] = 3] = "Sampler";
+})(ResourceType || (ResourceType = {}));
+class VariableInfo {
+    constructor(name, type, group, binding, attributes, resourceType) {
+        this.name = name;
+        this.type = type;
+        this.group = group;
+        this.binding = binding;
+        this.attributes = attributes;
+        this.resourceType = resourceType;
+    }
+    get isArray() {
+        return this.type.isArray;
+    }
+    get isStruct() {
+        return this.type.isStruct;
+    }
+    get isTemplate() {
+        return this.type.isTemplate;
+    }
+    get size() {
+        return this.type.size;
+    }
+    get align() {
+        return this.type.isStruct ? this.type.align : 0;
+    }
+    get members() {
+        return this.type.isStruct ? this.type.members : null;
+    }
+    get format() {
+        return this.type.isArray
+            ? this.type.format
+            : this.type.isTemplate
+                ? this.type.format
+                : null;
+    }
+    get count() {
+        return this.type.isArray ? this.type.count : 0;
+    }
+    get stride() {
+        return this.type.isArray ? this.type.stride : this.size;
+    }
+}
+class AliasInfo {
+    constructor(name, type) {
+        this.name = name;
+        this.type = type;
+    }
+}
+class _TypeSize {
     constructor(align, size) {
         this.align = align;
         this.size = size;
     }
 }
-class BufferInfo extends TypeInfo {
-    constructor(name, type) {
-        super(0, 0);
+class InputInfo {
+    constructor(name, type, locationType, location) {
         this.name = name;
         this.type = type;
+        this.locationType = locationType;
+        this.location = location;
+        this.interpolation = null;
     }
 }
-class BindGropEntry {
-    constructor(type, resource) {
+class OutputInfo {
+    constructor(name, type, locationType, location) {
+        this.name = name;
         this.type = type;
-        this.resource = resource;
+        this.locationType = locationType;
+        this.location = location;
+    }
+}
+class FunctionInfo {
+    constructor(name, stage = null) {
+        this.stage = null;
+        this.inputs = [];
+        this.outputs = [];
+        this.name = name;
+        this.stage = stage;
     }
 }
 class EntryFunctions {
@@ -2908,10 +3195,16 @@ class EntryFunctions {
         this.compute = [];
     }
 }
+class OverrideInfo {
+    constructor(name, type, attributes, id) {
+        this.name = name;
+        this.type = type;
+        this.attributes = attributes;
+        this.id = id;
+    }
+}
 class WgslReflect {
     constructor(code) {
-        /// All top-level structs in the shader.
-        this.structs = [];
         /// All top-level uniform vars in the shader.
         this.uniforms = [];
         /// All top-level storage vars in the shader.
@@ -2920,101 +3213,153 @@ class WgslReflect {
         this.textures = [];
         // All top-level sampler vars in the shader.
         this.samplers = [];
-        /// All top-level functions in the shader.
-        this.functions = [];
         /// All top-level type aliases in the shader.
         this.aliases = [];
-        if (code)
-            this.initialize(code);
-    }
-    initialize(code) {
-        const parser = new WgslParser();
-        this.ast = parser.parse(code);
+        /// All top-level overrides in the shader.
+        this.overrides = [];
+        /// All top-level structs in the shader.
+        this.structs = [];
+        /// All entry functions in the shader: vertex, fragment, and/or compute.
         this.entry = new EntryFunctions();
-        for (const node of this.ast) {
-            if (node.astNodeType == "struct")
-                this.structs.push(node);
-            if (node.astNodeType == "alias")
-                this.aliases.push(node);
-            if (this.isUniformVar(node)) {
-                const v = node;
-                const g = this.getAttributeNum(node, "group", 0);
-                const b = this.getAttributeNum(node, "binding", 0);
-                this.uniforms.push(new VariableInfo(v, g, b));
+        this._types = new Map();
+        if (code) {
+            this.update(code);
+        }
+    }
+    update(code) {
+        const parser = new WgslParser();
+        const ast = parser.parse(code);
+        for (const node of ast) {
+            if (node instanceof Struct) {
+                const info = this._getTypeInfo(node, null);
+                if (info instanceof StructInfo) {
+                    this.structs.push(info);
+                }
             }
-            if (this.isStorageVar(node)) {
-                const v = node;
-                const g = this.getAttributeNum(node, "group", 0);
-                const b = this.getAttributeNum(node, "binding", 0);
-                this.storage.push(new VariableInfo(v, g, b));
+            if (node instanceof Alias) {
+                this.aliases.push(this._getAliasInfo(node));
             }
-            if (this.isTextureVar(node)) {
+            if (node instanceof Override) {
                 const v = node;
-                const g = this.getAttributeNum(node, "group", 0);
-                const b = this.getAttributeNum(node, "binding", 0);
-                this.textures.push(new VariableInfo(v, g, b));
+                const id = this._getAttributeNum(v.attributes, "id", 0);
+                const type = v.type != null ? this._getTypeInfo(v.type, v.attributes) : null;
+                this.overrides.push(new OverrideInfo(v.name, type, v.attributes, id));
             }
-            if (this.isSamplerVar(node)) {
+            if (this._isUniformVar(node)) {
                 const v = node;
-                const g = this.getAttributeNum(node, "group", 0);
-                const b = this.getAttributeNum(node, "binding", 0);
-                this.samplers.push(new VariableInfo(v, g, b));
+                const g = this._getAttributeNum(v.attributes, "group", 0);
+                const b = this._getAttributeNum(v.attributes, "binding", 0);
+                const type = this._getTypeInfo(v.type, v.attributes);
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Uniform);
+                this.uniforms.push(varInfo);
+            }
+            if (this._isStorageVar(node)) {
+                const v = node;
+                const g = this._getAttributeNum(v.attributes, "group", 0);
+                const b = this._getAttributeNum(v.attributes, "binding", 0);
+                const type = this._getTypeInfo(v.type, v.attributes);
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Storage);
+                this.storage.push(varInfo);
+            }
+            if (this._isTextureVar(node)) {
+                const v = node;
+                const g = this._getAttributeNum(v.attributes, "group", 0);
+                const b = this._getAttributeNum(v.attributes, "binding", 0);
+                const type = this._getTypeInfo(v.type, v.attributes);
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Texture);
+                this.textures.push(varInfo);
+            }
+            if (this._isSamplerVar(node)) {
+                const v = node;
+                const g = this._getAttributeNum(v.attributes, "group", 0);
+                const b = this._getAttributeNum(v.attributes, "binding", 0);
+                const type = this._getTypeInfo(v.type, v.attributes);
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Sampler);
+                this.samplers.push(varInfo);
             }
             if (node instanceof Function) {
-                const fn = new FunctionInfo(node);
-                fn.inputs = this._getInputs(node.args);
-                this.functions.push(fn);
-                const vertexStage = this.getAttribute(node, "vertex");
-                const fragmentStage = this.getAttribute(node, "fragment");
-                const computeStage = this.getAttribute(node, "compute");
+                const vertexStage = this._getAttribute(node, "vertex");
+                const fragmentStage = this._getAttribute(node, "fragment");
+                const computeStage = this._getAttribute(node, "compute");
                 const stage = vertexStage || fragmentStage || computeStage;
                 if (stage) {
+                    const fn = new FunctionInfo(node.name, stage.name);
+                    fn.inputs = this._getInputs(node.args);
+                    fn.outputs = this._getOutputs(node.returnType);
                     this.entry[stage.name].push(fn);
                 }
             }
         }
     }
-    isTextureVar(node) {
-        return (node instanceof Var &&
-            node.type !== null &&
-            WgslReflect.textureTypes.indexOf(node.type.name) != -1);
-    }
-    isSamplerVar(node) {
-        return (node instanceof Var &&
-            node.type !== null &&
-            WgslReflect.samplerTypes.indexOf(node.type.name) != -1);
-    }
-    isUniformVar(node) {
-        return node instanceof Var && node.storage == "uniform";
-    }
-    isStorageVar(node) {
-        return node instanceof Var && node.storage == "storage";
-    }
-    getAttributeNum(node, name, defaultValue) {
-        const a = this.getAttribute(node, name);
-        if (a == null) {
-            return defaultValue;
+    getBindGroups() {
+        const groups = [];
+        function _makeRoom(group, binding) {
+            if (group >= groups.length)
+                groups.length = group + 1;
+            if (groups[group] === undefined)
+                groups[group] = [];
+            if (binding >= groups[group].length)
+                groups[group].length = binding + 1;
         }
-        let v = a !== null && a.value !== null ? a.value : defaultValue;
-        if (v instanceof Array) {
-            v = v[0];
+        for (const u of this.uniforms) {
+            _makeRoom(u.group, u.binding);
+            const group = groups[u.group];
+            group[u.binding] = u;
         }
-        if (typeof v === "number") {
-            return v;
+        for (const u of this.storage) {
+            _makeRoom(u.group, u.binding);
+            const group = groups[u.group];
+            group[u.binding] = u;
         }
-        if (typeof v === "string") {
-            return parseInt(v);
+        for (const t of this.textures) {
+            _makeRoom(t.group, t.binding);
+            const group = groups[t.group];
+            group[t.binding] = t;
         }
-        return defaultValue;
+        for (const t of this.samplers) {
+            _makeRoom(t.group, t.binding);
+            const group = groups[t.group];
+            group[t.binding] = t;
+        }
+        return groups;
     }
-    getAttribute(node, name) {
-        const obj = node;
-        if (!obj || !obj["attributes"])
-            return null;
-        const attrs = obj["attributes"];
-        for (let a of attrs) {
-            if (a.name == name)
-                return a;
+    _getOutputs(type, outputs = undefined) {
+        if (outputs === undefined)
+            outputs = [];
+        if (type instanceof Struct) {
+            this._getStructOutputs(type, outputs);
+        }
+        else {
+            const output = this._getOutputInfo(type);
+            if (output !== null)
+                outputs.push(output);
+        }
+        return outputs;
+    }
+    _getStructOutputs(struct, outputs) {
+        for (const m of struct.members) {
+            if (m.type instanceof Struct) {
+                this._getStructOutputs(m.type, outputs);
+            }
+            else {
+                const location = this._getAttribute(m, "location") || this._getAttribute(m, "builtin");
+                if (location !== null) {
+                    const typeInfo = this._getTypeInfo(m.type, m.type.attributes);
+                    const locationValue = this._parseInt(location.value);
+                    const info = new OutputInfo(m.name, typeInfo, location.name, locationValue);
+                    outputs.push(info);
+                }
+            }
+        }
+    }
+    _getOutputInfo(type) {
+        const location = this._getAttribute(type, "location") ||
+            this._getAttribute(type, "builtin");
+        if (location !== null) {
+            const typeInfo = this._getTypeInfo(type, type.attributes);
+            const locationValue = this._parseInt(location.value);
+            const info = new OutputInfo("", typeInfo, location.name, locationValue);
+            return info;
         }
         return null;
     }
@@ -3022,20 +3367,37 @@ class WgslReflect {
         if (inputs === undefined)
             inputs = [];
         for (const arg of args) {
-            const input = this._getInputInfo(arg);
-            if (input !== null)
-                inputs.push(input);
-            const struct = this.getStruct(arg.type);
-            if (struct)
-                this._getInputs(struct.members, inputs);
+            if (arg.type instanceof Struct) {
+                this._getStructInputs(arg.type, inputs);
+            }
+            else {
+                const input = this._getInputInfo(arg);
+                if (input !== null)
+                    inputs.push(input);
+            }
         }
         return inputs;
     }
+    _getStructInputs(struct, inputs) {
+        for (const m of struct.members) {
+            if (m.type instanceof Struct) {
+                this._getStructInputs(m.type, inputs);
+            }
+            else {
+                const input = this._getInputInfo(m);
+                if (input !== null)
+                    inputs.push(input);
+            }
+        }
+    }
     _getInputInfo(node) {
-        const location = this.getAttribute(node, "location") || this.getAttribute(node, "builtin");
+        const location = this._getAttribute(node, "location") ||
+            this._getAttribute(node, "builtin");
         if (location !== null) {
-            const interpolation = this.getAttribute(node, "interpolation");
-            const info = new InputInfo(node.name, node.type, node, location.name, this._parseInt(location.value));
+            const interpolation = this._getAttribute(node, "interpolation");
+            const type = this._getTypeInfo(node.type, node.attributes);
+            const locationValue = this._parseInt(location.value);
+            const info = new InputInfo(node.name, type, location.name, locationValue);
             if (interpolation !== null) {
                 info.interpolation = this._parseString(interpolation.value);
             }
@@ -3056,205 +3418,122 @@ class WgslReflect {
         const n = parseInt(s);
         return isNaN(n) ? s : n;
     }
-    getStruct(name) {
-        if (name === null)
-            return null;
-        if (name instanceof Struct)
-            return name;
-        name = this.getAlias(name) || name;
-        if (name instanceof Type) {
-            name = name.name;
-        }
-        for (const u of this.structs) {
-            if (u.name == name)
-                return u;
+    _getAlias(name) {
+        for (const a of this.aliases) {
+            if (a.name == name)
+                return a.type;
         }
         return null;
     }
-    getAlias(type) {
-        if (type === null)
-            return null;
-        if (type instanceof Node) {
-            if (!(type instanceof Type)) {
-                return null;
+    _getAliasInfo(node) {
+        return new AliasInfo(node.name, this._getTypeInfo(node.type, null));
+    }
+    _getTypeInfo(type, attributes) {
+        if (this._types.has(type)) {
+            return this._types.get(type);
+        }
+        if (type instanceof ArrayType) {
+            const a = type;
+            const t = this._getTypeInfo(a.format, a.attributes);
+            const info = new ArrayInfo(a.name, attributes);
+            info.format = t;
+            info.count = a.count;
+            this._types.set(type, info);
+            this._updateTypeInfo(info);
+            return info;
+        }
+        if (type instanceof Struct) {
+            const s = type;
+            const info = new StructInfo(s.name, attributes);
+            for (const m of s.members) {
+                const t = this._getTypeInfo(m.type, m.attributes);
+                info.members.push(new MemberInfo(m.name, t, m.attributes));
             }
-            type = type.name;
+            this._types.set(type, info);
+            this._updateTypeInfo(info);
+            return info;
         }
-        for (const u of this.aliases) {
-            if (u.name == type)
-                return this.getAlias(u.type) || u.type;
+        if (type instanceof TemplateType) {
+            const t = type;
+            const format = t.format ? this._getTypeInfo(t.format, null) : null;
+            const info = new TemplateInfo(t.name, format, attributes);
+            this._types.set(type, info);
+            this._updateTypeInfo(info);
+            return info;
         }
-        return null;
-    }
-    getBindGroups() {
-        const groups = [];
-        function _makeRoom(group, binding) {
-            if (group >= groups.length)
-                groups.length = group + 1;
-            if (groups[group] === undefined)
-                groups[group] = [];
-            if (binding >= groups[group].length)
-                groups[group].length = binding + 1;
-        }
-        for (const u of this.uniforms) {
-            _makeRoom(u.group, u.binding);
-            const group = groups[u.group];
-            group[u.binding] = new BindGropEntry("buffer", this.getUniformBufferInfo(u));
-        }
-        for (const u of this.storage) {
-            _makeRoom(u.group, u.binding);
-            const group = groups[u.group];
-            group[u.binding] = new BindGropEntry("storage", this.getStorageBufferInfo(u));
-        }
-        for (const t of this.textures) {
-            _makeRoom(t.group, t.binding);
-            const group = groups[t.group];
-            group[t.binding] = new BindGropEntry("texture", t);
-        }
-        for (const t of this.samplers) {
-            _makeRoom(t.group, t.binding);
-            const group = groups[t.group];
-            group[t.binding] = new BindGropEntry("sampler", t);
-        }
-        return groups;
-    }
-    getStorageBufferInfo(node) {
-        if (node instanceof VariableInfo) {
-            node = node.node;
-        }
-        if (!this.isStorageVar(node))
-            return null;
-        const group = this.getAttributeNum(node, "group", 0);
-        const binding = this.getAttributeNum(node, "binding", 0);
-        const info = this._getUniformInfo(node);
-        info.group = group;
-        info.binding = binding;
+        const info = new TypeInfo(type.name, attributes);
+        this._types.set(type, info);
+        this._updateTypeInfo(info);
         return info;
     }
-    /// Returns information about a struct type, null if the type is not a struct.
-    getStructInfo(node) {
-        var _a, _b, _c, _d, _e;
-        if (node === null)
-            return null;
-        const struct = node instanceof Struct ? node : this.getStruct(node.type);
-        if (!struct)
-            return null;
+    _updateTypeInfo(type) {
+        var _a, _b;
+        const typeSize = this._getTypeSize(type);
+        type.size = (_a = typeSize === null || typeSize === void 0 ? void 0 : typeSize.size) !== null && _a !== void 0 ? _a : 0;
+        if (type instanceof ArrayInfo) {
+            const formatInfo = this._getTypeSize(type["format"]);
+            type.stride = (_b = formatInfo === null || formatInfo === void 0 ? void 0 : formatInfo.size) !== null && _b !== void 0 ? _b : 0;
+            this._updateTypeInfo(type["format"]);
+        }
+        if (type instanceof StructInfo) {
+            this._updateStructInfo(type);
+        }
+    }
+    _updateStructInfo(struct) {
+        var _a;
         let offset = 0;
         let lastSize = 0;
         let lastOffset = 0;
         let structAlign = 0;
-        let buffer = new BufferInfo(node.name, node instanceof Var ? node.type : null);
-        buffer.members = [];
         for (let mi = 0, ml = struct.members.length; mi < ml; ++mi) {
             const member = struct.members[mi];
-            const name = member.name;
-            const info = this.getTypeInfo(member);
-            if (!info)
+            const sizeInfo = this._getTypeSize(member);
+            if (!sizeInfo)
                 continue;
-            const type = this.getAlias(member.type) || member.type;
-            const align = info.align;
-            const size = info.size;
+            (_a = this._getAlias(member.type.name)) !== null && _a !== void 0 ? _a : member.type;
+            const align = sizeInfo.align;
+            const size = sizeInfo.size;
             offset = this._roundUp(align, offset + lastSize);
             lastSize = size;
             lastOffset = offset;
             structAlign = Math.max(structAlign, align);
-            const isArray = member.type.astNodeType === "array";
-            const s = this.getStruct(type) ||
-                (isArray ? this.getStruct((_a = type["format"]) === null || _a === void 0 ? void 0 : _a.name) : null);
-            const isStruct = !!s;
-            const si = isStruct ? this.getStructInfo(s) : undefined;
-            const arrayStride = ((_b = si === null || si === void 0 ? void 0 : si.size) !== null && _b !== void 0 ? _b : isArray)
-                ? (_c = this.getTypeInfo(type["format"])) === null || _c === void 0 ? void 0 : _c.size
-                : (_d = this.getTypeInfo(member.type)) === null || _d === void 0 ? void 0 : _d.size;
-            const arrayCount = (_e = member.type["count"]) !== null && _e !== void 0 ? _e : 0;
-            const members = isStruct ? si === null || si === void 0 ? void 0 : si.members : undefined;
-            const u = new MemberInfo();
-            u.node = member;
-            u.name = name;
-            u.offset = offset;
-            u.size = size;
-            u.type = type;
-            u.isArray = isArray;
-            u.arrayCount = arrayCount;
-            u.arrayStride = arrayStride;
-            u.isStruct = isStruct;
-            u.members = members;
-            buffer.members.push(u);
+            member.offset = offset;
+            member.size = size;
+            this._updateTypeInfo(member.type);
         }
-        buffer.size = this._roundUp(structAlign, lastOffset + lastSize);
-        buffer.align = structAlign;
-        buffer.isArray = false;
-        buffer.isStruct = true;
-        buffer.arrayCount = 0;
-        return buffer;
+        struct.size = this._roundUp(structAlign, lastOffset + lastSize);
+        struct.align = structAlign;
     }
-    _getUniformInfo(node) {
-        var _a, _b, _c, _d, _e;
-        const structInfo = this.getStructInfo(node);
-        if (structInfo !== null)
-            return structInfo;
-        var n = node;
-        const typeInfo = this.getTypeInfo(n.type);
-        if (typeInfo === null)
-            return null;
-        const type = this.getAlias(n.type) || n.type;
-        const info = new BufferInfo(node.name, type);
-        info.align = typeInfo.align;
-        info.size = typeInfo.size;
-        let s = this.getStruct((_a = type["format"]) === null || _a === void 0 ? void 0 : _a.name);
-        let si = s ? this.getStructInfo(s) : undefined;
-        info.isArray = type.astNodeType === "array";
-        info.isStruct = !!s;
-        info.members = info.isStruct ? si === null || si === void 0 ? void 0 : si.members : undefined;
-        info.name = n.name;
-        info.type = type;
-        info.arrayStride =
-            ((_b = si === null || si === void 0 ? void 0 : si.size) !== null && _b !== void 0 ? _b : info.isArray)
-                ? (_c = this.getTypeInfo(type["format"])) === null || _c === void 0 ? void 0 : _c.size
-                : (_d = this.getTypeInfo(type)) === null || _d === void 0 ? void 0 : _d.size;
-        info.arrayCount = parseInt((_e = type["count"]) !== null && _e !== void 0 ? _e : 0);
-        return info;
-    }
-    getUniformBufferInfo(uniform) {
-        if (!this.isUniformVar(uniform.node))
-            return null;
-        const info = this._getUniformInfo(uniform.node);
-        info.group = uniform.group;
-        info.binding = uniform.binding;
-        return info;
-    }
-    getTypeInfo(type) {
+    _getTypeSize(type) {
         var _a;
         if (type === null || type === undefined)
             return null;
-        const explicitSize = this.getAttributeNum(type, "size", 0);
-        const explicitAlign = this.getAttributeNum(type, "align", 0);
-        if (type instanceof Member)
+        const explicitSize = this._getAttributeNum(type.attributes, "size", 0);
+        const explicitAlign = this._getAttributeNum(type.attributes, "align", 0);
+        if (type instanceof MemberInfo)
             type = type.type;
-        if (type instanceof Type) {
-            const alias = this.getAlias(type.name);
+        if (type instanceof TypeInfo) {
+            const alias = this._getAlias(type.name);
             if (alias !== null) {
                 type = alias;
             }
-            const struct = this.getStruct(type.name);
-            if (struct !== null)
-                type = struct;
         }
         {
-            const info = WgslReflect.typeInfo[type.name];
+            const info = WgslReflect._typeInfo[type.name];
             if (info !== undefined) {
                 const divisor = type["format"] === "f16" ? 2 : 1;
-                return new TypeInfo(Math.max(explicitAlign, info.align / divisor), Math.max(explicitSize, info.size / divisor));
+                return new _TypeSize(Math.max(explicitAlign, info.align / divisor), Math.max(explicitSize, info.size / divisor));
             }
         }
         {
-            const info = WgslReflect.typeInfo[type.name.substring(0, type.name.length - 1)];
+            const info = WgslReflect._typeInfo[type.name.substring(0, type.name.length - 1)];
             if (info) {
                 const divisor = type.name[type.name.length - 1] === "h" ? 2 : 1;
-                return new TypeInfo(Math.max(explicitAlign, info.align / divisor), Math.max(explicitSize, info.size / divisor));
+                return new _TypeSize(Math.max(explicitAlign, info.align / divisor), Math.max(explicitSize, info.size / divisor));
             }
         }
-        if (type.name == "array") {
+        if (type instanceof ArrayInfo) {
+            let arrayType = type;
             let align = 8;
             let size = 8;
             // Type                 AlignOf(T)          Sizeof(T)
@@ -3267,19 +3546,19 @@ class WgslReflect {
             // @stride(Q)
             // array<E>             AlignOf(E)          Nruntime * Q
             //const E = type.format.name;
-            const E = this.getTypeInfo(type["format"]);
+            const E = this._getTypeSize(arrayType.format);
             if (E !== null) {
                 size = E.size;
                 align = E.align;
             }
-            const N = parseInt((_a = type["count"]) !== null && _a !== void 0 ? _a : 1);
-            const stride = this.getAttributeNum(type, "stride", this._roundUp(align, size));
+            const N = arrayType.count;
+            const stride = this._getAttributeNum((_a = type === null || type === void 0 ? void 0 : type.attributes) !== null && _a !== void 0 ? _a : null, "stride", this._roundUp(align, size));
             size = N * stride;
             if (explicitSize)
                 size = explicitSize;
-            return new TypeInfo(Math.max(explicitAlign, align), Math.max(explicitSize, size));
+            return new _TypeSize(Math.max(explicitAlign, align), Math.max(explicitSize, size));
         }
-        if (type instanceof Struct) {
+        if (type instanceof StructInfo) {
             let align = 0;
             let size = 0;
             // struct S     AlignOf:    max(AlignOfMember(S, M1), ... , AlignOfMember(S, MN))
@@ -3289,16 +3568,65 @@ class WgslReflect {
             let lastSize = 0;
             let lastOffset = 0;
             for (const m of type.members) {
-                const mi = this.getTypeInfo(m);
-                align = Math.max(mi.align, align);
-                offset = this._roundUp(mi.align, offset + lastSize);
-                lastSize = mi.size;
-                lastOffset = offset;
+                const mi = this._getTypeSize(m.type);
+                if (mi !== null) {
+                    align = Math.max(mi.align, align);
+                    offset = this._roundUp(mi.align, offset + lastSize);
+                    lastSize = mi.size;
+                    lastOffset = offset;
+                }
             }
             size = this._roundUp(align, lastOffset + lastSize);
-            return new TypeInfo(Math.max(explicitAlign, align), Math.max(explicitSize, size));
+            return new _TypeSize(Math.max(explicitAlign, align), Math.max(explicitSize, size));
         }
         return null;
+    }
+    _isUniformVar(node) {
+        return node instanceof Var && node.storage == "uniform";
+    }
+    _isStorageVar(node) {
+        return node instanceof Var && node.storage == "storage";
+    }
+    _isTextureVar(node) {
+        return (node instanceof Var &&
+            node.type !== null &&
+            WgslReflect._textureTypes.indexOf(node.type.name) != -1);
+    }
+    _isSamplerVar(node) {
+        return (node instanceof Var &&
+            node.type !== null &&
+            WgslReflect._samplerTypes.indexOf(node.type.name) != -1);
+    }
+    _getAttribute(node, name) {
+        const obj = node;
+        if (!obj || !obj["attributes"])
+            return null;
+        const attrs = obj["attributes"];
+        for (let a of attrs) {
+            if (a.name == name)
+                return a;
+        }
+        return null;
+    }
+    _getAttributeNum(attributes, name, defaultValue) {
+        if (attributes === null)
+            return defaultValue;
+        for (let a of attributes) {
+            if (a.name == name) {
+                let v = a !== null && a.value !== null ? a.value : defaultValue;
+                if (v instanceof Array) {
+                    v = v[0];
+                }
+                if (typeof v === "number") {
+                    return v;
+                }
+                if (typeof v === "string") {
+                    return parseInt(v);
+                }
+                return defaultValue;
+            }
+        }
+        return defaultValue;
     }
     _roundUp(k, n) {
         return Math.ceil(n / k) * k;
@@ -3319,7 +3647,7 @@ class WgslReflect {
 // mat2x4<f32>          16                  32
 // mat3x4<f32>          16                  48
 // mat4x4<f32>          16                  64
-WgslReflect.typeInfo = {
+WgslReflect._typeInfo = {
     f16: { align: 2, size: 2 },
     i32: { align: 4, size: 4 },
     u32: { align: 4, size: 4 },
@@ -3338,13 +3666,44 @@ WgslReflect.typeInfo = {
     mat3x4: { align: 16, size: 48 },
     mat4x4: { align: 16, size: 64 },
 };
-WgslReflect.textureTypes = TokenTypes.any_texture_type.map((t) => {
+WgslReflect._textureTypes = TokenTypes.any_texture_type.map((t) => {
     return t.name;
 });
-WgslReflect.samplerTypes = TokenTypes.sampler_type.map((t) => {
+WgslReflect._samplerTypes = TokenTypes.sampler_type.map((t) => {
     return t.name;
 });
 
+function getNamedVariables(reflect, variables) {
+    return Object.fromEntries(variables.map(v => {
+        const typeDefinition = addType(reflect, v.type, 0);
+        return [
+            v.name,
+            {
+                typeDefinition,
+                group: v.group,
+                binding: v.binding,
+                size: typeDefinition.size,
+            },
+        ];
+    }));
+}
+function makeStructDefinition(reflect, structInfo, offset) {
+    // StructDefinition
+    const fields = Object.fromEntries(structInfo.members.map(m => {
+        return [
+            m.name,
+            {
+                offset: m.offset,
+                type: addType(reflect, m.type, 0),
+            },
+        ];
+    }));
+    return {
+        fields,
+        size: structInfo.size,
+        offset,
+    };
+}
 /**
  * Given a WGSL shader, returns data definitions for structures,
  * uniforms, and storage buffers
@@ -3354,7 +3713,7 @@ WgslReflect.samplerTypes = TokenTypes.sampler_type.map((t) => {
  * ```js
  * const code = `
  * struct MyStruct {
- *    color: vec4<f32>,
+ *    color: vec4f,
  *    brightness: f32,
  *    kernel: array<f32, 9>,
  * };
@@ -3380,83 +3739,112 @@ WgslReflect.samplerTypes = TokenTypes.sampler_type.map((t) => {
  */
 function makeShaderDataDefinitions(code) {
     const reflect = new WgslReflect(code);
-    const structs = Object.fromEntries(reflect.structs.map(struct => {
-        const info = reflect.getStructInfo(struct);
-        return [struct.name, addMembers(reflect, info.members, info.size)];
+    const structs = Object.fromEntries(reflect.structs.map(structInfo => {
+        return [structInfo.name, makeStructDefinition(reflect, structInfo, 0)];
     }));
-    const uniforms = Object.fromEntries(reflect.uniforms.map(uniform => {
-        const info = reflect.getUniformBufferInfo(uniform);
-        const member = addMember(reflect, info, 0)[1];
-        member.binding = info.binding;
-        member.group = info.group;
-        return [uniform.name, member];
-    }));
-    const storages = Object.fromEntries(reflect.storage.map(uniform => {
-        const info = reflect.getStorageBufferInfo(uniform);
-        const member = addMember(reflect, info, 0)[1];
-        member.binding = info.binding;
-        member.group = info.group;
-        return [uniform.name, member];
-    }));
+    const uniforms = getNamedVariables(reflect, reflect.uniforms);
+    const storages = getNamedVariables(reflect, reflect.storage);
     return {
         structs,
         storages,
         uniforms,
     };
 }
-function addMember(reflect, m, offset) {
-    if (m.isArray) {
-        if (m.isStruct) {
-            return [
-                m.name,
-                new Array(m.arrayCount).fill(0).map((_, ndx) => {
-                    return addMembers(reflect, m.members, m.size / m.arrayCount, offset + (m.offset || 0) + m.size / m.arrayCount * ndx);
-                }),
-            ];
-        }
-        else {
-            return [
-                m.name,
-                {
-                    offset: offset + (m.offset || 0),
-                    size: m.size,
-                    type: m.type.format.format
-                        ? `${m.type.format.name}<${m.type.format.format.name}>`
-                        : m.type.format.name,
-                    numElements: m.arrayCount,
-                },
-            ];
-        }
+function assert(cond, msg = '') {
+    if (!cond) {
+        throw new Error(msg);
     }
-    else if (m.isStruct) {
-        return [
-            m.name,
-            addMembers(reflect, m.members, m.size, offset + (m.offset || 0)),
-        ];
+}
+/*
+ write down what I want for a given type
+
+    struct VSUniforms {
+        foo: u32,
+    };
+    @group(4) @binding(1) var<uniform> uni1: f32;
+    @group(3) @binding(2) var<uniform> uni2: array<f32, 5>;
+    @group(2) @binding(3) var<uniform> uni3: VSUniforms;
+    @group(1) @binding(4) var<uniform> uni4: array<VSUniforms, 6>;
+
+    uni1: {
+        type: 'f32',
+        numElements: undefined
+    },
+    uni2: {
+        type: 'array',
+        elementType: 'f32'
+        numElements: 5,
+    },
+    uni3: {
+        type: 'struct',
+        fields: {
+            foo: {
+                type: 'f32',
+                numElements: undefined
+            }
+        },
+    },
+    uni4: {
+        type: 'array',
+        elementType:
+        fields: {
+            foo: {
+                type: 'f32',
+                numElements: undefined
+            }
+        },
+        fields: {
+            foo: {
+                type: 'f32',
+                numElements: undefined
+            }
+        },
+        ...
+    ]
+
+    */
+function addType(reflect, typeInfo, offset) {
+    if (typeInfo.isArray) {
+        assert(!typeInfo.isStruct, 'struct array is invalid');
+        assert(!typeInfo.isStruct, 'template array is invalid');
+        const arrayInfo = typeInfo;
+        // ArrayDefinition
+        return {
+            size: arrayInfo.size,
+            elementType: addType(reflect, arrayInfo.format, offset),
+            numElements: arrayInfo.count,
+        };
+    }
+    else if (typeInfo.isStruct) {
+        assert(!typeInfo.isTemplate, 'template struct is invalid');
+        const structInfo = typeInfo;
+        return makeStructDefinition(reflect, structInfo, offset);
     }
     else {
-        return [
-            m.name,
-            {
-                offset: offset + (m.offset || 0),
-                size: m.size,
-                type: m.type?.format
-                    ? `${m.type.name}<${m.type.format.name}>`
-                    : m.type?.name || m.name,
-            },
-        ];
+        // template is like vec4<f32> or mat4x4<f16>
+        const asTemplateInfo = typeInfo;
+        const type = typeInfo.isTemplate
+            ? `${asTemplateInfo.name}<${asTemplateInfo.format.name}>`
+            : typeInfo.name;
+        // IntrinsicDefinition
+        return {
+            size: typeInfo.size,
+            type,
+        };
     }
 }
-function addMembers(reflect, members, size, offset = 0) {
-    const fields = Object.fromEntries(members.map(m => {
-        return addMember(reflect, m, offset);
-    }));
-    return {
-        fields,
-        size,
-    };
-}
 
+function getViewDimensionForTexture(texture) {
+    switch (texture.dimension) {
+        case '1d':
+            return '1d';
+        case '3d':
+            return '3d';
+        default: // to shut up TS
+        case '2d':
+            return texture.depthOrArrayLayers > 1 ? '2d-array' : '2d';
+    }
+}
 function normalizeGPUExtent3Dict(size) {
     return [size.width, size.height || 1, size.depthOrArrayLayers || 1];
 }
@@ -3483,9 +3871,9 @@ function normalizeGPUExtent3D(size) {
  * @param size
  * @returns number of mip levels needed for the given size
  */
-function numMipLevels(size) {
+function numMipLevels(size, dimension) {
     const sizes = normalizeGPUExtent3D(size);
-    const maxSize = Math.max(...sizes);
+    const maxSize = Math.max(...sizes.slice(0, dimension === '3d' ? 3 : 2));
     return 1 + Math.log2(maxSize) | 0;
 }
 // Use a WeakMap so the device can be destroyed and/or lost
@@ -3504,53 +3892,59 @@ function generateMipmap(device, texture) {
     if (!perDeviceInfo) {
         perDeviceInfo = {
             pipelineByFormat: {},
+            moduleByView: {},
         };
         byDevice.set(device, perDeviceInfo);
     }
-    let { sampler, module, } = perDeviceInfo;
-    const { pipelineByFormat, } = perDeviceInfo;
+    let { sampler, } = perDeviceInfo;
+    const { pipelineByFormat, moduleByView, } = perDeviceInfo;
+    const view = getViewDimensionForTexture(texture);
+    let module = moduleByView[view];
     if (!module) {
         module = device.createShaderModule({
-            label: 'mip level generation',
+            label: `mip level generation for ${view}`,
             code: `
-            struct VSOutput {
-               @builtin(position) position: vec4f,
-               @location(0) texcoord: vec2f,
-            };
+        struct VSOutput {
+          @builtin(position) position: vec4f,
+          @location(0) texcoord: vec2f,
+        };
 
-            @vertex fn vs(
-               @builtin(vertex_index) vertexIndex : u32
-            ) -> VSOutput {
-               var pos = array<vec2f, 3>(
-                  vec2f(-1.0, -1.0),
-                  vec2f(-1.0,  3.0),
-                  vec2f( 3.0, -1.0),
-               );
+        @vertex fn vs(
+          @builtin(vertex_index) vertexIndex : u32
+        ) -> VSOutput {
+          var pos = array<vec2f, 3>(
+            vec2f(-1.0, -1.0),
+            vec2f(-1.0,  3.0),
+            vec2f( 3.0, -1.0),
+          );
 
-               var vsOutput: VSOutput;
-               let xy = pos[vertexIndex];
-               vsOutput.position = vec4f(xy, 0.0, 1.0);
-               vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
-               return vsOutput;
-            }
+          var vsOutput: VSOutput;
+          let xy = pos[vertexIndex];
+          vsOutput.position = vec4f(xy, 0.0, 1.0);
+          vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
+          return vsOutput;
+        }
 
-            @group(0) @binding(0) var ourSampler: sampler;
-            @group(0) @binding(1) var ourTexture: texture_2d<f32>;
+        @group(0) @binding(0) var ourSampler: sampler;
+        @group(0) @binding(1) var ourTexture: texture_2d<f32>;
 
-            @fragment fn fs(fsInput: VSOutput) -> @location(0) vec4f {
-               return textureSample(ourTexture, ourSampler, fsInput.texcoord);
-            }
-         `,
+        @fragment fn fs(fsInput: VSOutput) -> @location(0) vec4f {
+          return textureSample(ourTexture, ourSampler, fsInput.texcoord);
+        }
+      `,
         });
+        moduleByView[view] = module;
+    }
+    if (!sampler) {
         sampler = device.createSampler({
             minFilter: 'linear',
         });
-        perDeviceInfo.module = module;
         perDeviceInfo.sampler = sampler;
     }
-    if (!pipelineByFormat[texture.format]) {
-        pipelineByFormat[texture.format] = device.createRenderPipeline({
-            label: 'mip level generator pipeline',
+    const id = `${texture.format}`;
+    if (!pipelineByFormat[id]) {
+        pipelineByFormat[id] = device.createRenderPipeline({
+            label: `mip level generator pipeline for ${view}`,
             layout: 'auto',
             vertex: {
                 module,
@@ -3563,79 +3957,612 @@ function generateMipmap(device, texture) {
             },
         });
     }
-    const pipeline = pipelineByFormat[texture.format];
+    const pipeline = pipelineByFormat[id];
     const encoder = device.createCommandEncoder({
         label: 'mip gen encoder',
     });
-    texture.width;
-    texture.height;
-    let nextMipLevel = 1;
-    while (nextMipLevel < texture.mipLevelCount) {
-        const bindGroup = device.createBindGroup({
-            layout: pipeline.getBindGroupLayout(0),
-            entries: [
-                { binding: 0, resource: sampler },
-                { binding: 1, resource: texture.createView({ baseMipLevel: nextMipLevel - 1, mipLevelCount: 1 }) },
-            ],
-        });
-        const renderPassDescriptor = {
-            label: 'mip gen renderPass',
-            colorAttachments: [
-                {
-                    view: texture.createView({ baseMipLevel: nextMipLevel, mipLevelCount: 1 }),
-                    loadOp: 'clear',
-                    storeOp: 'store',
-                },
-            ],
-        };
-        const pass = encoder.beginRenderPass(renderPassDescriptor);
-        pass.setPipeline(pipeline);
-        pass.setBindGroup(0, bindGroup);
-        pass.draw(3);
-        pass.end();
-        ++nextMipLevel;
+    for (let baseMipLevel = 1; baseMipLevel < texture.mipLevelCount; ++baseMipLevel) {
+        for (let baseArrayLayer = 0; baseArrayLayer < texture.depthOrArrayLayers; ++baseArrayLayer) {
+            const bindGroup = device.createBindGroup({
+                layout: pipeline.getBindGroupLayout(0),
+                entries: [
+                    { binding: 0, resource: sampler },
+                    {
+                        binding: 1,
+                        resource: texture.createView({
+                            dimension: '2d',
+                            baseMipLevel: baseMipLevel - 1,
+                            mipLevelCount: 1,
+                            baseArrayLayer,
+                            arrayLayerCount: 1,
+                        }),
+                    },
+                ],
+            });
+            const renderPassDescriptor = {
+                label: 'mip gen renderPass',
+                colorAttachments: [
+                    {
+                        view: texture.createView({
+                            baseMipLevel,
+                            mipLevelCount: 1,
+                            baseArrayLayer,
+                            arrayLayerCount: 1,
+                        }),
+                        loadOp: 'clear',
+                        storeOp: 'store',
+                    },
+                ],
+            };
+            const pass = encoder.beginRenderPass(renderPassDescriptor);
+            pass.setPipeline(pipeline);
+            pass.setBindGroup(0, bindGroup);
+            pass.draw(3);
+            pass.end();
+        }
     }
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
 }
 
+const kTypedArrayToAttribFormat = new Map([
+    [Int8Array, { formats: ['sint8', 'snorm8'], defaultForType: 1 }],
+    [Uint8Array, { formats: ['uint8', 'unorm8'], defaultForType: 1 }],
+    [Int16Array, { formats: ['sint16', 'snorm16'], defaultForType: 1 }],
+    [Uint16Array, { formats: ['uint16', 'unorm16'], defaultForType: 1 }],
+    [Int32Array, { formats: ['sint32', 'snorm32'], defaultForType: 0 }],
+    [Uint32Array, { formats: ['uint32', 'unorm32'], defaultForType: 0 }],
+    [Float32Array, { formats: ['float32', 'float32'], defaultForType: 0 }],
+    // TODO: Add Float16Array
+]);
+const kVertexFormatPrefixToType = new Map([...kTypedArrayToAttribFormat.entries()].map(([Type, { formats: [s1, s2] }]) => [[s1, Type], [s2, Type]]).flat());
+function isIndices(name) {
+    return name === "indices";
+}
+function makeTypedArrayFromArrayUnion(array, name) {
+    if (isTypedArray(array)) {
+        return array;
+    }
+    let asFullSpec = array;
+    if (isTypedArray(asFullSpec.data)) {
+        return asFullSpec.data;
+    }
+    if (Array.isArray(array) || typeof array === 'number') {
+        asFullSpec = {
+            data: array,
+        };
+    }
+    let Type = asFullSpec.type;
+    if (!Type) {
+        if (isIndices(name)) {
+            Type = Uint32Array;
+        }
+        else {
+            Type = Float32Array;
+        }
+    }
+    return new Type(asFullSpec.data); // ugh!
+}
+function getArray(array) {
+    const arr = array.length ? array : array.data;
+    return arr;
+}
+const kNameToNumComponents = [
+    { re: /coord|texture|uv/i, numComponents: 2 },
+    { re: /color|colour/i, numComponents: 4 },
+];
+function guessNumComponentsFromNameImpl(name) {
+    for (const { re, numComponents } of kNameToNumComponents) {
+        if (re.test(name)) {
+            return numComponents;
+        }
+    }
+    return 3;
+}
+function guessNumComponentsFromName(name, length) {
+    const numComponents = guessNumComponentsFromNameImpl(name);
+    if (length % numComponents > 0) {
+        throw new Error(`Can not guess numComponents for attribute '${name}'. Tried ${numComponents} but ${length} values is not evenly divisible by ${numComponents}. You should specify it.`);
+    }
+    return numComponents;
+}
+function getNumComponents(array, arrayName) {
+    return array.numComponents || guessNumComponentsFromName(arrayName, getArray(array).length);
+}
+const kVertexFormatRE = /(\w+)(?:x(\d))$/;
+function numComponentsAndTypeFromVertexFormat(format) {
+    const m = kVertexFormatRE.exec(format);
+    const [prefix, numComponents] = m ? [m[1], parseInt(m[2])] : [format, 1];
+    return {
+        Type: kVertexFormatPrefixToType.get(prefix),
+        numComponents,
+    };
+}
+function createTypedArrayOfSameType(typedArray, arrayBuffer) {
+    const Ctor = Object.getPrototypeOf(typedArray).constructor;
+    return new Ctor(arrayBuffer);
+}
 /**
- * Copies a "source" (Video, Canvas, OffscreenCanvas, ImageBitmap)
- * To a texture and then optional generates mip levels
+ * Given a set of named arrays, generates an array `GPUBufferLayout`s
  *
- * @param device
- * @param texture The texture to copy to
- * @param source The source to copy from
- * @param options use `{flipY: true}` if you want the source flipped
+ * Examples:
+ *
+ * ```js
+ *   const arrays = {
+ *     position: [1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1],
+ *     normal: [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1],
+ *     texcoord: [1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
+ *   };
+ *
+ *   const { bufferLayouts, typedArrays } = createBufferLayoutsFromArrays(arrays);
+ * ```
+ *
+ * results in `bufferLayouts` being
+ *
+ * ```js
+ * [
+ *   {
+ *     stepMode: 'vertex',
+ *     arrayStride: 32,
+ *     attributes: [
+ *       { shaderLocation: 0, offset:  0, format: 'float32x3' },
+ *       { shaderLocation: 1, offset: 12, format: 'float32x3' },
+ *       { shaderLocation: 2, offset: 24, format: 'float32x2' },
+ *     ],
+ *   },
+ * ]
+ * ```
+ *
+ * and `typedArrays` being
+ *
+ * ```
+ * [
+ *   someFloat32Array0,
+ *   someFloat32Array1,
+ *   someFloat32Array2,
+ * ]
+ * ```
+ *
+ * See {@link Arrays} for details on the various types of arrays.
+ *
+ * Note: If typed arrays are passed in the same typed arrays will come out (copies will not be made)
  */
-function copySourceToTexture(device, texture, source, options = {}) {
-    const { flipY } = options;
-    device.queue.copyExternalImageToTexture({ source, flipY, }, { texture }, { width: source.width, height: source.height });
+function createBufferLayoutsFromArrays(arrays, options = {}) {
+    const interleave = options.interleave === undefined ? true : options.interleave;
+    const stepMode = options.stepMode || 'vertex';
+    const shaderLocations = options.shaderLocation
+        ? (Array.isArray(options.shaderLocation) ? options.shaderLocation : [options.shaderLocation])
+        : [0];
+    let currentOffset = 0;
+    const bufferLayouts = [];
+    const attributes = [];
+    const typedArrays = [];
+    Object.keys(arrays)
+        .filter(arrayName => !isIndices(arrayName))
+        .forEach(arrayName => {
+        const array = arrays[arrayName];
+        const data = makeTypedArrayFromArrayUnion(array, arrayName);
+        const totalNumComponents = getNumComponents(array, arrayName);
+        // if totalNumComponents > 4 then we clearly need to split this into multiple
+        // attributes
+        // (a) <= 4 doesn't mean don't split and
+        // (b) how to split? We could divide by 4 and if it's not even then divide by 3
+        //     as a guess?
+        //     5 is error? or 1x4 + 1x1?
+        //     6 is 2x3
+        //     7 is error? or 1x4 + 1x3?
+        //     8 is 2x4
+        //     9 is 3x3
+        //    10 is error? or 2x4 + 1x2?
+        //    11 is error? or 2x4 + 1x3?
+        //    12 is 3x4 or 4x3?
+        //    13 is error? or 3x4 + 1x1 or 4x3 + 1x1?
+        //    14 is error? or 3x4 + 1x2 or 4x3 + 1x2?
+        //    15 is error? or 3x4 + 1x3 or 4x3 + 1x3?
+        //    16 is 4x4
+        const by4 = totalNumComponents / 4;
+        const by3 = totalNumComponents / 3;
+        const step = by4 % 1 === 0 ? 4 : (by3 % 1 === 0 ? 3 : 4);
+        for (let component = 0; component < totalNumComponents; component += step) {
+            const numComponents = Math.min(step, totalNumComponents - component);
+            const offset = currentOffset;
+            currentOffset += numComponents * data.BYTES_PER_ELEMENT;
+            const { defaultForType, formats } = kTypedArrayToAttribFormat.get(Object.getPrototypeOf(data).constructor);
+            const normalize = array.normalize;
+            const formatNdx = typeof normalize === 'undefined' ? defaultForType : (normalize ? 1 : 0);
+            const format = `${formats[formatNdx]}${numComponents > 1 ? `x${numComponents}` : ''}`;
+            // TODO: cleanup with generator?
+            const shaderLocation = shaderLocations.shift();
+            if (shaderLocations.length === 0) {
+                shaderLocations.push(shaderLocation + 1);
+            }
+            attributes.push({
+                offset,
+                format,
+                shaderLocation,
+            });
+            typedArrays.push({
+                data,
+                offset: component,
+                stride: totalNumComponents,
+            });
+        }
+        if (!interleave) {
+            bufferLayouts.push({
+                stepMode,
+                arrayStride: currentOffset,
+                attributes: attributes.slice(),
+            });
+            currentOffset = 0;
+            attributes.length = 0;
+        }
+    });
+    if (attributes.length) {
+        bufferLayouts.push({
+            stepMode,
+            arrayStride: currentOffset,
+            attributes: attributes,
+        });
+    }
+    return {
+        bufferLayouts,
+        typedArrays,
+    };
+}
+function getTypedArrayWithOffsetAndStride(ta, numComponents) {
+    return (isTypedArray(ta)
+        ? { data: ta, offset: 0, stride: numComponents }
+        : ta);
+}
+/**
+ * Given an array of `GPUVertexAttribute`s and a corresponding array
+ * of TypedArrays, interleaves the contents of the typed arrays
+ * into the given ArrayBuffer
+ *
+ * example:
+ *
+ * ```js
+ * const attributes: GPUVertexAttribute[] = [
+ *   { shaderLocation: 0, offset:  0, format: 'float32x3' },
+ *   { shaderLocation: 1, offset: 12, format: 'float32x3' },
+ *   { shaderLocation: 2, offset: 24, format: 'float32x2' },
+ * ];
+ * const typedArrays = [
+ *   new Float32Array([1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1]),
+ *   new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]),
+ *   new Float32Array([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1]),
+ * ];
+ * const arrayStride = (3 + 3 + 2) * 4;  // pos + nrm + uv
+ * const arrayBuffer = new ArrayBuffer(arrayStride * 24)
+ * interleaveVertexData(attributes, typedArrays, arrayStride, arrayBuffer)
+ * ```
+ *
+ * results in the contents of `arrayBuffer` to be the 3 TypedArrays interleaved
+ *
+ * See {@link Arrays} for details on the various types of arrays.
+ *
+ * Note: You can generate `attributes` and `typedArrays` above by calling
+ * {@link createBufferLayoutsFromArrays}
+ */
+function interleaveVertexData(attributes, typedArrays, arrayStride, arrayBuffer) {
+    const views = new Map();
+    const getView = (typedArray) => {
+        const Ctor = Object.getPrototypeOf(typedArray).constructor;
+        const view = views.get(Ctor);
+        if (view) {
+            return view;
+        }
+        const newView = new Ctor(arrayBuffer);
+        views.set(Ctor, newView);
+        return newView;
+    };
+    attributes.forEach((attribute, ndx) => {
+        const { offset, format } = attribute;
+        const { numComponents } = numComponentsAndTypeFromVertexFormat(format);
+        const { data, offset: srcOffset, stride, } = getTypedArrayWithOffsetAndStride(typedArrays[ndx], numComponents);
+        const view = getView(data);
+        for (let i = 0; i < data.length; i += stride) {
+            const ndx = i / stride;
+            const dstOffset = (offset + ndx * arrayStride) / view.BYTES_PER_ELEMENT;
+            const srcOff = i + srcOffset;
+            const s = data.subarray(srcOff, srcOff + numComponents);
+            view.set(s, dstOffset);
+        }
+    });
+}
+/**
+ * Given arrays, create buffers, fills the buffers with data if provided, optionally
+ * interleaves the data (the default).
+ *
+ * Example:
+ *
+ * ```js
+ *  const {
+ *    buffers,
+ *    bufferLayouts,
+ *    indexBuffer,
+ *    indexFormat,
+ *    numElements,
+ *  } = createBuffersAndAttributesFromArrays(device, {
+ *    position: [1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1],
+ *    normal: [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1],
+ *    texcoord: [1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
+ *    indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23],
+ *  });
+ * ```
+ *
+ * Where `bufferLayouts` will be
+ *
+ * ```js
+ * [
+ *   {
+ *     stepMode: 'vertex',
+ *     arrayStride: 32,
+ *     attributes: [
+ *       { shaderLocation: 0, offset:  0, format: 'float32x3' },
+ *       { shaderLocation: 1, offset: 12, format: 'float32x3' },
+ *       { shaderLocation: 2, offset: 24, format: 'float32x2' },
+ *     ],
+ *   },
+ * ]
+ * ```
+ *
+ * * `buffers` will have one `GPUBuffer` of usage `GPUBufferUsage.VERTEX`
+ * * `indexBuffer` will be `GPUBuffer` of usage `GPUBufferUsage.INDEX`
+ * * `indexFormat` will be `uint32` (use a full spec or a typedarray of `Uint16Array` if you want 16bit indices)
+ * * `numElements` will be 36 (this is either the number entries in the array named `indices` or if no
+ *    indices are provided then it's the length of the first array divided by numComponents. See {@link Arrays})
+ *
+ * See {@link Arrays} for details on the various types of arrays.
+ * Also see the cube and instancing examples.
+ */
+function createBuffersAndAttributesFromArrays(device, arrays, options = {}) {
+    const usage = (options.usage || 0);
+    const { bufferLayouts, typedArrays, } = createBufferLayoutsFromArrays(arrays, options);
+    const buffers = [];
+    let numElements = -1;
+    let bufferNdx = 0;
+    for (const { attributes, arrayStride } of bufferLayouts) {
+        const attribs = attributes;
+        const attrib0 = attribs[0];
+        const { numComponents } = numComponentsAndTypeFromVertexFormat(attrib0.format);
+        const { data: data0, stride, } = getTypedArrayWithOffsetAndStride(typedArrays[bufferNdx], numComponents);
+        if (numElements < 0) {
+            numElements = data0.length / stride;
+        }
+        const size = arrayStride * numElements;
+        const buffer = device.createBuffer({
+            usage: usage | GPUBufferUsage.VERTEX,
+            size,
+            mappedAtCreation: true,
+        });
+        const arrayBuffer = buffer.getMappedRange();
+        if (attribs.length === 1 && arrayStride === data0.BYTES_PER_ELEMENT * numComponents) {
+            const view = createTypedArrayOfSameType(data0, arrayBuffer);
+            view.set(data0);
+        }
+        else {
+            interleaveVertexData(attribs, typedArrays.slice(bufferNdx), arrayStride, arrayBuffer);
+        }
+        buffer.unmap();
+        buffers.push(buffer);
+        bufferNdx += attribs.length;
+    }
+    const buffersAndAttributes = {
+        numElements,
+        bufferLayouts,
+        buffers,
+    };
+    const indicesEntry = Object.entries(arrays).find(([arrayName]) => isIndices(arrayName));
+    if (indicesEntry) {
+        const indices = makeTypedArrayFromArrayUnion(indicesEntry[1], 'indices');
+        const indexBuffer = device.createBuffer({
+            size: indices.byteLength,
+            usage: GPUBufferUsage.INDEX | usage,
+            mappedAtCreation: true,
+        });
+        const dst = createTypedArrayOfSameType(indices, indexBuffer.getMappedRange());
+        dst.set(indices);
+        indexBuffer.unmap();
+        buffersAndAttributes.indexBuffer = indexBuffer;
+        buffersAndAttributes.indexFormat = indices instanceof Uint16Array ? 'uint16' : 'uint32';
+        buffersAndAttributes.numElements = indices.length;
+    }
+    return buffersAndAttributes;
+}
+
+function isTextureData(source) {
+    const src = source;
+    return isTypedArray(src.data) || Array.isArray(src.data);
+}
+function isTextureRawDataSource(source) {
+    return isTypedArray(source) || Array.isArray(source) || isTextureData(source);
+}
+function toTypedArray(v, format) {
+    if (isTypedArray(v)) {
+        return v;
+    }
+    const { Type } = getTextureFormatInfo(format);
+    return new Type(v);
+}
+function guessDimensions(width, height, numElements, dimension = '2d') {
+    if (numElements % 1 !== 0) {
+        throw new Error("can't guess dimensions");
+    }
+    if (!width && !height) {
+        const size = Math.sqrt(numElements / (dimension === 'cube' ? 6 : 1));
+        if (size % 1 === 0) {
+            width = size;
+            height = size;
+        }
+        else {
+            width = numElements;
+            height = 1;
+        }
+    }
+    else if (!height) {
+        height = numElements / width;
+        if (height % 1) {
+            throw new Error("can't guess dimensions");
+        }
+    }
+    else if (!width) {
+        width = numElements / height;
+        if (width % 1) {
+            throw new Error("can't guess dimensions");
+        }
+    }
+    const depth = numElements / width / height;
+    if (depth % 1) {
+        throw new Error("can't guess dimensions");
+    }
+    return [width, height, depth];
+}
+function textureViewDimensionToDimension(viewDimension) {
+    switch (viewDimension) {
+        case '1d': return '1d';
+        case '3d': return '3d';
+        default: return '2d';
+    }
+}
+const kFormatToTypedArray = {
+    '8snorm': Int8Array,
+    '8unorm': Uint8Array,
+    '8sint': Int8Array,
+    '8uint': Uint8Array,
+    '16snorm': Int16Array,
+    '16unorm': Uint16Array,
+    '16sint': Int16Array,
+    '16uint': Uint16Array,
+    '32snorm': Int32Array,
+    '32unorm': Uint32Array,
+    '32sint': Int32Array,
+    '32uint': Uint32Array,
+    '16float': Uint16Array,
+    '32float': Float32Array,
+};
+const kTextureFormatRE = /([a-z]+)(\d+)([a-z]+)/;
+function getTextureFormatInfo(format) {
+    // this is a hack! It will only work for common formats
+    const [, channels, bits, typeName] = kTextureFormatRE.exec(format);
+    // TODO: if the regex fails, use table for other formats?
+    const numChannels = channels.length;
+    const bytesPerChannel = parseInt(bits) / 8;
+    const bytesPerElement = numChannels * bytesPerChannel;
+    const Type = kFormatToTypedArray[`${bits}${typeName}`];
+    return {
+        channels,
+        numChannels,
+        bytesPerChannel,
+        bytesPerElement,
+        Type,
+    };
+}
+/**
+ * Gets the size of a mipLevel. Returns an array of 3 numbers [width, height, depthOrArrayLayers]
+ */
+function getSizeForMipFromTexture(texture, mipLevel) {
+    return [
+        texture.width,
+        texture.height,
+        texture.depthOrArrayLayers,
+    ].map(v => Math.max(1, Math.floor(v / 2 ** mipLevel)));
+}
+/**
+ * Uploads Data to a texture
+ */
+function uploadDataToTexture(device, texture, source, options) {
+    const data = toTypedArray(source.data || source, texture.format);
+    const mipLevel = 0;
+    const size = getSizeForMipFromTexture(texture, mipLevel);
+    const { bytesPerElement } = getTextureFormatInfo(texture.format);
+    const origin = options.origin || [0, 0, 0];
+    device.queue.writeTexture({ texture, origin }, data, { bytesPerRow: bytesPerElement * size[0], rowsPerImage: size[1] }, size);
+}
+/**
+ * Copies a an array of "sources" (Video, Canvas, OffscreenCanvas, ImageBitmap)
+ * to a texture and then optionally generates mip levels
+ */
+function copySourcesToTexture(device, texture, sources, options = {}) {
+    sources.forEach((source, layer) => {
+        const origin = [0, 0, layer + (options.baseArrayLayer || 0)];
+        if (isTextureRawDataSource(source)) {
+            uploadDataToTexture(device, texture, source, { origin });
+        }
+        else {
+            const s = source;
+            const { flipY, premultipliedAlpha, colorSpace } = options;
+            device.queue.copyExternalImageToTexture({ source: s, flipY, }, { texture, premultipliedAlpha, colorSpace, origin }, getSizeFromSource(s, options));
+        }
+    });
     if (texture.mipLevelCount > 1) {
         generateMipmap(device, texture);
     }
 }
-function getSizeFromSource(source) {
+/**
+ * Copies a "source" (Video, Canvas, OffscreenCanvas, ImageBitmap)
+ * to a texture and then optionally generates mip levels
+ */
+function copySourceToTexture(device, texture, source, options = {}) {
+    copySourcesToTexture(device, texture, [source], options);
+}
+/**
+ * Gets the size from a source. This is to smooth out the fact that different
+ * sources have a different way to get their size.
+ */
+function getSizeFromSource(source, options) {
     if (source instanceof HTMLVideoElement) {
-        return [source.videoWidth, source.videoHeight];
+        return [source.videoWidth, source.videoHeight, 1];
     }
     else {
-        return [source.width, source.height];
+        const maybeHasWidthAndHeight = source;
+        const { width, height } = maybeHasWidthAndHeight;
+        if (width > 0 && height > 0 && !isTextureRawDataSource(source)) {
+            // this should cover Canvas, Image, ImageData, ImageBitmap, TextureCreationData
+            return [width, height, 1];
+        }
+        const format = options.format || 'rgba8unorm';
+        const { bytesPerElement, bytesPerChannel } = getTextureFormatInfo(format);
+        const data = isTypedArray(source) || Array.isArray(source)
+            ? source
+            : source.data;
+        const numBytes = isTypedArray(data)
+            ? data.byteLength
+            : (data.length * bytesPerChannel);
+        const numElements = numBytes / bytesPerElement;
+        return guessDimensions(width, height, numElements);
     }
 }
 /**
- * Create a texture from a source (Video, Canvas, OffscreenCanvas, ImageBitmap)
+ * Create a texture from an array of sources (Video, Canvas, OffscreenCanvas, ImageBitmap)
  * and optionally create mip levels. If you set `mips: true` and don't set a mipLevelCount
  * then it will automatically make the correct number of mip levels.
  *
- * @param device
- * @param source
- * @param options
- * @returns the created Texture
+ * Example:
+ *
+ * ```js
+ * const texture = createTextureFromSource(
+ *     device,
+ *     [
+ *        someCanvasOrVideoOrImageImageBitmap0,
+ *        someCanvasOrVideoOrImageImageBitmap1,
+ *     ],
+ *     {
+ *       usage: GPUTextureUsage.TEXTURE_BINDING |
+ *              GPUTextureUsage.RENDER_ATTACHMENT |
+ *              GPUTextureUsage.COPY_DST,
+ *       mips: true,
+ *     }
+ * );
+ * ```
  */
-function createTextureFromSource(device, source, options = {}) {
-    const size = getSizeFromSource(source);
+function createTextureFromSources(device, sources, options = {}) {
+    // NOTE: We assume all the sizes are the same. If they are not you'll get
+    // an error.
+    const size = getSizeFromSource(sources[0], options);
+    size[2] = size[2] > 1 ? size[2] : sources.length;
     const texture = device.createTexture({
+        dimension: textureViewDimensionToDimension(options.dimension),
         format: options.format || 'rgba8unorm',
         mipLevelCount: options.mipLevelCount
             ? options.mipLevelCount
@@ -3646,8 +4573,31 @@ function createTextureFromSource(device, source, options = {}) {
             GPUTextureUsage.COPY_DST |
             GPUTextureUsage.RENDER_ATTACHMENT,
     });
-    copySourceToTexture(device, texture, source, options);
+    copySourcesToTexture(device, texture, sources, options);
     return texture;
+}
+/**
+ * Create a texture from a source (Video, Canvas, OffscreenCanvas, ImageBitmap)
+ * and optionally create mip levels. If you set `mips: true` and don't set a mipLevelCount
+ * then it will automatically make the correct number of mip levels.
+ *
+ * Example:
+ *
+ * ```js
+ * const texture = createTextureFromSource(
+ *     device,
+ *     someCanvasOrVideoOrImageImageBitmap,
+ *     {
+ *       usage: GPUTextureUsage.TEXTURE_BINDING |
+ *              GPUTextureUsage.RENDER_ATTACHMENT |
+ *              GPUTextureUsage.COPY_DST,
+ *       mips: true,
+ *     }
+ * );
+ * ```
+ */
+function createTextureFromSource(device, source, options = {}) {
+    return createTextureFromSources(device, [source], options);
 }
 /**
  * Load an ImageBitmap
@@ -3665,16 +4615,1033 @@ async function loadImageBitmap(url, options = {}) {
     return await createImageBitmap(blob, opt);
 }
 /**
+ * Load images and create a texture from them, optionally generating mip levels
+ *
+ * Assumes all the urls reference images of the same size.
+ *
+ * Example:
+ *
+ * ```js
+ * const texture = await createTextureFromImage(
+ *   device,
+ *   [
+ *     'https://someimage1.url',
+ *     'https://someimage2.url',
+ *   ],
+ *   {
+ *     mips: true,
+ *     flipY: true,
+ *   },
+ * );
+ * ```
+ */
+async function createTextureFromImages(device, urls, options = {}) {
+    // TODO: start once we've loaded one?
+    // We need at least 1 to know the size of the texture to create
+    const imgBitmaps = await Promise.all(urls.map(url => loadImageBitmap(url)));
+    return createTextureFromSources(device, imgBitmaps, options);
+}
+/**
  * Load an image and create a texture from it, optionally generating mip levels
- * @param device
- * @param url
- * @param options
- * @returns the texture created from the loaded image.
+ *
+ * Example:
+ *
+ * ```js
+ * const texture = await createTextureFromImage(device, 'https://someimage.url', {
+ *   mips: true,
+ *   flipY: true,
+ * });
+ * ```
  */
 async function createTextureFromImage(device, url, options = {}) {
-    const imgBitmap = await loadImageBitmap(url);
-    return createTextureFromSource(device, imgBitmap, options);
+    return createTextureFromImages(device, [url], options);
 }
 
-export { TypedArrayViewGenerator, copySourceToTexture, createTextureFromImage, createTextureFromSource, generateMipmap, getSizeFromSource, loadImageBitmap, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayViews, normalizeGPUExtent3D, numMipLevels, setStructuredValues, setStructuredView };
+/*
+ * Copyright 2023 Gregg Tavares
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+/**
+ * A class to provide `push` on a typed array.
+ *
+ * example:
+ *
+ * ```js
+ * const positions = new TypedArrayWrapper(new Float32Array(300), 3);
+ * positions.push(1, 2, 3); // add a position
+ * positions.push([4, 5, 6]);  // add a position
+ * positions.push(new Float32Array(6)); // add 2 positions
+ * const data = positions.typedArray;
+ * ```
+ */
+class TypedArrayWrapper {
+    typedArray;
+    cursor = 0;
+    numComponents;
+    constructor(arr, numComponents) {
+        this.typedArray = arr;
+        this.numComponents = numComponents;
+    }
+    get numElements() {
+        return this.typedArray.length / this.numComponents;
+    }
+    push(...data) {
+        for (const value of data) {
+            if (Array.isArray(value) || isTypedArray(value)) {
+                const asArray = data;
+                this.typedArray.set(asArray, this.cursor);
+                this.cursor += asArray.length;
+            }
+            else {
+                this.typedArray[this.cursor++] = value;
+            }
+        }
+    }
+    reset(index = 0) {
+        this.cursor = index;
+    }
+}
+/**
+ * creates a typed array with a `push` function attached
+ * so that you can easily *push* values.
+ *
+ * `push` can take multiple arguments. If an argument is an array each element
+ * of the array will be added to the typed array.
+ *
+ * Example:
+ *
+ *     const array = createAugmentedTypedArray(3, 2, Float32Array);
+ *     array.push(1, 2, 3);
+ *     array.push([4, 5, 6]);
+ *     // array now contains [1, 2, 3, 4, 5, 6]
+ *
+ * Also has `numComponents` and `numElements` properties.
+ *
+ * @param numComponents number of components
+ * @param numElements number of elements. The total size of the array will be `numComponents * numElements`.
+ * @param Type A constructor for the type. Default = `Float32Array`.
+ */
+function createAugmentedTypedArray(numComponents, numElements, Type) {
+    return new TypedArrayWrapper(new Type(numComponents * numElements), numComponents);
+}
+/**
+ * Creates XY quad vertices
+ *
+ * The default with no parameters will return a 2x2 quad with values from -1 to +1.
+ * If you want a unit quad with that goes from 0 to 1 you'd call it with
+ *
+ *     createXYQuadVertices(1, 0.5, 0.5);
+ *
+ * If you want a unit quad centered above 0,0 you'd call it with
+ *
+ *     primitives.createXYQuadVertices(1, 0, 0.5);
+ *
+ * @param size the size across the quad. Defaults to 2 which means vertices will go from -1 to +1
+ * @param xOffset the amount to offset the quad in X
+ * @param yOffset the amount to offset the quad in Y
+ * @return the created XY Quad vertices
+ */
+function createXYQuadVertices(size = 2, xOffset = 0, yOffset = 0) {
+    size *= 0.5;
+    return {
+        position: {
+            numComponents: 2,
+            data: [
+                xOffset + -1 * size, yOffset + -1 * size,
+                xOffset + 1 * size, yOffset + -1 * size,
+                xOffset + -1 * size, yOffset + 1 * size,
+                xOffset + 1 * size, yOffset + 1 * size,
+            ],
+        },
+        normal: [
+            0, 0, 1,
+            0, 0, 1,
+            0, 0, 1,
+            0, 0, 1,
+        ],
+        texcoord: [
+            0, 0,
+            1, 0,
+            0, 1,
+            1, 1,
+        ],
+        indices: [0, 1, 2, 2, 1, 3],
+    };
+}
+/**
+ * Creates XZ plane vertices.
+ *
+ * The created plane has position, normal, and texcoord data
+ *
+ * @param width Width of the plane. Default = 1
+ * @param depth Depth of the plane. Default = 1
+ * @param subdivisionsWidth Number of steps across the plane. Default = 1
+ * @param subdivisionsDepth Number of steps down the plane. Default = 1
+ * @return The created plane vertices.
+ */
+function createPlaneVertices(width = 1, depth = 1, subdivisionsWidth = 1, subdivisionsDepth = 1) {
+    const numVertices = (subdivisionsWidth + 1) * (subdivisionsDepth + 1);
+    const positions = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const normals = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const texcoords = createAugmentedTypedArray(2, numVertices, Float32Array);
+    for (let z = 0; z <= subdivisionsDepth; z++) {
+        for (let x = 0; x <= subdivisionsWidth; x++) {
+            const u = x / subdivisionsWidth;
+            const v = z / subdivisionsDepth;
+            positions.push(width * u - width * 0.5, 0, depth * v - depth * 0.5);
+            normals.push(0, 1, 0);
+            texcoords.push(u, v);
+        }
+    }
+    const numVertsAcross = subdivisionsWidth + 1;
+    const indices = createAugmentedTypedArray(3, subdivisionsWidth * subdivisionsDepth * 2, Uint16Array);
+    for (let z = 0; z < subdivisionsDepth; z++) { // eslint-disable-line
+        for (let x = 0; x < subdivisionsWidth; x++) { // eslint-disable-line
+            // Make triangle 1 of quad.
+            indices.push((z + 0) * numVertsAcross + x, (z + 1) * numVertsAcross + x, (z + 0) * numVertsAcross + x + 1);
+            // Make triangle 2 of quad.
+            indices.push((z + 1) * numVertsAcross + x, (z + 1) * numVertsAcross + x + 1, (z + 0) * numVertsAcross + x + 1);
+        }
+    }
+    return {
+        position: positions.typedArray,
+        normal: normals.typedArray,
+        texcoord: texcoords.typedArray,
+        indices: indices.typedArray,
+    };
+}
+/**
+ * Creates sphere vertices.
+ *
+ * The created sphere has position, normal, and texcoord data
+ *
+ * @param radius radius of the sphere.
+ * @param subdivisionsAxis number of steps around the sphere.
+ * @param subdivisionsHeight number of vertically on the sphere.
+ * @param startLatitudeInRadians where to start the
+ *     top of the sphere.
+ * @param endLatitudeInRadians Where to end the
+ *     bottom of the sphere.
+ * @param startLongitudeInRadians where to start
+ *     wrapping the sphere.
+ * @param endLongitudeInRadians where to end
+ *     wrapping the sphere.
+ * @return The created sphere vertices.
+ */
+function createSphereVertices(radius = 1, subdivisionsAxis = 24, subdivisionsHeight = 12, startLatitudeInRadians = 0, endLatitudeInRadians = Math.PI, startLongitudeInRadians = 0, endLongitudeInRadians = Math.PI * 2) {
+    if (subdivisionsAxis <= 0 || subdivisionsHeight <= 0) {
+        throw new Error('subdivisionAxis and subdivisionHeight must be > 0');
+    }
+    const latRange = endLatitudeInRadians - startLatitudeInRadians;
+    const longRange = endLongitudeInRadians - startLongitudeInRadians;
+    // We are going to generate our sphere by iterating through its
+    // spherical coordinates and generating 2 triangles for each quad on a
+    // ring of the sphere.
+    const numVertices = (subdivisionsAxis + 1) * (subdivisionsHeight + 1);
+    const positions = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const normals = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const texcoords = createAugmentedTypedArray(2, numVertices, Float32Array);
+    // Generate the individual vertices in our vertex buffer.
+    for (let y = 0; y <= subdivisionsHeight; y++) {
+        for (let x = 0; x <= subdivisionsAxis; x++) {
+            // Generate a vertex based on its spherical coordinates
+            const u = x / subdivisionsAxis;
+            const v = y / subdivisionsHeight;
+            const theta = longRange * u + startLongitudeInRadians;
+            const phi = latRange * v + startLatitudeInRadians;
+            const sinTheta = Math.sin(theta);
+            const cosTheta = Math.cos(theta);
+            const sinPhi = Math.sin(phi);
+            const cosPhi = Math.cos(phi);
+            const ux = cosTheta * sinPhi;
+            const uy = cosPhi;
+            const uz = sinTheta * sinPhi;
+            positions.push(radius * ux, radius * uy, radius * uz);
+            normals.push(ux, uy, uz);
+            texcoords.push(1 - u, v);
+        }
+    }
+    const numVertsAround = subdivisionsAxis + 1;
+    const indices = createAugmentedTypedArray(3, subdivisionsAxis * subdivisionsHeight * 2, Uint16Array);
+    for (let x = 0; x < subdivisionsAxis; x++) { // eslint-disable-line
+        for (let y = 0; y < subdivisionsHeight; y++) { // eslint-disable-line
+            // Make triangle 1 of quad.
+            indices.push((y + 0) * numVertsAround + x, (y + 0) * numVertsAround + x + 1, (y + 1) * numVertsAround + x);
+            // Make triangle 2 of quad.
+            indices.push((y + 1) * numVertsAround + x, (y + 0) * numVertsAround + x + 1, (y + 1) * numVertsAround + x + 1);
+        }
+    }
+    return {
+        position: positions.typedArray,
+        normal: normals.typedArray,
+        texcoord: texcoords.typedArray,
+        indices: indices.typedArray,
+    };
+}
+/**
+ * Array of the indices of corners of each face of a cube.
+ */
+const CUBE_FACE_INDICES = [
+    [3, 7, 5, 1],
+    [6, 2, 0, 4],
+    [6, 7, 3, 2],
+    [0, 1, 5, 4],
+    [7, 6, 4, 5],
+    [2, 3, 1, 0], // back
+];
+/**
+ * Creates the vertices and indices for a cube.
+ *
+ * The cube is created around the origin. (-size / 2, size / 2).
+ *
+ * @param size width, height and depth of the cube.
+ * @return The created vertices.
+ */
+function createCubeVertices(size = 1) {
+    const k = size / 2;
+    const cornerVertices = [
+        [-k, -k, -k],
+        [+k, -k, -k],
+        [-k, +k, -k],
+        [+k, +k, -k],
+        [-k, -k, +k],
+        [+k, -k, +k],
+        [-k, +k, +k],
+        [+k, +k, +k],
+    ];
+    const faceNormals = [
+        [+1, +0, +0],
+        [-1, +0, +0],
+        [+0, +1, +0],
+        [+0, -1, +0],
+        [+0, +0, +1],
+        [+0, +0, -1],
+    ];
+    const uvCoords = [
+        [1, 0],
+        [0, 0],
+        [0, 1],
+        [1, 1],
+    ];
+    const numVertices = 6 * 4;
+    const positions = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const normals = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const texcoords = createAugmentedTypedArray(2, numVertices, Float32Array);
+    const indices = createAugmentedTypedArray(3, 6 * 2, Uint16Array);
+    for (let f = 0; f < 6; ++f) {
+        const faceIndices = CUBE_FACE_INDICES[f];
+        for (let v = 0; v < 4; ++v) {
+            const position = cornerVertices[faceIndices[v]];
+            const normal = faceNormals[f];
+            const uv = uvCoords[v];
+            // Each face needs all four vertices because the normals and texture
+            // coordinates are not all the same.
+            positions.push(position);
+            normals.push(normal);
+            texcoords.push(uv);
+        }
+        // Two triangles make a square face.
+        const offset = 4 * f;
+        indices.push(offset + 0, offset + 1, offset + 2);
+        indices.push(offset + 0, offset + 2, offset + 3);
+    }
+    return {
+        position: positions.typedArray,
+        normal: normals.typedArray,
+        texcoord: texcoords.typedArray,
+        indices: indices.typedArray,
+    };
+}
+/**
+ * Creates vertices for a truncated cone, which is like a cylinder
+ * except that it has different top and bottom radii. A truncated cone
+ * can also be used to create cylinders and regular cones. The
+ * truncated cone will be created centered about the origin, with the
+ * y axis as its vertical axis. .
+ *
+ * @param bottomRadius Bottom radius of truncated cone.
+ * @param topRadius Top radius of truncated cone.
+ * @param height Height of truncated cone.
+ * @param radialSubdivisions The number of subdivisions around the
+ *     truncated cone.
+ * @param verticalSubdivisions The number of subdivisions down the
+ *     truncated cone.
+ * @param topCap Create top cap. Default = true.
+ * @param bottomCap Create bottom cap. Default = true.
+ * @return The created cone vertices.
+ */
+function createTruncatedConeVertices(bottomRadius = 1, topRadius = 0, height = 1, radialSubdivisions = 24, verticalSubdivisions = 1, topCap = true, bottomCap = true) {
+    if (radialSubdivisions < 3) {
+        throw new Error('radialSubdivisions must be 3 or greater');
+    }
+    if (verticalSubdivisions < 1) {
+        throw new Error('verticalSubdivisions must be 1 or greater');
+    }
+    const extra = (topCap ? 2 : 0) + (bottomCap ? 2 : 0);
+    const numVertices = (radialSubdivisions + 1) * (verticalSubdivisions + 1 + extra);
+    const positions = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const normals = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const texcoords = createAugmentedTypedArray(2, numVertices, Float32Array);
+    const indices = createAugmentedTypedArray(3, radialSubdivisions * (verticalSubdivisions + extra / 2) * 2, Uint16Array);
+    const vertsAroundEdge = radialSubdivisions + 1;
+    // The slant of the cone is constant across its surface
+    const slant = Math.atan2(bottomRadius - topRadius, height);
+    const cosSlant = Math.cos(slant);
+    const sinSlant = Math.sin(slant);
+    const start = topCap ? -2 : 0;
+    const end = verticalSubdivisions + (bottomCap ? 2 : 0);
+    for (let yy = start; yy <= end; ++yy) {
+        let v = yy / verticalSubdivisions;
+        let y = height * v;
+        let ringRadius;
+        if (yy < 0) {
+            y = 0;
+            v = 1;
+            ringRadius = bottomRadius;
+        }
+        else if (yy > verticalSubdivisions) {
+            y = height;
+            v = 1;
+            ringRadius = topRadius;
+        }
+        else {
+            ringRadius = bottomRadius +
+                (topRadius - bottomRadius) * (yy / verticalSubdivisions);
+        }
+        if (yy === -2 || yy === verticalSubdivisions + 2) {
+            ringRadius = 0;
+            v = 0;
+        }
+        y -= height / 2;
+        for (let ii = 0; ii < vertsAroundEdge; ++ii) {
+            const sin = Math.sin(ii * Math.PI * 2 / radialSubdivisions);
+            const cos = Math.cos(ii * Math.PI * 2 / radialSubdivisions);
+            positions.push(sin * ringRadius, y, cos * ringRadius);
+            if (yy < 0) {
+                normals.push(0, -1, 0);
+            }
+            else if (yy > verticalSubdivisions) {
+                normals.push(0, 1, 0);
+            }
+            else if (ringRadius === 0.0) {
+                normals.push(0, 0, 0);
+            }
+            else {
+                normals.push(sin * cosSlant, sinSlant, cos * cosSlant);
+            }
+            texcoords.push((ii / radialSubdivisions), 1 - v);
+        }
+    }
+    for (let yy = 0; yy < verticalSubdivisions + extra; ++yy) { // eslint-disable-line
+        if (yy === 1 && topCap || yy === verticalSubdivisions + extra - 2 && bottomCap) {
+            continue;
+        }
+        for (let ii = 0; ii < radialSubdivisions; ++ii) { // eslint-disable-line
+            indices.push(vertsAroundEdge * (yy + 0) + 0 + ii, vertsAroundEdge * (yy + 0) + 1 + ii, vertsAroundEdge * (yy + 1) + 1 + ii);
+            indices.push(vertsAroundEdge * (yy + 0) + 0 + ii, vertsAroundEdge * (yy + 1) + 1 + ii, vertsAroundEdge * (yy + 1) + 0 + ii);
+        }
+    }
+    return {
+        position: positions.typedArray,
+        normal: normals.typedArray,
+        texcoord: texcoords.typedArray,
+        indices: indices.typedArray,
+    };
+}
+/**
+ * Expands RLE data
+ * @param rleData data in format of run-length, x, y, z, run-length, x, y, z
+ * @param padding value to add each entry with.
+ * @return the expanded rleData
+ */
+function expandRLEData(rleData, padding = []) {
+    padding = padding || [];
+    const data = [];
+    for (let ii = 0; ii < rleData.length; ii += 4) {
+        const runLength = rleData[ii];
+        const element = rleData.slice(ii + 1, ii + 4);
+        element.push(...padding);
+        for (let jj = 0; jj < runLength; ++jj) {
+            data.push(...element);
+        }
+    }
+    return data;
+}
+/**
+ * Creates 3D 'F' vertices.
+ * An 'F' is useful because you can easily tell which way it is oriented.
+ * The created 'F' has position, normal, texcoord, and color arrays.
+ *
+ * @return The created vertices.
+ */
+function create3DFVertices() {
+    const positions = [
+        // left column front
+        0, 0, 0,
+        0, 150, 0,
+        30, 0, 0,
+        0, 150, 0,
+        30, 150, 0,
+        30, 0, 0,
+        // top rung front
+        30, 0, 0,
+        30, 30, 0,
+        100, 0, 0,
+        30, 30, 0,
+        100, 30, 0,
+        100, 0, 0,
+        // middle rung front
+        30, 60, 0,
+        30, 90, 0,
+        67, 60, 0,
+        30, 90, 0,
+        67, 90, 0,
+        67, 60, 0,
+        // left column back
+        0, 0, 30,
+        30, 0, 30,
+        0, 150, 30,
+        0, 150, 30,
+        30, 0, 30,
+        30, 150, 30,
+        // top rung back
+        30, 0, 30,
+        100, 0, 30,
+        30, 30, 30,
+        30, 30, 30,
+        100, 0, 30,
+        100, 30, 30,
+        // middle rung back
+        30, 60, 30,
+        67, 60, 30,
+        30, 90, 30,
+        30, 90, 30,
+        67, 60, 30,
+        67, 90, 30,
+        // top
+        0, 0, 0,
+        100, 0, 0,
+        100, 0, 30,
+        0, 0, 0,
+        100, 0, 30,
+        0, 0, 30,
+        // top rung front
+        100, 0, 0,
+        100, 30, 0,
+        100, 30, 30,
+        100, 0, 0,
+        100, 30, 30,
+        100, 0, 30,
+        // under top rung
+        30, 30, 0,
+        30, 30, 30,
+        100, 30, 30,
+        30, 30, 0,
+        100, 30, 30,
+        100, 30, 0,
+        // between top rung and middle
+        30, 30, 0,
+        30, 60, 30,
+        30, 30, 30,
+        30, 30, 0,
+        30, 60, 0,
+        30, 60, 30,
+        // top of middle rung
+        30, 60, 0,
+        67, 60, 30,
+        30, 60, 30,
+        30, 60, 0,
+        67, 60, 0,
+        67, 60, 30,
+        // front of middle rung
+        67, 60, 0,
+        67, 90, 30,
+        67, 60, 30,
+        67, 60, 0,
+        67, 90, 0,
+        67, 90, 30,
+        // bottom of middle rung.
+        30, 90, 0,
+        30, 90, 30,
+        67, 90, 30,
+        30, 90, 0,
+        67, 90, 30,
+        67, 90, 0,
+        // front of bottom
+        30, 90, 0,
+        30, 150, 30,
+        30, 90, 30,
+        30, 90, 0,
+        30, 150, 0,
+        30, 150, 30,
+        // bottom
+        0, 150, 0,
+        0, 150, 30,
+        30, 150, 30,
+        0, 150, 0,
+        30, 150, 30,
+        30, 150, 0,
+        // left side
+        0, 0, 0,
+        0, 0, 30,
+        0, 150, 30,
+        0, 0, 0,
+        0, 150, 30,
+        0, 150, 0,
+    ];
+    const texcoords = [
+        // left column front
+        0.22, 0.19,
+        0.22, 0.79,
+        0.34, 0.19,
+        0.22, 0.79,
+        0.34, 0.79,
+        0.34, 0.19,
+        // top rung front
+        0.34, 0.19,
+        0.34, 0.31,
+        0.62, 0.19,
+        0.34, 0.31,
+        0.62, 0.31,
+        0.62, 0.19,
+        // middle rung front
+        0.34, 0.43,
+        0.34, 0.55,
+        0.49, 0.43,
+        0.34, 0.55,
+        0.49, 0.55,
+        0.49, 0.43,
+        // left column back
+        0, 0,
+        1, 0,
+        0, 1,
+        0, 1,
+        1, 0,
+        1, 1,
+        // top rung back
+        0, 0,
+        1, 0,
+        0, 1,
+        0, 1,
+        1, 0,
+        1, 1,
+        // middle rung back
+        0, 0,
+        1, 0,
+        0, 1,
+        0, 1,
+        1, 0,
+        1, 1,
+        // top
+        0, 0,
+        1, 0,
+        1, 1,
+        0, 0,
+        1, 1,
+        0, 1,
+        // top rung front
+        0, 0,
+        1, 0,
+        1, 1,
+        0, 0,
+        1, 1,
+        0, 1,
+        // under top rung
+        0, 0,
+        0, 1,
+        1, 1,
+        0, 0,
+        1, 1,
+        1, 0,
+        // between top rung and middle
+        0, 0,
+        1, 1,
+        0, 1,
+        0, 0,
+        1, 0,
+        1, 1,
+        // top of middle rung
+        0, 0,
+        1, 1,
+        0, 1,
+        0, 0,
+        1, 0,
+        1, 1,
+        // front of middle rung
+        0, 0,
+        1, 1,
+        0, 1,
+        0, 0,
+        1, 0,
+        1, 1,
+        // bottom of middle rung.
+        0, 0,
+        0, 1,
+        1, 1,
+        0, 0,
+        1, 1,
+        1, 0,
+        // front of bottom
+        0, 0,
+        1, 1,
+        0, 1,
+        0, 0,
+        1, 0,
+        1, 1,
+        // bottom
+        0, 0,
+        0, 1,
+        1, 1,
+        0, 0,
+        1, 1,
+        1, 0,
+        // left side
+        0, 0,
+        0, 1,
+        1, 1,
+        0, 0,
+        1, 1,
+        1, 0,
+    ];
+    const normals = expandRLEData([
+        // left column front
+        // top rung front
+        // middle rung front
+        18, 0, 0, 1,
+        // left column back
+        // top rung back
+        // middle rung back
+        18, 0, 0, -1,
+        // top
+        6, 0, 1, 0,
+        // top rung front
+        6, 1, 0, 0,
+        // under top rung
+        6, 0, -1, 0,
+        // between top rung and middle
+        6, 1, 0, 0,
+        // top of middle rung
+        6, 0, 1, 0,
+        // front of middle rung
+        6, 1, 0, 0,
+        // bottom of middle rung.
+        6, 0, -1, 0,
+        // front of bottom
+        6, 1, 0, 0,
+        // bottom
+        6, 0, -1, 0,
+        // left side
+        6, -1, 0, 0,
+    ]);
+    const colors = expandRLEData([
+        // left column front
+        // top rung front
+        // middle rung front
+        18, 200, 70, 120,
+        // left column back
+        // top rung back
+        // middle rung back
+        18, 80, 70, 200,
+        // top
+        6, 70, 200, 210,
+        // top rung front
+        6, 200, 200, 70,
+        // under top rung
+        6, 210, 100, 70,
+        // between top rung and middle
+        6, 210, 160, 70,
+        // top of middle rung
+        6, 70, 180, 210,
+        // front of middle rung
+        6, 100, 70, 210,
+        // bottom of middle rung.
+        6, 76, 210, 100,
+        // front of bottom
+        6, 140, 210, 80,
+        // bottom
+        6, 90, 130, 110,
+        // left side
+        6, 160, 160, 220,
+    ], [255]);
+    const numVerts = positions.length / 3;
+    const arrays = {
+        position: createAugmentedTypedArray(3, numVerts, Float32Array),
+        texcoord: createAugmentedTypedArray(2, numVerts, Float32Array),
+        normal: createAugmentedTypedArray(3, numVerts, Float32Array),
+        color: createAugmentedTypedArray(4, numVerts, Uint8Array),
+        indices: createAugmentedTypedArray(3, numVerts / 3, Uint16Array),
+    };
+    arrays.position.push(positions);
+    arrays.texcoord.push(texcoords);
+    arrays.normal.push(normals);
+    arrays.color.push(colors);
+    for (let ii = 0; ii < numVerts; ++ii) {
+        arrays.indices.push(ii);
+    }
+    return Object.fromEntries(Object.entries(arrays).map(([k, v]) => [k, v.typedArray]));
+}
+/**
+ * Creates crescent vertices.
+ *
+ * @param verticalRadius The vertical radius of the crescent.
+ * @param outerRadius The outer radius of the crescent.
+ * @param innerRadius The inner radius of the crescent.
+ * @param thickness The thickness of the crescent.
+ * @param subdivisionsDown number of steps around the crescent.
+ * @param startOffset Where to start arc. Default 0.
+ * @param endOffset Where to end arg. Default 1.
+ * @return The created vertices.
+ */
+function createCrescentVertices(verticalRadius, outerRadius, innerRadius, thickness, subdivisionsDown, startOffset, endOffset) {
+    if (subdivisionsDown <= 0) {
+        throw new Error('subdivisionDown must be > 0');
+    }
+    const subdivisionsThick = 2;
+    const offsetRange = endOffset - startOffset;
+    const numVertices = (subdivisionsDown + 1) * 2 * (2 + subdivisionsThick);
+    const positions = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const normals = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const texcoords = createAugmentedTypedArray(2, numVertices, Float32Array);
+    function lerp(a, b, s) {
+        return a + (b - a) * s;
+    }
+    function vAdd(a, b) {
+        return a.map((v, i) => v + b[i]);
+    }
+    function vMultiply(a, b) {
+        return a.map((v, i) => v * b[i]);
+    }
+    function createArc(arcRadius, x, normalMult, normalAdd, uMult, uAdd) {
+        for (let z = 0; z <= subdivisionsDown; z++) {
+            const uBack = x / (subdivisionsThick - 1);
+            const v = z / subdivisionsDown;
+            const xBack = (uBack - 0.5) * 2;
+            const angle = (startOffset + (v * offsetRange)) * Math.PI;
+            const s = Math.sin(angle);
+            const c = Math.cos(angle);
+            const radius = lerp(verticalRadius, arcRadius, s);
+            const px = xBack * thickness;
+            const py = c * verticalRadius;
+            const pz = s * radius;
+            positions.push(px, py, pz);
+            const n = vAdd(vMultiply([0, s, c], normalMult), normalAdd);
+            normals.push(n);
+            texcoords.push(uBack * uMult + uAdd, v);
+        }
+    }
+    // Generate the individual vertices in our vertex buffer.
+    for (let x = 0; x < subdivisionsThick; x++) {
+        const uBack = (x / (subdivisionsThick - 1) - 0.5) * 2;
+        createArc(outerRadius, x, [1, 1, 1], [0, 0, 0], 1, 0);
+        createArc(outerRadius, x, [0, 0, 0], [uBack, 0, 0], 0, 0);
+        createArc(innerRadius, x, [1, 1, 1], [0, 0, 0], 1, 0);
+        createArc(innerRadius, x, [0, 0, 0], [uBack, 0, 0], 0, 1);
+    }
+    // Do outer surface.
+    const indices = createAugmentedTypedArray(3, (subdivisionsDown * 2) * (2 + subdivisionsThick), Uint16Array);
+    function createSurface(leftArcOffset, rightArcOffset) {
+        for (let z = 0; z < subdivisionsDown; ++z) {
+            // Make triangle 1 of quad.
+            indices.push(leftArcOffset + z + 0, leftArcOffset + z + 1, rightArcOffset + z + 0);
+            // Make triangle 2 of quad.
+            indices.push(leftArcOffset + z + 1, rightArcOffset + z + 1, rightArcOffset + z + 0);
+        }
+    }
+    const numVerticesDown = subdivisionsDown + 1;
+    // front
+    createSurface(numVerticesDown * 0, numVerticesDown * 4);
+    // right
+    createSurface(numVerticesDown * 5, numVerticesDown * 7);
+    // back
+    createSurface(numVerticesDown * 6, numVerticesDown * 2);
+    // left
+    createSurface(numVerticesDown * 3, numVerticesDown * 1);
+    return {
+        position: positions.typedArray,
+        normal: normals.typedArray,
+        texcoord: texcoords.typedArray,
+        indices: indices.typedArray,
+    };
+}
+/**
+ * Creates cylinder vertices. The cylinder will be created around the origin
+ * along the y-axis.
+ *
+ * @param radius Radius of cylinder.
+ * @param height Height of cylinder.
+ * @param radialSubdivisions The number of subdivisions around the cylinder.
+ * @param verticalSubdivisions The number of subdivisions down the cylinder.
+ * @param topCap Create top cap. Default = true.
+ * @param bottomCap Create bottom cap. Default = true.
+ * @return The created vertices.
+ */
+function createCylinderVertices(radius = 1, height = 1, radialSubdivisions = 24, verticalSubdivisions = 1, topCap = true, bottomCap = true) {
+    return createTruncatedConeVertices(radius, radius, height, radialSubdivisions, verticalSubdivisions, topCap, bottomCap);
+}
+/**
+ * Creates vertices for a torus
+ *
+ * @param radius radius of center of torus circle.
+ * @param thickness radius of torus ring.
+ * @param radialSubdivisions The number of subdivisions around the torus.
+ * @param bodySubdivisions The number of subdivisions around the body torus.
+ * @param startAngle start angle in radians. Default = 0.
+ * @param endAngle end angle in radians. Default = Math.PI * 2.
+ * @return The created vertices.
+ */
+function createTorusVertices(radius = 1, thickness = 0.24, radialSubdivisions = 24, bodySubdivisions = 12, startAngle = 0, endAngle = Math.PI * 2) {
+    if (radialSubdivisions < 3) {
+        throw new Error('radialSubdivisions must be 3 or greater');
+    }
+    if (bodySubdivisions < 3) {
+        throw new Error('verticalSubdivisions must be 3 or greater');
+    }
+    const range = endAngle - startAngle;
+    const radialParts = radialSubdivisions + 1;
+    const bodyParts = bodySubdivisions + 1;
+    const numVertices = radialParts * bodyParts;
+    const positions = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const normals = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const texcoords = createAugmentedTypedArray(2, numVertices, Float32Array);
+    const indices = createAugmentedTypedArray(3, (radialSubdivisions) * (bodySubdivisions) * 2, Uint16Array);
+    for (let slice = 0; slice < bodyParts; ++slice) {
+        const v = slice / bodySubdivisions;
+        const sliceAngle = v * Math.PI * 2;
+        const sliceSin = Math.sin(sliceAngle);
+        const ringRadius = radius + sliceSin * thickness;
+        const ny = Math.cos(sliceAngle);
+        const y = ny * thickness;
+        for (let ring = 0; ring < radialParts; ++ring) {
+            const u = ring / radialSubdivisions;
+            const ringAngle = startAngle + u * range;
+            const xSin = Math.sin(ringAngle);
+            const zCos = Math.cos(ringAngle);
+            const x = xSin * ringRadius;
+            const z = zCos * ringRadius;
+            const nx = xSin * sliceSin;
+            const nz = zCos * sliceSin;
+            positions.push(x, y, z);
+            normals.push(nx, ny, nz);
+            texcoords.push(u, 1 - v);
+        }
+    }
+    for (let slice = 0; slice < bodySubdivisions; ++slice) { // eslint-disable-line
+        for (let ring = 0; ring < radialSubdivisions; ++ring) { // eslint-disable-line
+            const nextRingIndex = 1 + ring;
+            const nextSliceIndex = 1 + slice;
+            indices.push(radialParts * slice + ring, radialParts * nextSliceIndex + ring, radialParts * slice + nextRingIndex);
+            indices.push(radialParts * nextSliceIndex + ring, radialParts * nextSliceIndex + nextRingIndex, radialParts * slice + nextRingIndex);
+        }
+    }
+    return {
+        position: positions.typedArray,
+        normal: normals.typedArray,
+        texcoord: texcoords.typedArray,
+        indices: indices.typedArray,
+    };
+}
+/**
+ * Creates disc vertices. The disc will be in the xz plane, centered at
+ * the origin. When creating, at least 3 divisions, or pie
+ * pieces, need to be specified, otherwise the triangles making
+ * up the disc will be degenerate. You can also specify the
+ * number of radial pieces `stacks`. A value of 1 for
+ * stacks will give you a simple disc of pie pieces.  If you
+ * want to create an annulus you can set `innerRadius` to a
+ * value > 0. Finally, `stackPower` allows you to have the widths
+ * increase or decrease as you move away from the center. This
+ * is particularly useful when using the disc as a ground plane
+ * with a fixed camera such that you don't need the resolution
+ * of small triangles near the perimeter. For example, a value
+ * of 2 will produce stacks whose outside radius increases with
+ * the square of the stack index. A value of 1 will give uniform
+ * stacks.
+ *
+ * @param radius Radius of the ground plane.
+ * @param divisions Number of triangles in the ground plane (at least 3).
+ * @param stacks Number of radial divisions (default=1).
+ * @param innerRadius Default 0.
+ * @param stackPower Power to raise stack size to for decreasing width.
+ * @return The created vertices.
+ */
+function createDiscVertices(radius = 1, divisions = 24, stacks = 1, innerRadius = 0, stackPower = 1) {
+    if (divisions < 3) {
+        throw new Error('divisions must be at least 3');
+    }
+    // Note: We don't share the center vertex because that would
+    // mess up texture coordinates.
+    const numVertices = (divisions + 1) * (stacks + 1);
+    const positions = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const normals = createAugmentedTypedArray(3, numVertices, Float32Array);
+    const texcoords = createAugmentedTypedArray(2, numVertices, Float32Array);
+    const indices = createAugmentedTypedArray(3, stacks * divisions * 2, Uint16Array);
+    let firstIndex = 0;
+    const radiusSpan = radius - innerRadius;
+    const pointsPerStack = divisions + 1;
+    // Build the disk one stack at a time.
+    for (let stack = 0; stack <= stacks; ++stack) {
+        const stackRadius = innerRadius + radiusSpan * Math.pow(stack / stacks, stackPower);
+        for (let i = 0; i <= divisions; ++i) {
+            const theta = 2.0 * Math.PI * i / divisions;
+            const x = stackRadius * Math.cos(theta);
+            const z = stackRadius * Math.sin(theta);
+            positions.push(x, 0, z);
+            normals.push(0, 1, 0);
+            texcoords.push(1 - (i / divisions), stack / stacks);
+            if (stack > 0 && i !== divisions) {
+                // a, b, c and d are the indices of the vertices of a quad.  unless
+                // the current stack is the one closest to the center, in which case
+                // the vertices a and b connect to the center vertex.
+                const a = firstIndex + (i + 1);
+                const b = firstIndex + i;
+                const c = firstIndex + i - pointsPerStack;
+                const d = firstIndex + (i + 1) - pointsPerStack;
+                // Make a quad of the vertices a, b, c, d.
+                indices.push(a, b, c);
+                indices.push(a, c, d);
+            }
+        }
+        firstIndex += divisions + 1;
+    }
+    return {
+        position: positions.typedArray,
+        normal: normals.typedArray,
+        texcoord: texcoords.typedArray,
+        indices: indices.typedArray,
+    };
+}
+
+var primitives = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    TypedArrayWrapper: TypedArrayWrapper,
+    create3DFVertices: create3DFVertices,
+    createCrescentVertices: createCrescentVertices,
+    createCubeVertices: createCubeVertices,
+    createCylinderVertices: createCylinderVertices,
+    createDiscVertices: createDiscVertices,
+    createPlaneVertices: createPlaneVertices,
+    createSphereVertices: createSphereVertices,
+    createTorusVertices: createTorusVertices,
+    createTruncatedConeVertices: createTruncatedConeVertices,
+    createXYQuadVertices: createXYQuadVertices
+});
+
+export { TypedArrayViewGenerator, copySourceToTexture, copySourcesToTexture, createBufferLayoutsFromArrays, createBuffersAndAttributesFromArrays, createTextureFromImage, createTextureFromImages, createTextureFromSource, createTextureFromSources, generateMipmap, getSizeForMipFromTexture, getSizeFromSource, interleaveVertexData, isTypedArray, loadImageBitmap, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayViews, normalizeGPUExtent3D, numMipLevels, primitives, setStructuredValues, setStructuredView, setTypedValues, subarray };
 //# sourceMappingURL=webgpu-utils.module.js.map

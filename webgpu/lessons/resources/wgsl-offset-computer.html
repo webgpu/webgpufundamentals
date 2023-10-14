@@ -268,6 +268,31 @@ const compressor = new LZMA('/3rdparty/lzma_worker.js');
 
 const examples = {
   basic: `
+struct InnerUniforms {
+    bar: u32,
+    pad0: u32,
+    pad1: u32,
+    pad2: u32,
+};
+
+struct VSUniforms {
+    foo: u32,
+    pad0: u32,
+    pad1: u32,
+    pad2: u32,
+    moo: InnerUniforms,
+};
+@group(0) @binding(0) var<uniform> foo0: vec3f;
+@group(0) @binding(1) var<uniform> foo1: array<vec3f, 5>;
+@group(0) @binding(2) var<uniform> foo2: array<array<vec3f, 5>, 6>;
+@group(0) @binding(3) var<uniform> foo3: array<array<array<vec3f, 5>, 6>, 7>;
+
+@group(0) @binding(4) var<uniform> foo4: VSUniforms;
+@group(0) @binding(5) var<uniform> foo5: array<VSUniforms, 5>;
+@group(0) @binding(6) var<uniform> foo6: array<array<VSUniforms, 5>, 6>;
+@group(0) @binding(7) var<uniform> foo7: array<array<array<VSUniforms, 5>, 6>, 7>;
+  `,
+  basic2: `
     struct Light {
       mode: u32,
       power: f32,
@@ -365,12 +390,15 @@ function clearResults() {
 const dataTypes = {
   structs: {
     label: 'struct',
+    toTypeDef: v => v,
   },
   uniforms: {
     label: 'uniform',
+    toTypeDef: v => v.typeDefinition,
   },
   storages: {
     label: 'storage',
+    toTypeDef: v => v.typeDefinition,
   },
 };
 
@@ -381,14 +409,14 @@ function updateResults(code, style) {
     const includeStructs = structsElem.checked;
 
     const results = [];
-    for (const [key, {label}] of Object.entries(dataTypes).filter(([k]) => includeStructs ? true : k !== 'structs')) {
-      for (const [name, uniform] of Object.entries(defs[key])) {
+    for (const [key, {label, toTypeDef}] of Object.entries(dataTypes).filter(([k]) => includeStructs ? true : k !== 'structs')) {
+      for (const [name, dataType] of Object.entries(defs[key])) {
         const text = `${label}: ${name}`;
         diagramElem.appendChild(el('div', { textContent: text }));
-        diagramElem.appendChild(createByteDiagramForType(name, uniform));
+        diagramElem.appendChild(createByteDiagramForType(name, toTypeDef(dataType)));
         diagramElem.appendChild(el('hr'));
         if (style !== 'none') {
-          results.push(getCodeForUniform(name, uniform, style));
+          results.push(getCodeForUniform(name, dataType, style));
         }
       }
     }

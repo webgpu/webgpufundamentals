@@ -13,6 +13,7 @@ import {
 function align(v, align) {
   return Math.ceil(v / align) * align;
 }
+const roundUpToMultipleOf = align;
 
 function assert(cond, msg = '') {
   if (!cond) {
@@ -181,58 +182,82 @@ function getColor(grid, color) {
   return color === undefined ? grid.getColor() : color;
 }
 
-function getSizeForType(type) {
-  if (Array.isArray(type)) {
-    return type.reduce((sum, type) => sum + getSizeForType(type), 0);
+function isIntrinsic(typeDef/*: TypeDefinition*/) {
+    return !(typeDef/* as StructDefinition*/).fields &&
+           !(typeDef/* as ArrayDefinition*/).elementType;
+}
+
+function getSizeOfTypeDef(typeDef/*: TypeDefinition*/)/*: number*/ {
+  const asArrayDef = typeDef/* as ArrayDefinition*/;
+  const elementType = asArrayDef.elementType;
+  if (elementType) {
+    if (isIntrinsic(elementType)) {
+        const asIntrinsicDef = elementType/* as IntrinsicDefinition*/;
+        const { align } = typeInfo[asIntrinsicDef.type];
+        return roundUpToMultipleOf(elementType.size, align) * asArrayDef.numElements;
+    } else {
+        return asArrayDef.numElements * getSizeOfTypeDef(elementType);
+    }
   } else {
-    return type.size;
+    const asStructDef = typeDef/* as StructDefinition*/;
+    const numElements = asArrayDef.numElements || 1;
+    if (asStructDef.fields) {
+        return typeDef.size * numElements;
+    } else {
+        const asIntrinsicDef = typeDef/* as IntrinsicDefinition*/;
+        const { align } = typeInfo[asIntrinsicDef.type];
+        return numElements > 1
+           ? roundUpToMultipleOf(typeDef.size, align) * numElements
+           : typeDef.size;
+    }
   }
 }
 
-function addGridType(grid, type, name, color) {
-  let startOffset;
-  if (type.offset) {
-    grid.addPadding(type.offset - grid.byteOffset);
-    startOffset = grid.byteOffset;
-  }
 
-  if (type.fields) {
-    for (const [fieldName, fieldType] of Object.entries(type.fields)) {
-      addGridType(grid, fieldType, `${name}.${fieldName}`);
+function addGridType(grid, typeDef, baseOffset, name, color) {
+  grid.addPadding(baseOffset - grid.byteOffset);
+
+  if (typeDef.fields) {
+    for (const [fieldName, fieldDef] of Object.entries(typeDef.fields)) {
+      addGridType(grid, fieldDef.type, baseOffset + fieldDef.offset, `${name}.${fieldName}`);
     }
-  } else if (Array.isArray(type)) {
+  } else if (typeDef.elementType) {
+    const { elementType } = typeDef;
     const elemColor = getColor(grid, color);
-    type.forEach((t, i) => {
-      addGridType(grid, t, `${name}[${i}]`, elemColor);
-    });
-  } else if (type.numElements) {
-    const elemColor = getColor(grid, color);
-    const t = {...type};
-    delete t.numElements;
-    delete t.size;
-    delete t.offset;
-    // Not sure this is the correct place for this.
-    // This is an array of base types (array<baseType>)
-    // addGridType adds base types and assumes baseType alignment rules
-    // but array<> has different rules
-    for (let i = 0; i < type.numElements; ++i) {
-      addGridType(grid, t, `${name}[${i}]`, elemColor);
+    const elementSize = typeDef.size / typeDef.numElements;
+    for (let i = 0; i < typeDef.numElements; ++i) {
+      addGridType(grid, elementType, baseOffset + i * elementSize, `${name}[${i}]`, elemColor);
     }
+  //} else if (typeDef.numElements) {
+  //  const elemColor = getColor(grid, color);
+  //  const t = {...typeDef};
+  //  delete t.numElements;
+  //  delete t.size;
+  //  delete t.offset;
+  //  // Not sure this is the correct place for this.
+  //  // This is an array of base types (array<baseType>)
+  //  // addGridType adds base types and assumes baseType alignment rules
+  //  // but array<> has different rules
+  //  for (let i = 0; i < typeDef.numElements; ++i) {
+  //    addGridType(grid, t, `${name}[${i}]`, elemColor);
+  //  }
   } else {
     // name, numElements, elementSize, alignment
-    grid.addElements(name, type.type, color);
+    grid.addElements(name, typeDef.type, color);
   }
-  if (startOffset !== undefined) {
-    grid.addPadding(getSizeForType(type) - (grid.byteOffset - startOffset));
-  }
+
+  //if (startOffset !== undefined) {
+  //  grid.addPadding(getSizeOfTypeDef(typeDef) - (grid.byteOffset - startOffset));
+  //}
 }
 
 const kNumBytesPerRow = 16;
 
-function addTypeToGrid(name, type) {
+function addTypeToGrid(name, typeDef) {
   const grid = new GridBuilder(kNumBytesPerRow);
-  addGridType(grid, type, '');
-  grid.addPadding(getSizeForType(type) - grid.byteOffset);
+  addGridType(grid, typeDef, 0, '', );
+  const size = getSizeOfTypeDef(typeDef);
+  grid.addPadding(size - grid.byteOffset);
   return grid.tableElem;
 }
 
@@ -312,6 +337,6 @@ export function getCodeForUniform(name, uniform, mode = 'views') {
   return lines.join('\n');
 }
 
-export function createByteDiagramForType(name, uniform) {
-  return el('div', {className: 'byte-diagram'}, [addTypeToGrid(name, uniform)]);
+export function createByteDiagramForType(name, typeDef) {
+  return el('div', {className: 'byte-diagram'}, [addTypeToGrid(name, typeDef)]);
 }
