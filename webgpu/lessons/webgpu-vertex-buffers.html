@@ -229,11 +229,10 @@ data in a storage buffer and indexed it using the builtin <code class="notransla
 While that technique is growing in popularity, the traditional way to
 provide vertex data to a vertex shader is via vertex buffers and
 attributes.</p>
-<p>Vertex buffers are just like any other WebGPU buffer. They hold data.
+<p>Vertex buffers are just like any other WebGPU buffer; they hold data.
 The difference is we don’t access them directly from the vertex shader.
-Instead, we tell WebGPU what kind of data is in the buffer as well as
-where it is and how it’s organized. It then pulls the data out of the
-buffer and provides it for us.</p>
+Instead, we tell WebGPU what kind of data is in the buffer and how it’s
+organized. It then pulls the data out of the buffer and provides it for us.</p>
 <p>Let’s take the last example from
 <a href="webgpu-storage-buffers.html">the previous article</a>
 and change it from using a storage buffer to using a vertex buffer.</p>
