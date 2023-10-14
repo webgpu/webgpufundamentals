@@ -8,11 +8,10 @@ While that technique is growing in popularity, the traditional way to
 provide vertex data to a vertex shader is via vertex buffers and
 attributes.
 
-Vertex buffers are just like any other WebGPU buffer. They hold data.
+Vertex buffers are just like any other WebGPU buffer; they hold data.
 The difference is we don't access them directly from the vertex shader.
-Instead, we tell WebGPU what kind of data is in the buffer as well as
-where it is and how it's organized. It then pulls the data out of the
-buffer and provides it for us.
+Instead, we tell WebGPU what kind of data is in the buffer and how it's
+organized. It then pulls the data out of the buffer and provides it for us.
 
 Let's take the last example from
 [the previous article](webgpu-storage-buffers.html)
