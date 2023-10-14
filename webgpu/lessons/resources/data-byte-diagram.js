@@ -228,27 +228,10 @@ function addGridType(grid, typeDef, baseOffset, name, color) {
     for (let i = 0; i < typeDef.numElements; ++i) {
       addGridType(grid, elementType, baseOffset + i * elementSize, `${name}[${i}]`, elemColor);
     }
-  //} else if (typeDef.numElements) {
-  //  const elemColor = getColor(grid, color);
-  //  const t = {...typeDef};
-  //  delete t.numElements;
-  //  delete t.size;
-  //  delete t.offset;
-  //  // Not sure this is the correct place for this.
-  //  // This is an array of base types (array<baseType>)
-  //  // addGridType adds base types and assumes baseType alignment rules
-  //  // but array<> has different rules
-  //  for (let i = 0; i < typeDef.numElements; ++i) {
-  //    addGridType(grid, t, `${name}[${i}]`, elemColor);
-  //  }
   } else {
     // name, numElements, elementSize, alignment
     grid.addElements(name, typeDef.type, color);
   }
-
-  //if (startOffset !== undefined) {
-  //  grid.addPadding(getSizeOfTypeDef(typeDef) - (grid.byteOffset - startOffset));
-  //}
 }
 
 const kNumBytesPerRow = 16;
@@ -268,7 +251,7 @@ function showTypes(view, arrayBufferName, template, indent = '') {
     const lines = view.map(elem => addPrefixSuffix(showTypes(elem, arrayBufferName, template, indent + '  '), indent + '  ', '')).flat();
     return [
       '[',
-      ...lines,
+      ...lines.map(v => `${v},`),
       `${indent}]`,
     ];
   } else if (view.buffer instanceof ArrayBuffer) {
@@ -316,14 +299,14 @@ export function getCodeForUniform(name, uniform, mode = 'views') {
   const template = mode === 'views'
     ? {
       decl: (name, size) => `const ${name} = new ArrayBuffer(${size});`,
-      typedArray: (name, lines) => [`const ${name}view: ${lines[0]}`, ','],
+      typedArray: (name) => [`const ${name}View = `, ';'],
       nonTypedArray: (name) => [`const ${name}Views = `, ';'],
-      wholeBuffer: (view) => `new ${Object.getPrototypeOf(view).constructor.name}(${arrayBufferName}})`,
+      wholeBuffer: (view) => `new ${Object.getPrototypeOf(view).constructor.name}(${arrayBufferName})`,
       buffer: (view) => `new ${Object.getPrototypeOf(view).constructor.name}(${arrayBufferName}, ${view.byteOffset}, ${view.length})`,
     }
     : {
-      decl: (name, size) => `const ${name}Size = ${size}`,
-      typedArray: (name, lines) => [`const ${name}view: ${lines[0]}`, ','],
+      decl: (name, size) => `const ${name}Size = ${size};`,
+      typedArray: (name) => [`const ${name}view = `, ';'],
       nonTypedArray: (name) => [`const ${name}Info = `, ';'],
       wholeBuffer: (view) => `{ type: ${Object.getPrototypeOf(view).constructor.name} }`,
       buffer: (view) => `{ type: ${Object.getPrototypeOf(view).constructor.name}, byteOffset: ${view.byteOffset}, length: ${view.length} }`,
