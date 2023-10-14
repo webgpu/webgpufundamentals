@@ -368,6 +368,7 @@ const compileElem = document.querySelector('#compile');
 const structsElem = document.querySelector('#structs');
 const helpElem = document.querySelector('#help');
 const docsElem = document.querySelector('#docs');
+const globals = {};
 
 helpElem.addEventListener('click', () => {
   docsElem.style.display = '';
@@ -405,7 +406,21 @@ const dataTypes = {
   },
 };
 
-function updateResults(code, style) {
+function makeHex(code) {
+  return new Promise(resolve => {
+    const save = JSON.stringify({
+      c: compileElem.checked ? 1 : 0,
+      x: code,
+    });
+    compressor.compress(save, 1, function(bytes) {
+      const hex = convertBytesToHex(bytes);
+      resolve(hex);
+    },
+    () => { /* */ });
+  });
+}
+
+async function updateResults(code, style) {
   try {
     const defs = makeShaderDataDefinitions(code);
 
@@ -442,16 +457,9 @@ function updateResults(code, style) {
     ));
   }
 
-  const save = JSON.stringify({
-    c: compileElem.checked ? 1 : 0,
-    x: code,
-  });
-  compressor.compress(save, 1, function(bytes) {
-    const hex = convertBytesToHex(bytes);
-    const params = new URLSearchParams({x: hex});
-    window.location.replace(`#${params.toString()}`);
-  },
-  () => { /* */ });
+  const hex = await makeHex(code);
+  const params = new URLSearchParams({...(hex !== globals.baseHex && {x: hex})});
+  window.location.replace(`#${params.toString()}`);
 }
 
 /* global require */
@@ -490,6 +498,11 @@ async function main(editor) {
         resolve();
       }
     });
+  }
+
+  {
+    const code = editor.getValue();
+    globals.baseHex = await makeHex(code);
   }
 
   await readURL(window.location.hash);
