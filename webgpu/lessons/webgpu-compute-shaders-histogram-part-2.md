@@ -14,8 +14,8 @@ Given an image like this
 
 <div class="center">
   <div>
-    <div><img src="../resources/images/pexels-francesco-ungaro-96938-mid.jpg" style="max-width: 700px;"></div>
-    <div style="text-align: center;"><a href="https://www.pexels.com/photo/cute-kitten-hiding-behind-a-pillow-96938/">Photo by Francesco Ungaro</a></div>
+    <div><img src="../resources/images/pexels-chevanon-photography-1108099.jpg" style="max-width: 700px;"></div>
+    <div style="text-align: center;"><a href="https://www.pexels.com/photo/two-yellow-labrador-retriever-puppies-1108099/">Photo by Chevanon Photography</a></div>
   </div>
 </div>
 
@@ -23,10 +23,10 @@ It's common to generate multiple histograms
 
 <div class="webgpu_center side-by-side">
   <div>
-    <div><img src="resources/histogram-colors-photoshop.png" style="width: 237px;" class="nobg"></div>
+    <div><img src="resources/histogram-colors-photoshop-02.png" style="width: 237px;" class="nobg"></div>
   </div>
   <div>
-    <div><img src="resources/histogram-luminosity-photoshop.png" style="width: 237px;" class="nobg"> </div>
+    <div><img src="resources/histogram-luminosity-photoshop-02.png" style="width: 237px;" class="nobg"> </div>
   </div>
 </div>
 
