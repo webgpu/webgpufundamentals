@@ -271,9 +271,9 @@ const compressor = new LZMA('/3rdparty/lzma_worker.js');
 
 const examples = {
   basic: `
-  @group(0) @binding(0) var<uniform> f0: vec3f;
-//  @group(0) @binding(1) var<uniform> f1: array<vec3f, 2>;
-//  @group(0) @binding(2) var<uniform> f2: array<array<vec3f, 2>, 3>;
+    struct Uniforms {
+      resolution: vec2<f32>,
+    };
 
   `,
   basic2: `
