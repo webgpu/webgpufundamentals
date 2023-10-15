@@ -1,3 +1,4 @@
+import '/webgpu/lessons/resources/data-tables.js';
 // Licensed under a BSD license. See license.html for license
 /* eslint-disable strict */
 /* global settings, contributors, jQuery */
@@ -98,6 +99,8 @@ $(document).ready(function($) {
   $('a[data-href]').on('click', function() {
     window.location.href = this.dataset.href;
   });
+
+  $('[data-table]').html();
 
 });
 }(jQuery));

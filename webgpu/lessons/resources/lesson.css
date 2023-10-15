@@ -177,6 +177,10 @@ div[data-diagram] {
 .spread .code>div {
   text-align: left;
 }
+.center-vertically {
+  display: flex;
+  justify-content: center;
+}
 #c {
   position: absolute;
   top: 0;
@@ -853,6 +857,8 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
   text-decoration: none;
   margin-right: 0.25em;
 }
+.data-table .right { text-align: right }
+.data-table .left { text-align: left }
 
 /* ---- byte table styles ---- */
 

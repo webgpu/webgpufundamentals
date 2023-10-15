@@ -28,6 +28,8 @@
   ],
   'compute-shaders': [
     'webgpu-compute-shaders.md',
+    'webgpu-compute-shaders-histogram.md',
+    'webgpu-compute-shaders-histogram-part-2.md',
   ],
   'misc': [
     'webgpu-from-webgl.md',

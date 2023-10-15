@@ -239,8 +239,8 @@ an image into a texture.</p>
     return await createImageBitmap(blob, { colorSpaceConversion: 'none' });
   }
 </pre>
-<p>The code above calls <code class="notranslate" translate="no">fetch</code> with the url of an image. This returns a <code class="notranslate" translate="no">Response</code>. We then
-use that to load a <code class="notranslate" translate="no">Blob</code> which opaquely represents the data of the image file. We then pass
+<p>The code above calls <a href="https://developer.mozilla.org/en-US/docs/Web/API/fetch"><code class="notranslate" translate="no">fetch</code></a> with the url of an image. This returns a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Response"><code class="notranslate" translate="no">Response</code></a>. We then
+use that to load a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Blob"><code class="notranslate" translate="no">Blob</code></a> which opaquely represents the data of the image file. We then pass
 that to <a href="https://developer.mozilla.org/en-US/docs/Web/API/createImageBitmap"><code class="notranslate" translate="no">createImageBitmap</code></a> which is a standard browser function to create an <a href="https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap"><code class="notranslate" translate="no">ImageBitmap</code></a>.
 We pass <code class="notranslate" translate="no">{ colorSpaceConversion: 'none' }</code> to tell the browser not to apply any color space. It’s up to you if
 you want the browser to apply a color space or not. Often in WebGPU we might load
@@ -580,7 +580,7 @@ If the image has mip levels then we generate them.</p>
     }
   }
 </pre>
-<p>Here’s a function that given a source (in this case an <a href="https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap"><code class="notranslate" translate="no">ImageBitmap</code></a>) will
+<p><a id="a-create-texture-from-source"></a>Here’s a function that given a source (in this case an <a href="https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap"><code class="notranslate" translate="no">ImageBitmap</code></a>) will
 create a texture of the matching size and then call the previous function
 to fill it in with the data</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function createTextureFromSource(device, source, options = {}) {
@@ -1011,6 +1011,8 @@ They seem to change over time so we won’t go into solutions here. <a href="#fn
   <li>Compute Shaders</li>
         <ul>
           <li><a href="/webgpu/lessons/webgpu-compute-shaders.html">Compute Shader Basics</a></li>
+<li><a href="/webgpu/lessons/webgpu-compute-shaders-histogram.html">Image Histogram</a></li>
+<li><a href="/webgpu/lessons/webgpu-compute-shaders-histogram-part-2.html">Image Histogram Part 2</a></li>
         </ul>
   <li>Misc</li>
         <ul>
@@ -1078,7 +1080,7 @@ const settings = {
 <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
-<script src="/webgpu/lessons/resources/lesson.js"></script>
+<script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
 <script>
 </script>
 

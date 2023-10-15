@@ -478,7 +478,7 @@ some specific reason to choose another size. Apparently most GPUs can efficientl
 run 64 things in lockstep. If you choose a higher number and the GPU can’t do it
 as a fast path it will chose a slower path. If on the other hand you chose a number
 below what the GPU can do then you may not get the maximum performance.</p>
-<h2 id="races-in-compute-shaders">Races in Compute Shaders</h2>
+<h2 id="races-in-compute-shaders"><a href="a-race-conditions"></a>Races in Compute Shaders</h2>
 <p>A common mistake in WebGPU is not handling race conditions. A race
 condition is where multiple threads are running at the same time and
 effectively they are in a race for who comes in first or last.</p>
@@ -525,7 +525,7 @@ are launched in a particular order.</p>
 <p>We’ll go over some of the ways to deal with this issue in future examples. For now, our
 two examples have no race conditions as each iteration of the compute shader does something
 unaffected by the other iterations.</p>
-<p>More Examples: TBD</p>
+<p>Next up: <a href="webgpu-compute-shaders-histogram.html">Example Compute Shaders - Image Histogram</a></p>
 
     </div>
     <div class="lesson-sidebar">
@@ -572,6 +572,8 @@ unaffected by the other iterations.</p>
   <li>Compute Shaders</li>
         <ul>
           <li><a href="/webgpu/lessons/webgpu-compute-shaders.html">Compute Shader Basics</a></li>
+<li><a href="/webgpu/lessons/webgpu-compute-shaders-histogram.html">Image Histogram</a></li>
+<li><a href="/webgpu/lessons/webgpu-compute-shaders-histogram-part-2.html">Image Histogram Part 2</a></li>
         </ul>
   <li>Misc</li>
         <ul>
@@ -639,7 +641,7 @@ const settings = {
 <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
-<script src="/webgpu/lessons/resources/lesson.js"></script>
+<script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
 <script>
 </script>
 
