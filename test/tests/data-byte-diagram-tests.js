@@ -101,5 +101,37 @@ describe('data-byte-diagram-tests', () => {
         `);
     });
 
+    it('generates correct types', () => {
+        const shader = `
+          struct Uni {
+              uni1: vec2i,
+              uni2: vec2u,
+              uni3: vec2f,
+              uni4: vec2h,
+              uni5: vec2<i32>,
+              uni6: vec2<u32>,
+              uni7: vec2<f32>,
+              uni8: vec2<f16>,
+          };
+          @group(0) @binding(0) var<uniform> uni1: Uni;
+        `;
+        const d = makeShaderDataDefinitions(shader);
+        const code = getCodeForUniform('foo', d.uniforms.uni1.typeDefinition);
+        assertCodeEqual(code, `
+          const fooValues = new ArrayBuffer(64);
+          const fooViews = {
+            uni1: new Int32Array(fooValues, 0, 2),
+            uni2: new Uint32Array(fooValues, 8, 2),
+            uni3: new Float32Array(fooValues, 16, 2),
+            uni4: new Uint16Array(fooValues, 24, 2),
+            uni5: new Float32Array(fooValues, 32, 2),
+            uni6: new Int32Array(fooValues, 40, 2),
+            uni7: new Uint32Array(fooValues, 48, 2),
+            uni8: new Uint16Array(fooValues, 56, 4),
+          };
+        `);
+
+    });
+
 });
 
