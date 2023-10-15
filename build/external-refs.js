@@ -15,7 +15,7 @@ const globalObjects = [
   'BigInt64Array',
   'BigUint64Array',
   'DataView',
-
+  'Video',
   'Image',
 
   'GPUAdapter',
@@ -114,10 +114,14 @@ const gpuDict = [
 ];
 
 const apis = [
-  'ImageBitmap',
+  'Blob',
   'createImageBitmap',
-  'HTMLVideoElement',
+  'fetch',
   'HTMLCanvasElement',
+  'HTMLVideoElement',
+  'ImageBitmap',
+  'ImageData',
+  'Response',
 ];
 
 // check with removing the last 's'?

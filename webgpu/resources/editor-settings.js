@@ -83,7 +83,14 @@ function fixSourceLinks(url, source) {
   const quoteRE = /"(.*?)"/g;
   const workerRE = /(new\s+Worker\s*\(\s*)('|")(.*?)('|")/g;
   const importScriptsRE = /(importScripts\s*\(\s*)('|")(.*?)('|")/g;
+  // import 'url'
+  // import foo from 'url'
+  // import * as foo from 'url'
+  // import {a} from 'url'
+  // import {a,b,..} from 'url'
+  // import a, {b,b} from 'url'
   const moduleRE = /(import.*?)('|")(.*?)('|")/g;
+  const moduleRE2 = /(import\s+{[^}]*?}\s+from\s+)('|")(.*?)('|")/g;
   const prefix = getPrefix(url);
   const rootPrefix = getRootPrefix(url);
 
@@ -132,6 +139,7 @@ function fixSourceLinks(url, source) {
   source = source.replace(loadGLTFRE, makeLinkFQedQuote);
   source = source.replace(webgpufundamentalsUrlRE, makeTaggedFDedQuotes);
   source = source.replace(moduleRE, makeFDedQuotes);
+  source = source.replace(moduleRE2, makeFDedQuotes);
   return source;
 }
 

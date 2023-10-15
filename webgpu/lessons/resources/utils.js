@@ -32,9 +32,14 @@ export function convertBytesToHex(byteArray) {
   return hex;
 }
 
+export function zip(...arrays) {
+  return arrays[0].map((_, i) => arrays.map(arr => arr[i]));
+}
+
 export const euclideanModulo = (x, a) => x - a * Math.floor(x / a);
 export const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 export const clamp01 = v => Math.min(1, Math.max(0, v));
+export const lerp = (a, b, t) => a + (b - a) * t;
 
 /**
  * make css hsl string from normalized inputs
@@ -92,6 +97,10 @@ export const rgba8unormFromCSS = (() => {
     return Array.from(imgData.data);
   };
 })();
+
+export const rgbaFloatFromCSS = (cssColor) => {
+  return rgba8unormFromCSS(cssColor).map(v => v / 255);
+};
 
 export const shortSize = (function() {
   const suffixes = ['b', 'k', 'mb', 'gb', 'tb', 'pb'];

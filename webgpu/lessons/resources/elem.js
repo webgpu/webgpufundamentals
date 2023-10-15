@@ -96,3 +96,19 @@ export function checkbox(label, checked, callback) {
   ]);
   return parent;
 }
+
+export function select(label, options, selectedIndex, callback) {
+  const select = el(
+    'select',
+    {
+      onInput: function() {
+        callback(select.selectedIndex);
+      },
+    },
+    options.map((option, ndx) => el('option', { selected: selectedIndex === ndx, textContent: option})),
+  );
+  const parent = el('div', {className: 'select center'}, [
+    select,
+  ]);
+  return parent;
+}

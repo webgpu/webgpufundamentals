@@ -358,6 +358,7 @@ struct VSOutput {
 
 Now we need to setup one more storage buffer with some vertex data.
 First lets make a function to generate some vertex data. Lets make a circle.
+<a id="a-create-circle"></a>
 
 ```js
 function createCircleVertices({

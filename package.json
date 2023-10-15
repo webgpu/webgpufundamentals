@@ -41,6 +41,7 @@
     "watch-no-check": "grunt buildwatch",
     "start": "servez out",
     "eslint": "ld-check-dependencies && grunt eslint",
+    "lint": "npm run eslint",
     "pre-push": "ld-check-dependencies && grunt eslint",
     "pre-build": "grunt eslint",
     "test": "check-all-the-errors --follow-links=both --output=webgpufundamentals.check.json out \"*.html\"",

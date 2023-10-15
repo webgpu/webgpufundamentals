@@ -398,7 +398,7 @@ If the image has mip levels then we generate them.
   }
 ```
 
-Here's a function that given a source (in this case an `ImageBitmap`) will
+<a id="a-create-texture-from-source"></a>Here's a function that given a source (in this case an `ImageBitmap`) will
 create a texture of the matching size and then call the previous function
 to fill it in with the data
 
