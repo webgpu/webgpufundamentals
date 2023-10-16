@@ -1604,7 +1604,7 @@ renderDiagrams({
     function drawConnection(x2, y2, i, step, stride) {
       if (step > 0) {
         const x0 = x2;
-        const y0 = (step - 1) * 2 * size;
+        const y0 = (step - 1) * 2.5 * size;
         const x1 = x0 + stride * size;
 
         if (i + stride / 2 < numbers.length) {
