@@ -71,12 +71,12 @@ Finally we can graph the values in those bins
 
 <div class="center">
   <div>
-    <div data-diagram="imageHistogramGraph" style="display: inline-block; width: 256px; max-width: 100%;"></div>
+    <div data-diagram="imageHistogramGraph" style="display: inline-block; width: 96px; max-width: 100%;"></div>
   </div>
 </div>
 
 The graph shows that there are more dark pixels (🟦 18) than medium brightness pixels (🟥 16) and
-even fewer bright pixels (🟨 8). That's not so interesting with just 3 bins. I graphed it with curves to try to make it look slightly more interesting 😅. But, if we take a picture like this
+even fewer bright pixels (🟨 8). That's not so interesting with just 3 bins. But, if we take a picture like this
 
 <div class="center">
   <div>

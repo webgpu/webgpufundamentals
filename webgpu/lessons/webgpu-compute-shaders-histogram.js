@@ -1363,41 +1363,23 @@ renderDiagrams({
     const uiDiv = el('div');
     const div = el('div', {}, [diagramDiv, uiDiv]);
     elem.appendChild(div);
-    const w = 256;
-    const h = 150;
-    const draw = svg().addTo(diagramDiv).viewbox(0, 0, w, h);
+    const binWidth = 16;
+    const countHeight = 2;
     const pixels = image.flat();
     const counts = kBins.slice().sort(sortByLuminance).map(color => {
       return pixels.filter(v => v === color).length;
     });
     const max = counts.reduce((a, b) => Math.max(a, b));
-    const points = counts.map((count, i) => [
-        i * w / (counts.length - 1),
-        (1 - count / max) * h,
-    ]);
-    /*
-
-    |0  x  x  1  x  x 2|
-
-    */
-    const cps = [];
-    for (let i = 1; i < points.length; ++i) {
-      const p0 = points[i - 1];
-      const p1 = points[i];
-      cps.push([
-        lerp(p0[0], p1[0], 0.33), p0[1],
-        lerp(p0[0], p1[0], 0.66), p1[1],
-        ...p1,
-      ]);
-    }
-
-    draw.path([
-      ['M', 0, h],
-      ['L', ...points[0]],
-      ...cps.map(cp => ['C', ...cp]),
-      ['L', w, h],
-    ].flat().join(' ')
-    ).fill('white');
+    const w = binWidth * kBins.length;
+    const h = max * countHeight;
+    const draw = svg().addTo(diagramDiv).viewbox(0, 0, w, h + binWidth);
+    counts.forEach((count, i) => {
+      const x = i * binWidth;
+      draw.rect(binWidth, count * countHeight).move(x, h - count * countHeight).fill('#fff').stroke('#000');
+      const bin = createBin(draw, hsl(0, 0, (i + 0.5) / counts.length), binWidth, 'none');
+      bin.group.transform({translate: [x, h]});
+      bin.text.text(count);
+    });
  },
   /*
    [ | | ] [ | | ]
