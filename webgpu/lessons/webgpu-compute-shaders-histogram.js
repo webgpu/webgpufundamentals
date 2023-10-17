@@ -1586,8 +1586,10 @@ renderDiagrams({
     });
 
     function drawCell(x, y, num, color) {
-      bins.rect(size, size).move(x, y).fill(color);
-      makeText(bins, num.toString()).font({anchor: 'middle'}).center(x + size / 2, y + size / 2);
+      const group = bins.group().transform({translate: [x, y]});
+      group.rect(size, size).fill(color);
+      makeText(group, num.toString()).font({anchor: 'middle'}).center(size / 2, size / 2);
+      return group;
     }
 
     function drawCurvyArrow(x0, y0, x1, y1) {
@@ -1627,19 +1629,18 @@ renderDiagrams({
       })
       .css({fill: 'var(--main-fg-color)'});
 
-      for (let i = 0; i < numbers.length; i += stride * 2) {
-        const ndx = i + stride;
+      for (let i = 0; i < numbers.length; ++i) {
+        const onStride = i % stride === 0;
         const x2 = i * 2 * size;
-        drawCell(x2, y2, numbers[i], color);
-        drawConnection(x2, y2, i, step, stride);
 
-        if (ndx < numbers.length) {
-          const x3 = ndx * 2 * size;
-          drawCell(x3, y2, numbers[ndx], color);
-          numbers[i] += numbers[i + stride];
-          drawConnection(x3, y2, i + stride, step, stride);
+        drawCell(x2, y2, numbers[i], onStride ? color : '#888').css(onStride ? {} : {opacity: 0.1});
+        if (onStride) {
+          drawConnection(x2, y2, i, step, stride);
+          if (i % (stride * 2) === 0 && i + stride < numbers.length) {
+            numbers[i] += numbers[i + stride];
+          }
         }
-      }
+     }
     }
   },
   reduce(elem) {
