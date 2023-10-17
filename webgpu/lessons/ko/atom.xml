@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id/>
     <title>WebGPU 기초</title>
-    <updated>2023-10-17T00:24:11.000Z</updated>
+    <updated>2023-10-17T20:41:47.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <author>
         <name>webgpufundamentals Contributors</name>
@@ -15,22 +15,22 @@
         <title type="html"><![CDATA[WebGPU 컴퓨트 셰이더 기초]]></title>
         <id>https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-compute-shaders.html</id>
         <link href="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-compute-shaders.html"/>
-        <updated>2023-10-17T00:24:11.000Z</updated>
+        <updated>2023-10-17T20:41:47.000Z</updated>
         <author>
             <name>webgpufundamentals Contributors</name>
             <uri>https://webgpufundamentals.org/contributors.html</uri>
         </author>
-        <published>2023-10-17T00:24:11.000Z</published>
+        <published>2023-10-17T20:41:47.000Z</published>
     </entry>
     <entry>
         <title type="html"><![CDATA[WebGPU 데이터 메모리 레이아웃]]></title>
         <id>https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-memory-layout.html</id>
         <link href="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-memory-layout.html"/>
-        <updated>2023-10-17T00:24:11.000Z</updated>
+        <updated>2023-10-17T20:41:47.000Z</updated>
         <author>
             <name>webgpufundamentals Contributors</name>
             <uri>https://webgpufundamentals.org/contributors.html</uri>
         </author>
-        <published>2023-10-17T00:24:11.000Z</published>
+        <published>2023-10-17T20:41:47.000Z</published>
     </entry>
 </feed>

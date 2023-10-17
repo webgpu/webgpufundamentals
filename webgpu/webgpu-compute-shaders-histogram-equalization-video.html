@@ -196,6 +196,7 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
       @group(0) @binding(0) var<storage, read> bins: array<vec4u>;
       @group(0) @binding(1) var<uniform> uni: Uniforms;
       @group(0) @binding(2) var<storage, read_write> scale: vec4f;
+      @group(0) @binding(3) var<storage, read_write> newLightness: array<f32>;
 
       @compute @workgroup_size(1, 1, 1) fn cs() {
         var m = vec4u(0);
@@ -263,6 +264,39 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
         let bits = heights > vec4f(fsInput.texcoord.y);
         let ndx = dot(select(vec4u(0), uni.channelMult, bits), vec4u(1));
         return uni.colors[ndx];
+      }
+    `,
+  });
+
+  const drawNewLightnessModule = device.createShaderModule({
+    label: 'new lightness',
+    code: `
+      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+      };
+
+      struct Uniforms {
+        matrix: mat4x4f,
+        color: vec4f,
+      };
+
+      @group(0) @binding(0) var<uniform> uni: Uniforms;
+      @group(0) @binding(1) var<storage, read> newLightness: array<f32>;
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -> OurVertexShaderOutput {
+        let numBins = arrayLength(&newLightness);
+        let bin = vertexIndex / 2 + vertexIndex % 2;
+        let y = newLightness[bin];
+        let x = f32(bin) / f32(numBins);
+        var vsOutput = OurVertexShaderOutput();
+        vsOutput.position = uni.matrix * vec4f(x, y, 0.0, 1.0);
+        return vsOutput;
+      }
+
+      @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
+        return uni.color;
       }
     `,
   });
@@ -455,6 +489,23 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
     },
   });
 
+  const drawNewLightnessPipeline = device.createRenderPipeline({
+    label: 'equalization visualization pipeline',
+    layout: 'auto',
+    vertex: {
+      module: drawNewLightnessModule,
+      entryPoint: 'vs',
+    },
+    fragment: {
+      module: drawNewLightnessModule,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+    primitive: {
+      topology: 'line-list',
+    },
+  });
+
   const videoPipeline = device.createRenderPipeline({
     label: 'hardcoded video textured quad pipeline',
     layout: 'auto',
@@ -592,6 +643,27 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
     const newLightnessBuffer = device.createBuffer({
       size: chunkSize * 4,
       usage: GPUBufferUsage.STORAGE,
+    });
+
+    const drawNewLightnessUniformValues = new Float32Array(16 + 4);
+    const drawNewLightnessUniformBuffer = device.createBuffer({
+      size: drawNewLightnessUniformValues.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    const drawNewLightnessMatrix = drawNewLightnessUniformValues.subarray(0, 16);
+    const drawNewLightnessColor = drawNewLightnessUniformValues.subarray(16, 20);
+    drawNewLightnessColor.set([1, 0, 0, 1]);
+    mat4.identity(drawNewLightnessMatrix);
+    mat4.translate(drawNewLightnessMatrix, [0.05, -1, 0], drawNewLightnessMatrix);
+    mat4.scale(drawNewLightnessMatrix, [0.9, 0.5, 1], drawNewLightnessMatrix);
+    device.queue.writeBuffer(drawNewLightnessUniformBuffer, 0, drawNewLightnessUniformValues);
+
+    const drawNewLightnessBindGroup = device.createBindGroup({
+      layout: drawNewLightnessPipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: drawNewLightnessUniformBuffer }},
+        { binding: 1, resource: { buffer: newLightnessBuffer }},
+      ],
     });
 
     const maxBindGroup = device.createBindGroup({
@@ -743,6 +815,22 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
         thingsToDestroy.forEach(t => t.destroy());
       },
       newLightnessBuffer,
+      drawEqualization(encoder, texture) {
+        const pass = encoder.beginRenderPass({
+          label: 'our basic renderPass',
+          colorAttachments: [
+            {
+              view: texture,
+              loadOp: 'load',
+              storeOp: 'store',
+            },
+          ],
+        });
+        pass.setPipeline(drawNewLightnessPipeline);
+        pass.setBindGroup(0, drawNewLightnessBindGroup);
+        pass.draw((chunkSize - 1) * 2);
+        pass.end();
+      },
     };
   }
 
@@ -837,6 +925,9 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
 
       drawFn2(encoder, [3], matrix, canvasTexture);
     }
+
+    // Draw Equalization
+    histogramHelper.drawEqualization(encoder, canvasTexture);
 
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
