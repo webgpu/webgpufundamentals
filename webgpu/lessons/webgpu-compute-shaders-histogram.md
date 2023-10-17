@@ -213,13 +213,15 @@ function showImageBitmap(imageBitmap) {
 }
 ```
 
-Let's add some CSS so our image is not displayed too big
+Let's add some CSS so our image is not displayed too big and
+give it a background color so we don't have to draw one.
 
 ```css
 canvas {
   display: block;
   max-width: 256px;
   border: 1px solid #888;
+  background-color: #333;
 }
 ```
 
