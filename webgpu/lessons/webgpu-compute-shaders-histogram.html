@@ -390,11 +390,13 @@ to a 2d canvas and then use <code class="notranslate" translate="no">getImageDat
   document.body.appendChild(canvas);
 }
 </pre>
-<p>Let’s add some CSS so our image is not displayed too big</p>
+<p>Let’s add some CSS so our image is not displayed too big and
+give it a background color so we don’t have to draw one.</p>
 <pre class="prettyprint showlinemods notranslate lang-css" translate="no">canvas {
   display: block;
   max-width: 256px;
   border: 1px solid #888;
+  background-color: #333;
 }
 </pre>
 <p>And then we just need call the functions we wrote above.</p>
