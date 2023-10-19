@@ -1,4 +1,4 @@
-/* webgpu-utils@0.12.3, license MIT */
+/* webgpu-utils@0.14.0, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
 
 class TypedArrayViewGenerator {
@@ -144,7 +144,12 @@ function makeIntrinsicTypedArrayView(typeDef, buffer, baseOffset, numElements) {
             ? roundUpToMultipleOf(size, align)
             : size;
         const baseNumElements = sizeInBytes / View.BYTES_PER_ELEMENT;
-        return new View(buffer, baseOffset, baseNumElements * (numElements || 1));
+        const effectiveNumElements = isArray
+            ? (numElements === 0
+                ? (buffer.byteLength - baseOffset) / sizeInBytes
+                : numElements)
+            : 1;
+        return new View(buffer, baseOffset, baseNumElements * effectiveNumElements);
     }
     catch {
         throw new Error(`unknown type: ${type}`);
@@ -155,7 +160,37 @@ function isIntrinsic(typeDef) {
         !typeDef.elementType;
 }
 /**
- * Creates a set of named TypedArray views on an ArrayBuffer
+ * Creates a set of named TypedArray views on an ArrayBuffer. If you don't
+ * pass in an ArrayBuffer, one will be created. If you're using an unsized
+ * array then you must pass in your own arraybuffer
+ *
+ * Example:
+ *
+ * ```js
+ * const code = `
+ * struct Stuff {
+ *    direction: vec3f,
+ *    strength: f32,
+ *    matrix: mat4x4f,
+ * };
+ * @group(0) @binding(0) var<uniform> uni: Stuff;
+ * `;
+ * const defs = makeShaderDataDefinitions(code);
+ * const views = makeTypedArrayViews(devs.uniforms.uni.typeDefinition);
+ * ```
+ *
+ * views would effectively be
+ *
+ * ```js
+ * views = {
+ *   direction: Float32Array(arrayBuffer, 0, 3),
+ *   strength: Float32Array(arrayBuffer, 3, 4),
+ *   matrix: Float32Array(arraybuffer, 4, 20),
+ * };
+ * ```
+ *
+ * You can use the views directly or you can use @link {setStructuredView}
+ *
  * @param typeDef Definition of the various types of views.
  * @param arrayBuffer Optional ArrayBuffer to use (if one provided one will be created)
  * @param offset Optional offset in existing ArrayBuffer to start the views.
@@ -179,7 +214,10 @@ function makeTypedArrayViews(typeDef, arrayBuffer, offset) {
             }
             else {
                 const elementSize = getSizeOfTypeDef(elementType);
-                return range(asArrayDef.numElements, i => makeViews(elementType, baseOffset + elementSize * i));
+                const effectiveNumElements = asArrayDef.numElements === 0
+                    ? (buffer.byteLength - baseOffset) / elementSize
+                    : asArrayDef.numElements;
+                return range(effectiveNumElements, i => makeViews(elementType, baseOffset + elementSize * i));
             }
         }
         else if (typeof typeDef === 'string') {
@@ -204,6 +242,38 @@ function makeTypedArrayViews(typeDef, arrayBuffer, offset) {
 /**
  * Given a set of TypeArrayViews and matching JavaScript data
  * sets the content of the views.
+ *
+ * Example:
+ *
+ * ```js
+ * const code = `
+ * struct Stuff {
+ *    direction: vec3f,
+ *    strength: f32,
+ *    matrix: mat4x4f,
+ * };
+ * @group(0) @binding(0) var<uniform> uni: Stuff;
+ * `;
+ * const defs = makeShaderDataDefinitions(code);
+ * const views = makeTypedArrayViews(devs.uniforms.uni.typeDefinition);
+ *
+ * setStructuredViews({
+ *   direction: [1, 2, 3],
+ *   strength: 45,
+ *   matrix: [
+ *     1, 0, 0, 0,
+ *     0, 1, 0, 0,
+ *     0, 0, 1, 0,
+ *     0, 0, 0, 1,
+ *   ],
+ * });
+ * ```
+ *
+ * The code above will set the various views, which all point to different
+ * locations within the same array buffer.
+ *
+ * See @link {makeTypedArrayViews}.
+ *
  * @param data The new values
  * @param views TypedArray views as returned from {@link makeTypedArrayViews}
  */
@@ -301,6 +371,13 @@ function setIntrinsicFromArrayLikeOfNumber(typeDef, data, arrayBuffer, offset) {
         view.set(data, index);
     }
 }
+/**
+ * Sets values on an existing array buffer from a TypeDefinition
+ * @param typeDef A type definition provided by @link {makeShaderDataDefinitions}
+ * @param data The source data
+ * @param arrayBuffer The arrayBuffer who's data to set.
+ * @param offset An offset in the arrayBuffer to start at.
+ */
 function setTypedValues(typeDef, data, arrayBuffer, offset = 0) {
     const asArrayDef = typeDef;
     const elementType = asArrayDef.elementType;
@@ -334,6 +411,13 @@ function setTypedValues(typeDef, data, arrayBuffer, offset = 0) {
         setIntrinsicFromArrayLikeOfNumber(typeDef, data, arrayBuffer, offset);
     }
 }
+/**
+ * Same as @link {setTypedValues} except it takes a @link {VariableDefinition}.
+ * @param typeDef A variable definition provided by @link {makeShaderDataDefinitions}
+ * @param data The source data
+ * @param arrayBuffer The arrayBuffer who's data to set.
+ * @param offset An offset in the arrayBuffer to start at.
+ */
 function setStructuredValues(varDef, data, arrayBuffer, offset = 0) {
     setTypedValues(varDef.typeDefinition, data, arrayBuffer, offset);
 }
@@ -1701,6 +1785,15 @@ class Token {
     toString() {
         return this.lexeme;
     }
+    isTemplateType() {
+        return TokenTypes.template_types.indexOf(this.type) != -1;
+    }
+    isArrayType() {
+        return this.type == TokenTypes.keywords.array;
+    }
+    isArrayOrTemplateType() {
+        return this.isArrayType() || this.isTemplateType();
+    }
 }
 /// Lexical scanner for the WGSL language. This takes an input source text and generates a list
 /// of Token objects, which can then be fed into the WgslParser to generate an AST.
@@ -1781,21 +1874,24 @@ class WgslScanner {
         let matchType = TokenTypes.none;
         for (;;) {
             let matchedType = this._findType(lexeme);
-            // The exception to "longest lexeme" rule is '>>'. In the case of 1>>2, it's a
+            // An exception to "longest lexeme" rule is '>>'. In the case of 1>>2, it's a
             // shift_right.
             // In the case of array<vec4<f32>>, it's two greater_than's (one to close the vec4,
             // and one to close the array).
-            // I don't know of a great way to resolve this, so '>>' is special-cased and if
-            // there was a less_than up to some number of tokens previously, and the token prior to
-            // that is a keyword that requires a '<', then it will be split into two greater_than's;
-            // otherwise it's a shift_right.
-            if (lexeme == ">" && this._peekAhead() == ">") {
+            // Another ambiguity is '>='. In the case of vec2<i32>=vec2(1,2),
+            // it's a greather_than and an equal, not a greater_than_equal.
+            // WGSL requires context sensitive parsing to resolve these ambiguities. Both of these cases
+            // are predicated on it the > either closing a template, or being part of an operator.
+            // The solution here is to check if there was a less_than up to some number of tokens
+            // previously, and the token prior to that is a keyword that requires a '<', then it will be
+            // split into two operators; otherwise it's a single operator.
+            const nextLexeme = this._peekAhead();
+            if (lexeme == ">" && (nextLexeme == ">" || nextLexeme == "=")) {
                 let foundLessThan = false;
                 let ti = this._tokens.length - 1;
                 for (let count = 0; count < 4 && ti >= 0; ++count, --ti) {
                     if (this._tokens[ti].type === TokenTypes.tokens.less_than) {
-                        if (ti > 0 &&
-                            TokenTypes.template_types.indexOf(this._tokens[ti - 1].type) != -1) {
+                        if (ti > 0 && this._tokens[ti - 1].isArrayOrTemplateType()) {
                             foundLessThan = true;
                         }
                         break;
@@ -2348,14 +2444,14 @@ class WgslParser {
         const cases = [];
         if (this._match(TokenTypes.keywords.case)) {
             const selector = this._case_selectors();
-            this._consume(TokenTypes.tokens.colon, "Exected ':' for switch case.");
+            this._match(TokenTypes.tokens.colon); // colon is optional
             this._consume(TokenTypes.tokens.brace_left, "Exected '{' for switch case.");
             const body = this._case_body();
             this._consume(TokenTypes.tokens.brace_right, "Exected '}' for switch case.");
             cases.push(new Case(selector, body));
         }
         if (this._match(TokenTypes.keywords.default)) {
-            this._consume(TokenTypes.tokens.colon, "Exected ':' for switch default.");
+            this._match(TokenTypes.tokens.colon); // colon is optional
             this._consume(TokenTypes.tokens.brace_left, "Exected '{' for switch default.");
             const body = this._case_body();
             this._consume(TokenTypes.tokens.brace_right, "Exected '}' for switch default.");
@@ -2368,12 +2464,13 @@ class WgslParser {
         return cases;
     }
     _case_selectors() {
+        var _a, _b, _c, _d;
         // const_literal (comma const_literal)* comma?
         const selectors = [
-            this._consume(TokenTypes.const_literal, "Expected constant literal").toString(),
+            (_b = (_a = this._shift_expression()) === null || _a === void 0 ? void 0 : _a.evaluate(this._context).toString()) !== null && _b !== void 0 ? _b : "",
         ];
         while (this._match(TokenTypes.tokens.comma)) {
-            selectors.push(this._consume(TokenTypes.const_literal, "Expected constant literal").toString());
+            selectors.push((_d = (_c = this._shift_expression()) === null || _c === void 0 ? void 0 : _c.evaluate(this._context).toString()) !== null && _d !== void 0 ? _d : "");
         }
         return selectors;
     }
