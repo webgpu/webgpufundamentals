@@ -367,30 +367,23 @@ GPU가 삼각형을 래스터화(rasterize)할 때(즉, 픽셀로 그릴 때), �
   });
 ```
 
-In this case there isn't much to see. We set `layout` to `'auto'` which means
-to ask WebGPU to derive the layout of data from the shaders. We're not using
-any data though.
+여기는 주목해야 할 것들이 많지는 않습니다. `layout`을 `'auto'`로 설정하여 WebGPU 스스로 셰이더로부터 데이터의 레이아웃을 유추하도록 했습니다. 아직 아무 데이터도 사용하고 있지 않긴 하지만요.
 
-We then tell the render pipeline to use the `vs` function from our shader module
-for a vertex shader and the `fs` function for our fragment shader. Otherwise we
-tell it the format of the first render target. "render target" means the texture
-we will render to. We create a pipeline
-we have to specify the format for the texture(s) we'll use this pipeline to
-eventually render to.
+그리고 렌더 파이프라인에게 셰이더 모듈의 `vs` 함수를 정점 셰이더로, `fs` 함수를 프래그먼트 셰이더로 사용하도록 했습니다. 
+추가적으로 첫 렌더 타겟(target)의 포맷을 알려 주었습니다. 
+"렌더 타겟"이란 우리가 그리기를 수행할 텍스처를 의미합니다.
+파이프라인을 만들기 위해서는 우리가 최종적으로 파이프라인을 통해 렌더링을 수행하고자 하는 텍스처의 포맷을 명시해 주어야만 합니다.
 
-Element 0 for the `targets` array corresponds to location 0 as we specified for
-the fragment shader's return value. Later, well set that target to be a texture
-for the canvas.
+`targets` 배열의 0번 요소(element)는 프래그먼트 셰이더의 반환값으로 설정한 0번 로케이션(location)에 대응됩니다. 나중에 우리는 이 타겟이 캔버스의 텍스처가 되도록 설정할 것입니다.
 
-Next up we prepare a `GPURenderPassDescriptor` which describes which textures
-we want to draw to and how to use them.
+다음으로 어떤 텍스처에 그리기를 할 것인지와, 그것들을 어떻게 사용할 것인지를 기술하는 `GPURenderPassDescriptor`를 준비합니다.
 
 ```js
   const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
     colorAttachments: [
       {
-        // view: <- to be filled out when we render
+        // view: <- 렌더링을 수행할 때 채워질 예정입니다.
         clearValue: [0.3, 0.3, 0.3, 1],
         loadOp: 'clear',
         storeOp: 'store',
@@ -399,33 +392,30 @@ we want to draw to and how to use them.
   };  
 ```
 
-A `GPURenderPassDescriptor` has an array for `colorAttachments` which lists
-the textures we will render to and how to treat them.
-We'll wait to fill in which texture we actually want to render to. For now,
-we setup a clear value of semi-dark gray, and a `loadOp` and `storeOp`.
-`loadOp: 'clear'` specifies to clear the texture to the clear value before
-drawing. The other option is `'load'` which means load the existing contents of
-the texture into the GPU so we can draw over what's already there. 
-`storeOp: 'store'` means store the result of what we draw. We could also pass `'discard'`
-which would throw away what we draw. We'll cover why we might want to do that in
-[another article](webgpu-multisampling.html).
+`GPURenderPassDescriptor`는 렌더링을 수행할 텍스처들과, 그것들을 어떻게 사용할 것인지를 명시한 `colorAttachments` 배열을 갖습니다.
+렌더링을 수행할 텍스처를 명시하는 것은 조금 나중에 하고, 지금은 지우기 색상을 어두운 회색으로 하고 `loadOp` 와 `storeOp`만 설정합니다.
+`loadOp: 'clear'`는 그리기 전에 지우기 색상으로 텍스처를 지운다는 것을 명시합니다.
+다른 옵션으로는 텍스처에 존재하는 내용(contents)을 GPU로 로드하여 이미 그려진 것에 덮어 그릴 수 있는 `'load'` 옵션이 있습니다. 
+`storeOp: 'store'`는 그린 결과를 저장하겠다는 뜻입니다. 
+`'discard'` 옵션을 사용하면 그려진 것을 버릴 수 있습니다. 
+왜 이러한 옵션도 필요한지는 [다른 글](webgpu-multisampling.html)에서 이야기 할 것입니다.
 
-Now it's time to render. 
+이제 렌더링을 수행할 때입니다.
 
 ```js
   function render() {
-    // Get the current texture from the canvas context and
-    // set it as the texture to render to.
+    // 캔버스 컨텍스트로부터 현재 텍스처를 가져오고
+    // 이를 렌더링 할 텍스처로 설정합니다.
     renderPassDescriptor.colorAttachments[0].view =
         context.getCurrentTexture().createView();
 
-    // make a command encoder to start encoding commands
+    // 커맨드 인코더가 커맨드를 인코딩을 시작합니다.
     const encoder = device.createCommandEncoder({ label: 'our encoder' });
 
-    // make a render pass encoder to encode render specific commands
+    // 렌더 패스 인코더가 렌더링 관련한 커맨드를 인코딩하도록 합니다.
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
-    pass.draw(3);  // call our vertex shader 3 times
+    pass.draw(3);  // 정점 셰이더를 3번 호출합니다.
     pass.end();
 
     const commandBuffer = encoder.finish();
@@ -435,78 +425,69 @@ Now it's time to render.
   render();
 ```
 
-First we call `context.getCurrentTexture()` to get a texture that will appear in the
-canvas. Calling `createView` gets a view into a specific part of a texture but
-with no parameters it will return the default part which is what we want in this
-case. For now our only `colorAttachment` is a texture view from our
-canvas which we get via the context we created at the start. Again, element 0 of
-the `colorAttachments` array corresponds to `@location(0)` as we specified for
-the return value of the fragment shader.
+먼저 `context.getCurrentTexture()`를 호출하여 캔버스에 보여질 텍스처를 가져옵니다.
+`createView`를 호출하면 텍스처의 특정 부분에 대한 뷰(view)를 얻어올 수 있는데, 아무 매개변수도 넣지 않으면 기본 부분을 반환합니다.
+지금 우리가 가진 유일한 `colorAttachment`는 캔버스의 텍스처 뷰이고, 초기에 컨텍스트를 통해 이미 만들어 놓았습니다.
+여기서도 `colorAttachments` 배열의 0번 요소는 프래그먼트 셰이더에서 `@location(0)`를 통해 명시한 반환값과 대응됩니다.
 
-Next we create a command encoder. A command encoder is used to create a command
-buffer. We use it to encode commands and then "submit" the command buffer it
-created to have the commands executed.
+다음으로 커맨드 인코더를 만듭니다. 커맨드 인코더는 커맨드 버퍼를 생성하기 위해 사용됩니다.
+이를 사용해 커맨드를 인코딩하고 만들어진 커맨드 버퍼를 "submit"하여 커맨드가 실행되도록 할 것입니다.
 
-We then use the command encoder to create a render pass encoder by calling `beginRenderPass`. A render
-pass encoder is a specific encoder for creating commands related to rendering.
-We pass it our `renderPassDescriptor` to tell it which texture we want to
-render to.
+그리고 `beginRenderPass`를 호출하여 커맨드 인코더로 렌더 패스 인코더를 만듭니다.
+렌더 패스 인코더는 렌더링과 관련된 커맨드를 만드는 특수한 인코더입니다.
+여기에 `renderPassDescriptor`를 넘겨서 우리가 렌더링을 수행할 텍스처가 무엇인지 알려줍니다.
 
-We encode the command, `setPipeline`, to set our pipeline and then tell it to
-execute our vertex shader 3 times by calling `draw` with 3. By default, every 3
-times our vertex shader is executed a triangle will be drawn by connecting the 3
-values just returned from the vertex shader.
+`setPipeline` 커맨드를 인코딩하여 파이프라인을 설정하고 `draw`에 3을 넘겨 호출함으로써 정점 셰이더를 3번 호출하라고 알려줍니다.
+기본적으로 정점 셰이더가 세 번 호출되면 정점 셰이더에서 반환된 세 개 값을 잇는 삼각형이 그려집니다.
 
-We end the render pass, and then finish the encoder. This gives us a
-command buffer that represents the steps we just specified. Finally we submit
-the command buffer to be executed.
+렌더 패스를 끝내고 인코딩을 종료합니다.
+이렇게 하면 방금 명시한 단계들을 표현하는 커맨드 버퍼가 만들어집니다.
+마지막으로 커맨드 버퍼를 제출(submit)하여 실행되도록 합니다.
 
-When the `draw` command is executed, this will be our state
+`draw` 커맨드가 실행되면, 아래와 같은 상태가 됩니다.
 
 <div class="webgpu_center"><img src="resources/webgpu-simple-triangle-diagram.svg" style="width: 723px;"></div>
 
-We've got no textures, no buffers, no bindGroups but we do have a pipeline, a
-vertex and fragment shader, and a render pass descriptor that tells our shader
-to render to the the canvas texture.
+텍스처도 없고, 버퍼도 없고, 바인드그룹(bindGroup)도 없는 대신, 파이프라인, 정점과 프래그먼트 셰이더, 그리고 렌더 패스 기술자가 있습니다. 
+이들을 통해 우리 셰이더가 캔버스 텍스처에 렌더링을 수행하도록 알려주는 것입니다.
 
-The result
+결과는 아래와 같습니다.
 
 {{{example url="../webgpu-simple-triangle.html"}}}
 
-It's important to emphasize that all of these functions we called
-like `setPipeline`, and `draw` only add commands to a command buffer.
-They don't actually execute the commands. The commands are executed
-when we submit the command buffer to the device queue.
+`setPipeline`, `draw`와 같은 우리가 호출한 모든 함수는 커맨드 버퍼에 커맨드를 추가하기만 한다는 것을 명심하십시오.
+실제 그러한 커맨드를 수행하는 것이 아닙니다.
+커맨드는 우리가 커맨드 버퍼를 장치 큐(device queue)에 제출해야 실행됩니다.
 
-<a id="a-rasterization"></a>WebGPU takes every 3 vertices we return from our vertex shader uses
-them to rasterize a triangle. It does this by determining which pixels'
-centers are inside the triangle. It then calls our fragment shader for
-each pixel to ask what color to make it.
+<a id="a-rasterization"></a>
+WebGPU는 정점 셰이더에서 우리가 반환하는 세 개의 정점을 받아 삼각형을 그리기 위해 래스터화(rasterize)합니다.
+이러한 과정은 어떤 픽셀의 중심이 삼각형 내에 있는지를 판별하여 이루어집니다.
+그리고 나서 각 픽셀에 대해 프래그먼트 셰이더를 호출하여 어떤 색상으로 채울지를 결정합니다.
 
-Imagine the texture we are rendering
-to was 15x11 pixels. These are the pixels that would be drawn to
+우리가 그리기를 수행하는 텍스처가 15x11 픽셀 크기라고 생각해 봅시다.
+그려지는 픽셀은 아래와 같을 겁니다.
 
 <div class="webgpu_center">
   <div data-diagram="clip-space-to-texels" style="display: inline-block; max-width: 500px; width: 100%"></div>
-  <div>drag the vertices</div>
+  <div>정점을 드래그 해보세요.</div>
 </div>
 
-So, now we've seen a very small working WebGPU example. It should be pretty
-obvious that hard coding a triangle inside a shader is not very flexible. We
-need ways to provide data and we'll cover those in the following articles. The
-points to take away from the code above,
+여기까지, 실행이 가능한 아주 간단한 WebGPU 예제를 살펴 봤습니다.
+당연히 셰이더 안에 삼각형 정보를 하드 코딩하는 것은 유연성이 떨어지겠죠.
+이러한 데이터를 전달할 방법이 필요하고 이러한 내용은 이어지는 글에서 보도록 하겠습니다.
+위의 코드에서 중점적으로 알아두셔야 할 내용은,
 
-* WebGPU just runs shaders. Its up to you to fill them with code to do useful things
-* Shaders are specified in a shader module and then turned into a pipeline
-* WebGPU can draw triangles
-* WebGPU draws to textures (we happened to get a texture from the canvas)
-* WebGPU works by encoding commands and then submitting them.
+* WebGPU는 셰이더를 실행할 뿐이다. 유용한 작업을 위해 코드를 작성하는 것은 여러분에게 달려있다.
+* 셰이더는 셰이더 모듈에서 명시되고 파이프라인에 넘겨진다.
+* WebGPU는 삼각형을 그릴 수 있다.
+* WebGPU는 텍스처에 그리기를 수행한다 (우리의 경우 캔버스의 텍스처였다).
+* WebGPU는 커맨드를 인코딩하고 제출하는 방식으로 동작한다.
 
-# <a id="a-run-computations-on-the-gpu"></a>Run computations on the GPU
+# <a id="a-run-computations-on-the-gpu"></a>GPU로 계산을 수행하기
 
-Let's write a basic example for doing some computation on the GPU
+GPU에서 계산을 수행하는 간단한 예제를 만들어봅시다.
 
-We start off with the same code to get a WebGPU device
+WebGPU 장치를 얻기 위한 코드는 동일합니다.
 
 ```js
 async function main() {
@@ -518,7 +499,7 @@ async function main() {
   }
 ```
 
-When we create a shader module
+그리고 셰이더 모듈을 만듭니다.
 
 ```js
   const module = device.createShaderModule({
@@ -536,19 +517,16 @@ When we create a shader module
   });
 ```
 
-First we declare a variable called `data` of type `storage` that we want to be
-able to both read from and write to.
+먼저 `storage` 타입의 `data`라는 이름의 변수를 선언했는데, 이러한 타입은 데이터를 읽고 쓸 수 있도록 할 때 사용됩니다.
 
 ```wgsl
       @group(0) @binding(0) var<storage, read_write> data: array<f32>;
 ```
 
-We declare its type as `array<f32>` which means an array of 32bit floating point
-values. We tell it we're going to specify this array on binding location 0 (the
-`binding(0)`) in bindGroup 0 (the `@group(0)`).
+해당 변수의 타입을 32비트 부동소수점의 배열인 `array<f32>`로 선언했습니다. 
+이 배열을 0번 바인드그룹(`@group(0)`)의 0번 위치에 바인딩(`binding(0)`) 할 것으로 명시하였습니다.
 
-Then we declare a function called `computeSomething` with the `@compute`
-attribute which makes it a compute shader. 
+그리고 `@compute` 어트리뷰트가 붙은 `computeSomething` 함수를 선언했는데, 이렇게 되면 이 셰이더는 컴퓨트 셰이더가 됩니다.
 
 ```wgsl
       @compute @workgroup_size(1) fn computeSomething(
@@ -557,16 +535,15 @@ attribute which makes it a compute shader.
         ...
 ```
 
-Compute shaders are required to declare a workgroup size which we will cover
-later. For now we'll just set it to 1 with the attribute `@workgroup_size(1)`.
-We declare it to have one parameter `id` which uses a `vec3u`. A `vec3u` is
-three unsigned 32 integer values. Like our vertex shader above, this is the
-iteration number. It's different in that compute shader iteration numbers are 3
-dimensional (have 3 values). We declare `id` to get its value from the built-in
-`global_invocation_id`.
+컴퓨트 셰이더는 워크그룹(workgroup) 크기를 명시해야만 하며, 이에 대한 설명은 나중에 하겠습니다.
+지금은 그냥 `@workgroup_size(1)` 어트리뷰트로 1로 설정해둡니다.
+매개변수로 `id` 하나만을 받도록 선언했는데 타입은 `vec3u` 입니다.
+`vec3u`는 부호없는 32비트 정수값 3개입니다. 위의 정점 셰이더에서처럼, 이 값이 반복 회수를 의미합니다.
+다만 컴퓨트 셰이더에서는 반복 회수가 3차원(3개의 값을 가짐)이라는 것이 다릅니다.
+`id`의 값은 내장된 `global_invocation_id`로부터 가져오도록 선언했습니다.
 
-You can *kind of* think of a compute shaders as running like this. This is an over
-simplification but it will do for now.
+*대충* 아래와 같은 식으로 컴퓨트 셰이더가 동작한다고 보면 됩니다.
+너무 많이 단순화 하긴 했지만 지금은 이 정도면 될 것 같습니다.
 
 ```js
 // pseudo code
@@ -598,7 +575,7 @@ function dispatchWorkgroup(workgroup_id) {
 }
 ```
 
-Since we set `@workgroup_size(1)`, effectively the pseudo code above becomes
+`@workgroup_size(1)`로 설정했기 떄문에 위의 의사 코드는 아래와 같아집니다.
 
 ```js
 // pseudo code
@@ -619,17 +596,16 @@ function dispatchWorkgroup(workgroup_id) {
 }
 ```
 
-Finally we use the `x` property of `id` to index `data` and multiply each value
-by 2
+마지막으로 `id`의 `x`값을 `data`의 인덱스로 사용하고 각 값에 2를 곱합니다.
 
 ```wgsl
         let i = id.x;
         data[i] = data[i] * 2.0;
 ```
 
-Above, `i` is just the first of the 3 iteration numbers.
+위의 경우 `i`는 반복 회수 3개중 하나의 값입니다.
 
-Now that we've created the shader we need to create a pipeline
+이제 셰이더를 만들었으니 파이프라인을 만들어야 합니다.
 
 ```js
   const pipeline = device.createComputePipeline({
@@ -642,64 +618,55 @@ Now that we've created the shader we need to create a pipeline
   });
 ```
 
-Here we just tell it we're using a `compute` stage from the shader `module` we
-created and we want to call the `computeSomething` function. `layout` is
-`'auto'` again, telling WebGPU to figure out the layout from the shaders. [^layout-auto]
+여기에서 우리는 우리가 만든 셰이더 `module`을 사용한 `compute` 단계만을 사용할 것이고, `computeSomething` 함수를 호출할 것임을 명시하고 있습니다.
+`layout`은 여기서도 `'auto'`인데, WebGPU가 셰이더로부터 레이아웃을 알아내도록 합니다.[^layout-auto]
 
-[^layout-auto]: `layout: 'auto'` is convenient but, it's impossible to share bind groups
-across pipelines using `layout: 'auto'`. Most of the examples on this site
-never use a bind group with multiple pipelines. We'll cover explicit layouts in [another article](webgpu-drawing-multiple-things.html).
+[^layout-auto]: `layout: 'auto'` 는 편리하지만, `layout: 'auto'`를 사용하면 파이프라인간에 바인드그룹을 공유하는 것이 불가능합니다.
+이 사이트의 대부분의 예제에서는 여러 파이프라인에서 바인드그룹을 사용하지 않습니다.
+명시적인 레이아웃에 대해서는 [이 글](webgpu-drawing-multiple-things.html)에서 설명합니다.
 
-Next we need some data
+다음으로 데이터가 필요합니다.
 
 ```js
   const input = new Float32Array([1, 3, 5]);
 ```
 
-That data only exists in JavaScript. For WebGPU to use it we need to make a
-buffer that exists on the GPU and copy the data to the buffer.
+이 데이터는 자바스크립트 상에서만 존재합니다.
+WebGPU를 위해서는 GPU에 상주하는 버퍼를 만들고 데이터를 그 버퍼에 복사해야 합니다.
 
 ```js
-  // create a buffer on the GPU to hold our computation
-  // input and output
+  // 계산의 입출력을 저장할 버퍼를 GPU에 만듭니다.
   const workBuffer = device.createBuffer({
     label: 'work buffer',
     size: input.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
   });
-  // Copy our input data to that buffer
+  // 입력 데이터를 버퍼에 복사합니다.
   device.queue.writeBuffer(workBuffer, 0, input);
 ```
 
-Above we call `device.createBuffer` to create a buffer. `size` is the size in
-bytes, in this case it will be 12 because size in bytes of a `Float32Array` of 3
-values is 12. If you're not familiar with `Float32Array` and typed arrays then
-see [this article](webgpu-memory-layout.html).
+위에서는 `device.createBuffer`를 호출하여 버퍼를 생성하고 있습니다.
+`size`는 바이트 단위이고, 우리의 경우 12인데 3개의 값을 갖는 `Float32Array`의 크기는 12이기 떄문입니다.
+`Float32Array`나 다른 타입이 명시된 배열이 낮설다면 [이 글](webgpu-memory-layout.html)을 참고하세요.
 
-Every WebGPU buffer we create has to specify a `usage`. There are a bunch of
-flags we can pass for usage but not all of them can be used together. Here we
-say we want this buffer to be usable as `storage` by passing
-`GPUBufferUsage.STORAGE`. This makes it compatible with `var<storage,...>` from
-the shader. Further, we want to able to copy data to this buffer so we include
-the `GPUBufferUsage.COPY_DST` flag. And finally we want to be able to copy data
-from the buffer so we include `GPUBufferUsage.COPY_SRC`.
+모든 WebGPU 버퍼에는 `usage`가 명시되어야 합니다.
+다양한 플래그를 넘겨줄 수 있지만 동시에 같이 사용할 수 없는 것들도 있습니다.
+여기서는 `GPUBufferUsage.STORAGE`를 사용해 해당 버퍼가 `storage`로 사용될 수 있도록 하고 있습니다. 
+이렇게 하면 `var<storage,...>`와 호환됩니다.
+또한 데이터가 버퍼에 복사될 수 있어야 하므로 `GPUBufferUsage.COPY_DST` 플래그를 사용합니다. 
+마지막으로 버퍼로부터 데이터를 복사할 수 있도록 `GPUBufferUsage.COPY_SRC`를 추가합니다.
 
-Note that you can not directly read the contents of a WebGPU buffer from
-JavaScript. Instead you have to "map" it which is another way of requesting
-access to the buffer from WebGPU because the buffer might be in use and because
-it might only exist on the GPU.
+WebGPU 버퍼로부터 데이터를 직접 읽을 수는 없다는 점을 유념하십시오.
+그 대신 WebGPU의 버퍼에 접근을 요청할 수 있도록 "map"을 해야 하는데, 버퍼는 GPU에만 존재하고, 이미 사용 중인 상태에 있을 수 있기 때문입니다.
 
-WebGPU buffers that can be mapped in JavaScript can't be used for much else. In
-other words, we can not map the buffer we just created above and if we try to add
-the flag to make it mappable we'll get an error that that is not compatible with
-usage `STORAGE`.
+자바스크립트와 맵핑(map)될 수 있는 버퍼는 다른 용도로는 사용 불가능합니다.
+다시 말해, 방금 만든 버퍼는 맵핑이 불가능하고, 맵핑이 되도록 플래그를 추가하면 해당 버퍼가 `STORAGE` 상태일 때는 호환되지 않는다는 오류가 발생할겁니다.
 
-So, in order to see the result of our computation, we'll need another buffer.
-After running the computation, we'll copy the buffer above to this result buffer
-and set its flags so we can map it.
+따라서 계산의 결과를 보기 위해서는 다른 버퍼가 필요합니다.
+계산을 수행한 이후에 위의 버퍼를 이 버퍼에 복사할 것이며, 맵핑할 수 있도록 설정해 둡니다.
 
 ```js
-  // create a buffer on the GPU to get a copy of the results
+  // 결과의 사본을 위한 버퍼를 GPU에 생성함
   const resultBuffer = device.createBuffer({
     label: 'result buffer',
     size: input.byteLength,
@@ -707,14 +674,12 @@ and set its flags so we can map it.
   });
 ```
 
-`MAP_READ` means we want to be able to map this buffer for reading data.
+`MAP_READ`는 이 버퍼의 값을 읽기 위해 맵핑이 가능하도록 하겠다는 의미입니다.
 
-In order to tell our shader about the buffer we want it to work on we need to
-create a bindGroup
+셰이더에 버퍼의 존재를 알려주기 위해서는 바인드그룹을 만들어야 합니다.
 
 ```js
-  // Setup a bindGroup to tell the shader which
-  // buffer to use for the computation
+  // 셰산을 위해 어떤 버퍼를 사용해야 할지 알려주기 위해 바인드그룹을 설정함
   const bindGroup = device.createBindGroup({
     label: 'bindGroup for work buffer',
     layout: pipeline.getBindGroupLayout(0),
@@ -724,15 +689,15 @@ create a bindGroup
   });
 ```
 
-We get the layout for the bindGroup from the pipeline. Then we setup bindGroup
-entries. The 0 in `pipeline.getBindGroupLayout(0)` corresponds to the
-`@group(0)` in the shader. The `{binding: 0 ...` of the `entries` corresponds to
-the `@group(0) @binding(0)` in the shader.
+바인드그룹의 레이아웃은 파이프라인으로부터 얻습니다.
+그리고 바인드그룹의 진입점(entries)을 설정합니다.
+`pipeline.getBindGroupLayout(0)`의 0은 셰이더의 `@group(0)`에 대응됩니다.
+`entries`의 `{binding: 0 ...` 은 셰이더의 `@group(0) @binding(0)`에 대응됩니다.
 
-Now we can start encoding commands
+이제 커맨드를 인코딩합니다.
 
 ```js
-  // Encode commands to do the computation
+  // 계산을 위한 커맨드 인코딩
   const encoder = device.createCommandEncoder({
     label: 'doubling encoder',
   });
@@ -745,37 +710,33 @@ Now we can start encoding commands
   pass.end();
 ```
 
-We create a command encoder. We start a compute pass. We set the pipeline, then
-we set the bindGroup. Here, the `0` in `pass.setBindGroup(0, bindGroup)`
-corresponds to `@group(0)` in the shader. We then call `dispatchWorkgroups` and in
-this case we pass it `input.length` which is `3` telling WebGPU to run the
-compute shader 3 times. We then end the pass.
+커맨드 인코더를 만들고 컴퓨트 패스를 시작합니다. 파이프라인을 설정하고 바인드그룹을 설정합니다.
+여기서 `pass.setBindGroup(0, bindGroup)`의 0은 셰이더의 `@group(0)`에 대응됩니다.
+그리고 여기서는 `dispatchWorkgroups`를 호출하고 `input.length`의 값인 `3`을 넘겨주게 되는데 이는 WebGPU에게 셰이더를 세번 호출하라는 의미입니다. 그리고 패스를 종료(end)합니다.
 
-Here's what the situation will be when `dispatchWorkgroups` is executed
+`dispatchWorkgroups`이 실행되면 아래와 같은 상태가 됩니다.
 
 <div class="webgpu_center"><img src="resources/webgpu-simple-compute-diagram.svg" style="width: 553px;"></div>
 
-After the computation is finished we ask WebGPU to copy from `workBuffer` to
-`resultBuffer`
+계산이 끝나면 `workBuffer`로부터 `resultBuffer`로 복사를 수행하도록 WebGPU에 요청합니다.
 
 ```js
-  // Encode a command to copy the results to a mappable buffer.
+  // 결과를 맵핑 가능한 버퍼에 복사하는 커맨드를 인코딩
   encoder.copyBufferToBuffer(workBuffer, 0, resultBuffer, 0, resultBuffer.size);
 ```
 
-Now we can `finish` the encoder to get a command buffer and then submit that
-command buffer.
+이제 인코더를 `finish`하여 커맨드 버퍼를 얻고 제출합니다.
 
 ```js
-  // Finish encoding and submit the commands
+  // 인코딩을 종료하고 커맨드를 제출
   const commandBuffer = encoder.finish();
   device.queue.submit([commandBuffer]);
 ```
 
-We then map the results buffer and get a copy of the data
+결과 버퍼를 맵핑하여 데이터 사본을 얻습니다.
 
 ```js
-  // Read the results
+  // 결과 읽기
   await resultBuffer.mapAsync(GPUMapMode.READ);
   const result = new Float32Array(resultBuffer.getMappedRange());
 
@@ -785,66 +746,57 @@ We then map the results buffer and get a copy of the data
   resultBuffer.unmap();
 ```
 
-To map the results buffer we call `mapAsync` and have to `await` for it to
-finish. Once mapped, we can call `resultBuffer.getMappedRange()` which with no
-parameters will return an `ArrayBuffer` of the entire buffer. We put that in a
-`Float32Array` typed array view and then we can look at the values. One
-important detail, the `ArrayBuffer` returned by `getMappedRange` is only valid
-until we call `unmap`. After `unmap` its length with be set to 0 and its data
-no longer accessible.
+결과 버퍼를 맵핑하려면 `mapAsync`를 호출하고 끝날 때까지 `await`해야 합니다.
+맵핑이 되면 매개변수 없이 `resultBuffer.getMappedRange()`를 호출하면 전체 버퍼에 대한 `ArrayBuffer`가 반환됩니다.
+이를 `Float32Array`로 변환하여 결과를 볼 수 있습니다.
+중요한 세부 사항으로, `getMappedRange`로 반환된 `ArrayBuffer`는 `unmap`을 호출하기 전까지만 유효하다는 것입니다.
+`unmap`을 하고 나면 길이가 0으로 바뀌고 데이터에 접근할 수 없게 됩니다.
 
-Running that we can see we got the result back, all the numbers have been
-doubled.
+실행하면 받은 결과값을 볼 수 있고, 모든 값이 두 배가 된 것을 볼 수 있습니다.
 
 {{{example url="../webgpu-simple-compute.html"}}}
 
-We'll cover how to really use compute shaders in other articles. For now, you
-hopefully have gleaned some understanding of what WebGPU does. EVERYTHING ELSE
-IS UP TO YOU! Think of WebGPU as similar to other programming languages. It
-provides a few basic features, and leaves the rest to your creativity.
+컴퓨트 셰이더를 사용하는 법은 다른 글에서 이야기 할 것입니다.
+지금은 WebGPU가 하는 일에 대한 대략적인 이해만을 하셨기를 바랍니다.
+나머지 모든 것들은 여러분에게 달려 있습니다!
+WebGPU는 다른 프로그래밍 언어와 다를 것이 없습니다.
+기본적인 몇 가지 기능만을 제공하고, 나머지는 여러분의 창의성에 달려 있습니다.
 
-What makes WebGPU programming special is these functions, vertex shaders,
-fragment shaders, and compute shaders, run on your GPU. A GPU could have over
-10000 processors which means they can potentially do more than 10000
-calculations in parallel which is likely 3 or more orders of magnitude than your
-CPU can do in parallel.
+WebGPU가 특별한 점은 이러한 정점 셰이더, 프래그먼트 셰이더, 컴퓨트 셰이더가 여러분의 GPU에서 실행된다는 점입니다.
+GPU는 10,000개 이상의 처리장치(processor)가 있을 수 있으며 그 말은 10,000개의 연산이 병렬적으로 실행될 수 있다는 뜻입니다.
+이는 일반적으로 CPU에서 할 수 있는 병렬 연산보다 1,000배 이상 높은 수치입니다.
 
-## Simple Canvas Resizing
+## 간단한 캔버스 리사이징(resizing)
 
-Before we move on, let's go back to our triangle drawing example and add some
-basic support for resizing a canvas. Sizing a canvas is actually a topic that
-can have many subtleties so [there is an entire article on it](webgpu-resizing-the-canvas.html).
-For now though let's just add some basic support
+더 진행하기 전에, 삼각형 그리기 예제로 다시 돌아가서 캔버스 리사이징 지원을 위한 기본 기능을 추가해 봅시다.
+캔버스 리사이징은 사실 꽤나 까다로운 주제라서 [이를 위한 별도의 글도 있습니다](webgpu-resizing-the-canvas.html).
+지금은 기본적인 지원 기능만을 추가하겠습니다.
 
-First we'll add some CSS to make our canvas fill the page
+먼저 캔버스가 페이지 전체를 채우도록 CSS를 추가합니다.
 
 ```html
 <style>
 html, body {
-  margin: 0;       /* remove the default margin          */
-  height: 100%;    /* make the html,body fill the page   */
+  margin: 0;       /* 기본 마진(margin) 제거                   */
+  height: 100%;    /* html과 body가 페이지 전체를 채우도록 함   */
 }
 canvas {
-  display: block;  /* make the canvas act like a block   */
-  width: 100%;     /* make the canvas fill its container */
+  display: block;  /* 캔버스를 블럭(block)처럼 동작하게 함      */
+  width: 100%;     /* 캔버스가 컨테이너(container) 전체를 채움  */
   height: 100%;
 }
 </style>
 ```
 
-That CSS alone will make the canvas get displayed to cover the page but it won't change
-the resolution of the canvas itself so you might notice if you make the example below
-large, like if you click the full screen button, you'll see the edges of the triangle
-are blocky.
+이러한 CSS는 캔버스가 페이지 전체를 채우도록 하지만 해상도가 변하지는 않기 떄문에 아래 예제를 예를들어 전체 화면으로 만들어서 크게 키우면, 삼각형의 모서리(edge)에 사각형이 보이게 될 겁니다.
 
 {{{example url="../webgpu-simple-triangle-with-canvas-css.html"}}}
 
-`<canvas>` tags, by default, have a resolution of 300x150 pixels. We'd like to
-adjust the canvas resolution of the canvas to match the size it is displayed.
-One good way to do this is with a `ResizeObserver`. You create a
-`ResizeObserver` and give it a function to call whenever the elements you've
-asked it to observe change their size. You then tell it which elements to
-observe.
+`<canvas>` 태그의 기본 해상도는 300x150입니다. 
+캔버스가 표시되는 크기와 해상도를 맞추려고 합니다.
+이를 위한 하나의 방법으로 `ResizeObserver`를 사용하는 방법이 있습니다.
+`ResizeObserver`를 만들고 관찰(observe)하는 어떤 요소의 크기가 변하면 호출될 함수를 전달해 줄 수 있습니다.
+어떤 요소를 관찰할 것인지를 알려주어야 하고요.
 
 ```js
     ...
@@ -864,56 +816,48 @@ observe.
 +    observer.observe(canvas);
 ```
 
-In the code above we go over all the entries but there should only ever be one
-because we're only observing our canvas. We need to limit the size of the canvas
-to the largest size our device supports otherwise WebGPU will start generating
-errors that we tried to make a texture that is too large. We also need to make
-sure it doesn't go to zero or again we'll get errors. 
-[See the longer article for details](webgpu-resizing-the-canvas.html).
+위 코드에서는 모든 entry를 순회하였지만 사실 캔버스만 관찰합니다.
+캔버스의 크기를 장치가 지원하는 최대 크기로 제한해야 하는데, 그렇지 않으면 텍스처가 너무 커지는 경우 WebGPU가 오류를 생성하기 때문입니다.
+0으로 되는 경우에도 오류가 발생합니다.
+[세부 사항은 더 자세한 글을 확인하세요](webgpu-resizing-the-canvas.html).
 
-We call `render` to re-render the
-triangle at the new resolution. We removed the old call to `render` because
-it's not needed. A `ResizeObserver` will always call its callback at least once
-to report the size of the elements when they started being observed.
+삼각형을 새로운 해상도로 다시 그리기 위해 `render`를 호출합니다.
+이전의 `render`는 필요하지 않기 때문에 삭제합니다. 
+어떤 요소가 관찰되기 시작하면 `ResizeObserver`는 최소한 한 번 콜백(callback)함수를 호출하게 됩니다.
 
-The new size texture is created when we call `context.getCurrentTexture()` 
-inside `render` so there's nothing left to do.
+`render`내에서 `context.getCurrentTexture()`를 호출하면 새로운 크기의 텍스처가 생성되므로 더 추가할 코드는 없습니다.
 
 {{{example url="../webgpu-simple-triangle-with-canvas-resize.html"}}}
 
-In the following articles we'll cover various ways to pass data into shaders.
+아래 글들에서 셰이더에 데이터를 전달하기 위한 다양한 방법을 다룰 것입니다.
 
-* [inter-stage variables](webgpu-inter-stage-variables.html)
+* [스테이지간 변수(inter-stage variable)](webgpu-inter-stage-variables.html)
 * [uniforms](webgpu-uniforms.html)
-* [storage buffers](webgpu-storage-buffers.html)
-* [vertex buffers](webgpu-vertex-buffers.html)
-* [textures](webgpu-textures.html)
-* [constants](webgpu-constants.html)
+* [스토리지 버퍼(storage buffers)](webgpu-storage-buffers.html)
+* [정점 버퍼(vertex buffers)](webgpu-vertex-buffers.html)
+* [텍스처(textures)](webgpu-textures.html)
+* [상수(constants)](webgpu-constants.html)
 
-Then we'll cover [the basics of WGSL](webgpu-wgsl.html).
+또한 [WGSL 기초](webgpu-wgsl.html)도 다룰 것입니다.
 
-This order is from the simplest to the most complex. Inter-stage variables
-require no external setup to explain. We can see how to use them using nothing
-but changes to the WGSL we used above. Uniforms are effectively global variables
-and as such are used in all 3 kinds of shaders (vertex, fragment, and compute).
-Going from uniform buffers to storage buffers is trivial as shown at the top of
-the article on storage buffers. Vertex buffers are only used in vertex shaders.
-They are more complex because they require describing the data layout to WebGPU.
-Textures are most complex as they have tons of types and options.
+순서는 간단한 것에서부터 복잡한 것 까지입니다.
+스테이지간 변수는 설명하기 위한 별도의 설정이 필요 없습니다.
+위에서 본 WGSL을 수정만 하면 사용법을 배울 수 있습니다.
+Uniform은 전역 변수와 유사한 개념으로 모든 셰이더(정점, 프래그먼트, 컴퓨트) 사용됩니다. uniform 버퍼부터 스토리지 버퍼까지는 쭉 이어지는 내용입니다.
+정점 버퍼는 정점 셰이더에서만 사용됩니다. 이 부분이 복잡한 이유는 WebGPU에 데이터 레이아웃을 알려주어야 하기 때문입니다.
+텍스처는 많은 타입과 옵션들이 있어서 가장 복잡합니다.
 
-I'm a little bit worried these article will be boring at first. Feel free to
-jump around if you'd like. Just remember if you don't understand something you
-probably need to read or review these basics. Once we get the basics down we'll
-start going over actual techniques.
+이 글이 지루해지지 않을까 좀 걱정입니다. 마음이 내키는 대로 돌아다녀 보세요.
+단지 뭔가 이해가 안된다면 이 글의 기초 내용을 다시 돌아봐야 할 수 있다는 것만 기억하세요.
+기초 내용을 이해하고 나서 실제 기술을 공부해 나가면 됩니다.
 
-One other thing. All of the example programs can be edited live in the webpage.
-Further, they can all easily be exported to [jsfiddle](https://jsfiddle.net) and [codepen](https://codepen.io)
-and even [stackoverflow](https://stackoverflow.com). Just click "Export".
+하나 더. 모든 예제 프로그램은 웹페이지 상에서 실시간으로 수정할 수 있습니다.
+추가적으로 [jsfiddle](https://jsfiddle.net) 이나 [codepen](https://codepen.io) 이나 [stackoverflow](https://stackoverflow.com)로 손쉽게 내보낼 수 있습니다.
+"Export" 버튼만 누르시면 됩니다.
 
 <div class="webgpu_bottombar">
 <p>
-The code above gets a WebGPU device in very terse way. A more verbose
-way would be something like
+위 코드에에서는 간단한 방식으로 WebGPU 장치를 얻고 있는데, 보다 자세한 방법으로는 아래와 같은 방법이 있습니다.
 </p>
 <pre class="prettyprint showmods">{{#escapehtml}}
 async function start() {
@@ -948,20 +892,13 @@ function main(device) {
 }
 {{/escapehtml}}</pre>
 <p>
-<code>device.lost</code> is a promise that starts off unresolved. It will resolve if and when the
-device is lost. A device can be lost for many reasons. Maybe the user ran a really intensive
-app and it crashed their GPU. Maybe the user updated their drivers. Maybe the user has
-an external GPU and unplugged it. Maybe another page used a lot of GPU, your
-tab was in the background and the browser decided to free up some memory by
-losing the device for background tabs. The point to take away is that for any serious
-apps you probably want to handle losing the device.
+<code>device.lost</code>는 미해결(unresolve) 상태에 대한 프라미스(promise)입니다. 장치가 미해결 상태에면 해결(resolve)합니다. 
+다양한 이유로 장치를 찾지 못할 수 있는데, 사용자가 무거운 맵을 실행해서 GPU에 충돌이 발생한 경우가 한 예입니다. 
+드라이버를 업데이트 했을 수도 있고, 외장 GPU를 뽑아버렸을 수도 있고, 다른 페이지가 많은 GPU를 점유해서 우리의 탭이 백그라운드 상태로 들어가 브라우저가 장치를 해제하여 메모리를 확보하려 할 수도 있습니다.
+요점은, 중요한 앱이라면 이러한 장치를 찾지 못하는 문제를 해결하는 법이 있어야 한다는 점입니다.
 </p>
 <p>
-Note that <code>requestDevice</code> always returns a device. It just might start lost.
-WebGPU is designed so that, for the most part, the device will appear to work,
-at least from an API level. Calls to create things and use them will appear
-to succeed but they won't actually function. It's up to you to take action
-when the <code>lost</code> promise resolves.
+<code>requestDevice</code>는 항상 장치를 반환한다는 점을 유념하세요. 그 이후에 찾지 못하게 될 수 있는겁니다. WebGPU는 그래서 적어도 API 수준에서는 대부분의 경우 장치가 동작하는 것처럼 보일 수 있습니다. 무언가를 생성하고 사용하면 잘 동작하는 것처럼 보이지만 사실은 동작하지 않고 있을 수 있습니다. <code>lost</code> 프라미스가 해결될 때 무엇을 해야 할지는 여러분에게 달려 있습니다.
 </p>
 </div>
 
