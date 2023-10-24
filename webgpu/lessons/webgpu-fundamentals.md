@@ -437,7 +437,7 @@ we have to specify the format for the texture(s) we'll use this pipeline to
 eventually render to.
 
 Element 0 for the `targets` array corresponds to location 0 as we specified for
-the fragment shader's return value. Later, well set that target to be a texture
+the fragment shader's return value. Later, we'll set that target to be a texture
 for the canvas.
 
 Next up we prepare a `GPURenderPassDescriptor` which describes which textures
