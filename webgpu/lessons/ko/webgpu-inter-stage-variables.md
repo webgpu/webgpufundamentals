@@ -160,8 +160,8 @@ TOC: 스테이지간 변수(Inter-stage Variables)
 
 <div class="webgpu_center"><img src="resources/webgpu-pixels.svg" style="width: 500px;"></div>
 
-We can change our shader to use this position. For example let's draw a
-checkerboard.
+셰이더에서 이 위치값을 사용하도록 수정합니다.
+예를들어, 체커보드(checkerboard)를 그려 봅시다.
 
 ```js
   const module = device.createShaderModule({
@@ -206,35 +206,30 @@ checkerboard.
   });
 ```
 
-The code above takes `fsInput.position`, which was declared as
-`@builtin(position)`, and converts its `xy` coordinates to a `vec2u` which is 2
-unsigned integers. It then divides them by 8 giving us a count that increases
-every 8 pixels. It then adds the `x` and `y` grid coordinates together, computes
-module 2, and compares the result to 1. This will give us a boolean that is true
-or false every other integer. Finally it uses the WGSL function `select` which
-given 2 values, selects one or the other based on a boolean condition. In
-JavaScript `select` would be written like this
+위 코드는 `fsInput.position`를 받는데 이는 `@builtin(position)`에 선언되었고,
+`xy` 좌표를 두 개의 부호없는 정수인 `vec2u`로 좌표를 변환합니다.
+그리고 나서 이를 8로 나누어 8개의 픽셀마다 값이 증가되도록 합니다.
+그리고 `x`와 `y` 그리드 좌표를 더하고 2로 나눈 나머지를 계산하여 그 결과를 1과 비교합니다.
+그 결과 모든 정수에 대해 1 또는 0 값을 반한합니다.
+마지막으로 불리언(boolean) 값에 따라 두 개의 값 중 하나를 반환하는 WGSL의 `select` 함수를 사용합니다.
+자바스크립트로, `select` 함수는 다음과 같습니다.
 
 ```js
-// If condition is false return `a`, otherwise return `b`
+// condition이 false면 `a`를, 아니면 `b`를 반환함
 select = (a, b, condition) => condition ? b : a;
 ```
 
 {{{example url="../webgpu-fragment-shader-builtin-position.html"}}}
 
-Even if you don't use `@builtin(position)` in a fragment shader, it's convenient
-that it's there because it means we can use the same struct for both a vertex
-shader and a fragment shader. What was important to takeaway is that the `position` struct
-field in the vertex shader vs the fragment shader is entirely unrelated. They're
-completely different variables.
+프래그먼트 셰이더에서 `@builtin(position)`를 사용하지 않더라도, 같은 구조체를 정점 셰이더와 프래그먼트 셰이더에서 사용 가능하니 편리합니다.
+중요한 것은 정점 셰이더와 프래그먼트 셰이더에서, 구조체의 `position`이 전혀 관련이 없다는 점입니다.
+그 둘은 완전히 별개의 변수입니다.
 
-As pointed out above though, for inter-stage variables, all that matters is the
-`@location(?)`. So, it's not uncommon to declare different structs for a vertex
-shader's output vs a fragment shaders input.
+위에서 언급했듯이 스테이지별 변수에서 중요한 것은 `@location(?)`뿐입니다.
+그러니 정점 셰이더의 출력과 프래그먼트 셰이더의 입력에서 다른 구조체를 사용하는 경우도 흔하게 볼 수 있습니다.
 
-To hopefully make this more clear, the fact that the vertex shader and
-fragment shader are in the same string in our examples it just a convenience.
-We could also split them into separate modules
+좀 더 명확히 하기 위해, 우리 예제에서 정점 셰이더와 프래그먼트 셰이더를 같은 문자열에 넣은 것은 그냥 사용상의 편의 때문이라는 것을 알아 두세요.
+이 둘을 별도의 모듈로 구분할 수도 있습니다.
 
 ```js
 -  const module = device.createShaderModule({
@@ -280,7 +275,7 @@ We could also split them into separate modules
   });
 ```
 
-And we'd have to update our pipeline creation to use these
+이를 사용하기 위해서는 파이프라인 생성 부분도 수정해야 합니다.
 
 ```js
   const pipeline = device.createRenderPipeline({
@@ -301,57 +296,49 @@ And we'd have to update our pipeline creation to use these
 
 ```
 
-And this would also work
+이 코드 역시 제대로 동작합니다.
 
 {{{example url="../webgpu-fragment-shader-builtin-position-separate-modules.html"}}}
 
-The point is, the fact that both shaders are in the same string in most WebGPU
-examples is just a convenience. In reality, first WebGPU parses the WGSL to make
-sure it's syntactically correct. Then, WebGPU looks at the `entryPoint`
-you specify. From that it goes and looks at the parts that entryPoint references
-and nothing else for that entryPoint. It's useful because you don't have to type
-things like structures or binding and group locations twice if two or more shaders
-share bindings or structures or constants or functions. But, from the POV of WebGPU,
-it's as though you did duplicate all of them, once for each entryPoint.
+중요한 점은 대부분의 WebGPU 예제에서 두 셰이더가 하나의 문자열에 들어가 있는 것은 단지 편의성 때문이라는 것입니다.
+실제로는 우선 WebGPU는 WGSL을 파싱(parse)해서 문법적으로 문제가 없는지 확인합니다.
+그리고 나서 여러분이 명시한 `entryPoint`를 찾아봅니다.
+거기서부터는 진입점(entryPoint)이 참조하는 부분을 찾을 뿐입니다.
+그렇게 함으로써 두 셰이더가 바인딩, 구조체, 상수, 함수 등을 공유할 떄 그것들을 두 번씩 타이핑할 필요가 없어지기 때문에 편리합니다.
+하지만, WebGPU의 입장에서는 여러분이 마치 그 두 개를 진입점마다 두 번씩 타이핑한것처럼 취급합니다.
 
-Note: It is not that common to generate a checkerboard using the
-`@builtin(position)`. Checkerboards or other patterns are far more commonly
-implemented [using textures](webgpu-textures.html). In fact you'll see an issue
-if you size the window. Because the checkerboard is based on the pixel coordinates
-of the canvas it's relative to the canvas, not relative to the triangle.
+주의: `@builtin(position)`를 사용해 체커보드를 생성하는 것은 흔한 일은 아닙니다.
+체커보드나 다른 패턴은 [텍스처](webgpu-textures.html)를 사용해 구현하는 것이 일반적입니다.
+사실 윈도우 크기를 조정하면 쉽게 문제가 보일 겁니다.
+체커보드가 캔버스의 픽셀 좌표계에 기반하여 계산되기 때문에 삼각형이 아닌 캔버스에 상대적으로 그려지기 떄문입니다.
 
-## <a id="a-interpolate"></a>Interpolation Settings
+## <a id="a-interpolate"></a>보간(Interpolation) 설정
 
-We saw above that inter-stage variables, the outputs from a vertex shader, are
-interpolated when passed to the fragment shader. There are 2 sets of settings
-that can be changed for how the interpolation happens. Setting them to anything
-other than the defaults is not extremely common but there are use cases which
-will be covered in other articles.
+위에서 스테이지별 변수를 살펴보았는데 이는 정점 셰이더의 출력이고 프래그먼트 셰이더에 전달되는 과정에서 보간 되었습니다.
+보간이 어떻게 수행될지에 대한 두 가지 설정이 있습니다.
+기본값이 아닌 것으로 설정하는 것이 흔하지는 않지만 다른 글에서 살펴보겠지만 이를 사용하는 경우도 있습니다.
 
-Interpolation type:
+보간의 타입은:
 
-* `perspective`: Values are interpolated in a perspective correct manner (**default**)
-* `linear`: Values are interpolated in a linear, non-perspective correct manner.
-* `flat`: Values are not interpolated. Interpolation sampling is not used with flat interpolated
+* `perspective`: 원근 보정(perspective correct) 방식으로 값이 보간됨 (**기본값**)
+* `linear`: 원근 보정이 아닌 선형(linear)으로 보간됨
+* `flat`: 값이 보간되지 않음. 이 값으로 설정하면 보간 샘플링(sampling)이 사용되지 않음
 
-Interpolation sampling:
+보간 샘플링:
 
-* `center`: Interpolation is performed at the center of the pixel (**default**)
-* `centroid`: Interpolation is performed at a point that lies within all the samples covered by the fragment within the current primitive. This value is the same for all samples in the primitive.
-* `sample`:  Interpolation is performed per sample. The fragment shader is invoked once per sample when this attribute is applied.
+* `center`: 보간이 픽셀의 중앙에서 수행됨 (**기본값**)
+* `centroid`: 현재 프리미티브(primitive)가 차지하는 모든 프래그먼트의 모든 샘플 내에 존재하는 점에 대해 보간이 수행됨. 값은 프래그먼트 내의 모든 샘플에 대해 같은 값임
+* `sample`:  샘플 별로 보간이 수행됨. 이 값이 적용되는 경우 프래그먼트 셰이더는 모든 샘플별로 한 번씩 실행됨
 
-You specify these as attributes. For example
+이러한 속성은 다음과 같이 명시됩니다.
 
 ```wgsl
   @location(2) @interpolate(linear, center) myVariableFoo: vec4f;
   @location(3) @interpolate(flat) myVariableBar: vec4f;
 ```
 
-Note that if the inter-stage variable is an integer type then you must set its
-interpolation to `flat`. 
+스테이지별 변수가 정수형이라면 보간 타입은 `flat`으로 설정해야 합니다.
 
-If you set the interpolation type to `flat`, the value passed to the fragment shader
-is the value of the inter-stage variable for the first vertex in that triangle.
+보간 타입을 `flat`으로 설정했으면 프래그먼트 셰이더에 전달되는 값은 삼각형의 첫 번째 정점에 대한 스테이지별 변수 값입니다.
 
-In the [next article we'll cover uniforms](webgpu-uniforms.html) as another way to
-pass data into shaders.
+다음 글에서는 셰이더에 데이터를 전달하는 또 다른 방법인 [uniform](webgpu-uniforms.html)에 대해 알아보겠습니다.
