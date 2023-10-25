@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/webgpu-inter-stage-variables.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,73 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="ko"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Inter-stage Variables">
+
+<meta name="description" content="정점 셰이더에서 프래그먼트 셰이더로의 데이터 전달">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_ko.jpg">
+
+<meta property="og:title" content="WebGPU 스테이지간 변수(Inter-stage Variables)">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="Passing Data from a Vertex Shader to a Fragment Shader">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_ko.jpg">
+<meta property="og:description" content="정점 셰이더에서 프래그먼트 셰이더로의 데이터 전달">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-inter-stage-variables.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Inter-stage Variables">
+<meta name="twitter:title" content="WebGPU 스테이지간 변수(Inter-stage Variables)">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-inter-stage-variables.html">
-<meta name="twitter:description" content="Passing Data from a Vertex Shader to a Fragment Shader">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="정점 셰이더에서 프래그먼트 셰이더로의 데이터 전달">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_ko.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-inter-stage-variables.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_ko.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-inter-stage-variables.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-inter-stage-variables.html",
+      "inLanguage":"ko",
+      "name":"WebGPU 스테이지간 변수(Inter-stage Variables)",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-inter-stage-variables.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Inter-stage Variables</title>
+<title>WebGPU 스테이지간 변수(Inter-stage Variables)</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
+<link rel="stylesheet" href="/webgpu/lessons/ko/lang.css">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -175,13 +221,302 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Inter-stage Variables</h1>
+    <h1>WebGPU 스테이지간 변수(Inter-stage Variables)</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>죄송합니다. 이 글은 아직 번역이 되지 않았습니다.</p>
-<p><a href="https://github.com/gfxfundamentals/webgpufundamentals">번역을 도와주세요</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-inter-stage-variables.html">여기서 원문을 볼 수 있습니다</a>.</p>
+      <p><a href="../webgpu-fundamentals.html">이전 글</a>에서, WebGPU에 대한 아주 기초적인 내용을 알아 보았습니다.
+이 글에서는 스테이지간 변수(inter-stage variable)에 대한 <em>기초</em>를 다룰 것입니다.</p>
+<p>스테이지간 변수는 정점 셰이더와 프래그먼트 셰이더 사이에서 역할을 하게 됩니다.</p>
+<p>정점 셰이더가 세 개의 위치값을 출력하면 삼각형이 래스터화됩니다.
+정섬 셰이더에서 이러한 각 위치값에 추가적인 값을 더해서 출력할 수 있는데,
+이러한 값은 기본적으로 그 세 점 사이에서 보간됩니다.</p>
+<p>짧은 예제를 만들어 봅시다. 이전 글에서의 삼각형을 그리는 프로그램에서,
+셰이더를 수정할 것입니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+-    label: 'our hardcoded red triangle shaders',
++    label: 'our hardcoded rgb triangle shaders',
+    code: `
++      struct OurVertexShaderOutput {
++        @builtin(position) position: vec4f,
++        @location(0) color: vec4f,
++      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+-      ) -&gt; @builtin(position) vec4f {
++      ) -&gt; OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
++        var color = array&lt;vec4f, 3&gt;(
++          vec4f(1, 0, 0, 1), // red
++          vec4f(0, 1, 0, 1), // green
++          vec4f(0, 0, 1, 1), // blue
++        );
+
+-        return vec4f(pos[vertexIndex], 0.0, 1.0);
++        var vsOutput: OurVertexShaderOutput;
++        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
++        vsOutput.color = color[vertexIndex];
++        return vsOutput;
+      }
+
+-      @fragment fn fs() -&gt; @location(0) vec4f {
+-        return vec4f(1, 0, 0, 1);
++      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
++        return fsInput.color;
+      }
+    `,
+  });
+</pre>
+<p>먼저 <code class="notranslate" translate="no">struct</code>를 선언했습니다. 구조체(struct)를 만들면 정점 셰이더와 프래그먼트 셰이더 사이의
+스테이지간 변수를 조정하기 쉬워집니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+        @location(0) color: vec4f,
+      };
+</pre>
+<p>그리고 이러한 타입의 구조체를 정점 셰이더가 반환하도록 선언합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+-      ) -&gt; @builtin(position) vec4f {
++      ) -&gt; OurVertexShaderOutput {
+</pre>
+<p>세 개의 색상값을 갖는 배열을 만들었는데요,</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        var color = array&lt;vec4f, 3&gt;(
+          vec4f(1, 0, 0, 1), // red
+          vec4f(0, 1, 0, 1), // green
+          vec4f(0, 0, 1, 1), // blue
+        );
+</pre>
+<p>그리고 나서 위치값인 <code class="notranslate" translate="no">vec4f</code>만을 반환하는 대신 구조체 인스턴스를 선언하고,
+값을 채운 뒤 반환하도록 했습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-        return vec4f(pos[vertexIndex], 0.0, 1.0);
++        var vsOutput: OurVertexShaderOutput;
++        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
++        vsOutput.color = color[vertexIndex];
++        return vsOutput;
+</pre>
+<p>프래그먼트 셰이더 안에서는 이러한 구조체를 함수의 인자로 받도록 선언합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
+        return fsInput.color;
+      }
+</pre>
+<p>그리고 색상값을 반환합니다.</p>
+<p>실행하게 되면, GPU가 프래그먼트 셰이더를 호출할 때마다 색생값이 넘어오는데,
+넘어오는 값은 세 개 위치 사이에서 보간된 값인 것을 보실 수 있습니다.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-inter-stage-variables-triangle.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-inter-stage-variables-triangle.html" target="_blank">새 창으로 보려면 여기를 클릭하세요</a>
+</div>
+
+<p></p>
+<p>스테이지간 변수는 삼각형 내에서 텍스처 좌표(texture coordinate)를 보간하는 데 자주 사용됩니다.
+이러한 내용은 <a href="../webgpu-textures.html">텍스처에 관한 글</a>에서 다룰 것입니다.
+다른 사용 예로는 삼각형 내의 노멀(normal)값의 보간으로,
+<a href="../webgpu-lighting-directional.html">라이팅(lighting)에 관한 첫 번째 글</a>에서 다룹니다.</p>
+<h2 id="location으로-연결된-스테이지간-변수"><code class="notranslate" translate="no">location</code>으로 연결된 스테이지간 변수</h2>
+<p>중요한 점은 다른 거의 모든 WebGPU의 요소들과 같이, 정점 셰이더와 프래그먼트 셰이더는 인덱스를 기반으로 연결된다는 점입니다.
+스테이지간 변수의 경우 로케이션(location) 인덱스를 기반으로 연결됩니다.</p>
+<p>이게 무슨 말인지 확인하기 위해 프래그먼트 셰이더를 수정해서 구조체 대신에 <code class="notranslate" translate="no">location(0)</code>의 <code class="notranslate" translate="no">vec4f</code>를 받도록 수정해 보겠습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs(@location(0) color: vec4f) -&gt; @location(0) vec4f {
+        return color;
+      }
+</pre>
+<p>실행해 보면 여전히 잘 동작하는 것을 볼 수 있습니다.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-inter-stage-variables-triangle-by-fn-param.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-inter-stage-variables-triangle-by-fn-param.html" target="_blank">새 창으로 보려면 여기를 클릭하세요</a>
+</div>
+
+<p></p>
+<h2 id="builtinposition"><code class="notranslate" translate="no">@builtin(position)</code></h2>
+<p>또다른 특이한 기술을 살펴 봅시다. 원래 우리 셰이더에서는 <code class="notranslate" translate="no">position</code> 필드를 포함하는 동일한 구조체를
+정점 셰이더와 프래그먼트 세이더에서 모두 사용했지만, 로케이션은 없었습니다.
+그 대신에 <code class="notranslate" translate="no">@builtin(position)</code>이 선언되어 있었습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      struct OurVertexShaderOutput {
+*        @builtin(position) position: vec4f,
+        @location(0) color: vec4f,
+      };
+</pre>
+<p>이 필드는 스테이지간 변수가 <strong>아닙니다</strong>. 대신 이것은 <code class="notranslate" translate="no">builtin</code>이라고 합니다.
+<code class="notranslate" translate="no">@builtin(position)</code>이 정점 셰이더와 프래그먼트 셰이더에서 서로 다른 의미를 가지고 있었습니다.</p>
+<p>정점 셰이더에서 <code class="notranslate" translate="no">@builtin(position)</code>은 GPU가 삼각형/선/점을 그리는 그 출력값을 의미합니다.</p>
+<p>프래그먼트 셰이더에서 <code class="notranslate" translate="no">@builtin(position)</code>는 입력값을 의미합니다.
+프래그먼트 셰이더가 현재 색상을 계산해야 하는 그 픽셀의 좌표값입니다.</p>
+<p>픽셀 좌표는 픽셀의 모서리(edge)를 기준으로 명시됩니다.
+프래그먼트 셰이더에 넘어오는 값은 픽셀의 중심점이 넘어옵니다.</p>
+<p>우리가 그리는 텍스처가 3x2 픽셀 크기였다면 아래와 같은 좌표가 됩니다.</p>
+<div class="webgpu_center"><img src="../resources/webgpu-pixels.svg" style="width: 500px;"></div>
+<p>셰이더에서 이 위치값을 사용하도록 수정합니다.
+예를들어, 체커보드(checkerboard)를 그려 봅시다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+    label: 'our hardcoded checkerboard triangle shaders',
+    code: `
+      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+-        @location(0) color: vec4f,
+      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+-        var color = array&lt;vec4f, 3&gt;(
+-          vec4f(1, 0, 0, 1), // red
+-          vec4f(0, 1, 0, 1), // green
+-          vec4f(0, 0, 1, 1), // blue
+-        );
+
+        var vsOutput: OurVertexShaderOutput;
+        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+-        vsOutput.color = color[vertexIndex];
+        return vsOutput;
+      }
+
+      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
+-        return fsInput.color;
++        let red = vec4f(1, 0, 0, 1);
++        let cyan = vec4f(0, 1, 1, 1);
++
++        let grid = vec2u(fsInput.position.xy) / 8;
++        let checker = (grid.x + grid.y) % 2 == 1;
++
++        return select(red, cyan, checker);
+      }
+    `,
+  });
+</pre>
+<p>위 코드는 <code class="notranslate" translate="no">fsInput.position</code>를 받는데 이는 <code class="notranslate" translate="no">@builtin(position)</code>에 선언되었고,
+<code class="notranslate" translate="no">xy</code> 좌표를 두 개의 부호없는 정수인 <code class="notranslate" translate="no">vec2u</code>로 좌표를 변환합니다.
+그리고 나서 이를 8로 나누어 8개의 픽셀마다 값이 증가되도록 합니다.
+그리고 <code class="notranslate" translate="no">x</code>와 <code class="notranslate" translate="no">y</code> 그리드 좌표를 더하고 2로 나눈 나머지를 계산하여 그 결과를 1과 비교합니다.
+그 결과 모든 정수에 대해 1 또는 0 값을 반한합니다.
+마지막으로 불리언(boolean) 값에 따라 두 개의 값 중 하나를 반환하는 WGSL의 <code class="notranslate" translate="no">select</code> 함수를 사용합니다.
+자바스크립트로, <code class="notranslate" translate="no">select</code> 함수는 다음과 같습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// condition이 false면 `a`를, 아니면 `b`를 반환함
+select = (a, b, condition) =&gt; condition ? b : a;
+</pre>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-fragment-shader-builtin-position.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-fragment-shader-builtin-position.html" target="_blank">새 창으로 보려면 여기를 클릭하세요</a>
+</div>
+
+<p></p>
+<p>프래그먼트 셰이더에서 <code class="notranslate" translate="no">@builtin(position)</code>를 사용하지 않더라도, 같은 구조체를 정점 셰이더와 프래그먼트 셰이더에서 사용 가능하니 편리합니다.
+중요한 것은 정점 셰이더와 프래그먼트 셰이더에서, 구조체의 <code class="notranslate" translate="no">position</code>이 전혀 관련이 없다는 점입니다.
+그 둘은 완전히 별개의 변수입니다.</p>
+<p>위에서 언급했듯이 스테이지별 변수에서 중요한 것은 <code class="notranslate" translate="no">@location(?)</code>뿐입니다.
+그러니 정점 셰이더의 출력과 프래그먼트 셰이더의 입력에서 다른 구조체를 사용하는 경우도 흔하게 볼 수 있습니다.</p>
+<p>좀 더 명확히 하기 위해, 우리 예제에서 정점 셰이더와 프래그먼트 셰이더를 같은 문자열에 넣은 것은 그냥 사용상의 편의 때문이라는 것을 알아 두세요.
+이 둘을 별도의 모듈로 구분할 수도 있습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const module = device.createShaderModule({
+-    label: 'hardcoded checkerboard triangle shaders',
++  const vsModule = device.createShaderModule({
++    label: 'hardcoded triangle',
+    code: `
+      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+        var vsOutput: OurVertexShaderOutput;
+        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+        return vsOutput;
+      }
++    `,
++  });
++
++  const fsModule = device.createShaderModule({
++    label: 'checkerboard',
++    code: `
+-      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
++      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -&gt; @location(0) vec4f {
+        let red = vec4f(1, 0, 0, 1);
+        let cyan = vec4f(0, 1, 1, 1);
+
+-        let grid = vec2u(fsInput.position.xy) / 8;
++        let grid = vec2u(pixelPosition.xy) / 8;
+        let checker = (grid.x + grid.y) % 2 == 1;
+
+        return select(red, cyan, checker);
+      }
+    `,
+  });
+</pre>
+<p>이를 사용하기 위해서는 파이프라인 생성 부분도 수정해야 합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: 'hardcoded checkerboard triangle pipeline',
+    layout: 'auto',
+    vertex: {
+-      module,
++      module: vsModule,
+      entryPoint: 'vs',
+    },
+    fragment: {
+-      module,
++      module: fsModule,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+
+</pre>
+<p>이 코드 역시 제대로 동작합니다.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-fragment-shader-builtin-position-separate-modules.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-fragment-shader-builtin-position-separate-modules.html" target="_blank">새 창으로 보려면 여기를 클릭하세요</a>
+</div>
+
+<p></p>
+<p>중요한 점은 대부분의 WebGPU 예제에서 두 셰이더가 하나의 문자열에 들어가 있는 것은 단지 편의성 때문이라는 것입니다.
+실제로는 우선 WebGPU는 WGSL을 파싱(parse)해서 문법적으로 문제가 없는지 확인합니다.
+그리고 나서 여러분이 명시한 <code class="notranslate" translate="no">entryPoint</code>를 찾아봅니다.
+거기서부터는 진입점(entryPoint)이 참조하는 부분을 찾을 뿐입니다.
+그렇게 함으로써 두 셰이더가 바인딩, 구조체, 상수, 함수 등을 공유할 떄 그것들을 두 번씩 타이핑할 필요가 없어지기 때문에 편리합니다.
+하지만, WebGPU의 입장에서는 여러분이 마치 그 두 개를 진입점마다 두 번씩 타이핑한것처럼 취급합니다.</p>
+<p>주의: <code class="notranslate" translate="no">@builtin(position)</code>를 사용해 체커보드를 생성하는 것은 흔한 일은 아닙니다.
+체커보드나 다른 패턴은 <a href="../webgpu-textures.html">텍스처</a>를 사용해 구현하는 것이 일반적입니다.
+사실 윈도우 크기를 조정하면 쉽게 문제가 보일 겁니다.
+체커보드가 캔버스의 픽셀 좌표계에 기반하여 계산되기 때문에 삼각형이 아닌 캔버스에 상대적으로 그려지기 떄문입니다.</p>
+<h2 id="보간interpolation-설정"><a id="a-interpolate"></a>보간(Interpolation) 설정</h2>
+<p>위에서 스테이지별 변수를 살펴보았는데 이는 정점 셰이더의 출력이고 프래그먼트 셰이더에 전달되는 과정에서 보간 되었습니다.
+보간이 어떻게 수행될지에 대한 두 가지 설정이 있습니다.
+기본값이 아닌 것으로 설정하는 것이 흔하지는 않지만 다른 글에서 살펴보겠지만 이를 사용하는 경우도 있습니다.</p>
+<p>보간의 타입은:</p>
+<ul>
+<li><code class="notranslate" translate="no">perspective</code>: 원근 보정(perspective correct) 방식으로 값이 보간됨 (<strong>기본값</strong>)</li>
+<li><code class="notranslate" translate="no">linear</code>: 원근 보정이 아닌 선형(linear)으로 보간됨</li>
+<li><code class="notranslate" translate="no">flat</code>: 값이 보간되지 않음. 이 값으로 설정하면 보간 샘플링(sampling)이 사용되지 않음</li>
+</ul>
+<p>보간 샘플링:</p>
+<ul>
+<li><code class="notranslate" translate="no">center</code>: 보간이 픽셀의 중앙에서 수행됨 (<strong>기본값</strong>)</li>
+<li><code class="notranslate" translate="no">centroid</code>: 현재 프리미티브(primitive)가 차지하는 모든 프래그먼트의 모든 샘플 내에 존재하는 점에 대해 보간이 수행됨. 값은 프래그먼트 내의 모든 샘플에 대해 같은 값임</li>
+<li><code class="notranslate" translate="no">sample</code>:  샘플 별로 보간이 수행됨. 이 값이 적용되는 경우 프래그먼트 셰이더는 모든 샘플별로 한 번씩 실행됨</li>
+</ul>
+<p>이러한 속성은 다음과 같이 명시됩니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  @location(2) @interpolate(linear, center) myVariableFoo: vec4f;
+  @location(3) @interpolate(flat) myVariableBar: vec4f;
+</pre>
+<p>스테이지별 변수가 정수형이라면 보간 타입은 <code class="notranslate" translate="no">flat</code>으로 설정해야 합니다.</p>
+<p>보간 타입을 <code class="notranslate" translate="no">flat</code>으로 설정했으면 프래그먼트 셰이더에 전달되는 값은 삼각형의 첫 번째 정점에 대한 스테이지별 변수 값입니다.</p>
+<p>다음 글에서는 셰이더에 데이터를 전달하는 또 다른 방법인 <a href="../webgpu-uniforms.html">uniform</a>에 대해 알아보겠습니다.</p>
 
     </div>
     <div class="lesson-sidebar">
@@ -195,10 +530,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>기초</li>
+        <div id="toc">
+          <ul>  <li>기초</li>
         <ul>
           <li><a href="/webgpu/lessons/ko/webgpu-fundamentals.html">기초</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-inter-stage-variables.html">Inter-stage Variables</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-inter-stage-variables.html">스테이지간 변수(Inter-stage Variables)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-uniforms.html">Uniforms</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-storage-buffers.html">Storage Buffers</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
@@ -248,13 +584,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
 
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>질문이 있나요? <a href="http://stackoverflow.com/questions/tagged/webgpu">Stack Overflow</a>에 물어보세요.</div>
+<div>
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">제안</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">요청 사항</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">이슈</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">버그</a>
+</div>
+<div class="lesson-comment-notes">
+   코드 블럭의 경우 <b>&lt;pre&gt;&lt;code&gt;</b>코드<b>&lt;/code&gt;&lt;/pre&gt;</b>을 사용하세요.
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU 스테이지간 변수(Inter-stage Variables)`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "<a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a>님<br> 당신의 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 기여에 감사드립니다.</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
-<script src="/webgpu/lessons/resources/lesson.js"></script>
+<script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
 <script>
 </script>
 
