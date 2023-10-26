@@ -24,7 +24,7 @@ renderDiagrams({
       @group(0) @binding(0) var<uniform> foo: OurStruct;
     `;
     const defs = makeShaderDataDefinitions(wgsl);
-    elem.appendChild(createByteDiagramForType('OurStruct', defs.uniforms.foo));
+    elem.appendChild(createByteDiagramForType('OurStruct', defs.uniforms.foo.typeDefinition));
   },
 
   ourStructEx2(elem) {
@@ -37,7 +37,7 @@ renderDiagrams({
       @group(0) @binding(0) var<uniform> foo: Ex2;
     `;
     const defs = makeShaderDataDefinitions(wgsl);
-    elem.appendChild(createByteDiagramForType('Ex2', defs.uniforms.foo));
+    elem.appendChild(createByteDiagramForType('Ex2', defs.uniforms.foo.typeDefinition));
   },
 
   ourStructEx3(elem) {
@@ -49,7 +49,7 @@ renderDiagrams({
       @group(0) @binding(0) var<uniform> foo: Ex3;
     `;
     const defs = makeShaderDataDefinitions(wgsl);
-    elem.appendChild(createByteDiagramForType('Ex3', defs.uniforms.foo));
+    elem.appendChild(createByteDiagramForType('Ex3', defs.uniforms.foo.typeDefinition));
   },
 
   ourStructEx4(elem) {
@@ -69,7 +69,7 @@ renderDiagrams({
       @group(0) @binding(0) var<uniform> foo: Ex4;
     `;
     const defs = makeShaderDataDefinitions(wgsl);
-    elem.appendChild(createByteDiagramForType('Ex4', defs.uniforms.foo));
+    elem.appendChild(createByteDiagramForType('Ex4', defs.uniforms.foo.typeDefinition));
   },
 
 
