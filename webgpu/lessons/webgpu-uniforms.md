@@ -7,7 +7,7 @@ This article will be about uniforms.
 
 Uniforms are kind of like global variables for your shader. You can set their
 values before you execute the shader and they'll have those values for every
-iteration of the shader. You can them set them to something else the next time
+iteration of the shader. You can set them to something else the next time
 you ask the GPU to execute the shader.
 
 We'll start again with the triangle example from [the first article](webgpu-fundamentals.html) and modify it to use some uniforms
