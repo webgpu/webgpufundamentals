@@ -12,7 +12,9 @@ you read this article. Concepts like
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">spreading values</a>,
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async/await</a>,
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">es6 modules</a>,
-and more will be used extensively.
+and more will be used extensively. If you don't already know JavaScript and would like to learn it see
+<a href="https://javascript.info/">JavaScript.info</a>, <a href="https://eloquentjavascript.net/">Eloquent JavaScript</a>,
+and/or <a href="https://www.codecademy.com/learn/introduction-to-javascript">CodeCademy</a>.
 </div>
 
 <div class="warn">If you already know WebGL, <a href="webgpu-from-webgl.html">read this</a>.</div>
