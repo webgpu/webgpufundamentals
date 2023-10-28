@@ -12,10 +12,10 @@
   - [ ] type table
 
 - [ ] explain opaque/premultiplied canvas
-- [ ] explain typedarrays
+- [X] explain typedarrays
 - [ ] make table of valid buffer usage combinations for every situation
 - [ ] make table of valid texture usage combinations for every situation
-- [ ] asking for higher limits
+- [X] asking for higher limits
 - [ ] asking for the fallback
 - [ ] asking for compat?
 - [ ] multisample
@@ -28,13 +28,13 @@
 - [ ] 
 
 - [ ] convert matrix articles
-  - [ ] translation
-  - [ ] rotation
-  - [ ] scaling
-  - [ ] matrices
-  - [ ] orthographic 3d
-  - [ ] perspective
-  - [ ] camera
+  - [X] translation
+  - [X] rotation
+  - [X] scaling
+  - [X] matrices
+  - [X] orthographic 3d
+  - [X] perspective
+  - [X] camera
 
 - [ ] lights
   - [ ] directional light
@@ -42,9 +42,9 @@
   - [ ] spot light
 
 - [ ] render targets (this is basic and probably belongs under fundamentals)
-- [ ] textures
-  - [ ] mip generation
-- [ ] loading images
+- [X] textures
+  - [X] mip generation
+- [X] loading images
   - [ ] cross origin images
 - [ ] planar and perspective projection mapping
 - [ ] shadows
@@ -69,9 +69,9 @@
   - [ ] remapping (photoshop filters)
   - [ ] gpu particles / animation
 
-- [ ] pulling vertices
-- [ ] instanced drawing
-- [ ] indexed drawing
+- [X] pulling vertices
+- [X] instanced drawing
+- [X] indexed drawing
 
 
 - [ ] scene graphs
