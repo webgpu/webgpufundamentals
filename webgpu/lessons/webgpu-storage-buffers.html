@@ -482,7 +482,7 @@ and colors and then upload that data to the <code class="notranslate" translate=
 </pre>
 <p>The code above is going to draw <code class="notranslate" translate="no">kNumObjects</code> instances. For each instance
 WebGPU will call the vertex shader 3 times with <code class="notranslate" translate="no">vertex_index</code> set to 0, 1, 2
-and <code class="notranslate" translate="no">instance_index</code> set to 0, kNumObjects - 1</p>
+and <code class="notranslate" translate="no">instance_index</code> set to 0 ~ kNumObjects - 1</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-storage-buffer-split.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-storage-buffer-split.html" target="_blank">click here to open in a separate window</a>
@@ -565,7 +565,7 @@ First lets make a function to generate some vertex data. Lets make a circle.
     vertexData[offset++] = y;
   };
 
-  // 2 vertices per subdivision
+  // 2 triangles per subdivision
   //
   // 0--1 4
   // | / /|
