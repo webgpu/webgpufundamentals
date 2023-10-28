@@ -555,10 +555,11 @@ called “muigui” which at the moment has an API similar to <a href="https://g
   const filterOptions = ['nearest', 'linear'];
 
   const gui = new GUI();
+  gui.onChange(render);
   Object.assign(gui.domElement.style, {right: '', left: '15px'});
-  gui.add(settings, 'addressModeU', addressOptions).onChange(render);
-  gui.add(settings, 'addressModeV', addressOptions).onChange(render);
-  gui.add(settings, 'magFilter', filterOptions).onChange(render);
+  gui.add(settings, 'addressModeU', addressOptions);
+  gui.add(settings, 'addressModeV', addressOptions);
+  gui.add(settings, 'magFilter', filterOptions);
 </pre>
 <p>The code above declares <code class="notranslate" translate="no">settings</code> and then creates a ui to set them
 and calls <code class="notranslate" translate="no">render</code> when they change.</p>
@@ -756,13 +757,11 @@ slowly go back and forth across the canvas.</p>
   const filterOptions = ['nearest', 'linear'];
 
   const gui = new GUI();
+-  gui.onChange(render);
   Object.assign(gui.domElement.style, {right: '', left: '15px'});
-  -gui.add(settings, 'addressModeU', addressOptions).onChange(render);
-  -gui.add(settings, 'addressModeV', addressOptions).onChange(render);
-  -gui.add(settings, 'magFilter', filterOptions).onChange(render);
-+  gui.add(settings, 'addressModeU', addressOptions);
-+  gui.add(settings, 'addressModeV', addressOptions);
-+  gui.add(settings, 'magFilter', filterOptions);
+  gui.add(settings, 'addressModeU', addressOptions);
+  gui.add(settings, 'addressModeV', addressOptions);
+  gui.add(settings, 'magFilter', filterOptions);
 +  gui.add(settings, 'minFilter', filterOptions);
 
   function render(time) {
