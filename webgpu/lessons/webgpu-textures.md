@@ -18,7 +18,7 @@ for many common use cases.
 
 As one example, lets say I want to draw a 2d image larger than its original size.
 
-<div class="center">
+<div class="webgpu_center">
   <div>
     <div><img class="pixel-perfect" src="resources/kiana.png" style="max-width: 100%; width: 128px; height: 128px; image-rendering: pixelated; image-rendering: crisp-edges;"></div>
     <div style="text-align: center;">original</div>

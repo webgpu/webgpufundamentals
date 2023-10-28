@@ -428,7 +428,7 @@ div[data-diagram] {
   text-align: center;
   max-width: 95%;
 }
-.webgpu_center>img,
+.webgpu_center img,
 .webgpu_center>object {
   max-width: 100%;
 }
