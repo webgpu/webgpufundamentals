@@ -414,10 +414,11 @@ import GUI from '/3rdparty/muigui-0.x.module.js';
   const filterOptions = ['nearest', 'linear'];
 
   const gui = new GUI();
+  gui.onChange(render);
   Object.assign(gui.domElement.style, {right: '', left: '15px'});
-  gui.add(settings, 'addressModeU', addressOptions).onChange(render);
-  gui.add(settings, 'addressModeV', addressOptions).onChange(render);
-  gui.add(settings, 'magFilter', filterOptions).onChange(render);
+  gui.add(settings, 'addressModeU', addressOptions);
+  gui.add(settings, 'addressModeV', addressOptions);
+  gui.add(settings, 'magFilter', filterOptions);
 ```
 
 The code above declares `settings` and then creates a ui to set them
@@ -636,13 +637,11 @@ Finally let's add `minFilter` to our settings and combinations
   const filterOptions = ['nearest', 'linear'];
 
   const gui = new GUI();
+-  gui.onChange(render);
   Object.assign(gui.domElement.style, {right: '', left: '15px'});
-  -gui.add(settings, 'addressModeU', addressOptions).onChange(render);
-  -gui.add(settings, 'addressModeV', addressOptions).onChange(render);
-  -gui.add(settings, 'magFilter', filterOptions).onChange(render);
-+  gui.add(settings, 'addressModeU', addressOptions);
-+  gui.add(settings, 'addressModeV', addressOptions);
-+  gui.add(settings, 'magFilter', filterOptions);
+  gui.add(settings, 'addressModeU', addressOptions);
+  gui.add(settings, 'addressModeV', addressOptions);
+  gui.add(settings, 'magFilter', filterOptions);
 +  gui.add(settings, 'minFilter', filterOptions);
 
   function render(time) {
