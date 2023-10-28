@@ -1,17 +1,15 @@
-Title: WebGPU Storage Buffers
-Description: Passing Large Data to Shaders
-TOC: Storage Buffers
+Title: WebGPU 스토리지 버퍼
+Description: 셰이더에 큰 데이터 전달하기
+TOC: 스토리지 버퍼(Storage Buffers)
 
-This article is about storage buffers and continues where the
-[previous article](webgpu-uniforms.html) left off.
+이 글에서는 [지난 글](webgpu-uniforms.html)에 이어서, 
+스토리지 버퍼에 대해 알아보겠습니다.
 
-Storage buffers are similar to uniform buffers in many ways.
-If all we did was change `UNIFORM` to `STORAGE` in our JavaScript
-and `var<uniform>` to `var<storage, read>` in our WGSL the examples
-on the previous page would just work.
+스토리지 버퍼는 여러 면에서 uniform 버퍼와 비슷합니다.
+자바스크립트에서 `UNIFORM`을 `STORAGE`로 바꾸고, WEGSL 예시에서는 
+`var<uniform>`를 `var<storage, read>`로 바꾸면 이전 예제가 그대로 동작합니다.
 
-In fact, here are the differences, without renaming variables to have more
-appropriate names.
+차이점은 아래와 같습니다. 변수 이름은 수정하지 않았습니다.
 
 ```js
     const staticUniformBuffer = device.createBuffer({
@@ -32,60 +30,59 @@ appropriate names.
     });
 ```
 
-and in our WSGL
+WSGL에서는 아래와 같습니다.
 
 ```wsgl
       @group(0) @binding(0) var<storage, read> ourStruct: OurStruct;
       @group(0) @binding(1) var<storage, read> otherStruct: OtherStruct;
 ```
 
-And with no other changes it works, just like before
+더이상 다른 수정 없이도, 이전과 같이 동작합니다.
 
 {{{example url="../webgpu-simple-triangle-storage-split-minimal-changes.html"}}}
 
-## Differences between uniform buffers and storage buffers
+## uniform 버퍼와 스토리지 버퍼의 차이점
 
-The major differences between uniform buffers and storage buffers are:
+uniform 버퍼와 스토리지 버퍼의 주요한 차이점은 아래와 같습니다:
 
-1. Uniform buffers can be faster for their typical use-case
+1. 일반적인 uniform 버퍼의 사용 예에서는 unform 버퍼가 더 빠를 수 있음
 
-   It really depends on the use case. A typical app will need to draw
-   lots of different things. Say it's a 3D game. The app might draw
-   cars, buildings, rocks, bushes, people, etc... Each of those will
-   require passing in orientations and material properties similar
-   to what our example above passes in. In this case, using a uniform buffer
-   is the recommended solution.
+  사용 법에 따라 다를 수 있습니다. 일반적인 앱에서는 여러가지 다른 것들을 그려야 합니다.
+  3D 게임의 예를 들어보죠. 앱에서 자동차, 건물, 바위, 덤불, 사람 등등을 그려야 합니다.
+  이들 각각에 대한 자세와 머티리얼(material) 속성 등을 위 예제와 같이 넘겨주어야 합니다.
+  이러한 경우 uniform 버퍼를 사용하는 것이 좋은 방법입니다.
+   
+2. 스토리지 버퍼는 uniform 버퍼보다 훨씬 클 수 있음
 
-2. Storage buffers can be much larger than uniform buffers.
+   * uniform 버퍼의 최대 크기의 하한은 64k 이상
+   * 스토리지 버퍼의 최대 크기의 하한은 128M 이상
 
-   * The minimum maximum size of a uniform buffer is 64k 
-   * The minimum maximum size of a storage buffer is 128meg
+   버퍼의 종류에 따라 보장되는 최대 크기의 하한이 다를 수 있습니다.
+   uniform 버퍼의 경우 최대 크기는 하한이 64k 입니다.
+   스토리지 버퍼는 128M입니다. 이러한 제약에 대해서는 
+   [다른 글](webgpu-limits-and-features.html)에서 설명합니다.
 
-   By minimum maximum, there is a maximum size a buffer of certain type
-   can be. For uniform buffers that maximum size is at least 64k.
-   For storage buffers it's at least 128meg. We'll cover limits in
-   [another article](webgpu-limits-and-features.html).
+3. 스토리지 버퍼는 읽기/쓰기가 가능하지만 uniform 버퍼는 읽기 전용
 
-3. Storage buffers can be read/write, Uniform buffers are read-only
+   스토리지 버퍼에 값을 쓰는 예제를 [첫 번째 글](webgpu-fundamentals.html)의 
+   컴퓨트 셰이더 예제에서 이미 살펴본 바 있습니다.
 
-   We saw an example of writing to a storage buffer in the compute shader
-   example in [the first article](webgpu-fundamentals.html).
+## <a id="a-instancing"></a>스토리지 버퍼를 사용한 인스턴싱
 
-## <a id="a-instancing"></a>Instancing with Storage Buffers
+위의 첫 두 차이점을 바탕으로 우리의 예제를 한 번의 드로우콜(draw call)로 
+100개 삼각형을 모두 그리는 예제로 바꾸어 봅시다.
+이러한 경우 스토리지 버퍼를 사용하는 것이 *적절할 수도* 있습니다.
+그럴 수도 있다고 이야기 한 이유는 WebGPU가 다른 프로그래밍 언어와 비슷하기 때문입니다.
+동일한 목표를 다른 방법으로 달성할 수 있습니다.
+`array.forEach` vs `for (const elem of array)` vs `for (let i = 0; i < array.length; ++i)` 모두 가능하죠.
+각자는 각자의 용도가 있고, WebGPU도 마찬가지 입니다.
+우리가 하는 모든 것들의 달성하는 방법은 여러가지 입니다.
+삼각형을 그리는 경우에 대해선, WebGPU는 오직 정점 셰이더에서 `builtin(position)`를 반환하는 것과 
+프래그먼트 셰이더에서 `location(0)`에 색상/값을 반환하는 것 뿐입니다.[^colorAttachments] 
 
-Given the first 2 points above, lets take our last example and change it
-to draw all 100 triangles in a single draw call. This is a use-case that
-*might* fit storage buffers. I say might because again, WebGPU is similar
-to other programming languages. There are many ways to achieve the same thing.
-`array.forEach` vs `for (const elem of array)` vs `for (let i = 0; i < array.length; ++i)`. Each has its uses. The same is true of WebGPU. Each thing we try to do
-has multiple ways we can achieve it. When it comes to drawing triangles,
-all that WebGPU cares about is we return a value for `builtin(position)` from
-the vertex shader and return a color/value for `location(0)` from the fragment shader.[^colorAttachments] 
+[^colorAttachments]: 색상 어태치먼트는 여러 개일 수 있고, 이 경우 `location(1)`, `location(2)` 등등을 사용하여 색상/값을 반환해야 합니다.
 
-[^colorAttachments]: We can have multiple color attachments and then we'll need to return more colors/value for `location(1)`, `location(2)`, etc..
-
-The first thing we'll do is change our storage declarations to a runtime sized
-arrays.
+먼저 할 것은 스토리지 선언을 런타임에 크기가 정해지는 배열로 바꾸는 것입니다.
 
 ```wgsl
 -@group(0) @binding(0) var<storage, read> ourStruct: OurStruct;
@@ -94,7 +91,7 @@ arrays.
 +@group(0) @binding(1) var<storage, read> otherStructs: array<OtherStruct>;
 ```
 
-Then we'll change the shader to use these values
+그리고 셰이더에서는 이 값을 사용하도록 변경합니다.
 
 ```wgsl
 @vertex fn vs(
@@ -115,25 +112,20 @@ Then we'll change the shader to use these values
 }
 ```
 
-We added a new parameter to our vertex shader called
-`instanceIndex` and gave it the `@builtin(instance_index)` attribute
-which means it gets its value from WebGPU for each "instance" drawn.
-When we call `draw` we can pass a second argument for *number of instances*
-and for each instance drawn, the number of the instance being processed
-will be passed to our function.
+정점 셰이더에 `instanceIndex`라는 새로운 매개변수를 추가하였고 `@builtin(instance_index)` 
+어트리뷰트를 추가하였는데 이는 각 "인스턴스(instance)"가 그려질 때마다 WebGPU로부터 
+값을 받는다는 뜻입니다.
+`draw`를 호출할 때 두 번째 인자로 *인스턴스의 개수*를 넘겨줄 수 있고, 
+각 인스턴스가 그려질 때 처리될 인스턴스의 개수가 함수로 넘어오게 됩니다.
 
-Using `instanceIndex` we can get specific struct elements from our arrays
-of structs.
+`instanceIndex`를 사용하여 구조체의 배열로부터 특정 구조체 요소를 얻을 수 있습니다.
 
-We also need to get the color from the correct array element and use
-it in our fragment shader. The fragment shader doesn't have access to
-`@builtin(instance_index)` because that would make no sense. We could pass
-it as an [inter-stage variable](webgpu-inter-stage-variables.html) but it
-would be more common to look up the color in the vertex shader and just pass
-the color.
+또한 올바를 배열 요소로부터 색상값을 얻어와 프래그먼트 셰이더에서 사용해야 합니다.
+프래먼트 셰이더는 `@builtin(instance_index)`에 접근할 수 없는데 이는 말이 안되기 때문입니다.
+[스테이지간 변수](webgpu-inter-stage-variables.html)로 넘겨줄 수도 있지만 정점 셰이더에서 색상값을 읽어와 전달하는 것이 더 일반적입니다.
 
-To do this we'll use another struct like we did in
-[the article on inter-stage variables](webgpu-inter-stage-variables.html)
+이를 위해서 [스테이지간 변수에 관한 글](webgpu-inter-stage-variables.html)에서처럼 
+새로운 구조체를 사용할 것입니다.
 
 ```wgsl
 +struct VSOutput {
@@ -172,21 +164,21 @@ To do this we'll use another struct like we did in
 
 ```
 
-Now that we've modified our WGSL shaders, let's update the JavaScript.
+이제 WGSL 셰이더를 수정했으니 자바스크립트도 갱신해 봅시다.
 
-Here's the setup
+아래와 같습니다.
 
 ```js
   const kNumObjects = 100;
   const objectInfos = [];
 
-  // create 2 storage buffers
+  // 두 개의 스토리지 버퍼를 만듬
   const staticUnitSize =
-    4 * 4 + // color is 4 32bit floats (4bytes each)
-    2 * 4 + // offset is 2 32bit floats (4bytes each)
+    4 * 4 + // color는 4개의 32비트 부동소수점 (각각 4바이트)
+    2 * 4 + // offset은 2개의 32비트 부동소수점 (각각 4바이트)
     2 * 4;  // padding
   const changingUnitSize =
-    2 * 4;  // scale is 2 32bit floats (4bytes each)
+    2 * 4;  // scale은 2개의 32비트 부동소수점 (각각 4바이트)
   const staticStorageBufferSize = staticUnitSize * kNumObjects;
   const changingStorageBufferSize = changingUnitSize * kNumObjects;
 
@@ -202,7 +194,7 @@ Here's the setup
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   });
 
-  // offsets to the various uniform values in float32 indices
+  // float32 기준의 각 uniform에 대한 오프셋
   const kColorOffset = 0;
   const kOffsetOffset = 4;
 
@@ -213,7 +205,7 @@ Here's the setup
     for (let i = 0; i < kNumObjects; ++i) {
       const staticOffset = i * (staticUnitSize / 4);
 
-      // These are only set once so set them now
+      // 이 값들은 한 번만 설정하므로 여기서 설정
       staticStorageValues.set([rand(), rand(), rand(), 1], staticOffset + kColorOffset);        // set the color
       staticStorageValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], staticOffset + kOffsetOffset);      // set the offset
 
@@ -224,7 +216,7 @@ Here's the setup
     device.queue.writeBuffer(staticStorageBuffer, 0, staticStorageValues);
   }
 
-  // a typed array we can use to update the changingStorageBuffer
+  // changingStorageBuffer의 값을 갱신하기 위해 사용할 수 있는 typed array
   const storageValues = new Float32Array(changingStorageBufferSize / 4);
 
   const bindGroup = device.createBindGroup({
@@ -237,20 +229,20 @@ Here's the setup
   });
 ```
 
-Above we create 2 storage buffers. One for an array of `OurStruct`
-and the other for an array of `OtherStruct`.
+위에서 우리는 두 개의 스토리지 버퍼를 만들었습니다.
+하나는 `OurStruct`를 위한 배열이고 하나는 `OtherStruct`를 위한 배열입니다.
 
-We then fill out the values for the array of `OurStruct` with offsets
-and colors and then upload that data to the `staticStorageBuffer`.
+그리고 `OurStuct`를 위한 배열에 offset과 color값들을 채우고 
+그 데이터를 `staticStorageBuffer`에 업로드 하였습니다.
 
-We make just one bind group that references both buffers.
+두 버퍼를 참조하는 하나의 바인드그룹만 생성하였습니다.
 
-The new rendering code is
+새로운 렌더링 코드는 아래와 같습니다.
 
 ```js
   function render() {
-    // Get the current texture from the canvas context and
-    // set it as the texture to render to.
+    // 캔버스 컨텍스트로부터 현재 텍스처를 얻어오고
+    // 이를 렌더링을 수행할 텍스처로 설정
     renderPassDescriptor.colorAttachments[0].view =
         context.getCurrentTexture().createView();
 
@@ -258,7 +250,7 @@ The new rendering code is
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
 
-    // Set the uniform values in our JavaScript side Float32Array
+    // 자바스크립트의 Float32Array로 uniform 값을 설정
     const aspect = canvas.width / canvas.height;
 
 -    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
@@ -269,16 +261,16 @@ The new rendering code is
 -      pass.draw(3);  // call our vertex shader 3 times
 -    }
 
-+    // set the scales for each object
++    // 각 물체에 대한 scale을 설정
 +    objectInfos.forEach(({scale}, ndx) => {
 +      const offset = ndx * (changingUnitSize / 4);
 +      storageValues.set([scale / aspect, scale], offset + kScaleOffset); // set the scale
 +    });
-+    // upload all scales at once
++    // 모든 scale값을 한번에 업로드
 +    device.queue.writeBuffer(changingStorageBuffer, 0, storageValues);
 +
 +    pass.setBindGroup(0, bindGroup);
-+    pass.draw(3, kNumObjects);  // call our vertex shader 3 times for each instance
++    pass.draw(3, kNumObjects);  // 각 인스턴스에 대해 정점 셰이더를 세 번 호출
 
 
     pass.end();
@@ -288,24 +280,22 @@ The new rendering code is
   }
 ```
 
-The code above is going to draw `kNumObjects` instances. For each instance
-WebGPU will call the vertex shader 3 times with `vertex_index` set to 0, 1, 2
-and `instance_index` set to 0 ~ kNumObjects - 1
+위 코드는 `kNumObjects`개의 인스턴스를 그립니다.
+각 인스턴스마다 WebGPU는 정점 셰이더를 세 번씩 호출하는데 이 때 `vertex_index`는 0, 1, 2로, `instance_index`는 0 ~ kNumObjects-1로 설정됩니다.
 
 {{{example url="../webgpu-simple-triangle-storage-buffer-split.html"}}}
 
-We managed to draw all 100 triangles, each with a different scale, color, and
-offset, with a single draw call. For situations where you want to draw lots
-of instances of the same object this is one way to do it.
+각각의 scale, color, offset 값을 갖는 100개의 삼각형 모두를 한 번의 드로우 콜로 그릴 수 있게 되었습니다.
+같은 물체에 대한 아주 많은 인스턴스를 그리고 싶은 상황에서는 이러한 방법이 하나의 옵션이 될 수 있습니다.
 
-## Using storage buffers for vertex data
+## 정점 데이터를 위한 스토리지 버퍼의 사용
 
-Until this point we've used a hard coded triangle directly in our shader.
-One use case of storage buffers is to store vertex data. Just like we indexed
-the current storage buffers by `instance_index` in our example above, we could
-index another storage buffer with `vertex_index` to get vertex data.
+여기까지는 셰이더에서 하드 코딩을 통해 직접 삼각형을 명시해 주었습니다.
+스토리지 버퍼의 사용 예시 중 하나는 정점 데이터를 저장하는 것입니다.
+위 예제에서 현재 스토리지 버퍼를 `instance_index`로 인덱싱했던 것처럼, 
+다른 스토리지 버퍼를 `vertex_index`로 인덱싱하여 정점 데이터를 얻어올 수 있습니다.
 
-Let's do it!
+한번 해 보죠!
 
 ```wgsl
 struct OurStruct {
@@ -356,8 +346,8 @@ struct VSOutput {
 }
 ```
 
-Now we need to setup one more storage buffer with some vertex data.
-First lets make a function to generate some vertex data. Lets make a circle.
+이제 정점 데이터를 갖는 스토리지 버퍼를 하나 더 만들어야 합니다.
+먼저 정점 데이터를 생성하는 함수부터 만들어 보죠. 원을 그려봅시다.
 <a id="a-create-circle"></a>
 
 ```js
@@ -368,7 +358,7 @@ function createCircleVertices({
   startAngle = 0,
   endAngle = Math.PI * 2,
 } = {}) {
-  // 2 triangles per subdivision, 3 verts per tri, 2 values (xy) each.
+  // subdivision하나마다 두 개의 삼각형, 삼각형 하나마다 3개의 정점이 각각 두 개의 값 (xy)를 가짐
   const numVertices = numSubdivisions * 3 * 2;
   const vertexData = new Float32Array(numSubdivisions * 2 * 3 * 2);
 
@@ -378,7 +368,7 @@ function createCircleVertices({
     vertexData[offset++] = y;
   };
 
-  // 2 triangles per subdivision
+  // subdivision하나마다 두 개의 삼각형
   //
   // 0--1 4
   // | / /|
@@ -411,11 +401,11 @@ function createCircleVertices({
 }
 ```
 
-The code above makes a circle from triangles like this
+위 코드를 통해 아래와 같이 삼각형들로 이루어진 원이 만들어집니다.
 
 <div class="webgpu_center"><div class="center"><div data-diagram="circle" style="width: 300px;"></div></div></div>
 
-So we can use that to fill a storage buffer with the vertices for a circle
+이제 이 함수를 사용해 원을 그리기 위한 정점들로 스토리지 버퍼를 채울 수 있습니다.
 
 ```js
   // setup a storage buffer with vertex data
@@ -431,7 +421,7 @@ So we can use that to fill a storage buffer with the vertices for a circle
   device.queue.writeBuffer(vertexStorageBuffer, 0, vertexData);
 ```
 
-And then we need to add it to our bind group.
+그리고 바인드그룹 추가해야 합니다.
 
 ```js
   const bindGroup = device.createBindGroup({
@@ -445,7 +435,7 @@ And then we need to add it to our bind group.
   });
 ```
 
-and finally at render time we need to ask to render all the vertices in the circle.
+마지막으로 렌더링 시점에 원을 구성하는 모든 정점을 그리도록 요청해야 합니다.
 
 ```js
 -    pass.draw(3, kNumObjects);  // call our vertex shader 3 times for several instances
@@ -454,7 +444,7 @@ and finally at render time we need to ask to render all the vertices in the circ
 
 {{{example url="../webgpu-storage-buffer-vertices.html"}}}
 
-Above we used 
+위에서 우리는 아래와 같은 코드를 사용하였습니다.
 
 ```wsgl
 struct Vertex {
@@ -464,18 +454,17 @@ struct Vertex {
 @group(0) @binding(2) var<storage, read> pos: array<Vertex>;
 ```
 
-we could have just as easily used no struct and just directly used a `vec2f`.
+구조체를 사용하지 않고 바로 `vec2f`를 사용하여 좀 더 쉽게 구현할 수도 있습니다.
 
 ```wgsl
 @group(0) @binding(2) var<storage, read> pos: vec2f;
 ```
 
-But, by making it a struct it would arguably be easier to add per-vertex
-data later?
+하지만 구조체를 만들면 나중에 정점별(per-vertex)데이터를 추가하는 것이 훨씬 쉬워지겠죠?
 
-Passing in vertices via storage buffers is gaining popularity.
-I'm told though that some older devices it's slower than the *classic* way
-which we'll cover next in an article on [vertex buffers](webgpu-vertex-buffers.html).
+스토리지 버퍼를 사용해 정점을 넘기는 방법이 인기를 얻고 있습니다.
+하지만 제가 듣기로 이러한 방법은 오래된 장치에서는 *고전적인* 방법에 비해 느리다고 들었고, 
+이 고전적인 방법은 다음 글인 [정점 버퍼(vertex buffers)](webgpu-vertex-buffers.html)에서 설명하도록 하겠습니다.
 
 <!-- keep this at the bottom of the article -->
 <script type="module" src="./webgpu-storage-buffers.js"></script>
