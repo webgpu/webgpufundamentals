@@ -1,67 +1,59 @@
-Title: WebGPU Textures
-Description: How to use Textures
-TOC: Textures
+Title: WebGPU 텍스처
+Description: 텍스처 사용하기
+TOC: 텍스처
 
-In this article we'll cover the fundamentals of textures. In previous articles
-we covered the other major ways to pass data into a shader. They were
-[inter-stage variables](webgpu-inter-stage-variables.html),
-[uniforms](webgpu-uniforms.html), [storage-buffers](webgpu-storage-buffers.html),
-and [vertex-buffers](webgpu-vertex-buffers). The last major way to pass data
-into a shader is textures.
+이 글에서는 텍스처(texture)의 기본에 대해 알아보겠습니다.
+이전 글에서 우리는 데이터를 셰이더에 전달하는 주요 방법들을 설명했습니다.
+이는 [스테이지간 변수](webgpu-inter-stage-variables.html),
+[uniforms](webgpu-uniforms.html), [스토리지 버퍼](webgpu-storage-buffers.html),
+[정점 버퍼](webgpu-vertex-buffers)였습니다.
+셰이더에 데이터를 전달하는 마지막 주요 방법은 텍스처입니다.
 
-Textures most often represent a 2d image. A 2d image is just a 2d array of color
-values so you might wonder, why do we need textures for 2d arrays? We could just
-use storage buffers as 2d arrays. What makes textures special is that they can
-be accessed by special hardware called a *sampler*. A sampler can read up to 16
-different values in a texture and blend them together in a way that is useful
-for many common use cases.
+텍스처는 주로 2차원 이미지로 표현됩니다.
+2차원 이미지는 색상값의 2차원 배열일 뿐이라는 것을 생각해보면 왜 2차원 배열 데이터를 전달하기 위해 텍스처를 사용해야 하는지 의문이 생기실 수 있습니다.
+그냥 스토리지 버퍼를 2차원 배열로 만들어도 되죠.
+텍스처가 특별한 이유는 *샘플러(sampler)*라는 특수한 하드웨어로 접근할 수 있기 때문입니다. 
+샘플러는 텍스처로부터 16개의 서로 다른 값을 읽을 수 있고, 이들을 다양한 사용 용도에 맞게 적절히 섞을 수 있는 기능을 가지고 있습니다.
 
-As one example, lets say I want to draw a 2d image larger than its original size.
+하나의 예시로, 2차원 이미지를 원래 크기보다 더 크게 그리고 싶다고 해 봅시다.
 
 <div class="center">
   <div>
     <div><img class="pixel-perfect" src="resources/kiana.png" style="max-width: 100%; width: 128px; height: 128px; image-rendering: pixelated; image-rendering: crisp-edges;"></div>
-    <div style="text-align: center;">original</div>
+    <div style="text-align: center;">원본</div>
   </div>
 </div>
 
-If we just simply take a single pixel from the original image to make each pixel
-in the larger image we'll end up with the first example below. If instead, for a
-given pixel in the larger image we consider multiple pixels from the original
-image we can get results like the 2nd image below which should hopefully show
-up as less pixelated.
+단순히 원본 이미지로부터 하나의 픽셀을 가져와 각 픽셀을 더 큰 이미지로 만들면 아래 첫 번째 예제같이 보이게 됩니다.
+대신에 하나의 픽셀을 가지고 더 큰 이미지를 만들 때 원본 이미지의 여러 픽셀을 고려해서 만들면, 아래 오른쪽처럼 덜 픽셀화(pixelated)된 이미지를 볼 수 있게 됩니다.
 
 <div class="webgpu_center compare">
   <div>
     <div><img class="pixel-perfect" src="resources/kiana.png" style="max-width: 100%; width: 512px; height: 512px; image-rendering: pixelated; image-rendering: crisp-edges;"></div>
-    <div>un-filtered</div>
+    <div>필터링 되지 않았을 때</div>
   </div>
   <div>
     <div><img class="pixel-perfect" src="resources/kiana.png" style="max-width: 100%; width: 512px; height: 512px;"></div>
-    <div>filtered</div>
+    <div>필터링 되었을 때</div>
   </div>
 </div>
 
-While there are WGSL functions that will get an individual pixel from a texture
-and there are use cases for that, those functions are not all that interesting
-because we could do the same with storage buffers. The interesting WGSL
-functions for textures are ones that filter and blend multiple pixels.
+텍스처로부터 개별적인 픽셀을 얻어오는 WGSL 함수가 있고, 이들도 사용을 안하는 것은 아니지만 
+이러한 함수들은 흥미롭지 않은 것이, 동일한 작업을 스토리지 버퍼로도 할 수 있기 때문입니다. 
+WGSL의 텍스처 관련한 흥미로운 함수들은 여러 픽셀들을 필터링하고 섞는 함수들입니다.
 
-These WGSL functions take a texture which represents that data, a sampler which
-represents how we want to pull data out of the texture, and a texture coordinate
-which specifies where we want to get a value from the texture.
+WGSL 함수는 데이터를 표현하는 텍스처와, 텍스처로부터 데이터를 어떻게 얻어올 것인지를 표현하는 샘플러, 
+그리고 값을 얻어오고자 하는 텍스처 좌표를 입력으로 받습니다.
 
-Texture coordinates for sampled textures go from 0.0 to 1.0 across and down a
-texture regardless of the actual size of the texture. [^up-or-down]
+샘플링된 텍스처에 대한 텍스처 좌표는 가로세로 0.0에서 1.0 사이이고 이는 실제 텍스처의 크기와는 관계 없습니다. [^up-or-down]
 
-[^up-or-down]: Whether texture coordinates go up (0 = bottom, 1 = top) or down (0 = top, 1 = bottom) is
-a matter of perspective. What's important is that texture coordinate 0,0 references the first data in
-the texture.
+[^up-or-down]: 텍스처 좌표가 위(0 = bottom, 1 = top)인지 아래(0 = top, 1 = bottom)인지는 관점의 차이입니다.
+중요한 것은 텍스처 좌표 0,0이 텍스처의 첫 데이터를 참조한다는 사실입니다.
 
 <div class="webgpu_center"><img src="resources/texture-coordinates-diagram.svg" style="width: 500px;"></div>
 
-Let's take one of our samples from [the article on inter-stage variables](webgpu-inter-stage-variables.html)
-and modify it to draw a quad (2 triangles) with a texture.
+[스테이지간 변수에 관한 글](webgpu-inter-stage-variables.html)의 예제를 가지고 
+수정해서 사각형(삼각형 두 개)에 텍스처를 그리도록 해 봅시다.
 
 ```wgsl
 struct OurVertexShaderOutput {
@@ -113,33 +105,30 @@ struct OurVertexShaderOutput {
 }
 ```
 
-Above we changed from 3 vertices that draw a centered triangle to 6 vertices
-that draw a quad in the top right corner of the canvas.
+위 예제에서 우리는 캔버스 중심에 삼각형을 그리기 위한 세 개의 정점을 
+캔버스 오른쪽 위에 사각형을 그리기 위한 여섯 개의 정점으로 수정했습니다.
 
-We changed `OutVertexShaderOutput` to pass `texcoord`, a `vec2f` so we can
-pass texture coordinates to the fragment shader. We changed the vertex shader
-to set `vsOutput.texcoord` to the same as the clip space position we pulled
-out of our hard coded array of positions. `vsOutput.texcoord` will be
-interpolated between the 3 vertices of each triangle when passed to the
-fragment shader.
+`OutVertexShaderOutput`를 `vec2f`인 `texcoord`를 전달하도록 수정하였고, 이를 통해 텍스처 좌표를 프래그먼트 셰이더로 넘길 수 있습니다.
+정점 셰이더에서 `vsOutput.texcoord`를 클립 공간 위치와 같은 값으로 설정하였고, 
+이는 하드코딩된 위치값과 같은 값입니다. 
+`vsOutput.texcoord`는 프래그먼트 셰이더로 넘어가면서 삼각형의 세 개 정점 사이에서 보간됩니다.
 
-We then declared a sampler and texture and referenced those in our fragment
-shader. The function `textureSample` *samples* a texture. The first parameter
-is the texture to sample. The 2nd parameter is the sampler to specify how
-to sample the texture. The 3rd is the texture coordinate for where to sample.
+그리고 샘플러와 텍스처를 선언하고 프래그먼트 셰이더에서 이들을 참조합니다.
+`textureSample`함수는 텍스처를 *샘플링*합니다. 
+첫 번째 인자는 샘플링할 텍스처이고, 두 번째 인자는 텍스처를 샘플링한 방법이 명시된 샘플러이며 
+세 번째 인자는 어디서 샘플링할 것인지에 대한 텍스처 좌표입니다.
 
-> Note: It is not common to pass position values as texture coordinates
-> but in this particular case of unit quad (a quad one unit wide and one unit tall) it just so 
-> happens that the texture coordinates we need match the positions.
-> Doing it this way keeps the example smaller and simpler. It would be
-> far more common to provide texture coordinates via
-> [vertex-buffers](webgpu-vertex-buffers.html).
+> Note: 텍스처 좌표로 위치값을 넘기는 것은 흔한 일이 아닙니다.
+> 이 예제와 같은 단위 사각형 (너비와 높이가 1인 사각형)에서는 
+> 우연히 위치값과 텍스처 좌표가 일치한 것 뿐입니다.
+> 이런 방식으로 우리 예제가 간결하고 단순해 집니다.
+> 텍스처 좌표는 [정점 버퍼](webgpu-vertex-buffers.html)를 통해
+> 전달하는 것이 훨씬 일반적입니다.
 
-Now we need to create texture data. We'll make a 5x7 texel `F` [^texel]
+이제 텍스처 데이터를 만들어야 합니다. 5x7 크기의 `F` 텍셀(texel)을 만들겠습니다. [^texel]
 
-[^texel]: A texel is short for "texture element" vs a pixel which is short for "picture element".
-For me texel and pixel are basically synonymous but some people prefer to use
-the word *texel* when discussing textures.
+[^texel]: 텍셀은 "texture element"의 약어로 픽셀이 "picture element"의 약어닌 것과 대응됩니다.
+저는 픽셀이나 텍셀이나 동일하다고 생각하지만 어떤 사람들은 텍스처에 대해 이야기 할 때 *텍셀*이라는 단어를 사용하는 것을 더 선호합니다.
 
 ```js
   const kTextureWidth = 5;
@@ -158,20 +147,19 @@ the word *texel* when discussing textures.
   ].flat());
 ```
 
-Hopefully you can see the `F` in there as well as a blue texel in the top
-left corner (the first value).
+`F`가 보이실 것이고, 왼쪽 위 코너(첫 번째 값)에는 파란색 텍셀이 있습니다.
 
-We're going to create a `rgba8unorm` texture. `rgba8unorm` means the texture will
-have red, green, blue, and alpha values. Each value will be 8 bits unsigned, and
-will be normalized when used in the texture. `unorm` means `unsigned normalized`
-which is fancy way of saying the value will be converted from an unsigned byte
-with values from (0 to 255) to a floating point value with values (0.0 to 1.0).
+우리는 `rgba8unorm` 텍스처를 만들 것입니다. 
+`rgba8unorm`는 텍스처가 빨강, 초록, 파랑색과 알파(alpha)값을 가질 것이라는 의미입니다. 
+각 값은 8비트 부호없는 값이고 텍스처에 사용될 떄 정규화될 것입니다.
+`unorm`은 `unsigned normalzed`라는 뜻인데 이 값이 0에서 255 사이의 
+값을 갖는 부호없는 바이트에서 0.0과 1.0 사이의 부동소수점으로 변환된 것임을 
+이야기하는 멋있는 단어입니다.
 
-In other words if the value we put in the texture is `[64, 128, 192, 255]` the value
-in the shader will end up being `[64 / 255, 128 / 255, 192 / 255, 255 / 255]` or to
-put it another way `[0.25, 0.50, 0.75, 1.00]`
+다시 말해 우리가 텍스처에 넣은 값이 `[64, 128, 192, 255]`라면 셰이더에서는 `[64 / 255, 128 / 255, 192 / 255, 255 / 255]`가 되고, 
+이는 다시말해 `[0.25, 0.50, 0.75, 1.00]` 입니다.
 
-Now that we have the data we need to make a texture
+이제 데이터가 준비되었으니 텍스처를 만듭니다.
 
 ```js
   const texture = device.createTexture({
@@ -181,17 +169,17 @@ Now that we have the data we need to make a texture
   });
 ```
 
-For `device.createTexture`, the `size` parameter should be pretty obvious. The
-format is `rgba8unorm` as mentioned above. For the `usage`, `GPUTextureUsage.TEXTURE_BINDING`
-says we want to be able to bind this texture into a bind group [^texture-binding] and `COPY_DST`
-means we want to be able to copy data to it.
+`device.createTexture`에서 `size` 매개변수는 이름 그대로죠.
+포맷은 위에서 이야기한대로 `rgba8unorm`이고요. 
+`usage`의 `GPUTextureUsage.TEXTURE_BINDING`는 우리가 이 텍스처를 바인드그룹[^texture-binding]에 바인딩할 것임을 의미하고, 
+`COPY_DST`는 데이터를 복사할 수 있도록 하겠다는 의미입니다.
 
-[^texture-binding]: Another common use for a texture is `GPUTextureUsage.RENDER_ATTACHMENT`
-which is used for a texture we want to render into. As an example, the canvas texture we
-get from `context.getCurrentTexture()` has its usage set to `GPUTextureUsage.RENDER_ATTACHMENT`
-by default.
+[^texture-binding]: 텍스처의 다른 사용 용도 중 하나는 `GPUTextureUsage.RENDER_ATTACHMENT` 입니다.
+이는 텍스처를 우리가 렌더링을 하는 대상으로 쓰겠다는 의미입니다. 
+예제에서 `context.getCurrentTexture()`를 통해 우리가 사용하는 캔버스의 텍스처는 
+`GPUTextureUsage.RENDER_ATTACHMENT`가 기본으로 설정되어 있습니다.
 
-Next we need to do just that and copy our data to it.
+다음으로 할 일은 데이터를 복사하는 것입니다.
 
 ```js
   device.queue.writeTexture(
@@ -202,20 +190,19 @@ Next we need to do just that and copy our data to it.
   );
 ```
 
-For `device.queue.writeTexture` the first parameter is the texture we want to update.
-The second is the data we want to copy to it. The 3rd defines how to read that data
-when copying it to the texture. `bytesPerRow` specifies how many bytes to get from
-one row of the source data to the next row. Finally, the last parameter specifies
-the size of the copy.
+`device.queue.writeTexture`의 첫 번째 매개변수는 업데이트하고자 하는 텍스처입니다. 
+두 번째는 복사하고자 하는 데이터, 세 번째는 텍스처에 복사할 때 데이터를 어떻게 읽을지를 명시합니다. 
+`bytesPerRow`가 한 행(row)에서 다음 행으로 넘어갈때까지 얼마나 많은 바이트가 사용되는지를 의미합니다. 
+마지막 매개변수는 복사 대상의 크기입니다.
 
-We also need to make a sampler
+추가적으로 샘플러를 만들어야 합니다.
 
 ```js
   const sampler = device.createSampler();
 ```
 
-We need to add both the texture and the sampler to a bind group with bindings
-that match the `@binding(?)`s we put in the shader.
+텍스처화 샘플러를 모두 바인드그룹에 추가하고 이는 우리가 셰이더에 추가한 
+`@binding(?)`와 매칭되어야 합니다.
 
 ```js
   const bindGroup = device.createBindGroup({
@@ -227,8 +214,8 @@ that match the `@binding(?)`s we put in the shader.
   });
 ```
 
-To update our rendering, we need to specify the bind group and render 6 vertices
-to render our quad consisting of 2 triangles.
+렌더링 부분에서는 바인드그룹을 명시하고 두 개의 삼각형으로 이루어진 사각형을 
+렌더링하기위해 여섯 개의 정점을 그려야 합니다.
 
 ```js
     const pass = encoder.beginRenderPass(renderPassDescriptor);
@@ -239,43 +226,40 @@ to render our quad consisting of 2 triangles.
     pass.end();
 ```
 
-and running it we get this
+실행하면 아래와 같은 결과를 얻게됩니다.
 
 {{{example url="../webgpu-simple-textured-quad.html"}}}
 
-**Why is the F upside down?**
+**왜 F가 뒤집혀있을까?**
 
-If you go back and reference the texture coordinate diagram again you can see
-that texture coordinate 0,0 references the first texel of the texture. The
-position in the center of the canvas of our quad is 0,0 and we use that value as
-a texture coordinate so it's doing what the diagram shows, a 0,0 texture
-coordinate is referencing the first blue texel.
+위로 다시 올라가 텍스처 좌표와 관련한 다이어그램을 살펴보면 
+텍스처 좌표 0,0이 텍스처의 첫 번째 텍셀을 참조하는 것을 볼 수 있습니다. 
+사각형의 캔버스 중심 부분의 위치가 0,0이고 그 값을 텍스처 좌표로 사용하므로, 
+다이어그램에 대응해 보면 0,0은 첫 번째인 파란색 값을 참조하는 것을 알 수 있습니다.
 
-To fix this there are 2 common solutions.
+이를 수정하는 방법은 일반적으로 두 가지입니다.
 
-1. Flip the texture coordinates
+1. 텍스처 좌표를 뒤집는다(flip).
 
-   In this example we could change the texture coordinate in either
-   the vertex shader
-   
+   이 예제의 경우 텍스처 좌표의 수정은 정점 셰이더에서 수정하거나,
+      
    ```wgsl
    -  vsOutput.texcoord = xy;
    +  vsOutput.texcoord = vec2f(xy.x, 1.0 - xy.y);
    ```
    
-   or fragment shader
+   프래그먼트 셰이더에서 수정할 수 있습니다.
 
    ```wgsl
    -  return textureSample(ourTexture, ourSampler, fsInput.texcoord);
    +  let texcoord = vec2f(fsInput.texcoord.x, 1.0 - fsInput.texcoord.y);
    +  return textureSample(ourTexture, ourSampler, texcoord);
    ```
+   
+   당연히 [정점 버퍼](webgpu-vertex-buffers.html), 또는 [스토리지 버퍼](webgpu-storage-buffers.html)를 사용해 텍스처 좌표를 넘겨주는 경우, 
+   이를 원본 데이터에서 뒤집는 것이 좋습니다.
 
-   Of course if we were supplying texture coordinates via [vertex buffers](webgpu-vertex-buffers.html)
-   or [storage buffers](webgpu-storage-buffers.html) then ideally we'd flip them
-   at the source.
-
-2. Flip the texture data
+2. 텍스처 데이터를 뒤집는다.
 
    ```js
     const textureData = new Uint8Array([
@@ -296,61 +280,50 @@ To fix this there are 2 common solutions.
     ].flat());
    ```
 
-   Once we've flipped the data, what used to be at the top is now at the bottom
-   and now the bottom left pixel of the original image is the first data
-   in the texture and becomes what texture coordinate 0,0 refers to. This is why
-   often texture coordinates are considered to go from 0 at the bottom to 1 at
-   the top.
-
+   데이터를 뒤집으면 위에 있는 값이 아래로 와서, 바꾸기 전의 왼쪽 아래 데이터가 
+   첫 번째 데이터, 즉 0,0 텍스처 좌표가 참조하는 데이터가 됩니다. 
+   이것이 텍스처 좌표를 대개 아래쪽이 0, 위쪽이 1로 생각하는 이유입니다.
+   
    <div class="webgpu_center"><img src="resources/texture-coordinates-y-flipped.svg" style="width: 500px;"></div>
 
-   Flipping the data is common enough that there are even options when loading
-   textures from images, videos, and canvases to flip the data for you.
+   데이터를 뒤집는 것은 흔한 일이라 이미지, 비디오, 캔버스로부터 데이터를 읽어 올 때 데이터를 뒤집어주는 옵션이 존재하기도 합니다.
 
 ## <a id="a-mag-filter"></a>magFilter
 
-In the example above we use a sampler with its default settings. Since we are
-drawing the 5x7 texture larger than it's original 5x7 texels the sampler uses
-what's called the `magFilter` or, the filter used when magnifying the texture.
-If we change it from `nearest` to `linear` then it will linearly interpolate
-between 4 pixels.
+위 예제에서 우리는 기본 설정으로 샘플러를 사용했습니다. 
+5x7 크기의 텍스처를 원본 5x7 텍셀 크기보다 크게 그리고 있기 때문에 샘플러는 
+`magFilter`, 즉 텍스처가 확대(magnifying)될 때 사용되는 필터를 사용하고 있습니다. 
+이를 `nearest` 에서 `linear`로 바꾸면 네 개 픽셀 사이에서 선형(linear) 보간합니다.
 
 <a id="a-linear-interpolation"></a>
 <div class="webgpu-center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
 
-Texture coordinates are often called "UVs" (pronounced you-vees) so, in the
-diagram above, `uv` is the texture coordinate. For a given uv, the closest 4
-pixels are chosen. `t1` is the horizontal distance between the top left chosen
-pixel's center and the pixel to its right's center where 0 means we are
-horizontally at the left pixel's center and 1 means we are horizontally at the
-right chosen pixel's center. `t2` is similar but vertically.
+텍스처 좌표는 일반적으로 "UV"(you-vee로 발음)로 불리며, 따라서 위 다이어그램에서 
+`uv`는 텍스처 좌표를 의미합니다. 주어진 uv에 대해 가까운 네 개 픽셀이 선택됩니다. 
+`t1`은 선택된 왼쪽 위 픽셀의 중심에서부터 `u`좌표까지의 수평 거리 비율이며 0은 `u` 
+가 왼쪽 픽셀의 중심선상에 있다는 뜻이고 1은 오른쪽 픽셀의 중심선상에 있다는 뜻입니다. 
+`t2`도 비슷한데 수평 거리가 아닌 수직 거리입니다.
 
-`t1` is the used to *"mix"* between the top 2 pixels to produce an intermediate
-color. *mix* linearly interpolates between 2 values so when `t1` is 0 we get only
-the first color. When `t1` = 1 we get only the second color. Values between 0
-and 1 produce a proportional mix. For example 0.3 would be would be 70% of the
-first color and 30% of second color. Similarly, a second intermediate color is
-computed for the bottom 2 pixels. Finally, `t2` is used to mix the two
-intermediate colors into a final color.
+`t1`값은 위쪽 두 개의 픽셀값을 *mix*하여 중간 색상값을 계산하는데 사용됩니다. 
+*mix*는 두 값 사이를 선형 보간하며, `t1`이 0이면 첫 번째 값이 선택됩니다. 
+`t1`이 1이면 두 번째 값이 선택됩니다. 0과 1 사이의 값에서는 비율에 따라 섞이게 됩니다. 
+예를들어 0.3일 경우 첫 번째 값을 70%, 두 전째 값을 30% 섞습니다. 
+비슷하게 두 번째 중간 색상도 아래 두 픽셀값으로 계산됩니다. 
+마지막으로, `t2`를 사용해 이 두개의 중간 색상값을 다시 섞으면 최종 색상이 됩니다.
 
-Another thing to notice, at the bottom of the diagram are 2 more sampler
-settings, `addressModeU` and `addressModeV`. We can set these to `repeat` or
-`clamp-to-edge` [^mirror-repeat]. When set to 'repeat', when our texture
-coordinate is within half a texel of the edge of the texture we wrap around and
-blend with pixels on the opposite side of the texture. When set to
-'clamp-to-edge', for the purposes of calculating which color to return, the
-texture coordinate is clamped so that it can't go into the last half texel on
-each edge. This has the effect of showing the edge colors for any texture
-coordinate outside that range.
+중요한 또다른 점은 다이어그램 아래쪽에 있는 두 개의 샘플러 설정인 `addressModeU`와 
+`addressModeV`입니다. 이 값들을 `repeat` 또는 
+`clamp-to-edge`로 설정할 수 있습니다. [^mirror-repeat]
+`repeat`로 설정하면 텍스처 좌표가 모서리 픽셀에 대해 바깥쪽으로 절반을 넘어가게 되면 반대쪽의 픽셀로 되돌아와 색상을 섞습니다. 
+`clamp-to-edge`인 경우 텍스처 좌표가 clamp되어 모서리 픽셀 절반 밖으로 넘어가 계산될 수 없습니다. 
+이렇게 되면 텍스처 좌표 범위 밖의 값에 대해서는 모서리 색상만이 보여집니다.
 
-[^mirror-repeat]: There is also one more address mode, "mirror-repeat".
-If our texture is "🟥🟩🟦" then repeat goes "🟥🟩🟦🟥🟩🟦🟥🟩🟦🟥🟩🟦" and mirror-repeat
-goes "🟥🟩🟦🟦🟩🟥🟥🟩🟦🟦🟩🟥"
+[^mirror-repeat]: 추가적으로 `mirror-repeat` 모드도 있습니다. 우리 텍스처가 "🟥🟩🟦"라면, repeat는 "🟥🟩🟦🟥🟩🟦🟥🟩🟦🟥🟩🟦"인데 mirror-repeat는 "🟥🟩🟦🟦🟩🟥🟥🟩🟦🟦🟩🟥"입니다.
 
-Let's update the example so we can draw the quad with all of these options.
+예제를 수정하여 이런 모든 옵션을 사용해 사각형을 그려볼 수 있도록 하겠습니다.
 
-First let's create a sampler for each combination of settings.
-We'll also create a bind group that uses that sampler.
+먼저 각 설정값의 조합으로 샘플러들을 만듭니다. 
+또한 이 샘플러를 사용하는 바인드그룹도 만듭니다.
 
 ```js
 +  const bindGroups = [];
@@ -373,7 +346,7 @@ We'll also create a bind group that uses that sampler.
 +  }
 ```
 
-We'll make some settings
+아래과 같이 설정들을 만듭니다.
 
 ```js
   const settings = {
@@ -383,8 +356,7 @@ We'll make some settings
   };
 ```
 
-and at render time we'll look at the settings to decide which
-bind group to use.
+그리고 렌더링 시에 설정값을 탐색해 어떤 바인드 그룹을 사용할지 결정합니다.
 
 ```js
   function render() {
@@ -395,9 +367,8 @@ bind group to use.
    ...
 ```
 
-Now all we need to do is provide some UI to let us change the settings
-and when the setting change we need to re-render. I'm using a library
-called "muigui" which at the moment has an API similar to [dat.GUI](https://github.com/dataarts/dat.gui)
+이제 남은 것은 이러한 설정을 바꿀 수 있는 UI를 만들고 값이 바뀔때 마다 다시 렌더링하는 것입니다. 
+저는 "muigui"라는, [dat.GUI](https://github.com/dataarts/dat.gui)와 유사한 API를 갖는 라이브러리를 사용합니다.
 
 ```js
 import GUI from '/3rdparty/muigui-0.x.module.js';
@@ -420,31 +391,28 @@ import GUI from '/3rdparty/muigui-0.x.module.js';
   gui.add(settings, 'magFilter', filterOptions).onChange(render);
 ```
 
-The code above declares `settings` and then creates a UI to set them
-and calls `render` when they change.
+위 코드는 `settings`를 선언하고 이들을 설정하는 UI를 만든 후, 
+값이 변경되는 경우에 `render`를 호출합니다.
 
 {{{example url="../webgpu-simple-textured-quad-linear.html"}}}
 
-Since our fragment shader is receiving interpolated texture coordinates, as our
-shader calls `textureSample` with those coordinates, it gets different blended
-colors as it's asked to provide a color for each pixel being rendered. Notice
-how with the address modes set to 'repeat' we can see WebGPU is "sampling" from
-the texels on the opposite side of the texture.
+우리 프래그먼트 셰이더는 보간된 텍스처 좌표를 받고 이를 바탕으로 
+`textureSample`를 호출하기 때문에 각 픽셀에 대한 색상을 요청할 때 다른 섞인 색상이 반환될 수 있습니다. 
+`repeat`모드일 때 WebGPU가 텍스처의 반대쪽에서 텍셀을 "샘플링"해 오는 것에 주목하세요.
 
 ## <a id="a-min-filter"></a>minFilter
 
-There is also a setting, `minFilter`, which does similar math to `magFilter`
-for when the texture is drawn smaller than its size. When set to 'linear'
-it also chooses 4 pixels and blends them following similar math to that above.
+`minFilter` 설정도 있는데 텍스처가 원래 크기보다 작게 그려질 때 `magFilter`와 비슷한 연산을 합니다. 
+`linear`로 설정하면 마찬가지로 네 개의 픽셀을 선택하고 비슷한 수식을 통해 섞습니다.
 
-The problem is, choosing 4 blended pixels from larger texture to render say 1
-pixel, the color will change and we'll get flickering.
+문제는, 큰 텍스처로부터 네 개의 섞을 픽셀을 선택하여 예를들어 하나의 픽셀 
+색상을 결정하려고 하면, 색상이 바뀌어 깜박임(flickering) 현상이 발생하게 됩니다.
 
-Let's do it so we can see the issue
+직접 만들어서 문제를 살펴 봅시다.
 
-First let's make our canvas low-res. To do this we need to update our
-css so the browser doesn't do the same `magFilter: 'linear'` effect on
-our canvas. We can do this by setting the css as follows
+먼저 캔버스를 저해상도로 만듭니다. 이를 위해서는 css를 수정해서 브라우저가 
+우리의 캔버스에 대해 `magFilter: 'linear'`와 같은 처리를 하지 않도록 합니다. 
+아래와 같이 css를 설정하면 됩니다.
 
 ```css
 canvas {
@@ -456,7 +424,7 @@ canvas {
 }
 ```
 
-Next let's lower the resolution of the canvas in our `ResizeObserver` callback
+다음으로 `ResizeObserver` 콜백에서 캔버스의 해상도를 낮춥니다.
 
 ```js
   const observer = new ResizeObserver(entries => {
@@ -475,8 +443,8 @@ Next let's lower the resolution of the canvas in our `ResizeObserver` callback
   observer.observe(canvas);
 ```
 
-We're going to move and scale the quad so we'll add in a uniform buffer just
-like we did in the first example in [the article on uniforms](webgpu-uniforms.html).
+[uniforms에 관한 글](webgpu-uniforms.html)의 첫 번째 예제에서처럼 
+사각형을 옮기고 크기를 조정할 수 있도록 하기 위해 uniform 버퍼를 추가합니다.
 
 ```wgsl
 struct OurVertexShaderOutput {
@@ -522,8 +490,7 @@ struct OurVertexShaderOutput {
 }
 ```
 
-Now that we have uniforms, we need to create a uniform buffer and
-add it to the bind group.
+uniform이 추가되었으니 uniform 버퍼를 만들고 바인드 그룹에 추가합니다.
 
 ```js
 +  // create a buffer for the uniform values
@@ -563,9 +530,9 @@ add it to the bind group.
   }
 ```
 
-And we need code to set the uniform's values and upload them to the GPU.
-We're going to animate this so we'll also change the code use
-`requestAnimationFrame` to continuously render.
+uniform의 값을 설정하고 GPU에 업로드하는 코드도 추가해야 합니다. 
+이 과정을 애니메이션할 예정이므로 `requestAnimationFrame`를 사용하도록 
+코드를 수정하여 연속적인 렌더링이 이루어지도록 합니다.
 
 ```js
   function render(time) {
