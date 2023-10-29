@@ -574,11 +574,10 @@ uniform의 값을 설정하고 GPU에 업로드하는 코드도 추가해야 합
 }
 ```
 
-The code above sets the scale so that we'll draw the quad the size of 2x2 pixels in the canvas.
-It also sets the offset from -0.8 to +0.8 using `Math.sin` so that the quad will
-slowly go back and forth across the canvas.
+위 코드에서는 scale을 설정하여 사각형을 캔버스에 2x2 픽셀 크기로 그리도록 하였습니다. 
+또한 `Math.sin`를 사용하여 offset을 -0.8에서 +0.8로 설정해서 사각형이 캔버스에서 천천히 앞뒤로 이동하도록 하였습니다.
 
-Finally let's add `minFilter` to our settings and combinations
+마지막으로 `minFilter` 설정의 조합들을 추가합니다.
 
 ```js
   const bindGroups = [];
@@ -621,20 +620,17 @@ Finally let's add `minFilter` to our settings and combinations
 +                (settings.minFilter === 'linear' ? 8 : 0);
 ```
 
-We no longer need to call `render` when a setting changes since we're
-rendering constantly using `requestAnimationFrame` (often called "rAF"
-and this style of rendering loop is often called a "rAF loop")
+`requestAnimationFrame`를 통해 렌더링을 지속적으로 수행하니 설정이 변할 때마다 `render`를 호출할 필요는 없어졌습니다. 
+(`requestAnimationFrame`는 "rAF"로 불리며 이러한 스타일의 렌더링 루프(loop)를 "rAF 루프"라고 부릅니다.)
 
 {{{example url="../webgpu-simple-textured-quad-minfilter.html"}}}
 
-You can see the quad is flickering and changing colors. If the `minFilter`
-is set to `nearest` then for each of the 2x2 pixels of the quad it's picking 
-one pixel from our texture. If you set it to `linear` then it does the
-bilinear filtering we mentioned above but it still flickers.
+사각형의 색상이 바뀌며 깜박거리는 것을 볼 수 있습니다. 
+`minFilter`가 `nearest`면 2x2 픽셀의 각 픽셀마다 텍스처로부터 하나의 값을 선택합니다. 
+`linear`로 설정하면 앞서 설명한 것처럼 이중선형(bilinear) 필터링을 수행하지만 여전히 깜박거립니다.
 
-One reason is, the quad is positioned with real numbers but pixels are integers.
-The texture coordinates are interpolated from the real numbers, or rather, they
-are computed from the real numbers.
+원인 중 하나는, 사각형은 실수(real number) 위치로 표현되지만 픽셀은 정수라는 점입니다. 
+텍스처 좌표는 실수를 기반으로 보간되는데, 좀 더 정확히 말하자면 실수 기준으로 계산된다고 할 수 있습니다.
 
 <a id="a-pixel-to-texcoords"></a>
 <div class="webgpu-center center diagram">
@@ -644,39 +640,38 @@ are computed from the real numbers.
   </div>
 </div>
 
-In the diagram above, the <span style="color: red;">red</span> rectangle
-represents the quad we asked the GPU to draw based on the values we return
-from our vertex shader. When the GPU draws, it computes which pixels' centers
-are inside our quad (our 2 triangles). Then, it computes what interpolated
-inter-stage variable value to pass to the fragment shader based on where the
-center of the pixel to be drawn is relative to the where the original points
-are. In our fragment shader we then pass that texture coordinate to the WGSL
-`textureSample` function and get back a sampled color as the previous diagram
-showed. Hopefully you can see why the colors are flickering. You can see them
-blend to different colors depending on which UV coordinates are computed for the
-pixel being drawn.
+위 다이어그램에서 <span style="color: red;">빨간색</span> 사각형은 
+정점 셰이더에서 반환된 위치값을 가지고 GPU가 그리는 사각형입니다. 
+GPU가 그리기를 수행할 때, 어떤 픽셀의 중심이 사각형(두 개의 삼각형) 
+안에 들어오는지를 먼저 계산합니다.
+그리고 스테이지간 변수로 보간되어 프래그먼트 셰이더로 전달될 값을, 
+원래 위치에 상대적인 그려질 픽셀의 중심을 기준으로 계산합니다. 
+그리고 프래그먼트 셰이더에서는 WGSL의 `textureSample` 함수에 
+텍스처 좌표를 전달하고 기존 다이어그램에서 보여준 것과 같은 방식으로 샘플링된 색상을 반환 받습니다. 
+그려질 픽셀에 대해 어떤 UV좌표가 계산되었는지에 따라 다른 색상이 혼합(blend)되는 것을 보실 수 있습니다.
+(*역주: 빨간 사각형을 조금만 움직이면, 그려지는 픽셀(하늘색으로 표시되는) 
+위치는 바뀌지 않지만 그 픽셀에 대해 보간된 UV값은 바뀝니다. 따라서 위에서 
+설명한 이중선형 보간 결과가 바뀌고 색깔이 계속 바뀝니다.)
+ 
+텍스처는 이러한 문제에 대한 해결 방법을 가지고 있습니다. 
+이는 밉맵핑(mip-mapping)이라고 하는 방법입니다. 
+제 생각에 밉맵은 "multi-image-pyramid-map"의 약자인 것 같습니다. (아닐수도 있고요.)
 
-Textures offer a solution to this problem. It's called mip-mapping. I think (but
-could be wrong) that "mipmap" stands for "multi-image-pyramid-map".
-
-We take our texture and create a smaller texture that is half the size in each
-dimension, rounding down. We then fill the smaller texture with blended colors
-from the first original texture. We repeat this until we get to a 1x1 texture.
-In our example we have a 5x7 texel texture. Dividing by 2 in each dimension and
-rounding down gives us a 2x3 texel texture. We take that one and repeat so we
-end up with 1x1 texel texture.
+텍스처를 가지고 가로세로 크기가 절반(내림)인 더 작은 텍스처를 만듭니다. 
+그리고 더 작은 텍스처의 색상들을 원본 텍스처의 색상들을 혼합하여 채웁니다. 
+이러한 과정들을 1x1 크기의 텍스처를 얻을 때까지 반복합니다. 
+우리 예제에서 5x7 텍셀의 텍스처로부터 가로세로 2로 나누고 내림하면 2x3 텍셀의 텍스처가 됩니다. 
+그리고 이 텍스처를 가지고 반복하면 최종적으로 1x1 텍셀 텍스처가 될겁니다.
 
 <div class="webgpu-center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
 
-Given a mipmap, we can then ask the GPU to choose a smaller mip level when we're
-drawing something smaller than the original texture size. This will look better
-because it has been "pre-blended" and better represents what the texture's color
-would be when scaled down.
+이러한 밉맵을 가지고 GPU에게 원본 텍스처 크기보다 작게 그려져야 할 때에는 
+더 작은 밉 레벨을 선택하게 할 수 있습니다. 
+이렇게 하면 "미리 혼합(pre-blended)"되었기 때문에 훨씬 결과가 나아 보이며, 
+텍스처의 크기가 작아졌을 때 보여져야 할 색상이 훨씬 잘 표현됩니다.
 
-The best algorithm for blending the pixels from one mip to the next is a topic
-of research as well as a matter of opinion. As a first idea, here's some code
-that generates each mip from the previous mip by bilinear filtering (as
-demonstrated above).
+하나의 밉에서 다른 밉을 만들 때의 알고리즘은 연구의 영역, 또는 개인적인 취향의 문제입니다. 
+여기서는 우선 새로운 밉을 (위에서 설명한 것과 동일한) 이중선형 필터링으로 만드는 코드를 구현했습니다.
 
 ```js
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -745,11 +740,11 @@ const generateMips = (src, srcWidth) => {
 };
 ```
 
-We'll go over how to do this on the GPU in [another article](webgpu-importing-textures.html).
-For now, we can use the code above to generate a mipmap.
+GPU를 사용해 이러한 작업을 하는 방법은 [다른 글](webgpu-importing-textures.html)에서 살펴볼겁니다. 
+지금은 위 코드를 사용해 밉맵을 만들 것입니다.
 
-We pass our texture data to the function above, and it returns an array of mip level data.
-We can then create a texture with all the mip levels
+위 함수에 텍스처 데이터를 전달하면 밉 레벨 데이터의 배열이 반환됩니다. 
+이를 사용해 모든 밉 레벨이 포함된 텍스처를 만듭니다.
 
 ```js
   const mips = generateMips(textureData, kTextureWidth);
@@ -777,11 +772,11 @@ We can then create a texture with all the mip levels
   });
 ```
 
-Notice we pass in `mipLevelCount` to the number of mip levels. WebGPU will then
-create the correct sized mip level at each level. We then copy the data to each
-level by specifying the `mipLevel`
+`mipLevelCount`에 밉 레벨 숫자를 넘겨주는 점을 주목하세요. 
+WebGPU는 그러면 각 레벨에 대해 올바른 크기의 밉을 만듭니다. 
+그러고 나서 각 레벨에 대해 `mipLevel`로 명시하면서 데이터를 복사합니다.
 
-Let's also add a scale setting so we can see the quad drawn at different sizes.
+추가로 스케일 설정을 더해서 사각형이 다른 크기로 그려질 수 있도록 해 봅시다.
 
 ```js
   const settings = {
@@ -813,33 +808,32 @@ Let's also add a scale setting so we can see the quad drawn at different sizes.
 
 ```
 
-And with that the GPU is choosing the smallest mip to draw and the flickering is
-gone.
+이렇게 하면 GPU가 그려야 할 가장 작은 밉을 선택하게 되고, 깜박임이 사라집니다.
 
 {{{example url="../webgpu-simple-textured-quad-mipmap.html"}}}
 
-Adjust the scale and you can see as we get bigger, which mip level is used
-changes. There's a pretty harsh transition between scale 2.4 and scale 2.5
-where the GPU switches between mip level 0 (the largest mip level) and
-mip level 1 (the middle size). What to do about that?
+scale을 조정해 보면 크기가 커질 때 어떤 밉 레벨을 사용하는지가 바뀌는 것을 볼 수 있습니다. 
+scale이 2.4에서 2.5로 바뀔 때 변화가 큰데 이 구간이 밉 레벨 0 (가장 큰 밉 레벨) 에서 밉 레벨 1 (중간 크기) 로 바뀌는 지점입니다. 
+이 문제는 어떻게 해야 할까요?
 
 ## <a id="a-mipmap-filter"></a>mipmapFilter
 
-Just like we have a `magFilter` and a `minFilter` both of which can be `nearest`
-or `linear`, there is also a `mipmapFilter` setting which can also be `nearest`
-or `linear`.
+`magFilter`와 `minFilter`가 `nearest` 또는 `linear`를 선택할 수 있는 것처럼, 
+`mipmapFilter` 설정도 `nearest` 또는 `linear`를 선택할 수 있습니다.
 
-This chooses if we blend between mip levels. In `mipmapFilter: 'linear'`, colors
-are sampled from 2 mip levels, either with nearest or linear filtering based on
-the previous settings, then, those 2 colors are again `mix`ed in a similar way.
+이는 밉 레벨 사이에 혼합을 할 것인지 여부를 결정합니다. 
+`mipmapFilter: 'linear'`의 경우 두 개의 밉 레벨로부터 색상이 샘플링되는데, 
+이렇게 샘플링되는 값은 이전 설정에 따라 nearest에 의해 계산된 값일수도, linear에 의해 계산된 값일수도 있습니다. 
+그러고나서 이 두 색상이 비슷한 방식으로 다시 `mix`됩니다.
 
-This comes up most when drawing things in 3D. How to draw in 3D is covered in
-[other articles](webgpu-perspective.html) so I'm not going to cover that here
-but we'll change our previous example to show some 3D so we can see better
-how `mipmapFilter` works.
+이는 3차원으로 물체를 그릴 때 자주 사용됩니다. 
+3차원을 그리는 것에 대해서는 [다른 글](webgpu-perspective.html)에서 
+설명할 것이므로 여기서 이야기하지는 않겠습니다.
+하지만 이전 예제를 조금 바꿔서 3차원으로 `mipmapFilter`가 어떻게 
+동작하는지를 좀 더 잘 볼수있도록 해 보겠습니다.
 
-First let's make some textures. We'll make one 16x16 texture which I think will
-better show `mipmapFilter`'s effect.
+먼저 텍스처를 만듭니다. `mipmapFilter`의 효과를 좀 더 잘 보여줄 수 있는 
+16x16 텍스처를 하나 만들 것입니다.
 
 ```js
   const createBlendedMipmap = () => {
@@ -871,12 +865,13 @@ better show `mipmapFilter`'s effect.
   };
 ```
 
-This will generate these mip levels
+생성된 밉 레벨들은 아래와 같습니다.
 
 <div class="webgpu-center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
 
-We're free to put any data in each mip level so another good way to see what's happening
-is to make each mip level different colors. Let's use the canvas 2d api to make mip levels.
+각 밉 레벨에 어떻 데이터를 넣을지는 자유이기 때문에 어떤 일이 벌어지고 
+있는지를 확인하는 좋은 방법으로 각 밉 레벨을 다른 색으로 채우는 방법이 있습니다. 
+캔버스 2D API를 사용해 밉 레벨들을 만들어 봅시다.
 
 ```js
   const createCheckedMipmap = () => {
@@ -903,11 +898,11 @@ is to make each mip level different colors. Let's use the canvas 2d api to make 
   };
 ```
 
-This code will generate these mip levels.
+위 코드를 통해 아래와 같은 밉 레벨들이 만들어집니다.
 
 <div class="webgpu-center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
 
-Now that we've created the data lets create the textures
+데이터를 만들었으니 텍스처를 만들어봅시다.
 
 ```js
 +  const createTextureWithMips = (mips, label) => {
@@ -938,8 +933,8 @@ Now that we've created the data lets create the textures
 +  ];
 ```
 
-We're going to draw a quad extending into the distance in 8 location. 
-We'll use matrix math as covered in [the series of articles on 3D](webgpu-cameras.html).
+점점 멀어지는 사각형을 여덟 군데에 그리도록 확장할 것입니다. 
+행렬 계산을 사용하는데, 자세한 내용은 [3차원에 관한 글들](webgpu-cameras.html)에서 다룰 것입니다.
 
 ```wsgl
 struct OurVertexShaderOutput {
@@ -986,13 +981,12 @@ struct Uniforms {
 }
 ```
 
-Each of the 8 planes will use different combinations of `minFilter`, `magFilter`
-and `mipmapFilter`. That means each one needs a different bind group that
-contains a sampler with that specific combination of filters. Further, we have 2
-textures. Textures are part of the bind group as well so we'll need 2 bind
-groups per object, one for each texture. We can then select which one to use
-when we render. To draw the plane in 8 locations we'll also need one uniform
-buffer per location like we covered in [the article on uniforms](webgpu-uniforms.html). 
+여덟 개의 평면이 각각 다른 조합의 `minFilter`, `magFilter`, `mipmapFilter` 설정을 가질 것입니다. 
+그 말인즉, 각각은 서로 다른 필터 설정을 갖는 샘플러를 포함한 각각의 바인드 그룹을 가져야 한다는 뜻입니다. 
+또한 지금은 두 개의 텍스처가 있습니다. 
+텍스처는 바인드 그룹의 일부이므로 객체마다 두 개의 바인드 그룹이 있어야 합니다. 
+그리고 렌더링 시점에 어떤 텍스처를 사용할지 선택할 것입니다. 
+여덟 군데 위치에 평면을 그리기 위해서는 또한 [uniform에 관한 글](webgpu-uniforms.html)에서처럼 위치마다 uniform 버퍼가 있어야 합니다.
 
 ```js
   // offsets to the various uniform values in float32 indices
@@ -1041,7 +1035,7 @@ buffer per location like we covered in [the article on uniforms](webgpu-uniforms
   }
 ```
 
-At render time we [compute a viewProjection matrix](webgpu-cameras.html).
+렌더링 시점에는 [viewProjection 행렬](webgpu-cameras.html)을 계산합니다.
 
 ```js
   function render() {
@@ -1061,8 +1055,8 @@ At render time we [compute a viewProjection matrix](webgpu-cameras.html).
     ...
 ```
 
-Then for each plane, we select a bind group based on which texture we want to show
-and compute a unique matrix to position that plane.
+각 평면마다 어떤 텍스처를 그릴 것인지를 바탕으로 바인드 그룹을 선택하고 
+평면을 위치시키기 위한 각각의 행렬을 계산합니다.
 
 ```js
   let texNdx = 0;
@@ -1098,8 +1092,8 @@ and compute a unique matrix to position that plane.
     pass.end();
 ```
 
-I removed the existing UI code, switched back from a rAF loop to rendering
-in the `ResizeObserver` callback, and stopped making the resolution low.
+기존 UI 코드는 제거하고 rAF 루프에서 `ResizeObserver` 콜백에서 렌더링 하는 것으로 다시 바꿨습니다. 
+그리고 해상도를 낮추는 부분도 되돌렸습니다.
 
 ```js
 -  function render(time) {
@@ -1127,8 +1121,8 @@ in the `ResizeObserver` callback, and stopped making the resolution low.
   observer.observe(canvas);
 ```
 
-Since we're no longer low-res we can get rid of the CSS that was preventing the browser
-from filtering the canvas itself.
+이제 저해상도가 아니니 브라우저가 캔버스를 필터링 하는 것을 방지하는 
+부분도 다시 제거합니다.
 
 ```css
 canvas {
@@ -1140,8 +1134,7 @@ canvas {
 }
 ```
 
-And we can make it so if you click the canvas it switches which texture to
-draw with and re-renders
+캔버스를 클릭하면 그려질 텍스처를 바꾸고 다시 그리도록 하였습니다.
 
 ```js
   canvas.addEventListener('click', () => {
@@ -1152,81 +1145,83 @@ draw with and re-renders
 
 {{{example url="../webgpu-simple-textured-quad-mipmapfilter.html"}}}
 
-Hopefully you can see the progression from the top left with all filtering
-set to `nearest` to the bottom right where all filtering is set to `linear`.
-In particular, since we added `mipmapFilter` in this example, if you click
-the image to show the checked texture where every mip level is a different
-color, you should be able to see that every plane at the top has
-`mipmapFilter` set to `nearest` so the point when switching from one mip level
-to the next is abrupt. On the bottom, each plane has `mipmapFilter` set to
-`linear` so blending happens between the mip levels.
+왼쪽 위의 경우 모든 필터링을 `nearest`로, 로흔쪽 아래의 경우 모든 필터링을 `linear`로 설정한 것의 차이가 보이시나요? 
+특히이 예제에서는 `mipmapFilter`를 추가했기 때문에 이미지를 클릭하면 
+모든 레벨이 다른 색상으로 그려진 체크 무늬의 텍스처가 보이고 
+위쪽의 경우 모든 `mipmapFilter`가 `nearest`인 경우이니 
+하나의 밉 레벨에서 다른 밉 레벨로 전환될때 급격한 변화가 발생하는 것을 볼 수 있을겁니다. 
+아래쪽의 경우 `mipmapFilter`이 `linear`여서 밉 레벨 사이에서 혼합이 일어나고 있습니다.
 
-You might wonder, why not always set all filtering to `linear`? The obvious
-reason is style. If you're trying to make a pixelated looking image then
-of course you might not want filtering. Another is speed. Reading 1 pixel
-from a texture when all filtering is set to nearest is faster then reading
-8 pixels from a texture when all filtering is set to linear.
+모든 필터링을 `linear`로 설정하면 안되는지 의문이 드실겁니다. 
+우선 스타일 문제가 있습니다. 픽셀화된 이미지를 보여주고 싶은 경우에는 
+필터링을 하면 안됩니다. 또한 속도 문제가 있습니다. 
+모든 필터링이 nearest로 설정되면 텍스처로부터 하나의 픽셀값만 읽어오면 되니 
+linear로 설정한 경우처럼 여덟 개의 픽셀 값을 읽어오는 것보다 빠릅니다.
 
 TBD: Repeat
 
 TBD: Anisotropic filtering
 
-## Texture Types and Texture Views
+## 텍스처 타입과 텍스처 뷰(view)
 
-Until this point we've only used 2d textures. There are 3 types of textures
+지금까지 우리는 2차원 텍스처만 사용했습니다. 텍스처에는 세 종류가 있습니다.
 
-* "1d"
-* "2d"
-* "3d"
+* "1차원(1d)"
+* "2차원(2d)"
+* "3차원(3d)"
 
-In some way you can *kind of* consider a "2d" texture just a "3d" texture with a
-depth of 1. And a "1d" texture is just a "2d" texture with a height of 1. Two
-actual differences, textures are limited in their maximum allowed dimensions. The
-limit is different for each type of texture "1d", "2d", and "3d". We've used the
-"2d" limit when setting the size of the canvas.
+어떤 면에서 "2차원" 텍스처는 "3차원" 텍스처인데 깊이값이 1인 텍스처로 생각할 *수도 있습니다*. 
+그리고 "1차원" 텍스처는 높이가 1인 "2차원" 텍스처로 생각할 수 있습니다. 
+실질적인 차이점이라면 텍스처의 크기에는 사실 제한이 있다는 겁니다. 
+그리고 이러한 제한은 "1차원", "2차원", "3차원" 타입에 따라 다릅니다. 
+우리는 캔버스의 크기를 설정할 때 "2차원"의 제한을 사용한 바 있습니다.
 
 ```js
 canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
 canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 ```
 
-Another is speed, at least for a 3d texture vs a 2d texture, with all the
-sampler filters set to `linear`, sampling a 3d texture would require looking at
-16 texels and blending them all together. Sampling a 2d texture only needs 8
-texels. It's possible a 1d texture only needs 4 but I have no idea if any GPUs
-actually optimize for 1d textures.
+3차원과 2차원 텍스처 사이에는 속도 차이도 있는데 모든 샘플러 필터가 
+`linear`라면 3차원 텍스처를 샘플링 하는 것은 16개의 텍셀 값을 얻어와야 
+하고 이들을 모두 혼합해야 합니다. 2차원의 경우 8개의 텍셀만 얻어오면 됩니다. 
+1차원 텍스처의 경우 4개만 얻어오면 되지만 GPU가 1차원 텍스처에 대해 
+최적화 된 경우가 있는지는 모르겠습니다. (*역주: 일반적으로 2차원 텍스처를 
+많이 사용하기 때문에 이를 기준으로 최적화되어있고, 따라서 1차원 텍스처가 
+접근하는 값이 적다고 하더라도 속도 이득은 별로 없을 수 있음.*)
 
-### Texture Views
+### 텍스처 뷰
 
-There are 6 types of texture views
+텍스처 뷰는 여섯 종류가 있습니다.
 
-* "1d"
-* "2d"
-* "2d-array"
-* "3d"
-* "cube"
-* "cube-array"
+* "1차원"
+* "2차원"
+* "2차원 배열(2d-array)"
+* "3차원"
+* "큐브(cube)"
+* "큐브 배열(cube-array)"
 
-"1d" textures can only have a "1d" view. "3d" textures can only have a "3d" view.
-"2d" texture can have a "2d-array" view. If a "2d" texture has 6 layers it can
-have a "cube" view. If it has a multiple of 6 layers it can have a "cube-array"
-view. You can choose how to view a texture when you call `someTexture.createView`.
-Texture views default to the same as their dimension but you can pass a different
-dimension to `someTexture.createView`.
+1차원 텍스처는 1차원 뷰만 가능합니다. 3차원 텍스처는 3차원 뷰만 가능합니다. 
+2차원 텍스처는 2차원 배열 뷰가 가능합니다. 2차원 텍스처가 여섯 개의 
+레이어를 갖는다면 큐브 뷰가 될 수 있습니다. 
+여섯 개의 레이어가 여러개라면 큐브 배열 뷰가 가능합니다. 
+텍스처의 뷰는 `someTexture.createView`를 호출할 떄 설정 가능합니다. 
+텍스처 뷰는 텍스처의 차원과 일치하는 것이 기본값이지만 `someTexture.createView`를 사용해 다른 차원을 설정할 수 있습니다.
 
-We'll cover "3d" textures [in the article on tone mapping / 3dLUTs](webgpu-3dluts.html)
+[톤 맵핑(tone mapping) / 3dLUTs 에 관한 글에서](webgpu-3dluts.html) 
+3차원 텍스처를 다룰 것입니다.
 
-A "cube" texture is a texture that represents the 6 faces of a cube. Cube textures
-are often used to draw sky boxes and for reflections and environment maps. We'll cover
-that in [the article on cube maps](webgpu-cube-maps.html)
+큐브 텍스처는 정육면체의 여섯 면을 표현하는 텍스처입니다. 
+큐브 텍스처는 스카이 박스(sky box)나 반사(reflection), 
+환경 맵(environment map)을 그리기 위해 사용됩니다. 
+이러한 내용은 [큐브 맵에 관한 글](webgpu-cube-maps.html)에서 설명합니다.
 
-A "2d-array" is an array of 2d textures. You can then choose which texture of
-the array to access in your shader. They are commonly used for terrain rendering
-among other things.
+2차원 배열은 2차원 텍스처의 배열입니다. 
+셰이더에서 배열의 어떤 텍스처에 접근할 것인지 선택할 수 있습니다. 
+이는 지형(terrain) 렌더링 등에서 활용됩니다.
 
-A "cube-array" is an array of cube textures.
+큐브 배열은 큐브 텍스처의 배열입니다.
 
-Each type of texture has its own corresponding type in WGSL.
+각 텍스처 타입에 대해 WGSL에 대응되는 타입이 존재합니다.
 
 <div class="webgpu_center data-table" style="max-width: 500px;">
   <style>
@@ -1257,96 +1252,101 @@ Each type of texture has its own corresponding type in WGSL.
   </table>
 </div>
 
-We'll cover some of this in actual use but, it can be a little confusing that
-when creating a texture (calling `device.createTexture`), there is only "1d",
-"2d", or "3d" as options and the default is "2d" so we have not had to specify
-the dimensions yet.
+몇몇 경우에 대해서는 사용 예를 설명할 예정이지만, 
+텍스처를 생성할 때 (`device.createTexture`를 호출할 때)에는 1차원, 2차원, 
+3차원 선택지만이 존재하고 기본값은 2차원이라는 점이 좀 혼동의 여지가 있습니다. 
+그래서 지금까지는 차원을 설정할 필요가 없었던 겁니다.
 
-## Texture Formats
+## 텍스처 포맷
 
-For now, this is the basics of textures.
-Textures are a huge topic and there's a bunch more to cover.
+지금까지는 텍스처에 대한 기본 내용이었습니다. 
+텍스처는 큰 토픽이고 다룰 내용들이 많습니다.
 
-We've used `rgba8unorm` textures through out this article but there are
-a ton of different texture formats.
+이 글에서는 `rgba8unorm`를 사용했는데 다른 텍스처 포맷도 매우 많습니다.
 
-Here are the "color" formats though of course you don't have to store colors in them.
+아래는 "color" 포맷들인데 물론 색상값만 저장할 필요는 없긴 합니다.
 
 <div class="webgpu_center data-table"><div data-diagram="color-texture-formats"></div></div>
 
-To read a format, like "rg16float". the first letters are the channels supported
-in the texture so "rg16float" supports "rg" or red and green (2 channels). The
-number, 16, means those channels are 16bits each. The word at the end is what
-kind of data is in the channel. "float" is floating point data.
+포맷을 이해나는 법은, 예를들어 "rg16float"의 경우 첫 부분은 텍스처에서 
+지원하는 채널을 의미합니다. 따라서 "rg16float"는 "rg", 즉 빨간색과 
+초록색 채널(2개 채널)을 지원합니다. 숫자인 16은 각 채널이 16비트라는 의미입니다. 
+마지막 단어는 채널의 데이터 타입으로 "float"이므로 부동소수점입니다.
 
-"unorm" is unsigned normalized data (0 to 1) meaning the data in the texture
-goes from 0 to N where N is the maximum integer value for that number of bits.
-That range of integers is then interpreted as a floating point range of (0 to
-1). In other words, for an 8unorm texture, that's 8 bits (so values from 0 to
-255) that get interpreted as values from (0 to 1).
+"unorm"은 부호없는 (0에서 1까지로)정규화되는 데이터이고 텍스처 내의 
+데이터는 0에서 N까지인데 N은 해당 비트로 표현 가능한 최대 정수입니다. 
+그 정수 범위가 0에서 1 사이의 부동소수점으로 변환됩니다. 
+다시 말해 8unorm의 경우 8비트(따라서 값은 0에서 255 사이)가 0에서 1 사이로 
+변환된다는 뜻입니다.
 
-"snorm" is signed normalized data (-1 to +1) so the range of data goes from the
-most negative integer represented by the number of bits to the most positive.For
-example 8snorm is 8bits. As a signed integer the lowest number would be -128 and
-the highest is +127. That range gets converted to (-1 to +1).
+"snorm"은 부호있는(signed) (-1에서 1까지) 정규화되는 데이터로 범위는 
+비트로 표현되는 최소 음수부터 최대 양수까지립니다. 
+예를 들어 8snorm은 8비트이고 가장 작은 숫자는 -128, 가장 큰 숫자는 
++127입니다. 이 범위가 -1에서 +1로 변환됩니다.
 
-"sint" is signed integers. "uint" is unsigned integer. If there are multiple
-letter number combinations it's specifying the number of bits for each channel.
-For example "rg11b10ufloat" is "rg11" so 11bits each of red and green. "b10" so
-10bits of blue and they are all unsigned floating point numbers.
+"sint"는 부호있는 정수입니다. "uint"는 부호없는 정수이고요. 
+숫자가 여러 개 있다면 이는 각 채널의 비트를 의미합니다. 
+예를들어 "rg11b10ufloat"라면, "rg11"은 빨간색과 초록색 채널에 대해 
+11비트이고 "b10"이 파란색 채널에 대해 10비트를 의미합니다. 
+그리고 모든 값은 부호없는 부동소수점입니다.
 
 * **renderable**
 
-  True means you can render to it (set its usage to `GPUTextureUsage.RENDER_ATTACHMENT`)
+  참(True)이라면 이 텍스처에 렌더링이 가능함. (`GPUTextureUsage.RENDER_ATTACHMENT`로 설정)
 
 * **multisample**
 
-  Can be [multisampled](webgpu-multisampling.html)
+  [멀티샘플링(multisampled)](webgpu-multisampling.html)이 가능함
 
 * **storage**
 
-  Can be written to as a [storage texture](webgpu-storage-textures.html)
+  [스토리지 텍스처(storage texture)](webgpu-storage-textures.html)로 
+  값을 쓸 수 있음
 
 * **sampler type**
 
-  This has implications for what type of texture you need to declare it in WGSL
-  and how you bind a sampler to a bind group. Above we used `texture_2d<f32>`
-  but for example, `sint` would need `texture_2d<i32>` and `uint` would need
-  `texture_2d<u32>` in WGSL.
+  이는 WGSL에서 어떤 텍스처로 명시해야 하는지와 샘플러를 어떻게 바인드 
+  그룹에 바인딩할것인지를 의미합니다. 
+  위에서는 `texture_2d<f32>`를 사용하였는데 만일 `sint`라면 
+  `texture_2d<i32>`로, `uint`라면 `texture_2d<u32>`로 
+  WGSL에서 사용해야 합니다.
+  
+  샘플러 타입 열(column)에서 `unfilterable-float`은 샘플러가 해당 
+  포맷에 대해 `nearest`만 사용 가능하고 바인드 그룹 레이아웃을 
+  예제에서처럼 `'auto'` 레이아웃을 사용하는 대신 매뉴얼하게 설정해야 
+  할 수 있다는 뜻입니다. 
+  이러한 것이 존재하는 이유는 데스크탑 GPU는 일반적으로 32비트 부동소수점 
+  텍스처를 필터링이 가능하지만 2023년 현재를 기준으로 대부분의 모바일 
+  장치에서는 불가능하기 때문입니다. 
+  여러분의 어댑터(adaptor)가 `float32-filterable`
+  [기능(feature)](webgpu-limits-and-features.html)을 지원하고 
+  장치를 요청할 때 이를 활성화하였다면 `r32float`, `rg32float`, 
+  `rgba32float` 포맷이 `float`으로 변화하고 
+  이러한 텍스처 포맷이 별도의 수정 없이 잘 동작합니다.
 
-  In the sampler type column, `unfilterable-float` means your sampler can only
-  use `nearest` for that format and it means you may have to manually
-  create a bind group layout, something we haven't done before as we've been
-  using `'auto'` layout. This mostly exists because desktop GPU can generally
-  filter 32bit floating point textures but, at least as of 2023, most mobile
-  devices can not. If your adaptor supports the `float32-filterable`
-  [feature](webgpu-limits-and-features.html) and you enable it when requesting a
-  device then the formats `r32float`, `rg32float`, and `rgba32float` switch from
-  `unfilterable-float` to `float` and these textures formats will work with no
-  other changes.
-
-<a id="a-depth-stencil-formats"></a>And here are the depth and stencil formats
+<a id="a-depth-stencil-formats"></a>아래는 깊이(depth)와 스텐실(stemcil) 포맷입니다.
 
 <div class="webgpu_center data-table"><div data-diagram="depth-stencil-texture-formats"></div></div>
 
 * **feature**
 
-  means this [*optional* feature](webgpu-limits-and-features.html) is required to use this format.
+  이 포맷을 사용하기 위해서는 [*선택적* 기능](webgpu-limits-and-features.html)이 필요하다는 뜻입니다.
 
 * **copy src**
 
-  Whether you're allowed to specify `GPUTextureUsage.COPY_SRC`
+  `GPUTextureUsage.COPY_SRC`로 설정할 수 있는지 여부입니다.
 
 * **copy dst**
 
-  Whether you're allowed to specify `GPUTextureUsage.COPY_DST`
+  `GPUTextureUsage.COPY_DST`로 설정할 수 있는지 여부입니다.
 
-We'll use a depth texture in [an article in the series on 3d](webgpu-orthographic-projection.html) as well
-as [the article about shadow maps](webgpu-shadow-maps.html).
+[3차원에 관한 글](webgpu-orthographic-projection.html)과 [그림자 맵(shadow map)](webgpu-shadow-maps.html)에 관한 글에서 
+깊이 텍스처를 사용할 것입니다
 
-There's also a bunch compressed texture formats which we'll save for another article.
+압축(compressed) 텍스처 포맷도 한참 더 있지만 다른 글로 미뤄 두도록 
+하겠습니다.
 
-Let's cover [importing external textures](webgpu-importing-textures.html) next.
+다음 글에서는 [외부 텍스처 임포트(import)](webgpu-importing-textures.html)를 설명하도록 하겠습니다.
 
 <!-- keep this at the bottom of the article -->
 <script type="module" src="/3rdparty/pixel-perfect.js"></script>

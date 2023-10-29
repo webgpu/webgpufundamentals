@@ -1319,7 +1319,7 @@ That range of integers is then interpreted as a floating point range of (0 to
 255) that get interpreted as values from (0 to 1).
 
 "snorm" is signed normalized data (-1 to +1) so the range of data goes from the
-most negative integer represented by the number of bits to the most positive.For
+most negative integer represented by the number of bits to the most positive. For
 example 8snorm is 8bits. As a signed integer the lowest number would be -128 and
 the highest is +127. That range gets converted to (-1 to +1).
 
