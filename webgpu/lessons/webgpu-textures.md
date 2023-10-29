@@ -312,7 +312,7 @@ To fix this there are 2 common solutions.
 In the example above we use a sampler with its default settings. Since we are
 drawing the 5x7 texture larger than it's original 5x7 texels the sampler uses
 what's called the `magFilter` or, the filter used when magnifying the texture.
-If we change it from `nearest` to to `linear` then it will linearly interpolate
+If we change it from `nearest` to `linear` then it will linearly interpolate
 between 4 pixels.
 
 <a id="a-linear-interpolation"></a>
@@ -421,7 +421,7 @@ import GUI from '/3rdparty/muigui-0.x.module.js';
   gui.add(settings, 'magFilter', filterOptions);
 ```
 
-The code above declares `settings` and then creates a ui to set them
+The code above declares `settings` and then creates a UI to set them
 and calls `render` when they change.
 
 {{{example url="../webgpu-simple-textured-quad-linear.html"}}}
@@ -1318,7 +1318,7 @@ That range of integers is then interpreted as a floating point range of (0 to
 255) that get interpreted as values from (0 to 1).
 
 "snorm" is signed normalized data (-1 to +1) so the range of data goes from the
-most negative integer represented by the number of bits to the most positive.For
+most negative integer represented by the number of bits to the most positive. For
 example 8snorm is 8bits. As a signed integer the lowest number would be -128 and
 the highest is +127. That range gets converted to (-1 to +1).
 

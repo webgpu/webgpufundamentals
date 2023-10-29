@@ -1,24 +1,21 @@
-Title: WebGPU Vertex Buffers
-Description: Passing Vertex Data to Shaders
-TOC: Vertex Buffers
+Title: WebGPU 정점 버퍼
+Description: 정점 데이터를 셰이더로 전달하기
+TOC: 정점 버퍼
 
-In [the previous article](webgpu-storage-buffers.html) we put vertex
-data in a storage buffer and indexed it using the builtin `vertex_index`.
-While that technique is growing in popularity, the traditional way to
-provide vertex data to a vertex shader is via vertex buffers and
-attributes.
+[이전 글](webgpu-storage-buffers.html)에서 우리는 정점 데이터를 
+스토리지 버퍼에 넣고 내장변수(builtin) `vertex_index`를 사용해 인덱싱했습니다.
+이러한 방법이 유명해지고 있긴 하지만, 전통적으로 정점 데이터를 정점 셰이더로 
+넘기는 방법은 정점 버퍼와 어트리뷰트(attribute)를 사용하는 방법입니다.
 
-Vertex buffers are just like any other WebGPU buffer; they hold data.
-The difference is we don't access them directly from the vertex shader.
-Instead, we tell WebGPU what kind of data is in the buffer and how it's
-organized. It then pulls the data out of the buffer and provides it for us.
+정점 버퍼는 다른 WebGPU 버퍼들과 다를 바 없습니다. 데이터를 저장하죠.
+차이점이라면 정점 셰이더로부터 직접 접근하지 않는다는 점입니다.
+대신에, WebGPU에게 어떤 데이터가 버퍼에 있고, 어떤 구조로 저장되어 있는지 알려줍니다.
+그러면 데이터를 버퍼로부터 가져와 전달해줍니다.
 
-Let's take the last example from
-[the previous article](webgpu-storage-buffers.html)
-and change it from using a storage buffer to using a vertex buffer.
+[지난 글](webgpu-storage-buffers.html)의 마지막 예제를 가져와서, 
+스토리지 버퍼 대신에 정점 버퍼를 사용하도록 수정해 보겠습니다.
 
-The first thing to do is change the shader to get its vertex data
-from a vertex buffer. 
+먼저 셰이더부터 정점 버퍼로부터 정점 데이터를 가져오도록 수정합니다.
 
 ```wgsl
 struct OurStruct {
@@ -62,11 +59,11 @@ struct VSOutput {
 ...
 ```
 
-As you can see, it's a small change. We declared a struct `Vertex` to define the data
-for a vertex. The important part is declaring the position field with `@location(0)`
+보신 것처럼 수정된 것이 별로 없습니다.
+정점 데이터를 정의하는 `Vertex` 구조체를 선언하였습니다.
+중요한 부분은 position 필드를 `@location(0)`로 선언한 부분입니다.
 
-Then, when we create the render pipeline, we have to tell WebGPU how to get data
-for `@location(0)`
+그리고 렌더 파이프라인을 만들 때, WebGPU에게 어떻게 `@location(0)`에게 데이터를 전달해야 하는지 알려주어야 합니다.
 
 ```js
   const pipeline = device.createRenderPipeline({
@@ -77,7 +74,7 @@ for `@location(0)`
       entryPoint: 'vs',
 +      buffers: [
 +        {
-+          arrayStride: 2 * 4, // 2 floats, 4 bytes each
++          arrayStride: 2 * 4, // 2개 부동소수점 각각 4바이트
 +          attributes: [
 +            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
 +          ],
@@ -91,25 +88,21 @@ for `@location(0)`
     },
   });
 ```
-
-To the [`vertex`](GPUVertexState) entry of the [`pipeline` descriptor](GPURenderPipelineDescriptor) 
-we added a `buffers` array which is used to describe how to pull data out of 1 or more vertex buffers.
-For our first and only buffer, we set an `arrayStride` in number of bytes. a *stride* in this case is
-how many bytes to get from the data for one vertex in the buffer, to the next vertex in the buffer.
+[`pipeline` 기술자(descriptor)](GPURenderPipelineDescriptor)의 [`vertex`](GPUVertexState)에 `buffers` 배열을 추가하였습니다. 
+이는 하나 이상의 정점 버퍼로부터 데이터를 어떻게 가져올지를 명시합니다.
+우리의 유일한 버퍼에 대해 `arrayStride`를 바이트 단위로 명시하였습니다.
+이 경우 *stride*는 버퍼에서 하나의 정점 데이터를 얻기 위해 얼마만큼의 바이트를 읽어야 하는지를 의미합니다.
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-one.svg" style="width: 1024px;"></div>
 
-Since our data is `vec2f`, which is two float32 numbers, we set the
-`arrayStride` to 8.
+우리 데이터는 `vec2f`이므로 두 개의 float32 숫자이고, `arrayStride`를 8로 설정합니다.
 
-Next we define an array of attributes. We only have one. `shaderLocation: 0`
-corresponds to `location(0)` in our `Vertex` struct. `offset: 0` says the data
-for this attribute starts at byte 0 in the vertex buffer. Finally `format:
-'float32x2'` says we want WebGPU to pull the data out of the buffer as two 32bit
-floating point numbers.
+다음으로 어트리뷰트의 배열을 정의합니다. 지금은 요소가 하나입니다.
+`shaderLocation: 0`이 `Vertex` 구조체의 `location(0)`에 해당합니다.
+`offset: 0`은 이 어트리뷰트의 데이터가 정점 버퍼의 0바이트부터 시작한다는 의미입니다.
+마지막으로 `format: 'float32x2'`는 WebGPU가 버퍼로부터 두 개의 32비트 부동소수점으로 숫자를 읽어오라는 의미입니다.
 
-We need to change the usages of the buffer holding vertex data from `STORAGE`
-to `VERTEX` and remove it from the bind group.
+버퍼의 usages를 `STORAGE`에서 `VERTEX`로 수정하고 바인드 그룹에서 제거합니다.
 
 ```js
 -  const vertexStorageBuffer = device.createBuffer({
@@ -135,27 +128,24 @@ to `VERTEX` and remove it from the bind group.
   });
 ```
 
-And then at draw time we need to tell WebGPU which vertex buffer to
-use
+그리고 그리기 시점에는 WebGPU에게 어떤 정점 버퍼를 사용할지 명시해주어야 합니다.
 
 ```js
     pass.setPipeline(pipeline);
 +    pass.setVertexBuffer(0, vertexBuffer);
 ```
 
-The `0` here corresponds to first element of the the render pipeline `buffers`
-array we specified above.
+여기서 `0`은 위 렌더 파이프라인의 `buffers` 배열의 요소를 가리키는 인덱스입니다.
 
-And with that we've switched from using a storage buffer for vertices to a
-vertex buffer.
+이렇게 하면 정점에 대해 스토리지 버퍼에서 정점 버퍼로 바꾸는 과정이 완료됩니다.
 
 {{{example url="../webgpu-vertex-buffers.html"}}}
 
-The state when the draw command is executed would look something like this
+드로우 커맨드가 실행되는 시점의 상태는 아래 그림과 같을겁니다.
 
 <div class="webgpu_center"><img src="resources/webgpu-draw-diagram-vertex-buffer.svg" style="width: 960px;"></div>
 
-The attribute `format` field can be one of these types
+어트리뷰트의 `format` 필드는 아래 타입 중 하나입니다.
 
 <div class="webgpu_center data-table">
   <style>
@@ -210,14 +200,13 @@ The attribute `format` field can be one of these types
   </div>
 </div>
 
-## <a id="a-instancing"></a>Instancing with Vertex Buffers
+## <a id="a-instancing"></a>정점 버퍼를 사용한 인스턴싱
 
-Attributes can advance per vertex or per instance. Advancing them per instance is effectively
-the same thing we're doing when we index `otherStructs[instanceIndex]` and `ourStructs[instanceIndex]`
-where `instanceIndex` got its value from `@builtin(instance_index)`.
+어트리뷰트는 정점별(per vertex)이나 인스턴스별(per instance)로 확장될 수 있습니다. 
+인스턴스별로 확장하는 것은 이전에 `otherStructs[instanceIndex]`와 `ourStructs[instanceIndex]`에서처럼 `@builtin(instance_index)`로부터 `instanceIndex`의 값을 가져오는 것과 동일합니다.
 
-Let's get rid of the storage buffers and use vertex buffers to accomplish the same thing.
-First lets change the shader to use vertex attributes instead of storage buffers.
+이전과 동일한 작업을 하기 위해 스토리지 버퍼 대신 정점 버퍼를 사용해 봅시다.
+먼저 셰이더 쪽에서 스토리지 버퍼 대신 정점 어트리뷰를 사용하도록 수정합니다.
 
 ```wgsl
 -struct OurStruct {
@@ -266,11 +255,9 @@ struct VSOutput {
 }
 ```
 
-Now we need to update our render pipeline to tell it how we want
-to supply data to those attributes. To keep the changes to a minimum
-we'll use the data we created for the storage buffers almost as is.
-We'll use two buffers, one buffer will hold the `color` and `offset`
-per instance, the other will hold the `scale`.
+이제 렌더 파이프라인을, 해당 어트리뷰트들에 데이터를 어떻게 전달할건지를 알려주기 위해 수정해야 합니다.
+최소한의 수정만 하기 위해 그토리지 버퍼에서 만든 데이터를 거의 그대로 사용할 것입니다. 
+하나의 버퍼에는 각 인스턴스의 `color`와 `offset` 값을, 하나의 버퍼에는 `scale` 값을 갖도록 하려 총 두 개의 버퍼를 사용할 것입니다.
 
 ```js
   const pipeline = device.createRenderPipeline({
@@ -311,24 +298,24 @@ per instance, the other will hold the `scale`.
   });
 ```
 
-Above we added 2 entries to the `buffers` array on our pipleine description so now there are 3 buffer entries, meaning
-we're telling WebGPU we'll supply the data in 3 buffers.
+`buffers` 배열에 두 개 요소를 추가하여 총 세 개의 버퍼를 갖게 되었습니다. 
+즉 WebGPU에 데이터를 세 개 버퍼로 전달할 것임을 알려준 것입니다.
 
-For our 2 new entires we set the `stepMode` to `instance`. This means this attribute
-will only advance to next value once per instance. The default is `stepMode: 'vertex'`
-which advances once per vertex (and starts over for each instance).
+두 개의 새로운 요소의 `stepMode`를 `instance`로 설정하였습니다.
+이는 이 어트리뷰트는 인스턴스별로 새로운 값을 얻어온다는 의미입니다. 
+기본값은 `stepMode: 'vertex'`인데 이는 정점별로 새로운 값을 얻어오는 것입니다 (그리고 각 인스턴스에서는 처음부터 읽기 시작).
 
-We have 2 buffers. The one that hold just `scale` is simple. Just like our
-first buffer that holds `position` it's 2 32 floats per vertex.
+두 개의 버퍼가 있습니다. `scale`만 가지고 있는 버퍼는 간단합니다. 
+`position` 값을 갖는 버퍼와 마찬가지로 정점마다 두 개의 32비트 부동소수점 값을 갖습니다.
 
-Our other buffer holds `color` and `offset` and they're going to be interleaved in the data like this
+`color`와 `offset`을 갖는 다른 버퍼는 아래와 같이 데이터가 엮어지게 될겁니다.
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-f32x4-f32x2.svg" style="width: 1024px;"></div>
 
-So above we say the `arrayStride` to get from one set of data to the next is `6 * 4`, 6 32bit floats
-each 4 bytes (24 bytes total). The `color` starts at offset 0 but the `offset` starts 16 bytes in.
+따라서 위해서 다음 데이터를 얻기 위해 건너야 하는 바이트인 `arrayStride`를 `6 * 4`, 즉 여섯 개의 32비트 부동소수점(4바이트)로 설정하였습니다. 
+`color`는 0바이트부터 읽기 시작하지만 `offset`은 16바이트부터 읽기 시작해야 합니다.
 
-Next we can change the code that sets up the buffers.
+다음으로 버퍼를 설정하는 코드를 수정합니다.
 
 ```js
   // create 2 storage buffers
@@ -359,13 +346,10 @@ Next we can change the code that sets up the buffers.
 
 ```
 
-Vertex attributes do not have the same padding restrictions as structures
-in storage buffers so we no longer need the padding. Otherwise all we
-did was change the usage from `STORAGE` to `VERTEX` (and we renamed all the
-variables from "storage" to "vertex").
+정점 어트리뷰트는 스토리지 버퍼의 구조체와 동일한 패딩(padding) 제약을 갖지는 않으니 여기서는 패딩은 필요 없습니다.
+이 외에는 `STORAGE`를 `VERTEX`로 수정한 것 밖에는 없습니다 (변수 이름도 
 
-Since we're no longer using the storage buffers we no longer need
-the bindGroup
+이제 스토리지 버퍼는 사용하지 않으니 바인드그룹도 사용할 필요가 없습니다.
 
 ```js
 -  const bindGroup = device.createBindGroup({
@@ -378,8 +362,7 @@ the bindGroup
 -  });
 ```
 
-And finally we don't need to set the bindGroup but we do need
-to set the vertex buffers
+마지막으로, 바인드그룹을 설정할 필요는 없지만 정점 버퍼 설정은 해 주어야 합니다.
 
 ```js
     const encoder = device.createCommandEncoder();
@@ -396,15 +379,13 @@ to set the vertex buffers
     pass.end();
 ```
 
-Here, the first parameter to `setVertexBuffer` corresponds to the elements of
-the `buffers` array in the pipeline we created above.
+여기서 `setVertexBuffer`의 첫 번째 매개변수가 파이프라인에서의 `buffers` 배열의 요소와 대응됩니다.
 
-And with that we have the same thing we had before but we're using all vertex buffers
-and no storage buffers.
+이로써 이전과 동일한 결과를, 스토리지 버퍼 없이 정점 버퍼만을 사용해서 얻을 수 있습니다.
 
 {{{example url="../webgpu-vertex-buffers-instanced-colors"}}}
 
-Just for fun, let's add a another attribute for a per vertex color. First let's change the shader
+정점별 색상을 위한 또다른 어트리뷰트를 재미로 추가해 봅시다. 먼저 셰이더를 수정합니다.
 
 ```wgsl
 struct Vertex {
@@ -436,14 +417,13 @@ struct VSOutput {
 }
 ```
 
-Then we need to update the pipeline to describe how we'll supply the data.
-We're going to interleave the perVertexColor data with the position like this
+그리고 파이프라인을 업데이트하여 어떻게 데이터를 전달할 것인지 명시합니다.
+perVertexColor 데이터를 아래와 같이 엮을 것입니다.
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-mixed.svg" style="width: 1024px;"></div>
 
-So, the `arrayStride` needs to be changed to cover our new data and we need
-to add the new attribute. It starts after two 32bit floating point numbers
-so its `offset` into the buffer is 8 bytes.
+따라서 `arrayStride`가 우리의 새로운 데이터를 포함하도록 수정되어야 하고, 새로운 어트리뷰트를 추가해야 합니다.
+두 개의 32비트 부동소수점을 건너뛴 뒤에 데이터가 시작하므로 `offset`은 8바이트입니다.
 
 ```js
   const pipeline = device.createRenderPipeline({
@@ -486,9 +466,7 @@ so its `offset` into the buffer is 8 bytes.
   });
 ```
 
-We'll update the circle vertex generation code to provide a dark color
-for vertices on the outer edge of the circle and a light color for
-the inner vertices.
+원을 그리는 정점을 생성하는 코드를 수정하여 바깥쪽 정점은 어두운 색, 안쪽 정점은 밝은 색이 되도록 수정합니다.
 
 ```js
 function createCircleVertices({
@@ -498,7 +476,7 @@ function createCircleVertices({
   startAngle = 0,
   endAngle = Math.PI * 2,
 } = {}) {
-  // 2 triangles per subdivision, 3 verts per tri, 5 values (xyrgb) each.
+  // subdivision마다 두 개의 삼각형, 삼각형마다 세 개의 정점, 각 정점은 (xyrgb) 세 개의 값
   const numVertices = numSubdivisions * 3 * 2;
 -  const vertexData = new Float32Array(numVertices * 2);
 +  const vertexData = new Float32Array(numVertices * (2 + 3));
@@ -555,13 +533,13 @@ function createCircleVertices({
 }
 ```
 
-And with that we get shaded circles
+이렇게 하면 아래와 같은 원을 그릴 수 있습니다.
 
 {{{example url="../webgpu-vertex-buffers-per-vertex-colors.html"}}}
 
-## <a id="a-default-values"></a>Attributes in WGSL do not have to match attributes in JavaScript
+## <a id="a-default-values"></a>WESL의 어트리뷰트와 자바스크립트 어트리뷰트가 매칭될 필요는 없습니다
 
-Above in WGSL we declared the `perVertexColor` attribute as a `vec3f` like this
+위에서 `perVertexColor` 어트리뷰트를 `vec3f` 타입으로 아래와 같이 선언했습니다.
 
 ```wgsl
 struct Vertex {
@@ -573,7 +551,7 @@ struct Vertex {
 };
 ```
 
-And used it like this
+그리고 아래와 같이 사용했죠.
 
 ```wgsl
 @vertex fn vs(
@@ -587,7 +565,7 @@ And used it like this
 }
 ```
 
-We could also declare it as a `vec4f` and use it like this
+`vec4f`로 선언하고 아래와 같이 사용할 수도 있습니다.
 
 ```wgsl
 struct Vertex {
@@ -613,8 +591,7 @@ struct Vertex {
 }
 ```
 
-And change nothing else. In JavaScript we're still only supplying the data as
-3 floats per vertex.
+그리고 나머지는 수정하지 않습니다. 자바스크립트 쪽을 보면 우리는 여전히 정점별로 세 개의 부동소수점으로 데이터를 전달하는 것을 볼 수 있습니다.
 
 ```js
     {
@@ -626,23 +603,22 @@ And change nothing else. In JavaScript we're still only supplying the data as
     },
 ```
 
-This works because attributes always have 4 values available in the shader. They default
-to `0, 0, 0, 1` so any values we don't supply get these defaults.
+셰이더에서 어트리뷰트는 항상 네 개의 값을 가지기 때문에 이와 같이 해도 문제 없습니다. 
+기본값은 `0, 0, 0, 1`이고, 우리가 전달하지 않은 요소에 대해서는 이러한 기본값을 사용합니다.
 
 {{{example url="../webgpu-vertex-buffers-per-vertex-colors-3-in-4-out.html"}}}
 
-## <a id="a-normalized-attributes"></a>Using normalized values to save space
+## <a id="a-normalized-attributes"></a>공간 절약을 위한 정규화된(normalized) 값의 사용
 
-We're using 32bit floating point values for colors. Each `perVertexColor` has 3 values for a total of 12 bytes per color per vertex. Each `color` has 4 values
-for a total of 16 bytes per color per instance.
+색상값으로 32비트 부동소수점 값을 사용했습니다. 
+각 `perVertexColor`는 세 개의 값이니, 정점별로 총 12바이트를 사용하고 있습니다. 
+`color`는 네 개의 값이니 인스턴스별로는 16바이트입니다.
 
-We could optimize that by using 8bit values and telling WebGPU they should be normalized from 0 ↔ 255 to 0.0 ↔ 1.0
+8비트 값을 사용하여 이를 최적화 하고 WebGPU에게 0 ↔ 255 값을 0.0 ↔ 1.0로 정규화해서 사용하라고 할 수 있습니다.
 
-Looking at the list of valid attribute formats there is no 3 value 8bit format but there is `'unorm8x4'` so let's
-use that.
+사용 가능한 어트리뷰트 포맷 목록을 보면 8비트 3개는 없지만 `'unorm8x4'`가 있으니 이를 사용합시다.
 
-First let's change the code that generates the vertices to store colors as 8bit values that
-will be normalized
+먼저 정점을 생성하는 코드를 수정해서, 나중에 정규화될 색상 데이터를 8비트 값으로 출력하게 합니다.
 
 ```js
 function createCircleVertices({
@@ -677,17 +653,15 @@ function createCircleVertices({
   };
 ```
 
-Above we make `colorData` which is a `Uint8Array` view of the same
-data as `vertexData`
+`vertexData` 데이터와 동일한 `Uint8Array` 뷰(view)인 `colorData`를 만들었습니다.
 
-We then use `colorData` to insert the colors, expanding them from 0 ↔ 1
-to 0 ↔ 255
+그리고 `colorData`에 0 ↔ 1를 0 ↔ 255로 확장하여 색상값을 넣습니다.
 
-The memory layout of this data is like this
+이 데이터의 메모리 레이아웃은 아래와 같습니다.
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-f32x2-u8x4.svg" style="width: 1024px;"></div>
 
-We also need to update the per instance data.
+인스턴스별 데이터로 업데이트해야 합니다.
 
 ```js
   const kNumObjects = 100;
@@ -749,13 +723,11 @@ We also need to update the per instance data.
   }
 ```
 
-The layout for the per instance data is like this
+인스턴스별 데이터의 레이아웃은 아래와 같습니다.
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-u8x4-f32x2.svg" style="width: 1024px;"></div>
 
-We then need to change the pipeline to pull out the data as 8bit unsigned
-values and to normalize them back to 0 ↔ 1, update the offsets, and update the stride to its
-new size.
+이제 파이프라인을 수정하여 데이터를 8비트 부호없는 정수로 가져오고 0 ↔ 1로 정규화하도록 해야 하고, offset과 stride로 새로운 크기에 맞춰 수정해야 합니다.
 
 ```js
   const pipeline = device.createRenderPipeline({
@@ -802,13 +774,12 @@ new size.
   });
 ```
 
-And with that we've save a little space. We were using 20 bytes per vertex,
-now we're using 12 bytes per vertex, a 40% savings. And we were using 24 bytes
-per instance, now we're using 12, a 50% savings.
+이렇게 하여 공간을 조금 아꼈습니다. 이전에는 정점별로 20바이트를 사용했으나 이제는 12바이트만을 사용합니다. 40%의 절약이죠.
+그리고 인스턴스별로는 24바이트를 사용했는데 12바이트를 사용하니 50% 절약입니다.
 
 {{{example url="../webgpu-vertex-buffers-8bit-colors.html"}}}
 
-Note that we don't have to use a struct. This would work just as well
+구조체를 꼭 사용할 필요는 없다는 점을 명심하세요. 아래와 같이 해도 잘 동작합니다.
 
 ```WGSL
 @vertex fn vs(
@@ -830,29 +801,27 @@ Note that we don't have to use a struct. This would work just as well
 }
 ```
 
-As again, all WebGPU cares about that we define `locations` in the shader
-and supply data to those locations via the API.
+WebGPU가 신경쓰는 것은 오직 우리가 셰이더에서 `locations`로 명시한 것들에 대해 API를 통해 제대로 데이터를 전달했는지 뿐입니다.
 
-## <a id="a-index-buffers"></a>Index Buffers
+## <a id="a-index-buffers"></a>인덱스(index) 버퍼
 
-One last thing to cover here are index buffers. Index buffers describe
-the order to process and use the vertices.
+마지막으로 다룰 것은 인덱스 버퍼입니다.
+인덱스 버퍼는 정점의 처리와 사용 순서를 명시합니다.
 
-You can think of `draw` as going through the vertices in order
+`draw`를 아래와 같은 순서로 정점을 처리하는 것으로 생각할 수 있습니다.
 
 ```
 0, 1, 2, 3, 4, 5, .....
 ```
 
-With an index buffer we can change that order.
+인덱스 버퍼를 사용하면 순서를 바꿀 수 있습니다.
 
-We were creating 6 vertices per subdivision of the circle even though 2
-of them were identical.
+원을 그릴 때 subdivision마다 6개의 정점을 만들고 있는데 사실 그 중 두 개는 동일한 정점입니다.
 
 <div class="webgpu_center"><img src="resources/vertices-non-indexed.svg" style="width: 400px"></div>  
 
-Now instead, we'll only create 4 but then use indices to
-use those 4 vertices 6 times by telling WebGPU to draw indices in this order
+이제, 정점은 네 개만 생성하고 대신 그 네 개의 정점을 여섯 번 사용하도록 할 것입니다. 
+이는 WebGPU에게 아래와 같은 순서로 그리도록 인덱스를 명시함으로써 가능합니다.
 
 ```
 0, 1, 2, 2, 1, 3, ...
@@ -961,7 +930,7 @@ function createCircleVertices({
 }
 ```
 
-Then we need to create an index buffer
+그리고 인덱스 버퍼를 만듭니다.
 
 ```js
 -  const { vertexData, numVertices } = createCircleVertices({
@@ -983,9 +952,9 @@ Then we need to create an index buffer
 +  device.queue.writeBuffer(indexBuffer, 0, indexData);
 ```
 
-Notice we set the usage to `INDEX`.
+usage를 `INDEX`로 설정한 것에 주목하세요.
 
-Then finally at draw time we need to specify the index buffer
+그리고 그리기 시점에는 인덱스 버퍼를 명시해 줍니다.
 
 ```js
     pass.setPipeline(pipeline);
@@ -995,29 +964,22 @@ Then finally at draw time we need to specify the index buffer
 +    pass.setIndexBuffer(indexBuffer, 'uint32');
 ```
 
-Because our buffer contains 32bit unsigned integer indices
-we need to pass `'uint32'` here. We could also use 16 bit
-unsigned indices in which case we'd pass in `'uint16'`.
+버퍼가 32비트 부호없는 정수 인덱스기 때문에 `'uint32'`를 전달해야 합니다.
+16비트 부호없는 정수를 사용할 수도 있는데 이 경우에는 `'uint16'`를 전달합니다.
 
-And we need to call `drawIndexed` instead of `draw`
+그리고 `draw` 대신 `drawIndexed`를 호출해야 합니다.
 
 ```js
 -    pass.draw(numVertices, kNumObjects);
 +    pass.drawIndexed(numVertices, kNumObjects);
 ```
 
-With that we saved some space (33%) and, potentially
-a similar amount of processing when computing vertices
-in the vertex shader as it's possible the GPU can reuse
-vertices it has already calculated.
+이렇게 하면 공간을 절약할 수 있고(33%), 그만큼의 처리 시간도 절약할 수 있는데 
+정점 셰이더에서 정점에 대한 계산을 수행할 때 GPU가 이미 계산된 값을 재사용 할 수 있기 때문입니다.
 
 {{{example url="../webgpu-vertex-buffers-index-buffer.html"}}}
 
-Note that we could have also used an index buffer with the
-storage buffer example from [the previous article](webgpu-storage-buffers.html).
-In that case the value from `@builtin(vertex_index)` that's passed in matches the index
-from the index buffer.
+[이전 글](webgpu-storage-buffers.html)의 예제에서 스토리지 버퍼와 인덱스 버퍼 사용할 수도 있었음을 명심하세요.
+이러한 경우 `@builtin(vertex_index)`로 넘어오는 값은 인덱스 버퍼의 인덱스 순서와 같습니다.
 
-Next up we'll cover [textures](webgpu-textures.html).
-
-
+다음으로 [텍스처](webgpu-textures.html)에 대해 다뤄보겠습니다.
