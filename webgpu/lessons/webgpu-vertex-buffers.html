@@ -339,7 +339,7 @@ to <code class="notranslate" translate="no">VERTEX</code> and remove it from the
     ],
   });
 </pre>
-<p>And then at draw time we need to tell webgpu which vertex buffer to
+<p>And then at draw time we need to tell WebGPU which vertex buffer to
 use</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    pass.setPipeline(pipeline);
 +    pass.setVertexBuffer(0, vertexBuffer);
@@ -581,7 +581,7 @@ and no storage buffers.</p>
 </div>
 
 <p></p>
-<p>Just for fun, lets add a second let’s add a another attribute for a per vertex color. First let’s change the shader</p>
+<p>Just for fun, let’s add a another attribute for a per vertex color. First let’s change the shader</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Vertex {
   @location(0) position: vec2f,
   @location(1) color: vec4f,
@@ -683,7 +683,7 @@ the inner vertices.</p>
 +  const innerColor = [1, 1, 1];
 +  const outerColor = [0.1, 0.1, 0.1];
 
-  // 2 vertices per subdivision
+  // 2 triangles per subdivision
   //
   // 0--1 4
   // | / /|
@@ -1017,7 +1017,7 @@ use those 4 vertices 6 times by telling WebGPU to draw indices in this order</p>
   const innerColor = [1, 1, 1];
   const outerColor = [0.1, 0.1, 0.1];
 
--  // 2 vertices per subdivision
+-  // 2 triangles per subdivision
 -  //
 -  // 0--1 4
 -  // | / /|
@@ -1042,7 +1042,7 @@ use those 4 vertices 6 times by telling WebGPU to draw indices in this order</p>
 -    addVertex(c2 * radius, s2 * radius, ...outerColor);
 -    addVertex(c2 * innerRadius, s2 * innerRadius, ...innerColor);
 -  }
-+  // 2 vertices per subdivision
++  // 2 triangles per subdivision
 +  //
 +  // 0  2  4  6  8 ...
 +  //
