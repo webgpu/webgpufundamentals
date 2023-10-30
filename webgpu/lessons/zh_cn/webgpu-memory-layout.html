@@ -322,7 +322,7 @@ const ourStructDataAsF32 = new Float32Array(kOurStructSizeFloat32Units);
 const ourStructDataAsU32 = new Uint32Array(ourStructDataAsF32.buffer);
 const velocityView = ourStructDataAsF32.subarray(0, 1);
 const accelerationView = ourStructDataAsF32.subarray(1, 2);
-const frameCountView = ourStructDataAsU32(ourStructData, 2, 3);
+const frameCountView = ourStructDataAsU32.subarray(2, 3);
 
 velocityView[0] = 1.2;
 accelerationView[0] = 3.4;
