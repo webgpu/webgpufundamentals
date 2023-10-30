@@ -153,10 +153,11 @@ async function main() {
   const filterOptions = ['nearest', 'linear'];
 
   const gui = new GUI();
+  gui.onChange(render);
   Object.assign(gui.domElement.style, {right: '', left: '15px'});
-  gui.add(settings, 'addressModeU', addressOptions).onChange(render);
-  gui.add(settings, 'addressModeV', addressOptions).onChange(render);
-  gui.add(settings, 'magFilter', filterOptions).onChange(render);
+  gui.add(settings, 'addressModeU', addressOptions);
+  gui.add(settings, 'addressModeV', addressOptions);
+  gui.add(settings, 'magFilter', filterOptions);
 
   function render() {
     const ndx = (settings.addressModeU === 'repeat' ? 1 : 0) +

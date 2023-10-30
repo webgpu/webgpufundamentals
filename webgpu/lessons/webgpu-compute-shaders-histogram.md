@@ -20,7 +20,7 @@ by some measure of their values.
 
 For example, this 6x7 image
 
-<div class="center">
+<div class="webgpu_center">
   <div>
     <div data-diagram="image" style="display: inline-block; width: 240px; max-width: 100%;"></div>
     <div style="text-align: center;">6x7</div>
@@ -29,7 +29,7 @@ For example, this 6x7 image
 
 It has these colors.
 
-<div class="center">
+<div class="webgpu_center">
   <div>
     <div data-diagram="colors" style="display: inline-block; width: 240px; max-width: 100%;"></div>
   </div>
@@ -51,7 +51,7 @@ function srgbLuminance(r, g, b) {
 
 Using that we can convert each value to a luminance level
 
-<div class="center">
+<div class="webgpu_center">
   <div>
     <div data-diagram="luminance" style="display: inline-block; width: 240px; max-width: 100%;"></div>
   </div>
@@ -61,7 +61,7 @@ We can decide on a number "bins". Let's decide on 3 bins.
 We can then quantize those luminance values so they select a "bin"
 and add up the number of pixels that fit in each bin.
 
-<div class="center">
+<div class="webgpu_center">
   <div>
     <div data-diagram="imageHistogram" style="display: inline-block; width: 40px; max-width: 100%;"></div>
   </div>
@@ -69,7 +69,7 @@ and add up the number of pixels that fit in each bin.
 
 Finally we can graph the values in those bins
 
-<div class="center">
+<div class="webgpu_center">
   <div>
     <div data-diagram="imageHistogramGraph" style="display: inline-block; width: 96px; max-width: 100%;"></div>
   </div>
@@ -78,9 +78,9 @@ Finally we can graph the values in those bins
 The graph shows that there are more dark pixels (🟦 18) than medium brightness pixels (🟥 16) and
 even fewer bright pixels (🟨 8). That's not so interesting with just 3 bins. But, if we take a picture like this
 
-<div class="center">
+<div class="webgpu_center">
   <div>
-    <div><img src="../resources/images/pexels-francesco-ungaro-96938-mid.jpg" style="max-width: 700px;"></div>
+    <div><img src="../resources/images/pexels-francesco-ungaro-96938-mid.jpg" style="width: 700px;"></div>
     <div style="text-align: center;"><a href="https://www.pexels.com/photo/cute-kitten-hiding-behind-a-pillow-96938/">Photo by Francesco Ungaro</a></div>
   </div>
 </div>

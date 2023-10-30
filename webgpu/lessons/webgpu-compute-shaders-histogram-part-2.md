@@ -12,7 +12,7 @@ Let's do a few more things with it
 
 Given an image like this
 
-<div class="center">
+<div class="webgpu_center">
   <div>
     <div><img src="../resources/images/pexels-chevanon-photography-1108099.jpg" style="max-width: 700px;"></div>
     <div style="text-align: center;"><a href="https://www.pexels.com/photo/two-yellow-labrador-retriever-puppies-1108099/">Photo by Chevanon Photography</a></div>
