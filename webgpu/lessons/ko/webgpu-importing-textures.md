@@ -1,19 +1,19 @@
-Title: WebGPU Loading Images into Textures
-Description: How to load an Image/Canvas/Video into a texture
-TOC: Loading Images
+Title: WebGPU 이미지를 텍스처로 로딩하기
+Description: 이미지/캔버스/비디오를 텍스처로 로딩하는 방법
+TOC: 이미지 로딩
 
-We covered some basics about using textures [in the previous article](webgpu-textures.html).
-In this article we'll cover loading an image into a texture
-as well as generating mipmaps on the GPU.
+[이전 글](webgpu-textures.html)에서 텍스처 사용법에 대한 기본적인 내용을 알아봤습니다.
+이 글에서는 이미지를 텍스처로 로딩하고 GPU에 밉맵을 만드는 법을 알아보겠습니다.
 
-In the previous article we'd created a texture by calling `device.createTexture` and then
-put data in the texture by calling `device.queue.writeTexture`. There's another function
-on `device.queue` called `device.queue.copyExternalImageToTexture` that let's us copy
-an image into a texture.
+이전 글에서 우리는 `device.createTexture`를 사용해 텍스처를 생성하고, 
+`device.queue.writeTexture`를 호출하여 데이터를 텍스처에 넣었습니다. 
+`device.queue`에는 또다른 함수인 `device.queue.copyExternalImageToTexture`가 있는데, 
+이 함수는 이미지를 텍스처로 복사할 수 있게 해줍니다.
 
-It can take an `ImageBitmap` so let's take [the magFilter example from the previous article](webgpu-textures.html#a-mag-filter) and change it to load a few images.
+이 함수는 `ImageBitmap`를 입력으로 받으니 [이전 글의 magFilter 예제](webgpu-textures.html#a-mag-filter)를 수정하여 몇 개 이미지를 로딩하도록 
+수정해보겠습니다.
 
-First we need some code to get an `ImageBitmap` from an image
+먼저 이미지로부터 `ImageBitmap`를 반환하는 코드가 필요합니다.
 
 ```js
   async function loadImageBitmap(url) {
@@ -23,22 +23,21 @@ First we need some code to get an `ImageBitmap` from an image
   }
 ```
 
-The code above calls `fetch` with the url of an image. This returns a `Response`. We then
-use that to load a `Blob` which opaquely represents the data of the image file. We then pass
-that to `createImageBitmap` which is a standard browser function to create an `ImageBitmap`. 
-We pass `{ colorSpaceConversion: 'none' }` to tell the browser not to apply any color space. It's up to you if
-you want the browser to apply a color space or not. Often in WebGPU we might load
-an image that is a normal map or a height map or something that is not color data.
-In those cases we definitely don't want the browser to muck with the data in the image.
+위 코드는 이미지의 url로 `fetch`를 호출하고 그 결과 `Response`를 반환합니다. 
+그리고 이를 이용하여 `Blob`을 로드하는데 이는 이미지 파일의 데이터입니다. 
+그리고 이를 `createImageBitmap`에 전달하는데 이는 `ImageBitmap` 생성을 위한 표준 브라우저 함수입니다.
+`{ colorSpaceConversion: 'none' }`를 전달하여 브라우저가 컬러 공간 변환을 적용하지 않도록 합니다. 
+이러한 변환을 적용할지 말지는 여러분들의 선택입니다. 
+WebGPU에서 우리는 노멀 맵이나 높이(height) 맵등 색상이 아닌 데이터를 로드하기도 합니다.
+그러한 경우 브라우저가 이미지 데이터를 손상시키지 않도록 하는 것이 좋을겁니다.
 
-Now that we have code to create an `ImageBitmap` let's load one and create a texture of the same size.
+이제 `ImageBitmap` 생성을 위한 함수가 준비되었으니, 로드하고 같은 크기의 텍스처를 만들어봅시다.
 
-We'll load this image
+아래 이미지를 로드할 것입니다.
 
 <div class="webgpu_center"><img src="../resources/images/f-texture.png"></div>
 
-I was taught once that a texture with an `F` in it is a good example texture because we can instantly
-see its orientation.
+제가 배울 때에는 `F` 모양의 텍스처가 방향을 바로 판별할 수 있어서 좋은 예제 텍스처라고 배웠습니다.
 
 <div class="webgpu_center"><img src="resources/f-orientation.svg"></div>
 
@@ -64,11 +63,9 @@ see its orientation.
 +  });
 ```
 
-Note that `copyExternalImageToTexture` requires that we include to
-`GPUTextureUsage.COPY_DST` and `GPUTextureUsage.RENDER_ATTACHMENT`
-usage flags.
+`copyExternalImageToTexture`를 사용하려면 `GPUTextureUsage.COPY_DST` 와 `GPUTextureUsage.RENDER_ATTACHMENT` 플래그를 사용해야 한다는 점을 유의하십시오.
 
-So then we can copy the `ImageBitmap` to the texture
+그러면 `ImageBitmap`를 텍스처에 복사할 수 있습니다.
 
 ```js
 -  device.queue.writeTexture(
@@ -84,31 +81,28 @@ So then we can copy the `ImageBitmap` to the texture
 +  );
 ```
 
-The parameters to `copyExternalImageToTexture` are
-The source, the destination, the size. For the source
-we can specify `flipY: true` if we want the texture flipped on load.
+`copyExternalImageToTexture`의 매개변수는 소스(source), 목적지(destination)와 크기입니다.
+소스에 대해 `flipY: true`를 명시하여 로드할 때 텍스처를 뒤집을 것인지를 명시할 수 있습니다.
 
-And that works!
+그러면 바로 동작합니다!
 
 {{{example url="../webgpu-simple-textured-quad-import-no-mips.html"}}}
 
-## <a id="a-generating-mips-on-the-gpu"></a>Generating mips on the GPU
+## <a id="a-generating-mips-on-the-gpu"></a>GPU에서 밉 생성하기
 
-In [the previous article we also generated a mipmap](webgpu-textures.html#a-mipmap-filter)
-but in that case we had easy access to the image data. When loading an image, we
-could draw that image into a 2D canvas, the call `getImageData` to get the data, and
-finally generate mips and upload. That would be pretty slow. It would also potentially
-be lossy since how canvas 2D renders is intentionally implementation dependant.
+[이전 글에서 우리는 밉맵도 생성했었습니다](webgpu-textures.html#a-mipmap-filter).
+하지만 이전의 경우에는 우리가 이미지 데이터에 접근하기 쉬운 경우였습니다. 
+이미지를 로딩할 때는 이미지를 2D 캔버스에 그리고, `getImageData`를 호출해서 데이터를 얻은 뒤에 밉을 생성하여 업로드해야 합니다.
+이러한 과정은 꽤나 오래 걸릴 수 있습니다. 
+또한 2D 캔버스 렌더링은 내부 구현에 의존적이기 때문에 데이터의 손실이 있을 수도 있습니다.
 
-When we generated mip levels we did a bilinear interpolation which is exactly what
-the GPU does with `minFilter: linear`. We can use that feature to generate mip levels
-on the GPU
+우리가 밉맵을 생성한 방법은 이중선형 보간이었고, 이는 GPU가 `minFilter: linear`를 수행하는 것과 동일한 알고리즘입니다. 
+이러한 기능을 활용하여 GPU상에서 밉 레벨을 생성할 수 있습니다.
 
-Let's modify the [mipmapFilter example from the previous article](webgpu-textures.html#a-mipmap-filter)
-to load images and generate mips using the GPU
+[이전 글의 밉맵 필터 예제](webgpu-textures.html#a-mipmap-filter)를 수정하여 이미지를 로딩하고 GPU를 사용해 밉을 만들어봅시다.
 
-First, let's change the code that creates the texture to create mip levels. We need to know how many
-to create which we can calculate like this
+먼저, 텍스처를 생성하는 코드를 수정하여 밉 레벨을 만들도록 합시다. 
+몇 개나 생성해야 할지는 아래와 같이 계산하면 됩니다.
 
 ```js
   const numMipLevels = (...sizes) => {
@@ -117,8 +111,8 @@ to create which we can calculate like this
   };
 ```
 
-We can call that with 1 or more numbers and it will return the number of mips needed, so for example
-`numMipLevels(123, 456)` returns `9`.
+하나 이상의 숫자를 넣고 함수를 호출하면 필요한 밉의 수를 얻을 수 있습니다. 
+예를들어 `numMipLevels(123, 456)`를 호출하면 `9`가 반환됩니다.
 
 > * level 0: 123, 456
 > * level 1: 61, 228
@@ -132,9 +126,9 @@ We can call that with 1 or more numbers and it will return the number of mips ne
 > 
 > 9 mip levels
 
-`Math.log2` tells us the power of 2 we need to make our number.
-In other words, `Math.log2(8) = 3` because 2<sup>3</sup> = 8. Another way to say the same thing is, `Math.log2` tells us how
-many times can we divide this number by 2. 
+`Math.log2`는 주어진 숫자가 2의 몇승을 해야 얻어지는지 알려줍니다. 
+다시 말해 `Math.log2(8) = 3`인데 2<sup>3</sup> = 8 이기 때문입니다. 
+같은 내용을 다른 말로 하면 `Math.log2`는 어떤 숫자를 2로 몇 번이나 나눌 수 있는지를 알려줍니다.
 
 > ```
 > Math.log2(8)
@@ -143,10 +137,11 @@ many times can we divide this number by 2.
 >                           2 / 2 = 1
 > ```
 
-So we can divide 8 by 2 three times. That's exactly what we need to compute how many mip levels to make.
-It's `Math.log2(largestSize) + 1`. 1 for the original size mip level 0
+따라서 8은 2로 세 번 나눌 수 있습니다. 
+이것이 우리가 몇 개의 밉 레벨을 만들어야 하는지를 알게 해줍니다. 
+`Math.log2(largestSize) + 1`이고, 1은 밉 레벨 0인 원본 이미지 크기입니다.
 
-So, we can now create the right number of mip levels
+이제 올바른 숫자의 밉 레벨 을 만들 수 있습니다.
 
 ```js
   const texture = device.createTexture({
@@ -165,10 +160,10 @@ So, we can now create the right number of mip levels
   );
 ```
 
-To generate the next mip level, we'll draw a textured quad, just like we've been doing, from the
-existing mip level, to the next level, with `minFilter: linear`. 
+다음 밉 레벨을 생성하기 위해, 텍스처가 입혀진 사각형을 그릴 것입니다. 
+이전에 한것과 동일하게 하나의 밉 레벨로부터 다음 레벨의 밉을 `minFilter: linear`를 사용해 얻습니다.
 
-Here's the code
+코드는 아래와 같습니다.
 
 ```js
   const generateMips = (() => {
@@ -284,34 +279,33 @@ Here's the code
   })();
 ```
 
-The code above looks long but it's almost the exact same code we've been using in our examples with textures so far.
-What's changed
+위 코드는 길어 보이지만 지금까지 텍스처 예제에서 사용한 코드와 동일합니다. 
+바뀐 부분은 아래와 같습니다.
 
-* We make a closure to hold on to 3 variables. `module`, `sampler`, `pipelineByFormat`.
-  For `module` and `sampler` we check if they have not be set and if not, we create a `GPUSShaderModule`
-  and `GPUSampler` which we can hold on to and use in the future.
+* `module`, `sampler`, `pipelineByFormat` 세 개 변수를 저장할 수 있도록 구현하였습니다. 
+  `modul`과 `sampler`는 이미 설정되었는지를 체크하고, 그렇지 않은 경우 `GPUSShaderModule` 와 `GPUSampler`를 만들어 저장하여 나중에 사용할 수 있도록 합니다.
 
-* We have a pair of shaders that are almost exactly the same as all the examples. The only difference
-  is this part
+* 이전 예제와 거의 동일한 셰이더 두 개가 있습니다. 
+  차이점은 아래 부분 뿐입니다.
 
-  ```wgsl
+ ```wgsl
   -  vsOutput.position = uni.matrix * vec4f(xy, 0.0, 1.0);
   -  vsOutput.texcoord = xy * vec2f(1, 50);
   +  vsOutput.position = vec4f(xy * 2.0 - 1.0, 0.0, 1.0);
   +  vsOutput.texcoord = vec2f(xy.x, 1.0 - xy.y);
   ```
 
-  The hard coded quad position data we have in shader goes from 0.0 to 1.0 and so, as is, would only
-  cover the top right quarter texture we're drawing to, just as it does in the examples. We need it to cover the entire
-  area so by multiplying by 2 and subtracting 1 we get a quad that goes from -1,-1 to +1,+1.
+  하드코딩된 사각형의 위치 데이터는 0.0에서 1.0 사이라서 이전 예제와 같이 오른쪽 위 사분면만 차지하는 사각형 텍스처가 그려지게 됩니다. 
+  전체 영역에 그려져야 하므로 2를 곱하고 1을 빼서 사각형이 -1,-1에서 +1,+1 영역에 그려지도록 합니다.
 
-  We also flip the Y texture coordinate. This is because when drawing to the texture +1, +1 is at the top right
-  but we want the top right of the texture we are sampling to be there. The top right of the sampled texture is +1, 0
+  또한 텍스처 좌표의 Y값을 뒤집었습니다. 
+  텍스처에 그릴 때 +1, +1이 오른쪽 위지만 우리는 샘플링할 텍스처가 그 위치에 있어야 합니다.
+  샘플링할 텍스처의 오른쪽 위는 +1, 0입니다.
 
-* We have an object, `pipelineByFormat` which we use as a map of pipelines to texture formats.
-  This is because a pipeline needs to know the format to use.
+* `pipelineByFormat`객체는 텍스처 포맷에 대한 파이프라인의 맵(map)입니다. 
+  파이프라인이 사용할 포맷을 알아야 하기 때문에 필요합니다.
 
-* We check if we already have a pipeline for a particular format and if not create one
+* 특정 포맷에 대해 파리프라인이 있는지 체크하고, 없으면 만듭니다.
   
   ```js
       if (!pipelineByFormat[texture.format]) {
@@ -332,15 +326,15 @@ What's changed
       const pipeline = pipelineByFormat[texture.format];
   ```
 
-  The only major difference here is `targets` is set from the texture's format,
-  not from the `presentationFormat` we use when rendering to the canvas
+  여기서의 유일한 주요 차이점은 `target`이 텍스처 포맷으로부터 설정된다는 것입니다.
+  이전에 캔버스에 그릴 때에는 `presentationFormat`를 사용했었습니다.
 
-* We finally use some parameters to `texture.createView`
+* 마지막으로 `texture.createView`에 몇몇 매개변수를 사용했습니다.
 
-  We loop over each mip level. We create a bind group for the last mip with data in it
-  and we set the renderPassDescriptor to draw to the next mip level. Then we encode
-  a renderPass for that specific mip level. When we're done. All the mips will have
-  been filled out.
+  각 밉 레벨에 대해 루프를 돕니다.
+  그 과정에서 데이터가 그려진 이전 밉에 대한 데이터를 만들고 renderPassDescriptor를 사용해 다음 밉 레벨을 그릴 수 있도록 설정합니다. 
+  그리고 그 특정 밉 레벨에 대한 renderPass를 인코딩합니다. 
+  끝나면 모든 밉이 채워지게 됩니다.
 
   ```js
       let width = texture.width;
@@ -382,11 +376,10 @@ What's changed
       device.queue.submit([commandBuffer]);
   ```
 
-Let's create some support functions make it simple load an image
-into a texture and generate mips
+이미지를 텍스처로 로딩하고 밉맵을 생성하는 지원 함수를 만들어 사용하기 쉽게 해 봅시다.
 
-Here's a function that updates the first mip level and optionally flips the image.
-If the image has mip levels then we generate them.
+아래는 첫번째 밉 레벨을 갱신하고 이미지를 뒤집어주는 함수입니다. 
+이미지가 밉 레벨이 있다면 생성합니다.
 
 ```js
   function copySourceToTexture(device, texture, source, {flipY} = {}) {
@@ -402,9 +395,7 @@ If the image has mip levels then we generate them.
   }
 ```
 
-<a id="a-create-texture-from-source"></a>Here's a function that given a source (in this case an `ImageBitmap`) will
-create a texture of the matching size and then call the previous function
-to fill it in with the data
+<a id="a-create-texture-from-source"></a>아래는 주어진 소스 (`ImageBitmap`의 경우)로 텍스처를 만들고 위 함수를 호출하여 데이터를 채우는 함수입니다.
 
 ```js
   function createTextureFromSource(device, source, options = {}) {
@@ -421,8 +412,7 @@ to fill it in with the data
   }
 ```
 
-and here's a function that given a url will load the url as an `ImageBitmap` call
-call the previous function to create a texture and fill it with the contents of the image.
+그리고 아래는 주어진 url에 대해 url을 `ImageBitmap`로 로드하고 이전 함수를 호출하여 텍스처로 만들고 이미지로 그 내용을 채웁니다.
 
 ```js
   async function createTextureFromImage(device, url, options) {
@@ -431,8 +421,7 @@ call the previous function to create a texture and fill it with the contents of 
   }
 ```
 
-With those setup, the only major change to the [mipmapFilter sample](webgpu-textures.html#a-mipmap-filter)
-is this
+이러한 준비 과정으로 인해서 [mipmapFilter 예제](webgpu-textures.html#a-mipmap-filter)로부터 수정되는 부분은 아래밖에 없습니다.
 
 ```js
 -  const textures = [
@@ -449,7 +438,7 @@ is this
 +  ]);
 ```
 
-The code above loads the F texture from above as well as these 2 tiling textures
+위 코드는 F 텍스처와 아래의 두 타일(tile) 텍스처를 로드합니다.
 
 <div class="webgpu_center side-by-side">
   <div class="separate">
@@ -466,22 +455,22 @@ The code above loads the F texture from above as well as these 2 tiling textures
   </div>
 </div>
 
-And here it is
+결과는 아래와 같습니다.
 
 {{{example url="../webgpu-simple-textured-quad-import.html"}}}
 
-## Loading Canvas
+## 캔버스 로딩
 
-`copyExternalImageToTexture` takes other *sources*. Another is an `HTMLCanvasElement`.
-We can use this to draw things in a 2d canvas, and then get the result in a texture in WebGPU.
-Of course you can use WebGPU to draw to a texture and use that texture you just drew too
-in something else you render. In fact we just did that, rendering to a mip level and then
-using that mip level a texture attachment to render to the next mip level.
+`copyExternalImageToTexture`는 다른 *소스*도 받을 수 있습니다. 
+다른 소스로는 `HTMLCanvasElement`가 있습니다.
+이를 사용하여 2D 캔버스에 무언가를 그리고 그 결과를 WebGPU 텍스처로 받을 수 있습니다.
+WebGPU를 사용해서 텍스처에 무언가를 그리고 그 텍스처를 무언가를 렌더링하기 위해 사용할 수도 있습니다. 
+사실 방금 전까지 한 것이 이런 내용인데, 밉 레벨에 렌더링을 수행하고 그 밉 레벨을 텍스처 어태치먼트로 해서 다음 밉 레벨을 렌더링하였습니다.
 
-But, sometimes using 2d canvas can make certain things easy. The 2d canvas has relatively
-high level API.
+하지만 2D 캔버스를 사용하면 좀 더 편하게 할 수 있는 작업도 있습니다. 
+2D 캔버스는 상대적으로 고수준 API를 제공합니다.
 
-So, first let's make some kind of canvas animation.
+우선 캔버스 애니메이션을 만들어 봅시다.
 
 ```js
 const size = 256;
@@ -518,10 +507,10 @@ requestAnimationFrame(render);
 
 {{{example url="../canvas-2d-animation.html"}}}
 
-To load that canvas into WebGPU only a few changes are needed to our previous example.
+이 캔버스를 WebGPU로 로드하기 위해서는 이전 예제에서 몇 가지만 수정하면 됩니다.
 
-We need to create a texture of the right size. The easiest way it just to use the same
-code we wrote above
+우선 적절한 크기의 텍스처를 만들어야 합니다. 
+가장 쉬운 방법은 이전에 사용한 코드와 동일한 코드를 사용하는 것입니다.
 
 ```js
 +  const texture = createTextureFromSource(device, ctx.canvas, {mips: true});
@@ -537,8 +526,7 @@ code we wrote above
   ]);
 ```
 
-Then we need to switch to a `requestAnimationFrame` loop, update the 2D canvas, and
-then upload it to WebGPU
+그리고 `requestAnimationFrame` 루프로 수정해서 2D 캔버스를 갱신하고 WebGPU로 업로드하도록 합니다.
 
 ```js
 -  function render() {
@@ -571,17 +559,17 @@ then upload it to WebGPU
   });
 ```
 
-With that we're able to upload a canvas AND generate mips levels for it
+이렇게 하면 캔버스를 업로드하면서도 이에 대한 밉 레벨들이 만들어집니다.
 
 {{{example url="../webgpu-simple-textured-quad-import-canvas.html"}}}
 
-## Loading Video
+## 비디오 로딩
 
-Loading video this way is no different. We can create a `<video>` element and pass
-it to the same functions we passed the canvas to in the previous example and it should
-just work with minor adjustments
+비디오를 이러한 방식으로 로딩하는 것도 다를 바 없습니다. 
+`<video>` 엘리먼트(element)를 만들고 이전 예제에서 캔버스를 전달한것과 동일한 함수에 전달합니다. 
+그러면 조금만 수정하면 제대로 동작합니다.
 
-Here's a video
+비디오는 아래와 같습니다.
 
 <div class="webgpu_center">
   <div>
@@ -590,8 +578,8 @@ Here's a video
   </div>
 </div>
 
-`ImageBitmap` and `HTMLCanvasElement` have their width and height as `width` and `height` properties but `HTMLVideoElement` has its width and height
-on `videoWidth` and `videoHeight`. So, let's update the code to handle that difference
+`ImageBitmap`과 `HTMLCanvasElement`는 너비와 높이를 `width`와 `height` 속성으로 가지고 있었지만 `HTMLVideoElement`의 경우 `videoWidth`와 `videoHeight` 속성입니다. 
+따라서 이 차이를 반영할 수 있게 코드를 수정합시다.
 
 ```js
 +  function getSourceSize(source) {
@@ -631,7 +619,7 @@ on `videoWidth` and `videoHeight`. So, let's update the code to handle that diff
   }
 ```
 
-So then, lets setup a video element
+그리고 비디오 엘리먼트를 만듭니다.
 
 ```js
   const video = document.createElement('video');
@@ -643,7 +631,7 @@ So then, lets setup a video element
   const texture = createTextureFromSource(device, video, {mips: true});
 ```
 
-and update it at render time
+그리고 렌더링 시점에 갱신합니다.
 
 ```js
 -  function render(time) {
@@ -653,14 +641,12 @@ and update it at render time
 +    copySourceToTexture(device, texture, video);
 ```
 
-One complication of videos is we need to wait for them to have started
-playing before we pass them to WebGPU. In modern browsers we can do
-this by calling `video.requestVideoFrameCallback`. It calls us each time
-a new frame is available so we can use it to find out when at least
-one frame is available.
+비디오를 사용할 때 까다로운 점 중 하나는 WebGPU로 전달하기 전에 재생이 시작될 때까지 기다려야 한다는 점입니다. 
+최근 브라우저에서는 `video.requestVideoFrameCallback`를 호출하여 할 수 있습니다. 
+새로운 프레임이 사용 가능해지면 호출되므로 이를 사용해 최소한 하나의 프레임이 사용 가능한지 확인할 수 있습니다.
 
-For a fallback, we can wait for the time to advance and pray 🙏 because
-sadly, old browsers made it hard to know when it's safe to use a video 😅
+단점으로, 계속 재생이 될지는 기도하기에🙏 달려 있다는 점입니다. 
+안타깝게도 오래된 브라우저에서는 언제 비디오가 안전하게 재생될 수 있을지 알기 어렵습니다.😅
 
 ```js
 +  function startPlayingAndWaitForVideo(video) {
@@ -692,13 +678,11 @@ sadly, old browsers made it hard to know when it's safe to use a video 😅
   const texture = createTextureFromSource(device, video, {mips: true});
 ```
 
-Another complication is we need to wait for the user to interact with the
-page before we can start the video [^autoplay]. Let's add some HTML with
-a play button.
+또다른 까다로운점은 사용자 인터랙션을 통해 비디오 재생이 가능해질때까지 기다려야 한다는 점입니다 [^autoplay].
+재생 버튼을 HTML에 추가합시다.
 
-[^autoplay]: There are various ways to get a video, usually without audio,
-to autoplay without having to wait for the user to interact with the page.
-They seem to change over time so we won't go into solutions here.
+[^autoplay]: 비디오를 얻는 방법도 여러 방법이 있는데 대개는 오디오를 끄고, 사용자가 플레이 버튼을 누르기까지 기다리지 않고 자동재생하는 방법입니다. 
+이러한 방법은 시간에 따라 바뀌는 관계로 여기서는 사용하지 않을 것입니다.
 
 ```html
   <body>
@@ -709,7 +693,7 @@ They seem to change over time so we won't go into solutions here.
   </body>
 ```
 
-And some CSS to center it
+가운에 정렬을 위해 CSS도 수정합니다.
 
 ```css
 #start {
@@ -728,7 +712,7 @@ And some CSS to center it
 }
 ```
 
-Then let's write a function to wait for it to be clicked and hide it.
+클릭될 때까지 기다린 이후 숨기는 기능을 추가합니다.
 
 ```js
 +  function waitForClick() {
@@ -754,7 +738,7 @@ Then let's write a function to wait for it to be clicked and hide it.
   const texture = createTextureFromSource(device, video, {mips: true});
 ```
 
-Let's also add a wait to pause the video
+비디오를 정지하는 기능도 추가합니다.
 
 ```js
   const video = document.createElement('video');
@@ -774,14 +758,13 @@ Let's also add a wait to pause the video
 +  });
 ```
 
-And with that we should get video in a texture
+이렇게 하면 텍스처에 비디오가 보일겁니다.
 
 {{{example url="../webgpu-simple-textured-quad-import-video.html"}}}
 
-One optimization we could make. We could only update the texture when 
-the video has changed.
+최적화 방안 중 하나는 비디오가 변했을 때만 텍스처를 업데이트하는 것입니다.
 
-For example
+예시는 아래와 같습니다.
 
 ```js
   const video = document.createElement('video');
@@ -813,20 +796,17 @@ For example
     ...
 ```
 
-With this change we'd only update the video for each new frame. So, for example, on a device
-with a display rate of 120 frames per second we'd draw at 120 frames per second so animations,
-camera movements, etc would be smooth. But, the texture would only update at its own frame
-rate (for example 30fps).
+이렇게 하면 새로운 프레임에 대해서만 비디오를 업데이트합니다. 
+예를 들어 디스플레이 주사율이 120프레임인 장치에서는 1초에 120번씩 프레임이 그려지므로 애니메이션, 카메라 움직임 등이 더 부드러울 것입니다. 
+하지만 텍스처는 그 자신의 프레임 레이트(예를들어 30fps)로만 업데이트 될것입니다.
 
-**BUT! WebGPU has special support for using video efficiently**
+**하지만! WebGPU는 효율적인 비디오 사용을 위한 특수 기능을 지원합니다**
 
-We'll cover that in [another article](webgpu-textures-external-video.html).
-The way above, using `device.query.copyExternalImageToTexture` is actually
-making **a copy**. Making a copy takes time. For example a 4k video's resolution
-is generally 3840 × 2160 which for `rgba8unorm` is 31meg of data that needs to be
-copied, **per frame**. [External textures](webgpu-textures-external-video.html)
-let you use the video's data directly (no copy) but require different methods
-and have some restrictions.
+이러한 내용은 [다른 글](webgpu-textures-external-video.html)에서 다룰 것입니다. 
+위에서 `device.query.copyExternalImageToTexture`를 사용하면 실제로는 **사본**을 만드는 것입니다. 
+그리고 복사에는 시간이 걸립니다. 
+예를 들어 4K 비디오의 일반적인 해상도는 3840 x 2160인데, `rgba8unorm` 포맷의 경우 31MB의 데이터가 **프레임마다** 복사되어야 한다는 뜻입니다. 
+[외부(External) 텍스처](webgpu-textures-external-video.html)를 사용하면 (복사 없이) 비디오 데이터를 직접 사용 가능하지만 다른 방법을 사용해야 하고 제약 사항이 좀 있습니다.
 
 TBD: Atlas
 
