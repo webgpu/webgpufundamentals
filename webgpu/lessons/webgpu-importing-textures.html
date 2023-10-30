@@ -338,7 +338,7 @@ many times can we divide this number by 2.</p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">Math.log2(8)
           8 / 2 = 4
                   4 / 2 = 2
-                          2 / 2 = 1`
+                          2 / 2 = 1
 </pre>
 </blockquote>
 <p>So we can divide 8 by 2 three times. That’s exactly what we need to compute how many mip levels to make.
@@ -363,12 +363,13 @@ It’s <code class="notranslate" translate="no">Math.log2(largestSize) + 1</code
 existing mip level, to the next level, with <code class="notranslate" translate="no">minFilter: linear</code>.</p>
 <p>Here’s the code</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const generateMips = (() =&gt; {
-    let pipeline;
     let sampler;
+    let module;
+    const pipelineByFormat = {};
 
     return function generateMips(device, texture) {
-      if (!pipeline) {
-        const module = device.createShaderModule({
+      if (!module) {
+        module = device.createShaderModule({
           label: 'textured quad shaders for mip level generation',
           code: `
             struct VSOutput {
@@ -406,7 +407,14 @@ existing mip level, to the next level, with <code class="notranslate" translate=
             }
           `,
         });
-        pipeline = device.createRenderPipeline({
+
+        sampler = device.createSampler({
+          minFilter: 'linear',
+        });
+      }
+
+      if (!pipelineByFormat[texture.format]) {
+        pipelineByFormat[texture.format] = device.createRenderPipeline({
           label: 'mip level generator pipeline',
           layout: 'auto',
           vertex: {
@@ -419,11 +427,8 @@ existing mip level, to the next level, with <code class="notranslate" translate=
             targets: [{ format: texture.format }],
           },
         });
-
-        sampler = device.createSampler({
-          minFilter: 'linear',
-        });
       }
+      const pipeline = pipelineByFormat[texture.format];
 
       const encoder = device.createCommandEncoder({
         label: 'mip gen encoder',
@@ -451,7 +456,6 @@ existing mip level, to the next level, with <code class="notranslate" translate=
           colorAttachments: [
             {
               view: texture.createView({baseMipLevel, mipLevelCount: 1}),
-              clearValue: [0.3, 0.3, 0.3, 1],
               loadOp: 'clear',
               storeOp: 'store',
             },
@@ -488,7 +492,7 @@ is this part</p>
 </pre>
 <p>The hard coded quad position data we have in shader goes from 0.0 to 1.0 and so, as is, would only
 cover the top right quarter texture we’re drawing to, just as it does in the examples. We need it to cover the entire
-area so by multiplying by 2 and subtracting 1 we get a quad that goes from -1,-1 to +1,1.</p>
+area so by multiplying by 2 and subtracting 1 we get a quad that goes from -1,-1 to +1,+1.</p>
 <p>We also flip the Y texture coordinate. This is because when drawing to the texture +1, +1 is at the top right
 but we want the top right of the texture we are sampling to be there. The top right of the sampled texture is +1, 0</p>
 </li>
