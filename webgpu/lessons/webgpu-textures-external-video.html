@@ -240,8 +240,7 @@ You pass <code class="notranslate" translate="no">importExternalTexture</code> a
 <li>
 <h2 id="the-texture-is-only-valid-until-you-exit-the-current-javascript-task">The texture is only valid until you exit the current JavaScript task.</h2>
 <p>For most WebGPU apps that means the texture only exists until your
-<code class="notranslate" translate="no">requestAnimationCallback</code> function ends. Or whatever event you’re
-event you’re rendering on; <code class="notranslate" translate="no">requestVideoFrameCallback</code>, <code class="notranslate" translate="no">setTimeout</code>,
+<code class="notranslate" translate="no">requestAnimationCallback</code> function ends. Or whatever event you’re rendering on; <code class="notranslate" translate="no">requestVideoFrameCallback</code>, <code class="notranslate" translate="no">setTimeout</code>,
 <code class="notranslate" translate="no">mouseMove</code>, etc…  When your function exits the texture is expired.
 To use the video again you must call <code class="notranslate" translate="no">importExternalTexture</code> again.</p>
 <p>An implication of this is that you must make a new bindgroup each
@@ -519,6 +518,12 @@ we create at render time. Whether that’s worth it is up to your particular nee
 <li><a href="/webgpu/lessons/webgpu-cameras.html">Cameras</a></li>
 <li><a href="/webgpu/lessons/webgpu-matrix-stacks.html">Matrix Stacks</a></li>
 <li><a href="/webgpu/lessons/webgpu-scene-graphs.html">Scene Graphs</a></li>
+        </ul>
+  <li>Lighting</li>
+        <ul>
+          <li><a href="/webgpu/lessons/webgpu-lighting-directional.html">Directional Lighting</a></li>
+<li><a href="/webgpu/lessons/webgpu-lighting-point.html">Point Lighting</a></li>
+<li><a href="/webgpu/lessons/webgpu-lighting-spot.html">Spot Lighting</a></li>
         </ul>
   <li>Compute Shaders</li>
         <ul>

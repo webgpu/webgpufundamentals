@@ -911,8 +911,6 @@ but move them in Z. Then connect them all with indices</p>
 +    20,  21,  22,   22, 21, 23,  // middle run back
 +
 +    0, 5, 12,   12, 5, 17,   // top
-+    0, 12, 2,   12, 2, 14,   // left
-+    2, 3, 14,   14, 3, 15,   // bottom
 +    5, 7, 17,   17, 7, 19,   // top rung right
 +    6, 7, 18,   18, 7, 19,   // top rung bottom
 +    6, 8, 18,   18, 8, 20,   // between top and middle rung
@@ -920,6 +918,8 @@ but move them in Z. Then connect them all with indices</p>
 +    9, 11, 21,  21, 11, 23,  // middle rung right
 +    10, 11, 22, 22, 11, 23,  // middle rung bottom
 +    10, 3, 22,  22, 3, 15,   // stem right
++    2, 3, 14,   14, 3, 15,   // bottom
++    0, 2, 12,   12, 2, 14,   // left
   ]);
 
   return {
@@ -1035,8 +1035,6 @@ color.</p>
     20,  21,  22,   22, 21, 23,  // middle run back
 
     0, 5, 12,   12, 5, 17,   // top
-    0, 12, 2,   12, 2, 14,   // left
-    2, 3, 14,   14, 3, 15,   // bottom
     5, 7, 17,   17, 7, 19,   // top rung right
     6, 7, 18,   18, 7, 19,   // top rung bottom
     6, 8, 18,   18, 8, 20,   // between top and middle rung
@@ -1044,6 +1042,8 @@ color.</p>
     9, 11, 21,  21, 11, 23,  // middle rung right
     10, 11, 22, 22, 11, 23,  // middle rung bottom
     10, 3, 22,  22, 3, 15,   // stem right
+    2, 3, 14,   14, 3, 15,   // bottom
+    0, 2, 12,   12, 2, 14,   // left
 -  ]);
 +  ];
 
@@ -1051,19 +1051,21 @@ color.</p>
 +      200,  70, 120,  // left column front
 +      200,  70, 120,  // top rung front
 +      200,  70, 120,  // middle rung front
++
 +       80,  70, 200,  // left column back
 +       80,  70, 200,  // top rung back
 +       80,  70, 200,  // middle rung back
++
 +       70, 200, 210,  // top
-+      160, 160, 220,  // left side
-+       90, 130, 110,  // bottom
-+      200, 200,  70,  // top rung right
-+      210, 100,  70,  // under top rung
-+      210, 160,  70,  // between top rung and middle
-+       70, 180, 210,  // top of middle rung
-+      100,  70, 210,  // right of middle rung
-+       76, 210, 100,  // bottom of middle rung.
-+      140, 210,  80,  // right of bottom
++      160, 160, 220,  // top rung right
++       90, 130, 110,  // top rung bottom
++      200, 200,  70,  // between top and middle rung
++      210, 100,  70,  // middle rung top
++      210, 160,  70,  // middle rung right
++       70, 180, 210,  // middle rung bottom
++      100,  70, 210,  // stem right
++       76, 210, 100,  // bottom
++      140, 210,  80,  // left
 +  ];
 +
 +  const numVertices = indices.length;
@@ -1538,6 +1540,12 @@ and still use indices. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 <li><a href="/webgpu/lessons/webgpu-cameras.html">Cameras</a></li>
 <li><a href="/webgpu/lessons/webgpu-matrix-stacks.html">Matrix Stacks</a></li>
 <li><a href="/webgpu/lessons/webgpu-scene-graphs.html">Scene Graphs</a></li>
+        </ul>
+  <li>Lighting</li>
+        <ul>
+          <li><a href="/webgpu/lessons/webgpu-lighting-directional.html">Directional Lighting</a></li>
+<li><a href="/webgpu/lessons/webgpu-lighting-point.html">Point Lighting</a></li>
+<li><a href="/webgpu/lessons/webgpu-lighting-spot.html">Spot Lighting</a></li>
         </ul>
   <li>Compute Shaders</li>
         <ul>

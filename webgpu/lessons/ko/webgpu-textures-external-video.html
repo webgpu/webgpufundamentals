@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/webgpu-textures-external-video.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,73 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="ko"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Using Video Efficiently">
+
+<meta name="description" content="WebGPU에서 비디오를 사용하는 방법">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-textures-external-video_ko.jpg">
+
+<meta property="og:title" content="WebGPU 비디오의 효율적인 사용">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="How to use video in WebGPU">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-textures-external-video_ko.jpg">
+<meta property="og:description" content="WebGPU에서 비디오를 사용하는 방법">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-textures-external-video.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Using Video Efficiently">
+<meta name="twitter:title" content="WebGPU 비디오의 효율적인 사용">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-textures-external-video.html">
-<meta name="twitter:description" content="How to use video in WebGPU">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="WebGPU에서 비디오를 사용하는 방법">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-textures-external-video_ko.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-textures-external-video.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-textures-external-video_ko.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-textures-external-video.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-textures-external-video.html",
+      "inLanguage":"ko",
+      "name":"WebGPU 비디오의 효율적인 사용",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-textures-external-video.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Using Video Efficiently</title>
+<title>WebGPU 비디오의 효율적인 사용</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
+<link rel="stylesheet" href="/webgpu/lessons/ko/lang.css">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -175,13 +221,239 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Using Video Efficiently</h1>
+    <h1>WebGPU 비디오의 효율적인 사용</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>죄송합니다. 이 글은 아직 번역이 되지 않았습니다.</p>
-<p><a href="https://github.com/gfxfundamentals/webgpufundamentals">번역을 도와주세요</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-textures-external-video.html">여기서 원문을 볼 수 있습니다</a>.</p>
+      <p><a href="../webgpu-importing-textures.html">이전 글</a>에서 이미지, 캔버스, 비디오를 텍스처로 로딩하는 방법을 알아봤습니다.
+이 글에서는 WebGPU에서 비디오를 사용하는 보다 효율적인 방법을 설명합니다.</p>
+<p>이전 글에서 비디오를 WEbGPU 텍스처로 로딩할 때 <code class="notranslate" translate="no">copyExternalImageToTexture</code>를 호출하였습니다.
+이 함수는 비디오의 현재 프레임을 우리가 만들어둔, 이미 존재하는 텍스처에 복사하였습니다.</p>
+<p>WebGPU에는 비디오를 사용하는 또다른 방법이 있습니다.
+<code class="notranslate" translate="no">importExternalTexture</code>인데 이름에서 알 수 있듯이 이 함수는 <code class="notranslate" translate="no">GPUExternalTexture</code>를 반환해줍니다.
+이 외부(external) 텍스처는 비디오데이터를 직접 표현합니다. 복사가 필요하지 않습니다. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>
+<code class="notranslate" translate="no">importExternalTexture</code>에 비디오를 넣어주면 텍스처가 반환되고, 바로 사용할 수 있습니다.</p>
+<p><code class="notranslate" translate="no">importExternalTexture</code>의 텍스처를 사용할 때는 몇 가지 큰 유의사항이 있습니다.</p>
+<ul>
+<li>
+<h2 id="텍스처는-현재-자바스크립트-작업이-종료될-때까지만-유효합니다">텍스처는 현재 자바스크립트 작업이 종료될 때까지만 유효합니다.</h2>
+<p>대부분의 WebGPU 앱의 경우 위 말은 텍스처가 <code class="notranslate" translate="no">requestAnimationCallback</code> 함수가 끝날때까지만 존재한다는 뜻입니다.
+또는 <code class="notranslate" translate="no">requestVideoFrameCallback</code>, <code class="notranslate" translate="no">setTimeout</code>, <code class="notranslate" translate="no">mouseMove</code> 와 같은 다른 렌더링을 수행하는 이벤트일 수도 있습니다.
+함수가 종료되면 텍스처가 만료(expired)됩니다.
+비디오를 다시 사용하려면 <code class="notranslate" translate="no">importExternalTexture</code>를 다시 호출해야만 합니다.</p>
+<p>이 말인즉, <code class="notranslate" translate="no">importExternalTexture</code>를 호출할 때마다 새로운 바인드그룹을 만들어서<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> 새로운 텍스처를 셰이더에 전달할 수 있어야 한다는 뜻입니다.</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">const newTexture = device.importExternalTexture(...);<br>const same = oldTexture === newTexture;</pre> 
+<p>같은 텍스처라면 이미 존재하는 바인드그룹과 참조된 <code class="notranslate" translate="no">oldTexture</code>를 사용 가능합니다.</p>
+</li>
+<li>
+<h2 id="셰이더에서-texture_external-를-사용해야만-합니다">셰이더에서 <code class="notranslate" translate="no">texture_external</code> 를 사용해야만 합니다.</h2>
+<p>이전 텍스처 예제에서는 모두 <code class="notranslate" translate="no">texture_2d&lt;f32&gt;</code>를 사용했지만 <code class="notranslate" translate="no">importExternalTexture</code>에서 만들어진 텍스처는 <code class="notranslate" translate="no">texture_external</code>를 사용한 바인딩 포인트에만 바인딩 될 수 있습니다.</p>
+</li>
+<li>
+<h2 id="셰이더에서-texturesamplebaseclamptoedge-를-사용해야만-합니다">셰이더에서 <code class="notranslate" translate="no">textureSampleBaseClampToEdge</code> 를 사용해야만 합니다.</h2>
+<p>이전 텍스처 예제에서는 모두 <code class="notranslate" translate="no">textureSample</code>를 사용했지만 <code class="notranslate" translate="no">importExternalTexture</code>에서 만들어진 텍스처는 <code class="notranslate" translate="no">textureSampleBaseClampToEdge</code>만 사용할 수 있습니다. <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>
+이름 그대로, <code class="notranslate" translate="no">textureSampleBaseClampToEdge</code>는 기본 텍스터 밉 레벨 (레벨 0)만 샘플링합니다.
+다시 말해, 외부 텍스처는 밉맵을 사용할 수 없습니다.
+게다가, edge clamping을 하기 때문에 <code class="notranslate" translate="no">addressModeU: 'repeat'</code>는 무시됩니다.</p>
+<p><code class="notranslate" translate="no">fract</code>를 아래와 같이 사용하면 직접 반복(repeat)을 할 수 있습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let color = textureSAmpleBaseClampToEdge(
+   someExternalTexture,
+   someSampler,
+   fract(texcoord)
+);`
+</pre>
+</li>
+</ul>
+<p>이러한 제약들이 문제가 있다면 <a href="../webgpu-importing-textures.html">이전 글</a>에서와 같이 <code class="notranslate" translate="no">copyExternalImageToTexture</code>를 사용해야만 합니다.</p>
+<p><code class="notranslate" translate="no">importExternalTexture</code>를 사용한 예제를 만들어 봅시다.
+비디오는 아래와 같습니다.</p>
+<div class="webgpu_center">
+  <div>
+     <video muted="" controls="" src="../../resources/videos/pexels-anna-bondarenko-5534310 (540p).mp4" style="width: 320px" ;=""></video>
+     <div class="copyright"><a href="https://www.pexels.com/video/dog-walking-outside-the-house-5534310/">by Anna Bondarenko</a></div>
+  </div>
+</div>
+<p>이전 예제에서 수정해야 할 사항은 아래와 같습니다.</p>
+<p>먼저 셰이더를 수정해야 합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct OurVertexShaderOutput {
+  @builtin(position) position: vec4f,
+  @location(0) texcoord: vec2f,
+};
+
+struct Uniforms {
+  matrix: mat4x4f,
+};
+
+@group(0) @binding(2) var&lt;uniform&gt; uni: Uniforms;
+
+@vertex fn vs(
+  @builtin(vertex_index) vertexIndex : u32
+) -&gt; OurVertexShaderOutput {
+  let pos = array(
+
+    vec2f( 0.0,  0.0),  // center
+    vec2f( 1.0,  0.0),  // right, center
+    vec2f( 0.0,  1.0),  // center, top
+
+    // 2st triangle
+    vec2f( 0.0,  1.0),  // center, top
+    vec2f( 1.0,  0.0),  // right, center
+    vec2f( 1.0,  1.0),  // right, top
+  );
+
+  var vsOutput: OurVertexShaderOutput;
+  let xy = pos[vertexIndex];
+  vsOutput.position = uni.matrix * vec4f(xy, 0.0, 1.0);
+-  vsOutput.texcoord = xy * vec2f(1, 50);
++  vsOutput.texcoord = xy;
+  return vsOutput;
+}
+
+@group(0) @binding(0) var ourSampler: sampler;
+-@group(0) @binding(1) var ourTexture: texture_2d&lt;f32&gt;;
++@group(0) @binding(1) var ourTexture: texture_external;
+
+@fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
+-  return textureSample(ourTexture, ourSampler, fsInput.texcoord);
++  return textureSampleBaseClampToEdge(
++      ourTexture,
++      ourSampler,
++      fsInput.texcoord,
++  );
+}
+</pre>
+<p>위에서, 텍스처 좌표에 50을 곱하는 것은 삭제했는데, 이는 반복을 보여주기 위함이었고, 외부 텍스처는 반복이 불가능하기 때문입니다.</p>
+<p>그리고 위해서 이야기한 제약 사항들을 수정했습니다.
+<code class="notranslate" translate="no">texture_2d&lt;f32&gt;</code>는 <code class="notranslate" translate="no">texture_external</code>로 바뀌었고 <code class="notranslate" translate="no">textureSample</code>은 <code class="notranslate" translate="no">textureSampleBaseClampToEdge</code>로 바뀌었습니다.</p>
+<p>텍스처 생성과 밉맵 생성 관련한 코드는 모두 제거합니다.</p>
+<p>물론 비디오의 출처를 명시해야 합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  video.src = 'resources/videos/Golden_retriever_swimming_the_doggy_paddle-360-no-audio.webm';
++  video.src = 'resources/videos/pexels-anna-bondarenko-5534310 (540p).mp4';
+</pre>
+<p>밉 레벨이 없으므로 이를 샘플러가 고려한 필요도 없습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const objectInfos = [];
+-  for (let i = 0; i &lt; 8; ++i) {
++  for (let i = 0; i &lt; 4; ++i) {
+    const sampler = device.createSampler({
+      addressModeU: 'repeat',
+      addressModeV: 'repeat',
+      magFilter: (i &amp; 1) ? 'linear' : 'nearest',
+      minFilter: (i &amp; 2) ? 'linear' : 'nearest',
+-      mipmapFilter: (i &amp; 4) ? 'linear' : 'nearest',
+    });
+
+  ...
+</pre>
+<p><code class="notranslate" translate="no">importExternalTexture</code>를 호출하기 전까지는 텍스처가 없기 때문에 바인드그룹을 미리 만들수도 없습니다.
+따라서 나중에 생성하기 위한 정보만 저장해 둡니다. <sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup></p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const objectInfos = [];
+  for (let i = 0; i &lt; 4; ++i) {
+
+    ...
+
+-    const bindGroups = textures.map(texture =&gt;
+-      device.createBindGroup({
+-        layout: pipeline.getBindGroupLayout(0),
+-        entries: [
+-          { binding: 0, resource: sampler },
+-          { binding: 1, resource: texture.createView() },
+-          { binding: 2, resource: { buffer: uniformBuffer }},
+-        ],
+-      }));
+
+    // Save the data we need to render this object.
+    objectInfos.push({
+-      bindGroups,
++     sampler,
+      matrix,
+      uniformValues,
+      uniformBuffer,
+    });
+</pre>
+<p>렌더링 시점에 <code class="notranslate" translate="no">importExternalTexture</code>를 호출하고 바인드그룹을 만듭니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
+-    copySourceToTexture(device, texture, video);
+    ...
+
+    const encoder = device.createCommandEncoder({
+      label: 'render quad encoder',
+    });
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+
++    const texture = device.importExternalTexture({source: video});
+
+    objectInfos.forEach(({sampler, matrix, uniformBuffer, uniformValues}, i) =&gt; {
++      const bindGroup = device.createBindGroup({
++        layout: pipeline.getBindGroupLayout(0),
++        entries: [
++          { binding: 0, resource: sampler },
++          { binding: 1, resource: texture },
++          { binding: 2, resource: { buffer: uniformBuffer }},
++        ],
++      });
+
+      ...
+
+      pass.setBindGroup(0, bindGroup);
+      pass.draw(6);  // call our vertex shader 6 times
+    });
+</pre>
+<p>또한 텍스처의 반복이 불가능하니 그리는 사각형이 보다 잘 보이도록 행렬 계산을 수정하여 50배 크기로 만들지는 않도록 합시다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
+    ...
+    objectInfos.forEach(({bindGroups, matrix, uniformBuffer, uniformValues}, i) =&gt; {
+      const bindGroup = bindGroups[texNdx];
+
+      const xSpacing = 1.2;
+-      const ySpacing = 0.7;
+-      const zDepth = 50;
++      const ySpacing = 0.5;
++      const zDepth = 1;
+
+-      const x = i % 4 - 1.5;
+-      const y = i &lt; 4 ? 1 : -1;
++      const x = i % 2 - .5;
++      const y = i &lt; 2 ? 1 : -1;
+
+      mat4.translate(viewProjectionMatrix, [x * xSpacing, y * ySpacing, -zDepth * 0.5], matrix);
+-      mat4.rotateX(matrix, 0.5 * Math.PI, matrix);
+-      mat4.scale(matrix, [1, zDepth * 2, 1], matrix);
++      mat4.rotateX(matrix, 0.25 * Math.PI * Math.sign(y), matrix);
++      mat4.scale(matrix, [1, -1, 1], matrix);
+      mat4.translate(matrix, [-0.5, -0.5, 0], matrix);
+
+      // copy the values from JavaScript to the GPU
+      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+
+      pass.setBindGroup(0, bindGroup);
+      pass.draw(6);  // call our vertex shader 6 times
+    });
+
+</pre>
+<p>이로써 WebGPU에서 복사를 하지 않는 비디오 텍스처가 만들어졌습니다.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-textured-quad-external-video.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-textured-quad-external-video.html" target="_blank">새 창으로 보려면 여기를 클릭하세요</a>
+</div>
+
+<p></p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>실제 동작 방식은 브라우저 구현에 달려 있습니다.
+WebGPU 명세(spec)는 브라우저가 복사를 하지 않기를 바라며 만들어졌습니다. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p>명세에는 구현에 따라 같은 텍스처를 반환할 수 있어야 한다고 되어 있지만 꼭 요구되는 사항은 아닙니다.
+같은 텍스처가 반환되었는지 확인하려면 이를 다음과 같이 확인해야 합니다. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p><code class="notranslate" translate="no">textureLoad</code>도 외부 텍스처에 사용할 수 있습니다. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn4" class="footnote-item"><p>바인드 그룹을 나누어서 하나는 샘플러와 uniform 버퍼만을 가지고 있도록 미리 만들고, 다른 하나는 렌더링 시점에 생성할 외부 텍스처를 참조하기만 하는 것을 만들어 둘 수도 있습니다.
+이렇게 하는 것이 좋을지는 여러분의 필요에 따라 선택하시면 됩니다. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
@@ -195,7 +467,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>기초</li>
+        <div id="toc">
+          <ul>  <li>기초</li>
         <ul>
           <li><a href="/webgpu/lessons/ko/webgpu-fundamentals.html">기초</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-inter-stage-variables.html">스테이지간 변수(Inter-stage Variables)</a></li>
@@ -204,7 +477,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/ko/webgpu-vertex-buffers.html">정점 버퍼</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-textures.html">텍스처</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-importing-textures.html">이미지 로딩</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-textures-external-video.html">Using Video</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-textures-external-video.html">비디오 사용하기</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-memory-layout.html">데이터 메모리 레이아웃</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-copying-data.html">Copying Data</a></li>
@@ -223,6 +496,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/ko/webgpu-cameras.html">Cameras</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-matrix-stacks.html">Matrix Stacks</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-scene-graphs.html">Scene Graphs</a></li>
+        </ul>
+  <li>Lighting</li>
+        <ul>
+          <li><a href="/webgpu/lessons/ko/webgpu-lighting-directional.html">Directional Lighting</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-lighting-point.html">Point Lighting</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-lighting-spot.html">Spot Lighting</a></li>
         </ul>
   <li>컴퓨트 셰이더</li>
         <ul>
@@ -248,13 +527,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
 
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>질문이 있나요? <a href="http://stackoverflow.com/questions/tagged/webgpu">Stack Overflow</a>에 물어보세요.</div>
+<div>
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">제안</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">요청 사항</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">이슈</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">버그</a>
+</div>
+<div class="lesson-comment-notes">
+   코드 블럭의 경우 <b>&lt;pre&gt;&lt;code&gt;</b>코드<b>&lt;/code&gt;&lt;/pre&gt;</b>을 사용하세요.
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU 비디오의 효율적인 사용`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "<a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a>님<br> 당신의 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 기여에 감사드립니다.</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
-<script src="/webgpu/lessons/resources/lesson.js"></script>
+<script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
 <script>
 </script>
 

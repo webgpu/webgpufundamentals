@@ -406,7 +406,7 @@ checkerboard.</p>
 <code class="notranslate" translate="no">@builtin(position)</code>, and converts its <code class="notranslate" translate="no">xy</code> coordinates to a <code class="notranslate" translate="no">vec2u</code> which is 2
 unsigned integers. It then divides them by 8 giving us a count that increases
 every 8 pixels. It then adds the <code class="notranslate" translate="no">x</code> and <code class="notranslate" translate="no">y</code> grid coordinates together, computes
-module 2, and compares the result to 1. This will give us a boolean that is true
+modulo 2, and compares the result to 1. This will give us a boolean that is true
 or false every other integer. Finally it uses the WGSL function <code class="notranslate" translate="no">select</code> which
 given 2 values, selects one or the other based on a boolean condition. In
 JavaScript <code class="notranslate" translate="no">select</code> would be written like this</p>
@@ -580,6 +580,12 @@ pass data into shaders.</p>
 <li><a href="/webgpu/lessons/webgpu-cameras.html">Cameras</a></li>
 <li><a href="/webgpu/lessons/webgpu-matrix-stacks.html">Matrix Stacks</a></li>
 <li><a href="/webgpu/lessons/webgpu-scene-graphs.html">Scene Graphs</a></li>
+        </ul>
+  <li>Lighting</li>
+        <ul>
+          <li><a href="/webgpu/lessons/webgpu-lighting-directional.html">Directional Lighting</a></li>
+<li><a href="/webgpu/lessons/webgpu-lighting-point.html">Point Lighting</a></li>
+<li><a href="/webgpu/lessons/webgpu-lighting-spot.html">Spot Lighting</a></li>
         </ul>
   <li>Compute Shaders</li>
         <ul>

@@ -26,6 +26,11 @@
     'webgpu-matrix-stacks.md',
     'webgpu-scene-graphs.md',
   ],
+  'lighting': [
+    'webgpu-lighting-directional.md',
+    'webgpu-lighting-point.md',
+    'webgpu-lighting-spot.md',
+  ],
   'compute-shaders': [
     'webgpu-compute-shaders.md',
     'webgpu-compute-shaders-histogram.md',
