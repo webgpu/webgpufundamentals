@@ -25,7 +25,8 @@ There are a few big caveats to using an texture from `importExternalTexture`.
 * ## The texture is only valid until you exit the current JavaScript task.
 
   For most WebGPU apps that means the texture only exists until your
-  `requestAnimationCallback` function ends. Or whatever event you're rendering on; `requestVideoFrameCallback`, `setTimeout`,
+  `requestAnimationCallback` function ends. Or whatever event you're
+  event you're rendering on; `requestVideoFrameCallback`, `setTimeout`,
   `mouseMove`, etc...  When your function exits the texture is expired.
   To use the video again you must call `importExternalTexture` again.
 
