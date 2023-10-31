@@ -1,8 +1,10 @@
-/* muigui@0.0.6, license MIT */
-var css = `
-.muigui-colors {
+/* muigui@0.0.7, license MIT */
+var css = {
+  default: `
+.muigui {
   --bg-color: #ddd;
   --color: #222;
+  --contrast-color: #eee;
   --value-color: #145 ;
   --value-bg-color: #eeee;
   --disabled-color: #999;
@@ -25,9 +27,10 @@ var css = `
 }
 
 @media (prefers-color-scheme: dark) {
-  .muigui-colors {
+  .muigui {
     --bg-color: #222222;
     --color: #dddddd;
+    --contrast-color: #000;
     --value-color: #43e5f7;
     --value-bg-color: #444444;
     --disabled-color: #666666;
@@ -679,7 +682,67 @@ var css = `
   z-index: 100001;
 }
 
-`;
+`,
+themes: {
+  default: '',
+  float: `
+  :root {
+    color-scheme: light dark,
+  }
+
+  .muigui {
+    --width: 400px;
+    --bg-color: initial;
+    --label-width: 25%;
+  }
+
+  input,
+  .muigui-label-controller>label {
+      text-shadow:
+       -1px -1px 0 var(--contrast-color),
+        1px -1px 0 var(--contrast-color),
+       -1px  1px 0 var(--contrast-color),
+        1px  1px 0 var(--contrast-color);
+  }
+
+  .muigui-controller > label:nth-child(1) {
+      place-content: center end;
+      margin-right: 1em;
+  }
+
+  .muigui-value > :nth-child(2) {
+      margin-left: 1em;
+  }
+
+  .muigui-root>*:nth-child(1) {
+      display: none;
+  }
+
+  .muigui-range input[type=range]::-webkit-slider-thumb {
+    border-radius: 1em;
+  }
+
+  .muigui-range input[type=range]::-webkit-slider-runnable-track {
+    -webkit-appearance: initial;
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    height: 2px;
+  }
+
+  .muigui-colors {
+    --value-color: var(--color  );
+    --value-bg-color: rgba(0, 0, 0, 0.1);
+    --disabled-color: #cccccc;
+    --menu-bg-color: rgba(0, 0, 0, 0.1);
+    --menu-sep-color: #bbbbbb;
+    --hover-bg-color: rgba(0, 0, 0, 0);
+    --invalid-color: #FF0000;
+    --selected-color: rgba(0, 0, 0, 0.3);
+    --range-color: rgba(0, 0, 0, 0.125);
+  }
+`,
+},
+};
 
 function setElemProps(elem, attrs, children) {
   for (const [key, value] of Object.entries(attrs)) {
@@ -787,6 +850,39 @@ const makeRangeOptions = ({from, to, step}) => {
     converters: makeRangeConverters({from, to}),
   };
 };
+
+// TODO: remove an use one in conversions. Move makeRangeConverters there?
+const identity$1 = {
+  to: v => v,
+  from: v => [true, v],
+};
+function makeMinMaxPair(gui, properties, minPropName, maxPropName, options) {
+  const { converters: { from } = identity$1 } = options;
+  const { min, max } = options;
+  const guiMinRange = options.minRange || 0;
+  const valueMinRange = from(guiMinRange)[1];
+  const minGui = gui
+    .add(properties, minPropName, {
+      ...options,
+      min,
+      max: max - guiMinRange,
+    })
+//        .listen()
+    .onChange(v => {
+      maxGui.setValue(Math.min(max, Math.max(v + valueMinRange, properties[maxPropName])));
+    });
+  const maxGui = gui
+    .add(properties, maxPropName, {
+      ...options,
+      min: min + guiMinRange,
+      max,
+    })
+//        .listen()
+    .onChange(v => {
+      minGui.setValue(Math.max(min, Math.min(v - valueMinRange, properties[minPropName])));
+    });
+  return [ minGui, maxGui ];
+}
 
 class View {
   #childDestElem;
@@ -1253,31 +1349,39 @@ class ValueController extends LabelController {
     return view;
   }
   #setValueImpl(v, ignoreCache) {
+    let isDifferent = false;
     if (typeof v === 'object') {
       const dst = this.#object[this.#property];
       // don't replace objects, just their values.
-      if (Array.isArray(v)) {
+      if (Array.isArray(v) || isTypedArray(v)) {
         for (let i = 0; i < v.length; ++i) {
+          isDifferent ||= dst[i] !== v[i];
           dst[i] = v[i];
         }
-      } else if (isTypedArray(v)) {
-        dst.set(v);
       } else {
+        for (const key of Object.keys(v)) {
+          isDifferent ||= dst[key] !== v[key];
+        }
         Object.assign(dst, v);
       }
     } else {
+      isDifferent = this.#object[this.#property] !== v;
       this.#object[this.#property] = v;
     }
     this.updateDisplay(ignoreCache);
-    this.emitChange(this.getValue(), this.#object, this.#property);
-    return this;
+    if (isDifferent) {
+      this.emitChange(this.getValue(), this.#object, this.#property);
+    }
+    return isDifferent;
   }
   setValue(v) {
     this.#setValueImpl(v);
   }
   setFinalValue(v) {
-    this.#setValueImpl(v, true);
-    this.emitFinalChange(this.getValue(), this.#object, this.#property);
+    const isDifferent = this.#setValueImpl(v, true);
+    if (isDifferent) {
+      this.emitFinalChange(this.getValue(), this.#object, this.#property);
+    }
     return this;
   }
   updateDisplay(ignoreCache) {
@@ -1515,16 +1619,22 @@ class RangeView extends EditView {
       type: 'range',
       onInput: () => {
         this.#skipUpdate = true;
-        const [valid, v] = this.#from(parseFloat(this.domElement.value));
+        const {min, max, step} = this.#options;
+        const v = parseFloat(this.domElement.value);
+        const newV = clamp$1(stepify(v, v => v, step), min, max);
+        const [valid, validV] = this.#from(newV);
         if (valid) {
-          setter.setValue(v);
+          setter.setValue(validV);
         }
       },
       onChange: () => {
         this.#skipUpdate = true;
-        const [valid, v] = this.#from(parseFloat(this.domElement.value));
+        const {min, max, step} = this.#options;
+        const v = parseFloat(this.domElement.value);
+        const newV = clamp$1(stepify(v, v => v, step), min, max);
+        const [valid, validV] = this.#from(newV);
         if (valid) {
-          setter.setFinalValue(v);
+          setter.setFinalValue(validV);
         }
       },
       onWheel: e => {
@@ -2355,9 +2465,6 @@ class Row extends Layout {
   }
 }
 
-let stylesInjected = false;
-const styleElem = createElem('style');
-
 class GUIFolder extends Folder {
   add(object, property, ...args) {
     const controller = object instanceof Controller
@@ -2382,11 +2489,51 @@ class GUIFolder extends Folder {
   }
 }
 
+class MuiguiElement extends HTMLElement {
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({mode: 'open'});
+  }
+}
+
+customElements.define('muigui-element', MuiguiElement);
+
+const baseStyleSheet = new CSSStyleSheet();
+baseStyleSheet.replaceSync(css.default);
+const userStyleSheet = new CSSStyleSheet();
+
+function makeStyleSheetUpdater(styleSheet) {
+  let newCss;
+  let newCssPromise;
+
+  function updateStyle() {
+    if (newCss && !newCssPromise) {
+      const s = newCss;
+      newCss = undefined;
+      newCssPromise = styleSheet.replace(s).then(() => {
+  console.log(s);
+        newCssPromise = undefined;
+        updateStyle();
+      });
+    }
+  }
+
+  return function updateStyleSheet(css) {
+    newCss = css;
+    updateStyle();
+  };
+}
+
+const updateBaseStyle = makeStyleSheetUpdater(baseStyleSheet);
+const updateUserStyle = makeStyleSheetUpdater(userStyleSheet);
+
 class GUI extends GUIFolder {
   static converters = converters;
   static mapRange = mapRange;
   static makeRangeConverters = makeRangeConverters;
   static makeRangeOptions = makeRangeOptions;
+  static makeMinMaxPair = makeMinMaxPair;
+  #localStyleSheet = new CSSStyleSheet();
 
   constructor(options = {}) {
     super('Controls', 'muigui-root');
@@ -2397,16 +2544,11 @@ class GUI extends GUIFolder {
       autoPlace = true,
       width,
       title = 'Controls',
-      injectStyles = true,
     } = options;
     let {
       parent,
     } = options;
-    if (injectStyles && !stylesInjected) {
-      stylesInjected = true;
-      (document.head || document.documentElement).appendChild(styleElem);
-      styleElem.textContent = css;
-    }
+
     if (width) {
       this.domElement.style.width = /^\d+$/.test(width) ? `${width}px` : width;
     }
@@ -2415,12 +2557,33 @@ class GUI extends GUIFolder {
       this.domElement.classList.add('muigui-auto-place');
     }
     if (parent) {
-      parent.appendChild(this.domElement);
+      const muiguiElement = createElem('muigui-element');
+      muiguiElement.shadowRoot.adoptedStyleSheets = [baseStyleSheet, userStyleSheet, this.#localStyleSheet];
+      muiguiElement.shadow.appendChild(this.domElement);
+      parent.appendChild(muiguiElement);
     }
     if (title) {
       this.title(title);
     }
     this.domElement.classList.add('muigui', 'muigui-colors');
+  }
+  setStyle(css) {
+    this.#localStyleSheet.replace(css);
+  }
+  static setBaseStyles(css) {
+    updateBaseStyle(css);
+  }
+  static getBaseStyleSheet() {
+    return baseStyleSheet;
+  }
+  static setUserStyles(css) {
+    updateUserStyle(css);
+  }
+  static getUserStyleSheet() {
+    return userStyleSheet;
+  }
+  static setTheme(name) {
+    GUI.setBaseStyles(`${css.default}\n${css.themes[name] || ''}`);
   }
 }
 
@@ -2455,9 +2618,9 @@ function addTouchEvents(elem, {onDown = noop$1, onMove = noop$1, onUp = noop$1})
     elem.releasePointerCapture(event.pointerId);
     elem.removeEventListener('pointermove', pointerMove);
     elem.removeEventListener('pointerup', pointerUp);
- 
+
     document.body.style.backgroundColor = '';
- 
+
     onUp('up');
   };
 
@@ -2615,17 +2778,6 @@ pc.addBottom
 
 
 */
-
-function makeSetter(object, property) {
-  return {
-    setValue(v) {
-      object[property] = v;
-    },
-    setFinalValue(v) {
-      this.setValue(v);
-    },
-  };
-}
 
 class PopDownController extends ValueController {
   #top;
@@ -3161,19 +3313,6 @@ class Slider extends ValueController {
     this.add(new SliderView(this, options));
     this.add(new NumberView(this, options));
     this.updateDisplay();
-  }
-}
-
-class GridView extends View {
-  // FIX: should this be 'options'?
-  constructor(cols) {
-    super(createElem('div', {
-      className: 'muigui-grid',
-    }));
-    this.cols(cols);
-  }
-  cols(cols) {
-    this.domElement.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
   }
 }
 

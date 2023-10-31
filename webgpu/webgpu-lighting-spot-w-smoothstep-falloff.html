@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Scene Graphs - Separate Matrices - Step 4</title>
+    <title>WebGPU Lighting - Spot with smoothstep falloff</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -96,40 +96,38 @@ function createFVertices() {
      0, 12,  2,   12, 14,  2,   // left
   ];
 
-  const quadColors = [
-      200,  70, 120,  // left column front
-      200,  70, 120,  // top rung front
-      200,  70, 120,  // middle rung front
+  const normals = [
+        0,   0,   1,  // left column front
+        0,   0,   1,  // top rung front
+        0,   0,   1,  // middle rung front
 
-       80,  70, 200,  // left column back
-       80,  70, 200,  // top rung back
-       80,  70, 200,  // middle rung back
+        0,   0,  -1,  // left column back
+        0,   0,  -1,  // top rung back
+        0,   0,  -1,  // middle rung back
 
-       70, 200, 210,  // top
-      160, 160, 220,  // top rung right
-       90, 130, 110,  // top rung bottom
-      200, 200,  70,  // between top and middle rung
-      210, 100,  70,  // middle rung top
-      210, 160,  70,  // middle rung right
-       70, 180, 210,  // middle rung bottom
-      100,  70, 210,  // stem right
-       76, 210, 100,  // bottom
-      140, 210,  80,  // left
+        0,   1,   0,  // top
+        1,   0,   0,  // top rung right
+        0,  -1,   0,  // top rung bottom
+        1,   0,   0,  // between top and middle rung
+        0,   1,   0,  // middle rung top
+        1,   0,   0,  // middle rung right
+        0,  -1,   0,  // middle rung bottom
+        1,   0,   0,  // stem right
+        0,  -1,   0,  // bottom
+       -1,   0,   0,  // left
   ];
 
   const numVertices = indices.length;
-  const vertexData = new Float32Array(numVertices * 4); // xyz + color
-  const colorData = new Uint8Array(vertexData.buffer);
+  const vertexData = new Float32Array(numVertices * 6); // xyz + normal
 
   for (let i = 0; i < indices.length; ++i) {
     const positionNdx = indices[i] * 3;
     const position = positions.slice(positionNdx, positionNdx + 3);
-    vertexData.set(position, i * 4);
+    vertexData.set(position, i * 6);
 
     const quadNdx = (i / 6 | 0) * 3;
-    const color = quadColors.slice(quadNdx, quadNdx + 3);
-    colorData.set(color, i * 16 + 12);
-    colorData[i * 16 + 15] = 255;
+    const normal = normals.slice(quadNdx, quadNdx + 3);
+    vertexData.set(normal, i * 6 + 3);
   }
 
   return {
@@ -400,6 +398,17 @@ const mat4 = {
     return dst;
   },
 
+  transpose(m, dst) {
+    dst = dst || new Float32Array(16);
+
+    dst[ 0] = m[ 0];  dst[ 1] = m[ 4];  dst[ 2] = m[ 8];  dst[ 3] = m[12];
+    dst[ 4] = m[ 1];  dst[ 5] = m[ 5];  dst[ 6] = m[ 9];  dst[ 7] = m[13];
+    dst[ 8] = m[ 2];  dst[ 9] = m[ 6];  dst[10] = m[10];  dst[11] = m[14];
+    dst[12] = m[ 3];  dst[13] = m[ 7];  dst[14] = m[11];  dst[15] = m[15];
+
+    return dst;
+  },
+
   aim(eye, target, up, dst) {
     dst = dst || new Float32Array(16);
 
@@ -506,6 +515,18 @@ const mat4 = {
   },
 };
 
+const mat3 = {
+  fromMat4(m, dst) {
+    dst = dst || new Float32Array(12);
+
+    dst[0] = m[0]; dst[1] = m[1];  dst[ 2] = m[ 2];
+    dst[4] = m[4]; dst[5] = m[5];  dst[ 6] = m[ 6];
+    dst[8] = m[8]; dst[9] = m[9];  dst[10] = m[10];
+
+    return dst;
+  },
+};
+
 async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
@@ -526,41 +547,82 @@ async function main() {
 
   const module = device.createShaderModule({
     code: `
-      struct SharedViewUniforms {
-        projection: mat4x4f,
-        view: mat4x4f,
-      };
-
-      struct PerModelUniforms {
-        model: mat4x4f,
+      struct Uniforms {
+        normalMatrix: mat3x3f,
+        worldViewProjection: mat4x4f,
+        world: mat4x4f,
+        color: vec4f,
+        lightWorldPosition: vec3f,
+        viewWorldPosition: vec3f,
+        shininess: f32,
+        lightDirection: vec3f,
+        innerLimit: f32,
+        outerLimit: f32,
       };
 
       struct Vertex {
         @location(0) position: vec4f,
-        @location(1) color: vec4f,
+        @location(1) normal: vec3f,
       };
 
       struct VSOutput {
         @builtin(position) position: vec4f,
-        @location(0) color: vec4f,
+        @location(0) normal: vec3f,
+        @location(1) surfaceToLight: vec3f,
+        @location(2) surfaceToView: vec3f,
       };
 
-      @group(0) @binding(0) var<uniform> perModelUniforms: PerModelUniforms;
-      @group(1) @binding(0) var<uniform> sharedViewUniforms: SharedViewUniforms;
+      @group(0) @binding(0) var<uniform> uni: Uniforms;
 
       @vertex fn vs(vert: Vertex) -> VSOutput {
         var vsOut: VSOutput;
-        vsOut.position =
-            sharedViewUniforms.projection *
-            sharedViewUniforms.view *
-            perModelUniforms.model *
-            vert.position;
-        vsOut.color = vert.color;
+        vsOut.position = uni.worldViewProjection * vert.position;
+
+        // Orient the normals and pass to the fragment shader
+        vsOut.normal = uni.normalMatrix * vert.normal;
+
+        // Compute the world position of the surface
+        let surfaceWorldPosition = (uni.world * vert.position).xyz;
+
+        // Compute the vector of the surface to the light
+        // and pass it to the fragment shader
+        vsOut.surfaceToLight = uni.lightWorldPosition - surfaceWorldPosition;
+
+        // Compute the vector of the surface to the light
+        // and pass it to the fragment shader
+        vsOut.surfaceToView = uni.viewWorldPosition - surfaceWorldPosition;
+
         return vsOut;
       }
 
       @fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
-        return vsOut.color;
+        // Because vsOut.normal is an inter-stage variable 
+        // it's interpolated so it will not be a unit vector.
+        // Normalizing it will make it a unit vector again
+        let normal = normalize(vsOut.normal);
+
+        let surfaceToLightDirection = normalize(vsOut.surfaceToLight);
+        let surfaceToViewDirection = normalize(vsOut.surfaceToView);
+        let halfVector = normalize(
+          surfaceToLightDirection + surfaceToViewDirection);
+
+        let dotFromDirection = dot(surfaceToLightDirection, -uni.lightDirection);
+        let inLight = smoothstep(uni.outerLimit, uni.innerLimit, dotFromDirection);
+
+        // Compute the light by taking the dot product
+        // of the normal with the direction to the light
+        let light = inLight * dot(normal, surfaceToLightDirection);
+
+        var specular = dot(normal, halfVector);
+        specular = inLight * select(
+            0.0,                           // value if condition false
+            pow(specular, uni.shininess),  // value if condition is true
+            specular > 0.0);               // condition
+
+        // Lets multiply just the color portion (not the alpha)
+        // by the light
+        let color = uni.color.rgb * light + specular;
+        return vec4f(color, uni.color.a);
       }
     `,
   });
@@ -573,10 +635,10 @@ async function main() {
       entryPoint: 'vs',
       buffers: [
         {
-          arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color
+          arrayStride: (3 + 3) * 4, // (3+3) floats 4 bytes each
           attributes: [
             {shaderLocation: 0, offset: 0, format: 'float32x3'},  // position
-            {shaderLocation: 1, offset: 12, format: 'unorm8x4'},  // color
+            {shaderLocation: 1, offset: 12, format: 'float32x3'},  // normal
           ],
         },
       ],
@@ -596,64 +658,54 @@ async function main() {
     },
   });
 
-  // projection, view
-  const sharedViewUniformBufferSize = (16 + 16) * 4;
-  const sharedViewUniformBuffer = device.createBuffer({
-    label: 'shared view uniforms',
-    size: sharedViewUniformBufferSize,
+  const uniformBufferSize = (12 + 16 + 16 + 4 + 4 + 4 + 4 + 4) * 4;
+  const uniformBuffer = device.createBuffer({
+    label: 'uniforms',
+    size: uniformBufferSize,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
-  const sharedViewBindGroup = device.createBindGroup({
-    label: 'shared view bind group',
-    layout: pipeline.getBindGroupLayout(1 ),
+  const uniformValues = new Float32Array(uniformBufferSize / 4);
+
+  // offsets to the various uniform values in float32 indices
+  const kNormalMatrixOffset = 0;
+  const kWorldViewProjectionOffset = 12;
+  const kWorldOffset = 28;
+  const kColorOffset = 44;
+  const kLightWorldPositionOffset = 48;
+  const kViewWorldPositionOffset = 52;
+  const kShininessOffset = 55;
+  const kLightDirectionOffset = 56;
+  const kInnerLimitOffset = 59;
+  const kOuterLimitOffset = 60;
+
+  const normalMatrixValue = uniformValues.subarray(
+      kNormalMatrixOffset, kNormalMatrixOffset + 12);
+  const worldViewProjectionValue = uniformValues.subarray(
+      kWorldViewProjectionOffset, kWorldViewProjectionOffset + 16);
+  const worldValue = uniformValues.subarray(
+      kWorldOffset, kWorldOffset + 16);
+  const colorValue = uniformValues.subarray(kColorOffset, kColorOffset + 4);
+  const lightWorldPositionValue = uniformValues.subarray(
+      kLightWorldPositionOffset, kLightWorldPositionOffset + 3);
+  const viewWorldPositionValue = uniformValues.subarray(
+      kViewWorldPositionOffset, kViewWorldPositionOffset + 3);
+  const shininessValue = uniformValues.subarray(
+      kShininessOffset, kShininessOffset + 1);
+  const lightDirectionValue = uniformValues.subarray(
+      kLightDirectionOffset, kLightDirectionOffset + 3);
+  const innerLimitValue = uniformValues.subarray(
+      kInnerLimitOffset, kInnerLimitOffset + 1);
+  const outerLimitValue = uniformValues.subarray(
+      kOuterLimitOffset, kOuterLimitOffset + 1);
+
+  const bindGroup = device.createBindGroup({
+    label: 'bind group for object',
+    layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: sharedViewUniformBuffer }},
+      { binding: 0, resource: { buffer: uniformBuffer }},
     ],
   });
-
-  const sharedViewUniformValues = new Float32Array(sharedViewUniformBufferSize / 4);
-
-  // offsets to the various shared uniform values in float32 indices
-  const kProjectionOffset = 0;
-  const kViewOffset = 16;
-  const projectionValue = sharedViewUniformValues.subarray(kProjectionOffset, kProjectionOffset + 16);
-  const viewValue = sharedViewUniformValues.subarray(kViewOffset, kViewOffset + 16);
-
-
-  const numFs = 5 * 5 + 1;
-  const objectInfos = [];
-  for (let i = 0; i < numFs; ++i) {
-    // model
-    const uniformBufferSize = (16) * 4;
-    const uniformBuffer = device.createBuffer({
-      label: 'uniforms',
-      size: uniformBufferSize,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
-
-    const uniformValues = new Float32Array(uniformBufferSize / 4);
-
-    // offsets to the various uniform values in float32 indices
-    const kModelOffset = 0;
-
-    const modelValue = uniformValues.subarray(kModelOffset, kModelOffset + 16);
-
-    const bindGroup = device.createBindGroup({
-      label: `bind group for object ${i}`,
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: uniformBuffer }},
-      ],
-    });
-
-    objectInfos.push({
-      uniformBuffer,
-      uniformValues,
-      modelValue,
-      bindGroup,
-    });
-  }
 
   const { vertexData, numVertices } = createFVertices();
   const vertexBuffer = device.createBuffer({
@@ -682,18 +734,25 @@ async function main() {
 
   const degToRad = d => d * Math.PI / 180;
 
-  const radius = 200;
   const settings = {
-    target: [0, 200, 300],
-    targetAngle: 0,
+    rotation: degToRad(0),
+    shininess: 30,
+    innerLimit: degToRad(15),
+    outerLimit: degToRad(25),
+    aimOffsetX: -10,
+    aimOffsetY: 10,
   };
 
   const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
+  const limitOptions = { min: 0, max: 90, minRange: 1, step: 1, converters: GUI.converters.radToDeg };
 
   const gui = new GUI();
   gui.onChange(render);
-  gui.add(settings.target, '1', -100, 300).name('target height');
-  gui.add(settings, 'targetAngle', radToDegOptions).name('target angle');
+  gui.add(settings, 'rotation', radToDegOptions);
+  gui.add(settings, 'shininess', { min: 1, max: 250 });
+  GUI.makeMinMaxPair(gui, settings, 'innerLimit', 'outerLimit', limitOptions);
+  gui.add(settings, 'aimOffsetX', -50, 50);
+  gui.add(settings, 'aimOffsetY', -50, 50);
 
   let depthTexture;
 
@@ -724,69 +783,61 @@ async function main() {
     pass.setPipeline(pipeline);
     pass.setVertexBuffer(0, vertexBuffer);
 
-    // update target X,Z based on angle
-    settings.target[0] = Math.cos(settings.targetAngle) * radius;
-    settings.target[2] = Math.sin(settings.targetAngle) * radius;
-
     const aspect = canvas.clientWidth / canvas.clientHeight;
     const projection = mat4.perspective(
-        degToRad(60), // fieldOfView,
+        degToRad(60),
         aspect,
         1,      // zNear
         2000,   // zFar
-        projectionValue,
     );
 
-    // Get the camera's position from the matrix we computed
-    const eye = [-500, 300, -500];
-    const target = [0, -100, 0];
+    const eye = [100, 150, 200];
+    const target = [0, 35, 0];
     const up = [0, 1, 0];
 
     // Compute a view matrix
-    const viewMatrix = mat4.lookAt(eye, target, up, viewValue);
+    const viewMatrix = mat4.lookAt(eye, target, up);
 
-    // combine the view and projection matrixes
+    // Combine the view and projection matrixes
     const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
 
-    // upload the shared view uniform values to the shared view uniform buffer
-    device.queue.writeBuffer(sharedViewUniformBuffer, 0, sharedViewUniformValues);
+    // Compute a world matrix
+    const world = mat4.rotationY(settings.rotation, worldValue);
 
-    pass.setBindGroup(1, sharedViewBindGroup);
+    // Combine the viewProjection and world matrices
+    mat4.multiply(viewProjectionMatrix, world, worldViewProjectionValue);
 
-    objectInfos.forEach(({
-      modelValue,
-      uniformBuffer,
-      uniformValues,
-      bindGroup,
-    }, i) => {
-      const deep = 5;
-      const across = 5;
-      if (i < 25) {
-        // compute grid positions
-        const gridX = i % across;
-        const gridZ = i / across | 0;
+    // Inverse and transpose it into the worldInverseTranspose value
+    mat3.fromMat4(mat4.transpose(mat4.inverse(world)), normalMatrixValue);
 
-        // compute 0 to 1 positions
-        const u = gridX / (across - 1);
-        const v = gridZ / (deep - 1);
+    colorValue.set([0.2, 1, 0.2, 1]);  // green
+    lightWorldPositionValue.set([-10, 30, 100]);
+    viewWorldPositionValue.set(eye);
+    shininessValue[0] = settings.shininess;
+    innerLimitValue[0] = Math.cos(settings.innerLimit);
+    outerLimitValue[0] = Math.cos(settings.outerLimit);
 
-        // center and spread out
-        const x = (u - 0.5) * across * 150;
-        const z = (v - 0.5) * deep * 150;
+    // Since we don't have a plane like most spotlight examples
+    // let's point the spot light at the F
+    {
+        const mat = mat4.aim(
+            lightWorldPositionValue,
+            [
+              target[0] + settings.aimOffsetX,
+              target[1] + settings.aimOffsetY,
+              0,
+            ],
+            up);
+        // get the zAxis from the matrix
+        // negate it because lookAt looks down the -Z axis
+        lightDirectionValue.set(mat.slice(8, 11));
+    }
 
-        // aim this F from it's position toward the target F
-        mat4.aim([x, 0, z], settings.target, up, modelValue);
-      } else {
-        mat4.translate(viewProjectionMatrix, settings.target, modelValue);
-      }
+    // upload the uniform values to the uniform buffer
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
 
-      // upload the uniform values to the uniform buffer
-      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
-
-      pass.setBindGroup(0, bindGroup);
-      pass.draw(numVertices);
-    });
-
+    pass.setBindGroup(0, bindGroup);
+    pass.draw(numVertices);
     pass.end();
 
     const commandBuffer = encoder.finish();

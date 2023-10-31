@@ -31,6 +31,7 @@ Sorry this article has not been translated yet.
     'misc': 'Misc',
     'reference': 'Reference',
     '3d-math': '3D Math',
+    'lighting': 'Lighting',
     'compute-shaders': 'Compute Shaders',
   },
 }

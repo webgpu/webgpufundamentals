@@ -4,7 +4,7 @@
   - [ ] Figure out how to check for device.fn, encoder.fn, pass.fn
 - [X] Fix code gen double output for non-struct
 
-- [ ] Get webgpu types in live-editor
+- [X] Get webgpu types in live-editor
 - [ ] Get eslint to run correctly
   - [ ] recognize WebGPU types
 - [ ] Re-style
@@ -27,7 +27,7 @@
 - [ ] points, lines, triangles
 - [ ] 
 
-- [ ] convert matrix articles
+- [X] convert matrix articles
   - [X] translation
   - [X] rotation
   - [X] scaling

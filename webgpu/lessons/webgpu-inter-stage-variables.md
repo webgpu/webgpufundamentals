@@ -219,7 +219,7 @@ The code above takes `fsInput.position`, which was declared as
 `@builtin(position)`, and converts its `xy` coordinates to a `vec2u` which is 2
 unsigned integers. It then divides them by 8 giving us a count that increases
 every 8 pixels. It then adds the `x` and `y` grid coordinates together, computes
-module 2, and compares the result to 1. This will give us a boolean that is true
+modulo 2, and compares the result to 1. This will give us a boolean that is true
 or false every other integer. Finally it uses the WGSL function `select` which
 given 2 values, selects one or the other based on a boolean condition. In
 JavaScript `select` would be written like this
