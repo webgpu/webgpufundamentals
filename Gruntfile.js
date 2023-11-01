@@ -201,15 +201,17 @@ module.exports = function(grunt) {
     };
     const hosts = [];
 
-    console.log('startServer');
+    const root = path.join(__dirname, 'out');
+
     const server = new Servez(Object.assign({
-      root: path.join(__dirname, 'out'),
+      root,
       dataDir,
       logger,
     }, {
       port: 8080,
       scan: true,
       index: true,
+      dirs: true,
       extensions: ['html'],
     }));
     server.on('host', function(...args) {
@@ -226,7 +228,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build', ['clean', 'copy:main', 'buildlessons']);
-  grunt.registerTask('buildwatch', ['build', 'serve', 'watch']);
+  grunt.registerTask('buildwatch', [/*'build',*/ 'serve', 'watch']);
 
   grunt.registerTask('default', ['eslint', 'build']);
 };
