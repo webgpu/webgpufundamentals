@@ -53,7 +53,7 @@ It's hard to decide where to start. At certain level, WebGPU is a very simple
 system. All it does is run 3 types of functions on the GPU. Vertex Shaders,
 Fragment Shaders, Compute Shaders.
 
-A Vertex Shader computes vertices. The shader returns vertex positions. For every group of 3 vertices, it returns a triangle drawn between those 3 positions [^primitives]
+A Vertex Shader computes vertices. The shader returns vertex positions. For every group of 3 vertices the vertex shader function returns a triangle is drawn between those 3 positions [^primitives]
 
 [^primitives]: There are actually 5 modes.
 
@@ -121,7 +121,7 @@ to change any of that stuff you create a new resource and destroy the old one.
 
 Some of the state is setup by creating and then executing command buffers.
 Command buffers are literally what their name suggests. They are a buffer of
-commands. You create encoders. The encoders encode commands into the command
+commands. You create command encoders. The encoders encode commands into the command
 buffer. You then *finish* the encoder and it gives you the command buffer it
 created. You can then *submit* that command buffer to have WebGPU execute the
 commands.
