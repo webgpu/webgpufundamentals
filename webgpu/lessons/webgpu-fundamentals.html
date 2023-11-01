@@ -268,7 +268,7 @@ cases, read on!</p>
 <p>It’s hard to decide where to start. At certain level, WebGPU is a very simple
 system. All it does is run 3 types of functions on the GPU. Vertex Shaders,
 Fragment Shaders, Compute Shaders.</p>
-<p>A Vertex Shader computes vertices. The shader returns vertex positions. For every group of 3 vertices, it returns a triangle drawn between those 3 positions <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<p>A Vertex Shader computes vertices. The shader returns vertex positions. For every group of 3 vertices the vertex shader function returns a triangle is drawn between those 3 positions <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
 <p>A Fragment Shader computes colors <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. When a triangle is drawn, for each pixel
 to be drawn the GPU calls your fragment shader. The fragment shader then returns a
 color.</p>
@@ -324,7 +324,7 @@ can change their contents but not their size, usage, format, etc… If you want
 to change any of that stuff you create a new resource and destroy the old one.</p>
 <p>Some of the state is setup by creating and then executing command buffers.
 Command buffers are literally what their name suggests. They are a buffer of
-commands. You create encoders. The encoders encode commands into the command
+commands. You create command encoders. The encoders encode commands into the command
 buffer. You then <em>finish</em> the encoder and it gives you the command buffer it
 created. You can then <em>submit</em> that command buffer to have WebGPU execute the
 commands.</p>

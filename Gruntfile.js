@@ -9,10 +9,13 @@ process.on('unhandledRejection', up => {
 
 const fs = require('fs');
 const path = require('path');
+const c = require('ansi-colors');
 const liveEditor = require('@gfxfundamentals/live-editor');
 const fixLinks = require('./build/fix-links.js');
 const liveEditorPath = path.dirname(require.resolve('@gfxfundamentals/live-editor'));
 const webgpuTypesPath = path.join(__dirname, 'node_modules', '@webgpu', 'types');
+const dataDir = require('./build/appdata')('servez-cli');
+const Servez = require('servez-lib');
 
 module.exports = function(grunt) {
 
@@ -189,8 +192,41 @@ module.exports = function(grunt) {
     buildStuff(buildSettings).finally(finish);
   });
 
+  grunt.registerTask('serve', function() {
+    //const done = this.async();
+    const logger = {
+      log: console.log,
+      error: console.error,
+      c,
+    };
+    const hosts = [];
+
+    console.log('startServer');
+    const server = new Servez(Object.assign({
+      root: path.join(__dirname, 'out'),
+      dataDir,
+      logger,
+    }, {
+      port: 8080,
+      scan: true,
+      index: true,
+      extensions: ['html'],
+    }));
+    server.on('host', function(...args) {
+      const localRE = /\D0\.0\.0\.0.\D|\D127\.0\.0\.|\Wlocalhost\W/;
+      const [data] = args;
+      const {root} = data;
+      if (!localRE.test(root)) {
+        hosts.push(root);
+      }
+    });
+    server.on('start', function() {
+      console.log('press CTRL-C to stop the server.');
+    });
+  });
+
   grunt.registerTask('build', ['clean', 'copy:main', 'buildlessons']);
-  grunt.registerTask('buildwatch', ['build', 'watch']);
+  grunt.registerTask('buildwatch', ['build', 'serve', 'watch']);
 
   grunt.registerTask('default', ['eslint', 'build']);
 };
