@@ -29,6 +29,7 @@ Sorry this article has not been translated yet.
   categoryMapping: {
     'basics': 'Basics',
     'misc': 'Misc',
+    'textures': 'Textures',
     'reference': 'Reference',
     '3d-math': '3D Math',
     'lighting': 'Lighting',

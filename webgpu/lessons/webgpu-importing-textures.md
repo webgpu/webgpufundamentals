@@ -815,7 +815,7 @@ For example
 
 With this change we'd only update the video for each new frame. So, for example, on a device
 with a display rate of 120 frames per second we'd draw at 120 frames per second so animations,
-camera movements, etc would be smooth. But, the texture would only update at its own frame
+camera movements, etc would be smooth. But, the video texture itself would only update at its own frame
 rate (for example 30fps).
 
 **BUT! WebGPU has special support for using video efficiently**
@@ -828,5 +828,375 @@ copied, **per frame**. [External textures](webgpu-textures-external-video.html)
 let you use the video's data directly (no copy) but require different methods
 and have some restrictions.
 
-TBD: Atlas
+## <a id="a-texture-atlases"></a> Texture Atlases
 
+From the examples above, we can see that to draw something with a texture
+we have to create the texture, put data it in, bind it to bindGroup with
+a sampler,
+and reference it from a shader. So what would we do if we wanted
+to draw multiple different textures on an object? Say we had a chair where the legs and back
+are made of wood but the cushion is made of cloth. 
+
+<div class="webgpu_center">
+  <div class="center">
+    <model-viewer 
+      src="../resources/models/gltf/cc0_chair.glb"
+      camera-controls
+      touch-action="pan-y"
+      camera-orbit="45deg 70deg 2.5m"
+      interaction-prompt="none"
+      disable-zoom
+      disable-pan
+      style="width: 400px; height: 400px;"></model-viewer>
+  </div>
+  <div>
+    <a href="https://skfb.ly/opnwY"></a>"[CC0] Chair" by adadadad5252341 <a href="http://creativecommons.org/licenses/by/4.0/">CC-BY 4.0</a>
+  </div>
+</div>
+
+Or a car where the tires are rubber, the body is paint, the bumpers and hub caps
+are chrome.
+
+<div class="webgpu_center">
+  <div class="center">
+    <model-viewer 
+      src="../resources/models/gltf/classic_muscle_car.glb"
+      camera-controls
+      touch-action="pan-y"
+      camera-orbit="45deg 70deg 20m"
+      interaction-prompt="none"
+      disable-zoom
+      disable-pan
+      style="width: 700px; height: 400px;"></model-viewer>
+  </div>
+  <div>
+    <a href="https://skfb.ly/6Usqo"></a>"Classic Muscle car" by Lexyc16 <a href="http://creativecommons.org/licenses/by/4.0/">CC-BY 4.0</a>
+  </div>
+</div>
+
+If we did nothing else you might think we'd have to draw 2 times for
+the chair, once for the wood with a wood texture, and once for the
+cushion with a cloth texture. For the car we'd have several draws, one for
+the tires, one for the body, one for the bumpers, etc...
+
+That would end up being slow as every object would require multiple
+draw calls. We could try to fix that by adding more inputs to our
+shader (2, 3, 4 textures) with texture coordinates for each one
+but that would not be very flexible and would be slow as well
+as we'd need to read all 4 textures and add code to chose between them.
+
+The most common way to cover this case is to use what's called a
+[Texture Atlas](https://www.google.com/search?q=texture+atlas). 
+A Texture Atlas is a fancy name for a texture with
+multiple images it in. We then use texture coordinates to select
+which parts go where.
+
+Let's wrap a cube with these 6 images
+
+<div class="webgpu_table_div_center">
+  <style>
+    table.webgpu_table_center {
+      border-spacing: 0.5em;
+      border-collapse: separate;
+    }
+    table.webgpu_table_center img {
+      display:block;
+    }
+  </style>
+  <table class="webgpu_table_center">
+    <tr><td><img src="resources/noodles-01.jpg" /></td><td><img src="resources/noodles-02.jpg" /></td></tr>
+    <tr><td><img src="resources/noodles-03.jpg" /></td><td><img src="resources/noodles-04.jpg" /></td></tr>
+    <tr><td><img src="resources/noodles-05.jpg" /></td><td><img src="resources/noodles-06.jpg" /></td></tr>
+  </table>
+</div>
+
+Using some image editing software like Photoshop or [Photopea](https://photopea.com) we could put all 6 images into a single image
+
+<img class="webgpu_center" src="../resources/noodles.jpg" />
+
+We'd then make a cube and provide texture coordinates that select each
+portion of the image onto a specific face of the cube. To keep it simple I put
+all 6 images in the texture above in squares, 4x2. So it should be pretty
+easy to compute the texture coordinates for each square. 
+
+<div class="webgpu-center center diagram">
+  <div>
+    <div data-diagram="texture-atlas" style="display: inline-block; width: 600px;"></div>
+  </div>
+</div>
+
+> The diagram above might be confusing because it is often suggested that texture coordinates 
+> have 0,0 as the bottom left corner. Really though there is no "bottom". There is just the idea
+> that texture coordinate 0,0 references the first pixel in the texture's data. The first
+> pixel in the texture's data is the top left corner of the image.
+> If you subscribe to the idea that 0,0 = bottom left then our texture coordinates
+> would be visualized like this. **They're still the same coordinates**.
+
+<div class="webgpu-center center diagram">
+  <div>
+    <div data-diagram="texture-atlas-bottom-left" style="display: inline-block; width: 600px;"></div>
+    <div class="center">0,0 at bottom left</div>
+  </div>
+</div>
+
+
+Here's the position vertices for a cube and the texture coordinates
+to go with them
+
+```js
+function createCubeVertices() {
+  const vertexData = new Float32Array([
+     //  position   |  texture coordinate
+     //-------------+----------------------
+     // front face     select the top left image
+    -1,  1,  1,        0   , 0  ,
+    -1, -1,  1,        0   , 0.5,
+     1,  1,  1,        0.25, 0  ,
+     1, -1,  1,        0.25, 0.5,
+     // right face     select the top middle image
+     1,  1, -1,        0.25, 0  ,
+     1,  1,  1,        0.5 , 0  ,
+     1, -1, -1,        0.25, 0.5,
+     1, -1,  1,        0.5 , 0.5,
+     // back face      select to top right image
+     1,  1, -1,        0.5 , 0  ,
+     1, -1, -1,        0.5 , 0.5,
+    -1,  1, -1,        0.75, 0  ,
+    -1, -1, -1,        0.75, 0.5,
+    // left face       select the bottom left image
+    -1,  1,  1,        0   , 0.5,
+    -1,  1, -1,        0.25, 0.5,
+    -1, -1,  1,        0   , 1  ,
+    -1, -1, -1,        0.25, 1  ,
+    // bottom face     select the bottom middle image
+     1, -1,  1,        0.25, 0.5,
+    -1, -1,  1,        0.5 , 0.5,
+     1, -1, -1,        0.25, 1  ,
+    -1, -1, -1,        0.5 , 1  ,
+    // top face        select the bottom right image
+    -1,  1,  1,        0.5 , 0.5,
+     1,  1,  1,        0.75, 0.5,
+    -1,  1, -1,        0.5 , 1  ,
+     1,  1, -1,        0.75, 1  ,
+
+  ]);
+
+  const indexData = new Uint16Array([
+     0,  1,  2,  2,  1,  3,  // front
+     4,  5,  6,  6,  5,  7,  // right
+     8,  9, 10, 10,  9, 11,  // back
+    12, 13, 14, 14, 13, 15,  // left
+    16, 17, 18, 18, 17, 19,  // bottom
+    20, 21, 22, 22, 21, 23,  // top
+  ]);
+
+  return {
+    vertexData,
+    indexData,
+    numVertices: indexData.length,
+  };
+}
+```
+
+To make this example we're going to have start with an example from [the article on cameras](webgpu-cameras.html).
+If you haven't read the article yet you can read it and the series it's a part of the learn how do 3D.
+For now, the important part is, like we did above, we output positions and texture coordinates from our
+vertex shader and use them to look up values from a texture in our fragment shader. So, here's
+the changes needed from the shader in the camera example, applying what we have above.
+
+```wgsl
+struct Uniforms {
+  matrix: mat4x4f,
+};
+
+struct Vertex {
+  @location(0) position: vec4f,
+-  @location(1) color: vec4f,
++  @location(1) texcoord: vec2f,
+};
+
+struct VSOutput {
+  @builtin(position) position: vec4f,
+-  @location(0) color: vec4f,
++  @location(0) texcoord: vec2f,
+};
+
+@group(0) @binding(0) var<uniform> uni: Uniforms;
++@group(0) @binding(1) var ourSampler: sampler;
++@group(0) @binding(2) var ourTexture: texture_2d<f32>;
+
+@vertex fn vs(vert: Vertex) -> VSOutput {
+  var vsOut: VSOutput;
+  vsOut.position = uni.matrix * vert.position;
+-  vsOut.color = vert.color;
++  vsOut.texcoord = vert.texcoord;
+  return vsOut;
+}
+
+@fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
+-  return vsOut.color;
++  return textureSample(ourTexture, ourSampler, vsOut.texcoord);
+}
+```
+
+All we did was switch from taking a color per vertex to a texture coordinate per vertex
+and passing that texture coordinate to the fragment shader, like we did above. We then
+use it, in the fragment shader, like we did above.
+
+In JavaScript we need to change that example's pipeline from taking a color to taking
+texture coordinates
+
+```js
+  const pipeline = device.createRenderPipeline({
+    label: '2 attributes',
+    layout: 'auto',
+    vertex: {
+      module,
+      entryPoint: 'vs',
+      buffers: [
+        {
+-          arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color
++          arrayStride: (3 + 2) * 4, // (3+2) floats 4 bytes each
+          attributes: [
+            {shaderLocation: 0, offset: 0, format: 'float32x3'},  // position
+-            {shaderLocation: 1, offset: 12, format: 'unorm8x4'},  // color
++            {shaderLocation: 1, offset: 12, format: 'float32x2'},  // texcoord
+          ],
+        },
+      ],
+    },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+    primitive: {
+      cullMode: 'back',
+    },
+    depthStencil: {
+      depthWriteEnabled: true,
+      depthCompare: 'less',
+      format: 'depth24plus',
+    },
+  });
+```
+
+To keep the data smaller we're going to use a indices like we covered in [the article on vertex buffers](webgpu-vertex-buffers.html).
+
+```js
+-  const { vertexData, numVertices } = createFVertices();
++  const { vertexData, indexData, numVertices } = createCubeVertices();
+  const vertexBuffer = device.createBuffer({
+    label: 'vertex buffer vertices',
+    size: vertexData.byteLength,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(vertexBuffer, 0, vertexData);
+
++  const indexBuffer = device.createBuffer({
++    label: 'index buffer',
++    size: vertexData.byteLength,
++    usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
++  });
++  device.queue.writeBuffer(indexBuffer, 0, indexData);
+```
+
+We need to copy all of the texture loading and mip generation code into this example
+and then use it to load the texture atlas image. We also need to make a sampler
+and add them our bindGroup
+
+```js
++  const texture = await createTextureFromImage(device,
++      'resources/images/noodles.jpg', {mips: true, flipY: false});
++
++  const sampler = device.createSampler({
++    magFilter: 'linear',
++    minFilter: 'linear',
++    mipmapFilter: 'linear',
++  });
+
+  const bindGroup = device.createBindGroup({
+    label: 'bind group for object',
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: uniformBuffer }},
++      { binding: 1, resource: sampler },
++      { binding: 2, resource: texture.createView() },
+    ],
+  });
+```
+
+We need to do some 3D math to setup a matrix for drawing in 3D. (Again, see [the camera article](webgpu-cameras.html) for
+details on 3D math.
+
+```js
+  const degToRad = d => d * Math.PI / 180;
+
+  const settings = {
+    rotation: [degToRad(20), degToRad(25), degToRad(0)],
+  };
+
+  const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
+
+  const gui = new GUI();
+  gui.onChange(render);
+  gui.add(settings.rotation, '0', radToDegOptions).name('rotation.x');
+  gui.add(settings.rotation, '1', radToDegOptions).name('rotation.y');
+  gui.add(settings.rotation, '2', radToDegOptions).name('rotation.z');
+
+  ...
+
+  function render() {
+
+    ...
+
+    const aspect = canvas.clientWidth / canvas.clientHeight;
+    mat4.perspective(
+        60 * Math.PI / 180,
+        aspect,
+        0.1,      // zNear
+        10,      // zFar
+        matrixValue,
+    );
+    const view = mat4.lookAt(
+      [0, 1, 5],  // camera position
+      [0, 0, 0],  // target
+      [0, 1, 0],  // up
+    );
+    mat4.multiply(matrixValue, view, matrixValue);
+    mat4.rotateX(matrixValue, settings.rotation[0], matrixValue);
+    mat4.rotateY(matrixValue, settings.rotation[1], matrixValue);
+    mat4.rotateZ(matrixValue, settings.rotation[2], matrixValue);
+
+    // upload the uniform values to the uniform buffer
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+```
+
+And at render time we need to draw with indices
+
+```js
+    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.setVertexBuffer(0, vertexBuffer);
++    pass.setIndexBuffer(indexBuffer, 'uint16');
+
+    ...
+
+    pass.setBindGroup(0, bindGroup);
+-    pass.draw(numVertices);
++    pass.drawIndexed(numVertices);
+
+    pass.end();
+```
+
+And we that we get a cube, with a different image on each side, using a single texture.
+
+{{{example url="../webgpu-texture-atlas.html"}}}
+
+Using a texture atlas is good because there's just 1 texture to load, the shader stays simple as it only has to reference 1 texture, and it only
+requires 1 draw call to draw the shape instead of 1 draw call per texture as it might if we keep the images separate.
+
+<!-- keep this at the bottom of the article -->
+<script type="module" src="/3rdparty/model-viewer.3.3.0.min.js"></script>
+<script type="module" src="webgpu-importing-textures.js"></script>
