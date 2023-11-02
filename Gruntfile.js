@@ -228,7 +228,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build', ['clean', 'copy:main', 'buildlessons']);
-  grunt.registerTask('buildwatch', [/*'build',*/ 'serve', 'watch']);
+  grunt.registerTask('buildwatch', ['build', 'serve', 'watch']);
 
   grunt.registerTask('default', ['eslint', 'build']);
 };

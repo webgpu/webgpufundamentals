@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ja/langinfo.hanson. Do not edited directly --><!--
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ru/langinfo.hanson. Do not edited directly --><!--
 Copyright 2020, Gregg Tavares
 All rights reserved.
 
@@ -29,26 +29,26 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
---><html lang="ja"><head>
+--><html lang="ru"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU TypedArrays">
+<meta property="og:title" content="WebGPU Cubemaps">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="Using TypedArrays">
-<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ja/webgpu-typedarrays.html">
+<meta property="og:description" content="How to use cubemaps in WebGPU">
+<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ru/webgpu-cube-maps.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU TypedArrays">
-<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ja/webgpu-typedarrays.html">
-<meta name="twitter:description" content="Using TypedArrays">
+<meta name="twitter:title" content="WebGPU Cubemaps">
+<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ru/webgpu-cube-maps.html">
+<meta name="twitter:description" content="How to use cubemaps in WebGPU">
 <meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
 
 
-<title>WebGPU TypedArrays</title>
+<title>WebGPU Cubemaps</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
@@ -56,20 +56,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="webgpu_navbar">
   <div>
     <select class="language">
-    <option value="/webgpu/lessons/webgpu-typedarrays.html">English
-    </option><option value="/webgpu/lessons/es/webgpu-typedarrays.html">Spanish
-    </option><option value="/webgpu/lessons/ja/webgpu-typedarrays.html" selected="">日本語
-    </option><option value="/webgpu/lessons/ko/webgpu-typedarrays.html">한국어
-    </option><option value="/webgpu/lessons/ru/webgpu-typedarrays.html">Русский
-    </option><option value="/webgpu/lessons/zh_cn/webgpu-typedarrays.html">简体中文
+    <option value="/webgpu/lessons/webgpu-cube-maps.html">English
+    </option><option value="/webgpu/lessons/es/webgpu-cube-maps.html">Spanish
+    </option><option value="/webgpu/lessons/ja/webgpu-cube-maps.html">日本語
+    </option><option value="/webgpu/lessons/ko/webgpu-cube-maps.html">한국어
+    </option><option value="/webgpu/lessons/ru/webgpu-cube-maps.html" selected="">Русский
+    </option><option value="/webgpu/lessons/zh_cn/webgpu-cube-maps.html">简体中文
 </option></select>
 
 
-    <a href="#toc">目次</a>
+    <a href="#toc">оглавление</a>
   </div>
 </div>
 <div class="webgpu_header">
-  <h1><a href="/webgpu/lessons/ja/">webgpufundamentals.org</a></h1>
+  <h1><a href="/webgpu/lessons/ru/">webgpufundamentals.org</a></h1>
 <style>
 #forkongithub>div {
     background: #000;
@@ -175,71 +175,75 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU TypedArrays</h1>
+    <h1>WebGPU Cubemaps</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>ごめん！この記事はまだ翻訳されていない。<a href="https://github.com/gfxfundamentals/webgpufundamentals">翻訳してくれますか？</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-typedarrays.html">ここに英語版がある</a>.</p>
+      <p>К сожалению, страница ещё не переведена. <a href="https://github.com/gfxfundamentals/webgpufundamentals">Я всегда рад переводчикам</a>! 😄</p>
+<p><a href="/webgpu/lessons/webgpu-cube-maps.html">А пока можете почитать статью на английском языке</a>.</p>
 
     </div>
     <div class="lesson-sidebar">
         <select class="language">
-    <option value="/webgpu/lessons/webgpu-typedarrays.html">English
-    </option><option value="/webgpu/lessons/es/webgpu-typedarrays.html">Spanish
-    </option><option value="/webgpu/lessons/ja/webgpu-typedarrays.html" selected="">日本語
-    </option><option value="/webgpu/lessons/ko/webgpu-typedarrays.html">한국어
-    </option><option value="/webgpu/lessons/ru/webgpu-typedarrays.html">Русский
-    </option><option value="/webgpu/lessons/zh_cn/webgpu-typedarrays.html">简体中文
+    <option value="/webgpu/lessons/webgpu-cube-maps.html">English
+    </option><option value="/webgpu/lessons/es/webgpu-cube-maps.html">Spanish
+    </option><option value="/webgpu/lessons/ja/webgpu-cube-maps.html">日本語
+    </option><option value="/webgpu/lessons/ko/webgpu-cube-maps.html">한국어
+    </option><option value="/webgpu/lessons/ru/webgpu-cube-maps.html" selected="">Русский
+    </option><option value="/webgpu/lessons/zh_cn/webgpu-cube-maps.html">简体中文
 </option></select>
 
 
-        <ul>  <li>基本</li>
+        <ul>  <li>Основы</li>
         <ul>
-          <li><a href="/webgpu/lessons/ja/webgpu-fundamentals.html">基本</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-inter-stage-variables.html">inter-stage変数</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-uniforms.html">Uniforms</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-storage-buffers.html">Storage Buffers</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-textures.html">Textures</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-importing-textures.html">Loading Images</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-textures-external-video.html">Using Video</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-constants.html">Constants</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-memory-layout.html">構造体とメモリレイアウト</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-copying-data.html">Copying Data</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-wgsl.html">WGSL</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-how-it-works.html">How It Works</a></li>
+          <li><a href="/webgpu/lessons/ru/webgpu-fundamentals.html">Fundamentals</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-inter-stage-variables.html">Inter-stage Variables</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-uniforms.html">Uniforms</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-storage-buffers.html">Storage Buffers</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
+  <li>Textures</li>
+        <ul>
+          <li><a href="/webgpu/lessons/ru/webgpu-textures.html">Textures</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-importing-textures.html">Loading Images</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-textures-external-video.html">Using Video</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-cube-maps.html">Cube Maps</a></li>
         </ul>
-  <li>3Dの数学</li>
+<li><a href="/webgpu/lessons/ru/webgpu-constants.html">Constants</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-copying-data.html">Copying Data</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-wgsl.html">WGSL</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-how-it-works.html">How It Works</a></li>
+        </ul>
+  <li>3D Math</li>
         <ul>
-          <li><a href="/webgpu/lessons/ja/webgpu-translation.html">Translation</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-rotation.html">Rotation</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-scale.html">Scale</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-matrix-math.html">Matrix Math</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-orthographic-projection.html">Orthographic Projection</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-perspective-projection.html">Perspective Projection</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-cameras.html">Cameras</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-matrix-stacks.html">Matrix Stacks</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-scene-graphs.html">Scene Graphs</a></li>
+          <li><a href="/webgpu/lessons/ru/webgpu-translation.html">Translation</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-rotation.html">Rotation</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-scale.html">Scale</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-matrix-math.html">Matrix Math</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-orthographic-projection.html">Orthographic Projection</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-perspective-projection.html">Perspective Projection</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-cameras.html">Cameras</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-matrix-stacks.html">Matrix Stacks</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-scene-graphs.html">Scene Graphs</a></li>
         </ul>
   <li>Lighting</li>
         <ul>
-          <li><a href="/webgpu/lessons/ja/webgpu-lighting-directional.html">Directional Lighting</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-lighting-point.html">Point Lighting</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-lighting-spot.html">Spot Lighting</a></li>
+          <li><a href="/webgpu/lessons/ru/webgpu-lighting-directional.html">Directional Lighting</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-lighting-point.html">Point Lighting</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-lighting-spot.html">Spot Lighting</a></li>
         </ul>
-  <li>コンピュートシェーダ</li>
+  <li>Compute Shaders</li>
         <ul>
-          <li><a href="/webgpu/lessons/ja/webgpu-compute-shaders.html">Compute Shader Basics</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-compute-shaders-histogram.html">Image Histogram</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-compute-shaders-histogram-part-2.html">Image Histogram Part 2</a></li>
+          <li><a href="/webgpu/lessons/ru/webgpu-compute-shaders.html">Compute Shader Basics</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-compute-shaders-histogram.html">Image Histogram</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-compute-shaders-histogram-part-2.html">Image Histogram Part 2</a></li>
         </ul>
-  <li>その他のトピック</li>
+  <li>Разное</li>
         <ul>
-          <li><a href="/webgpu/lessons/ja/webgpu-from-webgl.html">WebGPU from WebGL</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-resources.html">Resources / References</a></li>
-<li><a href="/webgpu/lessons/ja/webgpu-wgsl-function-reference.html">WGSL Function Reference</a></li>
+          <li><a href="/webgpu/lessons/ru/webgpu-from-webgl.html">WebGPU from WebGL</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-resources.html">Resources / References</a></li>
+<li><a href="/webgpu/lessons/ru/webgpu-wgsl-function-reference.html">WGSL Function Reference</a></li>
 <li><a href="/webgpu/lessons/resources/wgsl-offset-computer.html">WGSL Offset Computer</a></li>
         </ul></ul>
 <ul>
@@ -251,6 +255,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://webgpureport.org">WebGPUReport.org</a></li>
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
+
     </div>
   </div>
 </div>

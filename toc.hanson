@@ -5,9 +5,14 @@
     'webgpu-uniforms.md',
     'webgpu-storage-buffers.md',
     'webgpu-vertex-buffers.md',
-    'webgpu-textures.md',
-    'webgpu-importing-textures.md',
-    'webgpu-textures-external-video.md',
+    {
+      'textures': [
+        'webgpu-textures.md',
+        'webgpu-importing-textures.md',
+        'webgpu-textures-external-video.md',
+        'webgpu-cube-maps.md',
+      ],
+    },
     'webgpu-constants.md',
     'webgpu-memory-layout.md',
     'webgpu-copying-data.md',
