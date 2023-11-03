@@ -42,6 +42,7 @@
     'webgpu-compute-shaders-histogram-part-2.md',
   ],
   'misc': [
+    'webgpu-resizing-the-canvas.md',
     'webgpu-from-webgl.md',
     'webgpu-resources.md',
     'webgpu-wgsl-function-reference.md',

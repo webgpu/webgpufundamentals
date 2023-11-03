@@ -124,8 +124,14 @@ const apis = [
   'Response',
 ];
 
+const others = {
+  'getBoundingClientRect': 'https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect',
+  'devicePixelRatio': 'https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio',
+};
+
 // check with removing the last 's'?
 const refs = {
+  ...others,
   ...Object.fromEntries(globalObjects.map(k => [k, `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/${k}`])),
   ...Object.fromEntries(gpuDict.map(k => [k, `https://www.w3.org/TR/webgpu/#dictdef-${k.toLowerCase()}`])),
   ...Object.fromEntries(apis.map(k => [k, `https://developer.mozilla.org/en-US/docs/Web/API/${k}`])),

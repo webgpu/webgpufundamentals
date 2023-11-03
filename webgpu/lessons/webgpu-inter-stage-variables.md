@@ -137,7 +137,7 @@ Running that we see it still works.
 
 {{{example url="../webgpu-inter-stage-variables-triangle-by-fn-param.html"}}}
 
-## `@builtin(position)`
+## <a id="a-builtin-position"></a> `@builtin(position)`
 
 That helps point out another quirk. Our original shader that used the same
 struct in both the vertex and fragment shaders had a field called `position` but
