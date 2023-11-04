@@ -37,6 +37,9 @@
     'webgpu-lighting-spot.md',
   ],
   techniques: {
+    '2d': [
+      'webgpu-large-triangle-to-cover-clip-space.md'
+    ],
     '3d': [
       'webgpu-environment-maps.md',
       'webgpu-skybox.md',
