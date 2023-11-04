@@ -11,7 +11,7 @@ The most obvious way to do this is to make a quad from 2 triangles
 
 <div class="webgpu_center">
   <div>
-    <img style="width: 256px;" src="resources/quad-triangles.svg">
+    <img style="width: 342px;" src="resources/quad-triangles.svg">
     <div>clip space quad via 2 triangles</div>
   </div>
 </div>
@@ -36,7 +36,7 @@ For example [generating mipmaps in the article on importing textures](webgpu-imp
 It works, and it's easy to understand.
 
 There's a shortcut though for this specific case. We can instead
-make a single triangle that large enough that it covers the entire
+make a single triangle that is large enough that it covers the entire
 clip space area. A simple example is this triangle
 
 <div class="webgpu_center">
