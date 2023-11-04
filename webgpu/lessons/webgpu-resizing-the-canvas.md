@@ -175,7 +175,7 @@ I see this often and it really seems like an **anti-pattern**.
 The reason is it's inflexible. The 2 techniques above work in every situation
 whereas using `window.innerWidth` and `window.innerHeight` only work in one
 specific situation, when you want to fill the page. We've already shown
-the techniques above fill the page but they also work in every other
+the techniques above fill the page just find but they also work in every other
 situation.
 
 Having the canvas *not* fill page. Like a diagram in an article
@@ -275,9 +275,9 @@ with 3 children, each set be the 33% the width of their parent
 #parent>* {
   flex: 1 1 33%;
 }
-#left { background-color: pink; }
-#middle { background-color: lightgreen; }
-#right { background-color: lightblue; }
+#left { background-color: #A44; }
+#middle { background-color: #4A4; }
+#right { background-color: #66C; }
 ```
 
 {{{example url="../fractional-element-size-issues.html"}}}
@@ -285,7 +285,7 @@ with 3 children, each set be the 33% the width of their parent
 On one of my machines, with a default (un-zoomed) browser window, I get these
 results
 
-<pre>
+<pre style="padding: 1em">
 devicePixelRatio: 2
 --------------- #left ---------------
                  inlineSize: 99.65625
@@ -310,7 +310,7 @@ But, our parent is 299 css pixels wide. If we multiply that by the devicePixelRa
 of 2 we get 598 actual pixels. We have 3 children. `598 / 3 = 199.33333333333334`
 We can't have 199.33333333334 actual pixels. If we round to 199 then
 199 + 199 + 199 = 597. But our parent is 598. To get to 598, one of those
-elements needs an extra pixel but given the info for all 3 is exactly the same,
+elements needs an extra pixel but, given the info for all 3 is exactly the same,
 which one gets the extra pixel?
 
 ## <a id="a-devicepixelcontentboxsize"></a> `devicePixelContentBoxSize`
@@ -333,7 +333,7 @@ If we add that measurement to our example it gives us the actual answer
 
 On the machine I used for the results above I get these results
 
-<pre>
+<pre style="padding: 1em">
 devicePixelRatio: 2
 --------------- #left ---------------
                           inlineSize: 99.65625
@@ -363,13 +363,13 @@ wide.
 
 This issue isn't limited to this case, it's just the easiest way to show
 a concrete example of not being able to get this info any other way.
-The point being, if you want pixel perfection, you can not just multiple
+The point being, if you want pixel perfection, you can not just multiply
 some other measurement by `devicePixelRatio`. You must use `ResizeObserver`
 and `devicePixelContentBoxSize`.
 
 Note: Safari, as of November 2023, does not support `devicePixelContentBoxSize`
 nor does Safari change the `devicePixelRatio` in response to zooming. This means
-**It's impossible on Safari to display a 1x1 pixel perfect canvas**. Please com
+**It's impossible on Safari to display a 1x1 pixel perfect canvas**.
 
 ## `content-box` vs `device-pixel-content-box`
 
@@ -383,7 +383,7 @@ On the other hand, if the element is the full size of the page then it would cha
 as you zoom. [^safari]
 
 You can also observe `device-pixel-content-box`. This is the size of the actual
-number of device pixels the element takes. This will change then the zoom level
+number of device pixels the element takes. This will change when the zoom level
 changes [^safari]. It won't change if the size in device pixels of the element
 didn't actually change. For example if the element is the full size of the page
 then zooming doesn't change the fact that it's still the full size of the page
@@ -481,7 +481,7 @@ worked on by how much attention they get so please add your voice to the bugs.
 
 Drawing to higher resolutions is slower than drawing to lower resolutions.
 It's not always important to use `devicePixelRatio`. Even if you do decide
-to support it, many phones have device pixel ratios as high as 4. That's
+to support it, [many phones have device pixel ratios as high as 4](https://yesviz.com/viewport/). That's
 a total of 16 pixels for every CSS pixel. Drawing 16x the pixels is literally
 up to 16x slower than drawing 1. So maybe you'd like to consider limiting
 how you use devicePixelRatio like `dpr = Math.min(2, devicePixelRatio)`.

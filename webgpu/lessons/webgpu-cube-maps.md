@@ -461,6 +461,26 @@ And poof
 
 {{{example url="../webgpu-cube-map.html" }}}
 
+Note the order of the faces as layers of the texture
+
+* layer 0 => positive x
+* layer 1 => negative x
+* layer 2 => positive y
+* layer 3 => negative y
+* layer 4 => positive z
+* layer 5 => negative z
+
+Another way to think about this is if you called `textureSample` and passed
+the corresponding directions it would return the center pixel(s) color for that layer
+of the texture.
+
+* `textureSample(tex, sampler, vec3f([ 1, 0, 0])) => center of layer 0
+* `textureSample(tex, sampler, vec3f([-1, 0, 0])) => center of layer 1
+* `textureSample(tex, sampler, vec3f([ 0, 1, 0])) => center of layer 2
+* `textureSample(tex, sampler, vec3f([ 0,-1, 0])) => center of layer 3
+* `textureSample(tex, sampler, vec3f([ 0, 0, 1])) => center of layer 4
+* `textureSample(tex, sampler, vec3f([ 0, 0,-1])) => center of layer 5
+
 Using a cubemap to texture a cube is **not** what cubemaps are normally
 used for. The *correct* or rather standard way to texture a cube is
 to use a texture atlas like we [mentioned before](webgpu-importing-textures.html#a-texture-atlases).
