@@ -1127,7 +1127,7 @@ and add them our bindGroup
 ```
 
 We need to do some 3D math to setup a matrix for drawing in 3D. (Again, see [the camera article](webgpu-cameras.html) for
-details on 3D math.
+details on 3D math.)
 
 ```js
   const degToRad = d => d * Math.PI / 180;
@@ -1190,7 +1190,7 @@ And at render time we need to draw with indices
     pass.end();
 ```
 
-And we that we get a cube, with a different image on each side, using a single texture.
+And we get a cube, with a different image on each side, using a single texture.
 
 {{{example url="../webgpu-texture-atlas.html"}}}
 
