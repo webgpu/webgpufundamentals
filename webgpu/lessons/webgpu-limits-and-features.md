@@ -55,7 +55,7 @@ hope is, if you stay under the minimum limits, then your app will
 run on all devices that support WebGPU.
 
 But, given the available limits and features listed on the adapter,
-you can request them when you call `requestDefault` by
+you can request them when you call `requestDevice` by
 passing your desired limits as `requiredLimits` and your desired features as `requiredFeatures`. For example
 
 ```js
@@ -134,7 +134,7 @@ Or you might allocate a buffer larger the the minimum `maxBufferSize` and again
 not be aware you went over the limit. You ship and a bunch of users can't run
 your page.
 
-## Requesting Features and Limits
+## Recommended Way to Request Features and Limits
 
 The recommended way to use features and limits is to decide on what you absolutely
 must have and only request those limits.
