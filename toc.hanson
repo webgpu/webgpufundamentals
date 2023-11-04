@@ -36,6 +36,12 @@
     'webgpu-lighting-point.md',
     'webgpu-lighting-spot.md',
   ],
+  techniques: {
+    '3d': [
+      'webgpu-environment-maps.md',
+      'webgpu-skybox.md',
+    ],
+  },
   'compute-shaders': [
     'webgpu-compute-shaders.md',
     'webgpu-compute-shaders-histogram.md',
