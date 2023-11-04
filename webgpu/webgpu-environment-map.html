@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Textured Cube Map</title>
+    <title>WebGPU Environment Map</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -20,65 +20,41 @@ canvas {
   </body>
   <script type="module">
 import {mat4} from '/3rdparty/wgpu-matrix.module.js';
-import GUI from '/3rdparty/muigui-0.x.module.js';
-
-function generateFace(size, {faceColor, textColor, text}) {
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = faceColor;
-  ctx.fillRect(0, 0, size, size);
-  ctx.font = `${size * 0.7}px sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = textColor;
-  ctx.fillText(text, size / 2, size / 2);
-  return canvas;
-}
-
-const faceSize = 128;
-const faceCanvases = [
-  { faceColor: '#F00', textColor: '#0FF', text: '+X' },
-  { faceColor: '#FF0', textColor: '#00F', text: '-X' },
-  { faceColor: '#0F0', textColor: '#F0F', text: '+Y' },
-  { faceColor: '#0FF', textColor: '#F00', text: '-Y' },
-  { faceColor: '#00F', textColor: '#FF0', text: '+Z' },
-  { faceColor: '#F0F', textColor: '#0F0', text: '-Z' },
-].map(faceInfo => generateFace(faceSize, faceInfo));
 
 function createCubeVertices() {
   const vertexData = new Float32Array([
-     // front face
-    -1,  1,  1,
-    -1, -1,  1,
-     1,  1,  1,
-     1, -1,  1,
-     // right face
-     1,  1, -1,
-     1,  1,  1,
-     1, -1, -1,
-     1, -1,  1,
-     // back face
-     1,  1, -1,
-     1, -1, -1,
-    -1,  1, -1,
-    -1, -1, -1,
-    // left face
-    -1,  1,  1,
-    -1,  1, -1,
-    -1, -1,  1,
-    -1, -1, -1,
-    // bottom face
-     1, -1,  1,
-    -1, -1,  1,
-     1, -1, -1,
-    -1, -1, -1,
-    // top face
-    -1,  1,  1,
-     1,  1,  1,
-    -1,  1, -1,
-     1,  1, -1,
+     //  position   |  normals
+     //-------------+----------------------
+     // front face      positive z
+    -1,  1,  1,         0,  0,  1,
+    -1, -1,  1,         0,  0,  1,
+     1,  1,  1,         0,  0,  1,
+     1, -1,  1,         0,  0,  1,
+     // right face      positive x
+     1,  1, -1,         1,  0,  0,
+     1,  1,  1,         1,  0,  0,
+     1, -1, -1,         1,  0,  0,
+     1, -1,  1,         1,  0,  0,
+     // back face       negative z
+     1,  1, -1,         0,  0, -1,
+     1, -1, -1,         0,  0, -1,
+    -1,  1, -1,         0,  0, -1,
+    -1, -1, -1,         0,  0, -1,
+    // left face        negative x
+    -1,  1,  1,        -1,  0,  0,
+    -1,  1, -1,        -1,  0,  0,
+    -1, -1,  1,        -1,  0,  0,
+    -1, -1, -1,        -1,  0,  0,
+    // bottom face      negative y
+     1, -1,  1,         0, -1,  0,
+    -1, -1,  1,         0, -1,  0,
+     1, -1, -1,         0, -1,  0,
+    -1, -1, -1,         0, -1,  0,
+    // top face         positive y
+    -1,  1,  1,         0,  1,  0,
+     1,  1,  1,         0,  1,  0,
+    -1,  1, -1,         0,  1,  0,
+     1,  1, -1,         0,  1,  0,
   ]);
 
   const indexData = new Uint16Array([
@@ -118,16 +94,21 @@ async function main() {
   const module = device.createShaderModule({
     code: `
       struct Uniforms {
-        matrix: mat4x4f,
+        projection: mat4x4f,
+        view: mat4x4f,
+        world: mat4x4f,
+        cameraPosition: vec3f,
       };
 
       struct Vertex {
         @location(0) position: vec4f,
+        @location(1) normal: vec3f,
       };
 
       struct VSOutput {
         @builtin(position) position: vec4f,
-        @location(0) normal: vec3f,
+        @location(0) worldPosition: vec3f,
+        @location(1) worldNormal: vec3f,
       };
 
       @group(0) @binding(0) var<uniform> uni: Uniforms;
@@ -136,28 +117,34 @@ async function main() {
 
       @vertex fn vs(vert: Vertex) -> VSOutput {
         var vsOut: VSOutput;
-        vsOut.position = uni.matrix * vert.position;
-        vsOut.normal = normalize(vert.position.xyz);
+        vsOut.position = uni.projection * uni.view * uni.world * vert.position;
+        vsOut.worldPosition = (uni.world * vert.position).xyz;
+        vsOut.worldNormal = (uni.world * vec4f(vert.normal, 0)).xyz;
         return vsOut;
       }
 
       @fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
-        return textureSample(ourTexture, ourSampler, normalize(vsOut.normal));
+        let worldNormal = normalize(vsOut.worldNormal);
+        let eyeToSurfaceDir = normalize(vsOut.worldPosition - uni.cameraPosition);
+        let direction = reflect(eyeToSurfaceDir, worldNormal);
+
+        return textureSample(ourTexture, ourSampler, direction);
       }
     `,
   });
 
   const pipeline = device.createRenderPipeline({
-    label: '1 attribute',
+    label: '2 attributes',
     layout: 'auto',
     vertex: {
       module,
       entryPoint: 'vs',
       buffers: [
         {
-          arrayStride: (3) * 4, // (3) floats 4 bytes each
+          arrayStride: (3 + 3) * 4, // (6) floats 4 bytes each
           attributes: [
             {shaderLocation: 0, offset: 0, format: 'float32x3'},  // position
+            {shaderLocation: 1, offset: 12, format: 'float32x3'},  // normal
           ],
         },
       ],
@@ -339,8 +326,23 @@ async function main() {
     };
   })();
 
+  async function loadImageBitmap(url) {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return await createImageBitmap(blob, { colorSpaceConversion: 'none' });
+  }
+
+  const faceImages = await Promise.all([
+    'resources/images/computer-history-museum/pos-x.jpg',  /* webgpufundamentals: url */
+    'resources/images/computer-history-museum/neg-x.jpg',  /* webgpufundamentals: url */
+    'resources/images/computer-history-museum/pos-y.jpg',  /* webgpufundamentals: url */
+    'resources/images/computer-history-museum/neg-y.jpg',  /* webgpufundamentals: url */
+    'resources/images/computer-history-museum/pos-z.jpg',  /* webgpufundamentals: url */
+    'resources/images/computer-history-museum/neg-z.jpg',  /* webgpufundamentals: url */
+  ].map(loadImageBitmap));
+
   const texture = await createTextureFromSources(
-      device, faceCanvases, {mips: true, flipY: false});
+      device, faceImages, {mips: true, flipY: false});
 
   const sampler = device.createSampler({
     magFilter: 'linear',
@@ -348,8 +350,8 @@ async function main() {
     mipmapFilter: 'linear',
   });
 
-  // matrix
-  const uniformBufferSize = (16) * 4;
+  // projection, view, world, cameraPosition, pad
+  const uniformBufferSize = (16 + 16 + 16 + 3 + 1) * 4;
   const uniformBuffer = device.createBuffer({
     label: 'uniforms',
     size: uniformBufferSize,
@@ -359,9 +361,16 @@ async function main() {
   const uniformValues = new Float32Array(uniformBufferSize / 4);
 
   // offsets to the various uniform values in float32 indices
-  const kMatrixOffset = 0;
+  const kProjectionOffset = 0;
+  const kViewOffset = 16;
+  const kWorldOffset = 32;
+  const kCameraPositionOffset = 48;
 
-  const matrixValue = uniformValues.subarray(kMatrixOffset, kMatrixOffset + 16);
+  const projectionValue = uniformValues.subarray(kProjectionOffset, kProjectionOffset + 16);
+  const viewValue = uniformValues.subarray(kViewOffset, kViewOffset + 16);
+  const worldValue = uniformValues.subarray(kWorldOffset, kWorldOffset + 16);
+  const cameraPositionValue = uniformValues.subarray(
+      kCameraPositionOffset, kCameraPositionOffset + 3);
 
   const { vertexData, indexData, numVertices } = createCubeVertices();
   const vertexBuffer = device.createBuffer({
@@ -405,23 +414,11 @@ async function main() {
     },
   };
 
-  const degToRad = d => d * Math.PI / 180;
-
-  const settings = {
-    rotation: [degToRad(20), degToRad(25), degToRad(0)],
-  };
-
-  const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
-
-  const gui = new GUI();
-  gui.onChange(render);
-  gui.add(settings.rotation, '0', radToDegOptions).name('rotation.x');
-  gui.add(settings.rotation, '1', radToDegOptions).name('rotation.y');
-  gui.add(settings.rotation, '2', radToDegOptions).name('rotation.z');
-
   let depthTexture;
 
-  function render() {
+  function render(time) {
+    time *= 0.001;
+
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
     const canvasTexture = context.getCurrentTexture();
@@ -455,17 +452,18 @@ async function main() {
         aspect,
         0.1,      // zNear
         10,      // zFar
-        matrixValue,
+        projectionValue,
     );
-    const view = mat4.lookAt(
-      [0, 1, 5],  // camera position
+    cameraPositionValue.set([0, 0, 4]);  // camera position;
+    mat4.lookAt(
+      cameraPositionValue,
       [0, 0, 0],  // target
       [0, 1, 0],  // up
+      viewValue,
     );
-    mat4.multiply(matrixValue, view, matrixValue);
-    mat4.rotateX(matrixValue, settings.rotation[0], matrixValue);
-    mat4.rotateY(matrixValue, settings.rotation[1], matrixValue);
-    mat4.rotateZ(matrixValue, settings.rotation[2], matrixValue);
+    mat4.identity(worldValue);
+    mat4.rotateX(worldValue, time * -0.1, worldValue);
+    mat4.rotateY(worldValue, time * -0.2, worldValue);
 
     // upload the uniform values to the uniform buffer
     device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
@@ -476,7 +474,10 @@ async function main() {
 
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
+
+    requestAnimationFrame(render);
   }
+  requestAnimationFrame(render);
 
   const observer = new ResizeObserver(entries => {
     for (const entry of entries) {
@@ -485,8 +486,6 @@ async function main() {
       const height = entry.contentBoxSize[0].blockSize;
       canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
       canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
-      // re-render
-      render();
     }
   });
   observer.observe(canvas);

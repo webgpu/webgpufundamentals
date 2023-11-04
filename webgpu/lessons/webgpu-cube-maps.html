@@ -649,6 +649,26 @@ mipmaps is not what we want.</p>
 </div>
 
 <p></p>
+<p>Note the order of the faces as layers of the texture</p>
+<ul>
+<li>layer 0 =&gt; positive x</li>
+<li>layer 1 =&gt; negative x</li>
+<li>layer 2 =&gt; positive y</li>
+<li>layer 3 =&gt; negative y</li>
+<li>layer 4 =&gt; positive z</li>
+<li>layer 5 =&gt; negative z</li>
+</ul>
+<p>Another way to think about this is if you called <code class="notranslate" translate="no">textureSample</code> and passed
+the corresponding directions it would return the center pixel(s) color for that layer
+of the texture.</p>
+<ul>
+<li>`textureSample(tex, sampler, vec3f([ 1, 0, 0])) =&gt; center of layer 0</li>
+<li>`textureSample(tex, sampler, vec3f([-1, 0, 0])) =&gt; center of layer 1</li>
+<li>`textureSample(tex, sampler, vec3f([ 0, 1, 0])) =&gt; center of layer 2</li>
+<li>`textureSample(tex, sampler, vec3f([ 0,-1, 0])) =&gt; center of layer 3</li>
+<li>`textureSample(tex, sampler, vec3f([ 0, 0, 1])) =&gt; center of layer 4</li>
+<li>`textureSample(tex, sampler, vec3f([ 0, 0,-1])) =&gt; center of layer 5</li>
+</ul>
 <p>Using a cubemap to texture a cube is <strong>not</strong> what cubemaps are normally
 used for. The <em>correct</em> or rather standard way to texture a cube is
 to use a texture atlas like we <a href="webgpu-importing-textures.html#a-texture-atlases">mentioned before</a>.

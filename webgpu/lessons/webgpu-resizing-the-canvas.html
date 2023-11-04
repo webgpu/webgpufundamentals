@@ -358,7 +358,7 @@ be an integer where as the values of <code class="notranslate" translate="no">cl
 The reason is it’s inflexible. The 2 techniques above work in every situation
 whereas using <code class="notranslate" translate="no">window.innerWidth</code> and <code class="notranslate" translate="no">window.innerHeight</code> only work in one
 specific situation, when you want to fill the page. We’ve already shown
-the techniques above fill the page but they also work in every other
+the techniques above fill the page just find but they also work in every other
 situation.</p>
 <p>Having the canvas <em>not</em> fill page. Like a diagram in an article
 Or in an editor with a toolbar.</p>
@@ -439,9 +439,9 @@ with 3 children, each set be the 33% the width of their parent</p>
 #parent&gt;* {
   flex: 1 1 33%;
 }
-#left { background-color: pink; }
-#middle { background-color: lightgreen; }
-#right { background-color: lightblue; }
+#left { background-color: #A44; }
+#middle { background-color: #4A4; }
+#right { background-color: #66C; }
 </pre>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Ffractional-element-size-issues.html"></iframe></div>
@@ -451,7 +451,7 @@ with 3 children, each set be the 33% the width of their parent</p>
 <p></p>
 <p>On one of my machines, with a default (un-zoomed) browser window, I get these
 results</p>
-<pre>devicePixelRatio: 2
+<pre style="padding: 1em">devicePixelRatio: 2
 --------------- #left ---------------
                  inlineSize: 99.65625
                 clientWidth: 100
@@ -474,7 +474,7 @@ But, our parent is 299 css pixels wide. If we multiply that by the devicePixelRa
 of 2 we get 598 actual pixels. We have 3 children. <code class="notranslate" translate="no">598 / 3 = 199.33333333333334</code>
 We can’t have 199.33333333334 actual pixels. If we round to 199 then
 199 + 199 + 199 = 597. But our parent is 598. To get to 598, one of those
-elements needs an extra pixel but given the info for all 3 is exactly the same,
+elements needs an extra pixel but, given the info for all 3 is exactly the same,
 which one gets the extra pixel?</p>
 <h2 id="devicepixelcontentboxsize"><a id="a-devicepixelcontentboxsize"></a> <code class="notranslate" translate="no">devicePixelContentBoxSize</code></h2>
 <p>The solution is that <code class="notranslate" translate="no">ResizeObserver</code> provides the answer. It’s called
@@ -494,7 +494,7 @@ which one gets the extra pixel?</p>
 
 <p></p>
 <p>On the machine I used for the results above I get these results</p>
-<pre>devicePixelRatio: 2
+<pre style="padding: 1em">devicePixelRatio: 2
 --------------- #left ---------------
                           inlineSize: 99.65625
 devicePixelContentBoxSize.inlineSize: 199    &lt;=====
@@ -521,12 +521,12 @@ It’s 200 device pixels wide vs the other 2 elements which are 199 device pixel
 wide.</p>
 <p>This issue isn’t limited to this case, it’s just the easiest way to show
 a concrete example of not being able to get this info any other way.
-The point being, if you want pixel perfection, you can not just multiple
+The point being, if you want pixel perfection, you can not just multiply
 some other measurement by <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio"><code class="notranslate" translate="no">devicePixelRatio</code></a>. You must use <code class="notranslate" translate="no">ResizeObserver</code>
 and <code class="notranslate" translate="no">devicePixelContentBoxSize</code>.</p>
 <p>Note: Safari, as of November 2023, does not support <code class="notranslate" translate="no">devicePixelContentBoxSize</code>
 nor does Safari change the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio"><code class="notranslate" translate="no">devicePixelRatio</code></a> in response to zooming. This means
-<strong>It’s impossible on Safari to display a 1x1 pixel perfect canvas</strong>. Please com</p>
+<strong>It’s impossible on Safari to display a 1x1 pixel perfect canvas</strong>.</p>
 <h2 id="content-box-vs-device-pixel-content-box"><code class="notranslate" translate="no">content-box</code> vs <code class="notranslate" translate="no">device-pixel-content-box</code></h2>
 <p>When you call <code class="notranslate" translate="no">ResizeObserver.observe</code> you can tell it to observe the changes
 of 1 of 2 box sizes. The default is to observe the <code class="notranslate" translate="no">content-box</code> size.
@@ -537,7 +537,7 @@ is always 99.666666 (or whatever they compute, see results above).
 On the other hand, if the element is the full size of the page then it would change
 as you zoom. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
 <p>You can also observe <code class="notranslate" translate="no">device-pixel-content-box</code>. This is the size of the actual
-number of device pixels the element takes. This will change then the zoom level
+number of device pixels the element takes. This will change when the zoom level
 changes <sup class="footnote-ref"><a href="#fn1" id="fnref1:1">[1:1]</a></sup>. It won’t change if the size in device pixels of the element
 didn’t actually change. For example if the element is the full size of the page
 then zooming doesn’t change the fact that it’s still the full size of the page
@@ -619,7 +619,7 @@ worked on by how much attention they get so please add your voice to the bugs.</
 <h2 id="do-you-need-to-use-devicepixelratio">Do you need to use <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio"><code class="notranslate" translate="no">devicePixelRatio</code></a>?</h2>
 <p>Drawing to higher resolutions is slower than drawing to lower resolutions.
 It’s not always important to use <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio"><code class="notranslate" translate="no">devicePixelRatio</code></a>. Even if you do decide
-to support it, many phones have device pixel ratios as high as 4. That’s
+to support it, <a href="https://yesviz.com/viewport/">many phones have device pixel ratios as high as 4</a>. That’s
 a total of 16 pixels for every CSS pixel. Drawing 16x the pixels is literally
 up to 16x slower than drawing 1. So maybe you’d like to consider limiting
 how you use devicePixelRatio like <code class="notranslate" translate="no">dpr = Math.min(2, devicePixelRatio)</code>.</p>
