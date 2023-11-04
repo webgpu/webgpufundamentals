@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/webgpu-limits-and-features.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,73 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="ko"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Optional Features and Limits">
+
+<meta name="description" content="선택적 기능">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-limits-and-features_ko.jpg">
+
+<meta property="og:title" content="WebGPU 선택적 기능(optional feature)과 제한(limit)">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="Optional Features">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-limits-and-features_ko.jpg">
+<meta property="og:description" content="선택적 기능">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-limits-and-features.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Optional Features and Limits">
+<meta name="twitter:title" content="WebGPU 선택적 기능(optional feature)과 제한(limit)">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-limits-and-features.html">
-<meta name="twitter:description" content="Optional Features">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="선택적 기능">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-limits-and-features_ko.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-limits-and-features.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-limits-and-features_ko.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-limits-and-features.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-limits-and-features.html",
+      "inLanguage":"ko",
+      "name":"WebGPU 선택적 기능(optional feature)과 제한(limit)",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-limits-and-features.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Optional Features and Limits</title>
+<title>WebGPU 선택적 기능(optional feature)과 제한(limit)</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
+<link rel="stylesheet" href="/webgpu/lessons/ko/lang.css">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -175,13 +221,136 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Optional Features and Limits</h1>
+    <h1>WebGPU 선택적 기능(optional feature)과 제한(limit)</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>죄송합니다. 이 글은 아직 번역이 되지 않았습니다.</p>
-<p><a href="https://github.com/gfxfundamentals/webgpufundamentals">번역을 도와주세요</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-limits-and-features.html">여기서 원문을 볼 수 있습니다</a>.</p>
+      <p>WebGPU에는 다양한 선택적 기능(optional feature)과 제한(limit)이 있습니다.
+이들을 확인하고 요청하는 방법을 알아보겠습니다.</p>
+<p>아래 코드로 어댑터를 요청할 때,</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const adapter = await navigator.gpu?.requestAdapter();
+</pre>
+<p>어댑터는 <code class="notranslate" translate="no">adapter.limits</code>에 제한의 목록을, <code class="notranslate" translate="no">adapter.features</code>에 기능 이름의 배열을 가지고 있습니다.
+예를 들어 아래와 같은 코드는,</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const adapter = await navigator.gpu?.requestAdapter();
+console.log(adapter.limits.maxColorAttachments);
+</pre>
+<p><code class="notranslate" translate="no">8</code>을 콘솔에 출력할텐데 즉 어댑터가 최대 8개의 컬러 어태치먼트를 지원한다는 뜻입니다.</p>
+<p>아래는 제한의 전체 목록입니다.
+여러분의 기본 어댑터의 제한과 최소 요구사항 제한이 모두 포함되어 있습니다.</p>
+<div class="webgpu_center data-table limits" data-diagram="limits"></div>
+<p>최소 요구사항은 WebGPU를 지원하는 모든 장치에서 보장된 최소 사양입니다.</p>
+<p>선택적 기능의 목록도 있습니다.
+예를 들어 아래와 같은 코드로 모두 살펴볼 수 있습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const adapter = await navigator.gpu?.requestAdapter();
+console.log(adapter.features);
+</pre>
+<p>이렇게 하면 <code class="notranslate" translate="no">["texture-compression-astc", "texture-compression-bc"]</code>와 같이 출력되는데, 이러한 기능들은 여러분이 요청하면 사용 가능하다는 뜻입니다.</p>
+<p>여러분의 기본 어댑터에서 사용 가능한 기능들은 아래와 같습니다.</p>
+<div class="webgpu_center data-table features" data-diagram="features"></div>
+<blockquote>
+<p>참고: 여러분 시스템의 어댑터의 모든 기능과 제한사항은 <a href="https://webgpureport.org">webgpureport.org</a>에서 확인할 수 있습니다.</p>
+</blockquote>
+<h2 id="제한과-기능-요청하기">제한과 기능 요청하기</h2>
+<p>기본적으로 여러분이 장치를 요청할 때 최소 제한(위 표에서 오른쪽 열)을 얻을 수 있고 선택적 기능은 없는 상태입니다.
+여러분이 이러한 최소 제한 하에서 개발을 하면, 여러분의 앱은 WebGPU를 지원하는 모든 장치에서 동작하게 될 겁니다.</p>
+<p>하지만 어댑터에 대한 가능한 제한과 기능 목록에 기반하여 <code class="notranslate" translate="no">requestDevice</code>를 호출할 때 필요로 하는 최소 사양을 <code class="notranslate" translate="no">requiredLimits</code>에, 선택적 기능을 <code class="notranslate" translate="no">requiredFeatures</code>에 넘겨줄 수 있습니다.
+예를 들어,</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const k1Gig = 1024 * 1024 * 1024;
+const adapter = await navigator.gpu?.requestAdapter();
+const device = adapter?.requestDevice({
+  requiredLimits: { maxBufferSize: k1Gig },
+  requiredFeatures: [ 'float32-filterable' ],
+});
+</pre>
+<p>위에서 우리는 1GB의 버퍼가 사용 가능해야 하고 필터링 가능한 float32 텍스처가 사용 가능해야 한다는 요구사항을 명시하고 있습니다.
+(예를들어 <code class="notranslate" translate="no">'rgba32float'</code>에 대해 minFilter가 <code class="notranslate" translate="no">'linear'</code>로 설정 가능해야 한다는 뜻입니다. 기본적으로는 <code class="notranslate" translate="no">'nearest'</code>밖에 사용하지 못합니다.)</p>
+<p>둘 중 어떤 요구사항이라도 만족되지 않으면 <code class="notranslate" translate="no">requestDevice</code>는 실패합니다(프라미스를 reject합니다).</p>
+<h2 id="모든-것을-요구하지-마세요">모든 것을 요구하지 마세요</h2>
+<p>모든 제한과 기능을 요청해서 만족하는지 확인하고 싶어하실 수도 있습니다.</p>
+<p>예를 들어:</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function objLikeToObj(src) {
+  const dst = {};
+  for (const key in src) {
+    dst[key] = src[key];
+  }
+  return dst;
+}
+
+//
+// BAD!!! ?
+//
+async function main() {
+  const adapter = await navigator?.gpu.requestAdapter();
+  const device = await adapter?.requestDevice({
+    requiredLimits: objLikeToObj(adapter.limits),
+    requiredFeatures: adapter.features,
+  });
+  if (!device) {
+    fail('need webgpu');
+    return;
+  }
+
+  const canUse128KUniformsBuffers = device.limits.maxUniformBufferBindingSize &gt;= 128 * 1024;
+  const canStoreToBGRA8Unorm = device.features.has('bgra8unorm-storage');
+  const canIndirectFirstInstance = device.features.has('indirect-first-instance');
+}
+</pre>
+<p>이는 제한과 기능을 확인하는 간단하고 명료한 방법처럼 보입니다<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.
+이러한 패턴의 문제는, 우연히 이제한 제한을 만족했는데 모를 수도 있다는 것입니다.
+예를 들어 <code class="notranslate" translate="no">'rgba32float'</code> 텍스처를 만들고 <code class="notranslate" translate="no">'linear'</code>로 필터링했다고 해봅시다.
+여러분의 데스크탑에서는 이를 활성화했기 때문에 잘 동작할겁니다.</p>
+<p>유저의 핸드폰에서는 <code class="notranslate" translate="no">'float32-filterable'</code> 기능이 없기 때문에 프로그램이 제대로 동작하지 않지만 여전히 여러분은 이를 깨닫지 못한채 사용이 가능할 수도 있습니다.
+선택적인 기능이니까요.</p>
+<p>또는 최소한의 <code class="notranslate" translate="no">maxBufferSize</code>보다 더 큰 버퍼를 할당해 사용한다면, 역시나 제한을 넘어 사용하고 있는다는 것을 모를 수 있습니다.
+여러분의 웹페이지는 유저들에게서는 제대로 실행되지 않을 것입니다.</p>
+<h2 id="기능과-제한-요청에-대한-추천하는-방법">기능과 제한 요청에 대한 추천하는 방법</h2>
+<p>기능과 제한을 요청하는 추천하는 방법은 반드시 필요한 것을 결정하고 그것들만 요청하는 것입니다.</p>
+<p>예를 들어 아래와 같습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const adapter = await navigator?.gpu.requestAdapter();
+
+  const canUse128KUniformsBuffers = adapter?.limits.maxUniformBufferBindingSize &gt;= 128 * 1024;
+  const canStoreToBGRA8Unorm = adapter?.features.has('bgra8unorm-storage');
+  const canIndirectFirstInstance = adapter?.features.has('indirect-first-instance');
+
+  // if we absolutely need these one or more of these features then fail now if they are not
+  // available
+  if (!canUse128kUniformBuffers) {
+    alert('Sorry, your device is probably too old or underpowered');
+    return;
+  }
+
+  // Request the available features and limits we need
+  const device = adapter?.requestDevice({
+    requiredFeatures: [
+      ...(canStorageBGRA8Unorm ? ['bgra8unorm'] : []),
+      ...(canIndirectFirstInstance) ? ['indirect-first-instance']),
+    ],
+    requiredLimits: [
+      maxUniformBufferBindingSize: 128 * 1024,
+    ]
+  });
+</pre>
+<p>이렇게 하면, 128k보다 큰 uniform 버퍼를 요청하면 오류가 발생합니다.
+유사하게 요청하지 않은 기능을 사용하려 할 경우에도 오류가 발생하게 됩니다.
+이렇게 하면 확실하게 제한 요구사항을 올릴지 (그래서 더 다양한 장치에서 사용은 못하더라도), 아니면 제한을 유지할 지, 아니면 기능이나 제한이 만족되지 않는 경우에 대해 다른 방식으로 동작하도록 할 지를 의식적으로 결정할 수 있게 됩니다.</p>
+<!-- keep this at the bottom of the article -->
+<link rel="stylesheet" href="../webgpu-limits-and-features.css">
+<script type="module" src="../webgpu-limits-and-features.js"></script>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p><code class="notranslate" translate="no">objLikeToObj</code>는 뭐고 왜 사용한 것일까요?
+그 이유는 난해한 Web 명세 때문입니다.
+명세에는 <code class="notranslate" translate="no">requiredLimits</code>를 <code class="notranslate" translate="no">record&lt;DOMString, GPUSize64&gt;</code>로 목록화하고 있습니다.<br>
+Web IDL 명세에서는 객체를 <code class="notranslate" translate="no">record&lt;DOMString, GPUSize64&gt;</code>로 변환할 때, 객체가 실제로 <em>소유한(own)</em> 속성만을 복사하도록 명시하고 있습니다.
+어댑터의 <code class="notranslate" translate="no">limits</code> 객체는 <code class="notranslate" translate="no">interface</code>의 목록입니다.
+객체의 속성처럼 보이는 것은 실제로는 속성이 아니고 객체의 프로토타입(prototype)에 있는 getter입니다.
+따라서 이들은 실제로는 객체가 소유한 속성이 아닙니다.
+따라서 <code class="notranslate" translate="no">record&lt;DOMString, GPUSize64&gt;</code>로 변환할 때 복사되지 않고 우리가 직접 복사해 주어야 합니다. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
@@ -195,7 +364,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>기초</li>
+        <div id="toc">
+          <ul>  <li>기초</li>
         <ul>
           <li><a href="/webgpu/lessons/ko/webgpu-fundamentals.html">기초</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-inter-stage-variables.html">스테이지간 변수(Inter-stage Variables)</a></li>
@@ -207,12 +377,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           <li><a href="/webgpu/lessons/ko/webgpu-textures.html">텍스처</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-importing-textures.html">이미지 로딩</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-textures-external-video.html">비디오 사용하기</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-cube-maps.html">Cube Maps</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-cube-maps.html">큐브맵(Cube Maps)</a></li>
         </ul>
 <li><a href="/webgpu/lessons/ko/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-memory-layout.html">데이터 메모리 레이아웃</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-copying-data.html">데이터 복사하기</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-limits-and-features.html">선택적 기능(optional feature)과 제한(limit)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-wgsl.html">WGSL</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-how-it-works.html">How It Works</a></li>
         </ul>
@@ -259,13 +429,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
 
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>질문이 있나요? <a href="http://stackoverflow.com/questions/tagged/webgpu">Stack Overflow</a>에 물어보세요.</div>
+<div>
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">제안</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">요청 사항</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">이슈</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">버그</a>
+</div>
+<div class="lesson-comment-notes">
+   코드 블럭의 경우 <b>&lt;pre&gt;&lt;code&gt;</b>코드<b>&lt;/code&gt;&lt;/pre&gt;</b>을 사용하세요.
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU 선택적 기능(optional feature)과 제한(limit)`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "<a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a>님<br> 당신의 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 기여에 감사드립니다.</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
-<script src="/webgpu/lessons/resources/lesson.js"></script>
+<script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
 <script>
 </script>
 

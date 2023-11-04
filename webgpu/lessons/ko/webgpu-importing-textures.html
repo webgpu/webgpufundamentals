@@ -943,7 +943,310 @@ requestAnimationFrame(render);
 그리고 복사에는 시간이 걸립니다.
 예를 들어 4K 비디오의 일반적인 해상도는 3840 x 2160인데, <code class="notranslate" translate="no">rgba8unorm</code> 포맷의 경우 31MB의 데이터가 <strong>프레임마다</strong> 복사되어야 한다는 뜻입니다.
 <a href="../webgpu-textures-external-video.html">외부(External) 텍스처</a>를 사용하면 (복사 없이) 비디오 데이터를 직접 사용 가능하지만 다른 방법을 사용해야 하고 제약 사항이 좀 있습니다.</p>
-<p>TBD: Atlas</p>
+<h2 id="텍스처-아틀라스atlas"><a id="a-texture-atlases"></a>텍스처 아틀라스(Atlas)</h2>
+<p>위 예제에서, 우리는 텍스처를 사용해서 무언가를 그리기 위해서는 우선 텍스처를 만들고, 데이터를 넣은 후에 샘플러와 함께 바인드그룹에 바인드하고, 셰이더에서 참조해야 한다는 것을 배웠습니다.
+어떤 물체에 여러 개의 서로 다른 텍스처를 사용하려면 어떻게 해야 할까요?
+예를 들어 의자가 있어서 다리와 등받이는 나무로 만들어지고 쿠션은 천으로 만들어 졌다면 말이죠.</p>
+<div class="webgpu_center">
+  <div class="center">
+    <model-viewer src="../resources/models/gltf/cc0_chair.glb" camera-controls="" touch-action="pan-y" camera-orbit="45deg 70deg 2.5m" interaction-prompt="none" disable-zoom="" disable-pan="" style="width: 400px; height: 400px;"></model-viewer>
+  </div>
+  <div>
+    <a href="https://skfb.ly/opnwY"></a>"[CC0] Chair" by adadadad5252341 <a href="http://creativecommons.org/licenses/by/4.0/">CC-BY 4.0</a>
+  </div>
+</div>
+<p>또는 자동차 모델이 있어서 타이어는 고무이고 차체에는 페인트가 칠해져 있고, 범퍼와 휠캡은 크롬 도금되어 있는 경우도 있겠죠.</p>
+<div class="webgpu_center">
+  <div class="center">
+    <model-viewer src="../resources/models/gltf/classic_muscle_car.glb" camera-controls="" touch-action="pan-y" camera-orbit="45deg 70deg 20m" interaction-prompt="none" disable-zoom="" disable-pan="" style="width: 700px; height: 400px;"></model-viewer>
+  </div>
+  <div>
+    <a href="https://skfb.ly/6Usqo"></a>"Classic Muscle car" by Lexyc16 <a href="http://creativecommons.org/licenses/by/4.0/">CC-BY 4.0</a>
+  </div>
+</div>
+<p>별다른 해법이 없다면 의자의 경우 나무 텍스처로 나무 부분을 한번, 천 텍스처로 쿠션 부분 한번 해서 두 번을 그려야 한다고 생각하실 수 있습니다.
+자동차의 경우 두 번 이상일겁니다. 타이어 한번, 차체 한번 범퍼 한번 등등 말이죠.</p>
+<p>이렇게 되면 모든 물체가 여러 번의 드로우콜을 필요로 하기 때문에 느려지게 됩니다.
+이는 셰이더에 여러 입력(2,3,4 텍스처)을 사용하고 각각에 대해 텍스처 좌표를 사용하여 해결할 수도 있지만 이는 유연성이 떨어지는데다, 네 개 텍스처를 모두 읽고 그 값들 중 하나를 선택하도록 코드를 작성해야 한다는 단점이 있습니다.</p>
+<p>이러한 문제를 해결하는 가장 일반적인 방법은 <a href="https://www.google.com/search?q=texture+atlas">텍스처 아틀라스(Texture Atlas)</a>라는 것을 사용하는 것입니다.
+텍스처 아틀라스는 여러 이미지가 들어있는 텍스처를 부르는 멋있는 이름입니다.
+그리고 텍스처 좌표를 사용해서 어느 부분이 어디에 사용될지 결정합니다.</p>
+<p>육면체(cube)에 아래 여섯 개의 이미지를 입혀봅시다.</p>
+<div class="webgpu_table_div_center">
+  <style>
+    table.webgpu_table_center {
+      border-spacing: 0.5em;
+      border-collapse: separate;
+    }
+    table.webgpu_table_center img {
+      display:block;
+    }
+  </style>
+  <table class="webgpu_table_center">
+    <tbody><tr><td><img src="../resources/noodles-01.jpg"></td><td><img src="../resources/noodles-02.jpg"></td></tr>
+    <tr><td><img src="../resources/noodles-03.jpg"></td><td><img src="../resources/noodles-04.jpg"></td></tr>
+    <tr><td><img src="../resources/noodles-05.jpg"></td><td><img src="../resources/noodles-06.jpg"></td></tr>
+  </tbody></table>
+</div>
+<p>포토샵이나 <a href="https://photopea.com">Photopea</a>와 같은 이미지 편집 소프트웨어를 사용해 여섯 개의 이미지를 하나의 이미지에 넣을 수 있습니다.</p>
+<img class="webgpu_center" src="../../resources/noodles.jpg">
+<p>그리고 큐브의 각 면에 해당하는 이미지를 선택할 수 있도록 텍스처 좌표를 제공하는 큐브들 만듭니다.
+간단하게 하기 위해 여섯 개의 이미지를 4x2의 형태로 배치하였습니다.
+이렇게 하면 각 사각형에 대한 텍스처 좌표의 계산이 간단해집니다.</p>
+<div class="webgpu-center center diagram">
+  <div>
+    <div data-diagram="texture-atlas" style="display: inline-block; width: 600px;"></div>
+  </div>
+</div>
+<blockquote>
+<p>일반적으로 텍스처 좌표의 0,0이 왼쪽 아래인 경우가 많이 때문에 위 다이어그램이 헷갈릴 수 있습니다.
+사실 “아래” 라는 것은 없습니다.
+단지 텍스처 좌표 0,0은 텍스처의 첫 번째 데이터를 참조하는 값일 뿐입니다.
+위의 경우 텍스처의 첫 번째 데이터가 이미지의 오른쪽 위가 되었을 뿐입니다.
+0,0이 왼쪽 아래라는 것을 고수하고 싶다면 아래와 같이 보시면 됩니다.
+<strong>이렇게 해도 좌표는 같습니다</strong>.</p>
+</blockquote>
+<div class="webgpu-center center diagram">
+  <div>
+    <div data-diagram="texture-atlas-bottom-left" style="display: inline-block; width: 600px;"></div>
+    <div class="center">0,0 at bottom left</div>
+  </div>
+</div>
+<p>아래는 큐브에 대한 정점 위치와 텍스처 좌표 입니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function createCubeVertices() {
+  const vertexData = new Float32Array([
+     //  position   |  texture coordinate
+     //-------------+----------------------
+     // front face     select the top left image
+    -1,  1,  1,        0   , 0  ,
+    -1, -1,  1,        0   , 0.5,
+     1,  1,  1,        0.25, 0  ,
+     1, -1,  1,        0.25, 0.5,
+     // right face     select the top middle image
+     1,  1, -1,        0.25, 0  ,
+     1,  1,  1,        0.5 , 0  ,
+     1, -1, -1,        0.25, 0.5,
+     1, -1,  1,        0.5 , 0.5,
+     // back face      select to top right image
+     1,  1, -1,        0.5 , 0  ,
+     1, -1, -1,        0.5 , 0.5,
+    -1,  1, -1,        0.75, 0  ,
+    -1, -1, -1,        0.75, 0.5,
+    // left face       select the bottom left image
+    -1,  1,  1,        0   , 0.5,
+    -1,  1, -1,        0.25, 0.5,
+    -1, -1,  1,        0   , 1  ,
+    -1, -1, -1,        0.25, 1  ,
+    // bottom face     select the bottom middle image
+     1, -1,  1,        0.25, 0.5,
+    -1, -1,  1,        0.5 , 0.5,
+     1, -1, -1,        0.25, 1  ,
+    -1, -1, -1,        0.5 , 1  ,
+    // top face        select the bottom right image
+    -1,  1,  1,        0.5 , 0.5,
+     1,  1,  1,        0.75, 0.5,
+    -1,  1, -1,        0.5 , 1  ,
+     1,  1, -1,        0.75, 1  ,
+
+  ]);
+
+  const indexData = new Uint16Array([
+     0,  1,  2,  2,  1,  3,  // front
+     4,  5,  6,  6,  5,  7,  // right
+     8,  9, 10, 10,  9, 11,  // back
+    12, 13, 14, 14, 13, 15,  // left
+    16, 17, 18, 18, 17, 19,  // bottom
+    20, 21, 22, 22, 21, 23,  // top
+  ]);
+
+  return {
+    vertexData,
+    indexData,
+    numVertices: indexData.length,
+  };
+}
+</pre>
+<p>이 예제는 <a href="../webgpu-cameras.html">카메라에 관한 글</a>의 예제에서부터 시작합니다.
+해당 글을 아직 읽지 않으셨으면 3D에 관한 글의 일부이므로, 읽어 보시길 바랍니다.
+지금 중요한 것은 이전에 했던 것처럼 정점 셰이더에서 위치와 텍스처 좌표를 출력할 것이고 이를 사용하여 프래그맨트 셰이더에서 텍스처로부터 값을 얻어올 때 사용할 것이라는 사실입니다.
+아래는 카메라 예제에서부터 수정된 셰이더입니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Uniforms {
+  matrix: mat4x4f,
+};
+
+struct Vertex {
+  @location(0) position: vec4f,
+-  @location(1) color: vec4f,
++  @location(1) texcoord: vec2f,
+};
+
+struct VSOutput {
+  @builtin(position) position: vec4f,
+-  @location(0) color: vec4f,
++  @location(0) texcoord: vec2f,
+};
+
+@group(0) @binding(0) var&lt;uniform&gt; uni: Uniforms;
++@group(0) @binding(1) var ourSampler: sampler;
++@group(0) @binding(2) var ourTexture: texture_2d&lt;f32&gt;;
+
+@vertex fn vs(vert: Vertex) -&gt; VSOutput {
+  var vsOut: VSOutput;
+  vsOut.position = uni.matrix * vert.position;
+-  vsOut.color = vert.color;
++  vsOut.texcoord = vert.texcoord;
+  return vsOut;
+}
+
+@fragment fn fs(vsOut: VSOutput) -&gt; @location(0) vec4f {
+-  return vsOut.color;
++  return textureSample(ourTexture, ourSampler, vsOut.texcoord);
+}
+</pre>
+<p>바뀐것은 정점별 색상에서 정점별 텍스처 좌표로 수정한 것이고, 그 텍스처 좌표를 프래그먼트 셰이더로 넘긴 것입니다.
+그리고 프래그먼트 셰이더에서 이를 사용하였습니다.</p>
+<p>자바스크립트 부분에서는 색상값을 얻어오는 것에서 텍스처 좌표를 얻어오는 것으로 파이프라인을 수정합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: '2 attributes',
+    layout: 'auto',
+    vertex: {
+      module,
+      entryPoint: 'vs',
+      buffers: [
+        {
+-          arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color
++          arrayStride: (3 + 2) * 4, // (3+2) floats 4 bytes each
+          attributes: [
+            {shaderLocation: 0, offset: 0, format: 'float32x3'},  // position
+-            {shaderLocation: 1, offset: 12, format: 'unorm8x4'},  // color
++            {shaderLocation: 1, offset: 12, format: 'float32x2'},  // texcoord
+          ],
+        },
+      ],
+    },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+    primitive: {
+      cullMode: 'back',
+    },
+    depthStencil: {
+      depthWriteEnabled: true,
+      depthCompare: 'less',
+      format: 'depth24plus',
+    },
+  });
+</pre>
+<p><a href="../webgpu-vertex-buffers.html">정점 버퍼에 관한 글</a>에서처럼 데이터를 가볍게 하기위해 인덱스를 사용합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const { vertexData, numVertices } = createFVertices();
++  const { vertexData, indexData, numVertices } = createCubeVertices();
+  const vertexBuffer = device.createBuffer({
+    label: 'vertex buffer vertices',
+    size: vertexData.byteLength,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(vertexBuffer, 0, vertexData);
+
++  const indexBuffer = device.createBuffer({
++    label: 'index buffer',
++    size: vertexData.byteLength,
++    usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
++  });
++  device.queue.writeBuffer(indexBuffer, 0, indexData);
+</pre>
+<p>텍스처 로딩과 밉 생성에 관한 코드를 복사해서 여기에 가져옵니다.
+그리고 해당 코드를 사용해 텍스처 아틀라스 이미지를 로드합니다.
+또한 샘플러를 만들고 이를 바인드 그룹에 추가합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const texture = await createTextureFromImage(device,
++      'resources/images/noodles.jpg', {mips: true, flipY: false});
++
++  const sampler = device.createSampler({
++    magFilter: 'linear',
++    minFilter: 'linear',
++    mipmapFilter: 'linear',
++  });
+
+  const bindGroup = device.createBindGroup({
+    label: 'bind group for object',
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: uniformBuffer }},
++      { binding: 1, resource: sampler },
++      { binding: 2, resource: texture.createView() },
+    ],
+  });
+</pre>
+<p>3차원 그리지를 위한 행렬들을 설정합니다. (다시 말씀드리지만 이러한 내용들은 <a href="../webgpu-cameras.html">카메라에 관한 글</a>의 3차원 수학 부분을 참고하세요.)</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const degToRad = d =&gt; d * Math.PI / 180;
+
+  const settings = {
+    rotation: [degToRad(20), degToRad(25), degToRad(0)],
+  };
+
+  const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
+
+  const gui = new GUI();
+  gui.onChange(render);
+  gui.add(settings.rotation, '0', radToDegOptions).name('rotation.x');
+  gui.add(settings.rotation, '1', radToDegOptions).name('rotation.y');
+  gui.add(settings.rotation, '2', radToDegOptions).name('rotation.z');
+
+  ...
+
+  function render() {
+
+    ...
+
+    const aspect = canvas.clientWidth / canvas.clientHeight;
+    mat4.perspective(
+        60 * Math.PI / 180,
+        aspect,
+        0.1,      // zNear
+        10,      // zFar
+        matrixValue,
+    );
+    const view = mat4.lookAt(
+      [0, 1, 5],  // camera position
+      [0, 0, 0],  // target
+      [0, 1, 0],  // up
+    );
+    mat4.multiply(matrixValue, view, matrixValue);
+    mat4.rotateX(matrixValue, settings.rotation[0], matrixValue);
+    mat4.rotateY(matrixValue, settings.rotation[1], matrixValue);
+    mat4.rotateZ(matrixValue, settings.rotation[2], matrixValue);
+
+    // upload the uniform values to the uniform buffer
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+</pre>
+<p>그리고 렌더링 시점에, 인덱스를 사용해 그립니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.setVertexBuffer(0, vertexBuffer);
++    pass.setIndexBuffer(indexBuffer, 'uint16');
+
+    ...
+
+    pass.setBindGroup(0, bindGroup);
+-    pass.draw(numVertices);
++    pass.drawIndexed(numVertices);
+
+    pass.end();
+</pre>
+<p>이렇게 하면 각 면에 다른 이미지가 있는 큐브를, 단일 텍스처를 사용하여 그릴 수 있습니다.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-texture-atlas.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-texture-atlas.html" target="_blank">새 창으로 보려면 여기를 클릭하세요</a>
+</div>
+
+<p></p>
+<p>하나의 텍스처만 로드하면 되기 때문에 텍스처 아틀라스를 사용하면 좋습니다.
+셰이더는 하나의 텍스처만 참조하면 되기 때문에 간단하고, 이미지가 여러 장으로 나뉜 상황에서처럼 텍스처별로 드로우 콜을 호출하는 대신 한 번의 드로우 콜로 물체를 그릴 수 있게 됩니다.</p>
+<!-- keep this at the bottom of the article -->
+<script type="module" src="/3rdparty/model-viewer.3.3.0.min.js"></script>
+<script type="module" src="../webgpu-importing-textures.js"></script>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
@@ -978,12 +1281,12 @@ requestAnimationFrame(render);
           <li><a href="/webgpu/lessons/ko/webgpu-textures.html">텍스처</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-importing-textures.html">이미지 로딩</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-textures-external-video.html">비디오 사용하기</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-cube-maps.html">Cube Maps</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-cube-maps.html">큐브맵(Cube Maps)</a></li>
         </ul>
 <li><a href="/webgpu/lessons/ko/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-memory-layout.html">데이터 메모리 레이아웃</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-copying-data.html">데이터 복사하기</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-limits-and-features.html">선택적 기능(optional feature)과 제한(limit)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-wgsl.html">WGSL</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-how-it-works.html">How It Works</a></li>
         </ul>

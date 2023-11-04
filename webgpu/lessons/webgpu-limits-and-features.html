@@ -259,7 +259,7 @@ you those features are available if you request them.</p>
 hope is, if you stay under the minimum limits, then your app will
 run on all devices that support WebGPU.</p>
 <p>But, given the available limits and features listed on the adapter,
-you can request them when you call <code class="notranslate" translate="no">requestDefault</code> by
+you can request them when you call <code class="notranslate" translate="no">requestDevice</code> by
 passing your desired limits as <code class="notranslate" translate="no">requiredLimits</code> and your desired features as <code class="notranslate" translate="no">requiredFeatures</code>. For example</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const k1Gig = 1024 * 1024 * 1024;
 const adapter = await navigator.gpu?.requestAdapter();
@@ -313,7 +313,7 @@ an optional feature.</p>
 <p>Or you might allocate a buffer larger the the minimum <code class="notranslate" translate="no">maxBufferSize</code> and again
 not be aware you went over the limit. You ship and a bunch of users can’t run
 your page.</p>
-<h2 id="requesting-features-and-limits">Requesting Features and Limits</h2>
+<h2 id="recommended-way-to-request-features-and-limits">Recommended Way to Request Features and Limits</h2>
 <p>The recommended way to use features and limits is to decide on what you absolutely
 must have and only request those limits.</p>
 <p>For example</p>
