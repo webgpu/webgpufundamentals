@@ -13,11 +13,10 @@ TOC: 큐브맵(Cube Maps)
 기본적인 텍스처 좌표는 두 개의 차원을 사용하지만, 큐브맵은 법선(normal), 즉 3차원 방향을 사용합니다. 
 이 법선이 가리키는 방향에 따라 큐브의 여섯 개 면 중 하나가 선택되고 그 면에서의 픽셀이 샘플링되어 색상이 생성됩니다.
 
+간단한 예제를 만들어 봅시다.
+각 여섯 개의 면에 사용할 이미지를 만드는 2D 캔버스를 먼저 만듭니다.
 
-Let's make a simple example, we'll use a 2D canvas to make the images used in
-each of the 6 faces.
-
-Here's some code to fill a canvas with a color and a centered message
+아래는 캔버스에 색상과 가운에 써있는 글을 만드는 코드입니다.
 
 ```js
 function generateFace(size, {faceColor, textColor, text}) {
@@ -36,7 +35,7 @@ function generateFace(size, {faceColor, textColor, text}) {
 }
 ```
 
-And here's some code to call it to generate 6 images
+그리고 아래는 위 함수를 호출해 여섯 개 이미지를 생성하는 코드입니다.
 
 ```js
 const faceSize = 128;
@@ -57,10 +56,10 @@ for (const canvas of faceCanvases) {
 
 {{{example url="../webgpu-cube-faces.html" }}}
 
-Now let's apply those to a cube using a cubemap. We'll start with the code
-from the texture atlas example [in the article on importing textures](webgpu-importing-textures.html#a-texture-atlases).
+이제 큐브맵을 사용하여 이 이미지를 큐브에 적용해 봅시다.
+[이미지 로딩](webgpu-importing-textures.html#a-texture-atlases)의 텍스처 아틀라스 예제 코드를 가지고 시작해 보겠습니다.
 
-First off let's change the shaders to use a cube map
+먼저 큐브맵을 사용하도록 셰이더를 수정합니다.
 
 ```wgsl
 struct Uniforms {
@@ -89,21 +88,15 @@ struct VSOutput {
 }
 ```
 
-We've removed the texture coordinates from the shader and
-changed the inter-stage variable to pass a normal to the fragment shader.
-Since the positions of our cube are perfectly centered around the origin
-we can just use them as our normals.
+셰이더에서 텍스처 좌표를 제거하고 스테이지간 변수로 법선(normal)을 프래그먼트 셰이더로 전달하였습니다. 
+큐브는 원점에 위치해 있기 때문에 위치를 법선으로 그냥 사용할 수 있습니다.
 
-Recall from [the article on lighting](webgpu-lighting-directional.html) that
-normals are a direction and are usually used to specify the direction of
-the surface of some vertex. Because we are using the normalized positions
-for our normals if we were to light this we'd get smooth lighting across
-the cube.
+[라이팅에 관한 글](webgpu-lighting-directional.html)에서 봤던 것처럼 법선은 어떤 정점의 표면 방향을 명시하기 위해 사용됩니다. 
+우리는 정점의 위치를 정규화하여 법선으로 사용하고 있으므로 조명 효과가 있다면 아래 그림과 같이 큐브 전체에 걸쳐 부드러운 효과를 얻게 됩니다.
 
 {{{diagram url="resources/cube-normals.html" caption="standard cube normals vs this cube's normals" width="700" height="400"}}}
 
-Since we're not using texture coordinates we can remove all code related to
-setting up the texture coordinates.
+텍스처 좌표를 사용하지 않으므로 관련한 모든 코드를 삭제합니다.
 
 ```js
   const vertexData = new Float32Array([
@@ -204,10 +197,8 @@ setting up the texture coordinates.
   });
 ```
 
-In the fragment shader we need to use a `texture_cube` instead of a `texture_2d`
-and `textureSample` when used with a `texture_cube` takes a `vec3f` direction
-so we pass the normal. Since the normal is a inter-stage variable and will be interpolated
-we need to normalize it.
+프래그먼트 셰이더에서는 `texture_2d` 대신 `texture_cube`를 사용하고, `textureSample`을 `texture_cube`와 사용할 때에는 `vec3f` 방향을 받으므로 법선을 넘겨줍니다. 
+법선은 스테이지간 변수이고 보간되기 때문에 정규화를 해 주어야 합니다.
 
 ```wgsl
 @group(0) @binding(0) var<uniform> uni: Uniforms;
@@ -221,13 +212,12 @@ we need to normalize it.
 }
 ```
 
-To actually make a cube map we make a 2D texture with 6 layers. Let's change all our helpers
-so they handle multiple sources.
+실제로 큐브맵을 만들기 위해서는 여섯 개 레이어를 가진 2D 텍스처를 만들어야 합니다. 
+헬퍼 함수를 수정해 여러 개의 소스를 처리할 수 있도록 수정해 봅시다.
 
-## <a id="a-texture-helpers"></a> Making our texture helpers handle multiple layers
+## <a id="a-texture-helpers"></a> 텍스처 헬퍼가 여러 레이어를 처리할 수 있도록 하기
 
-First let's take our `createTextureFromSource` and change it to `createTextureFromSources`
-where it takes an array of sources
+먼저 `createTextureFromSource`를 소스의 배열을 받을 수 있는 `createTextureFromSources`로 수정합니다.
 
 ```js
 -  function createTextureFromSource(device, source, options = {}) {
@@ -249,11 +239,11 @@ where it takes an array of sources
   }
 ```
 
-The code above makes a texture where multiple layers, one for each source.
-It also assumes all the sources are the same size. This seems like a good bet
-because it would be very rare for them to be different sizes for layers of the same texture.
+위 코드는 소스의 개수만큼의 레이어를 갖는 텍스처를 만듭니다. 
+이 과정에서 모든 소스가 같은 크기라고 가정합니다. 
+같은 텍스처 내의 레이어에 다른 크기를 사용하는 경우는 매우 드물기 때문에 괜찮은 방법입니다.
 
-Now we need to update `copySourceToTexture` to handle multiple sources.
+이제 여러 소스를 처리할 수 있도록 `copySourceToTexture`를 수정해야 합니다.
 
 ```js
 -  function copySourceToTexture(device, texture, source, {flipY} = {}) {
@@ -273,11 +263,10 @@ Now we need to update `copySourceToTexture` to handle multiple sources.
   }
 ```
 
-Above, the only major difference is we added a loop to loop over the sources
-and we set an `origin` for where in the texture to copy the source so that
-we copy each source to its respective layer.
+위의 코드에서 수정한 점은 루프를 추가해서 각 소스를 순회하도록 하고, 소스를 텍스처로 복사할 때마다 `origin`을 설정하도록 한 것입니다. 
+이렇게 해서 각 소스를 해당하는 레이어에 복사할 수 있습니다.
 
-Now we need to update `generateMips` to handle multiple sources.
+이제 여러 소스를 처리할 수 있도록 `generateMips`도 수정합니다.
 
 ```js
   const generateMips = (() => {
@@ -414,14 +403,13 @@ Now we need to update `generateMips` to handle multiple sources.
   })();
 ```
 
-We added a loop to handle each layer of the texture.
-We changed the views so they select a single layer. We also had to explicitly choose
-`dimension: '2d'` for our views because by default, a view of a 2d texture with more than
-1 layer gets the `dimension: '2d-array'` which for the the purpose of generating
-mipmaps is not what we want.
+텍스처의 각 레이어를 처리하는 루프를 추가하였습니다. 
+뷰(view)를 수정하여 개별 레이어를 선택하도록 수정했습니다. 
+또한 `dimension: '2d'`를 명시적으로 선택했는데 기본적으로 하나 이상의 레이어를 갖는 2D 텍스처는 `dimension: '2d-array'`를 기본값으로 갖기 때문입니다. 
+이는 밉맵을 생성하는 우리의 목적과는 맞지 않습니다.
 
-Although we won't use them here, our original `createTextureFromSource` and
-`copySourceToTexture` functions can easily be replaced with
+여기서 사용하진 않겠지만, 기존의 `createTextureFromSource`와 
+`copySourceToTexture` 함수는 아래와 같이 간단히 대체됩니다.
 
 ```js
   function copySourceToTexture(device, texture, source, options = {}) {
@@ -433,14 +421,14 @@ Although we won't use them here, our original `createTextureFromSource` and
   }
 ```
 
-Now that we have these ready we can use the faces we made at the top of the article
+이제 준비가 되었으니 초반에 만들었던 면(face)들을 사용할 수 있습니다.
 
 ```js
   const texture = await createTextureFromSources(
       device, faceCanvases, {mips: true, flipY: false});
 ```
 
-All that's left to do is change our texture's view in the bindGroup
+이제 남은 것은 바인드그룹에서 텍스처의 뷰를 수정하는 것 뿐입니다.
 
 ```js
   const bindGroup = device.createBindGroup({
@@ -455,17 +443,14 @@ All that's left to do is change our texture's view in the bindGroup
   });
 ```
 
-And poof
+결과는 아래와 같습니다.
 
 {{{example url="../webgpu-cube-map.html" }}}
 
-Using a cubemap to texture a cube is **not** what cubemaps are normally
-used for. The *correct* or rather standard way to texture a cube is
-to use a texture atlas like we [mentioned before](webgpu-importing-textures.html#a-texture-atlases).
-The point of this article was to introduce the concept of cube map and show how you pass it
-directions (normals) and it returns the color of the cube in that direction.
+큐브맵을 큐브의 텍스처로 사용하는 것은 원래의 사용 용도가 **아닙니다**. 
+큐브를 텍스처링하는 *올바른* 또는 표준적인 방법은 [이전에 이야기한 것처럼](webgpu-importing-textures.html#a-texture-atlases) 텍스처 아틀라스를 사용하는 것입니다. 
+이 글의 요지는 큐브맵에 대한 개념을 소개하고 방향(법선)을 전달하면 그 방향에 맞는 색상값이 반환된다는 사실을 보여드리는 것이었습니다.
 
-Now that we've learned what a cubemap is and how to set one up what is a cubemap
-used for? Probably the single most common thing a cubemap is used for is as an
-[*environment map*](webgpu-environment-maps.html).
+이제 큐브맵이 무엇인지 배웠고 설정하는 법도 배웠는데, 그러면 큐브맵은 뭐에 사용하는 걸까요? 
+아마도 큐브맵이 사용되는 가장 일반적인 용도는 [*환경 맵(environment map)*](webgpu-environment-maps.html)일 겁니다.
 
