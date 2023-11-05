@@ -156,7 +156,7 @@ responsibility.
   For example if you called `gl.bufferData` the buffer would be reallocated. If you called
   `gl.texImage2D` the texture would be reallocated. A common pattern with textures was
   to create a 1x1 pixel placeholder that lets you start rendering immediately and then
-  loading an image asynchronously. When the image was finished loading you'd update
+  load an image asynchronously. When the image was finished loading you'd update
   the texture in place.
 
   In WebGPU texture and buffer sizes, usage, formats are immutable. You can change their
