@@ -52,7 +52,7 @@
   ],
   'misc': [
     'webgpu-resizing-the-canvas.md',
-    'webgpu-points.html',
+    'webgpu-points.md',
     'webgpu-from-webgl.md',
     'webgpu-resources.md',
     'webgpu-wgsl-function-reference.md',
