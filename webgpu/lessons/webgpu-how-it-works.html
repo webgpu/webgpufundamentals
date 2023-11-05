@@ -472,7 +472,7 @@ calls <code class="notranslate" translate="no">rasterizeLines</code> to rasteriz
   }
 }
 </pre>
-<p>We can update draw to use that code like this</p>
+<p>We can update <code class="notranslate" translate="no">draw</code> to use that code like this</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-function draw(count, vertexShaderFn, bindings, attribsSpec) {
 +function draw(dest, destWidth,
 +              count, vertexShaderFn, fragmentShaderFn,
@@ -592,8 +592,8 @@ added.</p>
 ..................54443.......
 .......................33.....
 </pre>
-<p>The first iteration of the vertex shader output <code class="notranslate" translate="no">[[5,0], [9]</code> and
-the 2nd iteration output <code class="notranslate" translate="no">[25,4], [3]</code> and you can see,
+<p>The first iteration of the vertex shader output <code class="notranslate" translate="no">[[5,0], [9]]</code> and
+the 2nd iteration output <code class="notranslate" translate="no">[[25,4], [3]]</code> and you can see,
 as the fragment shader was called, the 2nd value of each of those
 was interpolated between the two values.</p>
 <p>We could make another function <code class="notranslate" translate="no">mapTriangle</code> that given 3 points

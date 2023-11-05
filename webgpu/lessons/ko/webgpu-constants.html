@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/webgpu-constants.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,73 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="ko"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Shader Constants">
+
+<meta name="description" content="WebGPU 기초">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-constants_ko.jpg">
+
+<meta property="og:title" content="WebGPU 셰이더 상수(Constants)">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="The fundamentals of WebGPU">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-constants_ko.jpg">
+<meta property="og:description" content="WebGPU 기초">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-constants.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Shader Constants">
+<meta name="twitter:title" content="WebGPU 셰이더 상수(Constants)">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-constants.html">
-<meta name="twitter:description" content="The fundamentals of WebGPU">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="WebGPU 기초">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-constants_ko.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-constants.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-constants_ko.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-constants.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-constants.html",
+      "inLanguage":"ko",
+      "name":"WebGPU 셰이더 상수(Constants)",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-constants.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Shader Constants</title>
+<title>WebGPU 셰이더 상수(Constants)</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
+<link rel="stylesheet" href="/webgpu/lessons/ko/lang.css">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -175,13 +221,119 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Shader Constants</h1>
+    <h1>WebGPU 셰이더 상수(Constants)</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>죄송합니다. 이 글은 아직 번역이 되지 않았습니다.</p>
-<p><a href="https://github.com/gfxfundamentals/webgpufundamentals">번역을 도와주세요</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-constants.html">여기서 원문을 볼 수 있습니다</a>.</p>
+      <p>이 내용이 셰이더 입력의 한 종류로 간주될 수 있는지는 잘 모르겠습니다.
+하지만 어떤 면에서는 그렇게 볼 수도 있으니 한번 이야기 해 보겠습니다.</p>
+<p>상수(Constants), 좀더 정확히는 *파이프라인에서 오버라이딩 가능한 상수(pipeline-overridable constants)*는 셰이더에서 선언이 가능하고,
+그 셰이더를 파이프라인을 만들기 위해 사용하는 시점에 값을 변경할 수 있는 상수입니다.</p>
+<p>간단한 예제는 아래와 같습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">override red = 0.0;
+override green = 0.0;
+override blue = 0.0;
+
+@fragment fn fs() -&gt; @location(0) vec4f {
+  return vec4f(red, green, blue, 1.0);
+}
+</pre>
+<p>이 프래그먼트 셰이더와 <a href="../webgpu-fundamentals.html">기초</a>에서의 정점 셰이더를 사용해 보겠습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@vertex fn vs(
+  @builtin(vertex_index) vertexIndex : u32
+) -&gt; @builtin(position) vec4f {
+  let pos = array(
+    vec2f( 0.0,  0.5),  // top center
+    vec2f(-0.5, -0.5),  // bottom left
+    vec2f( 0.5, -0.5)   // bottom right
+  );
+
+  return vec4f(pos[vertexIndex], 0.0, 1.0);
+}
+</pre>
+<p>그러면 결과로 아래와 같은 검은색 삼각형이 그려집니다.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-constants.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-constants.html" target="_blank">새 창으로 보려면 여기를 클릭하세요</a>
+</div>
+
+<p></p>
+<p>하지만 저 상수들의 값을 바꿀 수 있습니다.
+또는 "오버라이드"할 수 있다고도 하는데, 파이프라인에 명시하는 시점에서 할 수 있습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: 'our hardcoded triangle pipeline',
+    layout: 'auto',
+    vertex: {
+      module,
+      entryPoint: 'vs',
+    },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
++      constants: {
++        red: 1,
++        green: 0.5,
++        blue: 1,
++      },
+    },
+  });
+</pre>
+<p>이제 핑크색으로 그려집니다.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-constants-override.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-constants-override.html" target="_blank">새 창으로 보려면 여기를 클릭하세요</a>
+</div>
+
+<p></p>
+<p>파이프라인에서 오버라이딩 가능한 상수는 스칼라(scalar) 값만 가능하므로,
+불리언(true/false), 정수, 부동소수점만 사용할 수 있습니다.
+벡터 또는 행렬은 불가능합니다.</p>
+<p>셰이더에서 값을 명시하지 않으면 <strong>반드시</strong> 파이프라인에서 값을 제공해야 합니다.
+또한 숫자 ID를 부여하고 ID를 기반으로 참조하는 것도 가능합니다.</p>
+<p>예시:</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">override red: f32;             // Must be specified in the pipeline
+@id(123) override green = 0.0; // May be specified by 'green' or by 123
+override blue = 0.0;
+
+@fragment fn fs() -&gt; @location(0) vec4f {
+  return vec4f(red, green, blue, 1.0);
+}
+</pre>
+<p>이게 왜 필요한지 의문이 드실겁니다.
+WGSL을 만들 때 단순히 아래와 같이 할 수도 있습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const red = 0.5;
+const blue = 0.7;
+const green = 1.0;
+
+const code = `
+const red = ${red};
+const green = ${green};
+const blue = ${blue};
+
+@fragment fn fs() -&gt; @location(0) vec4f {
+  return vec4f(red, green, blue, 1.0);
+}
+`;
+</pre>
+<p>또는 보다 직접적으로 아래와 같이 할 수도 있죠.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const red = 0.5;
+const blue = 0.7;
+const green = 1.0;
+
+const code = `
+@fragment fn fs() -&gt; @location(0) vec4f {
+  return vec4f(${red}, ${green}, ${blue}, 1.0);
+}
+`;
+</pre>
+<p>차이점은, 파이프라인에서 오버라이딩가능한 상수는 셰이더 모듈이 생성된 “다음에” 적용되기 때문에 값을 적용한 후 새로운 셰이더 모듈을 적용하는 것보다 더 빠릅니다.
+하지만 파이프라인을 만드는 것 자체가 빠른 연산이 아니기 때문에 이러한 기능을 전체적인 파이프라인 생성 과정을 얼마나 단축시킬 수 있는지는 명확하지 않습니다.
+아마도 셰이더가 복잡해질수록 단축되는 시간이 더 커질 것입니다.</p>
+<p>어쨌든 이 기능은 셰이더에 적은 양의 데이터를 전달하는 방법 중 하나입니다.</p>
+<p>색상값을 전달하기 위해 파이프라인에서 오버라이딩가능한 상수를 사용하는 것은 흔한 일이 <strong>아닙니다</strong>.
+위 예시는 그저 이해하기 쉽고 결과를 보여주기 좋기 때문에 만든 것입니다.
+대신에 반복 횟수를 명시하거나 배열의 크기(예를 들어 조명의 개수 등)를 명시하는 데 보다 유용합니다.</p>
 
     </div>
     <div class="lesson-sidebar">
@@ -195,7 +347,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>기초</li>
+        <div id="toc">
+          <ul>  <li>기초</li>
         <ul>
           <li><a href="/webgpu/lessons/ko/webgpu-fundamentals.html">기초</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-inter-stage-variables.html">스테이지간 변수(Inter-stage Variables)</a></li>
@@ -209,12 +362,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/ko/webgpu-textures-external-video.html">비디오 사용하기</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-cube-maps.html">큐브맵(Cube Maps)</a></li>
         </ul>
-<li><a href="/webgpu/lessons/ko/webgpu-constants.html">Constants</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-constants.html">상수(Constants)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-memory-layout.html">데이터 메모리 레이아웃</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-copying-data.html">데이터 복사하기</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-limits-and-features.html">선택적 기능(optional feature)과 제한(limit)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-wgsl.html">WGSL</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-how-it-works.html">How It Works</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-how-it-works.html">동작 방식</a></li>
         </ul>
   <li>3D 수학</li>
         <ul>
@@ -272,13 +425,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
 
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>질문이 있나요? <a href="http://stackoverflow.com/questions/tagged/webgpu">Stack Overflow</a>에 물어보세요.</div>
+<div>
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">제안</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">요청 사항</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">이슈</a> /
+   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">버그</a>
+</div>
+<div class="lesson-comment-notes">
+   코드 블럭의 경우 <b>&lt;pre&gt;&lt;code&gt;</b>코드<b>&lt;/code&gt;&lt;/pre&gt;</b>을 사용하세요.
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU 셰이더 상수(Constants)`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "<a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a>님<br> 당신의 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 기여에 감사드립니다.</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
-<script src="/webgpu/lessons/resources/lesson.js"></script>
+<script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
 <script>
 </script>
 
