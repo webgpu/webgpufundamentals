@@ -3,7 +3,7 @@ Description: The fundamentals of WebGPU
 TOC: Constants
 
 I'm not sure this topic deserves to considered an input to the shader.
-but, from one point of view it is so lets cover it.
+But, from one point of view it is so lets cover it.
 
 Constants, or more formally, *pipeline-overridable constants* are a type
 of constant you declare in your shader but you can change when you use
