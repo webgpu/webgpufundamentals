@@ -350,7 +350,7 @@ samplers are required.</p>
 For example if you called <code class="notranslate" translate="no">gl.bufferData</code> the buffer would be reallocated. If you called
 <code class="notranslate" translate="no">gl.texImage2D</code> the texture would be reallocated. A common pattern with textures was
 to create a 1x1 pixel placeholder that lets you start rendering immediately and then
-loading an image asynchronously. When the image was finished loading you’d update
+load an image asynchronously. When the image was finished loading you’d update
 the texture in place.</p>
 <p>In WebGPU texture and buffer sizes, usage, formats are immutable. You can change their
 contents but you can not change anything else about them. This means, patterns in
@@ -1542,6 +1542,7 @@ This forces you to implement a portable point solution.</p>
   <li>Misc</li>
         <ul>
           <li><a href="/webgpu/lessons/webgpu-resizing-the-canvas.html">Resizing the Canvas</a></li>
+<li><a href="/webgpu/lessons/webgpu-points.html">Points</a></li>
 <li><a href="/webgpu/lessons/webgpu-from-webgl.html">WebGPU from WebGL</a></li>
 <li><a href="/webgpu/lessons/webgpu-resources.html">Resources / References</a></li>
 <li><a href="/webgpu/lessons/webgpu-wgsl-function-reference.html">WGSL Function Reference</a></li>
