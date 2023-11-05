@@ -304,7 +304,7 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    }
    ```
 
-   We can update draw to use that code like this
+   We can update `draw` to use that code like this
 
    ```js
    -function draw(count, vertexShaderFn, bindings, attribsSpec) {
@@ -449,8 +449,8 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    .......................33.....
    ```
 
-   The first iteration of the vertex shader output `[[5,0], [9]` and
-   the 2nd iteration output `[25,4], [3]` and you can see, 
+   The first iteration of the vertex shader output `[[5,0], [9]]` and
+   the 2nd iteration output `[[25,4], [3]]` and you can see, 
    as the fragment shader was called, the 2nd value of each of those
    was interpolated between the two values.
 
