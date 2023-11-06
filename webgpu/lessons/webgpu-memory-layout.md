@@ -76,6 +76,8 @@ ourStructValuesAsF32[kAccelerationOffset] = 3.4;
 ourStructValuesAsU32[kFrameCountOffset] = 56;    // an integer value
 ```
 
+## `TypedArrays`
+
 Note, like many things in programming there are multiple ways we could
 do this. `TypeArray`s have a constructor that takes various forms. For example
 
@@ -98,6 +100,16 @@ do this. `TypeArray`s have a constructor that takes various forms. For example
    ```js
    srcArray.forEach((v, i) => dstArray[i] = v);
    ```
+
+   What does "copied by value" mean? Take this example
+
+   ```js
+   const f32s = new Float32Array([0.8, 0.9, 1.0, 1.1, 1.2]);
+   const u32s = new Uint32Array(f32s); 
+   console.log(u32s);   // produces 0, 0, 1, 1, 1
+   ```
+
+   The reason is you can't put values like 0.8 and 1.2 into a `Uint32Array`
 
 * `new Float32Array(someArrayBuffer)`
 
@@ -164,6 +176,50 @@ velocityView[0] = 1.2;
 accelerationView[0] = 3.4;
 frameCountView[0] = 56;
 ```
+
+## Multiple views of the same `ArrayBuffer`
+
+Having a view of **the same arrayBuffer** means exactly that. For example
+
+```js
+const v1 = new Float32Array(5);
+const v2 = v1.subarray(3, 5);  // view the last 2 floats of v1
+v2[0] = 123;
+v2[1] = 456;
+console.log(v1);  // shows 0, 0, 0, 123, 456
+```
+
+Similarly if we have different typed views 
+
+```js
+const f32 = new Float32Array([1, 1000, -1000])
+const u32 = new Uint32Array(f32.buffer);
+
+console.log(Array.from(u32).map(v => v.toString(16).padStart(8, '0')));
+// shows '3f800000', '447a0000', 'c47a0000' 
+```
+
+The values above are the 32bit hex representations of the floating point values for 1, 1000, -1000
+
+## `map` issues
+
+Be aware, the `map` function of a `TypedArray` makes a new typed array of the same type!
+
+```js
+const f32a = new Float32Array(1, 2, 3);
+const f32b = f32a.map(v => v * 2);                    // Ok
+const f32c = f32a.map(v => `${v} doubled = ${v *2}`); // BAD!
+                    //  you can't put a string in a Float32Array
+```
+
+If you need to map a typedarray into some other type you'll either need to loop over the array yourself
+or else convert it to a JavaScript array which you can do with `Array.from`. Taking the example above
+
+```js
+const f32d = Array.from(f32a).map(v => `${v} doubled = ${v *2}`); // Ok
+```
+
+## vec and mat types
 
 [WGSL](webgpu-wgsl.html) has types made from the 4 base types.
 They are:
