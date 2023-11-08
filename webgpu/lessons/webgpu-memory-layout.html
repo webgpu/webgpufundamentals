@@ -282,7 +282,7 @@ ourStructValuesAsU32[kFrameCountOffset] = 56;    // an integer value
 </pre>
 <h2 id="typedarrays"><code class="notranslate" translate="no">TypedArrays</code></h2>
 <p>Note, like many things in programming there are multiple ways we could
-do this. <code class="notranslate" translate="no">TypeArray</code>s have a constructor that takes various forms. For example</p>
+do this. <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>s have a constructor that takes various forms. For example</p>
 <ul>
 <li>
 <p><code class="notranslate" translate="no">new Float32Array(12)</code></p>
@@ -342,10 +342,10 @@ frameCountView[0] = 56;
 <ul>
 <li><code class="notranslate" translate="no">length</code>: number of units</li>
 <li><code class="notranslate" translate="no">byteLength</code>: size in bytes</li>
-<li><code class="notranslate" translate="no">byteOffset</code>: offset in the <code class="notranslate" translate="no">TypeArray</code>’s <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a></li>
-<li><code class="notranslate" translate="no">buffer</code>: the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> this <code class="notranslate" translate="no">TypeArray</code> is viewing</li>
+<li><code class="notranslate" translate="no">byteOffset</code>: offset in the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>’s <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a></li>
+<li><code class="notranslate" translate="no">buffer</code>: the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> this <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> is viewing</li>
 </ul>
-<p>And <code class="notranslate" translate="no">TypeArray</code>s have various methods, many are similar to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array"><code class="notranslate" translate="no">Array</code></a> but
+<p>And <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>s have various methods, many are similar to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array"><code class="notranslate" translate="no">Array</code></a> but
 one that is not is <code class="notranslate" translate="no">subarray</code>. It creates a new <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> view
 of the same type. Its parameters are <code class="notranslate" translate="no">subarray(begin, end)</code> were
 <code class="notranslate" translate="no">end</code> is not included. So <code class="notranslate" translate="no">someTypedArray.subarray(5, 10)</code> makes
