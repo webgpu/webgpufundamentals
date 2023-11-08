@@ -68,8 +68,10 @@ ourStructValuesAsF32[kAccelerationOffset] = 3.4;
 ourStructValuesAsU32[kFrameCountOffset] = 56;    // 정수값
 ```
 
+## `TypedArrays`
+
 유의할 것은, 이를 수행하기 위한 방법에는 수많은 방법이 존재한다는 겁니다.
-`TypeArray`의 생성자는 다양한 형태를 가질 수 있습니다.
+`TypedArray`의 생성자는 다양한 형태를 가질 수 있습니다.
 
 예를 들어 아래와 같습니다.
 
@@ -88,6 +90,16 @@ ourStructValuesAsU32[kFrameCountOffset] = 56;    // 정수값
    ```js
    srcArray.forEach((v, i) => dstArray[i] = v);
    ```
+
+  "숫자로 복사"된다는 것은 무슨 뜻일까요? 아래 예시를 봅시다.
+
+   ```js
+   const f32s = new Float32Array([0.8, 0.9, 1.0, 1.1, 1.2]);
+   const u32s = new Uint32Array(f32s); 
+   console.log(u32s);   // produces 0, 0, 1, 1, 1
+   ```
+
+   이렇게 되는 이유는 0.8이나 1.2같은 값을 `Uint32Array`에 넣을 수 없기 때문입니다.
 
 * `new Float32Array(someArrayBuffer)`
 
@@ -122,10 +134,10 @@ frameCountView[0] = 56;
 
 * `length`: 요소의 개수
 * `byteLength`: 바이트 기반의 크기
-* `byteOffset`: `ArrayBuffer`에 대한 `TypeArray`의 오프셋
-* `buffer`: 이 `TypeArray`가 바라보고 있는 `ArrayBuffer`
+* `byteOffset`: `ArrayBuffer`에 대한 `TypedArray`의 오프셋
+* `buffer`: 이 `TypedArray`가 바라보고 있는 `ArrayBuffer`
 
-그리고 `TypeArray`는 여러 메서드를 갖고 있습니다.
+그리고 `TypedArray`는 여러 메서드를 갖고 있습니다.
 많은 메서드들은 `Array`에 있는 것과 유사하지만, `subarray`는 그렇지 않습니다.
 이는 동일한 타입의 새로운 `TypedArray` 뷰를 만듭니다.
 파라미터는 `subarray(begin, end)`이며, `end`는 포함되지 않습니다.
@@ -148,6 +160,50 @@ velocityView[0] = 1.2;
 accelerationView[0] = 3.4;
 frameCountView[0] = 56;
 ```
+
+## 동일한 `ArrayBuffer`에 대한 여러 뷰
+
+**동일한 arrayBuffer**에 대해 뷰를 갖는다는 것은 이런 의미입니다. 예를 들어,
+
+```js
+const v1 = new Float32Array(5);
+const v2 = v1.subarray(3, 5);  // view the last 2 floats of v1
+v2[0] = 123;
+v2[1] = 456;
+console.log(v1);  // shows 0, 0, 0, 123, 456
+```
+
+비슷하게, 만일 다른 타입의 뷰를 만든다면 아래와 같습니다.
+
+```js
+const f32 = new Float32Array([1, 1000, -1000])
+const u32 = new Uint32Array(f32.buffer);
+
+console.log(Array.from(u32).map(v => v.toString(16).padStart(8, '0')));
+// shows '3f800000', '447a0000', 'c47a0000' 
+```
+
+위 값은 1, 1000, -1000에 대한 부동소수점의 32비트 hex(*역주: 16진수*) 표현입니다.
+
+## `map` 이슈
+
+주의해야 할 것은 `TypedArray`의 `map` 함수는 동일한 타입의 새로운 typed array를 만든다는 것입니다!
+
+```js
+const f32a = new Float32Array(1, 2, 3);
+const f32b = f32a.map(v => v * 2);                    // Ok
+const f32c = f32a.map(v => `${v} doubled = ${v *2}`); // BAD!
+                    //  you can't put a string in a Float32Array
+```
+
+typedarray를 다른 타입으로 맵핑해야 한다면 직접 배열을 순회하거나 `Array.from`를 사용할 수 있도록 자바스크립트 바열로 변환해야 합니다.
+위 예제의 경우에는 아래와 같습니다.
+
+```js
+const f32d = Array.from(f32a).map(v => `${v} doubled = ${v *2}`); // Ok
+```
+
+## vec과 mat 타입
 
 [WGSL](webgpu-wgsl.html)는 4개의 기본 타입에서 비롯된 여러 타입들을 갖고 있습니다.
 아래처럼요.

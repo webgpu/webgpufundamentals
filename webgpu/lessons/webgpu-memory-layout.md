@@ -79,7 +79,7 @@ ourStructValuesAsU32[kFrameCountOffset] = 56;    // an integer value
 ## `TypedArrays`
 
 Note, like many things in programming there are multiple ways we could
-do this. `TypeArray`s have a constructor that takes various forms. For example
+do this. `TypedArray`s have a constructor that takes various forms. For example
 
 * `new Float32Array(12)`
 
@@ -149,10 +149,10 @@ Further, every `TypedArray` has the following properties
 
 * `length`: number of units
 * `byteLength`: size in bytes
-* `byteOffset`: offset in the `TypeArray`'s `ArrayBuffer`
-* `buffer`: the `ArrayBuffer` this `TypeArray` is viewing 
+* `byteOffset`: offset in the `TypedArray`'s `ArrayBuffer`
+* `buffer`: the `ArrayBuffer` this `TypedArray` is viewing 
 
-And `TypeArray`s have various methods, many are similar to `Array` but
+And `TypedArray`s have various methods, many are similar to `Array` but
 one that is not is `subarray`. It creates a new `TypedArray` view
 of the same type. Its parameters are `subarray(begin, end)` were
 `end` is not included. So `someTypedArray.subarray(5, 10)` makes
