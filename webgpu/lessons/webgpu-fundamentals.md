@@ -113,9 +113,9 @@ What to notice about this diagram
 * The fragment shader writes to textures indirectly through the render pass
   description
 
-To execute shaders on the GPU you need to create all of these resources and
+To execute shaders on the GPU, you need to create all of these resources and
 set up this state. Creation of resources is relatively straightforward. One
-interesting thing is most WebGPU resources can not be changed after creation. You
+interesting thing is that most WebGPU resources can not be changed after creation. You
 can change their contents but not their size, usage, format, etc... If you want
 to change any of that stuff you create a new resource and destroy the old one.
 
