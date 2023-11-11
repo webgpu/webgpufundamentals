@@ -29,13 +29,13 @@ That is it!
 
 Everything about WebGPU after that is up to you. It's like learning a computer
 language like JavaScript, or Rust, or C++. First you learn the basics, then it's up to
-you to creatively use those basic to solve your problem. 
+you to creatively use those basics to solve your problem. 
 
 WebGPU is an extremely low-level API. While you can make some small examples,
 for many apps it will likely require a large amount of code and some serious
 organization of data. As an example, [three.js](https://threejs.org) which
 supports WebGPU consists of ~600k minified JavaScript, and that's just its
-base library. That does not include loaders, controls, post processing, and
+base library. That does not include loaders, controls, post-processing, and
 many other features. Similarly, [TensorFlow with WebGPU backend](https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-webgpu)
 is ~500k of minified JavaScript.
 
@@ -49,7 +49,7 @@ cases, read on!
 
 # Getting Started
 
-It's hard to decide where to start. At certain level, WebGPU is a very simple
+It's hard to decide where to start. At a certain level, WebGPU is a very simple
 system. All it does is run 3 types of functions on the GPU. Vertex Shaders,
 Fragment Shaders, Compute Shaders.
 
@@ -76,7 +76,7 @@ say "execute this function N times". The GPU passes the iteration number each
 time it calls your function so you can use that number to do something unique on
 each iteration.
 
-If you squint hard, you can think of these functions similar to the functions to
+If you squint hard, you can think of these functions as similar to the functions to
 pass to
 [`array.forEach`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
 or
@@ -166,19 +166,19 @@ commandBuffer = encoder.finish();
 <div><img src="resources/webgpu-command-buffer.svg" style="width: 300px;"></div>
 </div>
 
-Once you create a command buffer you can *submit* to be executed
+Once you create a command buffer, you can *submit* it to be executed
 
 ```js
 device.queue.submit([commandBuffer]);
 ```
 
 The diagram above represents the state at some `draw` command in the command
-buffer. Executing the commands will setup the *internal state* and then the
+buffer. Executing the commands will set up the *internal state* and then the
 *draw* command will tell the GPU to execute a vertex shader (and indirectly a
 fragment shader). The `dispatchWorkgroup` command will tell the GPU to execute a
 compute shader.
 
-I hope that gave some mental image of the state you need to set up. Like
+I hope that gave you some mental image of the state you need to set up. Like
 mentioned above, WebGPU has 2 basic things it can do
 
 1. [Draw triangles/points/lines to textures](#a-drawing-triangles-to-textures)
@@ -194,11 +194,11 @@ graphics, 3D graphics, etc...
 # <a id="a-drawing-triangles-to-textures"></a>Drawing triangles to textures
 
 WebGPU can draw triangles to [textures](webgpu-textures.html). For the purpose
-of this article, a texture is a 2d rectangle of pixels.[^textures] The `<canvas>` element
+of this article, a texture is a 2D rectangle of pixels.[^textures] The `<canvas>` element
 represents a texture on a webpage. In WebGPU we can ask the canvas for a texture
 and then render to that texture.
 
-[^textures]: Textures can also be 3d rectangles of pixels, cube maps (6 squares of pixels
+[^textures]: Textures can also be 3D rectangles of pixels, cube maps (6 squares of pixels
 that form a cube), and a few other things but the most common textures are 2D rectangles of pixels.
 
 To draw triangles with WebGPU we have to supply 2 "shaders". Again, Shaders
@@ -316,8 +316,8 @@ function.
 Shaders are written in a language called
 [WebGPU Shading Language (WGSL)](https://gpuweb.github.io/gpuweb/wgsl/) which is
 often pronounced wig-sil. WGSL is a strongly typed language
-which we'll try to go over more details in [another article](webgpu-wgsl.html).
-For now I'm hoping with a little explanation you can infer some basics.
+which we'll try to go over in more detail in [another article](webgpu-wgsl.html).
+For now, I'm hoping with a little explanation you can infer some basics.
 
 Above we see a function called `vs` is declared with the `@vertex` attribute.
 This designates it as a vertex shader function.
@@ -339,15 +339,15 @@ execute this function 10 times by calling `draw`, the first time `vertex_index` 
 [^indices]: We can also use an index buffer to specify `vertex_index`.
 This is covered in [the article on vertex-buffers](webgpu-vertex-buffers.html#a-index-buffers).
 
-Our `vs` function is declared as returning a `vec4f` which is vector of four
-32bit floating point values. Think of it as an array of 4 values or an object
+Our `vs` function is declared as returning a `vec4f` which is a vector of four
+32-bit floating point values. Think of it as an array of 4 values or an object
 with 4 properties like `{x: 0, y: 0, z: 0, w: 0}`. This returned value will be
 assigned to the `position` builtin. In "triangle-list" mode, every 3 times the
 vertex shader is executed a triangle will be drawn connecting the 3 `position`
 values we return.
 
 Positions in WebGPU need to be returned in *clip space* where X goes from -1.0
-on the left to +1.0 on the right, Y goes from -1.0 at the bottom to +1.0 at the
+on the left to +1.0 on the right, and Y goes from -1.0 at the bottom to +1.0 at the
 top. This is true regardless of the size of the texture we are drawing to.
 
 <div class="webgpu_center"><img src="resources/clipspace.svg" style="width: 500px"></div>
@@ -392,16 +392,16 @@ specified as floating point values from `0.0` to `1.0` where the 4 values above
 correspond to red, green, blue, and alpha respectively.
 
 When the GPU rasterizes the triangle (draws it with pixels), it will call
-the fragment shader to find out what color to make each pixel. In our case
+the fragment shader to find out what color to make each pixel. In our case,
 we're just returning red.
 
 One more thing to note is the `label`. Nearly every object you can create with
 WebGPU can take a `label`. Labels are entirely optional but it's considered
-*best practice* to label everything you make. The reason is, when you get an
+*best practice* to label everything you make. The reason is that when you get an
 error, most WebGPU implementations will print an error message that includes the
 labels of the things related to the error.
 
-In a normal app you'd have 100s or 1000s of buffers, textures, shader modules,
+In a normal app, you'd have 100s or 1000s of buffers, textures, shader modules,
 pipelines, etc... If you get an error like `"WGSL syntax error in shaderModule
 at line 10"`, if you have 100 shader modules, which one got the error? If you
 label the module then you'll get an error more like `"WGSL syntax error in
@@ -427,12 +427,12 @@ Now that we've created a shader module, we next need to make a render pipeline
   });
 ```
 
-In this case there isn't much to see. We set `layout` to `'auto'` which means
+In this case, there isn't much to see. We set `layout` to `'auto'` which means
 to ask WebGPU to derive the layout of data from the shaders. We're not using
 any data though.
 
 We then tell the render pipeline to use the `vs` function from our shader module
-for a vertex shader and the `fs` function for our fragment shader. Otherwise we
+for a vertex shader and the `fs` function for our fragment shader. Otherwise, we
 tell it the format of the first render target. "render target" means the texture
 we will render to. We create a pipeline
 we have to specify the format for the texture(s) we'll use this pipeline to
@@ -462,7 +462,7 @@ we want to draw to and how to use them.
 A `GPURenderPassDescriptor` has an array for `colorAttachments` which lists
 the textures we will render to and how to treat them.
 We'll wait to fill in which texture we actually want to render to. For now,
-we setup a clear value of semi-dark gray, and a `loadOp` and `storeOp`.
+we set up a clear value of semi-dark gray, and a `loadOp` and `storeOp`.
 `loadOp: 'clear'` specifies to clear the texture to the clear value before
 drawing. The other option is `'load'` which means load the existing contents of
 the texture into the GPU so we can draw over what's already there. 
@@ -495,15 +495,15 @@ Now it's time to render.
   render();
 ```
 
-First we call `context.getCurrentTexture()` to get a texture that will appear in the
+First, we call `context.getCurrentTexture()` to get a texture that will appear in the
 canvas. Calling `createView` gets a view into a specific part of a texture but
-with no parameters it will return the default part which is what we want in this
+with no parameters, it will return the default part which is what we want in this
 case. For now our only `colorAttachment` is a texture view from our
 canvas which we get via the context we created at the start. Again, element 0 of
 the `colorAttachments` array corresponds to `@location(0)` as we specified for
 the return value of the fragment shader.
 
-Next we create a command encoder. A command encoder is used to create a command
+Next, we create a command encoder. A command encoder is used to create a command
 buffer. We use it to encode commands and then "submit" the command buffer it
 created to have the commands executed.
 
@@ -518,7 +518,7 @@ times our vertex shader is executed a triangle will be drawn by connecting the 3
 values just returned from the vertex shader.
 
 We end the render pass, and then finish the encoder. This gives us a
-command buffer that represents the steps we just specified. Finally we submit
+command buffer that represents the steps we just specified. Finally, we submit
 the command buffer to be executed.
 
 When the `draw` command is executed, this will be our state
@@ -556,7 +556,7 @@ obvious that hard coding a triangle inside a shader is not very flexible. We
 need ways to provide data and we'll cover those in the following articles. The
 points to take away from the code above,
 
-* WebGPU just runs shaders. Its up to you to fill them with code to do useful things
+* WebGPU just runs shaders. It's up to you to fill them with code to do useful things
 * Shaders are specified in a shader module and then turned into a pipeline
 * WebGPU can draw triangles
 * WebGPU draws to textures (we happened to get a texture from the canvas)
@@ -596,7 +596,7 @@ When we create a shader module
   });
 ```
 
-First we declare a variable called `data` of type `storage` that we want to be
+First, we declare a variable called `data` of type `storage` that we want to be
 able to both read from and write to.
 
 ```wgsl
@@ -618,14 +618,14 @@ attribute which makes it a compute shader.
 ```
 
 Compute shaders are required to declare a workgroup size which we will cover
-later. For now we'll just set it to 1 with the attribute `@workgroup_size(1)`.
+later. For now, we'll just set it to 1 with the attribute `@workgroup_size(1)`.
 We declare it to have one parameter `id` which uses a `vec3u`. A `vec3u` is
 three unsigned 32 integer values. Like our vertex shader above, this is the
 iteration number. It's different in that compute shader iteration numbers are 3
 dimensional (have 3 values). We declare `id` to get its value from the built-in
 `global_invocation_id`.
 
-You can *kind of* think of a compute shaders as running like this. This is an over
+You can *kind of* think of compute shaders as running like this. This is an over
 simplification but it will do for now.
 
 ```js
@@ -658,7 +658,7 @@ function dispatchWorkgroup(workgroup_id) {
 }
 ```
 
-Since we set `@workgroup_size(1)`, effectively the pseudo code above becomes
+Since we set `@workgroup_size(1)`, effectively the pseudo-code above becomes
 
 ```js
 // pseudo code
@@ -679,7 +679,7 @@ function dispatchWorkgroup(workgroup_id) {
 }
 ```
 
-Finally we use the `x` property of `id` to index `data` and multiply each value
+Finally, we use the `x` property of `id` to index `data` and multiply each value
 by 2
 
 ```wgsl
@@ -710,7 +710,7 @@ created and we want to call the `computeSomething` function. `layout` is
 across pipelines using `layout: 'auto'`. Most of the examples on this site
 never use a bind group with multiple pipelines. We'll cover explicit layouts in [another article](webgpu-drawing-multiple-things.html).
 
-Next we need some data
+Next, we need some data
 
 ```js
   const input = new Float32Array([1, 3, 5]);
@@ -732,7 +732,7 @@ buffer that exists on the GPU and copy the data to the buffer.
 ```
 
 Above we call `device.createBuffer` to create a buffer. `size` is the size in
-bytes, in this case it will be 12 because size in bytes of a `Float32Array` of 3
+bytes. In this case, it will be 12 because the size in bytes of a `Float32Array` of 3
 values is 12. If you're not familiar with `Float32Array` and typed arrays then
 see [this article](webgpu-memory-layout.html).
 
@@ -740,18 +740,18 @@ Every WebGPU buffer we create has to specify a `usage`. There are a bunch of
 flags we can pass for usage but not all of them can be used together. Here we
 say we want this buffer to be usable as `storage` by passing
 `GPUBufferUsage.STORAGE`. This makes it compatible with `var<storage,...>` from
-the shader. Further, we want to able to copy data to this buffer so we include
-the `GPUBufferUsage.COPY_DST` flag. And finally we want to be able to copy data
+the shader. Further, we want to be able to copy data to this buffer so we include
+the `GPUBufferUsage.COPY_DST` flag. And finally, we want to be able to copy data
 from the buffer so we include `GPUBufferUsage.COPY_SRC`.
 
 Note that you can not directly read the contents of a WebGPU buffer from
-JavaScript. Instead you have to "map" it which is another way of requesting
+JavaScript. Instead, you have to "map" it which is another way of requesting
 access to the buffer from WebGPU because the buffer might be in use and because
 it might only exist on the GPU.
 
 WebGPU buffers that can be mapped in JavaScript can't be used for much else. In
 other words, we can not map the buffer we just created above and if we try to add
-the flag to make it mappable we'll get an error that that is not compatible with
+the flag to make it mappable, we'll get an error that it is not compatible with
 usage `STORAGE`.
 
 So, in order to see the result of our computation, we'll need another buffer.
@@ -808,7 +808,7 @@ Now we can start encoding commands
 We create a command encoder. We start a compute pass. We set the pipeline, then
 we set the bindGroup. Here, the `0` in `pass.setBindGroup(0, bindGroup)`
 corresponds to `@group(0)` in the shader. We then call `dispatchWorkgroups` and in
-this case we pass it `input.length` which is `3` telling WebGPU to run the
+this case, we pass it `input.length` which is `3` telling WebGPU to run the
 compute shader 3 times. We then end the pass.
 
 Here's what the situation will be when `dispatchWorkgroups` is executed
@@ -861,7 +861,7 @@ doubled.
 We'll cover how to really use compute shaders in other articles. For now, you
 hopefully have gleaned some understanding of what WebGPU does. EVERYTHING ELSE
 IS UP TO YOU! Think of WebGPU as similar to other programming languages. It
-provides a few basic features, and leaves the rest to your creativity.
+provides a few basic features and leaves the rest to your creativity.
 
 What makes WebGPU programming special is these functions, vertex shaders,
 fragment shaders, and compute shaders, run on your GPU. A GPU could have over
@@ -876,7 +876,7 @@ basic support for resizing a canvas. Sizing a canvas is actually a topic that
 can have many subtleties so [there is an entire article on it](webgpu-resizing-the-canvas.html).
 For now though let's just add some basic support.
 
-First we'll add some CSS to make our canvas fill the page
+First, we'll add some CSS to make our canvas fill the page
 
 ```html
 <style>
@@ -894,7 +894,7 @@ canvas {
 
 That CSS alone will make the canvas get displayed to cover the page but it won't change
 the resolution of the canvas itself so you might notice if you make the example below
-large, like if you click the full screen button, you'll see the edges of the triangle
+large, like if you click the full-screen button, you'll see the edges of the triangle
 are blocky.
 
 {{{example url="../webgpu-simple-triangle-with-canvas-css.html"}}}
@@ -941,7 +941,7 @@ inside `render` so there's nothing left to do.
 
 {{{example url="../webgpu-simple-triangle-with-canvas-resize.html"}}}
 
-In the following articles we'll cover various ways to pass data into shaders.
+In the following articles, we'll cover various ways to pass data into shaders.
 
 * [inter-stage variables](webgpu-inter-stage-variables.html)
 * [uniforms](webgpu-uniforms.html)
@@ -959,11 +959,11 @@ and as such are used in all 3 kinds of shaders (vertex, fragment, and compute).
 Going from uniform buffers to storage buffers is trivial as shown at the top of
 the article on storage buffers. Vertex buffers are only used in vertex shaders.
 They are more complex because they require describing the data layout to WebGPU.
-Textures are most complex as they have tons of types and options.
+Textures are the most complex as they have tons of types and options.
 
-I'm a little bit worried these article will be boring at first. Feel free to
+I'm a little bit worried these articles will be boring at first. Feel free to
 jump around if you'd like. Just remember if you don't understand something you
-probably need to read or review these basics. Once we get the basics down we'll
+probably need to read or review these basics. Once we get the basics down, we'll
 start going over actual techniques.
 
 One other thing. All of the example programs can be edited live in the webpage.
@@ -972,7 +972,7 @@ and even [stackoverflow](https://stackoverflow.com). Just click "Export".
 
 <div class="webgpu_bottombar">
 <p>
-The code above gets a WebGPU device in very terse way. A more verbose
+The code above gets a WebGPU device in a very terse way. A more verbose
 way would be something like
 </p>
 <pre class="prettyprint showmods">{{#escapehtml}}
