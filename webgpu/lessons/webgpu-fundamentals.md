@@ -260,9 +260,9 @@ have multiple GPUs.
 From the adapter, we request the device but again use `?.` so that if adapter happens
 to be undefined then device will also be undefined.
 
-If the `device` is not set it's likely the user has an old browser.
+If the `device` is not set, it's likely the user has an old browser.
 
-Next up we look up the canvas and create a `webgpu` context for it. This will
+Next, we look up the canvas and create a `webgpu` context for it. This will
 let us get a texture to render to. That texture will be used to display the canvas in the
 webpage.
 
@@ -277,7 +277,7 @@ webpage.
   });
 ```
 
-Again the code above is pretty self-explanatory. We get a `"webgpu"` context
+Again, the code above is pretty self-explanatory. We get a `"webgpu"` context
 from the canvas. We ask the system what the preferred canvas format is. This
 will be either `"rgba8unorm"` or `"bgra8unorm"`. It's not really that important
 what it is but querying it will make things faster for the user's system.
