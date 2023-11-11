@@ -53,7 +53,7 @@ It's hard to decide where to start. At certain level, WebGPU is a very simple
 system. All it does is run 3 types of functions on the GPU. Vertex Shaders,
 Fragment Shaders, Compute Shaders.
 
-A Vertex Shader computes vertices. The shader returns vertex positions. For every group of 3 vertices the vertex shader function returns a triangle is drawn between those 3 positions [^primitives]
+A Vertex Shader computes vertices. The shader returns vertex positions. For every group of 3 vertices the vertex shader function returns, a triangle is drawn between those 3 positions [^primitives]
 
 [^primitives]: There are actually 5 modes.
 
@@ -114,19 +114,19 @@ What to notice about this diagram
   description
 
 To execute shaders on the GPU you need to create all of these resources and
-setup this state. Creation of resources is relatively straight forward. One
+set up this state. Creation of resources is relatively straightforward. One
 interesting thing is most WebGPU resources can not be changed after creation. You
 can change their contents but not their size, usage, format, etc... If you want
 to change any of that stuff you create a new resource and destroy the old one.
 
-Some of the state is setup by creating and then executing command buffers.
+Some of the state is set up by creating and then executing command buffers.
 Command buffers are literally what their name suggests. They are a buffer of
 commands. You create command encoders. The encoders encode commands into the command
 buffer. You then *finish* the encoder and it gives you the command buffer it
 created. You can then *submit* that command buffer to have WebGPU execute the
 commands.
 
-Here is some pseudo code of encoding a command buffer followed by a representation of
+Here is some pseudo-code for encoding a command buffer followed by a representation of
 the command buffer that was created.
 
 <div class="webgpu_center side-by-side"><div style="min-width: 300px; max-width: 400px; flex: 1 1;"><pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
@@ -199,7 +199,7 @@ represents a texture on a webpage. In WebGPU we can ask the canvas for a texture
 and then render to that texture.
 
 [^textures]: Textures can also be 3d rectangles of pixels, cube maps (6 squares of pixels
-that form a cube), and a few other things but the most common textures are 2d rectangles of pixels.
+that form a cube), and a few other things but the most common textures are 2D rectangles of pixels.
 
 To draw triangles with WebGPU we have to supply 2 "shaders". Again, Shaders
 are functions that run on the GPU. These 2 shaders are
@@ -250,17 +250,17 @@ async function main() {
 main();
 ```
 
-The code above is fairly self explanatory. First we request an adapter by using the
+The code above is fairly self-explanatory. First, we request an adapter by using the
 [`?.` optional chaining operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining).
 so that if `navigator.gpu` does not exist then `adapter` will be undefined.
 If it does exist then we'll call `requestAdapter`. It returns its results asynchronously
 so we need `await`. The adapter represents a specific GPU. Some devices
 have multiple GPUs.
 
-From the adapter we request the device but again use `?.` so that if adapter happens
+From the adapter, we request the device but again use `?.` so that if adapter happens
 to be undefined then device will also be undefined.
 
-If the `device` not set it's likely the user has an old browser.
+If the `device` is not set it's likely the user has an old browser.
 
 Next up we look up the canvas and create a `webgpu` context for it. This will
 let us get a texture to render to. That texture will be used to display the canvas in the
@@ -277,17 +277,17 @@ webpage.
   });
 ```
 
-Again the code above is pretty self explanatory. We get a `"webgpu"` context
+Again the code above is pretty self-explanatory. We get a `"webgpu"` context
 from the canvas. We ask the system what the preferred canvas format is. This
 will be either `"rgba8unorm"` or `"bgra8unorm"`. It's not really that important
-what it is but by querying it it will make things fastest for the user's system.
+what it is but querying it will make things faster for the user's system.
 
 We pass that as `format` into the webgpu canvas context by calling `configure`.
 We also pass in the `device` which associates this canvas with the device we just
 created.
 
-Next we create a shader module. A shader module contains one or more shader
-functions. In our case we'll make 1 vertex shader function and 1 fragment shader
+Next, we create a shader module. A shader module contains one or more shader
+functions. In our case, we'll make 1 vertex shader function and 1 fragment shader
 function.
 
 ```js
@@ -874,7 +874,7 @@ CPU can do in parallel.
 Before we move on, let's go back to our triangle drawing example and add some
 basic support for resizing a canvas. Sizing a canvas is actually a topic that
 can have many subtleties so [there is an entire article on it](webgpu-resizing-the-canvas.html).
-For now though let's just add some basic support
+For now though let's just add some basic support.
 
 First we'll add some CSS to make our canvas fill the page
 
@@ -924,7 +924,7 @@ observe.
 +    observer.observe(canvas);
 ```
 
-In the code above we go over all the entries but there should only ever be one
+In the code above, we go over all the entries but there should only ever be one
 because we're only observing our canvas. We need to limit the size of the canvas
 to the largest size our device supports otherwise WebGPU will start generating
 errors that we tried to make a texture that is too large. We also need to make
