@@ -230,7 +230,7 @@ This article will be about uniforms.</p>
 values before you execute the shader and they’ll have those values for every
 iteration of the shader. You can set them to something else the next time
 you ask the GPU to execute the shader.</p>
-<p>We’ll start again with the triangle example from <a href="webgpu-fundamentals.html">the first article</a> and modify it to use some uniforms</p>
+<p>We’ll start again with the triangle example from <a href="webgpu-fundamentals.html">the first article</a> and modify it to use some uniforms.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'triangle shaders with uniforms',
     code: `
@@ -265,7 +265,7 @@ you ask the GPU to execute the shader.</p>
 
   });
 </pre>
-<p>First we declared a struct with 3 members</p>
+<p>First, we declared a struct with 3 members.</p>
 <pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">      struct OurStruct {
         color: vec4f,
         scale: vec2f,
@@ -276,8 +276,8 @@ you ask the GPU to execute the shader.</p>
 The variable is <code class="notranslate" translate="no">ourStruct</code> and its type is <code class="notranslate" translate="no">OurStruct</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">      @group(0) @binding(0) var&lt;uniform&gt; ourStruct: OurStruct;
 </pre>
-<p>Next we changed what is returned from the vertex shader to use
-the uniforms</p>
+<p>Next, we changed what is returned from the vertex shader to use
+the uniforms.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
          ...
       ) ... {
@@ -288,22 +288,22 @@ the uniforms</p>
 </pre>
 <p>You can see we multiply the vertex position by scale and then add an offset.
 This will let us set the size of a triangle and position it.</p>
-<p>We also change the fragment shader to return the color from our uniforms</p>
+<p>We also changed the fragment shader to return the color from our uniforms.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs() -&gt; @location(0) vec4f {
         return ourStruct.color;
       }
 </pre>
-<p>Now that we’ve setup the shader to use uniforms we need to create
+<p>Now that we’ve set up the shader to use uniforms, we need to create
 a buffer on the GPU to hold values for them.</p>
-<p>This is an area where, if you never dealt with native data and sizes
-there’s a bunch to learn. It’s a big topic so <a href="webgpu-memory-layout.html">here is an separate
+<p>This is an area where if you’ve never dealt with native data and sizes,
+there’s a bunch to learn. It’s a big topic so <a href="webgpu-memory-layout.html">here is a separate
 article about the topic</a>. If you don’t
 know how to layout structs in memory, please <a href="webgpu-memory-layout.html">go read the article</a>. Then come back here. This article
 will assume you <a href="webgpu-memory-layout.html">already read it</a>.</p>
 <p>Having read <a href="webgpu-memory-layout.html">the article</a>, we can
-now go ahead fill out a buffer with data that matches the
+now go ahead and fill out a buffer with data that matches the
 struct in our shader.</p>
-<p>First we make a buffer and assign it usage flags so it can
+<p>First, we make a buffer and assign it usage flags so it can
 be used with uniforms, and so that we can update by copying
 data to it.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const uniformBufferSize =
@@ -315,7 +315,7 @@ data to it.</p>
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 </pre>
-<p>Then we make a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> so we can set values in JavaScript</p>
+<p>Then we make a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> so we can set values in JavaScript.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // create a typedarray to hold the values for the uniforms in JavaScript
   const uniformValues = new Float32Array(uniformBufferSize / 4);
 </pre>
@@ -343,8 +343,8 @@ and bind the buffer to the same <code class="notranslate" translate="no">@bindin
     ],
   });
 </pre>
-<p>Now, sometime before we submit our command buffer, we need to set
-the the remaining values of <code class="notranslate" translate="no">uniformValues</code> and then copy those values to the buffer on the GPU.
+<p>Now sometimes before we submit our command buffer, we need to set
+the remaining values of <code class="notranslate" translate="no">uniformValues</code> and then copy those values to the buffer on the GPU.
 We’ll do it at the top of our <code class="notranslate" translate="no">render</code> function.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
     // Set the uniform values in our JavaScript side Float32Array
@@ -359,28 +359,28 @@ We’ll do it at the top of our <code class="notranslate" translate="no">render<
 There are several other ways covered in <a href="webgpu-copying-data.html">this article</a>.</p>
 </blockquote>
 <p>We’re setting the scale to half size AND taking into account the aspect of the canvas
-so the triangle will keep the same width to height ratio regardless
+so the triangle will keep the same width-to-height ratio regardless
 of the size of the canvas.</p>
-<p>Finally, we need to set the bind group before drawing</p>
+<p>Finally, we need to set the bind group before drawing.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    pass.setPipeline(pipeline);
 +    pass.setBindGroup(0, bindGroup);
     pass.draw(3);  // call our vertex shader 3 times
     pass.end();
 </pre>
-<p>And with that we get a green triangle as described</p>
+<p>And with that, we get a green triangle as described.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-uniforms.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-uniforms.html" target="_blank">click here to open in a separate window</a>
 </div>
 
 <p></p>
-<p>For this single triangle our state when the draw command is
-executed is something like this</p>
+<p>For this single triangle, our state when the draw command is
+executed is something like this.</p>
 <div class="webgpu_center"><img src="resources/webgpu-draw-diagram-triangle-uniform.svg" style="width: 863px;"></div>
 <p>Up until now, all of the data we’ve used in our shaders was either
 hardcoded (the triangle vertex positions in the vertex shader,
 and the color in the fragment shader).
-Now that we’re able to pass values into our shader we can call <code class="notranslate" translate="no">draw</code>
+Now that we’re able to pass values into our shader, we can call <code class="notranslate" translate="no">draw</code>
 multiple times with different data.</p>
 <p>We could draw in different places with different offsets, scales,
 and colors by updating our single buffer. It’s important to remember
@@ -399,10 +399,10 @@ actually executed until we submit them. So, we <strong>can NOT</strong> do this<
     device.queue.submit([commandBuffer]);
 </pre>
 <p>Because, as you can see above, the <code class="notranslate" translate="no">device.queue.xxx</code> functions happen on
-a “queue” but the <code class="notranslate" translate="no">pass.xxx</code> functions just encode a command in the the command buffer.<br>
+a “queue” but the <code class="notranslate" translate="no">pass.xxx</code> functions just encode a command in the command buffer.<br>
 When we actually call <code class="notranslate" translate="no">submit</code> with our command buffer,
 the only thing in our buffer would be the last values we wrote.</p>
-<p>We could change it to this</p>
+<p>We could change it to this.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    // BAD! Slow!
     for (let x = -1; x &lt; 1; x += 0.1) {
       uniformValues.set([x, 0], kOffsetOffset);
@@ -422,14 +422,14 @@ the only thing in our buffer would be the last values we wrote.</p>
 </pre>
 <p>The code above updates one buffer, creates one command buffer,
 adds commands to draw one thing, then finishes the command buffer
-and submits it. This works but is slow for multiple reasons. The biggest is it’s
+and submits it. This works but is slow for multiple reasons. The biggest is that it’s
 best practice to do more work in a single command buffer.</p>
-<p>So, instead, we could create one uniform buffer per thing we want
+<p>So instead, we could create one uniform buffer per thing we want
 to draw. And, since buffers are used indirectly through bind groups,
 we’ll also need one bind group per thing we want to draw. Then we
 can put all the things we want to draw into a single command buffer.</p>
-<p>Let’s do it</p>
-<p>First let’s make a random function</p>
+<p>Let’s do it.</p>
+<p>First, let’s make a random function.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// A random number between [min and max)
 // With 1 argument it will be [0 to min)
 // With no arguments it will be [0 to 1)
@@ -445,7 +445,7 @@ const rand = (min, max) =&gt; {
 };
 
 </pre>
-<p>And now let’s setup buffers with a bunch of colors and offsets
+<p>And now, let’s set up buffers with a bunch of colors and offsets
 we can draw a bunch of individual things.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // offsets to the various uniform values in float32 indices
   const kColorOffset = 0;
@@ -488,7 +488,7 @@ we can draw a bunch of individual things.</p>
 <p>We’re not setting the values in our buffer yet because we want it to take into account
 the aspect of the canvas and we won’t know the aspect of the canvas until
 render time.</p>
-<p>At render time we’ll update all of the buffers with the correct aspect adjusted
+<p>At render time, we’ll update all of the buffers with the correct aspect-adjusted
 scale.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
 -    // Set the uniform values in our JavaScript side Float32Array
@@ -530,7 +530,7 @@ device.queue.writeBuffer(...) // update uniform buffer 1 with data for object 1
 device.queue.writeBuffer(...) // update uniform buffer 2 with data for object 2
 device.queue.writeBuffer(...) // update uniform buffer 3 with data for object 3
 ...
-// execute commands that draw 100 things, each with their own uniform buffer.
+// execute commands that draw 100 things, each with its own uniform buffer.
 device.queue.submit([commandBuffer]);
 </pre>
 <p>Here’s that</p>
@@ -543,7 +543,7 @@ device.queue.submit([commandBuffer]);
 <p>While we’re here, one more thing to cover. You’re free to reference multiple
 uniform buffers in your shaders. In our example above, every time we draw
 we update the scale, then we <code class="notranslate" translate="no">writeBuffer</code> to upload <code class="notranslate" translate="no">uniformValues</code> for that
-object to the corresponding uniform buffer. But, only scale is being updated,
+object to the corresponding uniform buffer. But, only the scale is being updated,
 color and offset are not, so we’re wasting time uploading color and offset.</p>
 <p>We could split the uniforms into uniforms that need to be set once and uniforms
 that are updated each time we draw.</p>
@@ -582,7 +582,7 @@ that are updated each time we draw.</p>
     `,
   });
 </pre>
-<p>When we’d need 2 uniform buffers per thing we want to draw</p>
+<p>When we need 2 uniform buffers per thing we want to draw</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  // create a buffer for the uniform values
 -  const uniformBufferSize =
 -    4 * 4 + // color is 4 32bit floats (4bytes each)
@@ -667,10 +667,10 @@ whereas before we were uploading the color + offset + scale for each object.</p>
 <p>While in this simple example, splitting into multiple uniform buffers was probably
 overkill, it’s common to split based on what changes and when. Examples might include
 one uniform buffer for matrices that are shared. For example a project matrix, a view
-matrix, a camera matrix. Since often these are the same for all things we want to draw
+matrix, and a camera matrix. Since often these are the same for all things we want to draw
 we can just make one buffer and have all objects use the same uniform buffer.</p>
 <p>Separately our shader might reference another uniform buffer that contains just the
-things that are specific to this object like its world / model matrix and it’s normal matrix.</p>
+things that are specific to this object like its world / model matrix and its normal matrix.</p>
 <p>Another uniform buffer might contain material settings. Those settings might be shared
 by multiple objects.</p>
 <p>We’ll do much of this when we cover drawing 3D.</p>

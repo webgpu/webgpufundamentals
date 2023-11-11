@@ -228,7 +228,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <a href="webgpu-uniforms.html">previous article</a> left off.</p>
 <p>Storage buffers are similar to uniform buffers in many ways.
 If all we did was change <code class="notranslate" translate="no">UNIFORM</code> to <code class="notranslate" translate="no">STORAGE</code> in our JavaScript
-and <code class="notranslate" translate="no">var&lt;uniform&gt;</code> to <code class="notranslate" translate="no">var&lt;storage, read&gt;</code> in our WGSL the examples
+and <code class="notranslate" translate="no">var&lt;uniform&gt;</code> to <code class="notranslate" translate="no">var&lt;storage, read&gt;</code> in our WGSL, the examples
 on the previous page would just work.</p>
 <p>In fact, here are the differences, without renaming variables to have more
 appropriate names.</p>
@@ -253,7 +253,7 @@ appropriate names.</p>
 <pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">      @group(0) @binding(0) var&lt;storage, read&gt; ourStruct: OurStruct;
       @group(0) @binding(1) var&lt;storage, read&gt; otherStruct: OtherStruct;
 </pre>
-<p>And with no other changes it works, just like before</p>
+<p>And with no other changes it works, just like before.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-storage-split-minimal-changes.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-storage-split-minimal-changes.html" target="_blank">click here to open in a separate window</a>
@@ -278,19 +278,19 @@ is the recommended solution.</p>
 <li>The minimum maximum size of a uniform buffer is 64k</li>
 <li>The minimum maximum size of a storage buffer is 128meg</li>
 </ul>
-<p>By minimum maximum, there is a maximum size a buffer of certain type
-can be. For uniform buffers that maximum size is at least 64k.
-For storage buffers it’s at least 128meg. We’ll cover limits in
+<p>By minimum maximum, there is a maximum size a buffer of a certain type
+can be. For uniform buffers, the maximum size is at least 64k.
+For storage buffers, it’s at least 128meg. We’ll cover limits in
 <a href="webgpu-limits-and-features.html">another article</a>.</p>
 </li>
 <li>
-<p>Storage buffers can be read/write, Uniform buffers are read-only</p>
+<p>Storage buffers can be read/write, Uniform buffers are read-only.</p>
 <p>We saw an example of writing to a storage buffer in the compute shader
 example in <a href="webgpu-fundamentals.html">the first article</a>.</p>
 </li>
 </ol>
 <h2 id="instancing-with-storage-buffers"><a id="a-instancing"></a>Instancing with Storage Buffers</h2>
-<p>Given the first 2 points above, lets take our last example and change it
+<p>Given the first 2 points above, let’s take our last example and change it
 to draw all 100 triangles in a single draw call. This is a use-case that
 <em>might</em> fit storage buffers. I say might because again, WebGPU is similar
 to other programming languages. There are many ways to achieve the same thing.
@@ -298,14 +298,14 @@ to other programming languages. There are many ways to achieve the same thing.
 has multiple ways we can achieve it. When it comes to drawing triangles,
 all that WebGPU cares about is we return a value for <code class="notranslate" translate="no">builtin(position)</code> from
 the vertex shader and return a color/value for <code class="notranslate" translate="no">location(0)</code> from the fragment shader.<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
-<p>The first thing we’ll do is change our storage declarations to a runtime sized
+<p>The first thing we’ll do is change our storage declarations to runtime-sized
 arrays.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-@group(0) @binding(0) var&lt;storage, read&gt; ourStruct: OurStruct;
 -@group(0) @binding(1) var&lt;storage, read&gt; otherStruct: OtherStruct;
 +@group(0) @binding(0) var&lt;storage, read&gt; ourStructs: array&lt;OurStruct&gt;;
 +@group(0) @binding(1) var&lt;storage, read&gt; otherStructs: array&lt;OtherStruct&gt;;
 </pre>
-<p>Then we’ll change the shader to use these values</p>
+<p>Then we’ll change the shader to use these values.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@vertex fn vs(
   @builtin(vertex_index) vertexIndex : u32,
 +  @builtin(instance_index) instanceIndex: u32
@@ -326,10 +326,10 @@ arrays.</p>
 <p>We added a new parameter to our vertex shader called
 <code class="notranslate" translate="no">instanceIndex</code> and gave it the <code class="notranslate" translate="no">@builtin(instance_index)</code> attribute
 which means it gets its value from WebGPU for each “instance” drawn.
-When we call <code class="notranslate" translate="no">draw</code> we can pass a second argument for <em>number of instances</em>
+When we call <code class="notranslate" translate="no">draw</code>, we can pass a second argument for <em>number of instances</em>
 and for each instance drawn, the number of the instance being processed
 will be passed to our function.</p>
-<p>Using <code class="notranslate" translate="no">instanceIndex</code> we can get specific struct elements from our arrays
+<p>Using <code class="notranslate" translate="no">instanceIndex</code>, we can get specific struct elements from our arrays
 of structs.</p>
 <p>We also need to get the color from the correct array element and use
 it in our fragment shader. The fragment shader doesn’t have access to
@@ -338,7 +338,7 @@ it as an <a href="webgpu-inter-stage-variables.html">inter-stage variable</a> bu
 would be more common to look up the color in the vertex shader and just pass
 the color.</p>
 <p>To do this we’ll use another struct like we did in
-<a href="webgpu-inter-stage-variables.html">the article on inter-stage variables</a></p>
+<a href="webgpu-inter-stage-variables.html">the article on inter-stage variables</a>.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">+struct VSOutput {
 +  @builtin(position) position: vec4f,
 +  @location(0) color: vec4f,
@@ -375,7 +375,7 @@ the color.</p>
 
 </pre>
 <p>Now that we’ve modified our WGSL shaders, let’s update the JavaScript.</p>
-<p>Here’s the setup</p>
+<p>Here’s the setup.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const kNumObjects = 100;
   const objectInfos = [];
 
@@ -491,9 +491,9 @@ and <code class="notranslate" translate="no">instance_index</code> set to 0 ~ kN
 <p></p>
 <p>We managed to draw all 100 triangles, each with a different scale, color, and
 offset, with a single draw call. For situations where you want to draw lots
-of instances of the same object this is one way to do it.</p>
+of instances of the same object, this is one way to do it.</p>
 <h2 id="using-storage-buffers-for-vertex-data">Using storage buffers for vertex data</h2>
-<p>Until this point we’ve used a hard coded triangle directly in our shader.
+<p>Until this point, we’ve used a hard-coded triangle directly in our shader.
 One use case of storage buffers is to store vertex data. Just like we indexed
 the current storage buffers by <code class="notranslate" translate="no">instance_index</code> in our example above, we could
 index another storage buffer with <code class="notranslate" translate="no">vertex_index</code> to get vertex data.</p>
@@ -545,8 +545,8 @@ struct VSOutput {
   return vsOut.color;
 }
 </pre>
-<p>Now we need to setup one more storage buffer with some vertex data.
-First lets make a function to generate some vertex data. Lets make a circle.
+<p>Now we need to set up one more storage buffer with some vertex data.
+First, let’s make a function to generate some vertex data. Let’s make a circle.
 <a id="a-create-circle"></a></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">function createCircleVertices({
   radius = 1,
@@ -597,9 +597,9 @@ First lets make a function to generate some vertex data. Lets make a circle.
   };
 }
 </pre>
-<p>The code above makes a circle from triangles like this</p>
+<p>The code above makes a circle from triangles like this.</p>
 <div class="webgpu_center"><div class="center"><div data-diagram="circle" style="width: 300px;"></div></div></div>
-<p>So we can use that to fill a storage buffer with the vertices for a circle</p>
+<p>So we can use that to fill a storage buffer with the vertices for a circle.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // setup a storage buffer with vertex data
   const { vertexData, numVertices } = createCircleVertices({
     radius: 0.5,
@@ -623,7 +623,7 @@ First lets make a function to generate some vertex data. Lets make a circle.
     ],
   });
 </pre>
-<p>and finally at render time we need to ask to render all the vertices in the circle.</p>
+<p>and finally, at render time, we need to ask to render all the vertices in the circle.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-    pass.draw(3, kNumObjects);  // call our vertex shader 3 times for several instances
 +    pass.draw(numVertices, kNumObjects);
 </pre>
@@ -643,17 +643,17 @@ First lets make a function to generate some vertex data. Lets make a circle.
 <p>we could have just as easily used no struct and just directly used a <code class="notranslate" translate="no">vec2f</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(2) var&lt;storage, read&gt; pos: vec2f;
 </pre>
-<p>But, by making it a struct it would arguably be easier to add per-vertex
+<p>But, by making it a struct, it would arguably be easier to add per-vertex
 data later?</p>
 <p>Passing in vertices via storage buffers is gaining popularity.
-I’m told though that some older devices it’s slower than the <em>classic</em> way
+I’m told though that for some older devices, it’s slower than the <em>classic</em> way
 which we’ll cover next in an article on <a href="webgpu-vertex-buffers.html">vertex buffers</a>.</p>
 <!-- keep this at the bottom of the article -->
 <script type="module" src="./webgpu-storage-buffers.js"></script>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
-<li id="fn1" class="footnote-item"><p>We can have multiple color attachments and then we’ll need to return more colors/value for <code class="notranslate" translate="no">location(1)</code>, <code class="notranslate" translate="no">location(2)</code>, etc… <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+<li id="fn1" class="footnote-item"><p>We can have multiple color attachments and then we’ll need to return more colors/values for <code class="notranslate" translate="no">location(1)</code>, <code class="notranslate" translate="no">location(2)</code>, etc… <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>

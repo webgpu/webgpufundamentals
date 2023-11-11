@@ -317,9 +317,9 @@ internal state</p>
 description</p>
 </li>
 </ul>
-<p>To execute shaders on the GPU you need to create all of these resources and
+<p>To execute shaders on the GPU, you need to create all of these resources and
 set up this state. Creation of resources is relatively straightforward. One
-interesting thing is most WebGPU resources can not be changed after creation. You
+interesting thing is that most WebGPU resources can not be changed after creation. You
 can change their contents but not their size, usage, format, etc… If you want
 to change any of that stuff you create a new resource and destroy the old one.</p>
 <p>Some of the state is set up by creating and then executing command buffers.
@@ -440,8 +440,8 @@ so we need <code class="notranslate" translate="no">await</code>. The adapter re
 have multiple GPUs.</p>
 <p>From the adapter, we request the device but again use <code class="notranslate" translate="no">?.</code> so that if adapter happens
 to be undefined then device will also be undefined.</p>
-<p>If the <code class="notranslate" translate="no">device</code> is not set it’s likely the user has an old browser.</p>
-<p>Next up we look up the canvas and create a <code class="notranslate" translate="no">webgpu</code> context for it. This will
+<p>If the <code class="notranslate" translate="no">device</code> is not set, it’s likely the user has an old browser.</p>
+<p>Next, we look up the canvas and create a <code class="notranslate" translate="no">webgpu</code> context for it. This will
 let us get a texture to render to. That texture will be used to display the canvas in the
 webpage.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Get a WebGPU context from the canvas and configure it
@@ -453,7 +453,7 @@ webpage.</p>
     format: presentationFormat,
   });
 </pre>
-<p>Again the code above is pretty self-explanatory. We get a <code class="notranslate" translate="no">"webgpu"</code> context
+<p>Again, the code above is pretty self-explanatory. We get a <code class="notranslate" translate="no">"webgpu"</code> context
 from the canvas. We ask the system what the preferred canvas format is. This
 will be either <code class="notranslate" translate="no">"rgba8unorm"</code> or <code class="notranslate" translate="no">"bgra8unorm"</code>. It’s not really that important
 what it is but querying it will make things faster for the user’s system.</p>

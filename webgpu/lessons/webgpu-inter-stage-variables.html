@@ -224,7 +224,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>In the <a href="webgpu-fundamentals.html">previous article</a> we covered a few super
+      <p>In the <a href="webgpu-fundamentals.html">previous article</a>, we covered a few super
 basics about WebGPU. In this article we’re going to go over <em>the basics</em> of
 inter-stage variables.</p>
 <p>Inter-stage variables come into play between a vertex shader and a fragment
@@ -232,7 +232,7 @@ shader.</p>
 <p>When a vertex shader outputs 3 positions a triangle gets rasterized. The vertex
 shader can output extra values at each of those positions and by default, those
 values will be interpolated between the 3 points.</p>
-<p>Lets make a small example. We’ll start with the triangle shaders from the
+<p>Let’s make a small example. We’ll start with the triangle shaders from the
 previous article. All we’re going to do is change the shaders.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
 -    label: 'our hardcoded red triangle shaders',
@@ -293,7 +293,7 @@ inter-stage variables between a vertex shader and a fragment shader.</p>
           vec4f(0, 0, 1, 1), // blue
         );
 </pre>
-<p>And then instead of returning just a <code class="notranslate" translate="no">vec4f</code> for position we declare an instance
+<p>And then instead of returning just a <code class="notranslate" translate="no">vec4f</code> for position, we declare an instance
 of the structure, fill it out, and return it</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-        return vec4f(pos[vertexIndex], 0.0, 1.0);
 +        var vsOutput: OurVertexShaderOutput;
@@ -301,14 +301,14 @@ of the structure, fill it out, and return it</p>
 +        vsOutput.color = color[vertexIndex];
 +        return vsOutput;
 </pre>
-<p>In the fragment shader we declare it to take one of these structs as an argument to
+<p>In the fragment shader, we declare it to take one of these structs as an argument to
 the function</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
         return fsInput.color;
       }
 </pre>
 <p>And just return the color</p>
-<p>If we run that we’ll see, every time the GPU called our fragment shader it
+<p>If we run that we’ll see, that every time the GPU called our fragment shader, it
 passed in a color that was interpolated between all 3 points.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-inter-stage-variables-triangle.html"></iframe></div>
@@ -318,11 +318,11 @@ passed in a color that was interpolated between all 3 points.</p>
 <p></p>
 <p>Inter-stage variables are most often used to interpolate texture coordinates
 across a triangle which we’ll cover in <a href="webgpu-textures.html">the article on textures</a>.
-Another common use is interpolating normals cross a triangle which will cover
+Another common use is interpolating normals across a triangle which we will cover
 in <a href="webgpu-lighting-directional.html">the first article on lighting</a>.</p>
 <h2 id="inter-stage-variables-connect-by-location">Inter-stage variables connect by <code class="notranslate" translate="no">location</code></h2>
 <p>An important point, like nearly everything in WebGPU, the connection between the
-vertex shader and the fragment shader is by index. For inter-stage variables
+vertex shader and the fragment shader is by index. For inter-stage variables,
 they connect by location index.</p>
 <p>To see what I mean, let’s change only the fragment shader to take <code class="notranslate" translate="no">vec4f</code> parameter
 at <code class="notranslate" translate="no">location(0)</code> instead of the struct</p>
@@ -340,7 +340,7 @@ at <code class="notranslate" translate="no">location(0)</code> instead of the st
 <h2 id="builtinposition"><a id="a-builtin-position"></a> <code class="notranslate" translate="no">@builtin(position)</code></h2>
 <p>That helps point out another quirk. Our original shader that used the same
 struct in both the vertex and fragment shaders had a field called <code class="notranslate" translate="no">position</code> but
-it didn’t have a location. Instead it was declared as <code class="notranslate" translate="no">@builtin(position)</code>.</p>
+it didn’t have a location. Instead, it was declared as <code class="notranslate" translate="no">@builtin(position)</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      struct OurVertexShaderOutput {
 *        @builtin(position) position: vec4f,
         @location(0) color: vec4f,
@@ -351,15 +351,15 @@ happens that <code class="notranslate" translate="no">@builtin(position)</code> 
 a fragment shader.</p>
 <p>In a vertex shader <code class="notranslate" translate="no">@builtin(position)</code> is the output that the GPU needs to draw
 triangles/lines/points</p>
-<p>In a fragment shader <code class="notranslate" translate="no">@builtin(position)</code> is an input. It’s the pixel coordinate
-of the pixel the fragment shader is currently being asked to compute a color
+<p>In a fragment shader, <code class="notranslate" translate="no">@builtin(position)</code> is an input. It’s the pixel coordinate
+of the pixel that the fragment shader is currently being asked to compute a color
 for.</p>
 <p>Pixel coordinates are specified by the edges of pixels. The values provided to
 the fragment shader are the coordinates of the center of the pixel</p>
-<p>If the texture we were drawing to was 3x2 pixels in size these would be the
-coordinate.</p>
+<p>If the texture we were drawing to was 3x2 pixels in size, these would be the
+coordinates.</p>
 <div class="webgpu_center"><img src="resources/webgpu-pixels.svg" style="width: 500px;"></div>
-<p>We can change our shader to use this position. For example let’s draw a
+<p>We can change our shader to use this position. For example, let’s draw a
 checkerboard.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'our hardcoded checkerboard triangle shaders',
@@ -407,7 +407,7 @@ checkerboard.</p>
 unsigned integers. It then divides them by 8 giving us a count that increases
 every 8 pixels. It then adds the <code class="notranslate" translate="no">x</code> and <code class="notranslate" translate="no">y</code> grid coordinates together, computes
 modulo 2, and compares the result to 1. This will give us a boolean that is true
-or false every other integer. Finally it uses the WGSL function <code class="notranslate" translate="no">select</code> which
+or false for every other integer. Finally, it uses the WGSL function <code class="notranslate" translate="no">select</code> which
 given 2 values, selects one or the other based on a boolean condition. In
 JavaScript <code class="notranslate" translate="no">select</code> would be written like this</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// If condition is false return `a`, otherwise return `b`
@@ -421,14 +421,14 @@ select = (a, b, condition) =&gt; condition ? b : a;
 <p></p>
 <p>Even if you don’t use <code class="notranslate" translate="no">@builtin(position)</code> in a fragment shader, it’s convenient
 that it’s there because it means we can use the same struct for both a vertex
-shader and a fragment shader. What was important to takeaway is that the <code class="notranslate" translate="no">position</code> struct
+shader and a fragment shader. An important takeaway is that the <code class="notranslate" translate="no">position</code> struct
 field in the vertex shader vs the fragment shader is entirely unrelated. They’re
 completely different variables.</p>
 <p>As pointed out above though, for inter-stage variables, all that matters is the
 <code class="notranslate" translate="no">@location(?)</code>. So, it’s not uncommon to declare different structs for a vertex
-shader’s output vs a fragment shaders input.</p>
+shader’s output vs a fragment shader’s input.</p>
 <p>To hopefully make this more clear, the fact that the vertex shader and
-fragment shader are in the same string in our examples it just a convenience.
+fragment shader are in the same string in our examples is just a convenience.
 We could also split them into separate modules</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const module = device.createShaderModule({
 -    label: 'hardcoded checkerboard triangle shaders',
@@ -500,14 +500,14 @@ We could also split them into separate modules</p>
 <p>The point is, the fact that both shaders are in the same string in most WebGPU
 examples is just a convenience. In reality, first WebGPU parses the WGSL to make
 sure it’s syntactically correct. Then, WebGPU looks at the <code class="notranslate" translate="no">entryPoint</code>
-you specify. From that it goes and looks at the parts that entryPoint references
+you specify. From there, it goes and looks at the parts that entryPoint references
 and nothing else for that entryPoint. It’s useful because you don’t have to type
 things like structures or binding and group locations twice if two or more shaders
 share bindings or structures or constants or functions. But, from the POV of WebGPU,
 it’s as though you did duplicate all of them, once for each entryPoint.</p>
 <p>Note: It is not that common to generate a checkerboard using the
 <code class="notranslate" translate="no">@builtin(position)</code>. Checkerboards or other patterns are far more commonly
-implemented <a href="webgpu-textures.html">using textures</a>. In fact you’ll see an issue
+implemented <a href="webgpu-textures.html">using textures</a>. In fact, you’ll see an issue
 if you size the window. Because the checkerboard is based on the pixel coordinates
 of the canvas it’s relative to the canvas, not relative to the triangle.</p>
 <h2 id="interpolation-settings"><a id="a-interpolate"></a>Interpolation Settings</h2>
