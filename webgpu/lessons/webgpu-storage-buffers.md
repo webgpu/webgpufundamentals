@@ -7,7 +7,7 @@ This article is about storage buffers and continues where the
 
 Storage buffers are similar to uniform buffers in many ways.
 If all we did was change `UNIFORM` to `STORAGE` in our JavaScript
-and `var<uniform>` to `var<storage, read>` in our WGSL the examples
+and `var<uniform>` to `var<storage, read>` in our WGSL, the examples
 on the previous page would just work.
 
 In fact, here are the differences, without renaming variables to have more
@@ -39,7 +39,7 @@ and in our WSGL
       @group(0) @binding(1) var<storage, read> otherStruct: OtherStruct;
 ```
 
-And with no other changes it works, just like before
+And with no other changes it works, just like before.
 
 {{{example url="../webgpu-simple-triangle-storage-split-minimal-changes.html"}}}
 
@@ -61,19 +61,19 @@ The major differences between uniform buffers and storage buffers are:
    * The minimum maximum size of a uniform buffer is 64k 
    * The minimum maximum size of a storage buffer is 128meg
 
-   By minimum maximum, there is a maximum size a buffer of certain type
-   can be. For uniform buffers that maximum size is at least 64k.
-   For storage buffers it's at least 128meg. We'll cover limits in
+   By minimum maximum, there is a maximum size a buffer of a certain type
+   can be. For uniform buffers, the maximum size is at least 64k.
+   For storage buffers, it's at least 128meg. We'll cover limits in
    [another article](webgpu-limits-and-features.html).
 
-3. Storage buffers can be read/write, Uniform buffers are read-only
+3. Storage buffers can be read/write, Uniform buffers are read-only.
 
    We saw an example of writing to a storage buffer in the compute shader
    example in [the first article](webgpu-fundamentals.html).
 
 ## <a id="a-instancing"></a>Instancing with Storage Buffers
 
-Given the first 2 points above, lets take our last example and change it
+Given the first 2 points above, let's take our last example and change it
 to draw all 100 triangles in a single draw call. This is a use-case that
 *might* fit storage buffers. I say might because again, WebGPU is similar
 to other programming languages. There are many ways to achieve the same thing.
@@ -82,9 +82,9 @@ has multiple ways we can achieve it. When it comes to drawing triangles,
 all that WebGPU cares about is we return a value for `builtin(position)` from
 the vertex shader and return a color/value for `location(0)` from the fragment shader.[^colorAttachments] 
 
-[^colorAttachments]: We can have multiple color attachments and then we'll need to return more colors/value for `location(1)`, `location(2)`, etc..
+[^colorAttachments]: We can have multiple color attachments and then we'll need to return more colors/values for `location(1)`, `location(2)`, etc...
 
-The first thing we'll do is change our storage declarations to a runtime sized
+The first thing we'll do is change our storage declarations to runtime-sized
 arrays.
 
 ```wgsl
@@ -94,7 +94,7 @@ arrays.
 +@group(0) @binding(1) var<storage, read> otherStructs: array<OtherStruct>;
 ```
 
-Then we'll change the shader to use these values
+Then we'll change the shader to use these values.
 
 ```wgsl
 @vertex fn vs(
@@ -118,11 +118,11 @@ Then we'll change the shader to use these values
 We added a new parameter to our vertex shader called
 `instanceIndex` and gave it the `@builtin(instance_index)` attribute
 which means it gets its value from WebGPU for each "instance" drawn.
-When we call `draw` we can pass a second argument for *number of instances*
+When we call `draw`, we can pass a second argument for *number of instances*
 and for each instance drawn, the number of the instance being processed
 will be passed to our function.
 
-Using `instanceIndex` we can get specific struct elements from our arrays
+Using `instanceIndex`, we can get specific struct elements from our arrays
 of structs.
 
 We also need to get the color from the correct array element and use
@@ -133,7 +133,7 @@ would be more common to look up the color in the vertex shader and just pass
 the color.
 
 To do this we'll use another struct like we did in
-[the article on inter-stage variables](webgpu-inter-stage-variables.html)
+[the article on inter-stage variables](webgpu-inter-stage-variables.html).
 
 ```wgsl
 +struct VSOutput {
@@ -174,7 +174,7 @@ To do this we'll use another struct like we did in
 
 Now that we've modified our WGSL shaders, let's update the JavaScript.
 
-Here's the setup
+Here's the setup.
 
 ```js
   const kNumObjects = 100;
@@ -296,11 +296,11 @@ and `instance_index` set to 0 ~ kNumObjects - 1
 
 We managed to draw all 100 triangles, each with a different scale, color, and
 offset, with a single draw call. For situations where you want to draw lots
-of instances of the same object this is one way to do it.
+of instances of the same object, this is one way to do it.
 
 ## Using storage buffers for vertex data
 
-Until this point we've used a hard coded triangle directly in our shader.
+Until this point, we've used a hard-coded triangle directly in our shader.
 One use case of storage buffers is to store vertex data. Just like we indexed
 the current storage buffers by `instance_index` in our example above, we could
 index another storage buffer with `vertex_index` to get vertex data.
@@ -356,8 +356,8 @@ struct VSOutput {
 }
 ```
 
-Now we need to setup one more storage buffer with some vertex data.
-First lets make a function to generate some vertex data. Lets make a circle.
+Now we need to set up one more storage buffer with some vertex data.
+First, let's make a function to generate some vertex data. Let's make a circle.
 <a id="a-create-circle"></a>
 
 ```js
@@ -411,11 +411,11 @@ function createCircleVertices({
 }
 ```
 
-The code above makes a circle from triangles like this
+The code above makes a circle from triangles like this.
 
 <div class="webgpu_center"><div class="center"><div data-diagram="circle" style="width: 300px;"></div></div></div>
 
-So we can use that to fill a storage buffer with the vertices for a circle
+So we can use that to fill a storage buffer with the vertices for a circle.
 
 ```js
   // setup a storage buffer with vertex data
@@ -445,7 +445,7 @@ And then we need to add it to our bind group.
   });
 ```
 
-and finally at render time we need to ask to render all the vertices in the circle.
+and finally, at render time, we need to ask to render all the vertices in the circle.
 
 ```js
 -    pass.draw(3, kNumObjects);  // call our vertex shader 3 times for several instances
@@ -470,11 +470,11 @@ we could have just as easily used no struct and just directly used a `vec2f`.
 @group(0) @binding(2) var<storage, read> pos: vec2f;
 ```
 
-But, by making it a struct it would arguably be easier to add per-vertex
+But, by making it a struct, it would arguably be easier to add per-vertex
 data later?
 
 Passing in vertices via storage buffers is gaining popularity.
-I'm told though that some older devices it's slower than the *classic* way
+I'm told though that for some older devices, it's slower than the *classic* way
 which we'll cover next in an article on [vertex buffers](webgpu-vertex-buffers.html).
 
 <!-- keep this at the bottom of the article -->
