@@ -2,7 +2,7 @@ Title: WebGPU Inter-stage Variables
 Description: Passing Data from a Vertex Shader to a Fragment Shader
 TOC: Inter-stage Variables
 
-In the [previous article](webgpu-fundamentals.html) we covered a few super
+In the [previous article](webgpu-fundamentals.html), we covered a few super
 basics about WebGPU. In this article we're going to go over *the basics* of
 inter-stage variables. 
 
@@ -13,7 +13,7 @@ When a vertex shader outputs 3 positions a triangle gets rasterized. The vertex
 shader can output extra values at each of those positions and by default, those
 values will be interpolated between the 3 points.
 
-Lets make a small example. We'll start with the triangle shaders from the
+Let's make a small example. We'll start with the triangle shaders from the
 previous article. All we're going to do is change the shaders.
 
 ```js
@@ -86,7 +86,7 @@ We create an array of 3 colors.
         );
 ```
 
-And then instead of returning just a `vec4f` for position we declare an instance
+And then instead of returning just a `vec4f` for position, we declare an instance
 of the structure, fill it out, and return it
 
 ```wgsl
@@ -97,7 +97,7 @@ of the structure, fill it out, and return it
 +        return vsOutput;
 ```
 
-In the fragment shader we declare it to take one of these structs as an argument to
+In the fragment shader, we declare it to take one of these structs as an argument to
 the function
 
 ```wgsl
@@ -108,20 +108,20 @@ the function
 
 And just return the color
 
-If we run that we'll see, every time the GPU called our fragment shader it
+If we run that we'll see, that every time the GPU called our fragment shader, it
 passed in a color that was interpolated between all 3 points.
 
 {{{example url="../webgpu-inter-stage-variables-triangle.html"}}}
 
 Inter-stage variables are most often used to interpolate texture coordinates
 across a triangle which we'll cover in [the article on textures](webgpu-textures.html).
-Another common use is interpolating normals cross a triangle which will cover
+Another common use is interpolating normals across a triangle which we will cover
 in [the first article on lighting](webgpu-lighting-directional.html).
 
 ## Inter-stage variables connect by `location`
 
 An important point, like nearly everything in WebGPU, the connection between the
-vertex shader and the fragment shader is by index. For inter-stage variables
+vertex shader and the fragment shader is by index. For inter-stage variables,
 they connect by location index.
 
 To see what I mean, let's change only the fragment shader to take `vec4f` parameter
@@ -141,7 +141,7 @@ Running that we see it still works.
 
 That helps point out another quirk. Our original shader that used the same
 struct in both the vertex and fragment shaders had a field called `position` but
-it didn't have a location. Instead it was declared as `@builtin(position)`.
+it didn't have a location. Instead, it was declared as `@builtin(position)`.
 
 ```wgsl
       struct OurVertexShaderOutput {
@@ -157,19 +157,19 @@ a fragment shader.
 In a vertex shader `@builtin(position)` is the output that the GPU needs to draw
 triangles/lines/points
 
-In a fragment shader `@builtin(position)` is an input. It's the pixel coordinate
-of the pixel the fragment shader is currently being asked to compute a color
+In a fragment shader, `@builtin(position)` is an input. It's the pixel coordinate
+of the pixel that the fragment shader is currently being asked to compute a color
 for.
 
 Pixel coordinates are specified by the edges of pixels. The values provided to
 the fragment shader are the coordinates of the center of the pixel
 
-If the texture we were drawing to was 3x2 pixels in size these would be the
-coordinate.
+If the texture we were drawing to was 3x2 pixels in size, these would be the
+coordinates.
 
 <div class="webgpu_center"><img src="resources/webgpu-pixels.svg" style="width: 500px;"></div>
 
-We can change our shader to use this position. For example let's draw a
+We can change our shader to use this position. For example, let's draw a
 checkerboard.
 
 ```js
@@ -220,7 +220,7 @@ The code above takes `fsInput.position`, which was declared as
 unsigned integers. It then divides them by 8 giving us a count that increases
 every 8 pixels. It then adds the `x` and `y` grid coordinates together, computes
 modulo 2, and compares the result to 1. This will give us a boolean that is true
-or false every other integer. Finally it uses the WGSL function `select` which
+or false for every other integer. Finally, it uses the WGSL function `select` which
 given 2 values, selects one or the other based on a boolean condition. In
 JavaScript `select` would be written like this
 
@@ -233,16 +233,16 @@ select = (a, b, condition) => condition ? b : a;
 
 Even if you don't use `@builtin(position)` in a fragment shader, it's convenient
 that it's there because it means we can use the same struct for both a vertex
-shader and a fragment shader. What was important to takeaway is that the `position` struct
+shader and a fragment shader. An important takeaway is that the `position` struct
 field in the vertex shader vs the fragment shader is entirely unrelated. They're
 completely different variables.
 
 As pointed out above though, for inter-stage variables, all that matters is the
 `@location(?)`. So, it's not uncommon to declare different structs for a vertex
-shader's output vs a fragment shaders input.
+shader's output vs a fragment shader's input.
 
 To hopefully make this more clear, the fact that the vertex shader and
-fragment shader are in the same string in our examples it just a convenience.
+fragment shader are in the same string in our examples is just a convenience.
 We could also split them into separate modules
 
 ```js
@@ -317,7 +317,7 @@ And this would also work
 The point is, the fact that both shaders are in the same string in most WebGPU
 examples is just a convenience. In reality, first WebGPU parses the WGSL to make
 sure it's syntactically correct. Then, WebGPU looks at the `entryPoint`
-you specify. From that it goes and looks at the parts that entryPoint references
+you specify. From there, it goes and looks at the parts that entryPoint references
 and nothing else for that entryPoint. It's useful because you don't have to type
 things like structures or binding and group locations twice if two or more shaders
 share bindings or structures or constants or functions. But, from the POV of WebGPU,
@@ -325,7 +325,7 @@ it's as though you did duplicate all of them, once for each entryPoint.
 
 Note: It is not that common to generate a checkerboard using the
 `@builtin(position)`. Checkerboards or other patterns are far more commonly
-implemented [using textures](webgpu-textures.html). In fact you'll see an issue
+implemented [using textures](webgpu-textures.html). In fact, you'll see an issue
 if you size the window. Because the checkerboard is based on the pixel coordinates
 of the canvas it's relative to the canvas, not relative to the triangle.
 
