@@ -10,7 +10,7 @@ values before you execute the shader and they'll have those values for every
 iteration of the shader. You can set them to something else the next time
 you ask the GPU to execute the shader.
 
-We'll start again with the triangle example from [the first article](webgpu-fundamentals.html) and modify it to use some uniforms
+We'll start again with the triangle example from [the first article](webgpu-fundamentals.html) and modify it to use some uniforms.
 
 ```js
   const module = device.createShaderModule({
@@ -48,7 +48,7 @@ We'll start again with the triangle example from [the first article](webgpu-fund
   });
 ```
 
-First we declared a struct with 3 members
+First, we declared a struct with 3 members.
 
 ```wsgl
       struct OurStruct {
@@ -65,8 +65,8 @@ The variable is `ourStruct` and its type is `OurStruct`.
       @group(0) @binding(0) var<uniform> ourStruct: OurStruct;
 ```
 
-Next we changed what is returned from the vertex shader to use
-the uniforms
+Next, we changed what is returned from the vertex shader to use
+the uniforms.
 
 ```wgsl
       @vertex fn vs(
@@ -81,7 +81,7 @@ the uniforms
 You can see we multiply the vertex position by scale and then add an offset.
 This will let us set the size of a triangle and position it.
 
-We also change the fragment shader to return the color from our uniforms
+We also changed the fragment shader to return the color from our uniforms.
 
 ```wgsl
       @fragment fn fs() -> @location(0) vec4f {
@@ -89,20 +89,20 @@ We also change the fragment shader to return the color from our uniforms
       }
 ```
 
-Now that we've setup the shader to use uniforms we need to create
+Now that we've set up the shader to use uniforms, we need to create
 a buffer on the GPU to hold values for them.
 
-This is an area where, if you never dealt with native data and sizes
-there's a bunch to learn. It's a big topic so [here is an separate
+This is an area where if you've never dealt with native data and sizes,
+there's a bunch to learn. It's a big topic so [here is a separate
 article about the topic](webgpu-memory-layout.html). If you don't
 know how to layout structs in memory, please [go read the article](webgpu-memory-layout.html). Then come back here. This article
 will assume you [already read it](webgpu-memory-layout.html).
 
 Having read [the article](webgpu-memory-layout.html), we can
-now go ahead fill out a buffer with data that matches the
+now go ahead and fill out a buffer with data that matches the
 struct in our shader.
 
-First we make a buffer and assign it usage flags so it can
+First, we make a buffer and assign it usage flags so it can
 be used with uniforms, and so that we can update by copying
 data to it.
 
@@ -117,7 +117,7 @@ data to it.
   });
 ```
 
-Then we make a `TypedArray` so we can set values in JavaScript
+Then we make a `TypedArray` so we can set values in JavaScript.
 
 ```js
   // create a typedarray to hold the values for the uniforms in JavaScript
@@ -155,8 +155,8 @@ and bind the buffer to the same `@binding(?)` we set in our shader.
   });
 ```
 
-Now, sometime before we submit our command buffer, we need to set
-the the remaining values of `uniformValues` and then copy those values to the buffer on the GPU.
+Now sometimes before we submit our command buffer, we need to set
+the remaining values of `uniformValues` and then copy those values to the buffer on the GPU.
 We'll do it at the top of our `render` function. 
 
 ```js
@@ -173,10 +173,10 @@ We'll do it at the top of our `render` function.
 > There are several other ways covered in [this article](webgpu-copying-data.html).
 
 We're setting the scale to half size AND taking into account the aspect of the canvas
-so the triangle will keep the same width to height ratio regardless
+so the triangle will keep the same width-to-height ratio regardless
 of the size of the canvas. 
 
-Finally, we need to set the bind group before drawing
+Finally, we need to set the bind group before drawing.
 
 ```js
     pass.setPipeline(pipeline);
@@ -185,19 +185,19 @@ Finally, we need to set the bind group before drawing
     pass.end();
 ```
 
-And with that we get a green triangle as described
+And with that, we get a green triangle as described.
 
 {{{example url="../webgpu-simple-triangle-uniforms.html"}}}
 
-For this single triangle our state when the draw command is
-executed is something like this
+For this single triangle, our state when the draw command is
+executed is something like this.
 
 <div class="webgpu_center"><img src="resources/webgpu-draw-diagram-triangle-uniform.svg" style="width: 863px;"></div>
 
 Up until now, all of the data we've used in our shaders was either
 hardcoded (the triangle vertex positions in the vertex shader, 
 and the color in the fragment shader).
-Now that we're able to pass values into our shader we can call `draw`
+Now that we're able to pass values into our shader, we can call `draw`
 multiple times with different data.
 
 We could draw in different places with different offsets, scales,
@@ -220,11 +220,11 @@ actually executed until we submit them. So, we **can NOT** do this
 ```
 
 Because, as you can see above, the `device.queue.xxx` functions happen on
-a "queue" but the `pass.xxx` functions just encode a command in the the command buffer.\
+a "queue" but the `pass.xxx` functions just encode a command in the command buffer.\
 When we actually call `submit` with our command buffer,
 the only thing in our buffer would be the last values we wrote.
 
-We could change it to this 
+We could change it to this. 
 
 ```js
     // BAD! Slow!
@@ -247,17 +247,17 @@ We could change it to this
 
 The code above updates one buffer, creates one command buffer,
 adds commands to draw one thing, then finishes the command buffer
-and submits it. This works but is slow for multiple reasons. The biggest is it's
+and submits it. This works but is slow for multiple reasons. The biggest is that it's
 best practice to do more work in a single command buffer.
 
-So, instead, we could create one uniform buffer per thing we want
+So instead, we could create one uniform buffer per thing we want
 to draw. And, since buffers are used indirectly through bind groups,
 we'll also need one bind group per thing we want to draw. Then we
 can put all the things we want to draw into a single command buffer.
 
-Let's do it
+Let's do it.
 
-First let's make a random function
+First, let's make a random function.
 
 ```js
 // A random number between [min and max)
@@ -276,7 +276,7 @@ const rand = (min, max) => {
 
 ```
 
-And now let's setup buffers with a bunch of colors and offsets
+And now, let's set up buffers with a bunch of colors and offsets
 we can draw a bunch of individual things.
 
 ```js
@@ -323,7 +323,7 @@ We're not setting the values in our buffer yet because we want it to take into a
 the aspect of the canvas and we won't know the aspect of the canvas until
 render time.
 
-At render time we'll update all of the buffers with the correct aspect adjusted
+At render time, we'll update all of the buffers with the correct aspect-adjusted
 scale.
 
 ```js
@@ -370,7 +370,7 @@ device.queue.writeBuffer(...) // update uniform buffer 1 with data for object 1
 device.queue.writeBuffer(...) // update uniform buffer 2 with data for object 2
 device.queue.writeBuffer(...) // update uniform buffer 3 with data for object 3
 ...
-// execute commands that draw 100 things, each with their own uniform buffer.
+// execute commands that draw 100 things, each with its own uniform buffer.
 device.queue.submit([commandBuffer]);
 ```
 
@@ -381,7 +381,7 @@ Here's that
 While we're here, one more thing to cover. You're free to reference multiple
 uniform buffers in your shaders. In our example above, every time we draw
 we update the scale, then we `writeBuffer` to upload `uniformValues` for that
-object to the corresponding uniform buffer. But, only scale is being updated,
+object to the corresponding uniform buffer. But, only the scale is being updated,
 color and offset are not, so we're wasting time uploading color and offset.
 
 We could split the uniforms into uniforms that need to be set once and uniforms
@@ -424,7 +424,7 @@ that are updated each time we draw.
   });
 ```
 
-When we'd need 2 uniform buffers per thing we want to draw
+When we need 2 uniform buffers per thing we want to draw
 
 ```js
 -  // create a buffer for the uniform values
@@ -509,11 +509,11 @@ whereas before we were uploading the color + offset + scale for each object.
 While in this simple example, splitting into multiple uniform buffers was probably
 overkill, it's common to split based on what changes and when. Examples might include
 one uniform buffer for matrices that are shared. For example a project matrix, a view
-matrix, a camera matrix. Since often these are the same for all things we want to draw
+matrix, and a camera matrix. Since often these are the same for all things we want to draw
 we can just make one buffer and have all objects use the same uniform buffer.
 
 Separately our shader might reference another uniform buffer that contains just the
-things that are specific to this object like its world / model matrix and it's normal matrix.
+things that are specific to this object like its world / model matrix and its normal matrix.
 
 Another uniform buffer might contain material settings. Those settings might be shared
 by multiple objects.
