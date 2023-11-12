@@ -71,7 +71,7 @@ export default class TimingHelper {
     assert(this.#state === 'need resolve', 'must call addTimestampToPass');
     this.#state = 'wait for result';
 
-    this.#resultBuffer = this.#resultBuffers.pop || this.#device.createBuffer({
+    this.#resultBuffer = this.#resultBuffers.pop() || this.#device.createBuffer({
       size: 2 * 8,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
     });
