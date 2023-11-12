@@ -7,49 +7,35 @@ function assert(cond, msg = '') {
 export default class TimingHelper {
   #device;
   #canTimestamp;
-  #querySets;
-  #currentSet;
+  #resultBuffer;
+  #resultBuffers = [];
   #state = 'free';
+  #querySet;
+  #resolveBuffer;
 
   constructor(device) {
     this.#device = device;
     this.#canTimestamp = device.features.has('timestamp-query');
-    this.#querySets = [];
-    this.#currentSet = undefined;
+    this.#querySet = device.createQuerySet({
+       type: 'timestamp',
+       count: 2,
+    });
+    this.#resolveBuffer = device.createBuffer({
+      size: 2 * 8,
+      usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
+    });
   }
 
-  #getQuerySet() {
-    const device = this.#device;
-    if (this.#querySets.length === 0) {
-      const querySet = device.createQuerySet({
-         type: 'timestamp',
-         count: 2,
-      });
-      const resolveBuffer = device.createBuffer({
-        size: 2 * 8,
-        usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
-      });
-      const resultBuffer = device.createBuffer({
-        size: 2 * 8,
-        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
-      });
-      this.#querySets.push({querySet, resolveBuffer, resultBuffer});
-    }
-    return this.#querySets.pop();
-  }
   #beginTimestampPass(encoder, fnName, descriptor) {
     if (this.#canTimestamp) {
       assert(this.#state === 'free', 'state not free');
       this.#state = 'need resolve';
 
-      assert(!this.#currentSet);
-      this.#currentSet = this.#getQuerySet();
-
       const pass = encoder[fnName]({
         ...descriptor,
         ...{
           timestampWrites: {
-            querySet: this.#currentSet.querySet,
+            querySet: this.#querySet,
             beginningOfPassWriteIndex: 0,
             endOfPassWriteIndex: 1,
           },
@@ -82,33 +68,31 @@ export default class TimingHelper {
     if (!this.#canTimestamp) {
       return;
     }
-    assert(!!this.#currentSet);
     assert(this.#state === 'need resolve', 'must call addTimestampToPass');
     this.#state = 'wait for result';
 
-    const { querySet, resolveBuffer, resultBuffer } = this.#currentSet;
+    this.#resultBuffer = this.#resultBuffers.pop || this.#device.createBuffer({
+      size: 2 * 8,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+    });
 
-    encoder.resolveQuerySet(querySet, 0, 2, resolveBuffer, 0);
-    encoder.copyBufferToBuffer(resolveBuffer, 0, resultBuffer, 0, resultBuffer.size);
+    encoder.resolveQuerySet(this.#querySet, 0, 2, this.#resolveBuffer, 0);
+    encoder.copyBufferToBuffer(this.#resolveBuffer, 0, this.#resultBuffer, 0, this.#resultBuffer.size);
   }
 
   async getResult() {
     if (!this.#canTimestamp) {
       return 0;
     }
-    assert(!!this.#currentSet);
     assert(this.#state === 'wait for result', 'must call resolveTiming');
     this.#state = 'free';
 
-    const q = this.#currentSet;
-    this.#currentSet = undefined;
-
-    const { resultBuffer } = q;
+    const resultBuffer = this.#resultBuffer;
     await resultBuffer.mapAsync(GPUMapMode.READ);
     const times = new BigInt64Array(resultBuffer.getMappedRange());
     const duration = Number(times[1] - times[0]);
     resultBuffer.unmap();
-    this.#querySets.push(q);
+    this.#resultBuffers.push(resultBuffer);
     return duration;
   }
 }

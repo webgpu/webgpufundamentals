@@ -1,4 +1,4 @@
-/* muigui@0.0.7, license MIT */
+/* muigui@0.0.8, license MIT */
 var css = {
   default: `
 .muigui {
@@ -867,7 +867,6 @@ function makeMinMaxPair(gui, properties, minPropName, maxPropName, options) {
       min,
       max: max - guiMinRange,
     })
-//        .listen()
     .onChange(v => {
       maxGui.setValue(Math.min(max, Math.max(v + valueMinRange, properties[maxPropName])));
     });
@@ -877,7 +876,6 @@ function makeMinMaxPair(gui, properties, minPropName, maxPropName, options) {
       min: min + guiMinRange,
       max,
     })
-//        .listen()
     .onChange(v => {
       minGui.setValue(Math.max(min, Math.min(v - valueMinRange, properties[minPropName])));
     });
@@ -2310,6 +2308,12 @@ class Container extends Controller {
       if (!(controller instanceof Container) || recursive) {
         controller.reset(recursive);
       }
+    }
+    return this;
+  }
+  updateDisplay() {
+    for (const controller of this.#controllers) {
+      controller.updateDisplay();
     }
     return this;
   }

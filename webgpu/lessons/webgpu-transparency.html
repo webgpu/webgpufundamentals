@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <meta name="keywords" content="webgpu graphics">
 <meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-transparency_en.jpg">
 
-<meta property="og:title" content="WebGPU Transparency">
+<meta property="og:title" content="WebGPU Transparency and Blending">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-transparency_en.jpg">
 <meta property="og:description" content="Blending Pixels in WebGPU">
@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Transparency">
+<meta name="twitter:title" content="WebGPU Transparency and Blending">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-transparency.html">
 <meta name="twitter:description" content="Blending Pixels in WebGPU">
 <meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-transparency_en.jpg">
@@ -76,7 +76,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-transparency.html#webpage",
       "url":"https://webgpufundamentals.org/webgpu/lessons/webgpu-transparency.html",
       "inLanguage":"en",
-      "name":"WebGPU Transparency",
+      "name":"WebGPU Transparency and Blending",
       "keywords":"webgpu graphics programming",
       "isPartOf":{
         "@id":"https://webgpufundamentals.org/#website"
@@ -89,7 +89,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
 </script>
 
-<title>WebGPU Transparency</title>
+<title>WebGPU Transparency and Blending</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
 <link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
@@ -220,11 +220,91 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Transparency</h1>
+    <h1>WebGPU Transparency and Blending</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      
+      <p>The basic solution to transparency in WebGPU is called “blending”.
+When you create a render pipeline, for each colorAttachment, you can blending
+settings.</p>
+<p>The full list of default settings are</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">blend: {
+  color: {
+    operation: "add",
+    srcFactor: "one",
+    dstFactor: "zero",
+  },
+  alpha: {
+    operation: "add",
+    srcFactor: "one",
+    dstFactor: "zero",
+  },
+}
+</pre>
+<p>Where <code class="notranslate" translate="no">color</code> is what happens to the <code class="notranslate" translate="no">rgb</code> portion of a color and <code class="notranslate" translate="no">alpha</code> is
+what happens to the <code class="notranslate" translate="no">a</code> (alpha) portion.</p>
+<p><code class="notranslate" translate="no">operation</code> can be one of</p>
+<ul>
+<li>“add”</li>
+<li>“subtract”</li>
+<li>“reverse-subtract”</li>
+<li>“min”</li>
+<li>“max”</li>
+</ul>
+<p><code class="notranslate" translate="no">srcFactor</code> and <code class="notranslate" translate="no">dstFactor</code> and each be one of</p>
+<ul>
+<li>“zero”</li>
+<li>“one”</li>
+<li>“src”</li>
+<li>“one-minus-src”</li>
+<li>“src-alpha”</li>
+<li>“one-minus-src-alpha”</li>
+<li>“dst”</li>
+<li>“one-minus-dst”</li>
+<li>“dst-alpha”</li>
+<li>“one-minus-dst-alpha”</li>
+<li>“src-alpha-saturated”</li>
+<li>“constant”</li>
+<li>“one-minus-constant”</li>
+</ul>
+<p>Most of them are relatively straight forward to understand. Think of it as</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">   result = (src * srcFactor) operation (dst * dstFactor)
+</pre>
+<p>So consider the default where <code class="notranslate" translate="no">operation</code> is <code class="notranslate" translate="no">'add'</code>, <code class="notranslate" translate="no">srcFactor</code> is <code class="notranslate" translate="no">'one'</code> and
+<code class="notranslate" translate="no">dstFactor</code> is <code class="notranslate" translate="no">'zero'</code>. This give us</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">   result = (src * 1) add (dst * 0)
+   result = src * 1 + dst * 0
+   result = src
+</pre>
+<p>As you can set the default result ends up being just <code class="notranslate" translate="no">src</code>.</p>
+<p>Probably the most common setting for blending is</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">{
+  operation: 'add',
+  srcFactor: 'one',
+  dstFactor: 'one-minus-src-alpha'
+}
+</pre>
+<p>This mode is used most often with “premultiplied alpha” meaning it expects
+that the “src” has already had it’s RGB colors “premultiplied” by the alpha value.</p>
+<p>Let’s say our color is 1, 0.5, 0.25 which is orange and we want it to be 33%
+transparent so our alpha is 0.33. Then our “premultiplied color” would be</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">                      premultiplied
+   ---------------------------------
+   r = 1    * 0.33   = 0.33
+   g = 0.5  * 0.33   = 0.165
+   g = 0.25 * 0.33   = 0.0825
+   a = 0.33          = 0.33
+</pre>
+<p>How you get a pre-multiplied color is up to you. If you have un-premultiplied
+colors then in the shader you could just</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">   return vec4f(color.rgb * color.a, color.a)`;
+</pre>
+<p>Otherwise, the functions we covered in <a href="webgpu-importing-textures.html">the article on importing textures</a> take a <code class="notranslate" translate="no">premultipliedAlpha: true</code> option.</p>
+<p>Let’s make an example that shows these options. With 5 operations, 13 options
+for srcFactor and 13 for dstFactor and all doubled for alpha that’s 714025
+combinations so maybe it’s better to limit the list to commonly used
+ones.</p>
+
     </div>
     <div class="lesson-sidebar">
         <select class="language">
@@ -334,7 +414,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <script>
             var disqus_config = function () {
               this.page.url = `${window.location.origin}${window.location.pathname}`;
-              this.page.identifier = `WebGPU Transparency`;
+              this.page.identifier = `WebGPU Transparency and Blending`;
             };
             (function() { // DON'T EDIT BELOW THIS LINE
                 if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {

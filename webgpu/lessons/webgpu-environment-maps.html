@@ -245,26 +245,47 @@ space in the 6 directions of the cubemap.</p>
   <img src="../resources/images/computer-history-museum/neg-z.jpg" style="width: 128px" class="border">
 </div>
 <p>Based on <a href="webgpu-cube-maps.html">the code in the previous article</a> let’s load those 6 images instead of the canvases we generated.
-From <a href="webgpu-importing-textures.html">the article on importing textures</a> we had this function to load an image</p>
+From <a href="webgpu-importing-textures.html">the article on importing textures</a> we had these two function. One to load an image and another to create a texture from
+an image.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  async function loadImageBitmap(url) {
     const res = await fetch(url);
     const blob = await res.blob();
     return await createImageBitmap(blob, { colorSpaceConversion: 'none' });
   }
-</pre>
-<p>So we just need to load the 6 images above and pass them to our existing functions.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const faceImages = await Promise.all([
-    'resources/images/computer-history-museum/pos-x.jpg',
-    'resources/images/computer-history-museum/neg-x.jpg',
-    'resources/images/computer-history-museum/pos-y.jpg',
-    'resources/images/computer-history-museum/neg-y.jpg',
-    'resources/images/computer-history-museum/pos-z.jpg',
-    'resources/images/computer-history-museum/neg-z.jpg',
-  ].map(loadImageBitmap));
 
-  const texture = await createTextureFromSources(
+  async function createTextureFromImage(device, url, options) {
+    const imgBitmap = await loadImageBitmap(url);
+    return createTextureFromSource(device, imgBitmap, options);
+  }
+</pre>
+<p>Let’s add and one to load multiple images</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  async function createTextureFromImages(device, urls, options) {
++    const imgBitmaps = await Promise.all(url.map(loadImageBitmap));
++    return createTextureFromSource(device, imgBitmaps, options);
++  }
+
+  async function createTextureFromImage(device, url, options) {
+-    const imgBitmap = await loadImageBitmap(url);
+-    return createTextureFromSource(device, imgBitmap, options);
++    return createTextureFromImages(device, [url], options);
+  }
+</pre>
+<p>While we were at it we also changed the existing function to use
+the new one. Now we can use the new one to load the six images.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const texture = await createTextureFromSources(
 -      device, faceCanvases, {mips: true, flipY: false});
-+      device, faceImages, {mips: true, flipY: false});
++  const texture = await createTextureFromImages(
++      device,
++      [
++        'resources/images/computer-history-museum/pos-x.jpg',
++        'resources/images/computer-history-museum/neg-x.jpg',
++        'resources/images/computer-history-museum/pos-y.jpg',
++        'resources/images/computer-history-museum/neg-y.jpg',
++        'resources/images/computer-history-museum/pos-z.jpg',
++        'resources/images/computer-history-museum/neg-z.jpg',
++      ],
++      {mips: true, flipY: false},
++  );
 </pre>
 <p>In fragment shader we want to know, for each fragment to be drawn, given a vector from
 the eye/camera to that position on the surface of the object, which direction
