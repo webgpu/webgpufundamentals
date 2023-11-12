@@ -745,13 +745,13 @@ async function main() {
   };
 
   const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
+  const limitOptions = { min: 0, max: 90, minRange: 1, step: 1, converters: GUI.converters.radToDeg };
 
   const gui = new GUI();
   gui.onChange(render);
   gui.add(settings, 'rotation', radToDegOptions);
   gui.add(settings, 'shininess', { min: 1, max: 250 });
-  gui.add(settings, 'innerLimit', { min: 0, max: 180, step: 1, converters: GUI.converters.radToDeg });
-  gui.add(settings, 'outerLimit', { min: 0, max: 180, step: 1, converters: GUI.converters.radToDeg });
+  GUI.makeMinMaxPair(gui, settings, 'innerLimit', 'outerLimit', limitOptions);
   gui.add(settings, 'aimOffsetX', -50, 50);
   gui.add(settings, 'aimOffsetY', -50, 50);
 

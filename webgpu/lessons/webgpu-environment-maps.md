@@ -27,7 +27,8 @@ Here's an environment map from the lobby of the Computer History Museum in Mount
 </div>
 
 Based on [the code in the previous article](webgpu-cube-maps.html) let's load those 6 images instead of the canvases we generated.
-From [the article on importing textures](webgpu-importing-textures.html) we had this function to load an image
+From [the article on importing textures](webgpu-importing-textures.html) we had these two function. One to load an image and another to create a texture from
+an image.
 
 ```js
   async function loadImageBitmap(url) {
@@ -35,24 +36,46 @@ From [the article on importing textures](webgpu-importing-textures.html) we had 
     const blob = await res.blob();
     return await createImageBitmap(blob, { colorSpaceConversion: 'none' });
   }
+
+  async function createTextureFromImage(device, url, options) {
+    const imgBitmap = await loadImageBitmap(url);
+    return createTextureFromSource(device, imgBitmap, options);
+  }
 ```
 
-So we just need to load the 6 images above and pass them to our existing functions.
-
+Let's add and one to load multiple images
 
 ```js
-  const faceImages = await Promise.all([
-    'resources/images/computer-history-museum/pos-x.jpg',
-    'resources/images/computer-history-museum/neg-x.jpg',
-    'resources/images/computer-history-museum/pos-y.jpg',
-    'resources/images/computer-history-museum/neg-y.jpg',
-    'resources/images/computer-history-museum/pos-z.jpg',
-    'resources/images/computer-history-museum/neg-z.jpg',
-  ].map(loadImageBitmap));
++  async function createTextureFromImages(device, urls, options) {
++    const imgBitmaps = await Promise.all(url.map(loadImageBitmap));
++    return createTextureFromSource(device, imgBitmaps, options);
++  }
 
-  const texture = await createTextureFromSources(
+  async function createTextureFromImage(device, url, options) {
+-    const imgBitmap = await loadImageBitmap(url);
+-    return createTextureFromSource(device, imgBitmap, options);
++    return createTextureFromImages(device, [url], options);
+  }
+```
+
+While we were at it we also changed the existing function to use
+the new one. Now we can use the new one to load the six images.
+
+```js
+-  const texture = await createTextureFromSources(
 -      device, faceCanvases, {mips: true, flipY: false});
-+      device, faceImages, {mips: true, flipY: false});
++  const texture = await createTextureFromImages(
++      device,
++      [
++        'resources/images/computer-history-museum/pos-x.jpg',
++        'resources/images/computer-history-museum/neg-x.jpg',
++        'resources/images/computer-history-museum/pos-y.jpg',
++        'resources/images/computer-history-museum/neg-y.jpg',
++        'resources/images/computer-history-museum/pos-z.jpg',
++        'resources/images/computer-history-museum/neg-z.jpg',
++      ],
++      {mips: true, flipY: false},
++  );
 ```
 
 In fragment shader we want to know, for each fragment to be drawn, given a vector from

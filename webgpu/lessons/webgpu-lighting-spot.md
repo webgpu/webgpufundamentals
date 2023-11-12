@@ -290,6 +290,87 @@ It will be 1 if we're inside the `innerLimit`. And, it will be between
 0 and 1 between those 2 limits. We then multiply the light and specular
 calculations by `inLight`.
 
+And again we need to update our uniform buffer setup
+
+```js
+-  const uniformBufferSize = (12 + 16 + 16 + 4 + 4 + 4 + 4) * 4;
++  const uniformBufferSize = (12 + 16 + 16 + 4 + 4 + 4 + 4 + 4) * 4;
+  const uniformBuffer = device.createBuffer({
+    label: 'uniforms',
+    size: uniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const uniformValues = new Float32Array(uniformBufferSize / 4);
+
+  // offsets to the various uniform values in float32 indices
+  const kNormalMatrixOffset = 0;
+  const kWorldViewProjectionOffset = 12;
+  const kWorldOffset = 28;
+  const kColorOffset = 44;
+  const kLightWorldPositionOffset = 48;
+  const kViewWorldPositionOffset = 52;
+  const kShininessOffset = 55;
+  const kLightDirectionOffset = 56;
+-  const kLimitOffset = 59;
++  const kInnerLimitOffset = 59;
++  const kOuterLimitOffset = 60;
+
+  const normalMatrixValue = uniformValues.subarray(
+      kNormalMatrixOffset, kNormalMatrixOffset + 12);
+  const worldViewProjectionValue = uniformValues.subarray(
+      kWorldViewProjectionOffset, kWorldViewProjectionOffset + 16);
+  const worldValue = uniformValues.subarray(
+      kWorldOffset, kWorldOffset + 16);
+  const colorValue = uniformValues.subarray(kColorOffset, kColorOffset + 4);
+  const lightWorldPositionValue = uniformValues.subarray(
+      kLightWorldPositionOffset, kLightWorldPositionOffset + 3);
+  const viewWorldPositionValue = uniformValues.subarray(
+      kViewWorldPositionOffset, kViewWorldPositionOffset + 3);
+  const shininessValue = uniformValues.subarray(
+      kShininessOffset, kShininessOffset + 1);
+  const lightDirectionValue = uniformValues.subarray(
+      kLightDirectionOffset, kLightDirectionOffset + 3);
+-  const limitValue = uniformValues.subarray(
+-      kLimitOffset, kLimitOffset + 1);
++  const innerLimitValue = uniformValues.subarray(
++      kInnerLimitOffset, kInnerLimitOffset + 1);
++  const outerLimitValue = uniformValues.subarray(
++      kOuterLimitOffset, kOuterLimitOffset + 1);
+```
+
+and where we set them
+
+```js
+  const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
++  const limitOptions = { min: 0, max: 90, minRange: 1, step: 1, converters: GUI.converters.radToDeg };
+
+  const gui = new GUI();
+  gui.onChange(render);
+  gui.add(settings, 'rotation', radToDegOptions);
+  gui.add(settings, 'shininess', { min: 1, max: 250 });
+-  gui.add(settings, 'limit', limitOptions);
++  GUI.makeMinMaxPair(gui, settings, 'innerLimit', 'outerLimit', limitOptions);
+  gui.add(settings, 'aimOffsetX', -50, 50);
+  gui.add(settings, 'aimOffsetY', -50, 50);
+
+  ...
+
+  function render() {
+
+    ...
+
+    colorValue.set([0.2, 1, 0.2, 1]);  // green
+    lightWorldPositionValue.set([-10, 30, 100]);
+    viewWorldPositionValue.set(eye);
+    shininessValue[0] = settings.shininess;
+-    limitValue[0] = Math.cos(settings.limit);
++    innerLimitValue[0] = Math.cos(settings.innerLimit);
++   outerLimitValue[0] = Math.cos(settings.outerLimit);
+
+    ...
+```
+
 And that works
 
 {{{example url="../webgpu-lighting-spot-w-linear-falloff.html" }}}
@@ -300,7 +381,7 @@ One thing to be aware of is if `innerLimit` is equal to `outerLimit`
 then `limitRange` will be 0.0. We divide by `limitRange` and dividing by
 zero is bad/undefined. There's nothing to do in the shader here. We just
 need to make sure in our JavaScript that `innerLimit` is never equal to
-`outerLimit`. Something we're not doing now.
+`outerLimit` which, in this case, our gui does for us.
 
 WGSL also has a function we could use to slightly simplify this. It's
 called `smoothstep` it returns a value from 0 to 1 but
