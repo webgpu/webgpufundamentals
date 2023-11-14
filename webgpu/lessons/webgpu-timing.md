@@ -1,9 +1,9 @@
-Title: WebGPU Timing
+Title: WebGPU Timing Performance
 Description: Timing operations in WebGPU
-TOC: Timing
+TOC: Timing Performance
 
 <div class="warn">The `'timestamp-query'` feature used in this article
-should be available in Chrome 121 or 122. If it's not available you can
+should be available in Chrome 121 or 122. If it's not available you can probably
 turn it on by enabling on <a href="chrome://flags/#enable-webgpu-developer-features">enable-webgpu-developer-features</a> in <a href="chrome://flags/#enable-webgpu-developer-features">about:flags</a>.
 </div>
 
@@ -14,18 +14,19 @@ to time for performance. We'll time 3 things
 * The time spent in JavaScript per frame
 * The time spent on the GPU per frame
 
-First, let's take our circle example from
+First, let's take a circle example from
 [the article on vertex buffers](webgpu-vertex-buffers.html)
-and lets and animate them so we have something that's easy
+and lets animate them so we have something that's easy
 to see changes in how much time things take
 
 In that example we had 3 vertex buffers. One was for
 the positions and brightness of a the vertices for a circle.
 One was for things that are per instance but static
-which included the circle's offset and color. And the last
-one was for things that change reach time we render, in this
+which included the circle's offset and color. And, the last
+one was for things that change each time we render, in this
 case it was the scale so we could keep the aspect ratio of
-the circles correct so they stayed circles and no ellipses.
+the circles correct so they stayed circles and not ellipses
+as the user changed the size of the window.
 
 We want to animate them moving so let's move the offset
 to the same buffer as the scale. First we'll change the
@@ -78,7 +79,7 @@ as the scale.
 ```
 
 Then we'll change the part that sets up the vertex buffers
-to move the offsets together with the scale.
+to move the offsets together with the scales.
 
 ```js
   // create 2 vertex buffers
@@ -187,11 +188,14 @@ At render time we can update the offsets of the circles based on their velocity 
   observer.observe(canvas);
 ```
 
-We also switched to a rAF loop.
+We also switched to a rAF loop[^rAF].
+
+[^rAF]: `rAF` is short for `requestAnimationFrame`
 
 <a id="a-euclidianModulo"></a>The code above uses `euclideanModulo` to update the offset.
 `euclideanModulo` returns the remainder of a division where
-the remainder always is always positive. For example
+the remainder always is always positive and in the same direction.
+For example
 
 <div class="webgpu_center">
   <div class="center">
@@ -211,7 +215,7 @@ the remainder always is always positive. For example
   <div>modulo 2 of % vs euclideanModulo</div>
 </div>
 
-To put it another way, here's a graph of `%` vs `euclideanModulo`
+To put it another way, here's a graph of the `%` operator vs `euclideanModulo`
 
 <div class="webgpu_center">
   <img class="center" style="width: 700px" src="resources/euclidean-modulo.svg">
@@ -223,13 +227,14 @@ To put it another way, here's a graph of `%` vs `euclideanModulo`
 </div>
 
 So, the code above takes the offset, which is in clip space, and adds 1.5. It then takes the euclideanModulo
-by 3 which will give us a number between 0.0 and 3.0
+by 3 which will give us a number that is wrapped between 0.0 and 3.0
 and then subtracts 1.5.  This gives us numbers
 that stay between -1.5 and +1.5 and lets them wrap
 around to the other side. We use -1.5 to +1.5 so that
 the circles don't wrap until they are off the screen. [^offscreen]
 
 [^offscreen]: This only works if the radius of the circle is less than 0.5
+but it seemed best not to bloat the code with complicated checks for size.
 
 To give us something to adjust, lets make it so we can
 set how many circles to draw.
@@ -285,7 +290,7 @@ To that, let's add frames per second (fps) and
 time spent in JavaScript
 
 First we need a way to display this info so lets
-add a div positions on top of the canvas.
+add an `<pre>` element positioned on top of the canvas.
 
 ```html
   <body>
@@ -320,7 +325,7 @@ frames per second. It's the `deltaTime` we
 computed above.
 
 For JavaScript time we can record the time
-our requestAnimationFrame started and the
+our `requestAnimationFrame` started and the
 time it ended 
 
 ```js
@@ -346,12 +351,13 @@ time it ended
   requestAnimationFrame(render);
 ```
 
-And that gives us our first 2 timing measurements.
+And that gives us our first two timing measurements.
 
 {{{example url="../webgpu-timing-with-fps-js-time.html"}}}
 
-<a id="a-timestamp-query"></a>
-WebGPU provides **optional** `'timestamp-query'` feature for checking how long an operation takes on the GPU.
+## <a id="a-timestamp-query"></a> Timing the GPU
+
+WebGPU provides an **optional** `'timestamp-query'` feature for checking how long an operation takes on the GPU.
 Since it's an optional feature we need to see if it
 exists and request it like we covered in [the article on limits and features](webgpu-limits-and-features.html).
 
@@ -371,20 +377,23 @@ async function main() {
   }
 ```
 
-Above, we set `canTimestamp` to true or false
-based on if the adapter supports the `'timestamp-query'` feature. If it does we require
-that feature when we create our device.
+Above, we set `canTimestamp` to true or false based on if the adapter supports
+the `'timestamp-query'` feature. If it does we require that feature when we
+create our device.
 
-With the feature enabled we can ask WebGPU for *timestamps* for a render pass or compute
-pass. You do this by making a `GPUQuerySet` and adding it
-to your compute or render pass. A `GPUQuerySet` is effectively
-an array of query results. You tell WebGPU where in the array to
-record the time the pass started and where in the array record
-when the pass ended. You can then copy those timestamps to
-a buffer and map the buffer to read the results.
+With the feature enabled we can ask WebGPU for *timestamps* for a render pass or
+compute pass. You do this by making a `GPUQuerySet` and adding it to your
+compute or render pass. A `GPUQuerySet` is effectively an array of query
+results. You tell WebGPU which element in the array to record the time the pass started
+and which element in the array to record when the pass ended. You can then copy those
+timestamps to a buffer and map the buffer to read the results.[^mapping-not-necessary]
+
+[^mapping-not-necessary]: Copying the query results to mappable buffer is only for
+the purpose of reading the values from JavaScript. If your use-case only needs the
+results to stay on the GPU, for example as input to something else, then you don't need
+to copy the results to a mappable buffer.
 
 So, first we create a query set
-
 
 ```js
   const querySet = device.createQuerySet({
@@ -423,7 +432,8 @@ results
 ```
 
 We need to wrap this code in a way that only
-creates these things if the feature exists
+creates these things if the feature exists, otherwise we'll
+get an error trying to make a `'timestamp'` querySet.
 
 ```js
 +  const { querySet, resolveBuffer, resultBuffer } = (() => {
@@ -474,16 +484,15 @@ timestamps.
 ```
 
 Above, if the feature exists, we add a `timestampWrites` section to our
-renderPassDescriptor and pass in the querySet
-and tell it to write the start to element 0
-of the set and the end to element 1.
+renderPassDescriptor and pass in the querySet and tell it to write the start to
+element 0 of the set and the end to element 1.
 
-After we end the pass we need to call `resolveQuerySet`. This takes the results
+After we end the pass, we need to call `resolveQuerySet`. This takes the results
 of the query and puts them in a buffer. We pass it the querySet, the first index
-in the query set where to start resolving, the number of entries to resolve,
-a buffer to resolve to, and a offset in that buffer where to store the result.
+in the query set where to start resolving, the number of entries to resolve, a
+buffer to resolve to, and an offset in that buffer where to store the result.
 
-```
+```js
     pass.end();
 
 +    if (canTimestamp) {
@@ -491,13 +500,13 @@ a buffer to resolve to, and a offset in that buffer where to store the result.
 +    }
 ```
 
-We also want to copy the `resolveBuffer` to our 
-`resultsBuffer` so we can map it and look at
-the results in JavaScript. We have an issue
-though. We can not copy to our `resultsBuffer`
-while it's mapped. Fortunately buffers have
-a `mapState` property we can check. If it's
-set to `unmapped` then it's safe to copy to it.
+We also want to copy the `resolveBuffer` to our `resultsBuffer` so we can map it
+and look at the results in JavaScript. We have an issue though. We can not copy
+to our `resultsBuffer` while it's mapped. Fortunately buffers have a `mapState`
+property we can check. If it's set to `unmapped`, the value it starts with, then
+it's safe to copy to it. Other values are `'pending'`, the value it becomes the
+moment we call `mapAsync`, and `'mapped'`, the value it is when `mapAsync`
+resolves. After we `unmap` it it goes back to `'unmapped'`.
 
 ```js
     if (canTimestamp) {
@@ -508,8 +517,8 @@ set to `unmapped` then it's safe to copy to it.
     }
 ```
 
-After we've submitted the command buffer we
-can map the `resultBuffer`. Like above, only want to map it if it's `'unmapped'`
+After we've submitted the command buffer we can map the `resultBuffer`. Like
+above, only want to map it if it's `'unmapped'`
 
 ```js
 +  let gpuTime = 0;
@@ -532,22 +541,20 @@ can map the `resultBuffer`. Like above, only want to map it if it's `'unmapped'`
 +    }
 ```
 
-Query set results are nanoseconds stored in 64bit integers. To read them in JavaScript we can use a `BigInt64Array` typedarray view.
-Using `BigInt64Array` requires special care. When
-you read an element from a `BitInt64Array` the type
-is a `bigint`, not a `number`. If you convert them
-to numbers they'll lose precision because a number
-can only hold integers of 53 bits in size. So, first
-we subtract the 2 `bigint`s and then convert them to
-a number so we can use them as normal.
+Query set results are in nanoseconds and are stored in 64bit integers. To read
+them in JavaScript we can use a `BigInt64Array` typedarray view. Using
+`BigInt64Array` requires special care. When you read an element from a
+`BitInt64Array` the type is a `bigint`, not a `number` so you can't use with
+with lots of math functions. Also, when you convert them to numbers they may
+lose precision because a `number`` can only hold integers of 53 bits in size.
+So, first we subtract the 2 `bigint`s which stays a `bigint`. Then we convert
+the result to a number so we can use it as normal.
 
-In the code above, because we are are only copying the results to `resultBuffer` some times, when it's
-not mapped, we'll only be reading the time on
-some frames. Most likely every other frame but
-there is no strict guarantee how long it will
-take until `mapAsync` resolves. Because of that,
-we update `gpuTime` which we can use at anytime
-to get the last recorded time.
+In the code above, we are are only copying the results to `resultBuffer` some
+times, when it's not mapped. That means we'll only be reading the time on some
+frames. Most likely every other frame but there is no strict guarantee how long
+it will take until `mapAsync` resolves. Because of that, we update `gpuTime`
+which we can use at anytime to get the last recorded time.
 
 ```js
     infoElem.textContent = `\
@@ -557,7 +564,7 @@ js: ${jsTime.toFixed(1)}ms
 `;
 ```
 
-And we that we get a GPU time from WebGPU
+And with that we get a GPU time from WebGPU
 
 {{{example url="../webgpu-timing-with-timestamp.html"}}}
 
@@ -586,7 +593,10 @@ class RollingAverage {
 }
 ```
 
-Which we can use like this
+It keeps an array of values and a total. When a new value is added the
+oldest value is subtracted from the total as the new value is added.
+
+We can use it like this.
 
 ```js
 +const fpsAverage = new RollingAverage();
@@ -628,26 +638,19 @@ function render(now) {
 }
 ```
 
-And now the numbers a little more stable.
+And now the numbers are a little more stable.
 
 {{{example url="../webgpu-timing-with-timestamp-w-average.html"}}}
 
 ## <a id="a-timing-helper"></a> Using a helper
 
-For me, I find all of this a little tedious
-and probably easy to get something wrong.
-One way to fix this would be to make a class
-to helps us do the timing. For example,
-after we make a pass with a timestamp we
-have to resolve it and copy it to a mappable
-buffer[^use-on-gpu]
+For me, I find all of this a little tedious and probably easy to get something
+wrong. We had to make 3 things, a querySet and 2 buffers. We had to change our
+renderPassDescriptor. We had to resolve the results and copy to a mappable
+buffer.
 
-[^use-on-gpu]: If some how we were going to
-use the result only on the GPU itself we might
-not need to copy it.
-
-Here's on example of a helper that might
-help with some of these issues.
+One way to make this less tedious would be to make a class to helps us do the
+timing. Here's on example of a helper that might help with some of these issues.
 
 ```js
 function assert(cond, msg = '') {
@@ -751,10 +754,10 @@ class TimingHelper {
 }
 ```
 
-The asserts are there to helps us not use this class wrong. For example if we end a pass but don't resolve it. Or if we resolve it but don't read the result.
+The asserts are there to helps us not use this class wrong. For example if we
+end a pass but don't resolve it or, if we resolve it but don't read the result.
 
-With this class, we can remove much of the code
-we had before. 
+With this class, we can remove much of the code we had before. 
 
 ```js
 async function main() {
@@ -800,6 +803,11 @@ async function main() {
 
     ...
 
+-    const pass = encoder.beginRenderPass(renderPassDescriptor);
++    const pass = timingHelper.beginRenderPass(encoder, renderPassDescriptor);
+
+    ...
+
     pass.end();
 
     -if (canTimestamp) {
@@ -822,7 +830,8 @@ async function main() {
 A few points about the `TimingHelper` class
 
 * You still have to manually request the `'timestamp-query` feature when you
-create your device but the class handles whether it exists or not on the device.
+  create your device but the class handles whether it exists or not on the
+  device.
 
 * When you call `timerHelper.beginRenderPass` or `timerHelper.beginComputePass`
   it automatically adds the appropriate properties to the pass descriptor. It
@@ -831,7 +840,7 @@ create your device but the class handles whether it exists or not on the device.
 
 * It's designed so if you use it wrong it will complain
 
-* The only handles 1 pass.
+* It only handles 1 pass.
 
   There are a bunch of tradeoffs here and without more exploration it's not
   clear what would be best.
@@ -849,7 +858,26 @@ create your device but the class handles whether it exists or not on the device.
   All of that seemed overkill so for now it seemed best to make it handle one
   pass and you can build on top of it until you decide it needs to be changed.
 
-In any case, I've used this class to time the various
+You could also make a `NoTimingHelper`
+
+```js
+class NoTimingHelper {
+  constructor() { }
+  beginRenderPass(encoder, descriptor = {}) {
+    return encoder.beginTimestampPass(descriptor);
+  }
+
+  beginComputePass(encoder, descriptor = {}) {
+    return encoder.beginComputePass(descriptor);
+  }
+  async getResult() { return 0; }
+}
+```
+
+As one possible way to make so you can add timing and turn it off without having
+to change too much code.
+
+In any case, I've used the `TimingHelper` class to time the various
 examples from [the articles on using compute shaders to compute image histograms](webgpu-compute-shaders-histogram.html). Here's
 a list of them. Since only the video example runs continuously it's probably
 the best example
@@ -869,5 +897,5 @@ The rest just run once and print their result to the JavaScript console.
 
 <div class="webgpu_bottombar">By default the `'timestamp-query'` time values
 are quantized to 100µ seconds. In Chrome, if you enable ["enable-webgpu-developer-features"](chrome://flags/#enable-webgpu-developer-features) in [about:flags]((chrome://flags/#enable-webgpu-developer-features) the time values may not be quantized. This would
-theoretically give you more accurate timings. That said, normally 100µ second quantized values should be enough for you to compare shaders or passes.
+theoretically give you more accurate timings. That said, normally 100µ second quantized values should be enough for you to compare shaders techniques for performance.
 </div>
