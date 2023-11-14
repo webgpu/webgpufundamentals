@@ -488,7 +488,7 @@ We can now setup the commands to run the compute shader
 
 ```js
   const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
-  const pass = encoder.beginComputePass(encoder);
+  const pass = encoder.beginComputePass();
   pass.setPipeline(pipeline);
   pass.setBindGroup(0, bindGroup);
   pass.dispatchWorkgroups(1);
@@ -499,7 +499,7 @@ We need to copy the histogram buffer to the result buffer
 
 ```js
   const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
-  const pass = encoder.beginComputePass(encoder);
+  const pass = encoder.beginComputePass();
   pass.setPipeline(pipeline);
   pass.setBindGroup(0, bindGroup);
   pass.dispatchWorkgroups(1);
@@ -512,7 +512,7 @@ and then execute the commands
 
 ```js
   const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
-  const pass = encoder.beginComputePass(encoder);
+  const pass = encoder.beginComputePass();
   pass.setPipeline(pipeline);
   pass.setBindGroup(0, bindGroup);
   pass.dispatchWorkgroups(1);
@@ -1308,7 +1308,7 @@ dispatches until we've reduced things to 1 chunk
 -  pass.setBindGroup(0, chunkSumBindGroup);
 -  pass.dispatchWorkgroups(1);
 +  // reduce the chunks
-+  const pass = encoder.beginComputePass(encoder);
++  const pass = encoder.beginComputePass();
 +  pass.setPipeline(chunkSumPipeline);
 +  let chunksLeft = numChunks;
 +  sumBindGroups.forEach(bindGroup => {

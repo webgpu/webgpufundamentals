@@ -93,7 +93,7 @@ async function main() {
   });
 
   const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
-  const pass = encoder.beginComputePass(encoder);
+  const pass = encoder.beginComputePass();
   pass.setPipeline(pipeline);
   pass.setBindGroup(0, bindGroup);
   pass.dispatchWorkgroups(1);

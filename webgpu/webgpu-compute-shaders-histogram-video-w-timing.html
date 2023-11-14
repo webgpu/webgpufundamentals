@@ -27,19 +27,54 @@ canvas {
   font-size: 200px;
   cursor: pointer;
 }
+#info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0.5em;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+}
     </style>
   </head>
   <body>
     <canvas></canvas>
+    <pre id="info">
+
+    </pre>
     <div id="start">
       <div>▶️</div>
     </div>
   </body>
   <script type="module">
-//import TimingHelper from './resources/js/timing-helper.js';
+import TimingHelper from './resources/js/timing-helper.js';
 import { mat4 } from '/3rdparty/wgpu-matrix.module.js';
 
 const range = (i, fn) => new Array(i).fill(0).map((_, i) => fn(i));
+
+class RollingAverage {
+  #total = 0;
+  #samples = [];
+  #cursor = 0;
+  #numSamples;
+  constructor(numSamples = 30) {
+    this.#numSamples = numSamples;
+  }
+  addSample(v) {
+    this.#total += v - (this.#samples[this.#cursor] || 0);
+    this.#samples[this.#cursor] = v;
+    this.#cursor = (this.#cursor + 1) % this.#numSamples;
+  }
+  get() {
+    return this.#total / this.#samples.length;
+  }
+}
+
+const fpsAverage = new RollingAverage();
+const jsAverage = new RollingAverage();
+const histogramAverage = new RollingAverage();
+const renderAverage = new RollingAverage();
 
 async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
@@ -53,6 +88,9 @@ async function main() {
     fail('need a browser that supports WebGPU');
     return;
   }
+
+  const timingHelper = new TimingHelper(device);
+  const timingHelper2 = new TimingHelper(device);
 
   // Get a WebGPU context from the canvas and configure it
   const canvas = document.querySelector('canvas');
@@ -494,7 +532,16 @@ async function main() {
     };
   });
 
-  function render() {
+  const infoElem = document.querySelector('#info');
+
+  let then = 0;
+  function render(now) {
+    now *= 0.001;  // convert to seconds
+    const deltaTime = now - then;
+    then = now;
+
+    const startTime = performance.now();
+
     const texture = device.importExternalTexture({source: video});
 
     // make a bind group for to make a histogram from this video texture
@@ -517,7 +564,7 @@ async function main() {
 
     const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
     {
-      const pass = encoder.beginComputePass(encoder);
+      const pass = timingHelper.beginComputePass(encoder);
 
       // create a histogram for each chunk
       pass.setPipeline(histogramChunkPipeline);
@@ -546,7 +593,7 @@ async function main() {
     {
       const canvasTexture = context.getCurrentTexture().createView();
       renderPassDescriptor.colorAttachments[0].view = canvasTexture;
-      const pass = encoder.beginRenderPass(renderPassDescriptor);
+      const pass = timingHelper2.beginRenderPass(encoder, renderPassDescriptor);
 
       // Draw video
       const bindGroup = device.createBindGroup({
@@ -599,6 +646,25 @@ async function main() {
 
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
+
+    timingHelper.getResult().then(gpuTime => {
+      histogramAverage.addSample(gpuTime / 1000);
+    });
+    timingHelper2.getResult().then(gpuTime => {
+      renderAverage.addSample(gpuTime / 1000);
+    });
+
+    const jsTime = performance.now() - startTime;
+
+    fpsAverage.addSample(1 / deltaTime);
+    jsAverage.addSample(jsTime);
+
+    infoElem.textContent = `\
+fps: ${fpsAverage.get().toFixed(1)}
+js: ${jsAverage.get().toFixed(1)}ms
+histogram gpu: ${canTimestamp ? `${histogramAverage.get().toFixed(1)}µs` : 'N/A'}
+rendering gpu: ${canTimestamp ? `${renderAverage.get().toFixed(1)}µs` : 'N/A'}
+`;
 
     requestAnimationFrame(render);
   }

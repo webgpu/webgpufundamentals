@@ -35,22 +35,22 @@ async function main() {
   }
 
   const timingHelper = new TimingHelper(device);
-  const timingHelper2 = new TimingHelper(device);
 
   const k = {
     chunkWidth: 256,
     chunkHeight: 1,
   };
-  const chunkSize = k.chunkWidth * k.chunkHeight;
-  const sharedConstants = Object.entries(k).map(([k, v]) => `const ${k} = ${v};`).join('\n');
+  const sharedConstants = Object.entries(k)
+    .map(([k, v]) => `const ${k} = ${v};`)
+    .join('\n');
 
   const histogramChunkModule = device.createShaderModule({
     label: 'histogram chunk shader',
     code: `
       ${sharedConstants}
       const chunkSize = chunkWidth * chunkHeight;
-      var<workgroup> histogram: array<atomic<u32>, chunkSize>;
-      @group(0) @binding(0) var<storage, read_write> histogramChunks: array<array<vec4u, chunkSize>>;
+      var<workgroup> bins: array<atomic<u32>, chunkSize>;
+      @group(0) @binding(0) var<storage, read_write> chunks: array<array<u32, chunkSize>>;
       @group(0) @binding(1) var ourTexture: texture_2d<f32>;
 
       const kSRGBLuminanceFactors = vec3f(0.2126, 0.7152, 0.0722);
@@ -60,19 +60,19 @@ async function main() {
 
       @compute @workgroup_size(chunkWidth, chunkHeight, 1)
       fn cs(
+        @builtin(global_invocation_id) global_invocation_id: vec3u,
         @builtin(workgroup_id) workgroup_id: vec3u,
         @builtin(local_invocation_id) local_invocation_id: vec3u,
       ) {
         let size = textureDimensions(ourTexture, 0);
-        let position = workgroup_id.xy * vec2u(chunkWidth, chunkHeight) + 
-                       local_invocation_id.xy;
+        let position = global_invocation_id.xy;
         if (all(position < size)) {
           let numBins = f32(chunkSize);
           let lastBinIndex = u32(numBins - 1);
           let color = textureLoad(ourTexture, position, 0);
           let v = srgbLuminance(color.rgb);
           let bin = min(u32(v * numBins), lastBinIndex);
-          atomicAdd(&histogram[bin], 1u);
+          atomicAdd(&bins[bin], 1u);
         }
 
         workgroupBarrier();
@@ -81,7 +81,7 @@ async function main() {
         let chunk = workgroup_id.y * chunksAcross + workgroup_id.x;
         let bin = local_invocation_id.y * chunkWidth + local_invocation_id.x;
 
-        histogramChunks[chunk][bin] = vec4u(atomicLoad(&histogram[bin]));
+        chunks[chunk][bin] = atomicLoad(&bins[bin]);
       }
     `,
   });
@@ -96,7 +96,7 @@ async function main() {
         stride: u32,
       };
 
-      @group(0) @binding(0) var<storage, read_write> histogramChunks: array<array<vec4u, chunkSize>>;
+      @group(0) @binding(0) var<storage, read_write> chunks: array<array<u32, chunkSize>>;
       @group(0) @binding(1) var<uniform> uni: Uniforms;
 
       @compute @workgroup_size(chunkSize, 1, 1) fn cs(
@@ -106,9 +106,9 @@ async function main() {
         let chunk0 = workgroup_id.x * uni.stride * 2;
         let chunk1 = chunk0 + uni.stride;
 
-        let sum = histogramChunks[chunk0][local_invocation_id.x] +
-                  histogramChunks[chunk1][local_invocation_id.x];
-        histogramChunks[chunk0][local_invocation_id.x] = sum;
+        let sum = chunks[chunk0][local_invocation_id.x] +
+                  chunks[chunk1][local_invocation_id.x];
+        chunks[chunk0][local_invocation_id.x] = sum;
       }
     `,
   });
@@ -134,18 +134,17 @@ async function main() {
   const imgBitmap = await loadImageBitmap('resources/images/pexels-francesco-ungaro-96938-mid.jpg'); /* webgpufundamentals: url */
   const texture = createTextureFromSource(device, imgBitmap);
 
+  const chunkSize = k.chunkWidth * k.chunkHeight;
   const chunksAcross = Math.ceil(texture.width / k.chunkWidth);
   const chunksDown = Math.ceil(texture.height / k.chunkHeight);
   const numChunks = chunksAcross * chunksDown;
-  console.log('numChunks', numChunks, 'chunksAcross:', chunksAcross, 'chunksDown:', chunksDown);
-  console.log('width:', texture.width, 'height:', texture.height, 'numPixels:', texture.width * texture.height);
   const chunksBuffer = device.createBuffer({
-    size: numChunks * chunkSize * 4 * 4,
+    size: numChunks * chunkSize * 4,  // 4 bytes per (u32)
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
   });
 
   const resultBuffer = device.createBuffer({
-    size: chunkSize * 4 * 4,
+    size: chunkSize * 4,  // 4 bytes per (u32)
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   });
 
@@ -158,13 +157,9 @@ async function main() {
   });
 
   const sumBindGroups = [];
-  for (let i = 0; ; ++i) {
+  const numSteps = Math.ceil(Math.log2(numChunks));
+  for (let i = 0; i < numSteps; ++i) {
     const stride = 2 ** i;
-    if (stride >= numChunks) {
-      break;
-    }
-    console.log(i, 'stride:', stride);
-
     const uniformBuffer = device.createBuffer({
       size: 4,
       usage: GPUBufferUsage.UNIFORM,
@@ -184,29 +179,23 @@ async function main() {
   }
 
   const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
+  const pass = timingHelper.beginComputePass(encoder);
 
-  // create a histogram for each area
-  {
-    const pass = timingHelper.beginComputePass(encoder);
-    pass.setPipeline(histogramChunkPipeline);
-    pass.setBindGroup(0, histogramBindGroup);
-    pass.dispatchWorkgroups(chunksAcross, chunksDown);
-    pass.end();
-  }
+  // create a histogram for each chunk
+  pass.setPipeline(histogramChunkPipeline);
+  pass.setBindGroup(0, histogramBindGroup);
+  pass.dispatchWorkgroups(chunksAcross, chunksDown);
 
-  // reduce the areas
-  {
-    const pass = timingHelper2.beginComputePass(encoder);
-    pass.setPipeline(chunkSumPipeline);
-    let chunksLeft = numChunks;
-    sumBindGroups.forEach((bindGroup) => {
-      pass.setBindGroup(0, bindGroup);
-      const dispatchCount = Math.floor(chunksLeft / 2);
-      chunksLeft -= dispatchCount;
-      pass.dispatchWorkgroups(dispatchCount);
-    });
-    pass.end();
-  }
+  // reduce the chunks
+  pass.setPipeline(chunkSumPipeline);
+  let chunksLeft = numChunks;
+  sumBindGroups.forEach(bindGroup => {
+    pass.setBindGroup(0, bindGroup);
+    const dispatchCount = Math.floor(chunksLeft / 2);
+    chunksLeft -= dispatchCount;
+    pass.dispatchWorkgroups(dispatchCount);
+  });
+  pass.end();
 
   encoder.copyBufferToBuffer(chunksBuffer, 0, resultBuffer, 0, resultBuffer.size);
 
@@ -214,18 +203,11 @@ async function main() {
   device.queue.submit([commandBuffer]);
 
   timingHelper.getResult().then(duration => {
-    console.log('duration 1:', duration);
-  });
-  timingHelper2.getResult().then(duration => {
-    console.log('duration 2:', duration);
+    console.log(`duration 1: ${duration}ns`);
   });
 
   await resultBuffer.mapAsync(GPUMapMode.READ);
-  const result = new Uint32Array(resultBuffer.getMappedRange());
-  const histogram = new Uint32Array(result.length / 4);
-  histogram.forEach((_, i) => {
-    histogram[i] = result[i * 4];
-  });
+  const histogram = new Uint32Array(resultBuffer.getMappedRange());
 
   showImageBitmap(imgBitmap);
 

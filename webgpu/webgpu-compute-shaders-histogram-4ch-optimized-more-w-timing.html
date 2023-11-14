@@ -49,8 +49,8 @@ async function main() {
     code: `
       ${sharedConstants}
       const chunkSize = chunkWidth * chunkHeight;
-      var<workgroup> histogram: array<array<atomic<u32>, 4>, chunkSize>;
-      @group(0) @binding(0) var<storage, read_write> histogramChunks: array<array<vec4u, chunkSize>>;
+      var<workgroup> bins: array<array<atomic<u32>, 4>, chunkSize>;
+      @group(0) @binding(0) var<storage, read_write> chunks: array<array<vec4u, chunkSize>>;
       @group(0) @binding(1) var ourTexture: texture_2d<f32>;
 
       const kSRGBLuminanceFactors = vec3f(0.2126, 0.7152, 0.0722);
@@ -72,8 +72,9 @@ async function main() {
           var channels = textureLoad(ourTexture, position, 0);
           channels.w = srgbLuminance(channels.rgb);
           for (var ch = 0; ch < 4; ch++) {
-            let bin = min(u32(channels[ch] * numBins), lastBinIndex);
-            atomicAdd(&histogram[bin][ch], 1u);
+            let v = channels[ch];
+            let bin = min(u32(v * numBins), lastBinIndex);
+            atomicAdd(&bins[bin][ch], 1u);
           }
         }
 
@@ -83,11 +84,11 @@ async function main() {
         let chunk = workgroup_id.y * chunksAcross + workgroup_id.x;
         let bin = local_invocation_id.y * chunkWidth + local_invocation_id.x;
 
-        histogramChunks[chunk][bin] = vec4u(
-          atomicLoad(&histogram[bin][0]),
-          atomicLoad(&histogram[bin][1]),
-          atomicLoad(&histogram[bin][2]),
-          atomicLoad(&histogram[bin][3]),
+        chunks[chunk][bin] = vec4u(
+          atomicLoad(&bins[bin][0]),
+          atomicLoad(&bins[bin][1]),
+          atomicLoad(&bins[bin][2]),
+          atomicLoad(&bins[bin][3]),
         );
       }
     `,
@@ -103,20 +104,19 @@ async function main() {
         stride: u32,
       };
 
-      @group(0) @binding(0) var<storage, read_write> histogramChunks: array<array<vec4u, chunkSize>>;
+      @group(0) @binding(0) var<storage, read_write> chunks: array<array<vec4u, chunkSize>>;
       @group(0) @binding(1) var<uniform> uni: Uniforms;
 
       @compute @workgroup_size(chunkSize, 1, 1) fn cs(
         @builtin(local_invocation_id) local_invocation_id: vec3u,
         @builtin(workgroup_id) workgroup_id: vec3u,
       ) {
-        var sum = vec4u(0);
         let chunk0 = workgroup_id.x * uni.stride * 2;
         let chunk1 = chunk0 + uni.stride;
 
-        histogramChunks[chunk0][local_invocation_id.x] =
-            histogramChunks[chunk0][local_invocation_id.x] +
-            histogramChunks[chunk1][local_invocation_id.x];
+        let sum = chunks[chunk0][local_invocation_id.x] +
+                  chunks[chunk1][local_invocation_id.x];
+        chunks[chunk0][local_invocation_id.x] = sum;
       }
     `,
   });
@@ -165,13 +165,9 @@ async function main() {
   });
 
   const sumBindGroups = [];
-  for (let i = 0; ; ++i) {
+  const numSteps = Math.ceil(Math.log2(numChunks));
+  for (let i = 0; i < numSteps; ++i) {
     const stride = 2 ** i;
-    if (stride >= numChunks) {
-      break;
-    }
-    console.log(i, 'stride:', stride);
-
     const uniformBuffer = device.createBuffer({
       size: 4,
       usage: GPUBufferUsage.UNIFORM,
@@ -219,10 +215,10 @@ async function main() {
   device.queue.submit([commandBuffer]);
 
   timingHelper.getResult().then(duration => {
-    console.log('duration 1:', duration);
+    console.log(`duration histogram: ${duration}ns`);
   });
   timingHelper2.getResult().then(duration => {
-    console.log('duration 2:', duration);
+    console.log(`duration reduce: ${duration}ns`);
   });
 
   await resultBuffer.mapAsync(GPUMapMode.READ);
@@ -231,27 +227,25 @@ async function main() {
   showImageBitmap(imgBitmap);
 
   // draw the red, green, and blue channels
-  drawHistogram(histogram, [0, 1, 2]);
+  const numEntries = texture.width * texture.height;
+  drawHistogram(histogram, numEntries, [0, 1, 2]);
 
   // draw the luminosity channel
-  drawHistogram(histogram, [3]);
+  drawHistogram(histogram, numEntries, [3]);
 
   resultBuffer.unmap();
 }
 
-
-function drawHistogram(histogram, channels, height = 100) {
+function drawHistogram(histogram, numEntries, channels, height = 100) {
   // find the highest value for each channel
-  const max = [0, 0, 0, 0];
-  const total = [0, 0, 0, 0];
-  histogram.forEach((v, i) => {
-    const ch = i % 4;
-    max[ch] = Math.max(max[ch], v);
-    total[ch] += v;
-  });
-  console.log('total:', total);
-
   const numBins = histogram.length / 4;
+  const max = [0, 0, 0, 0];
+  histogram.forEach((v, ndx) => {
+    const ch = ndx % 4;
+    max[ch] = Math.max(max[ch], v);
+  });
+  const scale = max.map(max => Math.max(1 / max, 0.2 * numBins / numEntries));
+
   const canvas = document.createElement('canvas');
   canvas.width = numBins;
   canvas.height = height;
@@ -270,8 +264,7 @@ function drawHistogram(histogram, channels, height = 100) {
   for (let x = 0; x < numBins; ++x) {
     const offset = x * 4;
     for (const ch of channels) {
-      const scale = 0.2 * numBins / total[ch];
-      const v = histogram[offset + ch] * scale * height;
+      const v = histogram[offset + ch] * scale[ch] * height;
       ctx.fillStyle = colors[ch];
       ctx.fillRect(x, height - v, 1, v);
     }

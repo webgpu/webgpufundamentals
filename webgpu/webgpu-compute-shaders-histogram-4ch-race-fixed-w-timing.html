@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Compute Shaders - Histogram</title>
+    <title>WebGPU Compute Shaders - Histogram, race fixed, draw with JavaScript</title>
     <style>
       @import url(resources/webgpu-lesson.css);
       canvas {
@@ -47,7 +47,8 @@ async function main() {
         return saturate(dot(color, kSRGBLuminanceFactors));
       }
 
-      @compute @workgroup_size(1, 1, 1) fn cs(@builtin(global_invocation_id) global_invocation_id: vec3u) {
+      @compute @workgroup_size(1, 1, 1)
+      fn cs(@builtin(global_invocation_id) global_invocation_id: vec3u) {
         let position = global_invocation_id.xy;
         let numBins = f32(arrayLength(&histogram));
         let lastBinIndex = u32(numBins - 1);
@@ -73,8 +74,9 @@ async function main() {
   const imgBitmap = await loadImageBitmap('resources/images/pexels-chevanon-photography-1108099.jpg'); /* webgpufundamentals: url */
   const texture = createTextureFromSource(device, imgBitmap);
 
+  const numBins = 256;
   const histogramBuffer = device.createBuffer({
-    size: 256 * 4 * 4, // 256 entries * 4 (rgba) * 4 bytes per (u32)
+    size: numBins * 4 * 4, // 256 entries * 4 (rgba) * 4 bytes per (u32)
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
   });
 
@@ -84,6 +86,7 @@ async function main() {
   });
 
   const bindGroup = device.createBindGroup({
+    label: 'histogram bindGroup',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
       { binding: 0, resource: { buffer: histogramBuffer }},
@@ -91,10 +94,7 @@ async function main() {
     ],
   });
 
-  const encoder = device.createCommandEncoder({
-    label: 'histogram encoder',
-  });
-
+  const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
   const pass = timingHelper.beginComputePass(encoder);
   pass.setPipeline(pipeline);
   pass.setBindGroup(0, bindGroup);
@@ -107,7 +107,7 @@ async function main() {
   device.queue.submit([commandBuffer]);
 
   timingHelper.getResult().then(duration => {
-    console.log('duration:', duration);
+    console.log(`duration: ${duration}ns`);
   });
 
   await resultBuffer.mapAsync(GPUMapMode.READ);
@@ -121,17 +121,7 @@ async function main() {
   // draw the luminosity channel
   drawHistogram(histogram, [3]);
 
-  const to3 = v => v.toString().padStart(3);
-
-  const sum = [0, 0, 0, 0];
-  for (let i = 0; i < 256; ++i) {
-    const off = i * 4;
-    console.log(to3(i), to3(histogram[off]), to3(histogram[off + 1]), to3(histogram[off + 2]), to3(histogram[off + 3]));
-    for (let j = 0; j < 4; ++j) {
-      sum[j] += histogram[off + j];
-    }
-  }
-  console.log('sum:', sum);
+  resultBuffer.unmap();
 }
 
 function drawHistogram(histogram, channels, height = 100) {

@@ -197,10 +197,10 @@ async function main() {
   device.queue.submit([commandBuffer]);
 
   timingHelper.getResult().then(duration => {
-    console.log('duration 1:', duration);
+    console.log(`duration 1: ${duration}ns`);
   });
   timingHelper2.getResult().then(duration => {
-    console.log('duration 2:', duration);
+    console.log(`duration 2: ${duration}ns`);
   });
 
   showImageBitmap(imgBitmap);

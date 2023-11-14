@@ -310,7 +310,7 @@ async function main() {
   const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
 
   {
-    const pass = encoder.beginComputePass(encoder);
+    const pass = encoder.beginComputePass();
     pass.setPipeline(histogramChunkPipeline);
     pass.setBindGroup(0, histogramBindGroup);
     pass.dispatchWorkgroups(chunksAcross, chunksDown);
@@ -437,7 +437,7 @@ async function main() {
   }
 
   timingHelper.getResult().then(duration => {
-    console.log('duration 1:', duration);
+    console.log(`duration 1: ${duration}ns`);
   });
 }
 
