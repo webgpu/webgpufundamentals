@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <meta name="keywords" content="webgpu graphics">
 <meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-timing_en.jpg">
 
-<meta property="og:title" content="WebGPU Timing">
+<meta property="og:title" content="WebGPU Timing Performance">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-timing_en.jpg">
 <meta property="og:description" content="Timing operations in WebGPU">
@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Timing">
+<meta name="twitter:title" content="WebGPU Timing Performance">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html">
 <meta name="twitter:description" content="Timing operations in WebGPU">
 <meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-timing_en.jpg">
@@ -76,7 +76,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html#webpage",
       "url":"https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html",
       "inLanguage":"en",
-      "name":"WebGPU Timing",
+      "name":"WebGPU Timing Performance",
       "keywords":"webgpu graphics programming",
       "isPartOf":{
         "@id":"https://webgpufundamentals.org/#website"
@@ -89,7 +89,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
 </script>
 
-<title>WebGPU Timing</title>
+<title>WebGPU Timing Performance</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
 <link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
@@ -220,12 +220,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Timing</h1>
+    <h1>WebGPU Timing Performance</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
       <div class="warn">The `'timestamp-query'` feature used in this article
-should be available in Chrome 121 or 122. If it's not available you can
+should be available in Chrome 121 or 122. If it's not available you can probably
 turn it on by enabling on <a href="chrome://flags/#enable-webgpu-developer-features">enable-webgpu-developer-features</a> in <a href="chrome://flags/#enable-webgpu-developer-features">about:flags</a>.
 </div>
 <p>Let’s go over various things you might want
@@ -235,17 +235,18 @@ to time for performance. We’ll time 3 things</p>
 <li>The time spent in JavaScript per frame</li>
 <li>The time spent on the GPU per frame</li>
 </ul>
-<p>First, let’s take our circle example from
+<p>First, let’s take a circle example from
 <a href="webgpu-vertex-buffers.html">the article on vertex buffers</a>
-and lets and animate them so we have something that’s easy
+and lets animate them so we have something that’s easy
 to see changes in how much time things take</p>
 <p>In that example we had 3 vertex buffers. One was for
 the positions and brightness of a the vertices for a circle.
 One was for things that are per instance but static
-which included the circle’s offset and color. And the last
-one was for things that change reach time we render, in this
+which included the circle’s offset and color. And, the last
+one was for things that change each time we render, in this
 case it was the scale so we could keep the aspect ratio of
-the circles correct so they stayed circles and no ellipses.</p>
+the circles correct so they stayed circles and not ellipses
+as the user changed the size of the window.</p>
 <p>We want to animate them moving so let’s move the offset
 to the same buffer as the scale. First we’ll change the
 render pipeline to move the offset to the same buffer
@@ -294,7 +295,7 @@ as the scale.</p>
   });
 </pre>
 <p>Then we’ll change the part that sets up the vertex buffers
-to move the offsets together with the scale.</p>
+to move the offsets together with the scales.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // create 2 vertex buffers
   const staticUnitSize =
 -    4 +     // color is 4 bytes
@@ -397,10 +398,11 @@ to move the offsets together with the scale.</p>
   });
   observer.observe(canvas);
 </pre>
-<p>We also switched to a rAF loop.</p>
+<p>We also switched to a rAF loop<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.</p>
 <p><a id="a-euclidianModulo"></a>The code above uses <code class="notranslate" translate="no">euclideanModulo</code> to update the offset.
 <code class="notranslate" translate="no">euclideanModulo</code> returns the remainder of a division where
-the remainder always is always positive. For example</p>
+the remainder always is always positive and in the same direction.
+For example</p>
 <div class="webgpu_center">
   <div class="center">
     <div class="data-table center" data-table="{
@@ -418,7 +420,7 @@ the remainder always is always positive. For example</p>
   </div>
   <div>modulo 2 of % vs euclideanModulo</div>
 </div>
-<p>To put it another way, here’s a graph of <code class="notranslate" translate="no">%</code> vs <code class="notranslate" translate="no">euclideanModulo</code></p>
+<p>To put it another way, here’s a graph of the <code class="notranslate" translate="no">%</code> operator vs <code class="notranslate" translate="no">euclideanModulo</code></p>
 <div class="webgpu_center">
   <img class="center" style="width: 700px" src="resources/euclidean-modulo.svg">
   <div>euclideanModule(v, 2)</div>
@@ -428,11 +430,11 @@ the remainder always is always positive. For example</p>
   <div>v % 2</div>
 </div>
 <p>So, the code above takes the offset, which is in clip space, and adds 1.5. It then takes the euclideanModulo
-by 3 which will give us a number between 0.0 and 3.0
+by 3 which will give us a number that is wrapped between 0.0 and 3.0
 and then subtracts 1.5.  This gives us numbers
 that stay between -1.5 and +1.5 and lets them wrap
 around to the other side. We use -1.5 to +1.5 so that
-the circles don’t wrap until they are off the screen. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+the circles don’t wrap until they are off the screen. <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup></p>
 <p>To give us something to adjust, lets make it so we can
 set how many circles to draw.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const kNumObjects = 100;
@@ -486,7 +488,7 @@ the number of circles.</p>
 <p>To that, let’s add frames per second (fps) and
 time spent in JavaScript</p>
 <p>First we need a way to display this info so lets
-add a div positions on top of the canvas.</p>
+add an <code class="notranslate" translate="no">&lt;pre&gt;</code> element positioned on top of the canvas.</p>
 <pre class="prettyprint showlinemods notranslate lang-html" translate="no">  &lt;body&gt;
     &lt;canvas&gt;&lt;/canvas&gt;
 +    &lt;pre id="info"&gt;&lt;/pre&gt;
@@ -515,7 +517,7 @@ canvas {
 frames per second. It’s the <code class="notranslate" translate="no">deltaTime</code> we
 computed above.</p>
 <p>For JavaScript time we can record the time
-our requestAnimationFrame started and the
+our <code class="notranslate" translate="no">requestAnimationFrame</code> started and the
 time it ended</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  let then = 0;
   function render(now) {
@@ -538,15 +540,15 @@ time it ended</p>
   }
   requestAnimationFrame(render);
 </pre>
-<p>And that gives us our first 2 timing measurements.</p>
+<p>And that gives us our first two timing measurements.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-timing-with-fps-js-time.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-timing-with-fps-js-time.html" target="_blank">click here to open in a separate window</a>
 </div>
 
 <p></p>
-<p><a id="a-timestamp-query"></a>
-WebGPU provides <strong>optional</strong> <code class="notranslate" translate="no">'timestamp-query'</code> feature for checking how long an operation takes on the GPU.
+<h2 id="timing-the-gpu"><a id="a-timestamp-query"></a> Timing the GPU</h2>
+<p>WebGPU provides an <strong>optional</strong> <code class="notranslate" translate="no">'timestamp-query'</code> feature for checking how long an operation takes on the GPU.
 Since it’s an optional feature we need to see if it
 exists and request it like we covered in <a href="webgpu-limits-and-features.html">the article on limits and features</a>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
@@ -563,16 +565,15 @@ exists and request it like we covered in <a href="webgpu-limits-and-features.htm
     return;
   }
 </pre>
-<p>Above, we set <code class="notranslate" translate="no">canTimestamp</code> to true or false
-based on if the adapter supports the <code class="notranslate" translate="no">'timestamp-query'</code> feature. If it does we require
-that feature when we create our device.</p>
-<p>With the feature enabled we can ask WebGPU for <em>timestamps</em> for a render pass or compute
-pass. You do this by making a <code class="notranslate" translate="no">GPUQuerySet</code> and adding it
-to your compute or render pass. A <code class="notranslate" translate="no">GPUQuerySet</code> is effectively
-an array of query results. You tell WebGPU where in the array to
-record the time the pass started and where in the array record
-when the pass ended. You can then copy those timestamps to
-a buffer and map the buffer to read the results.</p>
+<p>Above, we set <code class="notranslate" translate="no">canTimestamp</code> to true or false based on if the adapter supports
+the <code class="notranslate" translate="no">'timestamp-query'</code> feature. If it does we require that feature when we
+create our device.</p>
+<p>With the feature enabled we can ask WebGPU for <em>timestamps</em> for a render pass or
+compute pass. You do this by making a <code class="notranslate" translate="no">GPUQuerySet</code> and adding it to your
+compute or render pass. A <code class="notranslate" translate="no">GPUQuerySet</code> is effectively an array of query
+results. You tell WebGPU which element in the array to record the time the pass started
+and which element in the array to record when the pass ended. You can then copy those
+timestamps to a buffer and map the buffer to read the results.<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup></p>
 <p>So, first we create a query set</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const querySet = device.createQuerySet({
      type: 'timestamp',
@@ -601,7 +602,8 @@ results</p>
   });
 </pre>
 <p>We need to wrap this code in a way that only
-creates these things if the feature exists</p>
+creates these things if the feature exists, otherwise we’ll
+get an error trying to make a <code class="notranslate" translate="no">'timestamp'</code> querySet.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const { querySet, resolveBuffer, resultBuffer } = (() =&gt; {
 +    if (!canTimestamp) {
 +      return {};
@@ -646,26 +648,25 @@ timestamps.</p>
   };
 </pre>
 <p>Above, if the feature exists, we add a <code class="notranslate" translate="no">timestampWrites</code> section to our
-renderPassDescriptor and pass in the querySet
-and tell it to write the start to element 0
-of the set and the end to element 1.</p>
-<p>After we end the pass we need to call <code class="notranslate" translate="no">resolveQuerySet</code>. This takes the results
+renderPassDescriptor and pass in the querySet and tell it to write the start to
+element 0 of the set and the end to element 1.</p>
+<p>After we end the pass, we need to call <code class="notranslate" translate="no">resolveQuerySet</code>. This takes the results
 of the query and puts them in a buffer. We pass it the querySet, the first index
-in the query set where to start resolving, the number of entries to resolve,
-a buffer to resolve to, and a offset in that buffer where to store the result.</p>
-<pre class="prettyprint showlinemods notranslate notranslate" translate="no">    pass.end();
+in the query set where to start resolving, the number of entries to resolve, a
+buffer to resolve to, and an offset in that buffer where to store the result.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    pass.end();
 
 +    if (canTimestamp) {
 +      encoder.resolveQuerySet(querySet, 0, querySet.count, resolveBuffer, 0);
 +    }
 </pre>
-<p>We also want to copy the <code class="notranslate" translate="no">resolveBuffer</code> to our
-<code class="notranslate" translate="no">resultsBuffer</code> so we can map it and look at
-the results in JavaScript. We have an issue
-though. We can not copy to our <code class="notranslate" translate="no">resultsBuffer</code>
-while it’s mapped. Fortunately buffers have
-a <code class="notranslate" translate="no">mapState</code> property we can check. If it’s
-set to <code class="notranslate" translate="no">unmapped</code> then it’s safe to copy to it.</p>
+<p>We also want to copy the <code class="notranslate" translate="no">resolveBuffer</code> to our <code class="notranslate" translate="no">resultsBuffer</code> so we can map it
+and look at the results in JavaScript. We have an issue though. We can not copy
+to our <code class="notranslate" translate="no">resultsBuffer</code> while it’s mapped. Fortunately buffers have a <code class="notranslate" translate="no">mapState</code>
+property we can check. If it’s set to <code class="notranslate" translate="no">unmapped</code>, the value it starts with, then
+it’s safe to copy to it. Other values are <code class="notranslate" translate="no">'pending'</code>, the value it becomes the
+moment we call <code class="notranslate" translate="no">mapAsync</code>, and <code class="notranslate" translate="no">'mapped'</code>, the value it is when <code class="notranslate" translate="no">mapAsync</code>
+resolves. After we <code class="notranslate" translate="no">unmap</code> it it goes back to <code class="notranslate" translate="no">'unmapped'</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    if (canTimestamp) {
       encoder.resolveQuerySet(querySet, 0, 2, resolveBuffer, 0);
 +      if (resultBuffer.mapState === 'unmapped') {
@@ -673,8 +674,8 @@ set to <code class="notranslate" translate="no">unmapped</code> then it’s safe
 +      }
     }
 </pre>
-<p>After we’ve submitted the command buffer we
-can map the <code class="notranslate" translate="no">resultBuffer</code>. Like above, only want to map it if it’s <code class="notranslate" translate="no">'unmapped'</code></p>
+<p>After we’ve submitted the command buffer we can map the <code class="notranslate" translate="no">resultBuffer</code>. Like
+above, only want to map it if it’s <code class="notranslate" translate="no">'unmapped'</code></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  let gpuTime = 0;
 
    ...
@@ -694,28 +695,25 @@ can map the <code class="notranslate" translate="no">resultBuffer</code>. Like a
 +      });
 +    }
 </pre>
-<p>Query set results are nanoseconds stored in 64bit integers. To read them in JavaScript we can use a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt64Array"><code class="notranslate" translate="no">BigInt64Array</code></a> typedarray view.
-Using <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt64Array"><code class="notranslate" translate="no">BigInt64Array</code></a> requires special care. When
-you read an element from a <code class="notranslate" translate="no">BitInt64Array</code> the type
-is a <code class="notranslate" translate="no">bigint</code>, not a <code class="notranslate" translate="no">number</code>. If you convert them
-to numbers they’ll lose precision because a number
-can only hold integers of 53 bits in size. So, first
-we subtract the 2 <code class="notranslate" translate="no">bigint</code>s and then convert them to
-a number so we can use them as normal.</p>
-<p>In the code above, because we are are only copying the results to <code class="notranslate" translate="no">resultBuffer</code> some times, when it’s
-not mapped, we’ll only be reading the time on
-some frames. Most likely every other frame but
-there is no strict guarantee how long it will
-take until <code class="notranslate" translate="no">mapAsync</code> resolves. Because of that,
-we update <code class="notranslate" translate="no">gpuTime</code> which we can use at anytime
-to get the last recorded time.</p>
+<p>Query set results are in nanoseconds and are stored in 64bit integers. To read
+them in JavaScript we can use a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt64Array"><code class="notranslate" translate="no">BigInt64Array</code></a> typedarray view. Using
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt64Array"><code class="notranslate" translate="no">BigInt64Array</code></a> requires special care. When you read an element from a
+<code class="notranslate" translate="no">BitInt64Array</code> the type is a <code class="notranslate" translate="no">bigint</code>, not a <code class="notranslate" translate="no">number</code> so you can’t use with
+with lots of math functions. Also, when you convert them to numbers they may
+lose precision because a <code class="notranslate" translate="no">number`` can only hold integers of 53 bits in size. So, first we subtract the 2 </code>bigint<code class="notranslate" translate="no">s which stays a </code>bigint`. Then we convert
+the result to a number so we can use it as normal.</p>
+<p>In the code above, we are are only copying the results to <code class="notranslate" translate="no">resultBuffer</code> some
+times, when it’s not mapped. That means we’ll only be reading the time on some
+frames. Most likely every other frame but there is no strict guarantee how long
+it will take until <code class="notranslate" translate="no">mapAsync</code> resolves. Because of that, we update <code class="notranslate" translate="no">gpuTime</code>
+which we can use at anytime to get the last recorded time.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    infoElem.textContent = `\
 fps: ${(1 / deltaTime).toFixed(1)}
 js: ${jsTime.toFixed(1)}ms
 +gpu: ${canTimestamp ? `${(gpuTime / 1000).toFixed(1)}µs` : 'N/A'}
 `;
 </pre>
-<p>And we that we get a GPU time from WebGPU</p>
+<p>And with that we get a GPU time from WebGPU</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-timing-with-timestamp.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-timing-with-timestamp.html" target="_blank">click here to open in a separate window</a>
@@ -744,7 +742,9 @@ average.</p>
   }
 }
 </pre>
-<p>Which we can use like this</p>
+<p>It keeps an array of values and a total. When a new value is added the
+oldest value is subtracted from the total as the new value is added.</p>
+<p>We can use it like this.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+const fpsAverage = new RollingAverage();
 +const jsAverage = new RollingAverage();
 +const gpuAverage = new RollingAverage();
@@ -783,7 +783,7 @@ function render(now) {
   requestAnimationFrame(render);
 }
 </pre>
-<p>And now the numbers a little more stable.</p>
+<p>And now the numbers are a little more stable.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-timing-with-timestamp-w-average.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-timing-with-timestamp-w-average.html" target="_blank">click here to open in a separate window</a>
@@ -791,15 +791,12 @@ function render(now) {
 
 <p></p>
 <h2 id="using-a-helper"><a id="a-timing-helper"></a> Using a helper</h2>
-<p>For me, I find all of this a little tedious
-and probably easy to get something wrong.
-One way to fix this would be to make a class
-to helps us do the timing. For example,
-after we make a pass with a timestamp we
-have to resolve it and copy it to a mappable
-buffer<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup></p>
-<p>Here’s on example of a helper that might
-help with some of these issues.</p>
+<p>For me, I find all of this a little tedious and probably easy to get something
+wrong. We had to make 3 things, a querySet and 2 buffers. We had to change our
+renderPassDescriptor. We had to resolve the results and copy to a mappable
+buffer.</p>
+<p>One way to make this less tedious would be to make a class to helps us do the
+timing. Here’s on example of a helper that might help with some of these issues.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">function assert(cond, msg = '') {
   if (!cond) {
     throw new Error(msg);
@@ -900,9 +897,9 @@ class TimingHelper {
   }
 }
 </pre>
-<p>The asserts are there to helps us not use this class wrong. For example if we end a pass but don’t resolve it. Or if we resolve it but don’t read the result.</p>
-<p>With this class, we can remove much of the code
-we had before.</p>
+<p>The asserts are there to helps us not use this class wrong. For example if we
+end a pass but don’t resolve it or, if we resolve it but don’t read the result.</p>
+<p>With this class, we can remove much of the code we had before.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
   const canTimestamp = adapter.features.has('timestamp-query');
@@ -946,6 +943,11 @@ we had before.</p>
 
     ...
 
+-    const pass = encoder.beginRenderPass(renderPassDescriptor);
++    const pass = timingHelper.beginRenderPass(encoder, renderPassDescriptor);
+
+    ...
+
     pass.end();
 
     -if (canTimestamp) {
@@ -968,7 +970,8 @@ we had before.</p>
 <ul>
 <li>
 <p>You still have to manually request the <code class="notranslate" translate="no">'timestamp-query</code> feature when you
-create your device but the class handles whether it exists or not on the device.</p>
+create your device but the class handles whether it exists or not on the
+device.</p>
 </li>
 <li>
 <p>When you call <code class="notranslate" translate="no">timerHelper.beginRenderPass</code> or <code class="notranslate" translate="no">timerHelper.beginComputePass</code>
@@ -980,7 +983,7 @@ queries.</p>
 <p>It’s designed so if you use it wrong it will complain</p>
 </li>
 <li>
-<p>The only handles 1 pass.</p>
+<p>It only handles 1 pass.</p>
 <p>There are a bunch of tradeoffs here and without more exploration it’s not
 clear what would be best.</p>
 <p>A class that handles multiple passes could be useful but, ideally, you’d use a
@@ -995,7 +998,22 @@ need to handle having multiple <code class="notranslate" translate="no">GPUQuery
 pass and you can build on top of it until you decide it needs to be changed.</p>
 </li>
 </ul>
-<p>In any case, I’ve used this class to time the various
+<p>You could also make a <code class="notranslate" translate="no">NoTimingHelper</code></p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">class NoTimingHelper {
+  constructor() { }
+  beginRenderPass(encoder, descriptor = {}) {
+    return encoder.beginTimestampPass(descriptor);
+  }
+
+  beginComputePass(encoder, descriptor = {}) {
+    return encoder.beginComputePass(descriptor);
+  }
+  async getResult() { return 0; }
+}
+</pre>
+<p>As one possible way to make so you can add timing and turn it off without having
+to change too much code.</p>
+<p>In any case, I’ve used the <code class="notranslate" translate="no">TimingHelper</code> class to time the various
 examples from <a href="webgpu-compute-shaders-histogram.html">the articles on using compute shaders to compute image histograms</a>. Here’s
 a list of them. Since only the video example runs continuously it’s probably
 the best example</p>
@@ -1015,16 +1033,20 @@ the best example</p>
 </ul>
 <div class="webgpu_bottombar">By default the `'timestamp-query'` time values
 are quantized to 100µ seconds. In Chrome, if you enable ["enable-webgpu-developer-features"](chrome://flags/#enable-webgpu-developer-features) in [about:flags]((chrome://flags/#enable-webgpu-developer-features) the time values may not be quantized. This would
-theoretically give you more accurate timings. That said, normally 100µ second quantized values should be enough for you to compare shaders or passes.
+theoretically give you more accurate timings. That said, normally 100µ second quantized values should be enough for you to compare shaders techniques for performance.
 </div>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
-<li id="fn1" class="footnote-item"><p>This only works if the radius of the circle is less than 0.5 <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+<li id="fn1" class="footnote-item"><p><code class="notranslate" translate="no">rAF</code> is short for <code class="notranslate" translate="no">requestAnimationFrame</code> <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn2" class="footnote-item"><p>If some how we were going to
-use the result only on the GPU itself we might
-not need to copy it. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+<li id="fn2" class="footnote-item"><p>This only works if the radius of the circle is less than 0.5
+but it seemed best not to bloat the code with complicated checks for size. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p>Copying the query results to mappable buffer is only for
+the purpose of reading the values from JavaScript. If your use-case only needs the
+results to stay on the GPU, for example as input to something else, then you don’t need
+to copy the results to a mappable buffer. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>
@@ -1060,7 +1082,7 @@ not need to copy it. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
 <li><a href="/webgpu/lessons/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
-<li><a href="/webgpu/lessons/webgpu-timing.html">Timing</a></li>
+<li><a href="/webgpu/lessons/webgpu-timing.html">Timing Performance</a></li>
 <li><a href="/webgpu/lessons/webgpu-wgsl.html">WGSL</a></li>
 <li><a href="/webgpu/lessons/webgpu-how-it-works.html">How It Works</a></li>
         </ul>
@@ -1139,7 +1161,7 @@ not need to copy it. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
         <script>
             var disqus_config = function () {
               this.page.url = `${window.location.origin}${window.location.pathname}`;
-              this.page.identifier = `WebGPU Timing`;
+              this.page.identifier = `WebGPU Timing Performance`;
             };
             (function() { // DON'T EDIT BELOW THIS LINE
                 if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
