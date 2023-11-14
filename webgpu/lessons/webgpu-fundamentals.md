@@ -434,7 +434,7 @@ any data though.
 We then tell the render pipeline to use the `vs` function from our shader module
 for a vertex shader and the `fs` function for our fragment shader. Otherwise, we
 tell it the format of the first render target. "render target" means the texture
-we will render to. We create a pipeline
+we will render to. When we create a pipeline
 we have to specify the format for the texture(s) we'll use this pipeline to
 eventually render to.
 
