@@ -277,7 +277,7 @@ async function main() {
   device.queue.submit([commandBuffer]);
 
   timingHelper.getResult().then(duration => {
-    console.log('duration:', duration);
+    console.log(`duration: ${duration}ns`);
   });
 
   //await resultBuffer.mapAsync(GPUMapMode.READ);

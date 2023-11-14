@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGPU Compute Shaders - Histogram</title>
+    <title>WebGPU Compute Shaders - Histogram, race fixed, draw with JavaScript</title>
     <style>
       @import url(resources/webgpu-lesson.css);
       canvas {
@@ -39,7 +39,7 @@ async function main() {
   const module = device.createShaderModule({
     label: 'histogram shader',
     code: `
-      @group(0) @binding(0) var<storage, read_write> histogram: array<atomic<u32>>;
+      @group(0) @binding(0) var<storage, read_write> bins: array<atomic<u32>>;
       @group(0) @binding(1) var ourTexture: texture_2d<f32>;
 
       const kSRGBLuminanceFactors = vec3f(0.2126, 0.7152, 0.0722);
@@ -49,13 +49,13 @@ async function main() {
 
       @compute @workgroup_size(1, 1, 1)
       fn cs(@builtin(global_invocation_id) global_invocation_id: vec3u) {
-        let position = global_invocation_id.xy;
-        let numBins = f32(arrayLength(&histogram));
+        let numBins = f32(arrayLength(&bins));
         let lastBinIndex = u32(numBins - 1);
+        let position = global_invocation_id.xy;
         let color = textureLoad(ourTexture, position, 0);
         let v = srgbLuminance(color.rgb);
         let bin = min(u32(v * numBins), lastBinIndex);
-        atomicAdd(&histogram[bin], 1u);
+        atomicAdd(&bins[bin], 1u);
       }
     `,
   });
@@ -72,8 +72,9 @@ async function main() {
   const imgBitmap = await loadImageBitmap('resources/images/pexels-francesco-ungaro-96938-mid.jpg'); /* webgpufundamentals: url */
   const texture = createTextureFromSource(device, imgBitmap);
 
+  const numBins = 256;
   const histogramBuffer = device.createBuffer({
-    size: 256 * 4, // 256 entries * 4 bytes per (u32)
+    size: numBins * 4, // 256 entries * 4 bytes per (u32)
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
   });
 
@@ -83,6 +84,7 @@ async function main() {
   });
 
   const bindGroup = device.createBindGroup({
+    label: 'histogram bindGroup',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
       { binding: 0, resource: { buffer: histogramBuffer }},
@@ -90,10 +92,7 @@ async function main() {
     ],
   });
 
-  const encoder = device.createCommandEncoder({
-    label: 'histogram encoder',
-  });
-
+  const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
   const pass = timingHelper.beginComputePass(encoder);
   pass.setPipeline(pipeline);
   pass.setBindGroup(0, bindGroup);
@@ -106,7 +105,7 @@ async function main() {
   device.queue.submit([commandBuffer]);
 
   timingHelper.getResult().then(duration => {
-    console.log('duration:', duration);
+    console.log(`duration: ${duration}ns`);
   });
 
   await resultBuffer.mapAsync(GPUMapMode.READ);

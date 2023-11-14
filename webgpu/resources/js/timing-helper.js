@@ -5,25 +5,28 @@ function assert(cond, msg = '') {
 }
 
 export default class TimingHelper {
-  #device;
   #canTimestamp;
-  #resultBuffer;
-  #resultBuffers = [];
-  #state = 'free';
+  #device;
   #querySet;
   #resolveBuffer;
+  #resultBuffer;
+  #resultBuffers = [];
+  // state can be 'free', 'need resolve', 'wait for result'
+  #state = 'free';
 
   constructor(device) {
     this.#device = device;
     this.#canTimestamp = device.features.has('timestamp-query');
-    this.#querySet = device.createQuerySet({
-       type: 'timestamp',
-       count: 2,
-    });
-    this.#resolveBuffer = device.createBuffer({
-      size: 2 * 8,
-      usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
-    });
+    if (this.#canTimestamp) {
+      this.#querySet = device.createQuerySet({
+         type: 'timestamp',
+         count: 2,
+      });
+      this.#resolveBuffer = device.createBuffer({
+        size: this.#querySet.count * 8,
+        usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
+      });
+    }
   }
 
   #beginTimestampPass(encoder, fnName, descriptor) {
@@ -72,11 +75,11 @@ export default class TimingHelper {
     this.#state = 'wait for result';
 
     this.#resultBuffer = this.#resultBuffers.pop() || this.#device.createBuffer({
-      size: 2 * 8,
+      size: this.#resolveBuffer.size,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
     });
 
-    encoder.resolveQuerySet(this.#querySet, 0, 2, this.#resolveBuffer, 0);
+    encoder.resolveQuerySet(this.#querySet, 0, this.#querySet.count, this.#resolveBuffer, 0);
     encoder.copyBufferToBuffer(this.#resolveBuffer, 0, this.#resultBuffer, 0, this.#resultBuffer.size);
   }
 

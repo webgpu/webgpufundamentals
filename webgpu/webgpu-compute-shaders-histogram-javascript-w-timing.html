@@ -25,7 +25,7 @@ async function main() {
   const numBins = 256;
   const histogram = computeHistogram(numBins, imgData);
   const elapsed = performance.now() - start;
-  console.log(Math.floor(elapsed * 1000 * 1000));
+  console.log(`duration: ${Math.floor(elapsed * 1000 * 1000)}ns`);
 
   showImageBitmap(imgBitmap);
 
@@ -55,7 +55,7 @@ function computeHistogram(numBins, imgData) {
 function drawHistogram(histogram, numEntries, height = 100) {
   const numBins = histogram.length;
   const max = Math.max(...histogram);
-  const scale = Math.max(1 / max, 0.2 * numBins / numEntries);
+  const scale = Math.max(1 / max);//, 0.2 * numBins / numEntries);
 
   const canvas = document.createElement('canvas');
   canvas.width = numBins;

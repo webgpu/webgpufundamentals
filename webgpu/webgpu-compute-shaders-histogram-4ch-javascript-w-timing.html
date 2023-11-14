@@ -21,51 +21,53 @@ async function main() {
   const imgBitmap = await loadImageBitmap('resources/images/pexels-chevanon-photography-1108099.jpg'); /* webgpufundamentals: url */
 
   const imgData = getImageData(imgBitmap);
-const start = performance.now();
+  const start = performance.now();
   const numBins = 256;
   const histogram = computeHistogram(numBins, imgData);
-const elapsed = performance.now() - start;
-console.log(Math.floor(elapsed * 1000 * 1000));
+  const elapsed = performance.now() - start;
+  console.log(`duration: ${Math.floor(elapsed * 1000 * 1000)}ns`);
 
   showImageBitmap(imgBitmap);
 
   // draw the red, green, and blue channels
-  drawHistogram(histogram, [0, 1, 2]);
+  const numEntries = imgData.width * imgData.height;
+  drawHistogram(histogram, numEntries, [0, 1, 2]);
 
   // draw the luminosity channel
-  drawHistogram(histogram, [3]);
+  drawHistogram(histogram, numEntries, [3]);
 }
 
 function computeHistogram(numBins, imgData) {
   const {width, height, data} = imgData;
-  const histogram = new Array(numBins * 4).fill(0);
+  const bins = new Array(numBins * 4).fill(0);
   for (let y = 0; y < height; ++y) {
     for (let x = 0; x < width; ++x) {
       const offset = (y * width + x) * 4;
+
       for (let ch = 0; ch < 4; ++ch) {
         const v = ch < 3
            ? data[offset + ch] / 255
-           : luminance(data, offset);
+           : srgbLuminance(data[offset + 0] / 255,
+                           data[offset + 1] / 255,
+                           data[offset + 2] / 255);
         const bin = Math.min(numBins - 1, v * numBins) | 0;
-        ++histogram[bin * 4 + ch];
+        ++bins[bin * 4 + ch];
       }
     }
   }
-  return histogram;
+  return bins;
 }
 
-function drawHistogram(histogram, channels, height = 100) {
+function drawHistogram(histogram, numEntries, channels, height = 100) {
   // find the highest value for each channel
-  const max = [0, 0, 0, 0];
-  const total = [0, 0, 0, 0];
-  histogram.forEach((v, i) => {
-    const ch = i % 4;
-    max[ch] = Math.max(max[ch], v);
-    total[ch] += v;
-  });
-  console.log('total:', total);
-
   const numBins = histogram.length / 4;
+  const max = [0, 0, 0, 0];
+  histogram.forEach((v, ndx) => {
+    const ch = ndx % 4;
+    max[ch] = Math.max(max[ch], v);
+      });
+  const scale = max.map(max => Math.max(1 / max, 0.2 * numBins / numEntries));
+
   const canvas = document.createElement('canvas');
   canvas.width = numBins;
   canvas.height = height;
@@ -84,8 +86,7 @@ function drawHistogram(histogram, channels, height = 100) {
   for (let x = 0; x < numBins; ++x) {
     const offset = x * 4;
     for (const ch of channels) {
-      const scale = 0.2 * numBins / total[ch];
-      const v = histogram[offset + ch] * scale * height;
+      const v = histogram[offset + ch] * scale[ch] * height;
       ctx.fillStyle = colors[ch];
       ctx.fillRect(x, height - v, 1, v);
     }
@@ -93,15 +94,10 @@ function drawHistogram(histogram, channels, height = 100) {
 }
 
 // from: https://www.w3.org/WAI/GL/wiki/Relative_luminance
-function luminance(data, offset) {
-  const r = data[offset + 0];
-  const g = data[offset + 1];
-  const b = data[offset + 2];
-
-  const l = r * 0.2126 / 255 +
-            g * 0.7152 / 255 +
-            b * 0.0722 / 255;
-  return l;
+function srgbLuminance(r, g, b) {
+  return r * 0.2126 +
+            g * 0.7152 +
+            b * 0.0722;
 }
 
 function getImageData(imgBitmap) {

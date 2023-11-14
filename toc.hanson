@@ -17,6 +17,7 @@
     'webgpu-memory-layout.md',
     'webgpu-copying-data.md',
     'webgpu-limits-and-features.md',
+    'webgpu-timing.md',
     'webgpu-wgsl.md',
     'webgpu-how-it-works.md',
   ],

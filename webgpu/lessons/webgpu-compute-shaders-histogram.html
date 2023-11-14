@@ -605,7 +605,7 @@ our pipeline</p>
 </pre>
 <p>We can now setup the commands to run the compute shader</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
-  const pass = encoder.beginComputePass(encoder);
+  const pass = encoder.beginComputePass();
   pass.setPipeline(pipeline);
   pass.setBindGroup(0, bindGroup);
   pass.dispatchWorkgroups(1);
@@ -613,7 +613,7 @@ our pipeline</p>
 </pre>
 <p>We need to copy the histogram buffer to the result buffer</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
-  const pass = encoder.beginComputePass(encoder);
+  const pass = encoder.beginComputePass();
   pass.setPipeline(pipeline);
   pass.setBindGroup(0, bindGroup);
   pass.dispatchWorkgroups(1);
@@ -623,7 +623,7 @@ our pipeline</p>
 </pre>
 <p>and then execute the commands</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
-  const pass = encoder.beginComputePass(encoder);
+  const pass = encoder.beginComputePass();
   pass.setPipeline(pipeline);
   pass.setBindGroup(0, bindGroup);
   pass.dispatchWorkgroups(1);
@@ -1297,7 +1297,7 @@ dispatches until we’ve reduced things to 1 chunk</p>
 -  pass.setBindGroup(0, chunkSumBindGroup);
 -  pass.dispatchWorkgroups(1);
 +  // reduce the chunks
-+  const pass = encoder.beginComputePass(encoder);
++  const pass = encoder.beginComputePass();
 +  pass.setPipeline(chunkSumPipeline);
 +  let chunksLeft = numChunks;
 +  sumBindGroups.forEach(bindGroup =&gt; {
@@ -1394,6 +1394,7 @@ an image histogram.</p>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
 <li><a href="/webgpu/lessons/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
+<li><a href="/webgpu/lessons/webgpu-timing.html">Timing</a></li>
 <li><a href="/webgpu/lessons/webgpu-wgsl.html">WGSL</a></li>
 <li><a href="/webgpu/lessons/webgpu-how-it-works.html">How It Works</a></li>
         </ul>

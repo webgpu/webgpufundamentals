@@ -137,22 +137,16 @@ async function main() {
   const imgBitmap = await loadImageBitmap('resources/images/pexels-chevanon-photography-1108099.jpg'); /* webgpufundamentals: url */
   const texture = createTextureFromSource(device, imgBitmap);
 
-  const histogramBuffer = device.createBuffer({
-    size: chunkSize * 4 * 4, // 256 entries * 4 (rgba) * 4 bytes per (u32)
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
-  });
-
   const chunksAcross = Math.ceil(texture.width / k.chunkWidth);
   const chunksDown = Math.ceil(texture.height / k.chunkHeight);
   const numChunks = chunksAcross * chunksDown;
-  console.log(numChunks, chunksAcross, chunksDown);
   const chunksBuffer = device.createBuffer({
     size: numChunks * chunkSize * 4 * 4,
     usage: GPUBufferUsage.STORAGE,
   });
 
   const resultBuffer = device.createBuffer({
-    size: histogramBuffer.size,
+    size: chunkSize * 4 * 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   });
 
@@ -168,40 +162,37 @@ async function main() {
     layout: chunkSumPipeline.getBindGroupLayout(0),
     entries: [
       { binding: 0, resource: { buffer: chunksBuffer }},
-      { binding: 1, resource: { buffer: histogramBuffer }},
     ],
   });
 
-  const encoder = device.createCommandEncoder({
-    label: 'histogram encoder',
-  });
+  const encoder = device.createCommandEncoder({ label: 'histogram encoder' });
 
   {
-  const pass = timingHelper.beginComputePass(encoder);
-  pass.setPipeline(histogramChunkPipeline);
-  pass.setBindGroup(0, histogramBindGroup);
-  pass.dispatchWorkgroups(chunksAcross, chunksDown);
-  pass.end();
+    const pass = timingHelper.beginComputePass(encoder);
+    pass.setPipeline(histogramChunkPipeline);
+    pass.setBindGroup(0, histogramBindGroup);
+    pass.dispatchWorkgroups(chunksAcross, chunksDown);
+    pass.end();
   }
 
   {
-  const pass = timingHelper2.beginComputePass(encoder);
-  pass.setPipeline(chunkSumPipeline);
-  pass.setBindGroup(0, chunkSumBindGroup);
-  pass.dispatchWorkgroups(1);
-  pass.end();
+    const pass = timingHelper2.beginComputePass(encoder);
+    pass.setPipeline(chunkSumPipeline);
+    pass.setBindGroup(0, chunkSumBindGroup);
+    pass.dispatchWorkgroups(1);
+    pass.end();
   }
 
-  encoder.copyBufferToBuffer(histogramBuffer, 0, resultBuffer, 0, resultBuffer.size);
+  encoder.copyBufferToBuffer(chunksBuffer, 0, resultBuffer, 0, resultBuffer.size);
 
   const commandBuffer = encoder.finish();
   device.queue.submit([commandBuffer]);
 
   timingHelper.getResult().then(duration => {
-    console.log('duration 1:', duration);
+    console.log(`duration histogram: ${duration}ns`);
   });
   timingHelper2.getResult().then(duration => {
-    console.log('duration 2:', duration);
+    console.log(`duration sum: ${duration}ns`);
   });
 
   await resultBuffer.mapAsync(GPUMapMode.READ);
@@ -215,17 +206,7 @@ async function main() {
   // draw the luminosity channel
   drawHistogram(histogram, [3]);
 
-  const to3 = v => v.toString().padStart(3);
-
-  const sum = [0, 0, 0, 0];
-  for (let i = 0; i < chunkSize; ++i) {
-    const off = i * 4;
-    console.log(to3(i), to3(histogram[off]), to3(histogram[off + 1]), to3(histogram[off + 2]), to3(histogram[off + 3]));
-    for (let j = 0; j < 4; ++j) {
-      sum[j] += histogram[off + j];
-    }
-  }
-  console.log('sum:', sum);
+  resultBuffer.unmap();
 }
 
 function drawHistogram(histogram, channels, height = 100) {

@@ -778,7 +778,7 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
 
     return {
       computeHistogram(encoder, texture) {
-        const pass = encoder.beginComputePass(encoder);
+        const pass = encoder.beginComputePass();
         {
           const histogramBindGroup = device.createBindGroup({
             layout: histogramChunkPipeline.getBindGroupLayout(0),
@@ -948,7 +948,7 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
   observer.observe(canvas);
 
   //timingHelper.getResult().then(duration => {
-  //  console.log('duration 1:', duration);
+  //  console.log(`duration 1: ${duration}ns`);
   //});
 }
 
