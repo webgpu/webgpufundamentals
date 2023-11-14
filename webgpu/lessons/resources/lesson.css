@@ -378,9 +378,10 @@ code {
     color: var(--code-fg-color);
     font-family: var(--code-font-family);
     background-color: var(--code-bg-color);
-    padding: 0.1em 0.2em 0.1em 0.2em;
+    padding: 0.2em 0.4em;
     border-radius: 0.5em;
     white-space: nowrap;
+    font-size: 75%;
 }
 
 .diagram {
