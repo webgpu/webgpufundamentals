@@ -497,7 +497,7 @@ This designates it as a vertex shader function.</p>
          ...
 </pre>
 <p>It accepts one parameter we named <code class="notranslate" translate="no">vertexIndex</code>. <code class="notranslate" translate="no">vertexIndex</code> is a <code class="notranslate" translate="no">u32</code> which
-means a <em>32bit unsigned integer</em>. It gets its value from the builtin called
+means a <em>32-bit unsigned integer</em>. It gets its value from the builtin called
 <code class="notranslate" translate="no">vertex_index</code>. <code class="notranslate" translate="no">vertex_index</code> is the like an iteration number, similar to <code class="notranslate" translate="no">index</code> in
 JavaScript’s <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array.map(function(value, index) { ... })"><code class="notranslate" translate="no">Array.map(function(value, index) { ... })</code></a>. If we tell the GPU to
 execute this function 10 times by calling <code class="notranslate" translate="no">draw</code>, the first time <code class="notranslate" translate="no">vertex_index</code> would be <code class="notranslate" translate="no">0</code>, the
@@ -513,7 +513,7 @@ on the left to +1.0 on the right, and Y goes from -1.0 at the bottom to +1.0 at 
 top. This is true regardless of the size of the texture we are drawing to.</p>
 <div class="webgpu_center"><img src="resources/clipspace.svg" style="width: 500px"></div>
 <p>The <code class="notranslate" translate="no">vs</code> function declares an array of 3 <code class="notranslate" translate="no">vec2f</code>s. Each <code class="notranslate" translate="no">vec2f</code> consists of two
-32bit floating point values.</p>
+32-bit floating point values.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let pos = array(
           vec2f( 0.0,  0.5),  // top center
           vec2f(-0.5, -0.5),  // bottom left
@@ -627,7 +627,7 @@ which would throw away what we draw. We’ll cover why we might want to do that 
 <p>First, we call <code class="notranslate" translate="no">context.getCurrentTexture()</code> to get a texture that will appear in the
 canvas. Calling <code class="notranslate" translate="no">createView</code> gets a view into a specific part of a texture but
 with no parameters, it will return the default part which is what we want in this
-case. For now our only <code class="notranslate" translate="no">colorAttachment</code> is a texture view from our
+case. For now, our only <code class="notranslate" translate="no">colorAttachment</code> is a texture view from our
 canvas which we get via the context we created at the start. Again, element 0 of
 the <code class="notranslate" translate="no">colorAttachments</code> array corresponds to <code class="notranslate" translate="no">@location(0)</code> as we specified for
 the return value of the fragment shader.</p>
@@ -645,12 +645,12 @@ values just returned from the vertex shader.</p>
 <p>We end the render pass, and then finish the encoder. This gives us a
 command buffer that represents the steps we just specified. Finally, we submit
 the command buffer to be executed.</p>
-<p>When the <code class="notranslate" translate="no">draw</code> command is executed, this will be our state</p>
+<p>When the <code class="notranslate" translate="no">draw</code> command is executed, this will be our state.</p>
 <div class="webgpu_center"><img src="resources/webgpu-simple-triangle-diagram.svg" style="width: 723px;"></div>
 <p>We’ve got no textures, no buffers, no bindGroups but we do have a pipeline, a
 vertex and fragment shader, and a render pass descriptor that tells our shader
 to render to the the canvas texture.</p>
-<p>The result</p>
+<p>The result.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle.html" target="_blank">click here to open in a separate window</a>
@@ -661,7 +661,7 @@ to render to the the canvas texture.</p>
 like <code class="notranslate" translate="no">setPipeline</code>, and <code class="notranslate" translate="no">draw</code> only add commands to a command buffer.
 They don’t actually execute the commands. The commands are executed
 when we submit the command buffer to the device queue.</p>
-<p><a id="a-rasterization"></a>WebGPU takes every 3 vertices we return from our vertex shader uses
+<p><a id="a-rasterization"></a>WebGPU takes every 3 vertices we return from our vertex shader and uses
 them to rasterize a triangle. It does this by determining which pixels’
 centers are inside the triangle. It then calls our fragment shader for
 each pixel to ask what color to make it.</p>
@@ -683,8 +683,8 @@ points to take away from the code above,</p>
 <li>WebGPU works by encoding commands and then submitting them.</li>
 </ul>
 <h1 id="run-computations-on-the-gpu"><a id="a-run-computations-on-the-gpu"></a>Run computations on the GPU</h1>
-<p>Let’s write a basic example for doing some computation on the GPU</p>
-<p>We start off with the same code to get a WebGPU device</p>
+<p>Let’s write a basic example for doing some computation on the GPU.</p>
+<p>We start off with the same code to get a WebGPU device.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
   const adapter = await gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
@@ -693,7 +693,7 @@ points to take away from the code above,</p>
     return;
   }
 </pre>
-<p>When we create a shader module</p>
+<p>Then we create a shader module.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'doubling compute module',
     code: `
@@ -712,7 +712,7 @@ points to take away from the code above,</p>
 able to both read from and write to.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
 </pre>
-<p>We declare its type as <code class="notranslate" translate="no">array&lt;f32&gt;</code> which means an array of 32bit floating point
+<p>We declare its type as <code class="notranslate" translate="no">array&lt;f32&gt;</code> which means an array of 32-bit floating point
 values. We tell it we’re going to specify this array on binding location 0 (the
 <code class="notranslate" translate="no">binding(0)</code>) in bindGroup 0 (the <code class="notranslate" translate="no">@group(0)</code>).</p>
 <p>Then we declare a function called <code class="notranslate" translate="no">computeSomething</code> with the <code class="notranslate" translate="no">@compute</code>
@@ -725,7 +725,7 @@ attribute which makes it a compute shader.</p>
 <p>Compute shaders are required to declare a workgroup size which we will cover
 later. For now, we’ll just set it to 1 with the attribute <code class="notranslate" translate="no">@workgroup_size(1)</code>.
 We declare it to have one parameter <code class="notranslate" translate="no">id</code> which uses a <code class="notranslate" translate="no">vec3u</code>. A <code class="notranslate" translate="no">vec3u</code> is
-three unsigned 32 integer values. Like our vertex shader above, this is the
+three unsigned 32-bit integer values. Like our vertex shader above, this is the
 iteration number. It’s different in that compute shader iteration numbers are 3
 dimensional (have 3 values). We declare <code class="notranslate" translate="no">id</code> to get its value from the built-in
 <code class="notranslate" translate="no">global_invocation_id</code>.</p>
@@ -778,12 +778,12 @@ function dispatchWorkgroup(workgroup_id) {
 }
 </pre>
 <p>Finally, we use the <code class="notranslate" translate="no">x</code> property of <code class="notranslate" translate="no">id</code> to index <code class="notranslate" translate="no">data</code> and multiply each value
-by 2</p>
+by 2.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let i = id.x;
         data[i] = data[i] * 2.0;
 </pre>
 <p>Above, <code class="notranslate" translate="no">i</code> is just the first of the 3 iteration numbers.</p>
-<p>Now that we’ve created the shader we need to create a pipeline</p>
+<p>Now that we’ve created the shader, we need to create a pipeline.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createComputePipeline({
     label: 'doubling compute pipeline',
     layout: 'auto',
@@ -796,10 +796,10 @@ by 2</p>
 <p>Here we just tell it we’re using a <code class="notranslate" translate="no">compute</code> stage from the shader <code class="notranslate" translate="no">module</code> we
 created and we want to call the <code class="notranslate" translate="no">computeSomething</code> function. <code class="notranslate" translate="no">layout</code> is
 <code class="notranslate" translate="no">'auto'</code> again, telling WebGPU to figure out the layout from the shaders. <sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup></p>
-<p>Next, we need some data</p>
+<p>Next, we need some data.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const input = new Float32Array([1, 3, 5]);
 </pre>
-<p>That data only exists in JavaScript. For WebGPU to use it we need to make a
+<p>That data only exists in JavaScript. For WebGPU to use it, we need to make a
 buffer that exists on the GPU and copy the data to the buffer.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // create a buffer on the GPU to hold our computation
   // input and output
@@ -811,7 +811,7 @@ buffer that exists on the GPU and copy the data to the buffer.</p>
   // Copy our input data to that buffer
   device.queue.writeBuffer(workBuffer, 0, input);
 </pre>
-<p>Above we call <code class="notranslate" translate="no">device.createBuffer</code> to create a buffer. <code class="notranslate" translate="no">size</code> is the size in
+<p>Above, we call <code class="notranslate" translate="no">device.createBuffer</code> to create a buffer. <code class="notranslate" translate="no">size</code> is the size in
 bytes. In this case, it will be 12 because the size in bytes of a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> of 3
 values is 12. If you’re not familiar with <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> and typed arrays then
 see <a href="webgpu-memory-layout.html">this article</a>.</p>
@@ -841,8 +841,8 @@ and set its flags so we can map it.</p>
   });
 </pre>
 <p><code class="notranslate" translate="no">MAP_READ</code> means we want to be able to map this buffer for reading data.</p>
-<p>In order to tell our shader about the buffer we want it to work on we need to
-create a bindGroup</p>
+<p>In order to tell our shader about the buffer we want it to work on, we need to
+create a bindGroup.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Setup a bindGroup to tell the shader which
   // buffer to use for the computation
   const bindGroup = device.createBindGroup({
@@ -853,11 +853,11 @@ create a bindGroup</p>
     ],
   });
 </pre>
-<p>We get the layout for the bindGroup from the pipeline. Then we setup bindGroup
+<p>We get the layout for the bindGroup from the pipeline. Then we set up bindGroup
 entries. The 0 in <code class="notranslate" translate="no">pipeline.getBindGroupLayout(0)</code> corresponds to the
 <code class="notranslate" translate="no">@group(0)</code> in the shader. The <code class="notranslate" translate="no">{binding: 0 ...</code> of the <code class="notranslate" translate="no">entries</code> corresponds to
 the <code class="notranslate" translate="no">@group(0) @binding(0)</code> in the shader.</p>
-<p>Now we can start encoding commands</p>
+<p>Now we can start encoding commands.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Encode commands to do the computation
   const encoder = device.createCommandEncoder({
     label: 'doubling encoder',
@@ -875,10 +875,10 @@ we set the bindGroup. Here, the <code class="notranslate" translate="no">0</code
 corresponds to <code class="notranslate" translate="no">@group(0)</code> in the shader. We then call <code class="notranslate" translate="no">dispatchWorkgroups</code> and in
 this case, we pass it <code class="notranslate" translate="no">input.length</code> which is <code class="notranslate" translate="no">3</code> telling WebGPU to run the
 compute shader 3 times. We then end the pass.</p>
-<p>Here’s what the situation will be when <code class="notranslate" translate="no">dispatchWorkgroups</code> is executed</p>
+<p>Here’s what the situation will be when <code class="notranslate" translate="no">dispatchWorkgroups</code> is executed.</p>
 <div class="webgpu_center"><img src="resources/webgpu-simple-compute-diagram.svg" style="width: 553px;"></div>
 <p>After the computation is finished we ask WebGPU to copy from <code class="notranslate" translate="no">workBuffer</code> to
-<code class="notranslate" translate="no">resultBuffer</code></p>
+<code class="notranslate" translate="no">resultBuffer</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Encode a command to copy the results to a mappable buffer.
   encoder.copyBufferToBuffer(workBuffer, 0, resultBuffer, 0, resultBuffer.size);
 </pre>
@@ -888,7 +888,7 @@ command buffer.</p>
   const commandBuffer = encoder.finish();
   device.queue.submit([commandBuffer]);
 </pre>
-<p>We then map the results buffer and get a copy of the data</p>
+<p>We then map the results buffer and get a copy of the data.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Read the results
   await resultBuffer.mapAsync(GPUMapMode.READ);
   const result = new Float32Array(resultBuffer.getMappedRange());
@@ -898,12 +898,12 @@ command buffer.</p>
 
   resultBuffer.unmap();
 </pre>
-<p>To map the results buffer we call <code class="notranslate" translate="no">mapAsync</code> and have to <code class="notranslate" translate="no">await</code> for it to
+<p>To map the results buffer, we call <code class="notranslate" translate="no">mapAsync</code> and have to <code class="notranslate" translate="no">await</code> for it to
 finish. Once mapped, we can call <code class="notranslate" translate="no">resultBuffer.getMappedRange()</code> which with no
 parameters will return an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> of the entire buffer. We put that in a
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> typed array view and then we can look at the values. One
 important detail, the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> returned by <code class="notranslate" translate="no">getMappedRange</code> is only valid
-until we call <code class="notranslate" translate="no">unmap</code>. After <code class="notranslate" translate="no">unmap</code> its length with be set to 0 and its data
+until we call <code class="notranslate" translate="no">unmap</code>. After <code class="notranslate" translate="no">unmap</code>, its length with be set to 0 and its data
 no longer accessible.</p>
 <p>Running that we can see we got the result back, all the numbers have been
 doubled.</p>
@@ -927,7 +927,7 @@ CPU can do in parallel.</p>
 basic support for resizing a canvas. Sizing a canvas is actually a topic that
 can have many subtleties so <a href="webgpu-resizing-the-canvas.html">there is an entire article on it</a>.
 For now though let’s just add some basic support.</p>
-<p>First, we’ll add some CSS to make our canvas fill the page</p>
+<p>First, we’ll add some CSS to make our canvas fill the page.</p>
 <pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;style&gt;
 html, body {
   margin: 0;       /* remove the default margin          */
@@ -1092,7 +1092,7 @@ that form a cube), and a few other things but the most common textures are 2D re
 <li id="fn4" class="footnote-item"><p>We can also use an index buffer to specify <code class="notranslate" translate="no">vertex_index</code>.
 This is covered in <a href="webgpu-vertex-buffers.html#a-index-buffers">the article on vertex-buffers</a>. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code> is convenient but, it’s impossible to share bind groups
+<li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code> is convenient but it’s impossible to share bind groups
 across pipelines using <code class="notranslate" translate="no">layout: 'auto'</code>. Most of the examples on this site
 never use a bind group with multiple pipelines. We’ll cover explicit layouts in <a href="webgpu-drawing-multiple-things.html">another article</a>. <a href="#fnref5" class="footnote-backref">↩︎</a></p>
 </li>
