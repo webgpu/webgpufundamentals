@@ -330,7 +330,7 @@ This designates it as a vertex shader function.
 ```
 
 It accepts one parameter we named `vertexIndex`. `vertexIndex` is a `u32` which
-means a *32bit unsigned integer*. It gets its value from the builtin called
+means a *32-bit unsigned integer*. It gets its value from the builtin called
 `vertex_index`. `vertex_index` is the like an iteration number, similar to `index` in
 JavaScript's `Array.map(function(value, index) { ... })`. If we tell the GPU to
 execute this function 10 times by calling `draw`, the first time `vertex_index` would be `0`, the
@@ -353,7 +353,7 @@ top. This is true regardless of the size of the texture we are drawing to.
 <div class="webgpu_center"><img src="resources/clipspace.svg" style="width: 500px"></div>
 
 The `vs` function declares an array of 3 `vec2f`s. Each `vec2f` consists of two
-32bit floating point values.
+32-bit floating point values.
 
 ```wgsl
         let pos = array(
@@ -498,7 +498,7 @@ Now it's time to render.
 First, we call `context.getCurrentTexture()` to get a texture that will appear in the
 canvas. Calling `createView` gets a view into a specific part of a texture but
 with no parameters, it will return the default part which is what we want in this
-case. For now our only `colorAttachment` is a texture view from our
+case. For now, our only `colorAttachment` is a texture view from our
 canvas which we get via the context we created at the start. Again, element 0 of
 the `colorAttachments` array corresponds to `@location(0)` as we specified for
 the return value of the fragment shader.
@@ -521,7 +521,7 @@ We end the render pass, and then finish the encoder. This gives us a
 command buffer that represents the steps we just specified. Finally, we submit
 the command buffer to be executed.
 
-When the `draw` command is executed, this will be our state
+When the `draw` command is executed, this will be our state.
 
 <div class="webgpu_center"><img src="resources/webgpu-simple-triangle-diagram.svg" style="width: 723px;"></div>
 
@@ -529,7 +529,7 @@ We've got no textures, no buffers, no bindGroups but we do have a pipeline, a
 vertex and fragment shader, and a render pass descriptor that tells our shader
 to render to the the canvas texture.
 
-The result
+The result.
 
 {{{example url="../webgpu-simple-triangle.html"}}}
 
@@ -538,7 +538,7 @@ like `setPipeline`, and `draw` only add commands to a command buffer.
 They don't actually execute the commands. The commands are executed
 when we submit the command buffer to the device queue.
 
-<a id="a-rasterization"></a>WebGPU takes every 3 vertices we return from our vertex shader uses
+<a id="a-rasterization"></a>WebGPU takes every 3 vertices we return from our vertex shader and uses
 them to rasterize a triangle. It does this by determining which pixels'
 centers are inside the triangle. It then calls our fragment shader for
 each pixel to ask what color to make it.
@@ -564,9 +564,9 @@ points to take away from the code above,
 
 # <a id="a-run-computations-on-the-gpu"></a>Run computations on the GPU
 
-Let's write a basic example for doing some computation on the GPU
+Let's write a basic example for doing some computation on the GPU.
 
-We start off with the same code to get a WebGPU device
+We start off with the same code to get a WebGPU device.
 
 ```js
 async function main() {
@@ -578,7 +578,7 @@ async function main() {
   }
 ```
 
-When we create a shader module
+Then we create a shader module.
 
 ```js
   const module = device.createShaderModule({
@@ -603,7 +603,7 @@ able to both read from and write to.
       @group(0) @binding(0) var<storage, read_write> data: array<f32>;
 ```
 
-We declare its type as `array<f32>` which means an array of 32bit floating point
+We declare its type as `array<f32>` which means an array of 32-bit floating point
 values. We tell it we're going to specify this array on binding location 0 (the
 `binding(0)`) in bindGroup 0 (the `@group(0)`).
 
@@ -620,7 +620,7 @@ attribute which makes it a compute shader.
 Compute shaders are required to declare a workgroup size which we will cover
 later. For now, we'll just set it to 1 with the attribute `@workgroup_size(1)`.
 We declare it to have one parameter `id` which uses a `vec3u`. A `vec3u` is
-three unsigned 32 integer values. Like our vertex shader above, this is the
+three unsigned 32-bit integer values. Like our vertex shader above, this is the
 iteration number. It's different in that compute shader iteration numbers are 3
 dimensional (have 3 values). We declare `id` to get its value from the built-in
 `global_invocation_id`.
@@ -680,7 +680,7 @@ function dispatchWorkgroup(workgroup_id) {
 ```
 
 Finally, we use the `x` property of `id` to index `data` and multiply each value
-by 2
+by 2.
 
 ```wgsl
         let i = id.x;
@@ -689,7 +689,7 @@ by 2
 
 Above, `i` is just the first of the 3 iteration numbers.
 
-Now that we've created the shader we need to create a pipeline
+Now that we've created the shader, we need to create a pipeline.
 
 ```js
   const pipeline = device.createComputePipeline({
@@ -706,17 +706,17 @@ Here we just tell it we're using a `compute` stage from the shader `module` we
 created and we want to call the `computeSomething` function. `layout` is
 `'auto'` again, telling WebGPU to figure out the layout from the shaders. [^layout-auto]
 
-[^layout-auto]: `layout: 'auto'` is convenient but, it's impossible to share bind groups
+[^layout-auto]: `layout: 'auto'` is convenient but it's impossible to share bind groups
 across pipelines using `layout: 'auto'`. Most of the examples on this site
 never use a bind group with multiple pipelines. We'll cover explicit layouts in [another article](webgpu-drawing-multiple-things.html).
 
-Next, we need some data
+Next, we need some data.
 
 ```js
   const input = new Float32Array([1, 3, 5]);
 ```
 
-That data only exists in JavaScript. For WebGPU to use it we need to make a
+That data only exists in JavaScript. For WebGPU to use it, we need to make a
 buffer that exists on the GPU and copy the data to the buffer.
 
 ```js
@@ -731,7 +731,7 @@ buffer that exists on the GPU and copy the data to the buffer.
   device.queue.writeBuffer(workBuffer, 0, input);
 ```
 
-Above we call `device.createBuffer` to create a buffer. `size` is the size in
+Above, we call `device.createBuffer` to create a buffer. `size` is the size in
 bytes. In this case, it will be 12 because the size in bytes of a `Float32Array` of 3
 values is 12. If you're not familiar with `Float32Array` and typed arrays then
 see [this article](webgpu-memory-layout.html).
@@ -769,8 +769,8 @@ and set its flags so we can map it.
 
 `MAP_READ` means we want to be able to map this buffer for reading data.
 
-In order to tell our shader about the buffer we want it to work on we need to
-create a bindGroup
+In order to tell our shader about the buffer we want it to work on, we need to
+create a bindGroup.
 
 ```js
   // Setup a bindGroup to tell the shader which
@@ -784,12 +784,12 @@ create a bindGroup
   });
 ```
 
-We get the layout for the bindGroup from the pipeline. Then we setup bindGroup
+We get the layout for the bindGroup from the pipeline. Then we set up bindGroup
 entries. The 0 in `pipeline.getBindGroupLayout(0)` corresponds to the
 `@group(0)` in the shader. The `{binding: 0 ...` of the `entries` corresponds to
 the `@group(0) @binding(0)` in the shader.
 
-Now we can start encoding commands
+Now we can start encoding commands.
 
 ```js
   // Encode commands to do the computation
@@ -811,12 +811,12 @@ corresponds to `@group(0)` in the shader. We then call `dispatchWorkgroups` and 
 this case, we pass it `input.length` which is `3` telling WebGPU to run the
 compute shader 3 times. We then end the pass.
 
-Here's what the situation will be when `dispatchWorkgroups` is executed
+Here's what the situation will be when `dispatchWorkgroups` is executed.
 
 <div class="webgpu_center"><img src="resources/webgpu-simple-compute-diagram.svg" style="width: 553px;"></div>
 
 After the computation is finished we ask WebGPU to copy from `workBuffer` to
-`resultBuffer`
+`resultBuffer`.
 
 ```js
   // Encode a command to copy the results to a mappable buffer.
@@ -832,7 +832,7 @@ command buffer.
   device.queue.submit([commandBuffer]);
 ```
 
-We then map the results buffer and get a copy of the data
+We then map the results buffer and get a copy of the data.
 
 ```js
   // Read the results
@@ -845,12 +845,12 @@ We then map the results buffer and get a copy of the data
   resultBuffer.unmap();
 ```
 
-To map the results buffer we call `mapAsync` and have to `await` for it to
+To map the results buffer, we call `mapAsync` and have to `await` for it to
 finish. Once mapped, we can call `resultBuffer.getMappedRange()` which with no
 parameters will return an `ArrayBuffer` of the entire buffer. We put that in a
 `Float32Array` typed array view and then we can look at the values. One
 important detail, the `ArrayBuffer` returned by `getMappedRange` is only valid
-until we call `unmap`. After `unmap` its length with be set to 0 and its data
+until we call `unmap`. After `unmap`, its length with be set to 0 and its data
 no longer accessible.
 
 Running that we can see we got the result back, all the numbers have been
@@ -876,7 +876,7 @@ basic support for resizing a canvas. Sizing a canvas is actually a topic that
 can have many subtleties so [there is an entire article on it](webgpu-resizing-the-canvas.html).
 For now though let's just add some basic support.
 
-First, we'll add some CSS to make our canvas fill the page
+First, we'll add some CSS to make our canvas fill the page.
 
 ```html
 <style>
