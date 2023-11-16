@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>WebGPU WGSL Offset Computer</title>
     <meta name="description" content="WebGPU WGSL Offset Computer">
     <meta name="keywords" content="webgpu graphics">
@@ -164,12 +166,26 @@
         margin-top: 0 !important;
         margin-bottom: 0 !important;
       }
+      pre.prettyprint, code.prettyprint, .dos {
+        width: inherit;
+      }
+
       @media (prefers-color-scheme: light) {
         pre.prettyprint {
           filter: invert(1) brightness(1.2);
         }
       }
-
+      @media (max-width: 860px) {
+        #info,
+        #ui-split>.v-sep {
+          display: none;
+        }
+      }
+      @media (max-width: 800px) {
+        #split {
+          flex-direction: column;
+        }
+      }
     </style>
   </head>
   <body>
@@ -205,7 +221,7 @@
                     </div>
                   </div>
                   <div class="v-sep"></div>
-                  <div class="ui-area">
+                  <div id="info" class="ui-area">
                     This site is useful for <a href="https://webgpufundamentals.org/webgpu/lessons/webgpu-memory-layout.html">understanding WGSL offsets</a>.
                     There's a useful <a href="https://github.com/greggman/webgpu-utils">runtime library</a> for this too.
                   </div>
