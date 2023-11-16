@@ -1,4 +1,4 @@
-/* webgpu-utils@0.14.1, license MIT */
+/* webgpu-utils@0.14.2, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
 
 class TypedArrayViewGenerator {
@@ -65,9 +65,9 @@ const b = {
 };
 const typeInfo = {
     ...b,
-    'vec2<i32>': b.vec2f,
-    'vec2<u32>': b.vec2i,
-    'vec2<f32>': b.vec2u,
+    'vec2<i32>': b.vec2i,
+    'vec2<u32>': b.vec2u,
+    'vec2<f32>': b.vec2f,
     'vec2<f16>': b.vec2h,
     'vec3<i32>': b.vec3i,
     'vec3<u32>': b.vec3u,
@@ -1889,7 +1889,7 @@ class WgslScanner {
             if (lexeme == ">" && (nextLexeme == ">" || nextLexeme == "=")) {
                 let foundLessThan = false;
                 let ti = this._tokens.length - 1;
-                for (let count = 0; count < 5 && ti >= 0; ++count, --ti) {
+                for (let count = 0; count < 4 && ti >= 0; ++count, --ti) {
                     if (this._tokens[ti].type === TokenTypes.tokens.less_than) {
                         if (ti > 0 && this._tokens[ti - 1].isArrayOrTemplateType()) {
                             foundLessThan = true;
@@ -2975,10 +2975,6 @@ class WgslParser {
             }
             return new Type(type.toString());
         }
-        // texture_sampler_types
-        let type = this._texture_sampler_types();
-        if (type)
-            return type;
         if (this._check(TokenTypes.template_types)) {
             let type = this._advance().toString();
             let format = null;
@@ -3005,6 +3001,10 @@ class WgslParser {
             this._consume(TokenTypes.tokens.greater_than, "Expected '>' for pointer.");
             return new PointerType(pointer, storage.toString(), decl, access);
         }
+        // texture_sampler_types
+        let type = this._texture_sampler_types();
+        if (type)
+            return type;
         // The following type_decl's have an optional attribyte_list*
         const attrs = this._attribute();
         // attribute* array
@@ -3193,10 +3193,9 @@ class ArrayInfo extends TypeInfo {
     }
 }
 class TemplateInfo extends TypeInfo {
-    constructor(name, format, attributes, access) {
+    constructor(name, format, attributes) {
         super(name, attributes);
         this.format = format;
-        this.access = access;
     }
     get isTemplate() {
         return true;
@@ -3208,17 +3207,15 @@ var ResourceType;
     ResourceType[ResourceType["Storage"] = 1] = "Storage";
     ResourceType[ResourceType["Texture"] = 2] = "Texture";
     ResourceType[ResourceType["Sampler"] = 3] = "Sampler";
-    ResourceType[ResourceType["StorageTexture"] = 4] = "StorageTexture";
 })(ResourceType || (ResourceType = {}));
 class VariableInfo {
-    constructor(name, type, group, binding, attributes, resourceType, access) {
+    constructor(name, type, group, binding, attributes, resourceType) {
         this.name = name;
         this.type = type;
         this.group = group;
         this.binding = binding;
         this.attributes = attributes;
         this.resourceType = resourceType;
-        this.access = access;
     }
     get isArray() {
         return this.type.isArray;
@@ -3328,12 +3325,6 @@ class WgslReflect {
             this.update(code);
         }
     }
-    _isStorageTexture(type) {
-        return (type.name == "texture_storage_1d" ||
-            type.name == "texture_storage_2d" ||
-            type.name == "texture_storage_2d_array" ||
-            type.name == "texture_storage_3d");
-    }
     update(code) {
         const parser = new WgslParser();
         const ast = parser.parse(code);
@@ -3343,61 +3334,47 @@ class WgslReflect {
                 if (info instanceof StructInfo) {
                     this.structs.push(info);
                 }
-                continue;
             }
             if (node instanceof Alias) {
                 this.aliases.push(this._getAliasInfo(node));
-                continue;
             }
             if (node instanceof Override) {
                 const v = node;
                 const id = this._getAttributeNum(v.attributes, "id", 0);
                 const type = v.type != null ? this._getTypeInfo(v.type, v.attributes) : null;
                 this.overrides.push(new OverrideInfo(v.name, type, v.attributes, id));
-                continue;
             }
             if (this._isUniformVar(node)) {
                 const v = node;
                 const g = this._getAttributeNum(v.attributes, "group", 0);
                 const b = this._getAttributeNum(v.attributes, "binding", 0);
                 const type = this._getTypeInfo(v.type, v.attributes);
-                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Uniform, v.access);
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Uniform);
                 this.uniforms.push(varInfo);
-                continue;
             }
             if (this._isStorageVar(node)) {
                 const v = node;
                 const g = this._getAttributeNum(v.attributes, "group", 0);
                 const b = this._getAttributeNum(v.attributes, "binding", 0);
                 const type = this._getTypeInfo(v.type, v.attributes);
-                const isStorageTexture = this._isStorageTexture(type);
-                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, isStorageTexture ? ResourceType.StorageTexture : ResourceType.Storage, v.access);
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Storage);
                 this.storage.push(varInfo);
-                continue;
             }
             if (this._isTextureVar(node)) {
                 const v = node;
                 const g = this._getAttributeNum(v.attributes, "group", 0);
                 const b = this._getAttributeNum(v.attributes, "binding", 0);
                 const type = this._getTypeInfo(v.type, v.attributes);
-                const isStorageTexture = this._isStorageTexture(type);
-                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, isStorageTexture ? ResourceType.StorageTexture : ResourceType.Texture, v.access);
-                if (isStorageTexture) {
-                    this.storage.push(varInfo);
-                }
-                else {
-                    this.textures.push(varInfo);
-                }
-                continue;
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Texture);
+                this.textures.push(varInfo);
             }
             if (this._isSamplerVar(node)) {
                 const v = node;
                 const g = this._getAttributeNum(v.attributes, "group", 0);
                 const b = this._getAttributeNum(v.attributes, "binding", 0);
                 const type = this._getTypeInfo(v.type, v.attributes);
-                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Sampler, v.access);
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Sampler);
                 this.samplers.push(varInfo);
-                continue;
             }
             if (node instanceof Function) {
                 const vertexStage = this._getAttribute(node, "vertex");
@@ -3410,7 +3387,6 @@ class WgslReflect {
                     fn.outputs = this._getOutputs(node.returnType);
                     this.entry[stage.name].push(fn);
                 }
-                continue;
             }
         }
     }
@@ -3576,23 +3552,10 @@ class WgslReflect {
             this._updateTypeInfo(info);
             return info;
         }
-        if (type instanceof SamplerType) {
-            const s = type;
-            const formatIsType = s.format instanceof Type;
-            const format = s.format
-                ? formatIsType
-                    ? this._getTypeInfo(s.format, null)
-                    : new TypeInfo(s.format, null)
-                : null;
-            const info = new TemplateInfo(s.name, format, attributes, s.access);
-            this._types.set(type, info);
-            this._updateTypeInfo(info);
-            return info;
-        }
         if (type instanceof TemplateType) {
             const t = type;
             const format = t.format ? this._getTypeInfo(t.format, null) : null;
-            const info = new TemplateInfo(t.name, format, attributes, t.access);
+            const info = new TemplateInfo(t.name, format, attributes);
             this._types.set(type, info);
             this._updateTypeInfo(info);
             return info;
