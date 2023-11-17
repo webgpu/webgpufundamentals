@@ -470,7 +470,7 @@ And here it is
 
 {{{example url="../webgpu-simple-textured-quad-import.html"}}}
 
-## Loading Canvas
+## <a id="a-loading-canvas"></a> Loading Canvas
 
 `copyExternalImageToTexture` takes other *sources*. Another is an `HTMLCanvasElement`.
 We can use this to draw things in a 2d canvas, and then get the result in a texture in WebGPU.
