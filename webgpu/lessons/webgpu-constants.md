@@ -2,8 +2,8 @@ Title: WebGPU Shader Constants
 Description: The fundamentals of WebGPU
 TOC: Constants
 
-I'm not sure this topic deserves to considered an input to the shader.
-But, from one point of view it is so lets cover it.
+I'm not sure this topic deserves to be considered an input to the shader.
+But, from one point of view it is, so lets cover it.
 
 Constants, or more formally, *pipeline-overridable constants* are a type
 of constant you declare in your shader but you can change when you use
@@ -131,5 +131,5 @@ In any case, it is one way to get some small amount of data into a shader.
 
 It is **not** common to use pipeline overridable constants to pass in a color.
 That example was used because it's easy to understand and to show the results.
-It would instead be useful for an iteration count, the size of an array (for
+It *might* be useful for an iteration count, the size of an array (for
 example the number of lights), etc...
