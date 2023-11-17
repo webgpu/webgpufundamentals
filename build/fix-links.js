@@ -36,7 +36,7 @@ module.exports = function fixLinks(html) {
   //   Figure out how to check for device.fn, encoder.fn, pass.fn
   function getKeywordLink(keyword) {
     const dotNdx = keyword.indexOf('.');
-    if (dotNdx) {
+    if (dotNdx > 2) {
       if (keyword.startsWith('GPU')) {
         return undefined;
       }
@@ -61,7 +61,7 @@ module.exports = function fixLinks(html) {
   });
 
   const methodPropertyRE = /^(\w+)\.(\w+)$/;
-  const classRE = /^(\w+)$/;
+  const classRE = /^(?:\.\.\/|)(\w+)$/;
   $('a').each(function() {
     const href = this.getAttribute('href');
     if (!href) {
@@ -73,10 +73,13 @@ module.exports = function fixLinks(html) {
       if (codeKeywordLink) {
         this.setAttribute('href', `${codeKeywordLink}#${m[2]}`);
       }
-    } else if (classRE.test(href)) {
-      const codeKeywordLink = getKeywordLink(href);
-      if (codeKeywordLink) {
-        this.setAttribute('href', codeKeywordLink);
+    } else {
+      const m = classRE.exec(href);
+      if (m) {
+        const codeKeywordLink = getKeywordLink(m[1]);
+        if (codeKeywordLink) {
+          this.setAttribute('href', codeKeywordLink);
+        }
       }
     }
   });
