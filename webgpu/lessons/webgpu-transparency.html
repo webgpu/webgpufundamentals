@@ -229,20 +229,22 @@ to do for one situation is different than for another. So, this article
 will mostly be a tour of WebGPU features so we can refer back here when
 we cover specific techniques.</p>
 <h2 id="canvas-alphamode"><a href="a-alphamode"></a> Canvas <code class="notranslate" translate="no">alphaMode</code></h2>
-<p>The first thing we need to be aware of, there’s in transparent and blending within WebGPU
-but there is also transparency and blending with a WebGPU canvas the the HTML page.</p>
+<p>The first thing we need to be aware of, there is transparent and blending within WebGPU
+but there is also transparency and blending with a WebGPU canvas and the HTML page.</p>
 <p>By default a WebGPU canvas is opaque. Its alpha channel is ignored. To make it not
-ignored we have to set its <code class="notranslate" translate="no">alphaMode</code> to <code class="notranslate" translate="no">'premultiplied'</code> when we call <code class="notranslate" translate="no">configure</code>. The default is <code class="notranslate" translate="no">'opaque'</code></p>
+ignored we have to set its <code class="notranslate" translate="no">alphaMode</code> to <code class="notranslate" translate="no">'premultiplied'</code> when we call <code class="notranslate" translate="no">configure</code>.
+The default is <code class="notranslate" translate="no">'opaque'</code></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  context.configure({
     device,
     format: presentationFormat,
 +    alphaMode: 'premultiplied',
   });
 </pre>
-<p>It’s important to understand what <code class="notranslate" translate="no">alphaMode: 'premultiplied'</code> means. It means, the colors you put in the canvas must have their
-color values already multiplied by the alpha value.</p>
-<p>Let’s make the smallest example we can. We’ll just create
-a render pass and set the clear color.</p>
+<p>It’s important to understand what <code class="notranslate" translate="no">alphaMode: 'premultiplied'</code> means. It means,
+the colors you put in the canvas must have their color values already multiplied
+by the alpha value.</p>
+<p>Let’s make the smallest example we can. We’ll just create a render pass and set
+the clear color.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
@@ -312,7 +314,7 @@ a render pass and set the clear color.</p>
   background-position: 0 0, 0 16px, 16px -16px, -16px 0px;
 }
 </pre>
-<p>To that let’s add a GUI so we can set the alpha and color of
+<p>To that let’s add a UI so we can set the alpha and color of
 the clear value as well as whether or not it’s premultiplied</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+import GUI from '/3rdparty/muigui-0.x.module.js';
 
@@ -367,10 +369,10 @@ the clear value as well as whether or not it’s premultiplied</p>
 <p>What colors appear here is <strong>UNDEFINED</strong>!!!</p>
 <p>On my machine I got these colors</p>
 <img src="resources/canvas-invalid-color.png" class="center" style="width: 440px">
-<p>Do you see what’s wrong? We have the alpha set to 0.01. The background colors are supposed to be medium and dark gray.
-The color is set to red (1, 0, 0). Putting 0.01 amount of red
-on top of a medium/dark gray checkerboard should be nearly
-imperceptible so why is it 2 bright shades of pink?</p>
+<p>Do you see what’s wrong? We have the alpha set to 0.01. The background colors
+are supposed to be medium and dark gray. The color is set to red (1, 0, 0).
+Putting 0.01 amount of red on top of a medium/dark gray checkerboard should be
+nearly imperceptible so why is it 2 bright shades of pink?</p>
 <p>The reason is, <strong>THIS IS AN ILLEGAL COLOR!</strong>. The color of
 our canvas is <code class="notranslate" translate="no">1, 0, 0, 0.01</code> but that is not a premultiplied
 color. “premultiplied” means the colors we put in the canvas
@@ -388,7 +390,7 @@ happens with illegal colors so don’t use illegal colors and
 expect the same results across devices.</p>
 </blockquote>
 <p>Let’s say our color is 1, 0.5, 0.25 which is orange and we want it to be 33%
-transparent so our alpha is 0.33. Then our “premultiplied color” would be</p>
+transparent so our alpha is 0.33. Then, our “premultiplied color” would be</p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">                      premultiplied
    ---------------------------------
    r = 1    * 0.33   = 0.33
@@ -400,11 +402,13 @@ transparent so our alpha is 0.33. Then our “premultiplied color” would be</p
 colors then in the shader you could premultiply with code like this.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">   return vec4f(color.rgb * color.a, color.a)`;
 </pre>
-<p>The function, <code class="notranslate" translate="no">copyExternalImageToTexture</code> which we covered in <a href="webgpu-importing-textures.html">the article on importing textures</a> takes a <code class="notranslate" translate="no">premultipliedAlpha: true</code> option.
-(<a href="#copyExternalImageToTexture">see below</a>) This means when you
-load the image into the texture by calling <code class="notranslate" translate="no">copyExternalImageToTexture</code> you can tell WebGPU to
-premultiply the colors for you as it copies them to the texture so when
-you call <code class="notranslate" translate="no">textureSample</code> the value you get will already be premultiplied.</p>
+<p>The function, <code class="notranslate" translate="no">copyExternalImageToTexture</code> which we covered in
+<a href="webgpu-importing-textures.html">the article on importing textures</a>
+takes a <code class="notranslate" translate="no">premultipliedAlpha: true</code> option. (<a href="#copyExternalImageToTexture">see below</a>)
+This means when you load the image into the texture by calling
+<code class="notranslate" translate="no">copyExternalImageToTexture</code> you can tell WebGPU to premultiply the colors for
+you as it copies them to the texture. That way when you call <code class="notranslate" translate="no">textureSample</code> the value
+you get will already be premultiplied.</p>
 <p>The point of this section was</p>
 <ol>
 <li>
@@ -423,6 +427,9 @@ the shader itself. We might run a post processing pass
 to premultiply the colors. What’s important is that
 the colors in the canvas, one way or another, end up
 premultiplied if we’re using <code class="notranslate" translate="no">alphaMode: 'premultiplied'</code></p>
+<p>A good reference for other premultiplied vs un-premultiplied
+colors is this article:
+<a href="https://www.realtimerendering.com/blog/gpus-prefer-premultiplication/">GPUs prefer premultiplication</a>.</p>
 </li>
 </ol>
 <h2 id="discard"><a href="a-discard"></a> Discard</h2>
@@ -430,9 +437,9 @@ premultiplied if we’re using <code class="notranslate" translate="no">alphaMod
 shader to discard the current fragment or in other words, to
 not draw a pixel.</p>
 <p>Let’s take our example that draws a checkerboard in the fragment
-shader using the <code class="notranslate" translate="no">@builtin(position)</code> from <a href="webgpu-inter-stage-variables.html#a-builtin-position">the article on inter-stage variables</a></p>
-<p>Instead of drawing a 2 color checkerboard, we’ll call discard
-for one of the two cases</p>
+shader using the <code class="notranslate" translate="no">@builtin(position)</code> from <a href="webgpu-inter-stage-variables.html#a-builtin-position">the article on inter-stage variables</a>.</p>
+<p>Instead of drawing a 2 color checkerboard, we’ll discard
+for one of the two cases.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
 -  let red = vec4f(1, 0, 0, 1);
   let cyan = vec4f(0, 1, 1, 1);
@@ -484,8 +491,8 @@ to <code class="notranslate" translate="no">[0, 0, 0, 0]</code></p>
 <p></p>
 <p>You should see that every other square is “transparent” in that
 it wasn’t even drawn.</p>
-<p>It’s common in a shader used in transparency to discard based
-on the alpha level. Something like</p>
+<p>It’s common in a shader used for transparency to discard based
+on the alpha value. Something like</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
     let color = ... compute a color ....
 
@@ -506,20 +513,67 @@ leaves, or grass behind the thing we’re currently drawing will be drawn, even 
 the alpha value is 0 because we’ll still be updating the depth texture. So,
 instead of drawing we discard. We’ll over this more in another article.</p>
 <h2 id="blend-settings"><a href="a-blending"></a> Blend Settings</h2>
-<p>Finally we get to blend settings.
-When you create a render pipeline, for each <code class="notranslate" translate="no">target</code> in the fragment shader, you can set blending
-state.</p>
-<p>The full list of default settings are</p>
-<pre class="prettyprint showlinemods notranslate notranslate" translate="no">blend: {
+<p>Finally we get to blend settings. When you create a render pipeline, for each
+<code class="notranslate" translate="no">target</code> in the fragment shader, you can set blending state. In other words,
+here’s a typical pipeline from our other examples so far</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    const pipeline = device.createRenderPipeline({
+      label: 'hardcoded textured quad pipeline',
+      layout: pipelineLayout,
+      vertex: {
+        module,
+        entryPoint: 'vs',
+      },
+      fragment: {
+        module,
+        entryPoint: 'fs',
+        targets: [
+          {
+            format: presentationFormat,
+          },
+        ],
+      },
+    });
+</pre>
+<p>And here it is with blending added to <code class="notranslate" translate="no">target[0]</code>.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    const pipeline = device.createRenderPipeline({
+      label: 'hardcoded textured quad pipeline',
+      layout: pipelineLayout,
+      vertex: {
+        module,
+        entryPoint: 'vs',
+      },
+      fragment: {
+        module,
+        entryPoint: 'fs',
+        targets: [
+          {
+            format: presentationFormat,
++            blend: {
++              color: {
++                srcFactor: 'one',
++                dstFactor: 'one-minus-src-alpha'
++              },
++              alpha: {
++                srcFactor: 'one',
++                dstFactor: 'one-minus-src-alpha'
++              },
++            },
+          },
+        ],
+      },
+    });
+</pre>
+<p>The full list of default settings are:</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">blend: {
   color: {
-    operation: "add",
-    srcFactor: "one",
-    dstFactor: "zero",
+    operation: 'add',
+    srcFactor: 'one',
+    dstFactor: 'zero',
   },
   alpha: {
-    operation: "add",
-    srcFactor: "one",
-    dstFactor: "zero",
+    operation: 'add',
+    srcFactor: 'one',
+    dstFactor: 'zero',
   },
 }
 </pre>
@@ -527,43 +581,45 @@ state.</p>
 what happens to the <code class="notranslate" translate="no">a</code> (alpha) portion.</p>
 <p><code class="notranslate" translate="no">operation</code> can be one of</p>
 <ul>
-<li>“add”</li>
-<li>“subtract”</li>
-<li>“reverse-subtract”</li>
-<li>“min”</li>
-<li>“max”</li>
+<li>‘add’</li>
+<li>‘subtract’</li>
+<li>‘reverse-subtract’</li>
+<li>‘min’</li>
+<li>‘max’</li>
 </ul>
 <p><code class="notranslate" translate="no">srcFactor</code> and <code class="notranslate" translate="no">dstFactor</code> can each be one of</p>
 <ul>
-<li>“zero”</li>
-<li>“one”</li>
-<li>“src”</li>
-<li>“one-minus-src”</li>
-<li>“src-alpha”</li>
-<li>“one-minus-src-alpha”</li>
-<li>“dst”</li>
-<li>“one-minus-dst”</li>
-<li>“dst-alpha”</li>
-<li>“one-minus-dst-alpha”</li>
-<li>“src-alpha-saturated”</li>
-<li>“constant”</li>
-<li>“one-minus-constant”</li>
+<li>‘zero’</li>
+<li>‘one’</li>
+<li>‘src’</li>
+<li>‘one-minus-src’</li>
+<li>‘src-alpha’</li>
+<li>‘one-minus-src-alpha’</li>
+<li>‘dst’</li>
+<li>‘one-minus-dst’</li>
+<li>‘dst-alpha’</li>
+<li>‘one-minus-dst-alpha’</li>
+<li>‘src-alpha-saturated’</li>
+<li>‘constant’</li>
+<li>‘one-minus-constant’</li>
 </ul>
 <p>Most of them are relatively straight forward to understand. Think of it as</p>
-<pre class="prettyprint showlinemods notranslate notranslate" translate="no">   result = (src * srcFactor) operation (dst * dstFactor)
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">   result = operation((src * srcFactor),  (dst * dstFactor))
 </pre>
-<p>Were src is the value returned by your fragment shader and dst is the value
+<p>Where <code class="notranslate" translate="no">src</code> is the value returned by your fragment shader and <code class="notranslate" translate="no">dst</code> is the value
 already in the texture you are drawing to.</p>
 <p>Consider the default where <code class="notranslate" translate="no">operation</code> is <code class="notranslate" translate="no">'add'</code>, <code class="notranslate" translate="no">srcFactor</code> is <code class="notranslate" translate="no">'one'</code> and
 <code class="notranslate" translate="no">dstFactor</code> is <code class="notranslate" translate="no">'zero'</code>. This gives us</p>
-<pre class="prettyprint showlinemods notranslate notranslate" translate="no">   result = (src * 1) add (dst * 0)
-   result = src * 1 + dst * 0
-   result = src
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">   result = add((src * 1), (dst * 0))
+   result = add(src * 1, dst * 0)
+   result = add(src, 0)
+   result = src;
 </pre>
 <p>As you can see, the default result ends up being just <code class="notranslate" translate="no">src</code>.</p>
-<p>Of the blend factors above, 2 mention a constant, <code class="notranslate" translate="no">"constant"</code> and
-<code class="notranslate" translate="no">"one-minus-constant"</code>. The constant referred to here is set in a render pass
-with the <code class="notranslate" translate="no">setBlendConstant</code> function and defaults to <code class="notranslate" translate="no">[0, 0, 0, 0]</code></p>
+<p>Of the blend factors above, 2 mention a constant, <code class="notranslate" translate="no">'constant'</code> and
+<code class="notranslate" translate="no">'one-minus-constant'</code>. The constant referred to here is set in a render pass
+with the <code class="notranslate" translate="no">setBlendConstant</code> command and defaults to <code class="notranslate" translate="no">[0, 0, 0, 0]</code>. This lets
+you change it between draws.</p>
 <p>Probably the most common setting for blending is</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">{
   operation: 'add',
@@ -577,7 +633,7 @@ we covered above.</p>
 <p>Let’s make an example that shows these options.</p>
 <p>First let’s make some JavaScript that creates two canvas 2D images
 with some alpha. We’ll load these 2 canvases into WebGPU textures.</p>
-<p>First some code for making an image we’ll use for our dst texture.</p>
+<p>First, some code for making an image we’ll use for our dst texture.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const hsl = (h, s, l) =&gt; `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
 
 function createDestinationImage(size) {
@@ -652,9 +708,9 @@ function createSourceImage(size) {
 </div>
 
 <p></p>
-<p>Now that we have both we can modify the canvas importing example from
+<p>Now that we have both, we can modify the canvas importing example from
 <a href="webgpu-import-textures.html#a-loading-canvas">the article on importing textures</a>.</p>
-<p>First let’s make the 2 canvas images</p>
+<p>First, let’s make the 2 canvas images</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const size = 300;
 const srcCanvas = createSourceImage(size);
 const dstCanvas = createDestinationImage(size);
@@ -686,7 +742,7 @@ draw a long plane into the distance.</p>
 }
 </pre>
 <p>Let’s update the <code class="notranslate" translate="no">createTextureFromSource</code> function so we can pass <code class="notranslate" translate="no">premultipliedAlpha: true/false</code> to
-it</p>
+it and it will pass it on to <code class="notranslate" translate="no">copyExternalTextureToImage</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  function copySourceToTexture(device, texture, source, {flipY} = {}) {
 +  function copySourceToTexture(device, texture, source, {flipY, premultipliedAlpha} = {}) {
     device.queue.copyExternalImageToTexture(
@@ -701,7 +757,7 @@ it</p>
     }
   }
 </pre>
-<p>Then let’s use that to create two versions of each texture. One premultiplied, one “un-premultiplied” or
+<p>Then, let’s use that to create two versions of each texture, one premultiplied, one “un-premultiplied” or
 or “not premultiplied”</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const srcTextureUnpremultipliedAlpha =
       createTextureFromSource(
@@ -721,12 +777,13 @@ or “not premultiplied”</p>
           device, dstCanvas,
           {mips: true, premultipliedAlpha: true});
 </pre>
-<p>Note: We could add an option to do or not do the premultiply in the shader but it’s
-arguably not common to add an option to the shader to do that. Rather it’s more common
+<p>Note: We could add an option to premultiply in the shader but that’s
+arguably not common. Rather it’s more common
 to decide, based on your needs, whether all textures containing color are premultiplied
 or not premultiplied. So, we’ll stick with different textures and add UI options to
-select the premultiplied ones or not non-premultiplied ones.</p>
-<p>We need a uniform buffer for each draw.</p>
+select the premultiplied ones or un-premultiplied ones.</p>
+<p>We need a uniform buffer for each of our 2 draws just in case we want to draw
+in 2 different places or the textures are 2 different sizes.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function makeUniformBufferAndValues(device) {
     // offsets to the various uniform values in float32 indices
     const kMatrixOffset = 0;
@@ -754,9 +811,9 @@ get their layout from a pipeline by calling <code class="notranslate" translate=
 In our case though, we’re going to create a pipeline based on the blend state settings
 we choose. So, we won’t have the pipeline to get a bindGroupLayout from until render
 time.</p>
-<p>We could therefore create the bindGroup at render time. OR, we could create our own
-bindGroupLayout and tell the pipelines to use it. These way we can create the bindGroups
-at init time and they’ll be compatible with any pipeline that uses the same layout.</p>
+<p>We could create the bindGroups at render time. OR, we could create our own
+bindGroupLayout and tell the pipelines to use it. This way we can create the bindGroups
+at init time and they’ll be compatible with any pipeline that uses the same bindGroupLayout.</p>
 <p>The details of creating a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout">bindGroupLayout</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUPipelineLayout">pipelineLayout</a>
 are covered <a href="webgpu-bindgrouplayout.html">in another article</a>. For now, here’s the code to create
 them that match our shader module</p>
@@ -774,7 +831,7 @@ them that match our shader module</p>
     ],
   });
 </pre>
-<p>We the bindGroupLayout created, we can use it to make bindGroups.</p>
+<p>With the bindGroupLayout created, we can use it to make bindGroups.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const sampler = device.createSampler({
     magFilter: 'linear',
     minFilter: 'linear',
@@ -836,7 +893,7 @@ easily select one set or the other</p>
     },
   ];
 </pre>
-<p>Our render pass descriptor we’ll pull out the <code class="notranslate" translate="no">clearValue</code> so we can more
+<p>In our render pass descriptor we’ll pull out the <code class="notranslate" translate="no">clearValue</code> so we can more
 easily access it</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const clearValue = [0, 0, 0, 0];
   const renderPassDescriptor = {
@@ -869,7 +926,7 @@ not use blending. Notice we’re passing in the pipelineLayout instead of using
     },
   });
 </pre>
-<p>The other will be created at render time with whatever blend options we choose</p>
+<p>The other pipeline will be created at render time with whatever blend options we choose</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const color = {
     operation: 'add',
     srcFactor: 'one',
@@ -968,7 +1025,7 @@ the src texture with the srcPipeline (with blending)</p>
 +    // draw dst
 +    pass.setPipeline(dstPipeline);
 +    pass.setBindGroup(0, dstBindGroup);
-    pass.draw(6);  // call our vertex shader 6 times
++    pass.draw(6);  // call our vertex shader 6 times
 +
 +    // draw src
 +    pass.setPipeline(srcPipeline);
@@ -981,7 +1038,7 @@ the src texture with the srcPipeline (with blending)</p>
     device.queue.submit([commandBuffer]);
   }
 </pre>
-<p>Now let’s make some GUI to set these values</p>
+<p>Now let’s make some UI to set these values</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const operations = [
 +    'add',
 +    'subtract',
@@ -1192,7 +1249,7 @@ there is no <code class="notranslate" translate="no">alpha</code> setting we’l
 
   ...
 </pre>
-<p>Let’s also let you choose the canvas configuration for <code class="notranslate" translate="no">alphaMode</code></p>
+<p>Let’s also let you choose the canvas configuration for <code class="notranslate" translate="no">alphaMode</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const settings = {
 +    alphaMode: 'premultiplied',
     textureSet: 0,
