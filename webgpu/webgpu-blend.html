@@ -156,9 +156,9 @@ async function main() {
 
   const bindGroupLayout = device.createBindGroupLayout({
     entries: [
-      { binding: 0, visibility: GPUShaderStage.FRAGMENT , sampler: { }, },
-      { binding: 1, visibility: GPUShaderStage.FRAGMENT , texture: { } },
-      { binding: 2, visibility: GPUShaderStage.VERTEX , buffer: { } }
+      { binding: 0, visibility: GPUShaderStage.FRAGMENT, sampler: { }, },
+      { binding: 1, visibility: GPUShaderStage.FRAGMENT, texture: { } },
+      { binding: 2, visibility: GPUShaderStage.VERTEX, buffer: { } },
     ],
   });
 
@@ -232,12 +232,13 @@ async function main() {
     ],
   });
 
+  const clearValue = [0, 0, 0, 0];
   const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
     colorAttachments: [
       {
         // view: <- to be filled out when we render
-        clearValue: [0.0, 0.0, 0.0, 0],
+        clearValue,
         loadOp: 'clear',
         storeOp: 'store',
       },
@@ -280,23 +281,15 @@ async function main() {
     dstFactor: 'one-minus-src',
   };
 
-  const settings = {
-    alphaMode: 'premultiplied',
-    textureSet: 0,
-    preset: 'default',
-    color,
-    alpha,
-  };
-
   const presets = {
-    default: {
+    'default (copy)': {
       color: {
         operation: 'add',
         srcFactor: 'one',
         dstFactor: 'zero',
       },
     },
-    'premultiplied blend': {
+    'premultiplied blend (source-over)': {
       color: {
         operation: 'add',
         srcFactor: 'one',
@@ -310,6 +303,79 @@ async function main() {
         dstFactor: 'one-minus-src-alpha',
       },
     },
+    'destination-over': {
+      color: {
+        operation: 'add',
+        srcFactor: 'one-minus-dst-alpha',
+        dstFactor: 'one',
+      },
+    },
+    'source-in': {
+      color: {
+        operation: 'add',
+        srcFactor: 'dst-alpha',
+        dstFactor: 'zero',
+      },
+    },
+    'destination-in': {
+      color: {
+        operation: 'add',
+        srcFactor: 'zero',
+        dstFactor: 'src-alpha',
+      },
+    },
+    'source-out': {
+      color: {
+        operation: 'add',
+        srcFactor: 'one-minus-dst-alpha',
+        dstFactor: 'zero',
+      },
+    },
+    'destination-out': {
+      color: {
+        operation: 'add',
+        srcFactor: 'zero',
+        dstFactor: 'one-minus-src-alpha',
+      },
+    },
+    'source-atop': {
+      color: {
+        operation: 'add',
+        srcFactor: 'dst-alpha',
+        dstFactor: 'one-minus-src-alpha',
+      },
+    },
+    'destination-atop': {
+      color: {
+        operation: 'add',
+        srcFactor: 'one-minus-dst-alpha',
+        dstFactor: 'src-alpha',
+      },
+    },
+    'additive (lighten)': {
+      color: {
+        operation: 'add',
+        srcFactor: 'one',
+        dstFactor: 'one',
+      },
+    },
+  };
+
+  const constant = {
+    color: [1, 0.5, 0.25],
+    alpha: 1,
+  };
+  const clear = {
+    color: [0, 0, 0],
+    alpha: 0,
+    premultiply: true,
+  };
+  const settings = {
+    alphaMode: 'premultiplied',
+    textureSet: 0,
+    preset: 'default (copy)',
+    color,
+    alpha,
   };
 
   const textureSets = [
@@ -346,6 +412,13 @@ async function main() {
   alphaFolder.add(alpha, 'operation', operations);
   alphaFolder.add(alpha, 'srcFactor', factors);
   alphaFolder.add(alpha, 'dstFactor', factors);
+  const constantFolder = gui.addFolder('constant');
+  constantFolder.addColor(constant, 'color');
+  constantFolder.add(constant, 'alpha', 0, 1);
+  const clearFolder = gui.addFolder('clear color');
+  clearFolder.add(clear, 'premultiply');
+  clearFolder.add(clear, 'alpha', 0, 1);
+  clearFolder.addColor(clear, 'color');
 
   const dstPipeline = device.createRenderPipeline({
     label: 'hardcoded textured quad pipeline',
@@ -371,12 +444,17 @@ async function main() {
 
   function makeBlendComponentValid(blend) {
     const { operation } = blend;
-    return operation === 'min' || operation === 'max'
-      ? { operation, srcFactor: 'one', dstFactor: 'one' }
-      : blend;
+    if (operation === 'min' || operation === 'max') {
+      blend.srcFactor = 'one';
+      blend.dstFactor = 'one';
+    }
   }
 
   function render() {
+    makeBlendComponentValid(color);
+    makeBlendComponentValid(alpha);
+    gui.updateDisplay();
+
     const srcPipeline = device.createRenderPipeline({
       label: 'hardcoded textured quad pipeline',
       layout: pipelineLayout,
@@ -391,8 +469,8 @@ async function main() {
           {
             format: presentationFormat,
             blend: {
-              color: makeBlendComponentValid(color),
-              alpha: makeBlendComponentValid(alpha),
+              color,
+              alpha,
             },
           },
         ],
@@ -420,6 +498,15 @@ async function main() {
     renderPassDescriptor.colorAttachments[0].view =
         canvasTexture.createView();
 
+    {
+      const { alpha, color, premultiply } = clear;
+      const mult = premultiply ? alpha : 1;
+      clearValue[0] = color[0] * mult;
+      clearValue[1] = color[1] * mult;
+      clearValue[2] = color[2] * mult;
+      clearValue[3] = alpha;
+    }
+
     const pass = encoder.beginRenderPass(renderPassDescriptor);
 
     const projectionMatrix = mat4.ortho(0, canvasTexture.width, canvasTexture.height, 0, -1, 1);
@@ -445,6 +532,7 @@ async function main() {
       device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
 
       pass.setBindGroup(0, srcBindGroup);
+      pass.setBlendConstant([...constant.color, constant.alpha]);
       pass.draw(6);  // call our vertex shader 6 times
     }
 
