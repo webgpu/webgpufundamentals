@@ -9,11 +9,12 @@ we cover specific techniques.
 
 ## <a href="a-alphamode"></a> Canvas `alphaMode`
 
-The first thing we need to be aware of, there's in transparent and blending within WebGPU
-but there is also transparency and blending with a WebGPU canvas the the HTML page.
+The first thing we need to be aware of, there is transparent and blending within WebGPU
+but there is also transparency and blending with a WebGPU canvas and the HTML page.
 
 By default a WebGPU canvas is opaque. Its alpha channel is ignored. To make it not
-ignored we have to set its `alphaMode` to `'premultiplied'` when we call `configure`. The default is `'opaque'`
+ignored we have to set its `alphaMode` to `'premultiplied'` when we call `configure`.
+The default is `'opaque'`
 
 ```js
   context.configure({
@@ -23,11 +24,12 @@ ignored we have to set its `alphaMode` to `'premultiplied'` when we call `config
   });
 ```
 
-It's important to understand what `alphaMode: 'premultiplied'` means. It means, the colors you put in the canvas must have their
-color values already multiplied by the alpha value.
+It's important to understand what `alphaMode: 'premultiplied'` means. It means,
+the colors you put in the canvas must have their color values already multiplied
+by the alpha value.
 
-Let's make the smallest example we can. We'll just create
-a render pass and set the clear color.
+Let's make the smallest example we can. We'll just create a render pass and set
+the clear color.
 
 ```js
 async function main() {
@@ -103,7 +105,7 @@ canvas {
 }
 ```
 
-To that let's add a GUI so we can set the alpha and color of
+To that let's add a UI so we can set the alpha and color of
 the clear value as well as whether or not it's premultiplied
 
 ```js
@@ -161,10 +163,10 @@ On my machine I got these colors
 
 <img src="resources/canvas-invalid-color.png" class="center" style="width: 440px">
 
-Do you see what's wrong? We have the alpha set to 0.01. The background colors are supposed to be medium and dark gray.
-The color is set to red (1, 0, 0). Putting 0.01 amount of red
-on top of a medium/dark gray checkerboard should be nearly
-imperceptible so why is it 2 bright shades of pink?
+Do you see what's wrong? We have the alpha set to 0.01. The background colors
+are supposed to be medium and dark gray. The color is set to red (1, 0, 0).
+Putting 0.01 amount of red on top of a medium/dark gray checkerboard should be
+nearly imperceptible so why is it 2 bright shades of pink?
 
 The reason is, **THIS IS AN ILLEGAL COLOR!**. The color of
 our canvas is `1, 0, 0, 0.01` but that is not a premultiplied
@@ -185,7 +187,7 @@ you'll see it fades to red as the alpha approaches 1.
 > expect the same results across devices.
 
 Let's say our color is 1, 0.5, 0.25 which is orange and we want it to be 33%
-transparent so our alpha is 0.33. Then our "premultiplied color" would be
+transparent so our alpha is 0.33. Then, our "premultiplied color" would be
 
 ```
                       premultiplied
@@ -203,11 +205,13 @@ colors then in the shader you could premultiply with code like this.
    return vec4f(color.rgb * color.a, color.a)`;
 ```
 
-The function, `copyExternalImageToTexture` which we covered in [the article on importing textures](webgpu-importing-textures.html) takes a `premultipliedAlpha: true` option. 
-([see below](#copyExternalImageToTexture)) This means when you
-load the image into the texture by calling `copyExternalImageToTexture` you can tell WebGPU to
-premultiply the colors for you as it copies them to the texture so when
-you call `textureSample` the value you get will already be premultiplied.
+The function, `copyExternalImageToTexture` which we covered in
+[the article on importing textures](webgpu-importing-textures.html)
+takes a `premultipliedAlpha: true` option. ([see below](#copyExternalImageToTexture)) 
+This means when you load the image into the texture by calling
+`copyExternalImageToTexture` you can tell WebGPU to premultiply the colors for
+you as it copies them to the texture. That way when you call `textureSample` the value
+you get will already be premultiplied.
 
 The point of this section was
 
@@ -229,6 +233,10 @@ The point of this section was
    the colors in the canvas, one way or another, end up
    premultiplied if we're using `alphaMode: 'premultiplied'`
 
+   A good reference for other premultiplied vs un-premultiplied
+   colors is this article:
+   [GPUs prefer premultiplication](https://www.realtimerendering.com/blog/gpus-prefer-premultiplication/).
+
 ## <a href="a-discard"></a> Discard
 
 `discard` is a WGSL statement that you can use in a fragment
@@ -236,10 +244,10 @@ shader to discard the current fragment or in other words, to
 not draw a pixel.
 
 Let's take our example that draws a checkerboard in the fragment
-shader using the `@builtin(position)` from [the article on inter-stage variables](webgpu-inter-stage-variables.html#a-builtin-position)
+shader using the `@builtin(position)` from [the article on inter-stage variables](webgpu-inter-stage-variables.html#a-builtin-position).
 
-Instead of drawing a 2 color checkerboard, we'll call discard
-for one of the two cases
+Instead of drawing a 2 color checkerboard, we'll discard
+for one of the two cases.
 
 ```wgsl
 @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
@@ -294,8 +302,8 @@ to `[0, 0, 0, 0]`
 You should see that every other square is "transparent" in that
 it wasn't even drawn.
 
-It's common in a shader used in transparency to discard based
-on the alpha level. Something like
+It's common in a shader used for transparency to discard based
+on the alpha value. Something like
 
 ```wgsl
 @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
@@ -322,23 +330,75 @@ instead of drawing we discard. We'll over this more in another article.
 
 ## <a href="a-blending"></a> Blend Settings
 
-Finally we get to blend settings.
-When you create a render pipeline, for each `target` in the fragment shader, you can set blending
-state.
+Finally we get to blend settings. When you create a render pipeline, for each
+`target` in the fragment shader, you can set blending state. In other words,
+here's a typical pipeline from our other examples so far
 
-The full list of default settings are
-
+```js
+    const pipeline = device.createRenderPipeline({
+      label: 'hardcoded textured quad pipeline',
+      layout: pipelineLayout,
+      vertex: {
+        module,
+        entryPoint: 'vs',
+      },
+      fragment: {
+        module,
+        entryPoint: 'fs',
+        targets: [
+          {
+            format: presentationFormat,
+          },
+        ],
+      },
+    });
 ```
+
+And here it is with blending added to `target[0]`.
+
+```js
+    const pipeline = device.createRenderPipeline({
+      label: 'hardcoded textured quad pipeline',
+      layout: pipelineLayout,
+      vertex: {
+        module,
+        entryPoint: 'vs',
+      },
+      fragment: {
+        module,
+        entryPoint: 'fs',
+        targets: [
+          {
+            format: presentationFormat,
++            blend: {
++              color: {
++                srcFactor: 'one',
++                dstFactor: 'one-minus-src-alpha'
++              },
++              alpha: {
++                srcFactor: 'one',
++                dstFactor: 'one-minus-src-alpha'
++              },
++            },
+          },
+        ],
+      },
+    });
+```
+
+The full list of default settings are:
+
+```js
 blend: {
   color: {
-    operation: "add",
-    srcFactor: "one",
-    dstFactor: "zero",
+    operation: 'add',
+    srcFactor: 'one',
+    dstFactor: 'zero',
   },
   alpha: {
-    operation: "add",
-    srcFactor: "one",
-    dstFactor: "zero",
+    operation: 'add',
+    srcFactor: 'one',
+    dstFactor: 'zero',
   },
 }
 ```
@@ -348,52 +408,53 @@ what happens to the `a` (alpha) portion.
 
 `operation` can be one of
 
-  * "add"
-  * "subtract"
-  * "reverse-subtract"
-  * "min"
-  * "max"
+  * 'add'
+  * 'subtract'
+  * 'reverse-subtract'
+  * 'min'
+  * 'max'
 
 `srcFactor` and `dstFactor` can each be one of
 
-  * "zero"
-  * "one"
-  * "src"
-  * "one-minus-src"
-  * "src-alpha"
-  * "one-minus-src-alpha"
-  * "dst"
-  * "one-minus-dst"
-  * "dst-alpha"
-  * "one-minus-dst-alpha"
-  * "src-alpha-saturated"
-  * "constant"
-  * "one-minus-constant"
+  * 'zero'
+  * 'one'
+  * 'src'
+  * 'one-minus-src'
+  * 'src-alpha'
+  * 'one-minus-src-alpha'
+  * 'dst'
+  * 'one-minus-dst'
+  * 'dst-alpha'
+  * 'one-minus-dst-alpha'
+  * 'src-alpha-saturated'
+  * 'constant'
+  * 'one-minus-constant'
 
 Most of them are relatively straight forward to understand. Think of it as
 
 ```
-   result = (src * srcFactor) operation (dst * dstFactor)
+   result = operation((src * srcFactor),  (dst * dstFactor))
 ```
 
-Were src is the value returned by your fragment shader and dst is the value
+Where `src` is the value returned by your fragment shader and `dst` is the value
 already in the texture you are drawing to.
 
 Consider the default where `operation` is `'add'`, `srcFactor` is `'one'` and
 `dstFactor` is `'zero'`. This gives us
 
 ```
-   result = (src * 1) add (dst * 0)
-   result = src * 1 + dst * 0
-   result = src
+   result = add((src * 1), (dst * 0))
+   result = add(src * 1, dst * 0)
+   result = add(src, 0)
+   result = src;
 ```
 
 As you can see, the default result ends up being just `src`.
 
-Of the blend factors above, 2 mention a constant, `"constant"` and
-`"one-minus-constant"`. The constant referred to here is set in a render pass
-with the `setBlendConstant` function and defaults to `[0, 0, 0, 0]`
-
+Of the blend factors above, 2 mention a constant, `'constant'` and
+`'one-minus-constant'`. The constant referred to here is set in a render pass
+with the `setBlendConstant` command and defaults to `[0, 0, 0, 0]`. This lets
+you change it between draws.
 
 Probably the most common setting for blending is
 
@@ -414,7 +475,7 @@ Let's make an example that shows these options.
 First let's make some JavaScript that creates two canvas 2D images
 with some alpha. We'll load these 2 canvases into WebGPU textures.
 
-First some code for making an image we'll use for our dst texture.
+First, some code for making an image we'll use for our dst texture.
 
 ```js
 const hsl = (h, s, l) => `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
@@ -489,10 +550,10 @@ And here's that running.
 
 {{{example url="../webgpu-blend-src-canvas.html"}}}
 
-Now that we have both we can modify the canvas importing example from
+Now that we have both, we can modify the canvas importing example from
 [the article on importing textures](webgpu-import-textures.html#a-loading-canvas).
 
-First let's make the 2 canvas images
+First, let's make the 2 canvas images
 
 ```js
 const size = 300;
@@ -530,7 +591,7 @@ draw a long plane into the distance.
 ```
 
 Let's update the `createTextureFromSource` function so we can pass `premultipliedAlpha: true/false` to
-it
+it and it will pass it on to `copyExternalTextureToImage`.
 
 ```js
 -  function copySourceToTexture(device, texture, source, {flipY} = {}) {
@@ -548,7 +609,7 @@ it
   }
 ```
 
-Then let's use that to create two versions of each texture. One premultiplied, one "un-premultiplied" or
+Then, let's use that to create two versions of each texture, one premultiplied, one "un-premultiplied" or
 or "not premultiplied"
 
 ```js
@@ -571,13 +632,14 @@ or "not premultiplied"
           {mips: true, premultipliedAlpha: true});
 ```
 
-Note: We could add an option to do or not do the premultiply in the shader but it's
-arguably not common to add an option to the shader to do that. Rather it's more common
+Note: We could add an option to premultiply in the shader but that's
+arguably not common. Rather it's more common
 to decide, based on your needs, whether all textures containing color are premultiplied
 or not premultiplied. So, we'll stick with different textures and add UI options to
-select the premultiplied ones or not non-premultiplied ones.
+select the premultiplied ones or un-premultiplied ones.
 
-We need a uniform buffer for each draw.
+We need a uniform buffer for each of our 2 draws just in case we want to draw
+in 2 different places or the textures are 2 different sizes.
 
 ```js
   function makeUniformBufferAndValues(device) {
@@ -609,9 +671,9 @@ In our case though, we're going to create a pipeline based on the blend state se
 we choose. So, we won't have the pipeline to get a bindGroupLayout from until render
 time.
 
-We could therefore create the bindGroup at render time. OR, we could create our own
-bindGroupLayout and tell the pipelines to use it. These way we can create the bindGroups
-at init time and they'll be compatible with any pipeline that uses the same layout.
+We could create the bindGroups at render time. OR, we could create our own
+bindGroupLayout and tell the pipelines to use it. This way we can create the bindGroups
+at init time and they'll be compatible with any pipeline that uses the same bindGroupLayout.
 
 The details of creating a [bindGroupLayout](GPUBindGroupLayout) and [pipelineLayout](GPUPipelineLayout)
 are covered [in another article](webgpu-bindgrouplayout.html). For now, here's the code to create
@@ -633,7 +695,7 @@ them that match our shader module
   });
 ```
 
-We the bindGroupLayout created, we can use it to make bindGroups.
+With the bindGroupLayout created, we can use it to make bindGroups.
 
 ```js
   const sampler = device.createSampler({
@@ -701,7 +763,7 @@ easily select one set or the other
   ];
 ```
 
-Our render pass descriptor we'll pull out the `clearValue` so we can more
+In our render pass descriptor we'll pull out the `clearValue` so we can more
 easily access it
 
 ```js
@@ -740,7 +802,7 @@ not use blending. Notice we're passing in the pipelineLayout instead of using
   });
 ```
 
-The other will be created at render time with whatever blend options we choose
+The other pipeline will be created at render time with whatever blend options we choose
 
 ```js
   const color = {
@@ -844,7 +906,7 @@ the src texture with the srcPipeline (with blending)
 +    // draw dst
 +    pass.setPipeline(dstPipeline);
 +    pass.setBindGroup(0, dstBindGroup);
-    pass.draw(6);  // call our vertex shader 6 times
++    pass.draw(6);  // call our vertex shader 6 times
 +
 +    // draw src
 +    pass.setPipeline(srcPipeline);
@@ -858,7 +920,7 @@ the src texture with the srcPipeline (with blending)
   }
 ```
 
-Now let's make some GUI to set these values
+Now let's make some UI to set these values
 
 ```js
 +  const operations = [
@@ -1081,7 +1143,7 @@ there is no `alpha` setting we'll just repeat the `color` setting.
   ...
 ```
 
-Let's also let you choose the canvas configuration for `alphaMode`
+Let's also let you choose the canvas configuration for `alphaMode`.
 
 ```js
   const settings = {
