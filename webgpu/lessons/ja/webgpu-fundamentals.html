@@ -541,7 +541,7 @@ WebGPUで生成するオブジェクトは、ほぼすべてについて<code cl
 「レンダーターゲット」というのは、書き込み先とするテクスチャのことです。
 パイプラインを生成し、このパイプラインの書き出し先となるテクスチャのフォーマットを指定する必要があります。</p>
 <p>配列<code class="notranslate" translate="no">targets</code>の最初の(0番目の)要素は、先にフラグメントシェーダの返り値の設定で記述した「location(0)」に当たるものです。canvasとの関連付けはもう少し後で行ないます。</p>
-<p>次は<code class="notranslate" translate="no">GPURenderPassDescriptor</code>を設定します。
+<p>次は<a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a>を設定します。
 これは、描画先とするテクスチャの指定と、そのテクスチャをどう扱うかの設定です。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
@@ -555,7 +555,7 @@ WebGPUで生成するオブジェクトは、ほぼすべてについて<code cl
     ],
   };  
 </pre>
-<p><code class="notranslate" translate="no">GPURenderPassDescriptor</code>のプロパティ<code class="notranslate" translate="no">colorAttachments</code>は配列です。
+<p><a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a>のプロパティ<code class="notranslate" translate="no">colorAttachments</code>は配列です。
 この配列は、「描画対象となるテクスチャ」です。
 また、「各テクスチャをどう扱うか」という情報も記述されます。
 このタイミングでは「描画対象となるテクスチャ」の指定は保留して、「各テクスチャをどう扱うか」の設定を行っています。
@@ -1019,6 +1019,7 @@ WebGPUはそういうデザインになっている。多くの場合、デバ�
         </ul>
 <li><a href="/webgpu/lessons/ja/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/ja/webgpu-memory-layout.html">構造体とメモリレイアウト</a></li>
+<li><a href="/webgpu/lessons/ja/webgpu-transparency.html">Transparency and Blending</a></li>
 <li><a href="/webgpu/lessons/ja/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/ja/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/ja/webgpu-timing.html">Timing Performance</a></li>

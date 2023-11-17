@@ -32,7 +32,6 @@ canvas {
   </body>
   <script type="module">
 import {mat4} from '/3rdparty/wgpu-matrix.module.js';
-import {createTextureFromSource} from '/3rdparty/webgpu-utils.module.js';
 import GUI from '/3rdparty/muigui-0.x.module.js';
 
 const hsl = (h, s, l) => `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
@@ -154,6 +153,148 @@ async function main() {
     `,
   });
 
+  const numMipLevels = (...sizes) => {
+    const maxSize = Math.max(...sizes);
+    return 1 + Math.log2(maxSize) | 0;
+  };
+
+  function copySourceToTexture(device, texture, source, {flipY, premultipliedAlpha} = {}) {
+    device.queue.copyExternalImageToTexture(
+      { source, flipY, },
+      { texture, premultipliedAlpha },
+      { width: source.width, height: source.height },
+    );
+
+    if (texture.mipLevelCount > 1) {
+      generateMips(device, texture);
+    }
+  }
+
+  function createTextureFromSource(device, source, options = {}) {
+    const texture = device.createTexture({
+      format: 'rgba8unorm',
+      mipLevelCount: options.mips ? numMipLevels(source.width, source.height) : 1,
+      size: [source.width, source.height],
+      usage: GPUTextureUsage.TEXTURE_BINDING |
+             GPUTextureUsage.COPY_DST |
+             GPUTextureUsage.RENDER_ATTACHMENT,
+    });
+    copySourceToTexture(device, texture, source, options);
+    return texture;
+  }
+
+  const generateMips = (() => {
+    let sampler;
+    let module;
+    const pipelineByFormat = {};
+
+    return function generateMips(device, texture) {
+      if (!module) {
+        module = device.createShaderModule({
+          label: 'textured quad shaders for mip level generation',
+          code: `
+            struct VSOutput {
+              @builtin(position) position: vec4f,
+              @location(0) texcoord: vec2f,
+            };
+
+            @vertex fn vs(
+              @builtin(vertex_index) vertexIndex : u32
+            ) -> VSOutput {
+              let pos = array(
+
+                vec2f( 0.0,  0.0),  // center
+                vec2f( 1.0,  0.0),  // right, center
+                vec2f( 0.0,  1.0),  // center, top
+
+                // 2st triangle
+                vec2f( 0.0,  1.0),  // center, top
+                vec2f( 1.0,  0.0),  // right, center
+                vec2f( 1.0,  1.0),  // right, top
+              );
+
+              var vsOutput: VSOutput;
+              let xy = pos[vertexIndex];
+              vsOutput.position = vec4f(xy * 2.0 - 1.0, 0.0, 1.0);
+              vsOutput.texcoord = vec2f(xy.x, 1.0 - xy.y);
+              return vsOutput;
+            }
+
+            @group(0) @binding(0) var ourSampler: sampler;
+            @group(0) @binding(1) var ourTexture: texture_2d<f32>;
+
+            @fragment fn fs(fsInput: VSOutput) -> @location(0) vec4f {
+              return textureSample(ourTexture, ourSampler, fsInput.texcoord);
+            }
+          `,
+        });
+
+        sampler = device.createSampler({
+          minFilter: 'linear',
+        });
+      }
+
+      if (!pipelineByFormat[texture.format]) {
+        pipelineByFormat[texture.format] = device.createRenderPipeline({
+          label: 'mip level generator pipeline',
+          layout: 'auto',
+          vertex: {
+            module,
+            entryPoint: 'vs',
+          },
+          fragment: {
+            module,
+            entryPoint: 'fs',
+            targets: [{ format: texture.format }],
+          },
+        });
+      }
+      const pipeline = pipelineByFormat[texture.format];
+
+      const encoder = device.createCommandEncoder({
+        label: 'mip gen encoder',
+      });
+
+      let width = texture.width;
+      let height = texture.height;
+      let baseMipLevel = 0;
+      while (width > 1 || height > 1) {
+        width = Math.max(1, width / 2 | 0);
+        height = Math.max(1, height / 2 | 0);
+
+        const bindGroup = device.createBindGroup({
+          layout: pipeline.getBindGroupLayout(0),
+          entries: [
+            { binding: 0, resource: sampler },
+            { binding: 1, resource: texture.createView({baseMipLevel, mipLevelCount: 1}) },
+          ],
+        });
+
+        ++baseMipLevel;
+
+        const renderPassDescriptor = {
+          label: 'our basic canvas renderPass',
+          colorAttachments: [
+            {
+              view: texture.createView({baseMipLevel, mipLevelCount: 1}),
+              loadOp: 'clear',
+              storeOp: 'store',
+            },
+          ],
+        };
+
+        const pass = encoder.beginRenderPass(renderPassDescriptor);
+        pass.setPipeline(pipeline);
+        pass.setBindGroup(0, bindGroup);
+        pass.draw(6);  // call our vertex shader 6 times
+        pass.end();
+      }
+
+      const commandBuffer = encoder.finish();
+      device.queue.submit([commandBuffer]);
+    };
+  })();
+
   const bindGroupLayout = device.createBindGroupLayout({
     entries: [
       { binding: 0, visibility: GPUShaderStage.FRAGMENT, sampler: { }, },
@@ -168,14 +309,23 @@ async function main() {
     ],
   });
 
-  const srcTextureUnpremultipliedAlpha = createTextureFromSource(device, srcCanvas, {mips: true});
-  const dstTextureUnpremultipliedAlpha = createTextureFromSource(device, dstCanvas, {mips: true});
+  const srcTextureUnpremultipliedAlpha =
+      createTextureFromSource(
+          device, srcCanvas,
+          {mips: true});
+  const dstTextureUnpremultipliedAlpha =
+      createTextureFromSource(
+          device, dstCanvas,
+          {mips: true});
 
-  const srcTexturePremultipliedAlpha = createTextureFromSource(device, srcCanvas, {mips: true, premultipliedAlpha: true});
-  const dstTexturePremultipliedAlpha = createTextureFromSource(device, dstCanvas, {mips: true, premultipliedAlpha: true});
-
-  // offsets to the various uniform values in float32 indices
-  const kMatrixOffset = 0;
+  const srcTexturePremultipliedAlpha =
+      createTextureFromSource(
+          device, srcCanvas,
+          {mips: true, premultipliedAlpha: true});
+  const dstTexturePremultipliedAlpha =
+      createTextureFromSource(
+          device, dstCanvas,
+          {mips: true, premultipliedAlpha: true});
 
   const sampler = device.createSampler({
     magFilter: 'linear',
@@ -183,25 +333,33 @@ async function main() {
     mipmapFilter: 'linear',
   });
 
-  // create a buffer for the uniform values
-  const uniformBufferSize =
-    16 * 4; // matrix is 16 32bit floats (4bytes each)
-  const uniformBuffer = device.createBuffer({
-    label: 'uniforms for quad',
-    size: uniformBufferSize,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
+  function makeUniformBufferAndValues(device) {
+    // offsets to the various uniform values in float32 indices
+    const kMatrixOffset = 0;
 
-  // create a typedarray to hold the values for the uniforms in JavaScript
-  const uniformValues = new Float32Array(uniformBufferSize / 4);
-  const matrix = uniformValues.subarray(kMatrixOffset, 16);
+    // create a buffer for the uniform values
+    const uniformBufferSize =
+      16 * 4; // matrix is 16 32bit floats (4bytes each)
+    const buffer = device.createBuffer({
+      label: 'uniforms for quad',
+      size: uniformBufferSize,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    // create a typedarray to hold the values for the uniforms in JavaScript
+    const values = new Float32Array(uniformBufferSize / 4);
+    const matrix = values.subarray(kMatrixOffset, 16);
+    return { buffer, values, matrix };
+  }
+  const srcUniform = makeUniformBufferAndValues(device);
+  const dstUniform = makeUniformBufferAndValues(device);
 
   const srcBindGroupUnpremultipliedAlpha = device.createBindGroup({
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
       { binding: 1, resource: srcTextureUnpremultipliedAlpha.createView() },
-      { binding: 2, resource: { buffer: uniformBuffer }},
+      { binding: 2, resource: { buffer: srcUniform.buffer }},
     ],
   });
 
@@ -210,7 +368,7 @@ async function main() {
     entries: [
       { binding: 0, resource: sampler },
       { binding: 1, resource: dstTextureUnpremultipliedAlpha.createView() },
-      { binding: 2, resource: { buffer: uniformBuffer }},
+      { binding: 2, resource: { buffer: dstUniform.buffer }},
     ],
   });
 
@@ -219,7 +377,7 @@ async function main() {
     entries: [
       { binding: 0, resource: sampler },
       { binding: 1, resource: srcTexturePremultipliedAlpha.createView() },
-      { binding: 2, resource: { buffer: uniformBuffer }},
+      { binding: 2, resource: { buffer: srcUniform.buffer }},
     ],
   });
 
@@ -228,9 +386,24 @@ async function main() {
     entries: [
       { binding: 0, resource: sampler },
       { binding: 1, resource: dstTexturePremultipliedAlpha.createView() },
-      { binding: 2, resource: { buffer: uniformBuffer }},
+      { binding: 2, resource: { buffer: dstUniform.buffer }},
     ],
   });
+
+  const textureSets = [
+    {
+      srcTexture: srcTexturePremultipliedAlpha,
+      dstTexture: dstTexturePremultipliedAlpha,
+      srcBindGroup: srcBindGroupPremultipliedAlpha,
+      dstBindGroup: dstBindGroupPremultipliedAlpha,
+    },
+    {
+      srcTexture: srcTextureUnpremultipliedAlpha,
+      dstTexture: dstTextureUnpremultipliedAlpha,
+      srcBindGroup: srcBindGroupUnpremultipliedAlpha,
+      dstBindGroup: dstBindGroupUnpremultipliedAlpha,
+    },
+  ];
 
   const clearValue = [0, 0, 0, 0];
   const renderPassDescriptor = {
@@ -268,18 +441,6 @@ async function main() {
     'constant',
     'one-minus-constant',
   ];
-
-  const color = {
-    operation: 'add',
-    srcFactor: 'one',
-    dstFactor: 'one-minus-src',
-  };
-
-  const alpha = {
-    operation: 'add',
-    srcFactor: 'one',
-    dstFactor: 'one-minus-src',
-  };
 
   const presets = {
     'default (copy)': {
@@ -361,37 +522,34 @@ async function main() {
     },
   };
 
+  const color = {
+    operation: 'add',
+    srcFactor: 'one',
+    dstFactor: 'one-minus-src',
+  };
+
+  const alpha = {
+    operation: 'add',
+    srcFactor: 'one',
+    dstFactor: 'one-minus-src',
+  };
+
   const constant = {
     color: [1, 0.5, 0.25],
     alpha: 1,
   };
+
   const clear = {
     color: [0, 0, 0],
     alpha: 0,
     premultiply: true,
   };
+
   const settings = {
     alphaMode: 'premultiplied',
     textureSet: 0,
     preset: 'default (copy)',
-    color,
-    alpha,
   };
-
-  const textureSets = [
-    {
-      srcTexture: srcTexturePremultipliedAlpha,
-      dstTexture: dstTexturePremultipliedAlpha,
-      srcBindGroup: srcBindGroupPremultipliedAlpha,
-      dstBindGroup: dstBindGroupPremultipliedAlpha,
-    },
-    {
-      srcTexture: srcTextureUnpremultipliedAlpha,
-      dstTexture: dstTextureUnpremultipliedAlpha,
-      srcBindGroup: srcBindGroupUnpremultipliedAlpha,
-      dstBindGroup: dstBindGroupUnpremultipliedAlpha,
-    },
-  ];
 
   const gui = new GUI().onChange(render);
   gui.add(settings, 'alphaMode', ['opaque', 'premultiplied']).name('canvas alphaMode');
@@ -430,15 +588,7 @@ async function main() {
     fragment: {
       module,
       entryPoint: 'fs',
-      targets: [
-        {
-          format: presentationFormat,
-          blend: {
-            color,
-            alpha,
-          },
-        },
-      ],
+      targets: [ { format: presentationFormat } ],
     },
   });
 
@@ -484,8 +634,6 @@ async function main() {
       dstBindGroup,
     } = textureSets[settings.textureSet];
 
-    const encoder = device.createCommandEncoder({ label: 'render quad encoder' });
-
     context.configure({
       device,
       format: presentationFormat,
@@ -507,34 +655,30 @@ async function main() {
       clearValue[3] = alpha;
     }
 
+    function updateUniforms(uniform, canvasTexture, texture) {
+      const projectionMatrix = mat4.ortho(0, canvasTexture.width, canvasTexture.height, 0, -1, 1);
+
+      mat4.scale(projectionMatrix, [texture.width, texture.height, 1], uniform.matrix);
+
+      // copy the values from JavaScript to the GPU
+      device.queue.writeBuffer(uniform.buffer, 0, uniform.values);
+    }
+    updateUniforms(srcUniform, canvasTexture, srcTexture);
+    updateUniforms(dstUniform, canvasTexture, dstTexture);
+
+    const encoder = device.createCommandEncoder({ label: 'render quad encoder' });
     const pass = encoder.beginRenderPass(renderPassDescriptor);
 
-    const projectionMatrix = mat4.ortho(0, canvasTexture.width, canvasTexture.height, 0, -1, 1);
+    // draw dst
+    pass.setPipeline(dstPipeline);
+    pass.setBindGroup(0, dstBindGroup);
+    pass.draw(6);  // call our vertex shader 6 times
 
-    for (let i = 0; i < 1; ++i) {
-      pass.setPipeline(dstPipeline);
-
-      mat4.scale(projectionMatrix, [dstTexture.width, dstTexture.height, 1], matrix);
-
-      // copy the values from JavaScript to the GPU
-      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
-
-      pass.setBindGroup(0, dstBindGroup);
-      pass.draw(6);  // call our vertex shader 6 times
-    }
-
-    for (let i = 0; i < 1; ++i) {
-      pass.setPipeline(srcPipeline);
-
-      mat4.scale(projectionMatrix, [srcTexture.width, srcTexture.height, 1], matrix);
-
-      // copy the values from JavaScript to the GPU
-      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
-
-      pass.setBindGroup(0, srcBindGroup);
-      pass.setBlendConstant([...constant.color, constant.alpha]);
-      pass.draw(6);  // call our vertex shader 6 times
-    }
+    // draw src
+    pass.setPipeline(srcPipeline);
+    pass.setBindGroup(0, srcBindGroup);
+    pass.setBlendConstant([...constant.color, constant.alpha]);
+    pass.draw(6);  // call our vertex shader 6 times
 
     pass.end();
 

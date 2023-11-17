@@ -466,7 +466,7 @@ context.configure({
 <p>在这种情况下，没有太多的东西可看。我们将<code class="notranslate" translate="no">layout</code>设置为 <code class="notranslate" translate="no">auto</code>，这意味着要求 WebGPU 从着色器中推断出数据布局。不过我们并没有使用任何数据。</p>
 <p>然后，我们告诉渲染流水线在使用顶点着色器时使用着色器模块中的 <code class="notranslate" translate="no">vs</code> 函数，在使用片段着色器时使用 <code class="notranslate" translate="no">fs</code> 函数。除此之外，我们还要告诉它第一个渲染目标的格式。<code class="notranslate" translate="no">render target</code>指的是我们要渲染的纹理。创建管道后，我们必须指定该管道最终渲染到的纹理的格式。</p>
 <p><code class="notranslate" translate="no">targets</code>数组第 0 号元素与我们为片段着色器的返回值指定的位置 0 相对应。稍后，我们将该目标设置为画布的纹理。</p>
-<p>接下来我们准备一个 <code class="notranslate" translate="no">GPURenderPassDescriptor</code>，它描述了我们要绘制的纹理以及如何使用它们。</p>
+<p>接下来我们准备一个 <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a>，它描述了我们要绘制的纹理以及如何使用它们。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
     colorAttachments: [
@@ -479,7 +479,7 @@ context.configure({
     ],
 };
 </pre>
-<p><code class="notranslate" translate="no">GPURenderPassDescriptor</code> 有一个 <code class="notranslate" translate="no">colorAttachments</code> 数组，其中列出了我们要渲染的纹理以及如何处理它们。我们将等待填入实际要渲染的纹理。目前，我们设置了一个半深灰色的清除值，以及一个<code class="notranslate" translate="no">loadOp</code>和<code class="notranslate" translate="no">storeOp</code>。<code class="notranslate" translate="no">loadOp: clear</code> 指定在绘制前将纹理清除为<code class="notranslate" translate="no">clearValue</code>。另一个选项是 <code class="notranslate" translate="no">load</code>，意思是将纹理的现有内容加载到 GPU 中，这样我们就可以在已有内容上绘图了。<code class="notranslate" translate="no">storeOp: 'store'</code>表示存储绘制结果。我们也可以通过 <code class="notranslate" translate="no">discard</code>来丢弃绘制的结果。我们将在<a href="../webgpu-multisampling.html">另一篇文章</a>中介绍为什么要这样做。</p>
+<p><a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a> 有一个 <code class="notranslate" translate="no">colorAttachments</code> 数组，其中列出了我们要渲染的纹理以及如何处理它们。我们将等待填入实际要渲染的纹理。目前，我们设置了一个半深灰色的清除值，以及一个<code class="notranslate" translate="no">loadOp</code>和<code class="notranslate" translate="no">storeOp</code>。<code class="notranslate" translate="no">loadOp: clear</code> 指定在绘制前将纹理清除为<code class="notranslate" translate="no">clearValue</code>。另一个选项是 <code class="notranslate" translate="no">load</code>，意思是将纹理的现有内容加载到 GPU 中，这样我们就可以在已有内容上绘图了。<code class="notranslate" translate="no">storeOp: 'store'</code>表示存储绘制结果。我们也可以通过 <code class="notranslate" translate="no">discard</code>来丢弃绘制的结果。我们将在<a href="../webgpu-multisampling.html">另一篇文章</a>中介绍为什么要这样做。</p>
 <p>现在是渲染的时候了。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">function render() {
     // Get the current texture from the canvas context and
@@ -877,6 +877,7 @@ function main(device) {
         </ul>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-memory-layout.html">数据内存布局</a></li>
+<li><a href="/webgpu/lessons/zh_cn/webgpu-transparency.html">Transparency and Blending</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-timing.html">Timing Performance</a></li>

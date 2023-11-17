@@ -293,7 +293,7 @@ struct VSOutput {
     },
   });
 </pre>
-<p>在<a href="../GPURenderPipelineDescriptor"><code class="notranslate" translate="no">管道描述符(pipeline descriptor)</code></a>的<a href="../GPUVertexState"><code class="notranslate" translate="no">vertex</code></a>字段中，我们添加了一个<code class="notranslate" translate="no">buffers</code>数组，用于描述如何从一个或多个顶点缓冲区中提取数据。对于第一个也是唯一一个缓冲区，我们设置了一个以字节数为单位的<code class="notranslate" translate="no">arrayStride</code>字段。在这种情况下，<code class="notranslate" translate="no">stride</code> 是指从缓冲区中一个顶点的数据到缓冲区中下一个顶点的数据所需的字节数。</p>
+<p>在<a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpipelinedescriptor"><code class="notranslate" translate="no">管道描述符(pipeline descriptor)</code></a>的<a href="https://www.w3.org/TR/webgpu/#dictdef-gpuvertexstate"><code class="notranslate" translate="no">vertex</code></a>字段中，我们添加了一个<code class="notranslate" translate="no">buffers</code>数组，用于描述如何从一个或多个顶点缓冲区中提取数据。对于第一个也是唯一一个缓冲区，我们设置了一个以字节数为单位的<code class="notranslate" translate="no">arrayStride</code>字段。在这种情况下，<code class="notranslate" translate="no">stride</code> 是指从缓冲区中一个顶点的数据到缓冲区中下一个顶点的数据所需的字节数。</p>
 <div class="webgpu_center"><img src="../resources/vertex-buffer-one.svg" style="width: 1024px;"></div>
 <p>由于我们的数据是 <code class="notranslate" translate="no">vec2f</code>，即两个 <code class="notranslate" translate="no">float32</code> 数字，因此我们将 <code class="notranslate" translate="no">arrayStride</code> 设置为 8。</p>
 <p>接下来，我们定义一个名为<code class="notranslate" translate="no">attribute</code>的数组。我们只有一个该数组：<code class="notranslate" translate="no">shaderLocation: 0</code>的属性对应我们<code class="notranslate" translate="no">Vertex</code>结构体中的的<code class="notranslate" translate="no">location(0)</code> 。 <code class="notranslate" translate="no">offset: 0</code>表示对于该<code class="notranslate" translate="no">attribute</code>数组来说数据是从顶点缓冲区中的第 0 个偏移位置开始的。最后，<code class="notranslate" translate="no">format: 'float32x2'</code>是说我们想要 WebGPU 以两个 32 位浮点数的形式从缓冲区中提取数据。</p>
@@ -1104,6 +1104,7 @@ pass.setVertexBuffer(2, changingVertexBuffer);
         </ul>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-memory-layout.html">数据内存布局</a></li>
+<li><a href="/webgpu/lessons/zh_cn/webgpu-transparency.html">Transparency and Blending</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-timing.html">Timing Performance</a></li>

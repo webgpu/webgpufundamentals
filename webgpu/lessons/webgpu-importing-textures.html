@@ -480,7 +480,7 @@ What’s changed</p>
 <li>
 <p>We make a closure to hold on to 3 variables. <code class="notranslate" translate="no">module</code>, <code class="notranslate" translate="no">sampler</code>, <code class="notranslate" translate="no">pipelineByFormat</code>.
 For <code class="notranslate" translate="no">module</code> and <code class="notranslate" translate="no">sampler</code> we check if they have not be set and if not, we create a <code class="notranslate" translate="no">GPUSShaderModule</code>
-and <code class="notranslate" translate="no">GPUSampler</code> which we can hold on to and use in the future.</p>
+and <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUSampler"><code class="notranslate" translate="no">GPUSampler</code></a> which we can hold on to and use in the future.</p>
 </li>
 <li>
 <p>We have a pair of shaders that are almost exactly the same as all the examples. The only difference
@@ -644,7 +644,7 @@ is this</p>
 </div>
 
 <p></p>
-<h2 id="loading-canvas">Loading Canvas</h2>
+<h2 id="loading-canvas"><a id="a-loading-canvas"></a> Loading Canvas</h2>
 <p><code class="notranslate" translate="no">copyExternalImageToTexture</code> takes other <em>sources</em>. Another is an <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement"><code class="notranslate" translate="no">HTMLCanvasElement</code></a>.
 We can use this to draw things in a 2d canvas, and then get the result in a texture in WebGPU.
 Of course you can use WebGPU to draw to a texture and use that texture you just drew too
@@ -1319,6 +1319,7 @@ They seem to change over time so we won’t go into solutions here. <a href="#fn
         </ul>
 <li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/webgpu-transparency.html">Transparency and Blending</a></li>
 <li><a href="/webgpu/lessons/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/webgpu-timing.html">Timing Performance</a></li>

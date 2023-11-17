@@ -230,7 +230,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>이전 글에서 비디오를 WEbGPU 텍스처로 로딩할 때 <code class="notranslate" translate="no">copyExternalImageToTexture</code>를 호출하였습니다.
 이 함수는 비디오의 현재 프레임을 우리가 만들어둔, 이미 존재하는 텍스처에 복사하였습니다.</p>
 <p>WebGPU에는 비디오를 사용하는 또다른 방법이 있습니다.
-<code class="notranslate" translate="no">importExternalTexture</code>인데 이름에서 알 수 있듯이 이 함수는 <code class="notranslate" translate="no">GPUExternalTexture</code>를 반환해줍니다.
+<code class="notranslate" translate="no">importExternalTexture</code>인데 이름에서 알 수 있듯이 이 함수는 <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUExternalTexture"><code class="notranslate" translate="no">GPUExternalTexture</code></a>를 반환해줍니다.
 이 외부(external) 텍스처는 비디오데이터를 직접 표현합니다. 복사가 필요하지 않습니다. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>
 <code class="notranslate" translate="no">importExternalTexture</code>에 비디오를 넣어주면 텍스처가 반환되고, 바로 사용할 수 있습니다.</p>
 <p><code class="notranslate" translate="no">importExternalTexture</code>의 텍스처를 사용할 때는 몇 가지 큰 유의사항이 있습니다.</p>
@@ -484,6 +484,7 @@ WebGPU 명세(spec)는 브라우저가 복사를 하지 않기를 바라며 만�
         </ul>
 <li><a href="/webgpu/lessons/ko/webgpu-constants.html">상수(Constants)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-memory-layout.html">데이터 메모리 레이아웃</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-transparency.html">Transparency and Blending</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-copying-data.html">데이터 복사하기</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-limits-and-features.html">선택적 기능(optional feature)과 제한(limit)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-timing.html">Timing Performance</a></li>

@@ -45,7 +45,8 @@
     "pre-push": "ld-check-dependencies && grunt eslint",
     "pre-build": "grunt eslint",
     "test": "check-all-the-errors --follow-links=both --output=webgpufundamentals.check.json out \"*.html\"",
-    "generate-wgsl-function-reference": "node build/generate-wgsl-function-reference.js"
+    "generate-wgsl-function-reference": "node build/generate-wgsl-function-reference.js",
+    "check-external-refs": "node build/check-external-refs.js"
   },
   "repository": {
     "type": "git",

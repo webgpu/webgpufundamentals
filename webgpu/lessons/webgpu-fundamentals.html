@@ -578,7 +578,7 @@ eventually render to.</p>
 <p>Element 0 for the <code class="notranslate" translate="no">targets</code> array corresponds to location 0 as we specified for
 the fragment shader’s return value. Later, we’ll set that target to be a texture
 for the canvas.</p>
-<p>Next up we prepare a <code class="notranslate" translate="no">GPURenderPassDescriptor</code> which describes which textures
+<p>Next up we prepare a <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a> which describes which textures
 we want to draw to and how to use them.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
@@ -592,7 +592,7 @@ we want to draw to and how to use them.</p>
     ],
   };  
 </pre>
-<p>A <code class="notranslate" translate="no">GPURenderPassDescriptor</code> has an array for <code class="notranslate" translate="no">colorAttachments</code> which lists
+<p>A <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a> has an array for <code class="notranslate" translate="no">colorAttachments</code> which lists
 the textures we will render to and how to treat them.
 We’ll wait to fill in which texture we actually want to render to. For now,
 we set up a clear value of semi-dark gray, and a <code class="notranslate" translate="no">loadOp</code> and <code class="notranslate" translate="no">storeOp</code>.
@@ -1128,6 +1128,7 @@ never use a bind group with multiple pipelines. We’ll cover explicit layouts i
         </ul>
 <li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/webgpu-transparency.html">Transparency and Blending</a></li>
 <li><a href="/webgpu/lessons/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/webgpu-timing.html">Timing Performance</a></li>

@@ -569,8 +569,8 @@ exists and request it like we covered in <a href="webgpu-limits-and-features.htm
 the <code class="notranslate" translate="no">'timestamp-query'</code> feature. If it does we require that feature when we
 create our device.</p>
 <p>With the feature enabled we can ask WebGPU for <em>timestamps</em> for a render pass or
-compute pass. You do this by making a <code class="notranslate" translate="no">GPUQuerySet</code> and adding it to your
-compute or render pass. A <code class="notranslate" translate="no">GPUQuerySet</code> is effectively an array of query
+compute pass. You do this by making a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUQuerySet"><code class="notranslate" translate="no">GPUQuerySet</code></a> and adding it to your
+compute or render pass. A <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUQuerySet"><code class="notranslate" translate="no">GPUQuerySet</code></a> is effectively an array of query
 results. You tell WebGPU which element in the array to record the time the pass started
 and which element in the array to record when the pass ended. You can then copy those
 timestamps to a buffer and map the buffer to read the results.<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup></p>
@@ -987,13 +987,13 @@ queries.</p>
 <p>There are a bunch of tradeoffs here and without more exploration it’s not
 clear what would be best.</p>
 <p>A class that handles multiple passes could be useful but, ideally, you’d use a
-single <code class="notranslate" translate="no">GPUQuerySet</code> that has enough space for all of your passes, rather than
-1 <code class="notranslate" translate="no">GPUQuerySet</code> per pass.</p>
+single <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUQuerySet"><code class="notranslate" translate="no">GPUQuerySet</code></a> that has enough space for all of your passes, rather than
+1 <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUQuerySet"><code class="notranslate" translate="no">GPUQuerySet</code></a> per pass.</p>
 <p>But, in order to do that you’d either need to have the user tell you up front
 the maximum number of passes they’ll use. Or, you need to make the code more
-complicated where it starts with a small <code class="notranslate" translate="no">GPUQuerySet</code> and deletes it and
+complicated where it starts with a small <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUQuerySet"><code class="notranslate" translate="no">GPUQuerySet</code></a> and deletes it and
 makes a new larger one if you use more. But then, at least for 1 frame, you’d
-need to handle having multiple <code class="notranslate" translate="no">GPUQuerySet</code>s</p>
+need to handle having multiple <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUQuerySet"><code class="notranslate" translate="no">GPUQuerySet</code></a>s</p>
 <p>All of that seemed overkill so for now it seemed best to make it handle one
 pass and you can build on top of it until you decide it needs to be changed.</p>
 </li>
@@ -1080,6 +1080,7 @@ to copy the results to a mappable buffer. <a href="#fnref3" class="footnote-back
         </ul>
 <li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/webgpu-transparency.html">Transparency and Blending</a></li>
 <li><a href="/webgpu/lessons/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/webgpu-timing.html">Timing Performance</a></li>

@@ -845,10 +845,10 @@ buffer to an attribute <em>and</em> to specify how to pull data out of that buff
 WebGPU we only specify how to pull data out of buffers when creating the
 pipeline. We specify what buffers to use later.</p>
 <p>In the example above you can see <code class="notranslate" translate="no">buffers</code> is an array of objects.
-Those objects are called <code class="notranslate" translate="no">GPUVertexBufferLayout</code>. Within each one is
+Those objects are called <a href="https://www.w3.org/TR/webgpu/#dictdef-gpuvertexbufferlayout"><code class="notranslate" translate="no">GPUVertexBufferLayout</code></a>. Within each one is
 an array of attributes. Here we’re setting up to get our data from
 3 different buffers. If we interleaved the data into one buffer
-we’d only need one <code class="notranslate" translate="no">GPUVertexBufferLayout</code> but its <code class="notranslate" translate="no">attribute</code> array
+we’d only need one <a href="https://www.w3.org/TR/webgpu/#dictdef-gpuvertexbufferlayout"><code class="notranslate" translate="no">GPUVertexBufferLayout</code></a> but its <code class="notranslate" translate="no">attribute</code> array
 would have 3 entries.</p>
 <p>Also note, here is a place where we have to match <code class="notranslate" translate="no">shaderLocation</code> to
 what we used in the shader.</p>
@@ -1498,6 +1498,7 @@ This forces you to implement a portable point solution.</p>
         </ul>
 <li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/webgpu-transparency.html">Transparency and Blending</a></li>
 <li><a href="/webgpu/lessons/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/webgpu-timing.html">Timing Performance</a></li>

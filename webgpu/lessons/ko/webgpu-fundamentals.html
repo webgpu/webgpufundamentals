@@ -518,7 +518,7 @@ WebGPU에서 색상은 대개 <code class="notranslate" translate="no">0.0</code
 "렌더 타겟"이란 우리가 그리기를 수행할 텍스처를 의미합니다.
 파이프라인을 만들기 위해서는 우리가 최종적으로 파이프라인을 통해 렌더링을 수행하고자 하는 텍스처의 포맷을 명시해 주어야만 합니다.</p>
 <p><code class="notranslate" translate="no">targets</code> 배열의 0번 요소(element)는 프래그먼트 셰이더의 반환값으로 설정한 0번 로케이션(location)에 대응됩니다. 나중에 우리는 이 타겟이 캔버스의 텍스처가 되도록 설정할 것입니다.</p>
-<p>다음으로 어떤 텍스처에 그리기를 할 것인지와, 그것들을 어떻게 사용할 것인지를 기술하는 <code class="notranslate" translate="no">GPURenderPassDescriptor</code>를 준비합니다.</p>
+<p>다음으로 어떤 텍스처에 그리기를 할 것인지와, 그것들을 어떻게 사용할 것인지를 기술하는 <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a>를 준비합니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
     colorAttachments: [
@@ -531,7 +531,7 @@ WebGPU에서 색상은 대개 <code class="notranslate" translate="no">0.0</code
     ],
   };  
 </pre>
-<p><code class="notranslate" translate="no">GPURenderPassDescriptor</code>는 렌더링을 수행할 텍스처들과, 그것들을 어떻게 사용할 것인지를 명시한 <code class="notranslate" translate="no">colorAttachments</code> 배열을 갖습니다.
+<p><a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a>는 렌더링을 수행할 텍스처들과, 그것들을 어떻게 사용할 것인지를 명시한 <code class="notranslate" translate="no">colorAttachments</code> 배열을 갖습니다.
 렌더링을 수행할 텍스처를 명시하는 것은 조금 나중에 하고, 지금은 지우기 색상을 어두운 회색으로 하고 <code class="notranslate" translate="no">loadOp</code> 와 <code class="notranslate" translate="no">storeOp</code>만 설정합니다.
 <code class="notranslate" translate="no">loadOp: 'clear'</code>는 그리기 전에 지우기 색상으로 텍스처를 지운다는 것을 명시합니다.
 다른 옵션으로는 텍스처에 존재하는 내용(contents)을 GPU로 로드하여 이미 그려진 것에 덮어 그릴 수 있는 <code class="notranslate" translate="no">'load'</code> 옵션이 있습니다.
@@ -1008,6 +1008,7 @@ function main(device) {
         </ul>
 <li><a href="/webgpu/lessons/ko/webgpu-constants.html">상수(Constants)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-memory-layout.html">데이터 메모리 레이아웃</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-transparency.html">Transparency and Blending</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-copying-data.html">데이터 복사하기</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-limits-and-features.html">선택적 기능(optional feature)과 제한(limit)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-timing.html">Timing Performance</a></li>

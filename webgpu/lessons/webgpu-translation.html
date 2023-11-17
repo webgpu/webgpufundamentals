@@ -427,7 +427,7 @@ It defaults to <code class="notranslate" translate="no">'opaque'</code>.</p>
 +    alphaMode: 'premultiplied',
   });
 </pre>
-<p>Then we need to clear the canvas to 0, 0, 0, 0 in our <code class="notranslate" translate="no">GPURenderPassDescriptor</code>.
+<p>Then we need to clear the canvas to 0, 0, 0, 0 in our <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a>.
 Because the default <code class="notranslate" translate="no">clearValue</code> is 0, 0, 0, 0 we can just delete the line that
 was setting it to something else.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
@@ -594,6 +594,7 @@ sense in context as we continue the series.</p>
         </ul>
 <li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/webgpu-transparency.html">Transparency and Blending</a></li>
 <li><a href="/webgpu/lessons/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/webgpu-timing.html">Timing Performance</a></li>

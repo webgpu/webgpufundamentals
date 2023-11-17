@@ -232,7 +232,7 @@ by calling <code class="notranslate" translate="no">copyExternalImageToTexture</
 the current frame of video from the video itself into a pre-existing
 texture that we created.</p>
 <p>WebGPU has another method for using video. It’s called <code class="notranslate" translate="no">importExternalTexture</code>
-and, like the name suggests, it provides a <code class="notranslate" translate="no">GPUExternalTexture</code>. This external
+and, like the name suggests, it provides a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUExternalTexture"><code class="notranslate" translate="no">GPUExternalTexture</code></a>. This external
 texture represents the data in the video directly. No copy is made. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>
 You pass <code class="notranslate" translate="no">importExternalTexture</code> a video and it returns a texture, ready to use.</p>
 <p>There are a few big caveats to using an texture from <code class="notranslate" translate="no">importExternalTexture</code>.</p>
@@ -506,6 +506,7 @@ we create at render time. Whether that’s worth it is up to your particular nee
         </ul>
 <li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
+<li><a href="/webgpu/lessons/webgpu-transparency.html">Transparency and Blending</a></li>
 <li><a href="/webgpu/lessons/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/webgpu-timing.html">Timing Performance</a></li>
