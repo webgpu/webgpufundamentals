@@ -224,8 +224,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>I’m not sure this topic deserves to considered an input to the shader.
-But, from one point of view it is so lets cover it.</p>
+      <p>I’m not sure this topic deserves to be considered an input to the shader.
+But, from one point of view it is, so lets cover it.</p>
 <p>Constants, or more formally, <em>pipeline-overridable constants</em> are a type
 of constant you declare in your shader but you can change when you use
 that shader to create a pipeline.</p>
@@ -335,7 +335,7 @@ complex the shader the more time it saves.</p>
 <p>In any case, it is one way to get some small amount of data into a shader.</p>
 <p>It is <strong>not</strong> common to use pipeline overridable constants to pass in a color.
 That example was used because it’s easy to understand and to show the results.
-It would instead be useful for an iteration count, the size of an array (for
+It <em>might</em> be useful for an iteration count, the size of an array (for
 example the number of lights), etc…</p>
 
     </div>
@@ -478,7 +478,14 @@ const settings = {
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
 <script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
+<!-- Google tag (gtag.js) -->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-92BFT5PE4H"></script>
 <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-92BFT5PE4H');
 </script>
 
 

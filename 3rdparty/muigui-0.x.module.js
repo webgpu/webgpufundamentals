@@ -1,4 +1,4 @@
-/* muigui@0.0.8, license MIT */
+/* muigui@0.0.9, license MIT */
 var css = {
   default: `
 .muigui {
@@ -1048,6 +1048,9 @@ class Controller extends View {
       }
     }
   }
+  updateDisplay() {
+    // placeholder. override
+  }
   getColors() {
     const toCamelCase = s => s.replace(/-([a-z])/g, (m, m1) => m1.toUpperCase());
     const keys = [
@@ -1200,6 +1203,7 @@ class EditView extends View {
 }
 
 class CheckboxView extends EditView {
+  #checkboxElem;
   constructor(setter, id) {
     const checkboxElem = createElem('input', {
       type: 'checkbox',
@@ -1212,9 +1216,10 @@ class CheckboxView extends EditView {
       },
     });
     super(createElem('label', {}, [checkboxElem]));
+    this.#checkboxElem = checkboxElem;
   }
   updateDisplay(v) {
-    this.domElement.checked = v;
+    this.#checkboxElem.checked = v;
   }
 }
 
