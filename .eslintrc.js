@@ -6,6 +6,7 @@ module.exports = {
   },
   // REMOVE THIS!
   globals: {
+    'GPUShaderStage': 'readonly',
     'GPUBufferUsage': 'readonly',
     'GPUTextureUsage': 'readonly',
     'GPUMapMode': 'readonly',
