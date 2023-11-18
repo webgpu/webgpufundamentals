@@ -36,6 +36,8 @@ const b = {
   mat3x4h: { numElements: 12, align:  8, size: 24, pad: [3, 1], type: 'u16', View: Uint16Array },
   mat4x4f: { numElements: 16, align: 16, size: 64,              type: 'f32', View: Float32Array },
   mat4x4h: { numElements: 16, align:  8, size: 32,              type: 'u16', View: Uint16Array },
+
+  bool: { numElements: 0, align: 1, size: 0, type: 'bool' },
 };
 
 const typeInfo = {

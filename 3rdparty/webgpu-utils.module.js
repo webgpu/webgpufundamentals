@@ -1,4 +1,4 @@
-/* webgpu-utils@0.14.2, license MIT */
+/* webgpu-utils@0.14.3, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
 
 class TypedArrayViewGenerator {
@@ -62,6 +62,10 @@ const b = {
     mat3x4h: { numElements: 12, align: 8, size: 24, pad: [3, 1], type: 'u16', View: Uint16Array },
     mat4x4f: { numElements: 16, align: 16, size: 64, type: 'f32', View: Float32Array },
     mat4x4h: { numElements: 16, align: 8, size: 32, type: 'u16', View: Uint16Array },
+    // Note: At least as of WGSL V1 you can not create a bool for uniform or storage.
+    // You can only create one in an internal struct. But, this code generates
+    // views of structs and it needs to not fail if the struct has a bool
+    bool: { numElements: 0, align: 1, size: 0, type: 'bool', View: Uint32Array },
 };
 const typeInfo = {
     ...b,

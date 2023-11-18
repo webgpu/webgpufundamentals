@@ -215,18 +215,22 @@ function getSizeOfTypeDef(typeDef/*: TypeDefinition*/)/*: number*/ {
 
 
 function addGridType(grid, typeDef, baseOffset, name, color) {
-  grid.addPadding(baseOffset - grid.byteOffset);
+  if (!(typeDef.size !== undefined && typeDef.size === 0)) {
+    grid.addPadding(baseOffset - grid.byteOffset);
+  }
 
   if (typeDef.fields) {
     for (const [fieldName, fieldDef] of Object.entries(typeDef.fields)) {
       addGridType(grid, fieldDef.type, baseOffset + fieldDef.offset, `${name}.${fieldName}`);
     }
   } else if (typeDef.elementType) {
-    const { elementType } = typeDef;
-    const elemColor = getColor(grid, color);
-    const elementSize = typeDef.size / typeDef.numElements;
-    for (let i = 0; i < typeDef.numElements; ++i) {
-      addGridType(grid, elementType, baseOffset + i * elementSize, `${name}[${i}]`, elemColor);
+    if (typeDef.size) {
+      const { elementType } = typeDef;
+      const elemColor = getColor(grid, color);
+      const elementSize = typeDef.size / typeDef.numElements;
+      for (let i = 0; i < typeDef.numElements; ++i) {
+        addGridType(grid, elementType, baseOffset + i * elementSize, `${name}[${i}]`, elemColor);
+      }
     }
   } else {
     // name, numElements, elementSize, alignment
