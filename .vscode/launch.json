@@ -29,6 +29,19 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Debug Watch",
+      "program": "${workspaceFolder}/node_modules/grunt/bin/grunt",
+      "env": {
+        "ARTICLE_FILTER": "transp",
+        // "ARTICLE_VERBOSE": "1",
+      },
+      "args": [
+        "buildwatch"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Diagram Gen",
       "runtimeArgs": [
           "--loader",
