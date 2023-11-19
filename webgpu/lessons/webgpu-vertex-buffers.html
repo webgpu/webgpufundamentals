@@ -1079,10 +1079,10 @@ use those 4 vertices 6 times by telling WebGPU to draw indices in this order</p>
 +  }
 
   return {
-    positionData,
-    colorData,
+    vertexData,
 +    indexData,
-    numVertices: indexData.length,
+-    numVertices,
++    numVertices: indexData.length,
   };
 }
 </pre>
