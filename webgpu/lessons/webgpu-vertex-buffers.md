@@ -953,10 +953,10 @@ function createCircleVertices({
 +  }
 
   return {
-    positionData,
-    colorData,
+    vertexData,
 +    indexData,
-    numVertices: indexData.length,
+-    numVertices,
++    numVertices: indexData.length,
   };
 }
 ```
