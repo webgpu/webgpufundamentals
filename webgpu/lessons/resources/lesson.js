@@ -1,4 +1,68 @@
+/* global Diff Diff2HtmlUI */
 import '/webgpu/lessons/resources/data-tables.js';
+import entities from '/3rdparty/entities.js';
+
+{
+  const decEntityRE = /&#(\d+);/;
+  const hexEntityRE = /&#x([a-z0-9]+);/;
+  function decodeNumericEntity(s) {
+    // &#8212; or &#x2014;
+    {
+      const m = decEntityRE.exec(s);
+      if (m) {
+        return String.fromCodePoint(parseInt(m[1]));
+      }
+    }
+    {
+      const m = hexEntityRE.exec(s);
+      if (m) {
+        return String.fromCodePoint(parseInt(m[1], 16));
+      }
+    }
+    return s;
+  }
+
+  function decodeEntity(s) {
+    return entities[s] || decodeNumericEntity(s);
+  }
+
+  const unescapeHTMLRE = /&\w+;/g;
+  function unescapeHTML(escapedHTML) {
+    return escapedHTML.replace(unescapeHTMLRE, (m) => decodeEntity(m));
+  }
+
+  function applyDiff(elem) {
+    const parts = [...elem.querySelectorAll('pre')].map(elem =>
+      unescapeHTML(elem/*.querySelector('code')*/.textContent));
+    //parts.forEach((part, i) => {
+    //  console.log(i, part);
+    //});
+    const diff = Diff.createPatch('unnamed', parts[0], parts[1], '', '');
+    const div = document.createElement('div');
+
+    Object.assign(div.style, {
+    'width': '100%',
+    'margin': '0 0 0 0',
+    'max-width': '100%',
+    'line-height': '1.3',
+    });
+
+    elem.parentElement.appendChild(div);
+    const diffUI = new Diff2HtmlUI(div, diff, {
+        drawFileList: false,
+        fileListToggle: false,
+        fileListStartVisible: false,
+        fileContentToggle: false,
+      colorScheme: 'auto',
+      outputFormat: 'side-by-side',
+    });
+    diffUI.draw();
+  }
+
+  document.querySelectorAll('[data-diff]').forEach(applyDiff);
+
+}
+
 // Licensed under a BSD license. See license.html for license
 /* eslint-disable strict */
 /* global settings, contributors, jQuery */
@@ -101,7 +165,6 @@ $(document).ready(function($) {
   });
 
   $('[data-table]').html();
-
 });
 }(jQuery));
 

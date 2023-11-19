@@ -67,6 +67,18 @@
 <link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css"
+  media="screen and (prefers-color-scheme: light)"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css"
+  media="screen and (prefers-color-scheme: dark)"
+/>
+
+<link rel="stylesheet"  href="/3rdparty/diff2html.min.css">
 <link rel="stylesheet" href="/webgpu/lessons/lang.css">
 {{#ifexists filename="/webgpu/lessons/{{langCode}}/lang.css" langCode=langInfo.baseDirname}}
 <link rel="stylesheet" href="/webgpu/lessons/{{langInfo.baseDirname}}/lang.css">
@@ -124,6 +136,8 @@ const settings = {
 <script src="/contributors.js"></script>
 <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
+<script src="/3rdparty/diff.min.js"></script>
+<script src="/3rdparty/diff2html-ui.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
 <script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
 {{{include "build/templates/analytics.template" }}}
