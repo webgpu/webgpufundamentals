@@ -498,10 +498,10 @@ Hopefully this gives you some ideas.
 <p>WebGPU is based on native GPU APIs like Vulkan, Metal, DirectX, and even OpenGL.
 Unfortunately, those APIs do not agree with each other on what it means to support
 rendering points. Some APIs have a device dependent limits on the size of points.
-Some APIs don't render a point if it's center is outside of clip space while others
-do. Some APIs this second issue is up to the driver. All of that means WebGPU decided to do the portable thing and only support 1x1
+Some APIs don't render a point if its center is outside of clip space while others
+do. In some APIs, this second issue is up to the driver. All of that means WebGPU decided to do the portable thing and only support 1x1
 sized pixels.</p>
-<p>The good thing is it's easy to do it yourself as shown above. The solutions
+<p>The good thing is it's easy to support larger points yourself as shown above. The solutions
 above are portable across devices, they have no limit on the size of a point and
 the consistently clip points across devices. They draw the portion of any point
 that is inside clip space regardless of if the point's center is outside of clip space.</p>
