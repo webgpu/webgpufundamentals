@@ -284,7 +284,7 @@ struct VSOutput {
   var vsOut: VSOutput;
   let pos = points[vNdx];
   vsOut.position = vec4f(vert.position + pos * vert.size / uni.resolution, 0, 1);
-  vsOut.texcoord = pos * 0.5 + 0.5;
++  vsOut.texcoord = pos * 0.5 + 0.5;
   return vsOut;
 }
 ```
