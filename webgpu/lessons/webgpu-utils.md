@@ -1488,6 +1488,9 @@ const sphereData = createBuffersAndAttributesFromArrays(
 );
 ```
 
-I hope you'll realize there are 30-40 articles on this site that explain
+I hope you'll see there are 30-40 articles on this site that explain
 what it means to `createBuffersAndAttributesFromArrays` and nothing
-about these utils are scary or hard to understand.
+about these utils are scary or hard to understand. Explaining
+a concept, giving it a name, and then just referring to it by name
+is the norm in learning. It lets you more easily build up to more
+higher level concepts.
