@@ -12,6 +12,7 @@ Here are some other webgpu resources
 * [WebGPU Best Practices](https://toji.dev/webgpu-best-practices/)
 * [Rosetta](https://toji.github.io/rosetta/) - compare shaders in multiple shader languages
 * [3D Graphics Beginner Tutorials and Projects](https://shrekshao.github.io/3d-graphics-beginner-projects/)
+* [WebGPU Render Bundle Best Practices](https://toji.dev/webgpu-best-practices/render-bundles)
 
 # Examples
 
@@ -37,6 +38,8 @@ Here are some other webgpu resources
 ## Utilities
 
 * [webgpu-utils](https://github.com/greggman/webgpu-utils) - helps set uniform buffer data and more
+* [webgpu-dev-extension](https://github.com/greggman/webgpu-dev-extension) - various helpers for debugging and development as an extension.
+* [webgpu-helpers](https://github.com/greggman/webgpu-helpers) - various helpers for debugging and development.
 * [wgsl-struct-buffer](https://github.com/deepkolos/wgsl-struct-buffer) - wgsl's struct buffer view in ts with type check & infer
 * [webgpu-memory](https://github.com/greggman/webgpu-memory) - tells you how much memory you're using
 * [webgpu-avoid-redundant-state-setting](https://github.com/greggman/webgpu-avoid-redundant-state-setting) - checks your code for redundant WebGPU calls
