@@ -1,5 +1,11 @@
-/* webgpu-utils@0.14.3, license MIT */
+/* webgpu-utils@0.15.0, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
+function keysOf(obj) {
+    return Object.keys(obj);
+}
+function range(count, fn) {
+    return new Array(count).fill(0).map((_, i) => fn(i));
+}
 
 class TypedArrayViewGenerator {
     arrayBuffer;
@@ -100,6 +106,56 @@ const typeInfo = {
     'mat4x4<f32>': b.mat4x4f,
     'mat4x4<f16>': b.mat4x4h,
 };
+const kTypes = keysOf(typeInfo);
+/**
+ * Set which intrinsic types to make views for.
+ *
+ * Example:
+ *
+ * Given a an array of intrinsics like this
+ * `array<vec3, 200>`
+ *
+ * The default is to create a single `Float32Array(4 * 200)`
+ * because creating 200 `Float32Array` views is not usually
+ * what you want.
+ *
+ * If you do want individual views then you'd call
+ * `setIntrinsicsToView(['vec3f`])` and now you get
+ * an array of 200 `Float32Array`s.
+ *
+ * Note: `setIntrinsicsToView` always sets ALL types. The list you
+ * pass it is the types you want views created for, all other types
+ * will be reset to do the default. In other words
+ *
+ * ```js
+ * setIntrinsicsToView(['vec3f`])
+ * setIntrinsicsToView(['vec2f`])
+ * ```
+ *
+ * Only `vec2f` will have views created. `vec3f` has been reset to the default by
+ * the second call
+ *
+ * You can pass in `true` as the 2nd parameter to make it set which types
+ * to flatten and all others will be set to have views created.
+ *
+ * To reset all types to the default call it with no arguments
+ *
+ * @param types array of types to make views for
+ * @param flatten whether to flatten or expand the specified types.
+ */
+function setIntrinsicsToView(types = [], flatten) {
+    // we need to track what we've viewed because for example `vec3f` references
+    // the same info as `vec3<f32>` so we'd set one and reset the other.
+    const visited = new Set();
+    for (const type of kTypes) {
+        const info = typeInfo[type];
+        if (!visited.has(info)) {
+            visited.add(info);
+            info.flatten = types.includes(type) ? flatten : !flatten;
+        }
+    }
+}
+setIntrinsicsToView();
 // This needs to be fixed! 😱
 function getSizeOfTypeDef(typeDef) {
     const asArrayDef = typeDef;
@@ -130,9 +186,6 @@ function getSizeOfTypeDef(typeDef) {
                 : typeDef.size;
         }
     }
-}
-function range(count, fn) {
-    return new Array(count).fill(0).map((_, i) => fn(i));
 }
 // If numElements is undefined this is NOT an array. If it is defined then it IS an array
 // Sizes for arrays are different than sizes for non-arrays. Example
@@ -213,7 +266,7 @@ function makeTypedArrayViews(typeDef, arrayBuffer, offset) {
             // On the other hand, if we have `array<mat4x4, 10>` the maybe we do want
             // 10 `Float32Array(16)` views since you might want to do
             // `mat4.perspective(fov, aspect, near, far, foo.bar.arrayOf10Mat4s[3])`;
-            if (isIntrinsic(elementType)) {
+            if (isIntrinsic(elementType) && typeInfo[elementType.type].flatten) {
                 return makeIntrinsicTypedArrayView(elementType, buffer, baseOffset, asArrayDef.numElements);
             }
             else {
@@ -5746,5 +5799,5 @@ var primitives = /*#__PURE__*/Object.freeze({
     createXYQuadVertices: createXYQuadVertices
 });
 
-export { TypedArrayViewGenerator, copySourceToTexture, copySourcesToTexture, createBufferLayoutsFromArrays, createBuffersAndAttributesFromArrays, createTextureFromImage, createTextureFromImages, createTextureFromSource, createTextureFromSources, generateMipmap, getSizeForMipFromTexture, getSizeFromSource, interleaveVertexData, isTypedArray, loadImageBitmap, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayViews, normalizeGPUExtent3D, numMipLevels, primitives, setStructuredValues, setStructuredView, setTypedValues, subarray };
+export { TypedArrayViewGenerator, copySourceToTexture, copySourcesToTexture, createBufferLayoutsFromArrays, createBuffersAndAttributesFromArrays, createTextureFromImage, createTextureFromImages, createTextureFromSource, createTextureFromSources, generateMipmap, getSizeForMipFromTexture, getSizeFromSource, interleaveVertexData, isTypedArray, kTypes, loadImageBitmap, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayViews, normalizeGPUExtent3D, numMipLevels, primitives, setIntrinsicsToView, setStructuredValues, setStructuredView, setTypedValues, subarray };
 //# sourceMappingURL=webgpu-utils.module.js.map
