@@ -518,6 +518,24 @@ struct Ex4 {
 <p>That’s because arrays and structs have their own own special alignment rules so
 even though the array is a single <code class="notranslate" translate="no">vec3f</code> and the <code class="notranslate" translate="no">Ex4a</code> struct is also a single
 <code class="notranslate" translate="no">vec3f</code> they get aligned according to different rules.</p>
+<div class="webgpu_center data-table">
+  <div>
+  <style>
+    .wgsl-types tr:nth-child(5n) { height: 1em };
+  </style>
+  <p></p><table class="wgsl-types">
+    <thead>
+      <tr><th>type</th><th>size</th><th>align</th></tr><tr>
+    </tr></thead>
+    <tbody>
+      <tr><td><code class="notranslate" translate="no">struct</code> S with members M<sub>1</sub>...M<sub>N</sub></td><td>max(AlignOfMember(S,1), ... , AlignOfMember(S,N))</td><td>roundUp(AlignOf(S), justPastLastMember)
+<p>where justPastLastMember = OffsetOfMember(S,N) + SizeOfMember(S,N)</p></td></tr>
+<tr><td><code class="notranslate" translate="no">array&lt;E, N&gt;</code></td><td>AlignOf(E)</td><td>N × roundUp(AlignOf(E), SizeOf(E))</td></tr>
+</tbody>
+  </table>
+  </div>
+</div>
+<p>You can read the rules in more detail <a href="https://www.w3.org/TR/WGSL/#alignment-and-size">here in the WGSL spec</a>.</p>
 <h1 id="computing-offset-and-sizes-is-a-pita">Computing Offset and Sizes is a PITA!</h1>
 <p>Computing sizes and offsets of data in WGSL is probably the largest pain point
 of WebGPU. You are required to compute these offsets yourself and keep them up
