@@ -369,6 +369,27 @@ That's because arrays and structs have their own own special alignment rules so
 even though the array is a single `vec3f` and the `Ex4a` struct is also a single
 `vec3f` they get aligned according to different rules.
 
+<div class="webgpu_center data-table">
+  <div>
+  <style>
+    .wgsl-types tr:nth-child(5n) { height: 1em };
+  </style>
+  <table class="wgsl-types">
+    <thead>
+      <tr><th>type</th><th>size</th><th>align</th><tr>
+    </thead>
+    <tbody>
+      <tr><td><code>struct</code> S with members M<sub>1</sub>...M<sub>N</sub></td><td>max(AlignOfMember(S,1), ... , AlignOfMember(S,N))</td><td>roundUp(AlignOf(S), justPastLastMember)
+
+where justPastLastMember = OffsetOfMember(S,N) + SizeOfMember(S,N)</td></tr>
+      <tr><td><code>array&lt;E, N&gt;</code></td><td>AlignOf(E)</td><td>N × roundUp(AlignOf(E), SizeOf(E))</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+You can read the rules in more detail [here in the WGSL spec](https://www.w3.org/TR/WGSL/#alignment-and-size).
+
 # Computing Offset and Sizes is a PITA!
 
 Computing sizes and offsets of data in WGSL is probably the largest pain point
