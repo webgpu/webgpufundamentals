@@ -1415,4 +1415,6 @@ This forces you to implement a portable point solution.
 
 If you were already familiar with WebGL then I hope this article was useful.
 
+If you're comparing performance of WebGL vs WebGPU see
+[this article](https://toji.dev/webgpu-best-practices/webgl-performance-comparison) to make sure you are comparing similar things.
 
