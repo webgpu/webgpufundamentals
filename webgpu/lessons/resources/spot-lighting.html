@@ -41,13 +41,15 @@ function main() {
   const ctx = document.querySelector('#canvas').getContext('2d');
   const settings = {
     rotation: 0,
-    direction: degToRad(20),
+    direction: degToRad(35),
     limit: degToRad(20),
   };
 
   function degToRad(deg) {
     return deg * Math.PI / 180;
   }
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
   const radToDegOptions = { min: -70, max: 70, step: 1, converters: GUI.converters.radToDeg };
   const gui = new GUI();
@@ -126,7 +128,7 @@ function main() {
       const rayDx = Math.sin(r);
       const rayDy = Math.cos(r);
 
-      const cutOffDot = v3.dot([ldx, ldy, 0], [rayDx, rayDy, 0]);
+      const cutOffDot = clamp(v3.dot([ldx, ldy, 0], [rayDx, rayDy, 0]), -1, 1);
       const cutOffAngle = Math.acos(cutOffDot);
       const inLight = cutOffAngle <= limit;
 
@@ -183,11 +185,17 @@ function main() {
         const dy = y - ly;
         const sp = v3.normalize([dx, dy, 0]);
 
-        const dot = v3.dot([sp[0], sp[1], 0], [-s, c, 0]);
+        const dot = clamp(v3.dot([sp[0], sp[1], 0], [-s, c, 0]), -1, 1);
 
-        const cutOffDot = v3.dot([ldx, ldy, 0], [-sp[0], sp[1], 0]);
+        // This is strange to me but I'm sure if I walked through the binary maybe
+        // I'd get it. We can see that ldx, ldy are sin,cos. And we can see that
+        // sp has to also be sin,cos has it's a normalized vector. But, sometimes,
+        // it doesn't normalize perfect, it's length is like 1.000000002. That's
+        // end up making dot not return a value -1 to 1 which ends up being out of
+        // range for acos and it returns NaN
+        const cutOffDot = clamp(v3.dot([ldx, ldy, 0], [-sp[0], sp[1], 0]), -1, 1);
         const cutOffAngle = Math.acos(cutOffDot);
-        const inLight = cutOffAngle < limit;
+        const inLight = cutOffAngle <= limit;
 
         gradient.addColorStop(pos, hsl(0, 1, inLight ? dot : 0));
     }

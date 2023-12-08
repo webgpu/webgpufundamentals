@@ -1,4 +1,4 @@
-/* muigui@0.0.9, license MIT */
+/* muigui@0.0.14, license MIT */
 var css = {
   default: `
 .muigui {
@@ -11,16 +11,24 @@ var css = {
   --menu-bg-color: #f8f8f8;
   --menu-sep-color: #bbb;
   --hover-bg-color: #999;
-  --focus-color: #68C;
-  --range-color: #888888;
+  --focus-color: #8BF;
+  --range-color: #AAA;
   --invalid-color: #FF0000;
   --selected-color: rgb(255, 255, 255, 0.9);
 
   --button-bg-color: var(--value-bg-color);
 
+  --image-open: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHN0eWxlPSJmaWxsOiAjNDQ0OyIgeD0iMjAlIiB5PSI0NSUiIHdpZHRoPSI2MCUiIGhlaWdodD0iMTAlIj48L3JlY3Q+Cjwvc3ZnPg==);
+  --image-closed: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHN0eWxlPSJmaWxsOiAjNDQ0OyIgeD0iNDUlIiB5PSIyMCUiIHdpZHRoPSIxMCUiIGhlaWdodD0iNjAlIj48L3JlY3Q+CiAgPHJlY3Qgc3R5bGU9ImZpbGw6ICM0NDQ7IiB4PSIyMCUiIHk9IjQ1JSIgd2lkdGg9IjYwJSIgaGVpZ2h0PSIxMCUiPjwvcmVjdD4KPC9zdmc+);
+  --image-checkerboard: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHN0eWxlPSJmaWxsOiAjNDA0MDQwOyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+PC9yZWN0PgogIDxyZWN0IHN0eWxlPSJmaWxsOiAjODA4MDgwOyIgeD0iMCIgeT0iMCIgd2lkdGg9IjUwJSIgaGVpZ2h0PSI1MCUiPjwvcmVjdD4KICA8cmVjdCBzdHlsZT0iZmlsbDogIzgwODA4MDsiIHg9IjUwJSIgeT0iNTAlIiB3aWR0aD0iNTAlIiBoZWlnaHQ9IjUwJSI+PC9yZWN0Pgo8L3N2Zz4=);
+
   --range-left-color: var(--value-color);
   --range-right-color: var(--value-bg-color); 
   --range-right-hover-color: var(--hover-bg-color);
+  --button-image: 
+    linear-gradient(
+      rgba(255, 255, 255, 1), rgba(0, 0, 0, 0.2)
+    );
 
   color: var(--color);
   background-color: var(--bg-color);
@@ -37,7 +45,7 @@ var css = {
     --menu-bg-color: #080808;
     --menu-sep-color: #444444;
     --hover-bg-color: #666666;
-    --focus-color: #88AAFF;
+    --focus-color: #458; /*#88AAFF*/;
     --range-color: #888888;
     --invalid-color: #FF6666;
     --selected-color: rgba(255, 255, 255, 0.3);
@@ -47,9 +55,15 @@ var css = {
     --range-left-color: var(--value-color);
     --range-right-color: var(--value-bg-color); 
     --range-right-hover-color: var(--hover-bg-color);
+    --button-image: linear-gradient(
+        rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4)
+      );
 
     color: var(--color);
     background-color: var(--bg-color);
+
+    --image-closed: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHN0eWxlPSJmaWxsOiAjREREOyIgeD0iMjAlIiB5PSI0NSUiIHdpZHRoPSI2MCUiIGhlaWdodD0iMTAlIj48L3JlY3Q+Cjwvc3ZnPg==);
+    --image-open: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHN0eWxlPSJmaWxsOiAjREREOyIgeD0iNDUlIiB5PSIyMCUiIHdpZHRoPSIxMCUiIGhlaWdodD0iNjAlIj48L3JlY3Q+CiAgPHJlY3Qgc3R5bGU9ImZpbGw6ICNEREQ7IiB4PSIyMCUiIHk9IjQ1JSIgd2lkdGg9IjYwJSIgaGVpZ2h0PSIxMCUiPjwvcmVjdD4KPC9zdmc+);
   }
 }
 
@@ -57,7 +71,6 @@ var css = {
   --width: 250px;
   --label-width: 45%;
   --number-width: 40%;
-
 
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   --font-size: 11px;
@@ -151,6 +164,9 @@ var css = {
   min-width: 0;
   min-height: var(--line-height);
 }
+.muigui-root {
+  z-index: 1;
+}
 .muigui-root,
 .muigui-menu {
   display: flex;
@@ -175,8 +191,7 @@ var css = {
   color: var(--color);
   background-color: var(--menu-bg-color);
   min-height: var(--line-height);
-  padding-top: 0.2em;
-  padding-bottom: 0.2em;
+  padding: 0.2em;
   cursor: pointer;
   border-radius: var(--border-radius);
 }
@@ -197,7 +212,7 @@ var css = {
 .muigui-controller>*:nth-child(1) {
   flex: 1 0 var(--label-width);
   min-width: 0;
-  white-space: pre;
+  /* white-space: pre; why?? */
 }
 .muigui-controller>label:nth-child(1) {
   place-content: center start;
@@ -239,32 +254,41 @@ var css = {
 /* fix! */
 .muigui-open>button>label::before,
 .muigui-closed>button>label::before {
+  content: "X";
+  color: rgba(0, 0, 0, 0);
+  background-color: var(--range-color);
+  border-radius: 0.2em;
   width: 1.25em;
-  height: var(--line-height);
+  margin-right: 0.25em;
+  height: 1.25em; /*var(--line-height);*/
   display: inline-grid;
   place-content: center start;
   pointer-events: none;
 }
 .muigui-open>button>label::before {
-  content: "ⓧ"; /*"▼";*/
+  background-image: var(--image-open);
 }
 .muigui-closed>button>label::before {
-  content: "⨁"; /*"▶";*/
-}
-.muigui-open>*:nth-child(2) {
-  transition: max-height 0.2s ease-out,
-              opacity 0.5s ease-out;
-  max-height: 100vh;
-  overflow: auto;
-  opacity: 1;
+  background-image: var(--image-closed);
 }
 
-.muigui-closed>*:nth-child(2) {
-  transition: max-height 0.2s ease-out,
-              opacity 1s;
-  max-height: 0;
-  opacity: 0;
+.muigui-open>.muigui-open-container {
+  transition: all 0.1s ease-out;
+  overflow: auto;
+  height: 100%;
+}
+.muigui-closed>.muigui-open-container {
+  transition: all 0.1s ease-out;
   overflow: hidden;
+  min-height: 0;
+}
+.muigui-open>.muigui-open-container>* {
+  transition: all 0.1s ease-out;
+  margin-top: 0px;
+}
+.muigui-closed>.muigui-open-container>* {
+  transition: all 0.1s ease-out;
+  margin-top: -100%;
 }
 
 /* ---- popdown ---- */
@@ -276,8 +300,12 @@ var css = {
 .muigui-value>*:nth-child(1).muigui-pop-down-top {
   flex: 0;
 }
-.muigui-pop-down-bottom {
+.muigui-closed .muigui-pop-down-bottom {
+  max-height: 0;
+}
 
+.muigui-value .muigui-pop-down-bottom {
+  margin: 0;
 }
 
 .muigui-pop-down-values {
@@ -299,6 +327,10 @@ var css = {
   width: auto;
   color: var(--value-color);
   background-color: var(--value-bg-color);
+  background-image: var(--image-checkerboard);
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+
   cursor: pointer;
 
   display: grid;
@@ -390,14 +422,16 @@ var css = {
 
 .muigui-button {
   display: grid;
-
+  padding: 2px 0 2px 0;
 }
 .muigui-button button {
   border: none;
   color: var(--value-color);
   background-color: var(--button-bg-color);
+  background-image: var(--button-image);
   cursor: pointer;
   place-content: center center;
+  height: var(--line-height);
 }
 
 /* ------ [ color ] ------ */
@@ -609,9 +643,9 @@ var css = {
   border-bottom: 1px solid rgba(0,0,0,0.2);
   border-right: 1px solid rgba(0,0,0,0.2);
   background-color: var(--range-color);
-  margin-top: calc((var(--line-height) - 2px) / -2);
-  width: calc(var(--line-height) - 2px);
-  height: calc(var(--line-height) - 2px);
+  margin-top: calc((var(--line-height) - 6px) / -2);
+  width: calc(var(--line-height) - 6px);
+  height: calc(var(--line-height) - 6px);
 }
 
 .muigui-range input[type=range]::-webkit-slider-runnable-track {
@@ -671,6 +705,17 @@ var css = {
 }
 */
 
+.muigui-checkered-background {
+  background-color: #404040;
+  background-image:
+     linear-gradient(45deg, #808080 25%, transparent 25%),
+     linear-gradient(-45deg, #808080 25%, transparent 25%),
+     linear-gradient(45deg, transparent 75%, #808080 75%),
+     linear-gradient(-45deg, transparent 75%, #808080 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+
 /* ---------------------------------------------------------- */
 
 /* needs to be at bottom to take precedence */
@@ -684,8 +729,14 @@ var css = {
 
 `,
 themes: {
-  default: '',
-  float: `
+  default: {
+    include: ['default'],
+    css: `
+    `,
+  },
+  float: {
+    include: ['default'],
+    css: `
   :root {
     color-scheme: light dark,
   }
@@ -742,6 +793,58 @@ themes: {
     --range-color: rgba(0, 0, 0, 0.125);
   }
 `,
+  },
+  form: {
+    include: [],
+    css: `
+    .muigui {
+      --width: 100%;
+      --label-width: 45%;
+      --number-width: 40%;
+    }
+    .muigui-root>button {
+      display: none;
+    }
+    .muigui-controller {
+      margin-top: 1em;
+    }
+    .muigui-label-controller {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      margin-top: 1em;
+    }
+    .muigui-label-controller:has(.muigui-checkbox) {
+      flex-direction: row;
+    }
+    .muigui-value {
+      display: flex;
+      align-items: stretch;
+    }
+    .muigui-value>* {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .muigui-controller>*:nth-child(1) {
+      flex: 1 0 var(--label-width);
+      min-width: 0;
+      white-space: pre;
+    }
+    .muigui-controller>label:nth-child(1) {
+      place-content: center start;
+      display: inline-grid;
+      overflow: hidden;
+    }
+    .muigui-controller>*:nth-child(2) {
+      flex: 1 1 75%;
+      min-width: 0;
+    }
+  `,
+  },
+  none: {
+    include: [],
+    css: '',
+  },
 },
 };
 
@@ -776,6 +879,11 @@ function addElem(tag, parent, attrs = {}, children = []) {
   const elem = createElem(tag, attrs, children);
   parent.appendChild(elem);
   return elem;
+}
+
+let nextId = 0;
+function getNewId() {
+  return `muigui-id-${nextId++}`;
 }
 
 function removeArrayElem(array, value) {
@@ -884,58 +992,58 @@ function makeMinMaxPair(gui, properties, minPropName, maxPropName, options) {
 }
 
 class View {
-  #childDestElem;
-  #views = [];
-
-  constructor(elem) {
-    this.domElement = elem;
-    this.#childDestElem = elem;
-  }
-  addElem(elem) {
-    this.#childDestElem.appendChild(elem);
-    return elem;
-  }
-  removeElem(elem) {
-    this.#childDestElem.removeChild(elem);
-    return elem;
-  }
-  pushSubElem(elem) {
-    this.#childDestElem.appendChild(elem);
-    this.#childDestElem = elem;
-  }
-  popSubElem() {
-    this.#childDestElem = this.#childDestElem.parentElement;
-  }
-  add(view) {
-    this.#views.push(view);
-    this.addElem(view.domElement);
-    return view;
-  }
-  remove(view) {
-    this.removeElem(view.domElement);
-    removeArrayElem(this.#views, view);
-    return view;
-  }
-  pushSubView(view) {
-    this.pushSubElem(view.domElement);
-  }
-  popSubView() {
-    this.popSubElem();
-  }
-  setOptions(options) {
-    for (const view of this.#views) {
-      view.setOptions(options);
+    domElement;
+    #childDestElem;
+    #views = [];
+    constructor(elem) {
+        this.domElement = elem;
+        this.#childDestElem = elem;
     }
-  }
-  updateDisplayIfNeeded(newV, ignoreCache) {
-    for (const view of this.#views) {
-      view.updateDisplayIfNeeded(newV, ignoreCache);
+    addElem(elem) {
+        this.#childDestElem.appendChild(elem);
+        return elem;
     }
-    return this;
-  }
-  $(selector) {
-    return this.domElement.querySelector(selector);
-  }
+    removeElem(elem) {
+        this.#childDestElem.removeChild(elem);
+        return elem;
+    }
+    pushSubElem(elem) {
+        this.#childDestElem.appendChild(elem);
+        this.#childDestElem = elem;
+    }
+    popSubElem() {
+        this.#childDestElem = this.#childDestElem.parentElement;
+    }
+    add(view) {
+        this.#views.push(view);
+        this.addElem(view.domElement);
+        return view;
+    }
+    remove(view) {
+        this.removeElem(view.domElement);
+        removeArrayElem(this.#views, view);
+        return view;
+    }
+    pushSubView(view) {
+        this.pushSubElem(view.domElement);
+    }
+    popSubView() {
+        this.popSubElem();
+    }
+    setOptions(options) {
+        for (const view of this.#views) {
+            view.setOptions(options);
+        }
+    }
+    updateDisplayIfNeeded(newV, ignoreCache) {
+        for (const view of this.#views) {
+            view.updateDisplayIfNeeded(newV, ignoreCache);
+        }
+        return this;
+    }
+    $(selector) {
+        return this.domElement.querySelector(selector);
+    }
 }
 
 class Controller extends View {
@@ -1097,6 +1205,9 @@ class Button extends Controller {
           },
         }));
     this.setOptions({name: property, ...options});
+  }
+  name(name) {
+    this.#buttonElem.textContent = name;
   }
   setOptions(options) {
     copyExistingProperties(this.#options, options);
@@ -1462,7 +1573,7 @@ const converters = {
 
 function createWheelHelper() {
   let wheelAccum = 0;
-  return function(e, step, wheelScale = 5) {
+  return function (e, step, wheelScale = 5) {
     wheelAccum -= e.deltaY * step / wheelScale;
     const wheelSteps = Math.floor(Math.abs(wheelAccum) / step) * Math.sign(wheelAccum);
     const delta = wheelSteps * step;
@@ -1489,15 +1600,22 @@ class NumberView extends EditView {
     const wheelHelper = createWheelHelper();
     super(createElem('input', {
       type: 'number',
-      onInput: () => this.#handleInput(setValue, true),
-      onChange: () => this.#handleInput(setFinalValue, false),
+      onInput: () => {
+        this.#handleInput(setValue, true);
+      },
+      onChange: () => {
+        this.#handleInput(setFinalValue, false);
+      },
       onWheel: e => {
         e.preventDefault();
         const {min, max, step} = this.#options;
         const delta = wheelHelper(e, step);
         const v = parseFloat(this.domElement.value);
         const newV = clamp$1(stepify(v + delta, v => v, step), min, max);
-        setter.setValue(newV);
+        const [valid, outV] = this.#from(newV);
+        if (valid) {
+          setter.setValue(outV);
+        }
       },
     }));
     this.setOptions(options);
@@ -1542,7 +1660,7 @@ class TextNumber extends ValueController {
   #step;
 
   constructor(object, property, options = {}) {
-    super(object, property, 'muigui-checkbox');
+    super(object, property, 'muigui-text-number');
     this.#textView = this.add(new NumberView(this, options));
     this.updateDisplay();
   }
@@ -1700,8 +1818,12 @@ class TextView extends EditView {
     const setFinalValue = setter.setFinalValue.bind(setter);
     super(createElem('input', {
       type: 'text',
-      onInput: () => this.#handleInput(setValue, true),
-      onChange: () => this.#handleInput(setFinalValue, false),
+      onInput: () => {
+        this.#handleInput(setValue, true);
+      },
+      onChange: () => {
+        this.#handleInput(setFinalValue, false);
+      },
     }));
     this.setOptions(options);
   }
@@ -1734,7 +1856,7 @@ class TextView extends EditView {
 
 class Text extends ValueController {
   constructor(object, property) {
-    super(object, property, 'muigui-checkbox');
+    super(object, property, 'muigui-text');
     this.add(new TextView(this));
     this.updateDisplay();
   }
@@ -1758,6 +1880,9 @@ function createController(object, property, ...args) {
   const [arg1] = args;
   if (Array.isArray(arg1)) {
     return new Select(object, property, {keyValues: arg1});
+  }
+  if (arg1 && arg1.keyValues) {
+    return new Select(object, property, {keyValues: arg1.keyValues});
   }
 
   const t = typeof object[property];
@@ -1796,6 +1921,11 @@ const hexToUint32RGB = v => (parseInt(v.substring(1, 3), 16) << 16) |
                             (parseInt(v.substring(3, 5), 16) << 8 ) |
                             (parseInt(v.substring(5, 7), 16)      );
 const uint32RGBToHex = v => `#${(Math.round(v)).toString(16).padStart(6, '0')}`;
+const hexToUint32RGBA = v => (parseInt(v.substring(1, 3), 16) * 2 ** 24) +
+                             (parseInt(v.substring(3, 5), 16) * 2 ** 16) +
+                             (parseInt(v.substring(5, 7), 16) * 2 **  8) +
+                             (parseInt(v.substring(7, 9), 16)      );
+const uint32RGBAToHex = v => `#${(Math.round(v)).toString(16).padStart(8, '0')}`;
 
 const hexToUint8RGB = v => [
     parseInt(v.substring(1, 3), 16),
@@ -1804,16 +1934,35 @@ const hexToUint8RGB = v => [
 ];
 const uint8RGBToHex = v => `#${Array.from(v).map(v => v.toString(16).padStart(2, '0')).join('')}`;
 
+const hexToUint8RGBA = v => [
+    parseInt(v.substring(1, 3), 16),
+    parseInt(v.substring(3, 5), 16),
+    parseInt(v.substring(5, 7), 16),
+    parseInt(v.substring(7, 9), 16),
+];
+const uint8RGBAToHex = v => `#${Array.from(v).map(v => v.toString(16).padStart(2, '0')).join('')}`;
+
 const hexToFloatRGB = v => hexToUint8RGB(v).map(v => f3(v / 255));
 const floatRGBToHex = v => uint8RGBToHex(Array.from(v).map(v => Math.round(clamp(v * 255, 0, 255))));
+
+const hexToFloatRGBA = v => hexToUint8RGBA(v).map(v => f3(v / 255));
+const floatRGBAToHex = v => uint8RGBAToHex(Array.from(v).map(v => Math.round(clamp(v * 255, 0, 255))));
+
+const scaleAndClamp = v => clamp(Math.round(v * 255), 0, 255).toString(16).padStart(2, '0');
 
 const hexToObjectRGB = v => ({
   r: parseInt(v.substring(1, 3), 16) / 255,
   g: parseInt(v.substring(3, 5), 16) / 255,
   b: parseInt(v.substring(5, 7), 16) / 255,
 });
-const scaleAndClamp = v => clamp(Math.round(v * 255), 0, 255).toString(16).padStart(2, '0');
 const objectRGBToHex = v => `#${scaleAndClamp(v.r)}${scaleAndClamp(v.g)}${scaleAndClamp(v.b)}`;
+const hexToObjectRGBA = v => ({
+  r: parseInt(v.substring(1, 3), 16) / 255,
+  g: parseInt(v.substring(3, 5), 16) / 255,
+  b: parseInt(v.substring(5, 7), 16) / 255,
+  a: parseInt(v.substring(7, 9), 16) / 255,
+});
+const objectRGBAToHex = v => `#${scaleAndClamp(v.r)}${scaleAndClamp(v.g)}${scaleAndClamp(v.b)}${scaleAndClamp(v.a)}`;
 
 const hexToCssRGB = v => `rgb(${hexToUint8RGB(v).join(', ')})`;
 const cssRGBRegex = /^\s*rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\s*$/;
@@ -1821,20 +1970,34 @@ const cssRGBToHex = v => {
   const m = cssRGBRegex.exec(v);
   return uint8RGBToHex([m[1], m[2], m[3]].map(v => parseInt(v)));
 };
-const cssRGBARegex = /^\s*rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\s*$/;
+const hexToCssRGBA = v => `rgba(${hexToUint8RGBA(v).map((v, i) => i === 3 ? v / 255 : v).join(', ')})`;
+const cssRGBARegex = /^\s*rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+\.\d+|\d+)\s*\)\s*$/;
+const cssRGBAToHex = v => {
+  const m = cssRGBARegex.exec(v);
+  return uint8RGBAToHex([m[1], m[2], m[3], m[4]].map((v, i) => i === 3 ? (parseFloat(v) * 255 | 0) : parseInt(v)));
+};
 
 const hexToCssHSL = v => {
   const hsl = rgbUint8ToHsl(hexToUint8RGB(v)).map(v => f0(v));
   return `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`;
 };
-const cssHSLRegex = /^\s*hsl\(\s*(\d+)(?:deg|)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)\s*$/;
-const cssHSLARegex = /^\s*hsl\(\s*(\d+)(?:deg|)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)\s*$/;
+const hexToCssHSLA = v => {
+  const hsla = rgbaUint8ToHsla(hexToUint8RGBA(v)).map((v, i) => i === 3 ? f3(v) : f0(v));
+  return `hsl(${hsla[0]} ${hsla[1]}% ${hsla[2]}% / ${hsla[3]})`;
+};
+const cssHSLRegex = /^\s*hsl\(\s*(\d+)(?:deg|)\s*(?:,|)\s*(\d+)%\s*(?:,|)\s*(\d+)%\s*\)\s*$/;
+const cssHSLARegex = /^\s*hsl\(\s*(\d+)(?:deg|)\s*(?:,|)\s*(\d+)%\s*(?:,|)\s*(\d+)%\s*\/\s*(\d+\.\d+|\d+)\s*\)\s*$/;
 
 const hex3DigitTo6Digit = v => `${v[0]}${v[0]}${v[1]}${v[1]}${v[2]}${v[2]}`;
 const cssHSLToHex = v => {
   const m = cssHSLRegex.exec(v);
   const rgb = hslToRgbUint8([m[1], m[2], m[3]].map(v => parseFloat(v)));
   return uint8RGBToHex(rgb);
+};
+const cssHSLAToHex = v => {
+  const m = cssHSLARegex.exec(v);
+  const rgba = hslaToRgbaUint8([m[1], m[2], m[3], m[4]].map(v => parseFloat(v)));
+  return uint8RGBAToHex(rgba);
 };
 
 const euclideanModulo = (v, n) => ((v % n) + n) % n;
@@ -1852,6 +2015,11 @@ function hslToRgbUint8([h, s, l]) {
   }
 
   return [f(0), f(8), f(4)].map(v => Math.round(v * 255));
+}
+
+function hslaToRgbaUint8([h, s, l, a]) {
+  const rgb = hslToRgbUint8([h, s, l]);
+  return [...rgb, a * 255 | 0];
 }
 
 function rgbFloatToHsl01([r, g, b]) {
@@ -1877,9 +2045,19 @@ function rgbFloatToHsl01([r, g, b]) {
   return [h / 6, s, l];
 }
 
+function rgbaFloatToHsla01([r, g, b, a]) {
+  const hsl = rgbFloatToHsl01([r, g, b]);
+ return [...hsl, a];
+}
+
 const rgbUint8ToHsl = (rgb) => {
   const [h, s, l] = rgbFloatToHsl01(rgb.map(v => v / 255));
   return [h * 360, s * 100, l * 100];
+};
+
+const rgbaUint8ToHsla = (rgba) => {
+  const [h, s, l, a] = rgbaFloatToHsla01(rgba.map(v => v / 255));
+  return [h * 360, s * 100, l * 100, a];
 };
 
 function hsv01ToRGBFloat([hue, sat, val]) {
@@ -1888,6 +2066,11 @@ function hsv01ToRGBFloat([hue, sat, val]) {
   return [hue, hue + 2 / 3, hue + 1 / 3].map(
       v => lerp(1, clamp(Math.abs(fract(v) * 6 - 3.0) - 1, 0, 1), sat) * val
   );
+}
+
+function hsva01ToRGBAFloat([hue, sat, val, alpha]) {
+  const rgb = hsv01ToRGBFloat([hue, sat, val]);
+  return [...rgb, alpha];
 }
 
 const round3 = v => Math.round(v * 1000) / 1000;
@@ -1907,8 +2090,13 @@ function rgbFloatToHSV01([r, g, b]) {
   ].map(round3);
 }
 
-window.hsv01ToRGBFloat = hsv01ToRGBFloat;
-window.rgbFloatToHSV01 = rgbFloatToHSV01;
+function rgbaFloatToHSVA01([r, g, b, a]) {
+  const hsv = rgbFloatToHSV01([r, g, b]);
+  return [...hsv, a];
+}
+
+// window.hsv01ToRGBFloat = hsv01ToRGBFloat;
+// window.rgbFloatToHSV01 = rgbFloatToHSV01;
 
 // Yea, meh!
 const hasAlpha = format => format.endsWith('a') || format.startsWith('hex8');
@@ -1938,6 +2126,7 @@ function guessStringColorFormat(v) {
 function guessFormat(v) {
   switch (typeof v) {
     case 'number':
+      console.warn('can not reliably guess format based on a number. You should pass in a format like {format: "uint32-rgb"} or {format: "uint32-rgb"}');
       return v <= 0xFFFFFF ? 'uint32-rgb' : 'uint32-rgba';
     case 'string': {
       const formatInfo = guessStringColorFormat(v.trim());
@@ -1957,7 +2146,7 @@ function guessFormat(v) {
         if (v.length === 3) {
           return 'float-rgb';
         } else if (v.length === 4) {
-          return 'float-rbga';
+          return 'float-rgba';
         }
       } else if (Array.isArray(v)) {
         if (v.length === 3) {
@@ -1979,6 +2168,13 @@ function guessFormat(v) {
 }
 
 function fixHex6(v) {
+  return v.trim(v);
+  //const formatInfo = guessStringColorFormat(v.trim());
+  //const fix = formatInfo ? formatInfo.fix : v => v;
+  //return fix(v.trim());
+}
+
+function fixHex8(v) {
   return v.trim(v);
   //const formatInfo = guessStringColorFormat(v.trim());
   //const fix = formatInfo ? formatInfo.fix : v => v;
@@ -2020,6 +2216,19 @@ const strToRGBObject = (s) => {
   }
 };
 
+const strToRGBAObject = (s) => {
+  try {
+    const json = s.replace(/([a-z])/g, '"$1"');
+    const rgba = JSON.parse(json);
+    if (Number.isNaN(rgba.r) || Number.isNaN(rgba.g) || Number.isNaN(rgba.b) || Number.isNaN(rgba.a)) {
+      throw new Error('not {r, g, b, a}');
+    }
+    return [true, rgba];
+  } catch (e) {
+    return [false];
+  }
+};
+
 const strToCssRGB = s => {
   const m = cssRGBRegex.exec(s);
   if (!m) {
@@ -2028,6 +2237,16 @@ const strToCssRGB = s => {
   const v = [m[1], m[2], m[3]].map(v => parseInt(v));
   const outOfRange = v.find(v => v > 255);
   return [!outOfRange, `rgb(${v.join(', ')})`];
+};
+
+const strToCssRGBA = s => {
+  const m = cssRGBARegex.exec(s);
+  if (!m) {
+    return [false];
+  }
+  const v = [m[1], m[2], m[3], m[4]].map((v, i) => i === 3 ? parseFloat(v) : parseInt(v));
+  const outOfRange = v.find(v => v > 255);
+  return [!outOfRange, `rgba(${v.join(', ')})`];
 };
 
 const strToCssHSL = s => {
@@ -2040,8 +2259,21 @@ const strToCssHSL = s => {
   return [!outOfRange, `hsl(${v[0]}, ${v[1]}%, ${v[2]}%)`];
 };
 
+const strToCssHSLA = s => {
+  const m = cssHSLARegex.exec(s);
+  if (!m) {
+    return [false];
+  }
+  const v = [m[1], m[2], m[3], m[4]].map(v => parseFloat(v));
+  const outOfRange = v.find(v => Number.isNaN(v));
+  return [!outOfRange, `hsl(${v[0]} ${v[1]}% ${v[2]}% / ${v[3]})`];
+};
+
 const rgbObjectToStr = rgb => {
   return `{r:${f3(rgb.r)}, g:${f3(rgb.g)}, b:${f3(rgb.b)}}`;
+};
+const rgbaObjectToStr = rgba => {
+  return `{r:${f3(rgba.r)}, g:${f3(rgba.g)}, b:${f3(rgba.b)}}, a:${f3(rgba.a)}}`;
 };
 
 const strTo3IntsRE = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*$/;
@@ -2055,10 +2287,32 @@ const strTo3Ints = s => {
   return [!outOfRange, v];
 };
 
+const strTo4IntsRE = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*$/;
+const strTo4Ints = s => {
+  const m = strTo4IntsRE.exec(s);
+  if (!m) {
+    return [false];
+  }
+  const v = [m[1], m[2], m[3], m[4]].map(v => parseInt(v));
+  const outOfRange = v.find(v => v > 255);
+  return [!outOfRange, v];
+};
+
 const strTo3Floats = s => {
   const numbers = s.split(',').map(s => s.trim());
   const v = numbers.map(v => parseFloat(v));
   if (v.length !== 3) {
+    return [false];
+  }
+  // Note: using isNaN not Number.isNaN
+  const badNdx = numbers.findIndex(v => isNaN(v));
+  return [badNdx < 0, v.map(v => f3(v))];
+};
+
+const strTo4Floats = s => {
+  const numbers = s.split(',').map(s => s.trim());
+  const v = numbers.map(v => parseFloat(v));
+  if (v.length !== 4) {
     return [false];
   }
   // Note: using isNaN not Number.isNaN
@@ -2075,8 +2329,19 @@ const strToUint32RGB = s => {
   return [true, parseInt(m[1], 16)];
 };
 
-const hexRE = /^\s*#[a-f0-9]{6}\s*$|^\s*#[a-f0-9]{3}\s*$/i;
-const hexNoHashRE = /^\s*[a-f0-9]{6}\s*$/i;
+const strToUint32RGBARegex = /^\s*(?:0x){0,1}([0-9a-z]{1,8})\s*$/i;
+const strToUint32RGBA = s => {
+  const m = strToUint32RGBARegex.exec(s);
+  if (!m) {
+    return [false];
+  }
+  return [true, parseInt(m[1], 16)];
+};
+
+const hex6RE = /^\s*#[a-f0-9]{6}\s*$|^\s*#[a-f0-9]{3}\s*$/i;
+const hexNoHash6RE = /^\s*[a-f0-9]{6}\s*$/i;
+const hex8RE = /^\s*#[a-f0-9]{8}\s*$/i;
+const hexNoHash8RE = /^\s*[a-f0-9]{8}\s*$/i;
 
 // For each format converter
 //
@@ -2114,7 +2379,17 @@ const colorFormatConverters = {
       to: fixHex6,
     },
     text: {
-      from: v => [hexRE.test(v), v.trim()],
+      from: v => [hex6RE.test(v), v.trim()],
+      to: v => v,
+    },
+  },
+  'hex8': {
+    color: {
+      from: v => [true, v],
+      to: fixHex8,
+    },
+    text: {
+      from: v => [hex8RE.test(v), v.trim()],
       to: v => v,
     },
   },
@@ -2124,7 +2399,7 @@ const colorFormatConverters = {
       to: hex3ToHex6,
     },
     text: {
-      from: v => [hexRE.test(v), hex6ToHex3(v.trim())],
+      from: v => [hex6RE.test(v), hex6ToHex3(v.trim())],
       to: v => v,
     },
   },
@@ -2134,7 +2409,17 @@ const colorFormatConverters = {
       to: v => `#${fixHex6(v)}`,
     },
     text: {
-      from: v => [hexNoHashRE.test(v), v.trim()],
+      from: v => [hexNoHash6RE.test(v), v.trim()],
+      to: v => v,
+    },
+  },
+  'hex8-no-hash': {
+    color: {
+      from: v => [true, v.substring(1)],
+      to: v => `#${fixHex8(v)}`,
+    },
+    text: {
+      from: v => [hexNoHash8RE.test(v), v.trim()],
       to: v => v,
     },
   },
@@ -2144,7 +2429,7 @@ const colorFormatConverters = {
       to: hex3ToHex6,
     },
     text: {
-      from: v => [hexNoHashRE.test(v), hex6ToHex3(v.trim())],
+      from: v => [hexNoHash6RE.test(v), hex6ToHex3(v.trim())],
       to: v => v,
     },
   },
@@ -2158,6 +2443,16 @@ const colorFormatConverters = {
       to: v => `0x${v.toString(16).padStart(6, '0')}`,
     },
   },
+  'uint32-rgba': {
+    color: {
+      from: v => [true, hexToUint32RGBA(v)],
+      to: uint32RGBAToHex,
+    },
+    text: {
+      from: v => strToUint32RGBA(v),
+      to: v => `0x${v.toString(16).padStart(8, '0')}`,
+    },
+  },
   'uint8-rgb': {
     color: {
       from: v => [true, hexToUint8RGB(v)],
@@ -2165,6 +2460,16 @@ const colorFormatConverters = {
     },
     text: {
       from: strTo3Ints,
+      to: v => v.join(', '),
+    },
+  },
+  'uint8-rgba': {
+    color: {
+      from: v => [true, hexToUint8RGBA(v)],
+      to: uint8RGBAToHex,
+    },
+    text: {
+      from: strTo4Ints,
       to: v => v.join(', '),
     },
   },
@@ -2179,6 +2484,61 @@ const colorFormatConverters = {
       to: v => Array.from(v).map(v => f3(v)).join(', '),
     },
   },
+  'float-rgba': {
+    color: {
+      from: v => [true, hexToFloatRGBA(v)],
+      to: floatRGBAToHex,
+    },
+    text: {
+      from: strTo4Floats,
+      // need Array.from because map of Float32Array makes a Float32Array
+      to: v => Array.from(v).map(v => f3(v)).join(', '),
+    },
+  },
+  'float-hsv': {
+    color: {
+      from: v => [true, rgbFloatToHSV01(hexToFloatRGB(v))],
+      to: v => hsv01ToRGBFloat(floatRGBToHex(v)),
+    },
+    text: {
+      from: strTo3Floats,
+      // need Array.from because map of Float32Array makes a Float32Array
+      to: v => Array.from(v).map(v => f3(v)).join(', '),
+    },
+  },
+  'float-hsva': {
+    color: {
+      from: v => [true, rgbaFloatToHSVA01(hexToFloatRGB(v))],
+      to: v => hsva01ToRGBAFloat(floatRGBToHex(v)),
+    },
+    text: {
+      from: strTo4Floats,
+      // need Array.from because map of Float32Array makes a Float32Array
+      to: v => Array.from(v).map(v => f3(v)).join(', '),
+    },
+  },
+  //'float-hsl': {
+  //  color: {
+  //    from: v => [true, rgbFloatToHsl01(hexToFloatRGB(v))],
+  //    to: v => hsl01ToRGBFloat(floatRGBToHex(v)),
+  //  },
+  //  text: {
+  //    from: strTo3Floats,
+  //    // need Array.from because map of Float32Array makes a Float32Array
+  //    to: v => Array.from(v).map(v => f3(v)).join(', '),
+  //  },
+  //},
+  //'float-hsla': {
+  //  color: {
+  //    from: v => [true, hexToFloatRGBA(v)],
+  //    to: floatRGBAToHex,
+  //  },
+  //  text: {
+  //    from: strTo4Floats,
+  //    // need Array.from because map of Float32Array makes a Float32Array
+  //    to: v => Array.from(v).map(v => f3(v)).join(', '),
+  //  },
+  //},
   'object-rgb': {
     color: {
       from: v => [true, hexToObjectRGB(v)],
@@ -2187,6 +2547,16 @@ const colorFormatConverters = {
     text: {
       from: strToRGBObject,
       to: rgbObjectToStr,
+    },
+  },
+  'object-rgba': {
+    color: {
+      from: v => [true, hexToObjectRGBA(v)],
+      to: objectRGBAToHex,
+    },
+    text: {
+      from: strToRGBAObject,
+      to: rgbaObjectToStr,
     },
   },
   'css-rgb': {
@@ -2199,6 +2569,16 @@ const colorFormatConverters = {
       to: v => strToCssRGB(v)[1],
     },
   },
+  'css-rgba': {
+    color: {
+      from: v => [true, hexToCssRGBA(v)],
+      to: cssRGBAToHex,
+    },
+    text: {
+      from: strToCssRGBA,
+      to: v => strToCssRGBA(v)[1],
+    },
+  },
   'css-hsl': {
     color: {
       from: v => [true, hexToCssHSL(v)],
@@ -2207,6 +2587,16 @@ const colorFormatConverters = {
     text: {
       from: strToCssHSL,
       to: v => strToCssHSL(v)[1],
+    },
+  },
+  'css-hsla': {
+    color: {
+      from: v => [true, hexToCssHSLA(v)],
+      to: cssHSLAToHex,
+    },
+    text: {
+      from: strToCssHSLA,
+      to: v => strToCssHSLA(v)[1],
     },
   },
 };
@@ -2221,8 +2611,8 @@ class ElementView extends View {
 class Canvas extends LabelController {
   #canvasElem;
 
-  constructor() {
-    super('muigui-canvas');
+  constructor(name) {
+    super('muigui-canvas', name);
     this.#canvasElem = this.add(
       new ElementView('canvas', 'muigui-canvas'),
     ).domElement;
@@ -2353,14 +2743,14 @@ class Container extends Controller {
     }
     return this;
   }
-  _addControllerImpl(controller) {
+  #addControllerImpl(controller) {
     this.domElement.appendChild(controller.domElement);
     this.#controllers.push(controller);
     controller.setParent(this);
     return controller;
   }
   addController(controller) {
-    return this.#childDestController._addControllerImpl(controller);
+    return this.#childDestController.#addControllerImpl(controller);
   }
   pushContainer(container) {
     this.addController(container);
@@ -2383,6 +2773,7 @@ class Folder extends Container {
       type: 'button',
       onClick: () => this.toggleOpen(),
     }, [this.#labelElem]));
+    this.pushContainer(new Container('muigui-open-container'));
     this.pushContainer(new Container());
     this.name(name);
     this.open();
@@ -2440,7 +2831,7 @@ function computeRelativePosition(elem, event, start) {
 
 function addTouchEvents(elem, {onDown = noop$1, onMove = noop$1, onUp = noop$1}) {
   let start;
-  const pointerMove = function(event) {
+  const pointerMove = function (event) {
     const e = {
       type: 'move',
       ...computeRelativePosition(elem, event, start),
@@ -2448,7 +2839,7 @@ function addTouchEvents(elem, {onDown = noop$1, onMove = noop$1, onUp = noop$1})
     onMove(e);
   };
 
-  const pointerUp = function(event) {
+  const pointerUp = function (event) {
     elem.releasePointerCapture(event.pointerId);
     elem.removeEventListener('pointermove', pointerMove);
     elem.removeEventListener('pointerup', pointerUp);
@@ -2458,7 +2849,7 @@ function addTouchEvents(elem, {onDown = noop$1, onMove = noop$1, onUp = noop$1})
     onUp('up');
   };
 
-  const pointerDown = function(event) {
+  const pointerDown = function (event) {
     elem.addEventListener('pointermove', pointerMove);
     elem.addEventListener('pointerup', pointerUp);
     elem.setPointerCapture(event.pointerId);
@@ -2473,29 +2864,28 @@ function addTouchEvents(elem, {onDown = noop$1, onMove = noop$1, onUp = noop$1})
 
   elem.addEventListener('pointerdown', pointerDown);
 
-  return function() {
+  return function () {
     elem.removeEventListener('pointerdown', pointerDown);
   };
 }
 
 const svg$3 = `
-
-<svg tabindex="0" viewBox="0 0 64 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
-    <linearGradient id="muigui-color-chooser-light-dark" x1="0" x2="0" y1="0" y2="1">
+<svg class="muigui-checkered-background" tabindex="0" viewBox="0 0 64 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <linearGradient data-src="muigui-color-chooser-light-dark" x1="0" x2="0" y1="0" y2="1">
       <stop stop-color="rgba(0,0,0,0)" offset="0%"/>
       <stop stop-color="#000" offset="100%"/>
     </linearGradient>
-    <linearGradient id="muigui-color-chooser-hue">
-      <stop stop-color="hsl(60, 0%, 100%)" offset="0%"/>
-      <stop stop-color="hsl(60, 100%, 50%)" offset="100%"/>
+    <linearGradient data-src="muigui-color-chooser-hue">
+      <stop stop-color="hsl(60 0% 100% / 1)" offset="0%"/>
+      <stop stop-color="hsl(60 100% 50% / 1)" offset="100%"/>
     </linearGradient>
 
-    <rect width="64" height="48" fill="url(#muigui-color-chooser-hue)"/>
-    <rect width="64" height="48" fill="url(#muigui-color-chooser-light-dark)"/>
+    <rect width="64" height="48" data-target="muigui-color-chooser-hue"/>
+    <rect width="64" height="48" data-target="muigui-color-chooser-light-dark"/>
     <circle r="4" class="muigui-color-chooser-circle"/>
 </svg>
 <svg tabindex="0" viewBox="0 0 64 6" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
-    <linearGradient id="muigui-color-chooser-hues" x1="0" x2="1" y1="0" y2="0">
+    <linearGradient data-src="muigui-color-chooser-hues" x1="0" x2="1" y1="0" y2="0">
       <stop stop-color="hsl(0,100%,50%)" offset="0%"/>
       <stop stop-color="hsl(60,100%,50%)" offset="16.666%"/>
       <stop stop-color="hsl(120,100%,50%)" offset="33.333%"/>
@@ -2504,48 +2894,108 @@ const svg$3 = `
       <stop stop-color="hsl(300,100%,50%)" offset="83.333%"/>
       <stop stop-color="hsl(360,100%,50%)" offset="100%"/>
     </linearGradient>
-    <rect y="1" width="64" height="4" fill="url('#muigui-color-chooser-hues')"/>
-    <g class="muigui-color-chooser-cursor">
+    <rect y="1" width="64" height="4" data-target="muigui-color-chooser-hues"/>
+    <g class="muigui-color-chooser-hue-cursor">
+      <rect x="-3" width="6" height="6" />
+    </g>
+</svg>
+<svg class="muigui-checkered-background" tabindex="0" viewBox="0 0 64 6" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <linearGradient data-src="muigui-color-chooser-alpha" x1="0" x2="1" y1="0" y2="0">
+      <stop stop-color="hsla(0,100%,100%,0)" offset="0%"/>
+      <stop stop-color="hsla(0,100%,100%,1)" offset="100%"/>
+    </linearGradient>
+    <rect y="1" width="64" height="4" data-target="muigui-color-chooser-alpha"/>
+    <g class="muigui-color-chooser-alpha-cursor">
       <rect x="-3" width="6" height="6" />
     </g>
 </svg>
 `;
 
+function connectFillTargets(elem) {
+  elem.querySelectorAll('[data-src]').forEach(srcElem => {
+    const id = getNewId();
+    srcElem.id = id;
+    elem.querySelectorAll(`[data-target=${srcElem.dataset.src}]`).forEach(targetElem => {
+      targetElem.setAttribute('fill', `url(#${id})`);
+    });
+  });
+  return elem;
+}
+
+// Was originally going to make alpha an option. Issue is
+// hard coded conversions?
 class ColorChooserView extends EditView {
+  #to;
+  #from;
   #satLevelElem;
-  #hueUIElem;
   #circleElem;
+  #hueUIElem;
   #hueElem;
   #hueCursorElem;
-  #hsv;
+  #alphaUIElem;
+  #alphaElem;
+  #alphaCursorElem;
+  #hsva;
   #skipHueUpdate;
   #skipSatLevelUpdate;
+  #skipAlphaUpdate;
+  #options = {
+    converters: identity,
+    alpha: false,
+  };
+  #convertInternalToHex;
+  #convertHexToInternal;
 
-  constructor(setter) {
+  constructor(setter, options) {
     super(createElem('div', {
       innerHTML: svg$3,
       className: 'muigui-no-scroll',
     }));
     this.#satLevelElem = this.domElement.children[0];
     this.#hueUIElem = this.domElement.children[1];
+    this.#alphaUIElem = this.domElement.children[2];
+    connectFillTargets(this.#satLevelElem);
+    connectFillTargets(this.#hueUIElem);
+    connectFillTargets(this.#alphaUIElem);
     this.#circleElem = this.$('.muigui-color-chooser-circle');
-    this.#hueElem = this.$('#muigui-color-chooser-hue');
-    this.#hueCursorElem = this.$('.muigui-color-chooser-cursor');
+    this.#hueElem = this.$('[data-src=muigui-color-chooser-hue]');
+    this.#hueCursorElem = this.$('.muigui-color-chooser-hue-cursor');
+    this.#alphaElem = this.$('[data-src=muigui-color-chooser-alpha]');
+    this.#alphaCursorElem = this.$('.muigui-color-chooser-alpha-cursor');
 
     const handleSatLevelChange = (e) => {
       const s = clamp$1(e.nx, 0, 1);
       const v = clamp$1(e.ny, 0, 1);
-      this.#hsv[1] = s;
-      this.#hsv[2] = (1 - v);
+      this.#hsva[1] = s;
+      this.#hsva[2] = (1 - v);
       this.#skipHueUpdate = true;
-      setter.setValue(floatRGBToHex(hsv01ToRGBFloat(this.#hsv)));
+      this.#skipAlphaUpdate = true;
+      const [valid, newV] = this.#from(this.#convertInternalToHex(this.#hsva));
+      if (valid) {
+        setter.setValue(newV);
+      }
     };
 
     const handleHueChange = (e) => {
       const h = clamp$1(e.nx, 0, 1);
-      this.#hsv[0] = h;
+      this.#hsva[0] = h;
       this.#skipSatLevelUpdate = true;
-      setter.setValue(floatRGBToHex(hsv01ToRGBFloat(this.#hsv)));
+      this.#skipAlphaUpdate = true;
+      const [valid, newV] = this.#from(this.#convertInternalToHex(this.#hsva));
+      if (valid) {
+        setter.setValue(newV);
+      }
+    };
+
+    const handleAlphaChange = (e) => {
+      const a = clamp$1(e.nx, 0, 1);
+      this.#hsva[3] = a;
+      this.#skipHueUpdate = true;
+      this.#skipSatLevelUpdate = true;
+      const [valid, newV] = this.#from(this.#convertInternalToHex(this.#hsva));
+      if (valid) {
+        setter.setValue(newV);
+      }
     };
 
     addTouchEvents(this.#satLevelElem, {
@@ -2556,29 +3006,45 @@ class ColorChooserView extends EditView {
       onDown: handleHueChange,
       onMove: handleHueChange,
     });
+    addTouchEvents(this.#alphaUIElem, {
+      onDown: handleAlphaChange,
+      onMove: handleAlphaChange,
+    });
+    this.setOptions(options);
   }
   updateDisplay(newV) {
-    if (!this.#hsv) {
-      this.#hsv = rgbFloatToHSV01(hexToFloatRGB(newV));
+    if (!this.#hsva) {
+      this.#hsva = this.#convertHexToInternal(this.#to(newV));
     }
     {
-      const [h, s, v] = rgbFloatToHSV01(hexToFloatRGB(newV));
+      const [h, s, v, a = 1] = this.#convertHexToInternal(this.#to(newV));
       // Don't copy the hue if it was un-computable.
       if (!this.#skipHueUpdate) {
-        this.#hsv[0] = s > 0.001 && v > 0.001 ? h : this.#hsv[0];
+        this.#hsva[0] = s > 0.001 && v > 0.001 ? h : this.#hsva[0];
       }
       if (!this.#skipSatLevelUpdate) {
-        this.#hsv[1] = s;
-        this.#hsv[2] = v;
+        this.#hsva[1] = s;
+        this.#hsva[2] = v;
+      }
+      if (!this.#skipAlphaUpdate) {
+        this.#hsva[3] = a;
       }
     }
     {
-      const [h, s, v] = this.#hsv;
+      const [h, s, v, a] = this.#hsva;
+      const [hue, sat, lum] = rgbaFloatToHsla01(hsva01ToRGBAFloat(this.#hsva));
+
       if (!this.#skipHueUpdate) {
         this.#hueCursorElem.setAttribute('transform', `translate(${h * 64}, 0)`);
-        this.#hueElem.children[0].setAttribute('stop-color', `hsl(${h * 360}, 0%, 100%)`);
-        this.#hueElem.children[1].setAttribute('stop-color', `hsl(${h * 360}, 100%, 50%)`);
       }
+      this.#hueElem.children[0].setAttribute('stop-color', `hsl(${hue * 360} 0% 100% / ${a})`);
+      this.#hueElem.children[1].setAttribute('stop-color', `hsl(${hue * 360} 100% 50% / ${a})`);
+      if (!this.#skipAlphaUpdate) {
+        this.#alphaCursorElem.setAttribute('transform', `translate(${a * 64}, 0)`);
+      }
+      this.#alphaElem.children[0].setAttribute('stop-color', `hsl(${hue * 360} ${sat * 100}% ${lum * 100}% / 0)`);
+      this.#alphaElem.children[1].setAttribute('stop-color', `hsl(${hue * 360} ${sat * 100}% ${lum * 100}% / 1)`);
+
       if (!this.#skipSatLevelUpdate) {
         this.#circleElem.setAttribute('cx', `${s * 64}`);
         this.#circleElem.setAttribute('cy', `${(1 - v) * 48}`);
@@ -2586,6 +3052,21 @@ class ColorChooserView extends EditView {
     }
     this.#skipHueUpdate = false;
     this.#skipSatLevelUpdate = false;
+    this.#skipAlphaUpdate = false;
+  }
+  setOptions(options) {
+    copyExistingProperties(this.#options, options);
+    const {converters: {to, from}, alpha} = this.#options;
+    this.#alphaUIElem.style.display = alpha ? '' : 'none';
+    this.#convertInternalToHex = alpha
+       ? v => floatRGBAToHex(hsva01ToRGBAFloat(v))
+       : v => floatRGBToHex(hsv01ToRGBFloat(v));
+    this.#convertHexToInternal = alpha
+       ? v => rgbaFloatToHSVA01(hexToFloatRGBA(v))
+       : v => rgbFloatToHSV01(hexToFloatRGB(v));
+    this.#to = to;
+    this.#from = from;
+    return this;
   }
 }
 
@@ -2616,8 +3097,11 @@ pc.addBottom
 class PopDownController extends ValueController {
   #top;
   #valuesView;
+  #checkboxElem;
   #bottom;
-  #options = {open: false};
+  #options = {
+    open: false,
+  };
 
   constructor(object, property, options = {}) {
     super(object, property, 'muigui-pop-down-controller');
@@ -2633,11 +3117,24 @@ class PopDownController extends ValueController {
       type: 'checkbox',
       onChange: () => {
         this.#options.open = checkboxElem.checked;
+        this.updateDisplay();
       },
     }));
+    this.#checkboxElem = checkboxElem;
     this.#valuesView = this.#top.add(new ElementView('div', 'muigui-pop-down-values'));
-    this.#bottom = this.add(new ElementView('div', 'muigui-pop-down-bottom'));
+    const container = new ElementView('div', 'muigui-pop-down-bottom muigui-open-container');
+    this.#bottom = new ElementView('div');
+    container.add(this.#bottom);
+    this.add(container);
     this.setOptions(options);
+  }
+  setKnobColor(bgCssColor/*, fgCssColor*/) {
+    if (this.#checkboxElem) {
+      this.#checkboxElem.style = `
+        --range-color: ${bgCssColor};
+        --value-bg-color: ${bgCssColor};
+      `;
+    }
   }
   updateDisplay() {
     super.updateDisplay();
@@ -2658,12 +3155,45 @@ class PopDownController extends ValueController {
   }
 }
 
+/* eslint-disable no-underscore-dangle */
+
 class ColorChooser extends PopDownController {
-  constructor(object, property) {
+  #colorView;
+  #textView;
+  #to;
+
+  constructor(object, property, options = {}) {
     super(object, property, 'muigui-color-chooser');
-    this.addTop(new TextView(this));
-    this.addBottom(new ColorChooserView(this));
+    const format = options.format || guessFormat(this.getValue());
+    const {color, text} = colorFormatConverters[format];
+    this.#to = color.to;
+    this.#textView = new TextView(this, {converters: text, alpha: hasAlpha(format)});
+    this.#colorView = new ColorChooserView(this, {converters: color, alpha: hasAlpha(format)});
+    this.addTop(this.#textView);
+    this.addBottom(this.#colorView);
+    // WTF! FIX!
+    this.___setKnobHelper = true;
     this.updateDisplay();
+  }
+  #setKnobHelper() {
+    if (this.#to) {
+      const hex6Or8 = this.#to(this.getValue());
+      const alpha = hex6Or8.length === 9 ? hex6Or8.substring(7, 9) : 'FF';
+      const hsl = rgbUint8ToHsl(hexToUint8RGB(hex6Or8));
+      hsl[2] = (hsl[2] + 50) % 100;
+      const hex = uint8RGBToHex(hslToRgbUint8(hsl));
+      this.setKnobColor(`${hex6Or8.substring(0, 7)}${alpha}`, hex);
+    }
+  }
+  updateDisplay() {
+    super.updateDisplay();
+    if (this.___setKnobHelper) {
+      this.#setKnobHelper();
+    }
+  }
+  setOptions(options) {
+    super.setOptions(options);
+    return this;
   }
 }
 
@@ -2749,12 +3279,12 @@ class GUIFolder extends Folder {
   addCanvas(name) {
     return this.addController(new Canvas(name));
   }
-  addColor(object, property, ...args) {
+  addColor(object, property, options = {}) {
     const value = object[property];
-    if (hasAlpha(guessFormat(value))) {
-      return this.addController(new ColorChooser(object, property, ...args));
+    if (hasAlpha(options.format || guessFormat(value))) {
+      return this.addController(new ColorChooser(object, property, options));
     } else {
-      return this.addController(new Color(object, property, ...args));
+      return this.addController(new Color(object, property, options));
     }
   }
   addDivider() {
@@ -2765,6 +3295,10 @@ class GUIFolder extends Folder {
   }
   addLabel(text) {
     return this.addController(new Label(text));
+  }
+  addButton(name, fn) {
+    const o = {fn};
+    return this.add(o, 'fn').name(name);
   }
 }
 
@@ -2778,7 +3312,7 @@ class MuiguiElement extends HTMLElement {
 customElements.define('muigui-element', MuiguiElement);
 
 const baseStyleSheet = new CSSStyleSheet();
-baseStyleSheet.replaceSync(css.default);
+//baseStyleSheet.replaceSync(css.default);
 const userStyleSheet = new CSSStyleSheet();
 
 function makeStyleSheetUpdater(styleSheet) {
@@ -2804,6 +3338,11 @@ function makeStyleSheetUpdater(styleSheet) {
 
 const updateBaseStyle = makeStyleSheetUpdater(baseStyleSheet);
 const updateUserStyle = makeStyleSheetUpdater(userStyleSheet);
+
+function getTheme(name) {
+  const { include, css: cssStr } = css.themes[name];
+  return `${include.map(m => css[m]).join('\n')} : css.default}\n${cssStr || ''}`;
+}
 
 class GUI extends GUIFolder {
   static converters = converters;
@@ -2836,13 +3375,14 @@ class GUI extends GUIFolder {
     }
     if (parent) {
       const muiguiElement = createElem('muigui-element');
-      muiguiElement.shadowRoot.adoptedStyleSheets = [baseStyleSheet, userStyleSheet, this.#localStyleSheet];
+      muiguiElement.shadowRoot.adoptedStyleSheets = [this.#localStyleSheet, baseStyleSheet, userStyleSheet];
       muiguiElement.shadow.appendChild(this.domElement);
       parent.appendChild(muiguiElement);
     }
     if (title) {
       this.title(title);
     }
+    this.#localStyleSheet.replaceSync(css.default);
     this.domElement.classList.add('muigui', 'muigui-colors');
   }
   setStyle(css) {
@@ -2860,8 +3400,11 @@ class GUI extends GUIFolder {
   static getUserStyleSheet() {
     return userStyleSheet;
   }
+  setTheme(name) {
+    this.setStyle(getTheme(name));
+  }
   static setTheme(name) {
-    GUI.setBaseStyles(`${css.default}\n${css.themes[name] || ''}`);
+    GUI.setBaseStyles(getTheme(name));
   }
 }
 
@@ -2877,7 +3420,7 @@ const keyDirections = {
 
 // This probably needs to be global
 function addKeyboardEvents(elem, {onDown = noop, onUp = noop}) {
-  const keyDown = function(event) {
+  const keyDown = function (event) {
     const mult = event.shiftKey ? 10 : 1;
     const [dx, dy] = (keyDirections[event.key] || [0, 0]).map(v => v * mult);
     const fn = event.type === 'keydown' ? onDown : onUp;
@@ -2892,7 +3435,7 @@ function addKeyboardEvents(elem, {onDown = noop, onUp = noop}) {
   elem.addEventListener('keydown', keyDown);
   elem.addEventListener('keyup', keyDown);
 
-  return function() {
+  return function () {
     elem.removeEventListener('keydown', keyDown);
     elem.removeEventListener('keyup', keyDown);
   };
@@ -3084,7 +3627,7 @@ class RadioGridView extends EditView {
           type: 'radio',
           name,
           value: ndx,
-          onChange: function() {
+          onChange: function () {
             if (this.checked) {
               setter.setFinalValue(that.#values[this.value]);
             }
@@ -3093,12 +3636,13 @@ class RadioGridView extends EditView {
         createElem('button', {
           type: 'button',
           textContent: key,
-          onClick: function() {
+          onClick: function () {
             this.previousElementSibling.click();
           },
         }),
       ]);
     })));
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this;
     this.#values = values;
     this.cols(cols);
@@ -3441,4 +3985,59 @@ class Vec2 extends PopDownController {
   }
 }
 
-export { ColorChooser, Direction, RadioGrid, Range, Select, Slider, TextNumber, Vec2, GUI as default };
+const darkColors = {
+  main: '#ddd',
+};
+const lightColors = {
+  main: '#333',
+};
+
+const darkMatcher = window.matchMedia('(prefers-color-scheme: dark)');
+
+let colors;
+let isDarkMode;
+
+function update() {
+  isDarkMode = darkMatcher.matches;
+  colors = isDarkMode ? darkColors : lightColors;
+}
+darkMatcher.addEventListener('change', update);
+update();
+
+function graph(canvas, data, {
+    min = -1,
+    max = 1,
+    interval = 16,
+    color,
+  }) {
+  const ctx = canvas.getContext('2d');
+
+  function render() {
+    const {width, height} = canvas;
+    ctx.clearRect(0, 0, width, height);
+    ctx.beginPath();
+    const range = max - min;
+    for (let i = 0; i < data.length; ++i) {
+      const x = i * width / data.length;
+      const y = (data[i] - min) * height / range;
+      ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = color || colors.main;
+    ctx.stroke();
+  }
+  setInterval(render, interval);
+}
+
+function monitor(label, object, property, {interval = 200} = {}) {
+  setInterval(() => {
+    label.text(JSON.stringify(object[property], null, 2));
+  }, interval);
+}
+
+const helpers = {
+    graph,
+    monitor,
+};
+
+export { ColorChooser, Direction, RadioGrid, Range, Select, Slider, TextNumber, Vec2, GUI as default, helpers };
+//# sourceMappingURL=muigui.module.js.map
