@@ -668,6 +668,9 @@ pre.prettyprint button.linedeleted-button {
   align-items: start;
   flex-wrap: wrap;
 }
+.flex-gap {
+  gap: 1em;
+}
 
 .compare {
   display: flex;
