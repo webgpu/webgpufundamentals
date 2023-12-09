@@ -12,7 +12,7 @@ It takes the vertices we return for the `@builtin(position)` value in the vertex
 and then calls the fragment shader for each pixel's center that is inside that triangle to
 ask what color to make the pixel.
 
-<div class="webgpu_center side-by-side flex-gap">
+<div class="webgpu_center side-by-side flex-gap" style="max-width: 850px">
   <div class="multisample-example">
     <div data-diagram="clip-space-to-texels"></div>
     <div>drag the vertices</div>
@@ -30,7 +30,7 @@ One solution is to render at a higher resolution. For example, say 4x (2x in bot
 and then "bilinear filter" the result into the canvas. We covered "bilinear filtering" in
 [the article on textures](webgpu-textures.html).
 
-<div class="webgpu_center side-by-side flex-gap">
+<div class="webgpu_center side-by-side flex-gap" style="max-width: 850px">
   <div class="multisample-example">
     <div data-diagram="clip-space-to-texels-4x"></div>
     <div>4x resolution</div>
@@ -163,7 +163,7 @@ There isn't much to see but if we were to compare them side by side at low-resol
 the original on the left without multisampling and the one on the right with we can
 see the one on the right has been antialiased
 
-<div class="webgpu_center side-by-side flex-gap">
+<div class="webgpu_center side-by-side flex-gap" style="max-width: 850px">
   <div class="multisample-example">
     <div data-diagram="simple-triangle"></div>
     <div>original</div>
@@ -190,21 +190,21 @@ Some things to note:
   Multisampling actually uses offsets like this for the 4 points it tests for inside/outside
   of the triangle
 
-  <img src="multisample-4x.svg">
+  <img src="resources/multisample-4x.svg" width="256" >
 
   This is even more interesting for other count settings. Some others
 
   count: 2
 
-  <img src="multisample-2x.svg">
+  <img src="resources/multisample-2x.svg" width="256">
 
   count: 8
 
-  <img src="multisample-8x.svg">
+  <img src="resources/multisample-8x.svg" width="256">
 
   count: 16
 
-  <img src="multisample-16x.svg">
+  <img src="resources/multisample-16x.svg" width="256">
 
   WebGPU does currently only supports a count of  4 but the point is, multisampling is not a grid.
 
@@ -222,9 +222,11 @@ Some things to note:
 
   Setting `colorAttachment[0].resolveTarget` says to WebGPU, "when all the drawing has finished,
   downscale the multisample texture into the texture set on `resolveTarget`. If you have multiple
-  render passes you probably don't want to resolve until the last pass. It's also perfectly acceptable
-  to make an empty render pass to do nothing but resolve. Just make sure you set the `loadOp` to `'load'`
-  and not `'clear'` otherwise it will be cleared.
+  render passes you probably don't want to resolve until the last pass. We'll it's fastest to
+  resolve in the last pass it's also perfectly acceptable
+  to make an empty last render pass to do nothing but resolve. 
+  Just make sure you set the `loadOp` to `'load'`
+  and not `'clear'` in all the passes except the first pass otherwise it will be cleared.
 
 ## What about inside a triangle?
 
@@ -237,9 +239,14 @@ anti-aliasing.
 ## Multisampling is not the only solution for anti-aliasing.
 
 We mentioned 2 solutions on this page.
-(1) drawing to a higher resolution texture and then drawing that texture at a lower resolution
-(2) Using multisampling. There are many others though. [Here an article that covers a few of them](https://vr.arvilab.com/blog/anti-aliasing)
+(1) Drawing to a higher resolution texture and then drawing that texture at a lower resolution.
+(2) Using multisampling. There are many others though.
+[Here's an article that covers a few of them](https://vr.arvilab.com/blog/anti-aliasing).
 
+Some other resources:
+
+* [A Quick overview of MSAA](https://therealmjp.github.io/posts/msaa-overview/)
+* [Multisampling primer](https://www.rastergrid.com/blog/gpu-tech/2021/10/multisampling-primer/)
 
 <!-- keep this at the bottom of the article -->
 <link href="webgpu-multisampling.css" rel="stylesheet">
