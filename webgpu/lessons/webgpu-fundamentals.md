@@ -869,7 +869,7 @@ fragment shaders, and compute shaders, run on your GPU. A GPU could have over
 calculations in parallel which is likely 3 or more orders of magnitude than your
 CPU can do in parallel.
 
-## Simple Canvas Resizing
+## <a id="a-resizing"></a> Simple Canvas Resizing
 
 Before we move on, let's go back to our triangle drawing example and add some
 basic support for resizing a canvas. Sizing a canvas is actually a topic that
