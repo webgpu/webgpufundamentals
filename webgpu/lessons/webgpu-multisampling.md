@@ -48,7 +48,7 @@ so there is no need for anti-aliasing. All 4 pixels are red.
 <div class="webgpu_center side-by-side flex-gap">
   <div class="multisample-example">
     <div data-diagram="clip-space-to-texels-4x-waste"></div>
-    <div><span style="color: cyan;">cyan</span> pixels are wasted</div>
+    <div>3 of every 4 <span style="color: cyan;">cyan</span> pixels are wasted</div>
   </div>
 </div>
 
