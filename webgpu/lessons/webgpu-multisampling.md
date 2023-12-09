@@ -8,9 +8,9 @@ is the problem we get when we try to draw a vector shape as
 discrete pixels.
 
 We showed how WebGPU draws things in [the article on fundamentals](webgpu-fundamentals.html).
-It takes the vertices we return for the `@builtin(position)` value in the vertex shader
-and then calls the fragment shader for each pixel's center that is inside that triangle to
-ask what color to make the pixel.
+It takes the clip space vertices we return for the `@builtin(position)` value in the vertex shader
+and for every 3 it computes a triangle and then calls the fragment shader for each pixel's center
+that is inside that triangle to ask what color to make the pixel.
 
 <div class="webgpu_center side-by-side flex-gap" style="max-width: 850px">
   <div class="multisample-example">
