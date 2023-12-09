@@ -184,15 +184,15 @@ Some things to note:
 
 * Multisampling does not use a grid
 
-  Above we mentioned manually rendering to a 4x the resolution and using bilinear filtering
-  but that is not exactly what multisampling does.
+  Above we mentioned manually rendering to a 4x resolution texture and using bilinear filtering
+  to are desired size but that is not exactly what multisampling does.
 
   Multisampling actually uses offsets like this for the 4 points it tests for inside/outside
   of the triangle
 
   <img src="resources/multisample-4x.svg" width="256" >
 
-  This is even more interesting for other count settings. Some others
+  This is even more interesting for other count settings.
 
   count: 2
 
@@ -206,13 +206,13 @@ Some things to note:
 
   <img src="resources/multisample-16x.svg" width="256">
 
-  WebGPU does currently only supports a count of  4 but the point is, multisampling is not a grid.
+  WebGPU currently only supports a count of 4 but the point is, multisampling is not a grid.
 
-* You can optionally run the fragment shader on each pixel
+* You can optionally run the fragment shader on each multisampled pixel
 
   Above we said that the fragment shader only runs once for every 2x2 pixels in the multisampled
   texture. It runs it once and then it stores the result in pixels that were actually inside
-  the triangle.
+  the triangle. This is why it's faster than rendering at 4x the resolution.
 
   In [the article on inter-stage variables](webgpu-inter-stage-variables.html#a-interpolate)
   we brought up that you can mark how to interpolate inter-stage variables. One option
