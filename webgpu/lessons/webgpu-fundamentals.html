@@ -922,7 +922,7 @@ fragment shaders, and compute shaders, run on your GPU. A GPU could have over
 10000 processors which means they can potentially do more than 10000
 calculations in parallel which is likely 3 or more orders of magnitude than your
 CPU can do in parallel.</p>
-<h2 id="simple-canvas-resizing">Simple Canvas Resizing</h2>
+<h2 id="simple-canvas-resizing"><a id="a-resizing"></a> Simple Canvas Resizing</h2>
 <p>Before we move on, let’s go back to our triangle drawing example and add some
 basic support for resizing a canvas. Sizing a canvas is actually a topic that
 can have many subtleties so <a href="webgpu-resizing-the-canvas.html">there is an entire article on it</a>.
@@ -952,8 +952,8 @@ are blocky.</p>
 <p></p>
 <p><code class="notranslate" translate="no">&lt;canvas&gt;</code> tags, by default, have a resolution of 300x150 pixels. We’d like to
 adjust the canvas resolution of the canvas to match the size it is displayed.
-One good way to do this is with a <code class="notranslate" translate="no">ResizeObserver</code>. You create a
-<code class="notranslate" translate="no">ResizeObserver</code> and give it a function to call whenever the elements you’ve
+One good way to do this is with a <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a>. You create a
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> and give it a function to call whenever the elements you’ve
 asked it to observe change their size. You then tell it which elements to
 observe.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    ...
@@ -980,7 +980,7 @@ sure it doesn’t go to zero or again we’ll get errors.
 <a href="webgpu-resizing-the-canvas.html">See the longer article for details</a>.</p>
 <p>We call <code class="notranslate" translate="no">render</code> to re-render the
 triangle at the new resolution. We removed the old call to <code class="notranslate" translate="no">render</code> because
-it’s not needed. A <code class="notranslate" translate="no">ResizeObserver</code> will always call its callback at least once
+it’s not needed. A <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> will always call its callback at least once
 to report the size of the elements when they started being observed.</p>
 <p>The new size texture is created when we call <code class="notranslate" translate="no">context.getCurrentTexture()</code>
 inside <code class="notranslate" translate="no">render</code> so there’s nothing left to do.</p>
@@ -1174,6 +1174,7 @@ never use a bind group with multiple pipelines. We’ll cover explicit layouts i
   <li>Misc</li>
         <ul>
           <li><a href="/webgpu/lessons/webgpu-resizing-the-canvas.html">Resizing the Canvas</a></li>
+<li><a href="/webgpu/lessons/webgpu-multiple-canvases.html">Multiple Canvases</a></li>
 <li><a href="/webgpu/lessons/webgpu-points.html">Points</a></li>
 <li><a href="/webgpu/lessons/webgpu-from-webgl.html">WebGPU from WebGL</a></li>
 <li><a href="/webgpu/lessons/webgpu-resources.html">Resources / References</a></li>

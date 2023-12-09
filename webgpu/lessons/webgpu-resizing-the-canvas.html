@@ -289,12 +289,12 @@ the browser to stretch the canvas to fill the window with CSS. Example</p>
 </pre>
 <p>Now we just need to make the drawing buffer match whatever size the browser has stretched the canvas.
 This is unfortunately a complicated topic. Let’s go over some different methods</p>
-<h2 id="use-resizeobserver">Use <code class="notranslate" translate="no">ResizeObserver</code></h2>
+<h2 id="use-resizeobserver">Use <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a></h2>
 <p>We covered this in <a href="webgpu-fundamentals.html">the article on webgpu fundamentals</a>.
 This is the modern way and every browser that supports WebGPU also supports
-<code class="notranslate" translate="no">ResizeObserver</code>.</p>
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a>.</p>
 <p>To repeat what we wrote in the other article: You create a
-<code class="notranslate" translate="no">ResizeObserver</code> and give it a function to call whenever the elements you’ve
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> and give it a function to call whenever the elements you’ve
 asked it to observe change their size. You then tell it which elements to
 observe.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const observer = new ResizeObserver(entries =&gt; {
@@ -321,7 +321,7 @@ when we call <code class="notranslate" translate="no">context.getCurrentTexture(
 <p>Note that <code class="notranslate" translate="no">inlineSize</code> and <code class="notranslate" translate="no">blockSize</code> are not integers</p>
 </blockquote>
 <h2 id="use-clientwidth-and-clientheight">Use <code class="notranslate" translate="no">clientWidth</code> and <code class="notranslate" translate="no">clientHeight</code></h2>
-<p>Before <code class="notranslate" translate="no">ResizeObserver</code> existed it was common to use
+<p>Before <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> existed it was common to use
 <code class="notranslate" translate="no">clientWidth</code> and <code class="notranslate" translate="no">clientHeight</code>.
 These are properties every element in HTML has that tell us
 the size of the element in CSS pixels.</p>
@@ -417,7 +417,7 @@ above you can easily see fractional <a href="https://developer.mozilla.org/en-US
 </li>
 <li>
 <p>The size of any element itself is not an integer</p>
-<p>Above we saw that both <code class="notranslate" translate="no">ResizeObserver</code> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect"><code class="notranslate" translate="no">getBoundingClientRect</code></a>
+<p>Above we saw that both <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect"><code class="notranslate" translate="no">getBoundingClientRect</code></a>
 return non-integer values for the size of an element.</p>
 </li>
 </ol>
@@ -477,7 +477,7 @@ We can’t have 199.33333333334 actual pixels. If we round to 199 then
 elements needs an extra pixel but, given the info for all 3 is exactly the same,
 which one gets the extra pixel?</p>
 <h2 id="devicepixelcontentboxsize"><a id="a-devicepixelcontentboxsize"></a> <code class="notranslate" translate="no">devicePixelContentBoxSize</code></h2>
-<p>The solution is that <code class="notranslate" translate="no">ResizeObserver</code> provides the answer. It’s called
+<p>The solution is that <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> provides the answer. It’s called
 <code class="notranslate" translate="no">devicePixelContentBoxSize</code></p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">const observer = new ResizeObserver(entries =&gt; {
   for (const entry of entries) {
@@ -522,13 +522,13 @@ wide.</p>
 <p>This issue isn’t limited to this case, it’s just the easiest way to show
 a concrete example of not being able to get this info any other way.
 The point being, if you want pixel perfection, you can not just multiply
-some other measurement by <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio"><code class="notranslate" translate="no">devicePixelRatio</code></a>. You must use <code class="notranslate" translate="no">ResizeObserver</code>
+some other measurement by <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio"><code class="notranslate" translate="no">devicePixelRatio</code></a>. You must use <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a>
 and <code class="notranslate" translate="no">devicePixelContentBoxSize</code>.</p>
 <p>Note: Safari, as of November 2023, does not support <code class="notranslate" translate="no">devicePixelContentBoxSize</code>
 nor does Safari change the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio"><code class="notranslate" translate="no">devicePixelRatio</code></a> in response to zooming. This means
 <strong>It’s impossible on Safari to display a 1x1 pixel perfect canvas</strong>.</p>
 <h2 id="content-box-vs-device-pixel-content-box"><code class="notranslate" translate="no">content-box</code> vs <code class="notranslate" translate="no">device-pixel-content-box</code></h2>
-<p>When you call <code class="notranslate" translate="no">ResizeObserver.observe</code> you can tell it to observe the changes
+<p>When you call <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver.observe"><code class="notranslate" translate="no">ResizeObserver.observe</code></a> you can tell it to observe the changes
 of 1 of 2 box sizes. The default is to observe the <code class="notranslate" translate="no">content-box</code> size.
 This is the CSS size of the element.
 Above, the elements may never change CSS size. The parent is set to 299px CSS pixels
@@ -542,7 +542,7 @@ changes <sup class="footnote-ref"><a href="#fn1" id="fnref1:1">[1:1]</a></sup>. 
 didn’t actually change. For example if the element is the full size of the page
 then zooming doesn’t change the fact that it’s still the full size of the page
 and therefore still the same number of device pixels.</p>
-<p>To tell <code class="notranslate" translate="no">ResizeObserver</code> which size ot observe you pass it in when calling
+<p>To tell <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> which size ot observe you pass it in when calling
 <code class="notranslate" translate="no">observer</code>.</p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">resizeObserver.observe(someElement1, {box: 'device-pixel-content-box'});
 resizeObserver.observe(someElement2, {box: 'content-box'});
@@ -712,6 +712,7 @@ if they want resolution or speed.</p>
   <li>Misc</li>
         <ul>
           <li><a href="/webgpu/lessons/webgpu-resizing-the-canvas.html">Resizing the Canvas</a></li>
+<li><a href="/webgpu/lessons/webgpu-multiple-canvases.html">Multiple Canvases</a></li>
 <li><a href="/webgpu/lessons/webgpu-points.html">Points</a></li>
 <li><a href="/webgpu/lessons/webgpu-from-webgl.html">WebGPU from WebGL</a></li>
 <li><a href="/webgpu/lessons/webgpu-resources.html">Resources / References</a></li>

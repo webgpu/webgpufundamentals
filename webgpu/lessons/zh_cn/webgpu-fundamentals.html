@@ -741,7 +741,7 @@ resultBuffer.unmap();
 </div>
 
 <p></p>
-<p><code class="notranslate" translate="no">&lt;canvas&gt;</code> 标签的默认分辨率为 300x150 像素。我们希望调整画布的分辨率，使其与显示的尺寸相匹配。一个很好的方法就是使用 <code class="notranslate" translate="no">ResizeObserver</code>。您可以创建一个 <code class="notranslate" translate="no">ResizeObserver</code>，并给它一个函数，每当您要求它观察的元素尺寸发生变化时，就调用该函数。然后告诉它要观察哪些元素。</p>
+<p><code class="notranslate" translate="no">&lt;canvas&gt;</code> 标签的默认分辨率为 300x150 像素。我们希望调整画布的分辨率，使其与显示的尺寸相匹配。一个很好的方法就是使用 <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a>。您可以创建一个 <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a>，并给它一个函数，每当您要求它观察的元素尺寸发生变化时，就调用该函数。然后告诉它要观察哪些元素。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    ...
 -    render();
 
@@ -759,7 +759,7 @@ resultBuffer.unmap();
 +    observer.observe(canvas);
 </pre>
 <p>在上面的代码中，我们查看了所有条目，但应该只有一个，因为我们只观察画布。我们需要将画布的大小限制在设备支持的最大尺寸内，否则 WebGPU 将开始生成错误，提示我们试图制作过大的纹理。我们还需要确保它不会归零，否则同样会出错。详情请参见<a href="../webgpu-resizing-the-canvas.html">另一篇更长的文章</a>。</p>
-<p>我们调用 <code class="notranslate" translate="no">render</code> 以新的分辨率重新渲染三角形。我们删除了对 <code class="notranslate" translate="no">render</code> 的旧调用，因为不需要它。<code class="notranslate" translate="no">ResizeObserver</code> 总是会至少调用一次回调，以报告元素开始被观察时的大小。</p>
+<p>我们调用 <code class="notranslate" translate="no">render</code> 以新的分辨率重新渲染三角形。我们删除了对 <code class="notranslate" translate="no">render</code> 的旧调用，因为不需要它。<a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> 总是会至少调用一次回调，以报告元素开始被观察时的大小。</p>
 <p>当我们在 <code class="notranslate" translate="no">render</code> 中调用 <code class="notranslate" translate="no">context.getCurrentTexture()</code> 时，就会创建新大小的纹理，因此没有什么可做的了。</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-with-canvas-resize.html"></iframe></div>
@@ -923,6 +923,7 @@ function main(device) {
   <li>杂项</li>
         <ul>
           <li><a href="/webgpu/lessons/zh_cn/webgpu-resizing-the-canvas.html">Resizing the Canvas</a></li>
+<li><a href="/webgpu/lessons/zh_cn/webgpu-multiple-canvases.html">Multiple Canvases</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-points.html">Points</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-from-webgl.html">WebGPU from WebGL</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-resources.html">Resources / References</a></li>

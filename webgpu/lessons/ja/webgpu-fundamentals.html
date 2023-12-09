@@ -864,8 +864,8 @@ canvas {
 <p></p>
 <p><code class="notranslate" translate="no">&lt;canvas&gt;</code>タグの解像度は、デフォルトでは300x150ということになっています。
 これを、表示サイズに合わせてcanvasの解像度が変化するようにします。</p>
-<p>これにはいくつかやり方がありますが、ここでは<code class="notranslate" translate="no">ResizeObserver</code>を使ってみます。
-まず、<code class="notranslate" translate="no">ResizeObserver</code>クラスのオブジェクトを生成。監視対象がリサイズされるたびに処理を行うメソッドを追加。監視対象のHTML要素を指定、しています。</p>
+<p>これにはいくつかやり方がありますが、ここでは<a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a>を使ってみます。
+まず、<a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a>クラスのオブジェクトを生成。監視対象がリサイズされるたびに処理を行うメソッドを追加。監視対象のHTML要素を指定、しています。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    ...
 -    render();
 
@@ -884,7 +884,7 @@ canvas {
 </pre>
 <p>上のコードでは<code class="notranslate" translate="no">entries</code>の全ての要素をforで走査していますが、実際に操作対象となるのは<code class="notranslate" translate="no">observe</code>で指定したcanvas一つだけです。canvasのサイズには、デバイスによる上限の制限があるので、それに配慮しています。この上限を超えてしまうと、WebGPUは、大きすぎるテクスチャを生成しようとしてエラーを出力することになります。また、サイズが0の場合も同様にエラーとなります。
 これについては、「<a href="../webgpu-resizing-the-canvas.html">canvasのリサイズ</a>」の記事で説明します。</p>
-<p>canvasの解像度が適切に更新できたところで<code class="notranslate" translate="no">render</code>を呼んで再描画しています。元のコードでは無条件で<code class="notranslate" translate="no">render</code>を呼んでいましたが、その部分は不要なのでコードから削除しています。<code class="notranslate" translate="no">ResizeObserver</code>は、observeを開始した時点でのcanvas要素のサイズを報告するため、コールバックを必ず１回は実行するためです。</p>
+<p>canvasの解像度が適切に更新できたところで<code class="notranslate" translate="no">render</code>を呼んで再描画しています。元のコードでは無条件で<code class="notranslate" translate="no">render</code>を呼んでいましたが、その部分は不要なのでコードから削除しています。<a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a>は、observeを開始した時点でのcanvas要素のサイズを報告するため、コールバックを必ず１回は実行するためです。</p>
 <p>リサイズ後のサイズの新たなテクスチャの生成は、<code class="notranslate" translate="no">render</code>の中に書いた<code class="notranslate" translate="no">context.getCurrentTexture()</code>が行なうので、observerは関与しません。</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-with-canvas-resize.html"></iframe></div>
@@ -1065,6 +1065,7 @@ WebGPUはそういうデザインになっている。多くの場合、デバ�
   <li>その他のトピック</li>
         <ul>
           <li><a href="/webgpu/lessons/ja/webgpu-resizing-the-canvas.html">Resizing the Canvas</a></li>
+<li><a href="/webgpu/lessons/ja/webgpu-multiple-canvases.html">Multiple Canvases</a></li>
 <li><a href="/webgpu/lessons/ja/webgpu-points.html">Points</a></li>
 <li><a href="/webgpu/lessons/ja/webgpu-from-webgl.html">WebGPU from WebGL</a></li>
 <li><a href="/webgpu/lessons/ja/webgpu-resources.html">Resources / References</a></li>
