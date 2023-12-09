@@ -229,9 +229,9 @@ means, trying to prevent the problem of aliasing where aliasing
 is the problem we get when we try to draw a vector shape as
 discrete pixels.</p>
 <p>We showed how WebGPU draws things in <a href="webgpu-fundamentals.html">the article on fundamentals</a>.
-It takes the vertices we return for the <code class="notranslate" translate="no">@builtin(position)</code> value in the vertex shader
-and then calls the fragment shader for each pixel’s center that is inside that triangle to
-ask what color to make the pixel.</p>
+It takes the clip space vertices we return for the <code class="notranslate" translate="no">@builtin(position)</code> value in the vertex shader
+and for every 3 it computes a triangle and then calls the fragment shader for each pixel’s center
+that is inside that triangle to ask what color to make the pixel.</p>
 <div class="webgpu_center side-by-side flex-gap" style="max-width: 850px">
   <div class="multisample-example">
     <div data-diagram="clip-space-to-texels"></div>
