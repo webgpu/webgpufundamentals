@@ -222,7 +222,7 @@ Some things to note:
 
   Setting `colorAttachment[0].resolveTarget` says to WebGPU, "when all the drawing has finished,
   downscale the multisample texture into the texture set on `resolveTarget`. If you have multiple
-  render passes you probably don't want to resolve until the last pass. We'll it's fastest to
+  render passes you probably don't want to resolve until the last pass. While it's fastest to
   resolve in the last pass it's also perfectly acceptable
   to make an empty last render pass to do nothing but resolve. 
   Just make sure you set the `loadOp` to `'load'`
