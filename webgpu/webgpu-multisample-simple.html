@@ -94,6 +94,8 @@ async function main() {
     // Get the current texture from the canvas context
     const canvasTexture = context.getCurrentTexture();
 
+    // If the multisample texture doesn't exist or
+    // is the wrong size then make a new one.
     if (!multisampleTexture ||
         multisampleTexture.width !== canvasTexture.width ||
         multisampleTexture.height !== canvasTexture.height) {
