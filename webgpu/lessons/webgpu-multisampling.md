@@ -62,6 +62,7 @@ When we draw a triangle to a multisampled texture, if
 all 4 pixels are inside the triangle then the GPU just calls our fragment shader once and stores the result
 in all 4 pixels. If only some of those 4 pixels are inside the triangle the GPU still only calls
 our fragment shader once but it only writes the result to the pixels that are inside the triangle.
+This means using a multisampled texture is up to 4x faster than our 4x resolution solution above.
 
 ## <a id="a-multisampling"></a> How to use multisampling.
 
@@ -155,9 +156,10 @@ to make it a multisample texture.
 ```
 
 *Resolving* is the process of taking the multisample texture and converting it to a
-the size of the texture we really wanted. In this case, our canvas. You'd think we
-could just render it ourselves with bilinear filtering or whatever but the GPU may have
-special hardware to do this step so it's faster to let it do.
+the size of the texture we really wanted. In this case, our canvas. Above, in our
+4x version we did this step manually by bilinear filtering the 4x texture to the 1x
+texture. This is a similar process but it's not actually bilinear filter with multisampled
+textures. [See below](#a-not-a-grid)
 
 And here is
 
@@ -186,10 +188,10 @@ Some things to note:
   to 4 or 1. Similarly you can only set the `sampleCount` on a texture to 4 or 1.
   1 is the default and means the texture is not multisampled.
 
-* Multisampling does not use a grid
+* <a id="a-not-a-grid"></a> Multisampling does not use a grid
 
   Above we mentioned manually rendering to a 4x resolution texture and using bilinear filtering
-  to are desired size but that is not exactly what multisampling does.
+  to our desired size but that is not exactly what multisampling does.
 
   Multisampling actually uses offsets like this for the 4 points it tests for inside/outside
   of the triangle
@@ -210,7 +212,7 @@ Some things to note:
 
   <img src="resources/multisample-16x.svg" width="256">
 
-  WebGPU currently only supports a count of 4 but the point is, multisampling is not a grid.
+  WebGPU does currently only supports a count of 4 but the point is, multisampling is not a grid.
 
 * You can optionally run the fragment shader on each multisampled pixel
 
@@ -222,6 +224,8 @@ Some things to note:
   we brought up that you can mark how to interpolate inter-stage variables
   with the `@interpolate(...)` attribute. One option
   is `sample` in which case the fragment shader will be run once for each sample.
+  There are also builtins like `@builtin(sample_index)` and `@builtin(sample_mask)`
+  that will give you more info about which sample you are currently working on.
 
 * You do not have to set a resolve target on every render pass
 
