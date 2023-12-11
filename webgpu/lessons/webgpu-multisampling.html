@@ -274,7 +274,8 @@ of work so we’d like to call them as few times as possible.</p>
 When we draw a triangle to a multisampled texture, if
 all 4 pixels are inside the triangle then the GPU just calls our fragment shader once and stores the result
 in all 4 pixels. If only some of those 4 pixels are inside the triangle the GPU still only calls
-our fragment shader once but it only writes the result to the pixels that are inside the triangle.</p>
+our fragment shader once but it only writes the result to the pixels that are inside the triangle.
+This means using a multisampled texture is up to 4x faster than our 4x resolution solution above.</p>
 <h2 id="how-to-use-multisampling"><a id="a-multisampling"></a> How to use multisampling.</h2>
 <p>So how do we use a multisampling? We do it via 3 basic steps</p>
 <ol>
@@ -353,9 +354,10 @@ to make it a multisample texture.</p>
 +        canvasTexture.createView();
 </pre>
 <p><em>Resolving</em> is the process of taking the multisample texture and converting it to a
-the size of the texture we really wanted. In this case, our canvas. You’d think we
-could just render it ourselves with bilinear filtering or whatever but the GPU may have
-special hardware to do this step so it’s faster to let it do.</p>
+the size of the texture we really wanted. In this case, our canvas. Above, in our
+4x version we did this step manually by bilinear filtering the 4x texture to the 1x
+texture. This is a similar process but it’s not actually bilinear filter with multisampled
+textures. <a href="#a-not-a-grid">See below</a></p>
 <p>And here is</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-multisample-simple.html"></iframe></div>
@@ -385,9 +387,9 @@ to 4 or 1. Similarly you can only set the <code class="notranslate" translate="n
 1 is the default and means the texture is not multisampled.</p>
 </li>
 <li>
-<p>Multisampling does not use a grid</p>
+<p><a id="a-not-a-grid"></a> Multisampling does not use a grid</p>
 <p>Above we mentioned manually rendering to a 4x resolution texture and using bilinear filtering
-to are desired size but that is not exactly what multisampling does.</p>
+to our desired size but that is not exactly what multisampling does.</p>
 <p>Multisampling actually uses offsets like this for the 4 points it tests for inside/outside
 of the triangle</p>
 <img src="resources/multisample-4x.svg" width="256">
@@ -398,7 +400,7 @@ of the triangle</p>
 <img src="resources/multisample-8x.svg" width="256">
 <p>count: 16</p>
 <img src="resources/multisample-16x.svg" width="256">
-<p>WebGPU currently only supports a count of 4 but the point is, multisampling is not a grid.</p>
+<p>WebGPU does currently only supports a count of 4 but the point is, multisampling is not a grid.</p>
 </li>
 <li>
 <p>You can optionally run the fragment shader on each multisampled pixel</p>
@@ -408,7 +410,9 @@ the triangle. This is why it’s faster than rendering at 4x the resolution.</p>
 <p>In <a href="webgpu-inter-stage-variables.html#a-interpolate">the article on inter-stage variables</a>
 we brought up that you can mark how to interpolate inter-stage variables
 with the <code class="notranslate" translate="no">@interpolate(...)</code> attribute. One option
-is <code class="notranslate" translate="no">sample</code> in which case the fragment shader will be run once for each sample.</p>
+is <code class="notranslate" translate="no">sample</code> in which case the fragment shader will be run once for each sample.
+There are also builtins like <code class="notranslate" translate="no">@builtin(sample_index)</code> and <code class="notranslate" translate="no">@builtin(sample_mask)</code>
+that will give you more info about which sample you are currently working on.</p>
 </li>
 <li>
 <p>You do not have to set a resolve target on every render pass</p>
