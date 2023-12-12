@@ -3,7 +3,7 @@ Description: How to implement directional lighting in WebGPU
 TOC: Directional Lighting
 
 
-This article is assumes you've read [the article on cameras](webgpu-camera.html).
+This article is assumes you've read [the article on cameras](webgpu-cameras.html).
 
 There are many ways to implement lighting. Probably the simplest is *directional lighting*.
 
