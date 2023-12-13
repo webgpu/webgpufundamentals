@@ -50,10 +50,10 @@ Current fields are
       link: 'http://webgpufundamentals.org/webgpu/lessons/ja',  // replace `ja` with country code
 
       // html that appears after the article and before the comments
-      commentSectionHeader: '<div>Questions? <a href="http://stackoverflow.com/questions/tagged/webgpu">Ask on stackoverflow</a>.</div>\n        <div>Issue/Bug? <a href="http://github.com/gfxfundamentals/webgpufundamentals/issues">Create an issue on github</a>.</div>',
+      commentSectionHeader: '<div>Questions? <a href="http://stackoverflow.com/questions/tagged/webgpu">Ask on stackoverflow</a>.</div>\n        <div>Issue/Bug? <a href="http://github.com/webgpu/webgpufundamentals/issues">Create an issue on github</a>.</div>',
 
       // markdown that appears for untranslated articles
-      missing: "Sorry this article has not been translated yet. [Translations Welcome](https://github.com/gfxfundamentals/webgpufundamentals)! 😄\n\n[Here's the original English article for now]({{{origLink}}}).",
+      missing: "Sorry this article has not been translated yet. [Translations Welcome](https://github.com/webgpu/webgpufundamentals)! 😄\n\n[Here's the original English article for now]({{{origLink}}}).",
 
       // the phrase "Table of Contents"
       toc: "Table of Contents",
@@ -146,7 +146,7 @@ The site is built into the `out` folder
 
 Steps
 
-    git clone https://github.com/gfxfundamentals/webgpufundamentals.git
+    git clone https://github.com/webgpu/webgpufundamentals.git
     npm ci
     npm run build
     npm start

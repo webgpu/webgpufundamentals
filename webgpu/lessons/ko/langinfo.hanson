@@ -8,10 +8,10 @@
   commentSectionHeader: `
 <div>질문이 있나요? <a href="http://stackoverflow.com/questions/tagged/webgpu">Stack Overflow</a>에 물어보세요.</div>
 <div>
-   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=suggested+topic&template=suggest-topic.md&title=%5BSUGGESTION%5D">제안</a> /
-   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=&template=request.md&title=">요청 사항</a> /
-   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=bug+%2F+issue&template=bug-issue-report.md&title=">이슈</a> /
-   <a href="https://github.com/gfxfundamentals/webgpufundamentals/issues/new?assignees=&labels=bug+%2F+issue&template=bug-issue-report.md&title=">버그</a>
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&labels=suggested+topic&template=suggest-topic.md&title=%5BSUGGESTION%5D">제안</a> /
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&labels=&template=request.md&title=">요청 사항</a> /
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&labels=bug+%2F+issue&template=bug-issue-report.md&title=">이슈</a> /
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&labels=bug+%2F+issue&template=bug-issue-report.md&title=">버그</a>
 </div>
 <div class="lesson-comment-notes">
    코드 블럭의 경우 <b>&lt;pre&gt;&lt;code&gt;</b>코드<b>&lt;/code&gt;&lt;/pre&gt;</b>을 사용하세요.
@@ -20,7 +20,7 @@
   missing: `
 죄송합니다. 이 글은 아직 번역이 되지 않았습니다.
 
-[번역을 도와주세요](https://github.com/gfxfundamentals/webgpufundamentals)! 😄
+[번역을 도와주세요](https://github.com/webgpu/webgpufundamentals)! 😄
 
 [여기서 원문을 볼 수 있습니다]({{{origLink}}}).
   `,
