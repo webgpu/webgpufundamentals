@@ -294,7 +294,7 @@ vec4 v;
 mat4 someFunction(vec3 p) { ... }
 
 // declare a struct
-struct Foo {  vec4: field; }
+struct Foo { vec4 field; };
 {{/escapehtml}}</code></pre>
 </div><div>
 <div>WGSL</div>
@@ -306,7 +306,7 @@ var v: vec4f;
 fn someFunction(p: vec3f) -> mat4x4f { ... }
 
 // declare a struct
-struct Foo {  field: vec4f; }
+struct Foo { field: vec4f, };
 {{/escapehtml}}</code></pre></div></div>
 
 WGSL has the concept that if you do not specify the type of variable it will
