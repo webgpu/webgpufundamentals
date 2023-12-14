@@ -449,12 +449,11 @@ texture coordinates from the vertex shader to the fragment shader.</p>
 
 struct Uniforms {
   resolution: vec2f,
-+  @location(0) texcoord: vec2f,
 };
 
 struct VSOutput {
   @builtin(position) position: vec4f,
-  @location(0) texcoord: vec2f,
++  @location(0) texcoord: vec2f,
 };
 
 @group(0) @binding(0) var&lt;uniform&gt; uni: Uniforms;
@@ -680,6 +679,7 @@ that is inside clip space regardless of if the point's center is outside of clip
 is not a thing supported by native APIs but by easily implementing our own solutions
 we can easily add more features making things even more flexible.</p>
 </div>
+
     </div>
     <div class="lesson-sidebar">
         <select class="language">
