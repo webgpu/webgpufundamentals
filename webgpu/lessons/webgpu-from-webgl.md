@@ -1398,7 +1398,8 @@ WebGL goes down the screen instead of up so 0,0 is the top left vs WebGL where 0
 `gl_Position` is `@builtin(position) vec4f` which may be the return value
 of a vertex shader or a field in a structure returned by the vertex shader
 
-There is no `gl_PointCoord` equivalent because points are only 1 pixel in WebGPU
+There is no `gl_PointSize` and `gl_PointCoord` equivalent because points are only 1 pixel in WebGPU.
+Fortunately it's easy to [draw points yourself](webgpu-points.html).
 
 You can see other builtin variables [here](https://www.w3.org/TR/WGSL/#builtin-variables).
 
