@@ -473,7 +473,7 @@ vec4 v;
 mat4 someFunction(vec3 p) { ... }
 
 // declare a struct
-struct Foo {  vec4: field; }
+struct Foo { vec4 field; };
 </pre>
 </div><div>
 <div>WGSL</div>
@@ -484,7 +484,7 @@ var v: vec4f;
 fn someFunction(p: vec3f) -&gt; mat4x4f { ... }
 
 // declare a struct
-struct Foo {  field: vec4f; }
+struct Foo { field: vec4f, };
 </pre></div></div>
 <p>WGSL has the concept that if you do not specify the type of variable it will
 be deduced from the type of the expression on the right whereas GLSL required you to
@@ -1457,7 +1457,8 @@ WebGL goes down the screen instead of up so 0,0 is the top left vs WebGL where 0
 <p><code class="notranslate" translate="no">gl_InstanceID</code> is <code class="notranslate" translate="no">@builtin(instance_index) myVarOrField: u32</code></p>
 <p><code class="notranslate" translate="no">gl_Position</code> is <code class="notranslate" translate="no">@builtin(position) vec4f</code> which may be the return value
 of a vertex shader or a field in a structure returned by the vertex shader</p>
-<p>There is no <code class="notranslate" translate="no">gl_PointCoord</code> equivalent because points are only 1 pixel in WebGPU</p>
+<p>There is no <code class="notranslate" translate="no">gl_PointSize</code> and <code class="notranslate" translate="no">gl_PointCoord</code> equivalent because points are only 1 pixel in WebGPU.
+Fortunately it’s easy to <a href="webgpu-points.html">draw points yourself</a>.</p>
 <p>You can see other builtin variables <a href="https://www.w3.org/TR/WGSL/#builtin-variables">here</a>.</p>
 <h3 id="wgsl-only-supports-lines-and-points-1-pixel-wide">WGSL only supports lines and points 1 pixel wide</h3>
 <p>According to the spec, WebGL2 could support lines larger than 1 pixel, but in
