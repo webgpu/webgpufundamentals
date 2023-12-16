@@ -843,6 +843,7 @@ async function main() {
 
     if (showCubes) {
       const gui = new GUI(uiElem);
+      GUI.setTheme('float');
       gui.add(settings, 'fieldOfView', {min: 1, max: 179, step: 1 });
       gui.add(settings, 'zNear', {min: 1, max: 50});
       gui.add(settings, 'zFar', {min: 1, max: 50});
