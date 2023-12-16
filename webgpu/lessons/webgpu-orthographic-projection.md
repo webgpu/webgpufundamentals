@@ -219,12 +219,12 @@ Next we need to change all the matrix math from 2D to 3D
       <table class="glocal-center-content glocal-mat">
         <tr>
           <td class="m11">c</td>
-          <td class="m12">-s</td>
+          <td class="m12">s</td>
           <td class="m13">0</td>
           <td class="m14">0</td>
         </tr>
         <tr>
-          <td class="m21">s</td>
+          <td class="m21">-s</td>
           <td class="m22">c</td>
           <td class="m23">0</td>
           <td class="m24">0</td>
@@ -310,21 +310,21 @@ We can also make X and Y rotation matrices
     <div class="glocal-center">
       <table class="glocal-center-content glocal-mat">
         <tr>
-          <td class="m11">c</td>
-          <td class="m12">-s</td>
+          <td class="m11">1</td>
+          <td class="m12">0</td>
           <td class="m13">0</td>
           <td class="m14">0</td>
         </tr>
         <tr>
-          <td class="m21">s</td>
+          <td class="m21">0</td>
           <td class="m22">c</td>
-          <td class="m23">0</td>
+          <td class="m23">s</td>
           <td class="m24">0</td>
         </tr>
         <tr>
           <td class="m31">0</td>
-          <td class="m32">0</td>
-          <td class="m33">1</td>
+          <td class="m32">-s</td>
+          <td class="m33">c</td>
           <td class="m34">0</td>
         </tr>
         <tr>
@@ -341,20 +341,20 @@ We can also make X and Y rotation matrices
     <div class="glocal-center">
       <table class="glocal-center-content glocal-mat">
         <tr>
-          <td class="m11">1</td>
+          <td class="m11">c</td>
           <td class="m12">0</td>
-          <td class="m13">0</td>
+          <td class="m13">-s</td>
           <td class="m14">0</td>
         </tr>
         <tr>
           <td class="m21">0</td>
-          <td class="m22">c</td>
-          <td class="m23">-s</td>
+          <td class="m22">1</td>
+          <td class="m23">0</td>
           <td class="m24">0</td>
         </tr>
         <tr>
-          <td class="m31">0</td>
-          <td class="m32">s</td>
+          <td class="m31">s</td>
+          <td class="m32">0</td>
           <td class="m33">c</td>
           <td class="m34">0</td>
         </tr>
