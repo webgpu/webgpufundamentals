@@ -1266,7 +1266,7 @@ since we're defining our aspect ratio based on the size the canvas is being disp
 {{{example url="../webgpu-canvas-clientwidth-clientheight.html" width="500" height="150" }}}
 <p>Most apps that allow their canvases to be resized try to make the <code>canvas.width</code> and <code>canvas.height</code> match
 the <code>canvas.clientWidth</code> and <code>canvas.clientHeight</code> because they want there to be
-one pixel in the canvas for each pixel displayed by the browser.[^device-pixel-ratio] But, as we've seen above, that's not
+one pixel in the canvas for each pixel displayed by the browser. But, as we've seen above, that's not
 the only option. That means, in almost all cases, it's more technically correct to compute a
 projection matrix's aspect ratio using <code>canvas.clientHeight</code> and <code>canvas.clientWidth</code>.
 </p>
