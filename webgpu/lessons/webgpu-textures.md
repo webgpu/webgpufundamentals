@@ -155,7 +155,7 @@ the word *texel* when discussing textures.
     _, y, _, _, _,
     _, y, _, _, _,
     _, _, _, _, _,
-  ].flat());
+  ]);
 ```
 
 Hopefully you can see the `F` in there as well as a blue texel in the top
@@ -293,7 +293,7 @@ To fix this there are 2 common solutions.
    +   _, y, _, _, _,
    +   _, y, y, y, _,
    +   b, _, _, _, _,
-    ].flat());
+    ]);
    ```
 
    Once we've flipped the data, what used to be at the top is now at the bottom
@@ -898,7 +898,7 @@ better show `mipmapFilter`'s effect.
       w, w, w, r, r, r, r, g, g, r, r, r, r, w, w, w,
       w, w, r, r, r, r, r, g, g, r, r, r, r, r, w, w,
       w, r, r, r, r, r, r, g, g, r, r, r, r, r, r, w,
-    ].flat());
+    ]);
     return generateMips(data, 16);
   };
 ```
