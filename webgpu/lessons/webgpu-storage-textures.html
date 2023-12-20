@@ -224,7 +224,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>Storage textures are just textures that you can write (or store to) directly to.
+      <p>Storage textures are just <a href="webgpu-textures.html">textures</a> that you can directly write or “store” to.
 Normally we specify triangles in a vertex shader and the GPU updates the texture
 for us indirectly but with a storage texture we can write directly to the
 texture wherever we want.</p>
@@ -233,9 +233,10 @@ texture like any other texture that you create with <code class="notranslate" tr
 <code class="notranslate" translate="no">STORAGE_BINDING</code> usage flag and now you can use the texture as a storage
 texture on top of whatever other usage flags you need and then you can also use
 the texture as a storage texture.</p>
-<p>In sense, a storage texture is buffer that we use as a 2d array. For example we
-could make a buffer and reference it in code like this</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">var @group(0) @binding(0) var&lt;storage&gt; buf: buffer&lt;f32&gt;;
+<p>In sense, a storage texture is like a storage buffer that we use as a 2d array. For example we
+could make a storage buffer and reference it in code like this</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0)
+  var&lt;storage&gt; buf: array&lt;f32&gt;;
 
 ...
 fn loadValueFromBuffer(pos: vec2u) -&gt; f32 {
@@ -253,7 +254,8 @@ fn storeValueToBuffer(pos: vec2u, v: f32) {
 
 </pre>
 <p>vs a storage texture</p>
-<pre class="prettyprint showlinemods notranslate notranslate" translate="no">var @group(0) @binding(0) var tex: texture_storage_2d&lt;r32float, read_write&gt;;
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">@group(0) @binding(0)
+  var tex: texture_storage_2d&lt;r32float, read_write&gt;;
 
 ...
 
@@ -264,36 +266,38 @@ fn storeValueToBuffer(pos: vec2u, v: f32) {
 
 </pre>
 <p>So given that those seem equivalent, what are the differences between manually
-using a buffer and a storage texture?</p>
+using a storage buffer and a storage texture?</p>
 <ul>
 <li>
 <p>A storage texture is still a texture.</p>
-<p>You can use it with one shader as a storage texture and as regular texture (with samplers, and mip-mapping, etc) in another shader.</p>
+<p>You can use it with one shader as a storage texture and as regular texture
+(with samplers, and mip-mapping, etc) in another shader.</p>
 </li>
 <li>
-<p>A storage texture has format interpretation, a buffer does not.</p>
+<p>A storage texture has format interpretation, a storage buffer does not.</p>
 <p>Example:</p>
-<pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">var @group(0) @binding(0) var tex: texture_storage_2d&lt;rgba8unorm, read&gt;;
-var @group(0) @binding(1) var buf: array&lt;f32&gt;;
+<pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">@group(0) @binding(0) var tex: texture_storage_2d&lt;rgba8unorm, read&gt;;
+@group(0) @binding(1) var buf: array&lt;f32&gt;;
 
    ...
-    t = textureLoad(tex, pos, 0);
-    b = buffer[pos.y * bufferWidth + pos.x];
+    let t = textureLoad(tex, pos, 0);
+    let b = buffer[pos.y * bufferWidth + pos.x];
 </pre>
 <p>Above, when we call <code class="notranslate" translate="no">textureLoad</code>, the texture is an <code class="notranslate" translate="no">rgba8unorm</code> texture
 which means 4 bytes are loaded and automatically converted to 4 floating
-point values between 0 and 1.</p>
-<p>In the buffer case, 4 bytes are loaded as a single float32 value. We could
+point values between 0 and 1 and returned as a <code class="notranslate" translate="no">vec4f</code>.</p>
+<p>In the buffer case, 4 bytes are loaded as a single <code class="notranslate" translate="no">f32</code> value. We could
 change buffer to <code class="notranslate" translate="no">array&lt;u32&gt;</code> and then load a value, and manually split it into
 4 byte values, and convert those to floats ourselves but, if that’s what we
 wanted we get it for free with a storage texture.</p>
 </li>
 <li>
 <p>A storage texture has dimensions</p>
-<p>For a buffer the only dimension is its length, or rather, the length of
+<p>For a buffer, the only dimension is its length, or rather, the length of
 its binding <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>. Above, when we used a buffer as a 2D array, we
 needed <code class="notranslate" translate="no">width</code>. We’d have to either hard code that value or pass it in
-some how<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. With a texture we can call <code class="notranslate" translate="no">textureDimensions</code> to get its size.</p>
+some how<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. With a texture we can call <code class="notranslate" translate="no">textureDimensions</code>
+to get the texture’s size.</p>
 </li>
 </ul>
 <p>That said, there are limits on storage buffers</p>
@@ -314,7 +318,7 @@ can be usage as storage textures.</p>
 <li><code class="notranslate" translate="no">rg32(float/sint/uint)</code></li>
 <li><code class="notranslate" translate="no">rgba32(float/sint/uint)</code></li>
 </ul>
-<p>One to notice missing is <code class="notranslate" translate="no">bgra8unorm</code> which we’ll cover below.</p>
+<p>One format to notice missing is <code class="notranslate" translate="no">bgra8unorm</code> which we’ll cover below.</p>
 </li>
 <li>
 <p>Storage textures can not use samplers</p>
@@ -326,7 +330,7 @@ and store a single texel at a time.</p>
 </li>
 </ul>
 <h2 id="canvas-as-a-storage-texture">Canvas as a Storage Texture</h2>
-<p>You can use a canvas texture a storage texture. To do so you configure
+<p>You can use a canvas texture as a storage texture. To do so you configure
 the context to give you a texture that can be used as a storage texture.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const presentationFormat = navigator.gpu.getPreferredCanvasFormat()
   context.configure({
@@ -340,10 +344,12 @@ the context to give you a texture that can be used as a storage texture.</p>
 to the page. <code class="notranslate" translate="no">STORAGE_BINDING</code> lets us use the canvas’s textures as
 storage textures. If we still wanted to render to the texture via a
 render pass, like most examples on this site, we’d also add the
-<code class="notranslate" translate="no">RENDER_BINDING</code> usage.</p>
-<p>There’s a complication here though. Above we call <code class="notranslate" translate="no">navigator.gpu.getPreferredCanvasFormat</code>. As we covered in <a href="webgpu-fundamentals.html">the first article</a>, <code class="notranslate" translate="no">getPreferredCanvasFormat</code> will return
-either <code class="notranslate" translate="no">rgba8unorm</code> or <code class="notranslate" translate="no">bgra8unorm</code> depending on whichever format
-is more performant for the user’s system.</p>
+<code class="notranslate" translate="no">RENDER_ATTACHMENT</code> usage.</p>
+<p>There’s a complication here though. Above we call
+<code class="notranslate" translate="no">navigator.gpu.getPreferredCanvasFormat</code>. As we covered in
+<a href="webgpu-fundamentals.html">the first article</a>, <code class="notranslate" translate="no">getPreferredCanvasFormat</code>
+will return either <code class="notranslate" translate="no">rgba8unorm</code> or <code class="notranslate" translate="no">bgra8unorm</code> depending on whichever
+format is more performant for the user’s system.</p>
 <p>But, as mentioned above, by default, we can not use a <code class="notranslate" translate="no">bgra8unorm</code>
 texture as a storage texture.</p>
 <p>Fortunately there is a <a href="webgpu-limits-and-features.html">feature</a>,
@@ -351,8 +357,10 @@ texture as a storage texture.</p>
 will enable using a <code class="notranslate" translate="no">bgra8unorm</code> texture as a storage texture.
 In general it <em>should</em> be available on any platform that reports
 <code class="notranslate" translate="no">bgra8unorm</code> as its preferred canvas format but there is some possibility
-it’s not available. So, we need to check if the <code class="notranslate" translate="no">'bgra8unorm-storage'</code> <em>feature</em> exists. If so we’ll require it for our device. If the feature exists, we’ll use
-the preferred canvas format. If not, we’ll choose <code class="notranslate" translate="no">rgba8unorm</code>.</p>
+it’s not available. So, we need to check if the <code class="notranslate" translate="no">'bgra8unorm-storage'</code>
+<em>feature</em> exists. If it exists, we’ll require it for our device and we’ll use
+the preferred canvas format. If not, we’ll choose <code class="notranslate" translate="no">rgba8unorm</code> as our
+canvas format.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const adapter = await navigator.gpu?.requestAdapter();
 -  const device = await adapter?.requestDevice();
 +  const hasBGRA8unormStorage = adapter.features.has('bgra8unorm-storage');
@@ -469,18 +477,27 @@ using a storage texture, not the fastest possible shader.
 You can read up on some methods of optimizing
 compute shaders in <a href="webgpu-compute-shaders-histogram.html">the article on computing an image histogram</a>.</p>
 <p>Similarly, because you can write anywhere in the storage texture, you
-need to be aware of race conditions like we covered in the other articles
-on compute shaders. The order the invocations run is not guaranteed. It’s
+need to be aware of race conditions like we covered in
+<a href="webgpu-compute-shaders.html">the other articles on compute shaders</a>.
+The order the invocations run is not guaranteed. It’s
 up to you to avoid races and/or insert <code class="notranslate" translate="no">textureBarriers</code> or other things
 to make sure 2 or more invocations do not step on each other’s toes.</p>
+<h2 id="examples">Examples</h2>
+<p><a href="https://compute.toys">compute.toys</a> is a website with lots of examples
+of writing directly to a storage texture. <strong>WARNING</strong>: While there
+are many things to learn from the examples on <a href="https://compute.toys">compute.toys</a>
+they are not necessarily best practice. Compute toys is about making
+interesting things with only compute shaders. It’s a fun puzzle to figure
+out how to do something creative with only compute shaders but be aware,
+other methods <em>might</em> be 10s, 100s, or 1000s of times faster.</p>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
 <li id="fn1" class="footnote-item"><p>When you create a bind group and you specify a buffer you can
-optional bind and offset and length. In the shader, the length of the
+optionally specify an offset and length. In the shader, the length of the
 array is calculated from the length of the binding, not the length of
-the buffer. If you don’t specify and offset it defaults to 0 and the
-length defaults to the size of the buffer. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+the buffer. If you don’t specify an offset it defaults to 0 and the
+length defaults to the size of the entire buffer. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 </li>
 <li id="fn2" class="footnote-item"><p>You could pass in the buffer width via a <a href="webgpu-uniforms.html">uniform</a>,
 another <a href="webgpu-storage-buffers.html">storage buffer</a> or even as
