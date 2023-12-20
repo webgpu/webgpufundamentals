@@ -11,6 +11,7 @@
         'webgpu-importing-textures.md',
         'webgpu-textures-external-video.md',
         'webgpu-cube-maps.md',
+        'webgpu-storage-textures.md',
       ],
     },
     'webgpu-constants.md',
