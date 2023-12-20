@@ -2,7 +2,7 @@ Title: WebGPU Storage Textures
 Description: How to use Storage Textures
 TOC: Storage Textures
 
-Storage textures are just textures that you can write (or store to) directly to.
+Storage textures are just [textures](webgpu-textures.html) that you can directly write or "store" to.
 Normally we specify triangles in a vertex shader and the GPU updates the texture
 for us indirectly but with a storage texture we can write directly to the
 texture wherever we want.
@@ -13,11 +13,12 @@ texture like any other texture that you create with `createTexture`. You add the
 texture on top of whatever other usage flags you need and then you can also use
 the texture as a storage texture.
 
-In sense, a storage texture is buffer that we use as a 2d array. For example we
-could make a buffer and reference it in code like this
+In sense, a storage texture is like a storage buffer that we use as a 2d array. For example we
+could make a storage buffer and reference it in code like this
 
 ```wgsl
-var @group(0) @binding(0) var<storage> buf: buffer<f32>;
+@group(0) @binding(0)
+  var<storage> buf: array<f32>;
 
 ...
 fn loadValueFromBuffer(pos: vec2u) -> f32 {
@@ -38,7 +39,8 @@ fn storeValueToBuffer(pos: vec2u, v: f32) {
 vs a storage texture
 
 ```
-var @group(0) @binding(0) var tex: texture_storage_2d<r32float, read_write>;
+@group(0) @binding(0)
+  var tex: texture_storage_2d<r32float, read_write>;
 
 ...
 
@@ -50,46 +52,48 @@ var @group(0) @binding(0) var tex: texture_storage_2d<r32float, read_write>;
 ```
 
 So given that those seem equivalent, what are the differences between manually
-using a buffer and a storage texture?
+using a storage buffer and a storage texture?
 
 * A storage texture is still a texture.
 
-  You can use it with one shader as a storage texture and as regular texture (with samplers, and mip-mapping, etc) in another shader.
+  You can use it with one shader as a storage texture and as regular texture
+  (with samplers, and mip-mapping, etc) in another shader.
 
-* A storage texture has format interpretation, a buffer does not.
+* A storage texture has format interpretation, a storage buffer does not.
 
   Example:
 
   ```wsgl
-  var @group(0) @binding(0) var tex: texture_storage_2d<rgba8unorm, read>;
-  var @group(0) @binding(1) var buf: array<f32>;
+  @group(0) @binding(0) var tex: texture_storage_2d<rgba8unorm, read>;
+  @group(0) @binding(1) var buf: array<f32>;
 
      ...
-      t = textureLoad(tex, pos, 0);
-      b = buffer[pos.y * bufferWidth + pos.x];
+      let t = textureLoad(tex, pos, 0);
+      let b = buffer[pos.y * bufferWidth + pos.x];
   ```
 
   Above, when we call `textureLoad`, the texture is an `rgba8unorm` texture
   which means 4 bytes are loaded and automatically converted to 4 floating
-  point values between 0 and 1.
+  point values between 0 and 1 and returned as a `vec4f`.
 
-  In the buffer case, 4 bytes are loaded as a single float32 value. We could
+  In the buffer case, 4 bytes are loaded as a single `f32` value. We could
   change buffer to `array<u32>` and then load a value, and manually split it into
   4 byte values, and convert those to floats ourselves but, if that's what we
   wanted we get it for free with a storage texture.
 
 * A storage texture has dimensions
 
-  For a buffer the only dimension is its length, or rather, the length of
+  For a buffer, the only dimension is its length, or rather, the length of
   its binding [^binding]. Above, when we used a buffer as a 2D array, we
   needed `width`. We'd have to either hard code that value or pass it in
-  some how[^how-to-pass-data]. With a texture we can call `textureDimensions` to get its size.
+  some how[^how-to-pass-data]. With a texture we can call `textureDimensions`
+  to get the texture's size.
 
   [^binding]: When you create a bind group and you specify a buffer you can
-  optional bind and offset and length. In the shader, the length of the
+  optionally specify an offset and length. In the shader, the length of the
   array is calculated from the length of the binding, not the length of
-  the buffer. If you don't specify and offset it defaults to 0 and the
-  length defaults to the size of the buffer.
+  the buffer. If you don't specify an offset it defaults to 0 and the
+  length defaults to the size of the entire buffer.
 
   [^how-to-pass-data]: You could pass in the buffer width via a [uniform](webgpu-uniforms.html),
   another [storage buffer](webgpu-storage-buffers.html) or even as
@@ -114,7 +118,7 @@ That said, there are limits on storage buffers
   * `rg32(float/sint/uint)`
   * `rgba32(float/sint/uint)`
 
-  One to notice missing is `bgra8unorm` which we'll cover below. 
+  One format to notice missing is `bgra8unorm` which we'll cover below. 
 
 * Storage textures can not use samplers
 
@@ -126,7 +130,7 @@ That said, there are limits on storage buffers
 
 ## Canvas as a Storage Texture
 
-You can use a canvas texture a storage texture. To do so you configure
+You can use a canvas texture as a storage texture. To do so you configure
 the context to give you a texture that can be used as a storage texture.
 
 ```js
@@ -143,11 +147,13 @@ the context to give you a texture that can be used as a storage texture.
 to the page. `STORAGE_BINDING` lets us use the canvas's textures as
 storage textures. If we still wanted to render to the texture via a
 render pass, like most examples on this site, we'd also add the 
-`RENDER_BINDING` usage.
+`RENDER_ATTACHMENT` usage.
 
-There's a complication here though. Above we call `navigator.gpu.getPreferredCanvasFormat`. As we covered in [the first article](webgpu-fundamentals.html), `getPreferredCanvasFormat` will return
-either `rgba8unorm` or `bgra8unorm` depending on whichever format
-is more performant for the user's system.
+There's a complication here though. Above we call
+`navigator.gpu.getPreferredCanvasFormat`. As we covered in
+[the first article](webgpu-fundamentals.html), `getPreferredCanvasFormat`
+will return either `rgba8unorm` or `bgra8unorm` depending on whichever
+format is more performant for the user's system.
 
 But, as mentioned above, by default, we can not use a `bgra8unorm`
 texture as a storage texture.
@@ -157,8 +163,10 @@ Fortunately there is a [feature](webgpu-limits-and-features.html),
 will enable using a `bgra8unorm` texture as a storage texture.
 In general it *should* be available on any platform that reports
 `bgra8unorm` as its preferred canvas format but there is some possibility
-it's not available. So, we need to check if the `'bgra8unorm-storage'` *feature* exists. If so we'll require it for our device. If the feature exists, we'll use
-the preferred canvas format. If not, we'll choose `rgba8unorm`.
+it's not available. So, we need to check if the `'bgra8unorm-storage'`
+*feature* exists. If it exists, we'll require it for our device and we'll use
+the preferred canvas format. If not, we'll choose `rgba8unorm` as our
+canvas format.
 
 ```js
   const adapter = await navigator.gpu?.requestAdapter();
@@ -288,7 +296,18 @@ You can read up on some methods of optimizing
 compute shaders in [the article on computing an image histogram](webgpu-compute-shaders-histogram.html).
 
 Similarly, because you can write anywhere in the storage texture, you
-need to be aware of race conditions like we covered in the other articles
-on compute shaders. The order the invocations run is not guaranteed. It's
+need to be aware of race conditions like we covered in
+[the other articles on compute shaders](webgpu-compute-shaders.html).
+The order the invocations run is not guaranteed. It's
 up to you to avoid races and/or insert `textureBarriers` or other things
 to make sure 2 or more invocations do not step on each other's toes.
+
+## Examples
+
+[compute.toys](https://compute.toys) is a website with lots of examples
+of writing directly to a storage texture. **WARNING**: While there
+are many things to learn from the examples on [compute.toys](https://compute.toys)
+they are not necessarily best practice. Compute toys is about making
+interesting things with only compute shaders. It's a fun puzzle to figure
+out how to do something creative with only compute shaders but be aware,
+other methods *might* be 10s, 100s, or 1000s of times faster.
