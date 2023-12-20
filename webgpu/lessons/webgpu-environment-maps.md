@@ -13,17 +13,20 @@ an outer space scene it would be the stars. We can implement an environment map
 with a cube map if we have 6 images that show the environment from a point in
 space in the 6 directions of the cubemap.
 
-Here's an environment map from the lobby of the Computer History Museum in Mountain View, California.
+Here's an environment map from the lobby of the Leadenhall Market in London.
 
 <div class="webgpu_center">
-  <img src="../resources/images/computer-history-museum/pos-x.jpg" style="width: 128px" class="border">
-  <img src="../resources/images/computer-history-museum/neg-x.jpg" style="width: 128px" class="border">
-  <img src="../resources/images/computer-history-museum/pos-y.jpg" style="width: 128px" class="border">
+  <img src="../resources/images/leadenhall_market/pos-x.jpg" style="width: 256px" class="border">
+  <img src="../resources/images/leadenhall_market/neg-x.jpg" style="width: 256px" class="border">
+  <img src="../resources/images/leadenhall_market/pos-y.jpg" style="width: 256px" class="border">
 </div>
 <div class="webgpu_center">
-  <img src="../resources/images/computer-history-museum/neg-y.jpg" style="width: 128px" class="border">
-  <img src="../resources/images/computer-history-museum/pos-z.jpg" style="width: 128px" class="border">
-  <img src="../resources/images/computer-history-museum/neg-z.jpg" style="width: 128px" class="border">
+  <img src="../resources/images/leadenhall_market/neg-y.jpg" style="width: 256px" class="border">
+  <img src="../resources/images/leadenhall_market/pos-z.jpg" style="width: 256px" class="border">
+  <img src="../resources/images/leadenhall_market/neg-z.jpg" style="width: 256px" class="border">
+</div>
+<div class="webgpu_center">
+  <a href="https://polyhaven.com/a/leadenhall_market">Leadenhall Market</a>, CC0 by: <a href="https://www.artstation.com/andreasmischok">Andreas Mischok</a>
 </div>
 
 Based on [the code in the previous article](webgpu-cube-maps.html) let's load those 6 images instead of the canvases we generated.
@@ -67,12 +70,12 @@ the new one. Now we can use the new one to load the six images.
 +  const texture = await createTextureFromImages(
 +      device,
 +      [
-+        'resources/images/computer-history-museum/pos-x.jpg',
-+        'resources/images/computer-history-museum/neg-x.jpg',
-+        'resources/images/computer-history-museum/pos-y.jpg',
-+        'resources/images/computer-history-museum/neg-y.jpg',
-+        'resources/images/computer-history-museum/pos-z.jpg',
-+        'resources/images/computer-history-museum/neg-z.jpg',
++        'resources/images/leadenhall_market/pos-x.jpg',
++        'resources/images/leadenhall_market/neg-x.jpg',
++        'resources/images/leadenhall_market/pos-y.jpg',
++        'resources/images/leadenhall_market/neg-y.jpg',
++        'resources/images/leadenhall_market/pos-z.jpg',
++        'resources/images/leadenhall_market/neg-z.jpg',
 +      ],
 +      {mips: true, flipY: false},
 +  );
@@ -419,4 +422,11 @@ Basic reflections
 
 Next let's show [how to use a cubemap for a skybox](webgpu-skybox.html).
 
+## Finding and Making Cube Maps
+
+You can find hundreds of free panoramas at [polyhaven.com](https://polyhaven.com/hdris).
+Download a jpg or png of any one of them (click the ≡ menu in the top right). Then, go to
+[this page](https://greggman.github.io/panorama-to-cubemap/) and drag and drop the .jpg or .png
+file there. Select the size and format you want and click the button to save the images
+as cubemap faces.
 
