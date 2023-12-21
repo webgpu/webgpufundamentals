@@ -85,9 +85,12 @@ ourselves.
 ```glsl
 @fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
   let t = uni.viewDirectionProjectionInverse * vsOut.pos;
-  return textureSample(ourTexture, ourSampler, normalize(t.xyz / t.w));
+  return textureSample(ourTexture, ourSampler, normalize(t.xyz / t.w) * vec3f(-1, 1, 1));
 }
 ```
+
+Note: We multiply the x direction by -1 for
+[the reasons we covered in the previous article](webgpu-environment-maps.html#a-flipped).
 
 The pipeline has no buffers in the vertex stage
 

@@ -115,6 +115,10 @@ table {
     margin-bottom: 1em;
 }
 
+.rel {
+  position: relative;
+}
+
 .footnote {
   font-size: smaller;
   vertical-align: baseline;
@@ -314,9 +318,17 @@ div[data-diagram] {
     opacity: 0;
   }
 }
+.center-by-margin {
+  margin: 0 auto;
+}
 .align-top-left {
   position: absolute;
   left: 0;
+  top: 0;
+}
+.align-top-right {
+  position: absolute;
+  right: 0;
   top: 0;
 }
 .align-bottom-left {

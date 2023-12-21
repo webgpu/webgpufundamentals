@@ -16,14 +16,14 @@ space in the 6 directions of the cubemap.
 Here's an environment map from the lobby of the Leadenhall Market in London.
 
 <div class="webgpu_center">
-  <img src="../resources/images/leadenhall_market/pos-x.jpg" style="width: 256px" class="border">
-  <img src="../resources/images/leadenhall_market/neg-x.jpg" style="width: 256px" class="border">
-  <img src="../resources/images/leadenhall_market/pos-y.jpg" style="width: 256px" class="border">
-</div>
-<div class="webgpu_center">
-  <img src="../resources/images/leadenhall_market/neg-y.jpg" style="width: 256px" class="border">
-  <img src="../resources/images/leadenhall_market/pos-z.jpg" style="width: 256px" class="border">
-  <img src="../resources/images/leadenhall_market/neg-z.jpg" style="width: 256px" class="border">
+  <div class="side-by-side center-by-margin" style="max-width: 800px">
+    <div><img src="../resources/images/leadenhall_market/pos-x.jpg" style="min-width: 256px; width: 256px" class="border"><div>positive x</div></div>
+    <div><img src="../resources/images/leadenhall_market/neg-x.jpg" style="min-width: 256px; width: 256px" class="border"><div>negative x</div></div>
+    <div><img src="../resources/images/leadenhall_market/pos-y.jpg" style="min-width: 256px; width: 256px" class="border"><div>positive y</div></div>
+    <div><img src="../resources/images/leadenhall_market/pos-z.jpg" style="min-width: 256px; width: 256px" class="border"><div>positive z</div></div>
+    <div><img src="../resources/images/leadenhall_market/neg-z.jpg" style="min-width: 256px; width: 256px" class="border"><div>negative z</div></div>
+    <div><img src="../resources/images/leadenhall_market/neg-y.jpg" style="min-width: 256px; width: 256px" class="border"><div>positive y</div></div>
+  </div>
 </div>
 <div class="webgpu_center">
   <a href="https://polyhaven.com/a/leadenhall_market">Leadenhall Market</a>, CC0 by: <a href="https://www.artstation.com/andreasmischok">Andreas Mischok</a>
@@ -416,7 +416,44 @@ Let's also change the rendering to a rAF loop
   observer.observe(canvas);
 ```
 
-Basic reflections
+And with that we get.
+
+{{{example url="../webgpu-environment-map-backward.html" }}}
+
+If you look closely you might see a small problem.
+
+<div class="webgpu_center"><img src="resources/environment-map-backward.png" class="nobg" style="width: 600px;"></div>
+
+## <a id="a-flipped"></a> Correcting the reflection direction
+
+Our cube with an environment map applied
+to it represents a mirrored cube. But a mirror normally shows
+things flipped horizontally. What's going on?
+
+The issue is, we're on the inside of the cube looking out, but
+recall from [the previous article](webgpu-cube-maps.html), when
+we mapped textures to each side of the cube they mapped correctly
+when viewed from the outside.
+
+<div class="webgpu_center">
+  <div data-diagram="show-cube-map" class="center-by-margin" style="width: 700px; height: 400px"></div>
+</div>
+
+Another way to look at this is, from inside the cube we're in a "y-up right handed coordinate system".
+This means positive-z is forward. Where as all of our 3d math so far uses a "y-up left handed coordinate system" [^xxx-handed]
+where negative-z is forward. A simple solution is to flip the X coordinate when we sample the
+texture.
+
+[^xxx-handed]: To be honest I find this talk of "left handed" vs "right handed" coordinate systems to be super confusing
+and I'd much rather say "+x to the right, +y up, -z forward", which leaves zero ambiguity. If you want to know more
+though you can [google it](https://www.google.com/search?q=right+handed+vs+left+handed+coordinate+system&tbm=isch) 😄
+
+```wgsl
+-  return textureSample(ourTexture, ourSampler, direction);
++  return textureSample(ourTexture, ourSampler, direction * vec3f(-1, 1, 1));
+```
+
+Now the reflection is flipped, just like in a mirror.
 
 {{{example url="../webgpu-environment-map.html" }}}
 
@@ -430,3 +467,5 @@ Download a jpg or png of any one of them (click the ≡ menu in the top right). 
 file there. Select the size and format you want and click the button to save the images
 as cubemap faces.
 
+<!-- keep this at the bottom of the article -->
+<script type="module" src="webgpu-environment-maps.js"></script>
