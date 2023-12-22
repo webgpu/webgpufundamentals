@@ -312,7 +312,7 @@ WGSL에서 데이터의 크기와 오프셋을 계산하는 부분이 아마 Web
 import {
   makeShaderDataDefinitions,
   makeStructuredView,
-} from 'https://greggman.github.io/webgpu-utils/dist/0.x/webgpu-utils.module.js';
+} from 'https://greggman.github.io/webgpu-utils/dist/0.x/webgpu-utils-1.x.module.js';
 
 const code = `
 struct Ex4a {

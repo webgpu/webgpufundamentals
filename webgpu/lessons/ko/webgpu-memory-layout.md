@@ -370,7 +370,7 @@ WGSL 코드를 제공하면 API가 이 모든 작업을 대신 수행합니다.
 import {
   makeShaderDataDefinitions,
   makeStructuredView,
-} from 'https://greggman.github.io/webgpu-utils/dist/0.x/webgpu-utils.module.js';
+} from 'https://greggman.github.io/webgpu-utils/dist/0.x/webgpu-utils-1.x.module.js';
 
 const code = `
 struct Ex4a {
