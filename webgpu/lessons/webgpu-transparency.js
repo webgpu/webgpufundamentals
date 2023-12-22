@@ -5,7 +5,7 @@ import {
   createElem as el
 } from './resources/elem.js';
 import {mat4} from '/3rdparty/wgpu-matrix.module.js';
-import {createTextureFromSource} from '/3rdparty/webgpu-utils.module.js';
+import {createTextureFromSource} from '/3rdparty/webgpu-utils-1.x.module.js';
 
 
 const hsl = (h, s, l) => `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
