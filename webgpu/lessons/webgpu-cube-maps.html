@@ -662,12 +662,12 @@ mipmaps is not what we want.</p>
 the corresponding directions it would return the center pixel(s) color for that layer
 of the texture.</p>
 <ul>
-<li>`textureSample(tex, sampler, vec3f([ 1, 0, 0])) =&gt; center of layer 0</li>
-<li>`textureSample(tex, sampler, vec3f([-1, 0, 0])) =&gt; center of layer 1</li>
-<li>`textureSample(tex, sampler, vec3f([ 0, 1, 0])) =&gt; center of layer 2</li>
-<li>`textureSample(tex, sampler, vec3f([ 0,-1, 0])) =&gt; center of layer 3</li>
-<li>`textureSample(tex, sampler, vec3f([ 0, 0, 1])) =&gt; center of layer 4</li>
-<li>`textureSample(tex, sampler, vec3f([ 0, 0,-1])) =&gt; center of layer 5</li>
+<li><code class="notranslate" translate="no">textureSample(tex, sampler, vec3f( 1, 0, 0))</code> =&gt; center of layer 0</li>
+<li><code class="notranslate" translate="no">textureSample(tex, sampler, vec3f(-1, 0, 0))</code> =&gt; center of layer 1</li>
+<li><code class="notranslate" translate="no">textureSample(tex, sampler, vec3f( 0, 1, 0))</code> =&gt; center of layer 2</li>
+<li><code class="notranslate" translate="no">textureSample(tex, sampler, vec3f( 0,-1, 0))</code> =&gt; center of layer 3</li>
+<li><code class="notranslate" translate="no">textureSample(tex, sampler, vec3f( 0, 0, 1))</code> =&gt; center of layer 4</li>
+<li><code class="notranslate" translate="no">textureSample(tex, sampler, vec3f( 0, 0,-1))</code> =&gt; center of layer 5</li>
 </ul>
 <p>Using a cubemap to texture a cube is <strong>not</strong> what cubemaps are normally
 used for. The <em>correct</em> or rather standard way to texture a cube is

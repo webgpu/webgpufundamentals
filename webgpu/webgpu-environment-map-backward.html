@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>WebGPU SkyBox</title>
+    <title>WebGPU Environment Map (backward)</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -23,7 +23,6 @@ canvas {
   <script type="module">
 // see https://webgpufundamentals.org/webgpu/lessons/webgpu-utils.html#wgpu-matrix
 import {mat4} from '/3rdparty/wgpu-matrix.module.js';
-
 
 function createCubeVertices() {
   const vertexData = new Float32Array([
@@ -95,60 +94,7 @@ async function main() {
     alphaMode: 'premultiplied',
   });
 
-  const skyBoxModule = device.createShaderModule({
-    code: `
-      struct Uniforms {
-        viewDirectionProjectionInverse: mat4x4f,
-      };
-
-      struct VSOutput {
-        @builtin(position) position: vec4f,
-        @location(0) pos: vec4f,
-      };
-
-      @group(0) @binding(0) var<uniform> uni: Uniforms;
-      @group(0) @binding(1) var ourSampler: sampler;
-      @group(0) @binding(2) var ourTexture: texture_cube<f32>;
-
-      @vertex fn vs(@builtin(vertex_index) vNdx: u32) -> VSOutput {
-        let pos = array(
-          vec2f(-1, 3),
-          vec2f(-1,-1),
-          vec2f( 3,-1),
-        );
-        var vsOut: VSOutput;
-        vsOut.position = vec4f(pos[vNdx], 1, 1);
-        vsOut.pos = vsOut.position;
-        return vsOut;
-      }
-
-      @fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
-        let t = uni.viewDirectionProjectionInverse * vsOut.pos;
-        return textureSample(ourTexture, ourSampler, normalize(t.xyz / t.w) * vec3f(-1, 1, 1));
-      }
-    `,
-  });
-
-  const skyBoxPipeline = device.createRenderPipeline({
-    label: 'no attributes',
-    layout: 'auto',
-    vertex: {
-      module: skyBoxModule,
-      entryPoint: 'vs',
-    },
-    fragment: {
-      module: skyBoxModule,
-      entryPoint: 'fs',
-      targets: [{ format: presentationFormat }],
-    },
-    depthStencil: {
-      depthWriteEnabled: true,
-      depthCompare: 'less-equal',
-      format: 'depth24plus',
-    },
-  });
-
-  const envMapModule = device.createShaderModule({
+  const module = device.createShaderModule({
     code: `
       struct Uniforms {
         projection: mat4x4f,
@@ -185,16 +131,16 @@ async function main() {
         let eyeToSurfaceDir = normalize(vsOut.worldPosition - uni.cameraPosition);
         let direction = reflect(eyeToSurfaceDir, worldNormal);
 
-        return textureSample(ourTexture, ourSampler, direction * vec3f(-1, 1, 1));
+        return textureSample(ourTexture, ourSampler, direction);
       }
     `,
   });
 
-  const envMapPipeline = device.createRenderPipeline({
+  const pipeline = device.createRenderPipeline({
     label: '2 attributes',
     layout: 'auto',
     vertex: {
-      module: envMapModule,
+      module,
       entryPoint: 'vs',
       buffers: [
         {
@@ -207,7 +153,7 @@ async function main() {
       ],
     },
     fragment: {
-      module: envMapModule,
+      module,
       entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
@@ -413,42 +359,15 @@ async function main() {
     mipmapFilter: 'linear',
   });
 
-  // viewDirectionProjectionInverse
-  const skyBoxUniformBufferSize = (16) * 4;
-  const skyBoxUniformBuffer = device.createBuffer({
-    label: 'uniforms',
-    size: skyBoxUniformBufferSize,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
-
-  const skyBoxUniformValues = new Float32Array(skyBoxUniformBufferSize / 4);
-
-  // offsets to the various uniform values in float32 indices
-  const kViewDirectionProjectionInverseOffset = 0;
-
-  const viewDirectionProjectionInverseValue = skyBoxUniformValues.subarray(
-      kViewDirectionProjectionInverseOffset,
-      kViewDirectionProjectionInverseOffset + 16);
-
-  const skyBoxBindGroup = device.createBindGroup({
-    label: 'bind group for object',
-    layout: skyBoxPipeline.getBindGroupLayout(0),
-    entries: [
-      { binding: 0, resource: { buffer: skyBoxUniformBuffer }},
-      { binding: 1, resource: sampler },
-      { binding: 2, resource: texture.createView({dimension: 'cube'}) },
-    ],
-  });
-
   // projection, view, world, cameraPosition, pad
-  const envMapUniformBufferSize = (16 + 16 + 16 + 3 + 1) * 4;
-  const envMapUniformBuffer = device.createBuffer({
+  const uniformBufferSize = (16 + 16 + 16 + 3 + 1) * 4;
+  const uniformBuffer = device.createBuffer({
     label: 'uniforms',
-    size: envMapUniformBufferSize,
+    size: uniformBufferSize,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
-  const envMapUniformValues = new Float32Array(envMapUniformBufferSize / 4);
+  const uniformValues = new Float32Array(uniformBufferSize / 4);
 
   // offsets to the various uniform values in float32 indices
   const kProjectionOffset = 0;
@@ -456,10 +375,10 @@ async function main() {
   const kWorldOffset = 32;
   const kCameraPositionOffset = 48;
 
-  const projectionValue = envMapUniformValues.subarray(kProjectionOffset, kProjectionOffset + 16);
-  const viewValue = envMapUniformValues.subarray(kViewOffset, kViewOffset + 16);
-  const worldValue = envMapUniformValues.subarray(kWorldOffset, kWorldOffset + 16);
-  const cameraPositionValue = envMapUniformValues.subarray(
+  const projectionValue = uniformValues.subarray(kProjectionOffset, kProjectionOffset + 16);
+  const viewValue = uniformValues.subarray(kViewOffset, kViewOffset + 16);
+  const worldValue = uniformValues.subarray(kWorldOffset, kWorldOffset + 16);
+  const cameraPositionValue = uniformValues.subarray(
       kCameraPositionOffset, kCameraPositionOffset + 3);
 
   const { vertexData, indexData, numVertices } = createCubeVertices();
@@ -477,11 +396,11 @@ async function main() {
   });
   device.queue.writeBuffer(indexBuffer, 0, indexData);
 
-  const envMapBindGroup = device.createBindGroup({
+  const bindGroup = device.createBindGroup({
     label: 'bind group for object',
-    layout: envMapPipeline.getBindGroupLayout(0),
+    layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: envMapUniformBuffer }},
+      { binding: 0, resource: { buffer: uniformBuffer }},
       { binding: 1, resource: sampler },
       { binding: 2, resource: texture.createView({dimension: 'cube'}) },
     ],
@@ -532,6 +451,9 @@ async function main() {
 
     const encoder = device.createCommandEncoder();
     const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.setVertexBuffer(0, vertexBuffer);
+    pass.setIndexBuffer(indexBuffer, 'uint16');
 
     const aspect = canvas.clientWidth / canvas.clientHeight;
     mat4.perspective(
@@ -541,44 +463,21 @@ async function main() {
         10,      // zFar
         projectionValue,
     );
-    // Camera going in circle from origin looking at origin
-    cameraPositionValue.set([Math.cos(time * .1) * 5, 0, Math.sin(time * .1) * 5]);
-    const view = mat4.lookAt(
+    cameraPositionValue.set([0, 0, 4]);  // camera position;
+    mat4.lookAt(
       cameraPositionValue,
       [0, 0, 0],  // target
       [0, 1, 0],  // up
+      viewValue,
     );
-    // Copy the view into the viewValue since we're going
-    // to zero out the view's translation
-    viewValue.set(view);
-
-    // We only care about direction so remove the translation
-    view[12] = 0;
-    view[13] = 0;
-    view[14] = 0;
-    const viewProjection = mat4.multiply(projectionValue, view);
-    mat4.inverse(viewProjection, viewDirectionProjectionInverseValue);
-
-    // Rotate the cube
     mat4.identity(worldValue);
     mat4.rotateX(worldValue, time * -0.1, worldValue);
     mat4.rotateY(worldValue, time * -0.2, worldValue);
 
-    // upload the uniform values to the uniform buffers
-    device.queue.writeBuffer(envMapUniformBuffer, 0, envMapUniformValues);
-    device.queue.writeBuffer(skyBoxUniformBuffer, 0, skyBoxUniformValues);
-
-    // Draw the cube
-    pass.setPipeline(envMapPipeline);
-    pass.setVertexBuffer(0, vertexBuffer);
-    pass.setIndexBuffer(indexBuffer, 'uint16');
-    pass.setBindGroup(0, envMapBindGroup);
+    // upload the uniform values to the uniform buffer
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+    pass.setBindGroup(0, bindGroup);
     pass.drawIndexed(numVertices);
-
-    // Draw the skyBox
-    pass.setPipeline(skyBoxPipeline);
-    pass.setBindGroup(0, skyBoxBindGroup);
-    pass.draw(3);
 
     pass.end();
 
