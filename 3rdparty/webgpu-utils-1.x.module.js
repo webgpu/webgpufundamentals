@@ -1,4 +1,4 @@
-/* webgpu-utils@1.0.2, license MIT */
+/* webgpu-utils@1.2.1, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
 function keysOf(obj) {
     return Object.keys(obj);
@@ -272,11 +272,11 @@ function makeTypedArrayViews(typeDef, arrayBuffer, offset) {
                 return makeIntrinsicTypedArrayView(elementType, buffer, baseOffset, asArrayDef.numElements);
             }
             else {
-                const elementSize = getSizeOfTypeDef(elementType);
+                const { size } = getSizeAndAlignmentOfUnsizedArrayElementOfTypeDef(typeDef);
                 const effectiveNumElements = asArrayDef.numElements === 0
-                    ? (buffer.byteLength - baseOffset) / elementSize
+                    ? (buffer.byteLength - baseOffset) / size
                     : asArrayDef.numElements;
-                return range(effectiveNumElements, i => makeViews(elementType, baseOffset + elementSize * i));
+                return range(effectiveNumElements, i => makeViews(elementType, baseOffset + size * i));
             }
         }
         else if (typeof typeDef === 'string') {
@@ -472,13 +472,103 @@ function setTypedValues(typeDef, data, arrayBuffer, offset = 0) {
 }
 /**
  * Same as @link {setTypedValues} except it takes a @link {VariableDefinition}.
- * @param typeDef A variable definition provided by @link {makeShaderDataDefinitions}
+ * @param varDef A variable definition provided by @link {makeShaderDataDefinitions}
  * @param data The source data
  * @param arrayBuffer The arrayBuffer who's data to set.
  * @param offset An offset in the arrayBuffer to start at.
  */
 function setStructuredValues(varDef, data, arrayBuffer, offset = 0) {
     setTypedValues(varDef.typeDefinition, data, arrayBuffer, offset);
+}
+function getAlignmentOfTypeDef(typeDef) {
+    const asArrayDef = typeDef;
+    const elementType = asArrayDef.elementType;
+    if (elementType) {
+        return getAlignmentOfTypeDef(elementType);
+    }
+    const asStructDef = typeDef;
+    const fields = asStructDef.fields;
+    if (fields) {
+        return Object.values(fields).reduce((max, { type }) => Math.max(max, getAlignmentOfTypeDef(type)), 0);
+    }
+    const { type } = typeDef;
+    const { align } = typeInfo[type];
+    return align;
+}
+function getSizeAndAlignmentOfUnsizedArrayElementOfTypeDef(typeDef) {
+    const asArrayDef = typeDef;
+    const elementType = asArrayDef.elementType;
+    if (elementType) {
+        const unalignedSize = elementType.size;
+        const align = getAlignmentOfTypeDef(elementType);
+        return {
+            unalignedSize,
+            align,
+            size: roundUpToMultipleOf(unalignedSize, align),
+        };
+    }
+    const asStructDef = typeDef;
+    const fields = asStructDef.fields;
+    if (fields) {
+        const lastField = Object.values(fields).pop();
+        if (lastField.type.size === 0) {
+            return getSizeAndAlignmentOfUnsizedArrayElementOfTypeDef(lastField.type);
+        }
+    }
+    return {
+        size: 0,
+        unalignedSize: 0,
+        align: 1,
+    };
+}
+/**
+ * Returns the size, align, and unalignedSize of "the" unsized array element. Unsized arrays are only
+ * allowed at the outer most level or the last member of a top level struct.
+ *
+ * Example:
+ *
+ * ```js
+ * const code = `
+ * struct Foo {
+ *   a: u32,
+ *   b: array<vec3f>,
+ * };
+ * @group(0) @binding(0) var<storage> f: Foo;
+ * `;
+ * const defs = makeShaderDataDefinitions(code);
+ * const { size, align, unalignedSize } = getSizeAndAlignmentOfUnsizedArrayElement(
+ *    defs.storages.f);
+ * // size = 16   (since you need to allocate 16 bytes per element)
+ * // align = 16  (since vec3f needs to be aligned to 16 bytes)
+ * // unalignedSize = 12 (since only 12 bytes are used for a vec3f)
+ * ```
+ *
+ * Generally you only need size. Example:
+ *
+ * ```js
+ * const code = `
+ * struct Foo {
+ *   a: u32,
+ *   b: array<vec3f>,
+ * };
+ * @group(0) @binding(0) var<storage> f: Foo;
+ * `;
+ * const defs = makeShaderDataDefinitions(code);
+ * const { size } = getSizeAndAlignmentOfUnsizedArrayElement(defs.storages.f);
+ * const numElements = 10;
+ * const views = makeStructuredViews(
+ *    defs.storages.f,
+ *    new ArrayBuffer(defs.storages.f.size + size * numElements));
+ * ```
+ *
+ * @param varDef A variable definition provided by @link {makeShaderDataDefinitions}
+ * @returns the size, align, and unalignedSize in bytes of the unsized array element in this type definition.
+ *   If there is no unsized array, size = 0.
+ */
+function getSizeAndAlignmentOfUnsizedArrayElement(varDef) {
+    const asVarDef = varDef;
+    const typeDef = asVarDef.group === undefined ? varDef : asVarDef.typeDefinition;
+    return getSizeAndAlignmentOfUnsizedArrayElementOfTypeDef(typeDef);
 }
 
 class ParseContext {
@@ -1948,7 +2038,7 @@ class WgslScanner {
             if (lexeme == ">" && (nextLexeme == ">" || nextLexeme == "=")) {
                 let foundLessThan = false;
                 let ti = this._tokens.length - 1;
-                for (let count = 0; count < 4 && ti >= 0; ++count, --ti) {
+                for (let count = 0; count < 5 && ti >= 0; ++count, --ti) {
                     if (this._tokens[ti].type === TokenTypes.tokens.less_than) {
                         if (ti > 0 && this._tokens[ti - 1].isArrayOrTemplateType()) {
                             foundLessThan = true;
@@ -3034,6 +3124,10 @@ class WgslParser {
             }
             return new Type(type.toString());
         }
+        // texture_sampler_types
+        let type = this._texture_sampler_types();
+        if (type)
+            return type;
         if (this._check(TokenTypes.template_types)) {
             let type = this._advance().toString();
             let format = null;
@@ -3060,10 +3154,6 @@ class WgslParser {
             this._consume(TokenTypes.tokens.greater_than, "Expected '>' for pointer.");
             return new PointerType(pointer, storage.toString(), decl, access);
         }
-        // texture_sampler_types
-        let type = this._texture_sampler_types();
-        if (type)
-            return type;
         // The following type_decl's have an optional attribyte_list*
         const attrs = this._attribute();
         // attribute* array
@@ -3252,9 +3342,10 @@ class ArrayInfo extends TypeInfo {
     }
 }
 class TemplateInfo extends TypeInfo {
-    constructor(name, format, attributes) {
+    constructor(name, format, attributes, access) {
         super(name, attributes);
         this.format = format;
+        this.access = access;
     }
     get isTemplate() {
         return true;
@@ -3266,15 +3357,17 @@ var ResourceType;
     ResourceType[ResourceType["Storage"] = 1] = "Storage";
     ResourceType[ResourceType["Texture"] = 2] = "Texture";
     ResourceType[ResourceType["Sampler"] = 3] = "Sampler";
+    ResourceType[ResourceType["StorageTexture"] = 4] = "StorageTexture";
 })(ResourceType || (ResourceType = {}));
 class VariableInfo {
-    constructor(name, type, group, binding, attributes, resourceType) {
+    constructor(name, type, group, binding, attributes, resourceType, access) {
         this.name = name;
         this.type = type;
         this.group = group;
         this.binding = binding;
         this.attributes = attributes;
         this.resourceType = resourceType;
+        this.access = access;
     }
     get isArray() {
         return this.type.isArray;
@@ -3384,6 +3477,12 @@ class WgslReflect {
             this.update(code);
         }
     }
+    _isStorageTexture(type) {
+        return (type.name == "texture_storage_1d" ||
+            type.name == "texture_storage_2d" ||
+            type.name == "texture_storage_2d_array" ||
+            type.name == "texture_storage_3d");
+    }
     update(code) {
         const parser = new WgslParser();
         const ast = parser.parse(code);
@@ -3393,47 +3492,61 @@ class WgslReflect {
                 if (info instanceof StructInfo) {
                     this.structs.push(info);
                 }
+                continue;
             }
             if (node instanceof Alias) {
                 this.aliases.push(this._getAliasInfo(node));
+                continue;
             }
             if (node instanceof Override) {
                 const v = node;
                 const id = this._getAttributeNum(v.attributes, "id", 0);
                 const type = v.type != null ? this._getTypeInfo(v.type, v.attributes) : null;
                 this.overrides.push(new OverrideInfo(v.name, type, v.attributes, id));
+                continue;
             }
             if (this._isUniformVar(node)) {
                 const v = node;
                 const g = this._getAttributeNum(v.attributes, "group", 0);
                 const b = this._getAttributeNum(v.attributes, "binding", 0);
                 const type = this._getTypeInfo(v.type, v.attributes);
-                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Uniform);
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Uniform, v.access);
                 this.uniforms.push(varInfo);
+                continue;
             }
             if (this._isStorageVar(node)) {
                 const v = node;
                 const g = this._getAttributeNum(v.attributes, "group", 0);
                 const b = this._getAttributeNum(v.attributes, "binding", 0);
                 const type = this._getTypeInfo(v.type, v.attributes);
-                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Storage);
+                const isStorageTexture = this._isStorageTexture(type);
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, isStorageTexture ? ResourceType.StorageTexture : ResourceType.Storage, v.access);
                 this.storage.push(varInfo);
+                continue;
             }
             if (this._isTextureVar(node)) {
                 const v = node;
                 const g = this._getAttributeNum(v.attributes, "group", 0);
                 const b = this._getAttributeNum(v.attributes, "binding", 0);
                 const type = this._getTypeInfo(v.type, v.attributes);
-                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Texture);
-                this.textures.push(varInfo);
+                const isStorageTexture = this._isStorageTexture(type);
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, isStorageTexture ? ResourceType.StorageTexture : ResourceType.Texture, v.access);
+                if (isStorageTexture) {
+                    this.storage.push(varInfo);
+                }
+                else {
+                    this.textures.push(varInfo);
+                }
+                continue;
             }
             if (this._isSamplerVar(node)) {
                 const v = node;
                 const g = this._getAttributeNum(v.attributes, "group", 0);
                 const b = this._getAttributeNum(v.attributes, "binding", 0);
                 const type = this._getTypeInfo(v.type, v.attributes);
-                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Sampler);
+                const varInfo = new VariableInfo(v.name, type, g, b, v.attributes, ResourceType.Sampler, v.access);
                 this.samplers.push(varInfo);
+                continue;
             }
             if (node instanceof Function) {
                 const vertexStage = this._getAttribute(node, "vertex");
@@ -3446,6 +3559,7 @@ class WgslReflect {
                     fn.outputs = this._getOutputs(node.returnType);
                     this.entry[stage.name].push(fn);
                 }
+                continue;
             }
         }
     }
@@ -3611,10 +3725,23 @@ class WgslReflect {
             this._updateTypeInfo(info);
             return info;
         }
+        if (type instanceof SamplerType) {
+            const s = type;
+            const formatIsType = s.format instanceof Type;
+            const format = s.format
+                ? formatIsType
+                    ? this._getTypeInfo(s.format, null)
+                    : new TypeInfo(s.format, null)
+                : null;
+            const info = new TemplateInfo(s.name, format, attributes, s.access);
+            this._types.set(type, info);
+            this._updateTypeInfo(info);
+            return info;
+        }
         if (type instanceof TemplateType) {
             const t = type;
             const format = t.format ? this._getTypeInfo(t.format, null) : null;
-            const info = new TemplateInfo(t.name, format, attributes);
+            const info = new TemplateInfo(t.name, format, attributes, t.access);
             this._types.set(type, info);
             this._updateTypeInfo(info);
             return info;
@@ -3992,7 +4119,7 @@ function addType(reflect, typeInfo, offset) {
     }
 }
 
-function getViewDimensionForTexture(texture) {
+function guessTextureBindingViewDimensionForTexture(texture) {
     switch (texture.dimension) {
         case '1d':
             return '1d';
@@ -4034,34 +4161,51 @@ function numMipLevels(size, dimension) {
     const maxSize = Math.max(...sizes.slice(0, dimension === '3d' ? 3 : 2));
     return 1 + Math.log2(maxSize) | 0;
 }
-// Use a WeakMap so the device can be destroyed and/or lost
-const byDevice = new WeakMap();
-/**
- * Generates mip levels from level 0 to the last mip for an existing texture
- *
- * The texture must have been created with TEXTURE_BINDING and
- * RENDER_ATTACHMENT and been created with mip levels
- *
- * @param device
- * @param texture
- */
-function generateMipmap(device, texture) {
-    let perDeviceInfo = byDevice.get(device);
-    if (!perDeviceInfo) {
-        perDeviceInfo = {
-            pipelineByFormat: {},
-            moduleByView: {},
-        };
-        byDevice.set(device, perDeviceInfo);
+function getMipmapGenerationWGSL(textureBindingViewDimension) {
+    let textureSnippet;
+    let sampleSnippet;
+    switch (textureBindingViewDimension) {
+        case '2d':
+            textureSnippet = 'texture_2d<f32>';
+            sampleSnippet = 'textureSample(ourTexture, ourSampler, fsInput.texcoord)';
+            break;
+        case '2d-array':
+            textureSnippet = 'texture_2d_array<f32>';
+            sampleSnippet = `
+          textureSample(
+              ourTexture,
+              ourSampler,
+              fsInput.texcoord,
+              uni.layer)`;
+            break;
+        case 'cube':
+            textureSnippet = 'texture_cube<f32>';
+            sampleSnippet = `
+          textureSample(
+              ourTexture,
+              ourSampler,
+              faceMat[uni.layer] * vec3f(fract(fsInput.texcoord), 1))`;
+            break;
+        case 'cube-array':
+            textureSnippet = 'texture_cube_array<f32>';
+            sampleSnippet = `
+          textureSample(
+              ourTexture,
+              ourSampler,
+              faceMat[uni.layer] * vec3f(fract(fsInput.texcoord), 1), uni.layer)`;
+            break;
+        default:
+            throw new Error(`unsupported view: ${textureBindingViewDimension}`);
     }
-    let { sampler, } = perDeviceInfo;
-    const { pipelineByFormat, moduleByView, } = perDeviceInfo;
-    const view = getViewDimensionForTexture(texture);
-    let module = moduleByView[view];
-    if (!module) {
-        module = device.createShaderModule({
-            label: `mip level generation for ${view}`,
-            code: `
+    return `
+        const faceMat = array(
+          mat3x3f( 0,  0,  -2,  0, -2,   0,  1,  1,   1),   // pos-x
+          mat3x3f( 0,  0,   2,  0, -2,   0, -1,  1,  -1),   // neg-x
+          mat3x3f( 2,  0,   0,  0,  0,   2, -1,  1,  -1),   // pos-y
+          mat3x3f( 2,  0,   0,  0,  0,  -2, -1, -1,   1),   // neg-y
+          mat3x3f( 2,  0,   0,  0, -2,   0, -1,  1,   1),   // pos-z
+          mat3x3f(-2,  0,   0,  0, -2,   0,  1,  1,  -1));  // neg-z
+
         struct VSOutput {
           @builtin(position) position: vec4f,
           @location(0) texcoord: vec2f,
@@ -4083,26 +4227,70 @@ function generateMipmap(device, texture) {
           return vsOutput;
         }
 
+        struct Uniforms {
+          layer: u32,
+        };
+
         @group(0) @binding(0) var ourSampler: sampler;
-        @group(0) @binding(1) var ourTexture: texture_2d<f32>;
+        @group(0) @binding(1) var ourTexture: ${textureSnippet};
+        @group(0) @binding(2) var<uniform> uni: Uniforms;
 
         @fragment fn fs(fsInput: VSOutput) -> @location(0) vec4f {
-          return textureSample(ourTexture, ourSampler, fsInput.texcoord);
+          _ = uni.layer; // make sure this is used so all pipelines have the same bindings
+          return ${sampleSnippet};
         }
-      `,
+      `;
+}
+// Use a WeakMap so the device can be destroyed and/or lost
+const byDevice = new WeakMap();
+/**
+ * Generates mip levels from level 0 to the last mip for an existing texture
+ *
+ * The texture must have been created with TEXTURE_BINDING and RENDER_ATTACHMENT
+ * and been created with mip levels
+ *
+ * @param device A GPUDevice
+ * @param texture The texture to create mips for
+ * @param textureBindingViewDimension This is only needed in compatibility mode
+ *   and it is only needed when the texture is going to be used as a cube map.
+ */
+function generateMipmap(device, texture, textureBindingViewDimension) {
+    let perDeviceInfo = byDevice.get(device);
+    if (!perDeviceInfo) {
+        perDeviceInfo = {
+            pipelineByFormatAndView: {},
+            moduleByViewType: {},
+        };
+        byDevice.set(device, perDeviceInfo);
+    }
+    let { sampler, uniformBuffer, uniformValues, } = perDeviceInfo;
+    const { pipelineByFormatAndView, moduleByViewType, } = perDeviceInfo;
+    textureBindingViewDimension = textureBindingViewDimension || guessTextureBindingViewDimensionForTexture(texture);
+    let module = moduleByViewType[textureBindingViewDimension];
+    if (!module) {
+        const code = getMipmapGenerationWGSL(textureBindingViewDimension);
+        module = device.createShaderModule({
+            label: `mip level generation for ${textureBindingViewDimension}`,
+            code,
         });
-        moduleByView[view] = module;
+        moduleByViewType[textureBindingViewDimension] = module;
     }
     if (!sampler) {
         sampler = device.createSampler({
             minFilter: 'linear',
+            magFilter: 'linear',
         });
-        perDeviceInfo.sampler = sampler;
+        uniformBuffer = device.createBuffer({
+            size: 16,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+        uniformValues = new Uint32Array(1);
+        Object.assign(perDeviceInfo, { sampler, uniformBuffer, uniformValues });
     }
-    const id = `${texture.format}`;
-    if (!pipelineByFormat[id]) {
-        pipelineByFormat[id] = device.createRenderPipeline({
-            label: `mip level generator pipeline for ${view}`,
+    const id = `${texture.format}.${textureBindingViewDimension}`;
+    if (!pipelineByFormatAndView[id]) {
+        pipelineByFormatAndView[id] = device.createRenderPipeline({
+            label: `mip level generator pipeline for ${textureBindingViewDimension}`,
             layout: 'auto',
             vertex: {
                 module,
@@ -4115,12 +4303,11 @@ function generateMipmap(device, texture) {
             },
         });
     }
-    const pipeline = pipelineByFormat[id];
-    const encoder = device.createCommandEncoder({
-        label: 'mip gen encoder',
-    });
+    const pipeline = pipelineByFormatAndView[id];
     for (let baseMipLevel = 1; baseMipLevel < texture.mipLevelCount; ++baseMipLevel) {
         for (let baseArrayLayer = 0; baseArrayLayer < texture.depthOrArrayLayers; ++baseArrayLayer) {
+            uniformValues[0] = baseArrayLayer;
+            device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
             const bindGroup = device.createBindGroup({
                 layout: pipeline.getBindGroupLayout(0),
                 entries: [
@@ -4128,13 +4315,12 @@ function generateMipmap(device, texture) {
                     {
                         binding: 1,
                         resource: texture.createView({
-                            dimension: '2d',
+                            dimension: textureBindingViewDimension,
                             baseMipLevel: baseMipLevel - 1,
                             mipLevelCount: 1,
-                            baseArrayLayer,
-                            arrayLayerCount: 1,
                         }),
                     },
+                    { binding: 2, resource: { buffer: uniformBuffer } },
                 ],
             });
             const renderPassDescriptor = {
@@ -4142,6 +4328,7 @@ function generateMipmap(device, texture) {
                 colorAttachments: [
                     {
                         view: texture.createView({
+                            dimension: '2d',
                             baseMipLevel,
                             mipLevelCount: 1,
                             baseArrayLayer,
@@ -4152,15 +4339,18 @@ function generateMipmap(device, texture) {
                     },
                 ],
             };
+            const encoder = device.createCommandEncoder({
+                label: 'mip gen encoder',
+            });
             const pass = encoder.beginRenderPass(renderPassDescriptor);
             pass.setPipeline(pipeline);
             pass.setBindGroup(0, bindGroup);
             pass.draw(3);
             pass.end();
+            const commandBuffer = encoder.finish();
+            device.queue.submit([commandBuffer]);
         }
     }
-    const commandBuffer = encoder.finish();
-    device.queue.submit([commandBuffer]);
 }
 
 const kTypedArrayToAttribFormat = new Map([
@@ -5866,5 +6056,5 @@ var primitives = /*#__PURE__*/Object.freeze({
     createXYQuadVertices: createXYQuadVertices
 });
 
-export { TypedArrayViewGenerator, copySourceToTexture, copySourcesToTexture, createBufferLayoutsFromArrays, createBuffersAndAttributesFromArrays, createTextureFromImage, createTextureFromImages, createTextureFromSource, createTextureFromSources, drawArrays, generateMipmap, getSizeForMipFromTexture, getSizeFromSource, interleaveVertexData, isTypedArray, kTypes, loadImageBitmap, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayViews, normalizeGPUExtent3D, numMipLevels, primitives, setIntrinsicsToView, setStructuredValues, setStructuredView, setTypedValues, setVertexAndIndexBuffers, subarray };
+export { TypedArrayViewGenerator, copySourceToTexture, copySourcesToTexture, createBufferLayoutsFromArrays, createBuffersAndAttributesFromArrays, createTextureFromImage, createTextureFromImages, createTextureFromSource, createTextureFromSources, drawArrays, generateMipmap, getSizeAndAlignmentOfUnsizedArrayElement, getSizeForMipFromTexture, getSizeFromSource, interleaveVertexData, isTypedArray, kTypes, loadImageBitmap, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayViews, normalizeGPUExtent3D, numMipLevels, primitives, setIntrinsicsToView, setStructuredValues, setStructuredView, setTypedValues, setVertexAndIndexBuffers, subarray };
 //# sourceMappingURL=webgpu-utils.module.js.map

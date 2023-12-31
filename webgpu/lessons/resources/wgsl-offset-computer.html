@@ -80,7 +80,7 @@
         background-color: var(--divider-bg-color);
       }
       #left {
-        flex: 1 1 50%;
+        /*flex: 1 1 50%; */
         min-height: 0;
         min-width: 0;
       }
@@ -88,11 +88,12 @@
         height: 100%;
       }
       #right {
-        flex: 1 1 50%;
+        /*flex: 1 1 50%; */
         min-height: 0;
         min-width: 0;
         display: flex;
         flex-direction: column;
+        container-type: inline-size;
       }
       #ui-split {
         display: flex;
@@ -140,6 +141,9 @@
       .wgslError {
         background-color: var(--error-bg-color);
       }
+      input[type=number] {
+        width: 4em;
+      }
 
       #docs {
         position: fixed;
@@ -183,9 +187,32 @@
       }
       @media (max-width: 800px) {
         #split {
-          flex-direction: column;
+          display: block;
+        }
+        #left {
+          height: 40%;
+        }
+        #right {
+          height: 100%;
         }
       }
+
+      /* --- split.js --- */
+.gutter {
+    background-color: var(--divider-bg-color);
+    background-repeat: no-repeat;
+    background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+    cursor: col-resize;
+}
+
+.gutter.gutter-vertical {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+    cursor: row-resize;
+}
     </style>
   </head>
   <body>
@@ -199,14 +226,10 @@
           <div id="left">
             <div id="editor"></div>
           </div>
-          <div class="v-sep"></div>
           <div id="right">
                <div id="ui">
                  <div id="ui-split">
                   <div class="ui-area nowrap">
-                    <div>
-                      <label><input id="compile" type="checkbox" checked>Compile Shader (finds errors)<span id="compile-status" style="display: none;">[needs WebGPU]<span></span></label>
-                    </div>
                     <div>
                       <label><input name="style" type="radio" value="views" checked>as views</label>
                       <label><input name="style" type="radio" value="offsets">as offsets</label>
@@ -218,6 +241,9 @@
                     <div>
                       <label><input id="flatten" type="checkbox" value="flatten" checked>flatten intrinsic array views</label>
                       <a href="https://github.com/greggman/webgpu-utils#the-first-level-of-an-array-of-intrinsic-types-is-flattened-by-default">(?)</a>
+                    </div>
+                    <div>
+                      <label>num elements for unsized arrays:<input id="numElements" type="number" value="5" min="0" max="20"></label>
                     </div>
                     <div>
                       <button type="button" id="process">Process</button>
@@ -269,12 +295,14 @@ struct Light {
       </div>
     </div>
   </div>
+    <script src="/3rdparty/split.min.js"></script>
     <script src="/monaco-editor/min/vs/loader.js"></script>
     <script src="prettify.js"></script>
     <script src="/3rdparty/lzma.js"></script>
     <script type="module">
 /* global monaco */
 /* global LZMA */
+/* global Split */
 // see https://webgpufundamentals.org/webgpu/lessons/webgpu-utils.html#webgpu-utils
 import {
   makeShaderDataDefinitions,
@@ -290,6 +318,20 @@ import {
   convertBytesToHex,
 } from './utils.js';
 const compressor = new LZMA('/3rdparty/lzma_worker.js');
+
+// eslint-disable-next-line new-cap
+Split(['#left', '#right'], {
+    elementStyle: function(dimension, size, gutterSize) {
+        return {
+            'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)',
+        };
+    },
+    gutterStyle: function(dimension, gutterSize) {
+        return {
+            'flex-basis': gutterSize + 'px',
+        };
+    },
+});
 
 const examples = {
   basic: `
@@ -361,9 +403,9 @@ const isDarkMode = darkMatcher.matches;
 const resultsElem = document.querySelector('#results');
 const diagramElem = document.querySelector('#diagram');
 const errorsElem = document.querySelector('#errors');
-const compileElem = document.querySelector('#compile');
 const structsElem = document.querySelector('#structs');
 const flattenElem = document.querySelector('#flatten');
+const numElementsElem = document.querySelector('#numElements');
 const helpElem = document.querySelector('#help');
 const docsElem = document.querySelector('#docs');
 const globals = {};
@@ -407,8 +449,10 @@ const dataTypes = {
 function makeHex(code) {
   return new Promise(resolve => {
     const save = JSON.stringify({
-      c: compileElem.checked ? 1 : 0,
       x: code,
+      structs: structsElem.checked,
+      flatten: flattenElem.checked,
+      numElements: numElementsElem.value,
     });
     compressor.compress(save, 1, function(bytes) {
       const hex = convertBytesToHex(bytes);
@@ -431,10 +475,15 @@ async function updateResults(code, style) {
       for (const [name, dataType] of Object.entries(defs[key])) {
         const text = `${label}: ${name}`;
         diagramElem.appendChild(el('div', { textContent: text }));
-        diagramElem.appendChild(createByteDiagramForType(name, toTypeDef(dataType)));
+        diagramElem.appendChild(createByteDiagramForType(name, toTypeDef(dataType), {
+          numElementsForUnsizedArrays: parseInt(numElementsElem.value),
+        }));
         diagramElem.appendChild(el('hr'));
         if (style !== 'none') {
-          results.push(getCodeForUniform(name, dataType, style));
+          results.push(getCodeForUniform(name, dataType, {
+            mode: style,
+            numElementsForUnsizedArrays: parseInt(numElementsElem.value),
+          }));
         }
       }
     }
@@ -447,12 +496,13 @@ async function updateResults(code, style) {
       window.prettyPrint(resultsElem);
     }
   } catch (e) {
+    console.error(e);
     errorsElem.style.display = '';
     errorsElem.appendChild(el(
       'div',
       {},
       [
-        el('div', {textContent: `wgsl errors: ${e}`}),
+        el('div', {textContent: `errors: ${e.message || ''}${e.stack || ''}`}),
       ],
     ));
   }
@@ -489,7 +539,9 @@ async function main(editor) {
           bytes,
           (text) => {
             const data = JSON.parse(text);
-            compileElem.checked = !!data.c;
+            numElementsElem.value = data.numElements || 5;
+            structsElem.checked = !(data.structs === false);
+            flattenElem.checked = !(data.flatten === false);
             editor.setValue(data.x);
             resolve();
           },
@@ -515,8 +567,6 @@ async function main(editor) {
   const compileStatusElem = document.querySelector('#compile-status');
   if (!device) {
     compileStatusElem.style.display = '';
-    compileElem.disabled = true;
-    compileElem.checked = false;
   }
 
   const processElem = document.querySelector('#process');
@@ -532,7 +582,7 @@ async function main(editor) {
     }
 
     const code = editor.getValue();
-    if (compileElem.checked && device) {
+    if (device) {
       const module = device.createShaderModule({code});
       const info = await module.getCompilationInfo();
       const hasErrors = info.messages?.reduce((err, msg) => err || msg.type === 'error', false);
