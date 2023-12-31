@@ -943,6 +943,22 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
   content: 'f32';
 }
 
+.byte-diagram {
+  --byte-grid-size: 30px;
+  container-type: layout size;
+}
+@container (width < 500px) {
+  .byte-diagram {
+    --byte-grid-size: 20px;
+    font-size: 12px;
+  }
+}
+@container (width < 400px) {
+  .byte-diagram {
+    --byte-grid-size: 16px;
+  }
+}
+
 /* disqus */
 
 #disqus_thread {

@@ -1,5 +1,6 @@
 import {
   makeStructuredView,
+  getSizeAndAlignmentOfUnsizedArrayElement,
 } from '/3rdparty/webgpu-utils-1.x.module.js';
 import typeInfo from './wgsl-data-types.js';
 import {
@@ -22,13 +23,6 @@ function assert(cond, msg = '') {
 }
 
 const lch = (l, c, h) => `lch(${l * 100} ${c * 250 - 125} ${h * 360})`;
-const px = v => `${v}px`;
-
-const kGridSize = window.innerWidth < 400
-  ? 16
-  : window.innerWidth < 500
-    ? 20
-    : 30;
 
 class GridBuilder {
   currentHeading;
@@ -69,8 +63,8 @@ class GridBuilder {
     for (let i = 0; i < num; ++i) {
       this.currentRow.appendChild(el('td', {
         style: {
-          width: px(kGridSize),
-          height: px(kGridSize),
+          width: 'var(--byte-grid-size)',
+          height: 'var(--byte-grid-size)',
         },
       }));
     }
@@ -124,7 +118,7 @@ class GridBuilder {
             backgroundColor: headBackgroundColor,
           },
         }, [
-          el('div', {className: 'name', textContent: name, style: { width: px(bytesInRow * kGridSize)}}),
+          el('div', {className: 'name', textContent: name, style: { width: `calc(${bytesInRow} * var(--byte-grid-size))`}}),
       ]));
       for (let e = 0; e < elementsInRow; ++e) {
         const u = e % elementsPerUnit;
@@ -142,8 +136,8 @@ class GridBuilder {
               ...innerClass,
             }),
             style: {
-              width: px(kGridSize),
-              height: px(kGridSize),
+              width: 'var(--byte-grid-size)',
+              height: 'var(--byte-grid-size)',
               backgroundColor,
             },
           }));
@@ -187,22 +181,35 @@ function isIntrinsic(typeDef/*: TypeDefinition*/) {
            !(typeDef/* as ArrayDefinition*/).elementType;
 }
 
-function getSizeOfTypeDef(typeDef/*: TypeDefinition*/)/*: number*/ {
+function getSizeOfTypeDef(typeDef/*: TypeDefinition*/, options)/*: number*/ {
+  const {
+    numElementsForUnsizedArrays = 0,
+  } = options;
   const asArrayDef = typeDef/* as ArrayDefinition*/;
   const elementType = asArrayDef.elementType;
   if (elementType) {
+    const numElements = asArrayDef.numElements
+        ? asArrayDef.numElements
+        : numElementsForUnsizedArrays;
     if (isIntrinsic(elementType)) {
         const asIntrinsicDef = elementType/* as IntrinsicDefinition*/;
         const { align } = typeInfo[asIntrinsicDef.type];
-        return roundUpToMultipleOf(elementType.size, align) * asArrayDef.numElements;
+        return roundUpToMultipleOf(elementType.size, align) * numElements;
     } else {
-        return asArrayDef.numElements * getSizeOfTypeDef(elementType);
+        return numElements * getSizeOfTypeDef(elementType, options);
     }
   } else {
     const asStructDef = typeDef/* as StructDefinition*/;
-    const numElements = asArrayDef.numElements || 1;
+    const numElements = asArrayDef.numElements;
     if (asStructDef.fields) {
-        return typeDef.size * numElements;
+        const lastField = Object.values(asStructDef.fields).pop();
+        const numElements = asArrayDef.numElements
+            ? asArrayDef.numElements
+            : numElementsForUnsizedArrays;
+        const extra = lastField.size > 0
+           ? 0
+           : getSizeAndAlignmentOfUnsizedArrayElement(lastField.type).size * numElements;
+        return typeDef.size + extra;
     } else {
         const asIntrinsicDef = typeDef/* as IntrinsicDefinition*/;
         const { align } = typeInfo[asIntrinsicDef.type];
@@ -214,23 +221,32 @@ function getSizeOfTypeDef(typeDef/*: TypeDefinition*/)/*: number*/ {
 }
 
 
-function addGridType(grid, typeDef, baseOffset, name, color) {
+function addGridType(grid, typeDef, baseOffset, name, color, options) {
+  const {
+    numElementsForUnsizedArrays = 0,
+  } = options;
+
   if (!(typeDef.size !== undefined && typeDef.size === 0)) {
     grid.addPadding(baseOffset - grid.byteOffset);
   }
 
   if (typeDef.fields) {
     for (const [fieldName, fieldDef] of Object.entries(typeDef.fields)) {
-      addGridType(grid, fieldDef.type, baseOffset + fieldDef.offset, `${name}.${fieldName}`);
+      addGridType(grid, fieldDef.type, baseOffset + fieldDef.offset, `${name}.${fieldName}`, color, options);
     }
   } else if (typeDef.elementType) {
-    if (typeDef.size) {
-      const { elementType } = typeDef;
-      const elemColor = getColor(grid, color);
-      const elementSize = typeDef.size / typeDef.numElements;
-      for (let i = 0; i < typeDef.numElements; ++i) {
-        addGridType(grid, elementType, baseOffset + i * elementSize, `${name}[${i}]`, elemColor);
-      }
+    const numElements = typeDef.numElements
+        ? typeDef.numElements
+        : numElementsForUnsizedArrays;
+    const size = typeDef.size
+        ? typeDef.size
+        : getSizeAndAlignmentOfUnsizedArrayElement(typeDef).size * numElements;
+
+    const { elementType } = typeDef;
+    const elemColor = getColor(grid, color);
+    const elementSize = size / numElements;
+    for (let i = 0; i < numElements; ++i) {
+      addGridType(grid, elementType, baseOffset + i * elementSize, `${name}[${i}]`, elemColor, options);
     }
   } else {
     // name, numElements, elementSize, alignment
@@ -240,10 +256,10 @@ function addGridType(grid, typeDef, baseOffset, name, color) {
 
 const kNumBytesPerRow = 16;
 
-function addTypeToGrid(name, typeDef) {
+function addTypeToGrid(name, typeDef, options) {
   const grid = new GridBuilder(kNumBytesPerRow);
-  addGridType(grid, typeDef, 0, '', );
-  const size = getSizeOfTypeDef(typeDef);
+  addGridType(grid, typeDef, 0, '', undefined, options);
+  const size = getSizeOfTypeDef(typeDef, options);
   grid.addPadding(size - grid.byteOffset);
   return grid.tableElem;
 }
@@ -252,10 +268,10 @@ function addTypeToGrid(name, typeDef) {
 
 function showTypes(view, arrayBufferName, template, indent = '') {
   if (Array.isArray(view)) {
-    const lines = view.map(elem => addPrefixSuffix(showTypes(elem, arrayBufferName, template, indent + '  '), indent + '  ', '')).flat();
+    const lines = view.map(elem => addPrefixSuffix(showTypes(elem, arrayBufferName, template, indent + '  '), indent + '  ', ',')).flat();
     return [
       '[',
-      ...lines.map(v => `${v},`),
+      ...lines.map(v => `${v}`),
       `${indent}]`,
     ];
   } else if (view.buffer instanceof ArrayBuffer) {
@@ -296,8 +312,18 @@ function showView(values, name, arrayBufferName, template) {
   return addPrefixSuffix(lines, prefix, suffix);
 }
 
-export function getCodeForUniform(name, uniform, mode = 'views') {
-  const values = makeStructuredView(uniform);
+export function getCodeForUniform(name, uniform, options = {}) {
+  const {
+    mode = 'views',
+    numElementsForUnsizedArrays = 0,
+  } = options;
+  const args = [uniform];
+  const {size} = getSizeAndAlignmentOfUnsizedArrayElement(uniform);
+  if (size !== 0) {
+    const arrayBuffer = new ArrayBuffer(uniform.size + size * numElementsForUnsizedArrays);
+    args.push(arrayBuffer);
+  }
+  const values = makeStructuredView(...args);
   const arrayBufferName = mode === 'views' ? `${name}Values` : `${name}`;
 
   const template = mode === 'views'
@@ -324,6 +350,6 @@ export function getCodeForUniform(name, uniform, mode = 'views') {
   return lines.join('\n');
 }
 
-export function createByteDiagramForType(name, typeDef) {
-  return el('div', {className: 'byte-diagram'}, [addTypeToGrid(name, typeDef)]);
+export function createByteDiagramForType(name, typeDef, options = {}) {
+  return el('div', {className: 'byte-diagram'}, [addTypeToGrid(name, typeDef, options)]);
 }
