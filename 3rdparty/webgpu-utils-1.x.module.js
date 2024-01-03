@@ -1,4 +1,4 @@
-/* webgpu-utils@1.2.1, license MIT */
+/* webgpu-utils@1.4.0, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
 function keysOf(obj) {
     return Object.keys(obj);
@@ -75,6 +75,8 @@ const b = {
 };
 const typeInfo = {
     ...b,
+    'atomic<i32>': b.i32,
+    'atomic<u32>': b.u32,
     'vec2<i32>': b.vec2i,
     'vec2<u32>': b.vec2u,
     'vec2<f32>': b.vec2f,
@@ -597,7 +599,30 @@ class Node {
     evaluateString(context) {
         return this.evaluate(context).toString();
     }
+    search(callback) { }
+    searchBlock(block, callback) {
+        if (block) {
+            callback(_BlockStart.instance);
+            for (const node of block) {
+                if (node instanceof Array) {
+                    this.searchBlock(node, callback);
+                }
+                else {
+                    node.search(callback);
+                }
+            }
+            callback(_BlockEnd.instance);
+        }
+    }
 }
+// For internal use only
+class _BlockStart extends Node {
+}
+_BlockStart.instance = new _BlockStart();
+// For internal use only
+class _BlockEnd extends Node {
+}
+_BlockEnd.instance = new _BlockEnd();
 /**
  * @class Statement
  * @extends Node
@@ -624,6 +649,9 @@ class Function extends Statement {
     get astNodeType() {
         return "function";
     }
+    search(callback) {
+        this.searchBlock(this.body, callback);
+    }
 }
 /**
  * @class StaticAssert
@@ -637,6 +665,9 @@ class StaticAssert extends Statement {
     }
     get astNodeType() {
         return "staticAssert";
+    }
+    search(callback) {
+        this.expression.search(callback);
     }
 }
 /**
@@ -653,6 +684,10 @@ class While extends Statement {
     get astNodeType() {
         return "while";
     }
+    search(callback) {
+        this.condition.search(callback);
+        this.searchBlock(this.body, callback);
+    }
 }
 /**
  * @class Continuing
@@ -666,6 +701,9 @@ class Continuing extends Statement {
     }
     get astNodeType() {
         return "continuing";
+    }
+    search(callback) {
+        this.searchBlock(this.body, callback);
     }
 }
 /**
@@ -683,6 +721,13 @@ class For extends Statement {
     }
     get astNodeType() {
         return "for";
+    }
+    search(callback) {
+        var _a, _b, _c;
+        (_a = this.init) === null || _a === void 0 ? void 0 : _a.search(callback);
+        (_b = this.condition) === null || _b === void 0 ? void 0 : _b.search(callback);
+        (_c = this.increment) === null || _c === void 0 ? void 0 : _c.search(callback);
+        this.searchBlock(this.body, callback);
     }
 }
 /**
@@ -702,6 +747,11 @@ class Var extends Statement {
     get astNodeType() {
         return "var";
     }
+    search(callback) {
+        var _a;
+        callback(this);
+        (_a = this.value) === null || _a === void 0 ? void 0 : _a.search(callback);
+    }
 }
 /**
  * @class Override
@@ -717,6 +767,10 @@ class Override extends Statement {
     }
     get astNodeType() {
         return "override";
+    }
+    search(callback) {
+        var _a;
+        (_a = this.value) === null || _a === void 0 ? void 0 : _a.search(callback);
     }
 }
 /**
@@ -735,6 +789,10 @@ class Let extends Statement {
     }
     get astNodeType() {
         return "let";
+    }
+    search(callback) {
+        var _a;
+        (_a = this.value) === null || _a === void 0 ? void 0 : _a.search(callback);
     }
 }
 /**
@@ -756,6 +814,10 @@ class Const extends Statement {
     }
     evaluate(context) {
         return this.value.evaluate(context);
+    }
+    search(callback) {
+        var _a;
+        (_a = this.value) === null || _a === void 0 ? void 0 : _a.search(callback);
     }
 }
 var IncrementOperator;
@@ -786,6 +848,9 @@ class Increment extends Statement {
     get astNodeType() {
         return "increment";
     }
+    search(callback) {
+        this.variable.search(callback);
+    }
 }
 var AssignOperator;
 (function (AssignOperator) {
@@ -804,9 +869,11 @@ var AssignOperator;
 (function (AssignOperator) {
     function parse(val) {
         const key = val;
-        if (key == "parse")
+        if (key == "parse") {
             throw new Error("Invalid value for AssignOperator");
-        return AssignOperator[key];
+        }
+        //return AssignOperator[key];
+        return key;
     }
     AssignOperator.parse = parse;
 })(AssignOperator || (AssignOperator = {}));
@@ -824,6 +891,9 @@ class Assign extends Statement {
     }
     get astNodeType() {
         return "assign";
+    }
+    search(callback) {
+        this.value.search(callback);
     }
 }
 /**
@@ -887,6 +957,12 @@ class If extends Statement {
     get astNodeType() {
         return "if";
     }
+    search(callback) {
+        this.condition.search(callback);
+        this.searchBlock(this.body, callback);
+        this.searchBlock(this.elseif, callback);
+        this.searchBlock(this.else, callback);
+    }
 }
 /**
  * @class Return
@@ -900,6 +976,10 @@ class Return extends Statement {
     }
     get astNodeType() {
         return "return";
+    }
+    search(callback) {
+        var _a;
+        (_a = this.value) === null || _a === void 0 ? void 0 : _a.search(callback);
     }
 }
 /**
@@ -1244,6 +1324,12 @@ class CallExpr extends Expression {
                 throw new Error("Non const function: " + this.name);
         }
     }
+    search(callback) {
+        for (const node of this.args) {
+            node.search(callback);
+        }
+        callback(this);
+    }
 }
 /**
  * @class VariableExpr
@@ -1257,6 +1343,9 @@ class VariableExpr extends Expression {
     }
     get astNodeType() {
         return "varExpr";
+    }
+    search(callback) {
+        callback(this);
     }
 }
 /**
@@ -1288,6 +1377,9 @@ class ConstExpr extends Expression {
             console.log(memberIndex);
         }
         return this.initializer.evaluate(context);
+    }
+    search(callback) {
+        this.initializer.search(callback);
     }
 }
 /**
@@ -1321,6 +1413,9 @@ class BitcastExpr extends Expression {
     get astNodeType() {
         return "bitcastExpr";
     }
+    search(callback) {
+        this.value.search(callback);
+    }
 }
 /**
  * @class TypecastExpr
@@ -1339,6 +1434,9 @@ class TypecastExpr extends Expression {
     evaluate(context) {
         return this.args[0].evaluate(context);
     }
+    search(callback) {
+        this.searchBlock(this.args, callback);
+    }
 }
 /**
  * @class GroupingExpr
@@ -1355,6 +1453,9 @@ class GroupingExpr extends Expression {
     }
     evaluate(context) {
         return this.contents[0].evaluate(context);
+    }
+    search(callback) {
+        this.searchBlock(this.contents, callback);
     }
 }
 /**
@@ -1395,6 +1496,9 @@ class UnaryOperator extends Operator {
             default:
                 throw new Error("Unknown unary operator: " + this.operator);
         }
+    }
+    search(callback) {
+        this.right.search(callback);
     }
 }
 /**
@@ -1461,6 +1565,10 @@ class BinaryOperator extends Operator {
                 throw new Error(`Unknown operator ${this.operator}`);
         }
     }
+    search(callback) {
+        this.left.search(callback);
+        this.right.search(callback);
+    }
 }
 /**
  * @class SwitchCase
@@ -1486,6 +1594,9 @@ class Case extends SwitchCase {
     get astNodeType() {
         return "case";
     }
+    search(callback) {
+        this.searchBlock(this.body, callback);
+    }
 }
 /**
  * @class Default
@@ -1499,6 +1610,9 @@ class Default extends SwitchCase {
     }
     get astNodeType() {
         return "default";
+    }
+    search(callback) {
+        this.searchBlock(this.body, callback);
     }
 }
 /**
@@ -1530,6 +1644,10 @@ class ElseIf extends Node {
     }
     get astNodeType() {
         return "elseif";
+    }
+    search(callback) {
+        this.condition.search(callback);
+        this.searchBlock(this.body, callback);
     }
 }
 /**
@@ -2525,13 +2643,16 @@ class WgslParser {
     _assignment_statement() {
         // (unary_expression underscore) equal short_circuit_or_expression
         let _var = null;
-        if (this._check(TokenTypes.tokens.brace_right))
+        if (this._check(TokenTypes.tokens.brace_right)) {
             return null;
+        }
         let isUnderscore = this._match(TokenTypes.tokens.underscore);
-        if (!isUnderscore)
+        if (!isUnderscore) {
             _var = this._unary_expression();
-        if (!isUnderscore && _var == null)
+        }
+        if (!isUnderscore && _var == null) {
             return null;
+        }
         const type = this._consume(TokenTypes.assignment_operators, "Expected assignment operator.");
         const value = this._short_circuit_or_expression();
         return new Assign(AssignOperator.parse(type.lexeme), _var, value);
@@ -3435,6 +3556,7 @@ class FunctionInfo {
         this.stage = null;
         this.inputs = [];
         this.outputs = [];
+        this.resources = [];
         this.name = name;
         this.stage = stage;
     }
@@ -3452,6 +3574,12 @@ class OverrideInfo {
         this.type = type;
         this.attributes = attributes;
         this.id = id;
+    }
+}
+class _FunctionResources {
+    constructor(node) {
+        this.resources = null;
+        this.node = node;
     }
 }
 class WgslReflect {
@@ -3473,6 +3601,7 @@ class WgslReflect {
         /// All entry functions in the shader: vertex, fragment, and/or compute.
         this.entry = new EntryFunctions();
         this._types = new Map();
+        this._functions = new Map();
         if (code) {
             this.update(code);
         }
@@ -3486,6 +3615,11 @@ class WgslReflect {
     update(code) {
         const parser = new WgslParser();
         const ast = parser.parse(code);
+        for (const node of ast) {
+            if (node instanceof Function) {
+                this._functions.set(node.name, new _FunctionResources(node));
+            }
+        }
         for (const node of ast) {
             if (node instanceof Struct) {
                 const info = this._getTypeInfo(node, null);
@@ -3554,14 +3688,89 @@ class WgslReflect {
                 const computeStage = this._getAttribute(node, "compute");
                 const stage = vertexStage || fragmentStage || computeStage;
                 if (stage) {
-                    const fn = new FunctionInfo(node.name, stage.name);
+                    const fn = new FunctionInfo(node.name, stage === null || stage === void 0 ? void 0 : stage.name);
                     fn.inputs = this._getInputs(node.args);
                     fn.outputs = this._getOutputs(node.returnType);
+                    fn.resources = this._findResources(node);
                     this.entry[stage.name].push(fn);
                 }
                 continue;
             }
         }
+    }
+    _findResource(name) {
+        for (const u of this.uniforms) {
+            if (u.name == name) {
+                return u;
+            }
+        }
+        for (const s of this.storage) {
+            if (s.name == name) {
+                return s;
+            }
+        }
+        for (const t of this.textures) {
+            if (t.name == name) {
+                return t;
+            }
+        }
+        for (const s of this.samplers) {
+            if (s.name == name) {
+                return s;
+            }
+        }
+        return null;
+    }
+    _findResources(fn) {
+        const resources = [];
+        const self = this;
+        const varStack = [];
+        fn.search((node) => {
+            if (node instanceof _BlockStart) {
+                varStack.push({});
+            }
+            else if (node instanceof _BlockEnd) {
+                varStack.pop();
+            }
+            else if (node instanceof Var) {
+                if (varStack.length > 0) {
+                    const v = node;
+                    varStack[varStack.length - 1][v.name] = v;
+                }
+            }
+            else if (node instanceof Let) {
+                if (varStack.length > 0) {
+                    const v = node;
+                    varStack[varStack.length - 1][v.name] = v;
+                }
+            }
+            else if (node instanceof VariableExpr) {
+                const v = node;
+                // Check to see if the variable is a local variable before checking to see if it's
+                // a resource.
+                if (varStack.length > 0) {
+                    const varInfo = varStack[varStack.length - 1][v.name];
+                    if (varInfo) {
+                        return;
+                    }
+                }
+                const varInfo = self._findResource(v.name);
+                if (varInfo) {
+                    resources.push(varInfo);
+                }
+            }
+            else if (node instanceof CallExpr) {
+                const c = node;
+                const fn = self._functions.get(c.name);
+                if (fn) {
+                    if (fn.resources === null) {
+                        fn.resources = self._findResources(fn.node);
+                    }
+                    resources.push(...fn.resources);
+                }
+            }
+        });
+        return [...new Map(resources.map(r => [r.name, r])).values()];
     }
     getBindGroups() {
         const groups = [];
@@ -3958,6 +4167,63 @@ WgslReflect._samplerTypes = TokenTypes.sampler_type.map((t) => {
     return t.name;
 });
 
+function getEntryPointForStage(defs, stage, stageFlags) {
+    const { entryPoint: entryPointName } = stage;
+    if (entryPointName) {
+        const ep = defs.entryPoints[entryPointName];
+        return (ep && ep.stage === stageFlags) ? ep : undefined;
+    }
+    return Object.values(defs.entryPoints).filter(ep => ep.stage === stageFlags)[0];
+}
+function getStageResources(defs, stage, stageFlags) {
+    if (!stage) {
+        return [];
+    }
+    const entryPoint = getEntryPointForStage(defs, stage, stageFlags);
+    return entryPoint?.resources || [];
+}
+const byBinding = (a, b) => Math.sign(a.binding - b.binding);
+/**
+ * Gets GPUBindGroupLayoutDescriptors for the given pipeline.
+ *
+ * Important: Assumes you pipeline is valid (it doesn't check for errors).
+ *
+ * Note: In WebGPU some layouts must be specified manually. For example an unfiltered-float
+ *    sampler can not be derived since it is unknown at compile time pipeline creation time
+ *    which texture you'll use.
+ *
+ * MAINTENANCE_TODO: Add example
+ *
+ * @param defs ShaderDataDefinitions or an array of ShaderDataDefinitions as
+ *    returned from @link {makeShaderDataDefinitions}. If an array more than 1
+ *    definition it's assumed the vertex shader is in the first and the fragment
+ *    shader in the second.
+ * @param desc A PipelineDescriptor. You should be able to pass in the same object you passed
+ *    to `createRenderPipeline` or `createComputePipeline`.
+ * @returns An array of GPUBindGroupLayoutDescriptors which you can pass, one at a time, to
+ *    `createBindGroupLayout`. Note: the array will be sparse if there are gaps in group
+ *    numbers. Note: Each GPUBindGroupLayoutDescriptor.entries will be sorted by binding.
+ */
+function makeBindGroupLayoutDescriptors(defs, desc) {
+    defs = Array.isArray(defs) ? defs : [defs];
+    const resources = [
+        ...getStageResources(defs[0], desc.vertex, GPUShaderStage.VERTEX),
+        ...getStageResources(defs[defs.length - 1], desc.fragment, GPUShaderStage.FRAGMENT),
+        ...getStageResources(defs[0], desc.compute, GPUShaderStage.COMPUTE),
+    ];
+    const bindGroupLayoutDescriptorsByGroupByBinding = [];
+    for (const resource of resources) {
+        const bindingsToBindGroupEntry = bindGroupLayoutDescriptorsByGroupByBinding[resource.group] || new Map();
+        bindGroupLayoutDescriptorsByGroupByBinding[resource.group] = bindingsToBindGroupEntry;
+        // Should we error here if the 2 don't match?
+        const entry = bindingsToBindGroupEntry.get(resource.entry.binding);
+        bindingsToBindGroupEntry.set(resource.entry.binding, {
+            ...resource.entry,
+            visibility: resource.entry.visibility | (entry?.visibility || 0),
+        });
+    }
+    return bindGroupLayoutDescriptorsByGroupByBinding.map(v => ({ entries: [...v.values()].sort(byBinding) }));
+}
 function getNamedVariables(reflect, variables) {
     return Object.fromEntries(variables.map(v => {
         const typeDefinition = addType(reflect, v.type, 0);
@@ -3988,6 +4254,127 @@ function makeStructDefinition(reflect, structInfo, offset) {
         size: structInfo.size,
         offset,
     };
+}
+function getTextureSampleType(type) {
+    if (type.name.includes('depth')) {
+        return 'depth';
+    }
+    // unfiltered-float
+    switch (type.format?.name) {
+        case 'f32': return 'float';
+        case 'i32': return 'sint';
+        case 'u32': return 'uint';
+        default:
+            throw new Error('unknown texture sample type');
+    }
+}
+function getViewDimension(type) {
+    if (type.name.includes('2d_array')) {
+        return '2d-array';
+    }
+    if (type.name.includes('cube_array')) {
+        return 'cube-array';
+    }
+    if (type.name.includes('3d')) {
+        return '3d';
+    }
+    if (type.name.includes('1d')) {
+        return '1d';
+    }
+    if (type.name.includes('cube')) {
+        return 'cube';
+    }
+    return '2d';
+}
+function getStorageTextureAccess(type) {
+    switch (type.access) {
+        case 'read': return 'read-only';
+        case 'write': return 'write-only';
+        case 'read_write': return 'read-write';
+        default:
+            throw new Error('unknonw storage texture access');
+    }
+}
+function getSamplerType(type) {
+    // "non-filtering" can only be specified manually.
+    return type.name.endsWith('_comparison')
+        ? 'comparison'
+        : 'filtering';
+}
+function getBindGroupLayoutEntry(resource, visibility) {
+    const { binding, access, type } = resource;
+    switch (resource.resourceType) {
+        case ResourceType.Uniform:
+            return {
+                binding,
+                visibility,
+                buffer: {},
+            };
+        case ResourceType.Storage:
+            return {
+                binding,
+                visibility,
+                buffer: {
+                    type: (access === '' || access === 'read') ? 'read-only-storage' : 'storage',
+                },
+            };
+        case ResourceType.Texture: {
+            if (type.name === 'texture_external') {
+                return {
+                    binding,
+                    visibility,
+                    externalTexture: {},
+                };
+            }
+            const multisampled = type.name.includes('multisampled');
+            return {
+                binding,
+                visibility,
+                texture: {
+                    sampleType: getTextureSampleType(type),
+                    viewDimension: getViewDimension(type),
+                    multisampled,
+                },
+            };
+        }
+        case ResourceType.Sampler:
+            return {
+                binding,
+                visibility,
+                sampler: {
+                    type: getSamplerType(type),
+                },
+            };
+        case ResourceType.StorageTexture:
+            return {
+                binding,
+                visibility,
+                storageTexture: {
+                    access: getStorageTextureAccess(type),
+                    format: type.format.name,
+                    viewDimension: getViewDimension(type),
+                },
+            };
+        default:
+            throw new Error('unknown resource type');
+    }
+}
+function addEntryPoints(funcInfos, stage) {
+    const entryPoints = {};
+    for (const info of funcInfos) {
+        entryPoints[info.name] = {
+            stage,
+            resources: info.resources.map(resource => {
+                const { name, group } = resource;
+                return {
+                    name,
+                    group,
+                    entry: getBindGroupLayoutEntry(resource, stage),
+                };
+            }),
+        };
+    }
+    return entryPoints;
 }
 /**
  * Given a WGSL shader, returns data definitions for structures,
@@ -4029,10 +4416,16 @@ function makeShaderDataDefinitions(code) {
     }));
     const uniforms = getNamedVariables(reflect, reflect.uniforms);
     const storages = getNamedVariables(reflect, reflect.storage);
+    const entryPoints = {
+        ...addEntryPoints(reflect.entry.vertex, GPUShaderStage.VERTEX),
+        ...addEntryPoints(reflect.entry.fragment, GPUShaderStage.FRAGMENT),
+        ...addEntryPoints(reflect.entry.compute, GPUShaderStage.COMPUTE),
+    };
     return {
         structs,
         storages,
         uniforms,
+        entryPoints,
     };
 }
 function assert(cond, msg = '') {
@@ -6056,5 +6449,5 @@ var primitives = /*#__PURE__*/Object.freeze({
     createXYQuadVertices: createXYQuadVertices
 });
 
-export { TypedArrayViewGenerator, copySourceToTexture, copySourcesToTexture, createBufferLayoutsFromArrays, createBuffersAndAttributesFromArrays, createTextureFromImage, createTextureFromImages, createTextureFromSource, createTextureFromSources, drawArrays, generateMipmap, getSizeAndAlignmentOfUnsizedArrayElement, getSizeForMipFromTexture, getSizeFromSource, interleaveVertexData, isTypedArray, kTypes, loadImageBitmap, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayViews, normalizeGPUExtent3D, numMipLevels, primitives, setIntrinsicsToView, setStructuredValues, setStructuredView, setTypedValues, setVertexAndIndexBuffers, subarray };
+export { TypedArrayViewGenerator, copySourceToTexture, copySourcesToTexture, createBufferLayoutsFromArrays, createBuffersAndAttributesFromArrays, createTextureFromImage, createTextureFromImages, createTextureFromSource, createTextureFromSources, drawArrays, generateMipmap, getSizeAndAlignmentOfUnsizedArrayElement, getSizeForMipFromTexture, getSizeFromSource, interleaveVertexData, isTypedArray, kTypes, loadImageBitmap, makeBindGroupLayoutDescriptors, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayViews, normalizeGPUExtent3D, numMipLevels, primitives, setIntrinsicsToView, setStructuredValues, setStructuredView, setTypedValues, setVertexAndIndexBuffers, subarray };
 //# sourceMappingURL=webgpu-utils.module.js.map

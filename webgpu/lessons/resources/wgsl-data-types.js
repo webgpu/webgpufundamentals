@@ -43,6 +43,9 @@ const b = {
 const typeInfo = {
   ...b,
 
+  'atomic<u32>': b.u32,
+  'atomic<i32>': b.i32,
+
   'vec2<i32>': b.vec2i,
   'vec2<u32>': b.vec2u,
   'vec2<f32>': b.vec2f,
