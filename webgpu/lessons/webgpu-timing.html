@@ -422,11 +422,11 @@ For example</p>
 </div>
 <p>To put it another way, here’s a graph of the <code class="notranslate" translate="no">%</code> operator vs <code class="notranslate" translate="no">euclideanModulo</code></p>
 <div class="webgpu_center">
-  <img class="center" style="width: 700px" src="resources/euclidean-modulo.svg">
+  <img style="width: 700px" src="resources/euclidean-modulo.svg">
   <div>euclideanModule(v, 2)</div>
 </div>
 <div class="webgpu_center">
-  <img class="center" style="width: 700px" src="resources/modulo.svg">
+  <img style="width: 700px" src="resources/modulo.svg">
   <div>v % 2</div>
 </div>
 <p>So, the code above takes the offset, which is in clip space, and adds 1.5. It then takes the euclideanModulo
@@ -796,7 +796,7 @@ wrong. We had to make 3 things, a querySet and 2 buffers. We had to change our
 renderPassDescriptor. We had to resolve the results and copy to a mappable
 buffer.</p>
 <p>One way to make this less tedious would be to make a class to helps us do the
-timing. Here’s on example of a helper that might help with some of these issues.</p>
+timing. Here’s one example of a helper that might help with some of these issues.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">function assert(cond, msg = '') {
   if (!cond) {
     throw new Error(msg);
@@ -969,8 +969,8 @@ end a pass but don’t resolve it or, if we resolve it but don’t read the resu
 <p>A few points about the <code class="notranslate" translate="no">TimingHelper</code> class</p>
 <ul>
 <li>
-<p>You still have to manually request the <code class="notranslate" translate="no">'timestamp-query</code> feature when you
-create your device but the class handles whether it exists or not on the
+<p>You still have to manually request the <code class="notranslate" translate="no">'timestamp-query'</code> feature when you
+create your device but, the class handles whether it exists or not on the
 device.</p>
 </li>
 <li>
@@ -1032,7 +1032,7 @@ the best example</p>
 <li><a target="_blank" href="../webgpu-compute-shaders-histogram-javascript-w-timing.html">1 channel JavaScript histogram</a></li>
 </ul>
 <div class="webgpu_bottombar">By default the `'timestamp-query'` time values
-are quantized to 100µ seconds. In Chrome, if you enable ["enable-webgpu-developer-features"](chrome://flags/#enable-webgpu-developer-features) in [about:flags]((chrome://flags/#enable-webgpu-developer-features) the time values may not be quantized. This would
+are quantized to 100µ seconds. In Chrome, if you enable <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">"enable-webgpu-developer-features"</a> in <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">about:flags</a>, the time values may not be quantized. This would
 theoretically give you more accurate timings. That said, normally 100µ second quantized values should be enough for you to compare shaders techniques for performance.
 </div>
 <hr class="footnotes-sep">
