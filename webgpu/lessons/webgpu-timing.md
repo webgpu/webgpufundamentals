@@ -218,11 +218,11 @@ For example
 To put it another way, here's a graph of the `%` operator vs `euclideanModulo`
 
 <div class="webgpu_center">
-  <img class="center" style="width: 700px" src="resources/euclidean-modulo.svg">
+  <img style="width: 700px" src="resources/euclidean-modulo.svg">
   <div>euclideanModule(v, 2)</div>
 </div>
 <div class="webgpu_center">
-  <img class="center" style="width: 700px" src="resources/modulo.svg">
+  <img  style="width: 700px" src="resources/modulo.svg">
   <div>v % 2</div>
 </div>
 
@@ -650,7 +650,7 @@ renderPassDescriptor. We had to resolve the results and copy to a mappable
 buffer.
 
 One way to make this less tedious would be to make a class to helps us do the
-timing. Here's on example of a helper that might help with some of these issues.
+timing. Here's one example of a helper that might help with some of these issues.
 
 ```js
 function assert(cond, msg = '') {
@@ -829,8 +829,8 @@ async function main() {
 
 A few points about the `TimingHelper` class
 
-* You still have to manually request the `'timestamp-query` feature when you
-  create your device but the class handles whether it exists or not on the
+* You still have to manually request the `'timestamp-query'` feature when you
+  create your device but, the class handles whether it exists or not on the
   device.
 
 * When you call `timerHelper.beginRenderPass` or `timerHelper.beginComputePass`
@@ -896,6 +896,6 @@ The rest just run once and print their result to the JavaScript console.
 * <a target="_blank" href="../webgpu-compute-shaders-histogram-javascript-w-timing.html">1 channel JavaScript histogram</a>
 
 <div class="webgpu_bottombar">By default the `'timestamp-query'` time values
-are quantized to 100µ seconds. In Chrome, if you enable ["enable-webgpu-developer-features"](chrome://flags/#enable-webgpu-developer-features) in [about:flags]((chrome://flags/#enable-webgpu-developer-features) the time values may not be quantized. This would
+are quantized to 100µ seconds. In Chrome, if you enable <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">"enable-webgpu-developer-features"</a> in <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">about:flags</a>, the time values may not be quantized. This would
 theoretically give you more accurate timings. That said, normally 100µ second quantized values should be enough for you to compare shaders techniques for performance.
 </div>
