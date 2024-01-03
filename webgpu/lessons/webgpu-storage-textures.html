@@ -295,12 +295,13 @@ wanted we get it for free with a storage texture.</p>
 <p>A storage texture has dimensions</p>
 <p>For a buffer, the only dimension is its length, or rather, the length of
 its binding <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>. Above, when we used a buffer as a 2D array, we
-needed <code class="notranslate" translate="no">width</code>. We’d have to either hard code that value or pass it in
+needed <code class="notranslate" translate="no">width</code> to convert from a 2d coordinate to a 1d buffer index.
+We’d have to either hard code the value for <code class="notranslate" translate="no">width</code> or pass it in
 some how<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. With a texture we can call <code class="notranslate" translate="no">textureDimensions</code>
-to get the texture’s size.</p>
+to get the texture’s dimensions.</p>
 </li>
 </ul>
-<p>That said, there are limits on storage buffers</p>
+<p>That said, there are limits on storage textures.</p>
 <ul>
 <li>
 <p>Only certain formats can be <code class="notranslate" translate="no">read_write</code>.</p>
@@ -323,14 +324,14 @@ can be usage as storage textures.</p>
 <li>
 <p>Storage textures can not use samplers</p>
 <p>If we use a texture as normal <code class="notranslate" translate="no">TEXTURE_BINDING</code> then we can call
-functions like <code class="notranslate" translate="no">textureSample</code> which load up to 16 texels and
+functions like <code class="notranslate" translate="no">textureSample</code> which load up to 16 texels across mip levels and
 blend them together. When we use a texture as a <code class="notranslate" translate="no">STORAGE_BINDING</code>
 we can only call <code class="notranslate" translate="no">textureLoad</code> and/or <code class="notranslate" translate="no">textureStore</code> which load
 and store a single texel at a time.</p>
 </li>
 </ul>
 <h2 id="canvas-as-a-storage-texture">Canvas as a Storage Texture</h2>
-<p>You can use a canvas texture as a storage texture. To do so you configure
+<p>You can use a canvas texture as a storage texture. To do so, you configure
 the context to give you a texture that can be used as a storage texture.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const presentationFormat = navigator.gpu.getPreferredCanvasFormat()
   context.configure({
@@ -355,8 +356,8 @@ texture as a storage texture.</p>
 <p>Fortunately there is a <a href="webgpu-limits-and-features.html">feature</a>,
 <code class="notranslate" translate="no">'bgra8unorm-storage'</code>, that
 will enable using a <code class="notranslate" translate="no">bgra8unorm</code> texture as a storage texture.
-In general it <em>should</em> be available on any platform that reports
-<code class="notranslate" translate="no">bgra8unorm</code> as its preferred canvas format but there is some possibility
+In general, it <em>should</em> be available on any platform that reports
+<code class="notranslate" translate="no">bgra8unorm</code> as its preferred canvas format but, there is some possibility
 it’s not available. So, we need to check if the <code class="notranslate" translate="no">'bgra8unorm-storage'</code>
 <em>feature</em> exists. If it exists, we’ll require it for our device and we’ll use
 the preferred canvas format. If not, we’ll choose <code class="notranslate" translate="no">rgba8unorm</code> as our
