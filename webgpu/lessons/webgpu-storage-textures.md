@@ -85,9 +85,10 @@ using a storage buffer and a storage texture?
 
   For a buffer, the only dimension is its length, or rather, the length of
   its binding [^binding]. Above, when we used a buffer as a 2D array, we
-  needed `width`. We'd have to either hard code that value or pass it in
+  needed `width` to convert from a 2d coordinate to a 1d buffer index. 
+  We'd have to either hard code the value for `width` or pass it in
   some how[^how-to-pass-data]. With a texture we can call `textureDimensions`
-  to get the texture's size.
+  to get the texture's dimensions.
 
   [^binding]: When you create a bind group and you specify a buffer you can
   optionally specify an offset and length. In the shader, the length of the
@@ -99,7 +100,7 @@ using a storage buffer and a storage texture?
   another [storage buffer](webgpu-storage-buffers.html) or even as
   the first value in the same buffer.
 
-That said, there are limits on storage buffers
+That said, there are limits on storage textures.
 
 * Only certain formats can be `read_write`.
 
@@ -123,14 +124,14 @@ That said, there are limits on storage buffers
 * Storage textures can not use samplers
 
   If we use a texture as normal `TEXTURE_BINDING` then we can call
-  functions like `textureSample` which load up to 16 texels and
+  functions like `textureSample` which load up to 16 texels across mip levels and
   blend them together. When we use a texture as a `STORAGE_BINDING`
   we can only call `textureLoad` and/or `textureStore` which load
   and store a single texel at a time.
 
 ## Canvas as a Storage Texture
 
-You can use a canvas texture as a storage texture. To do so you configure
+You can use a canvas texture as a storage texture. To do so, you configure
 the context to give you a texture that can be used as a storage texture.
 
 ```js
@@ -161,8 +162,8 @@ texture as a storage texture.
 Fortunately there is a [feature](webgpu-limits-and-features.html),
 `'bgra8unorm-storage'`, that
 will enable using a `bgra8unorm` texture as a storage texture.
-In general it *should* be available on any platform that reports
-`bgra8unorm` as its preferred canvas format but there is some possibility
+In general, it *should* be available on any platform that reports
+`bgra8unorm` as its preferred canvas format but, there is some possibility
 it's not available. So, we need to check if the `'bgra8unorm-storage'`
 *feature* exists. If it exists, we'll require it for our device and we'll use
 the preferred canvas format. If not, we'll choose `rgba8unorm` as our
