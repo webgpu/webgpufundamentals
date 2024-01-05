@@ -491,7 +491,7 @@ WebGPU 장치를 얻기 위한 코드는 동일합니다.
 
 ```js
 async function main() {
-  const adapter = await gpu?.requestAdapter();
+  const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
   if (!device) {
     fail('need a browser that supports WebGPU');
