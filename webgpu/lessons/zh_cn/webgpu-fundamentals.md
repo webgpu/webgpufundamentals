@@ -476,7 +476,7 @@ function dispatchWorkgroups(width, height, depth) {
 function dispatchWorkgroup(workgroup_id) {
     // from @workgroup_size in WGSL
     const workgroup_size = shaderCode.workgroup_size;
-    const { x: width, y: height, z: depth } = workgroup.size;
+    const { x: width, y: height, z: depth } = workgroup_size;
     for (z = 0; z < depth; ++z) {
         for (y = 0; y < height; ++y) {
             for (x = 0; x < width; ++x) {
