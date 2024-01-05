@@ -537,7 +537,7 @@ render();
 <p>让我们编写一个在 GPU 上进行计算的基本示例</p>
 <p>我们首先使用相同的代码来获取 WebGPU 设备</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
-  const adapter = await gpu?.requestAdapter();
+  const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
   if (!device) {
     fail('need a browser that supports WebGPU');

@@ -624,7 +624,7 @@ WebGPUはこの際、「各ピクセルの中心点が三角形の内側にあ�
 <p>GPU上で計算を実行する、簡単なサンプルプログラムを作っていきます。</p>
 <p>WebGPUデバイスの取得の手順は先ほどと同じです。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
-  const adapter = await gpu?.requestAdapter();
+  const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
   if (!device) {
     fail('need a browser that supports WebGPU');

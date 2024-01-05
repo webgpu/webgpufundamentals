@@ -613,7 +613,7 @@ WebGPU는 정점 셰이더에서 우리가 반환하는 세 개의 정점을 받
 <p>GPU에서 계산을 수행하는 간단한 예제를 만들어봅시다.</p>
 <p>WebGPU 장치를 얻기 위한 코드는 동일합니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
-  const adapter = await gpu?.requestAdapter();
+  const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
   if (!device) {
     fail('need a browser that supports WebGPU');
