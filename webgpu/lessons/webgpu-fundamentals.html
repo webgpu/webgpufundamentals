@@ -686,7 +686,7 @@ points to take away from the code above,</p>
 <p>Let’s write a basic example for doing some computation on the GPU.</p>
 <p>We start off with the same code to get a WebGPU device.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
-  const adapter = await gpu?.requestAdapter();
+  const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
   if (!device) {
     fail('need a browser that supports WebGPU');
