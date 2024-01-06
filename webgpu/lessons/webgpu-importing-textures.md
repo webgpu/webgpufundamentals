@@ -474,7 +474,7 @@ And here it is
 
 `copyExternalImageToTexture` takes other *sources*. Another is an `HTMLCanvasElement`.
 We can use this to draw things in a 2d canvas, and then get the result in a texture in WebGPU.
-Of course you can use WebGPU to draw to a texture and use that texture you just drew too
+Of course you can use WebGPU to draw to a texture and use that texture you just drew to
 in something else you render. In fact we just did that, rendering to a mip level and then
 using that mip level a texture attachment to render to the next mip level.
 
@@ -1081,7 +1081,7 @@ texture coordinates
   });
 ```
 
-To keep the data smaller we're going to use a indices like we covered in [the article on vertex buffers](webgpu-vertex-buffers.html).
+To keep the data smaller we're going to use indices like we covered in [the article on vertex buffers](webgpu-vertex-buffers.html).
 
 ```js
 -  const { vertexData, numVertices } = createFVertices();

@@ -126,7 +126,7 @@ For compressed textures, size and origin must be aligned to blocks sizes.
 > * `[2]` a size where width = 2, height = 1, depthOrArrayLayers = 1
 > * `[2, 3]` a size where width = 2, height = 3, depthOrArrayLayers = 1
 > * `[2, 3, 4]` a size where width = 2, height = 3, depthOrArrayLayers = 4
-> * `{ width: 2 }` a size where width = 1, height = 1, depthOrArrayLayers = 1
+> * `{ width: 2 }` a size where width = 2, height = 1, depthOrArrayLayers = 1
 > * `{ width: 2, height: 3 }` a size where width = 2, height = 3, depthOrArrayLayers = 1
 > * `{ width: 2, height: 3, depthOrArrayLayers: 4 }` a size where width = 2, height = 3, depthOrArrayLayers = 4
 
@@ -139,7 +139,7 @@ For compressed textures, size and origin must be aligned to blocks sizes.
 > * `[5, 6, 7]` an origin where x = 5, y = 6, z = 7
 > * `{ x: 5 }` an origin where x = 5, y = 0, z = 0
 > * `{ x: 5, y: 6 }` an origin where x = 5, y = 6, z = 0
-> * `{ x: 5, y: 6, z: 7 }` an origin where x = 5, y = 0, z = 0
+> * `{ x: 5, y: 6, z: 7 }` an origin where x = 5, y = 6, z = 7
 
 * `aspect` really only comes into play when copying data to a depth-stencil format.
   You can only copy to one aspect at a time, either the `depth-only` or the `stencil-only`.
@@ -275,7 +275,7 @@ of usage flags.
 * `GPUBufferUsage.MAP_READ | GPU_BufferUsage.COPY_DST`
 
   This is a buffer you can use the copy commands above to copy
-  data to from a another buffer or a texture, then map it to
+  data to from another buffer or a texture, then map it to
   read the values in JavaScript
 
 * `GPUBufferUsage.MAP_WRITE | GPU_BufferUsage.COPY_SRC`

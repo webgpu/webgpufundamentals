@@ -42,9 +42,6 @@ struct VSOutput {
 @group(0) @binding(0) var<storage, read> ourStructs: array<OurStruct>;
 @group(0) @binding(1) var<storage, read> otherStructs: array<OtherStruct>;
 -@group(0) @binding(2) var<storage, read> pos: array<Vertex>;
-
-@vertex fn vs(
--  @builtin(vertex_index) vertexIndex : u32,
 +  vert: Vertex,
   @builtin(instance_index) instanceIndex: u32
 ) -> VSOutput {
@@ -143,7 +140,7 @@ use
 +    pass.setVertexBuffer(0, vertexBuffer);
 ```
 
-The `0` here corresponds to first element of the the render pipeline `buffers`
+The `0` here corresponds to first element of the render pipeline `buffers`
 array we specified above.
 
 And with that we've switched from using a storage buffer for vertices to a
@@ -241,8 +238,8 @@ struct VSOutput {
   @location(0) color: vec4f,
 };
 
-@group(0) @binding(0) var<storage, read> ourStructs: array<OurStruct>;
-@group(0) @binding(1) var<storage, read> otherStructs: array<OtherStruct>;
+-@group(0) @binding(0) var<storage, read> ourStructs: array<OurStruct>;
+-@group(0) @binding(1) var<storage, read> otherStructs: array<OtherStruct>;
 
 @vertex fn vs(
   vert: Vertex,
@@ -404,7 +401,7 @@ and no storage buffers.
 
 {{{example url="../webgpu-vertex-buffers-instanced-colors"}}}
 
-Just for fun, let's add a another attribute for a per vertex color. First let's change the shader
+Just for fun, let's add another attribute for a per vertex color. First let's change the shader
 
 ```wgsl
 struct Vertex {

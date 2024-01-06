@@ -23,7 +23,7 @@ Might print `8` to the console meaning the adapter supports a maximum
 of 8 color attachments.
 
 Here is a list of all the limits, including the limits of your default adapter
-as well as the the minimum required limits.
+as well as the minimum required limits.
 
 <div class="webgpu_center data-table limits" data-diagram="limits"></div>
 
@@ -130,7 +130,7 @@ On the user's phone, your program fails mysteriously because the `'float32-filte
 feature didn't exist and you happened to be using it without realizing that it's
 an optional feature.
 
-Or you might allocate a buffer larger the the minimum `maxBufferSize` and again
+Or you might allocate a buffer larger the minimum `maxBufferSize` and again
 not be aware you went over the limit. You ship and a bunch of users can't run
 your page.
 

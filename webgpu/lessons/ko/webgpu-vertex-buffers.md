@@ -230,8 +230,8 @@ struct VSOutput {
   @location(0) color: vec4f,
 };
 
-@group(0) @binding(0) var<storage, read> ourStructs: array<OurStruct>;
-@group(0) @binding(1) var<storage, read> otherStructs: array<OtherStruct>;
+-@group(0) @binding(0) var<storage, read> ourStructs: array<OurStruct>;
+-@group(0) @binding(1) var<storage, read> otherStructs: array<OtherStruct>;
 
 @vertex fn vs(
   vert: Vertex,
