@@ -6,7 +6,7 @@ WebGPU supports drawing to points. We do this by setting the
 primitive topology to `'point-list'` in a render pipeline.
 
 Let's create a simple example with random points
-starting with ideas presented in [the the article on vertex buffers](webgpu-vertex-buffers.html).
+starting with ideas presented in [the article on vertex buffers](webgpu-vertex-buffers.html).
 
 First a simple vertex shader and fragment shader. To keep it simple we'll
 just use clip space coordinates for positions and hard code the color

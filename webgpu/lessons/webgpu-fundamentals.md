@@ -527,7 +527,7 @@ When the `draw` command is executed, this will be our state.
 
 We've got no textures, no buffers, no bindGroups but we do have a pipeline, a
 vertex and fragment shader, and a render pass descriptor that tells our shader
-to render to the the canvas texture.
+to render to the canvas texture.
 
 The result.
 

@@ -419,7 +419,7 @@ Now we need to update `generateMips` to handle multiple sources.
 We added a loop to handle each layer of the texture.
 We changed the views so they select a single layer. We also had to explicitly choose
 `dimension: '2d'` for our views because by default, a view of a 2d texture with more than
-1 layer gets the `dimension: '2d-array'` which for the the purpose of generating
+1 layer gets the `dimension: '2d-array'` which for the purpose of generating
 mipmaps is not what we want.
 
 Although we won't use them here, our original `createTextureFromSource` and

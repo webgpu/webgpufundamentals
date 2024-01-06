@@ -326,7 +326,7 @@ introduced in [the article on orthographic projection](webgpu-orthograpic-projec
 then when we draw a sprite, leaf, or blade of grass, none of the sprites,
 leaves, or grass behind the thing we're currently drawing will be drawn, even if
 the alpha value is 0 because we'll still be updating the depth texture. So,
-instead of drawing we discard. We'll over this more in another article.
+instead of drawing we discard. We'll go over this more in another article.
 
 ## <a href="a-blending"></a> Blend Settings
 
