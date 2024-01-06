@@ -331,7 +331,7 @@ can either be an array of 1 to 3 numbers, or it can be an object with 1 to
 <li><code class="notranslate" translate="no">[2]</code> a size where width = 2, height = 1, depthOrArrayLayers = 1</li>
 <li><code class="notranslate" translate="no">[2, 3]</code> a size where width = 2, height = 3, depthOrArrayLayers = 1</li>
 <li><code class="notranslate" translate="no">[2, 3, 4]</code> a size where width = 2, height = 3, depthOrArrayLayers = 4</li>
-<li><code class="notranslate" translate="no">{ width: 2 }</code> a size where width = 1, height = 1, depthOrArrayLayers = 1</li>
+<li><code class="notranslate" translate="no">{ width: 2 }</code> a size where width = 2, height = 1, depthOrArrayLayers = 1</li>
 <li><code class="notranslate" translate="no">{ width: 2, height: 3 }</code> a size where width = 2, height = 3, depthOrArrayLayers = 1</li>
 <li><code class="notranslate" translate="no">{ width: 2, height: 3, depthOrArrayLayers: 4 }</code> a size where width = 2, height = 3, depthOrArrayLayers = 4</li>
 </ul>
@@ -346,7 +346,7 @@ of 3 numbers, or a object with <code class="notranslate" translate="no">x</code>
 <li><code class="notranslate" translate="no">[5, 6, 7]</code> an origin where x = 5, y = 6, z = 7</li>
 <li><code class="notranslate" translate="no">{ x: 5 }</code> an origin where x = 5, y = 0, z = 0</li>
 <li><code class="notranslate" translate="no">{ x: 5, y: 6 }</code> an origin where x = 5, y = 6, z = 0</li>
-<li><code class="notranslate" translate="no">{ x: 5, y: 6, z: 7 }</code> an origin where x = 5, y = 0, z = 0</li>
+<li><code class="notranslate" translate="no">{ x: 5, y: 6, z: 7 }</code> an origin where x = 5, y = 6, z = 7</li>
 </ul>
 </blockquote>
 <ul>
@@ -458,7 +458,7 @@ of usage flags.</p>
 <li>
 <p><code class="notranslate" translate="no">GPUBufferUsage.MAP_READ | GPU_BufferUsage.COPY_DST</code></p>
 <p>This is a buffer you can use the copy commands above to copy
-data to from a another buffer or a texture, then map it to
+data to from another buffer or a texture, then map it to
 read the values in JavaScript</p>
 </li>
 <li>

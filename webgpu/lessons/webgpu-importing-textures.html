@@ -647,7 +647,7 @@ is this</p>
 <h2 id="loading-canvas"><a id="a-loading-canvas"></a> Loading Canvas</h2>
 <p><code class="notranslate" translate="no">copyExternalImageToTexture</code> takes other <em>sources</em>. Another is an <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement"><code class="notranslate" translate="no">HTMLCanvasElement</code></a>.
 We can use this to draw things in a 2d canvas, and then get the result in a texture in WebGPU.
-Of course you can use WebGPU to draw to a texture and use that texture you just drew too
+Of course you can use WebGPU to draw to a texture and use that texture you just drew to
 in something else you render. In fact we just did that, rendering to a mip level and then
 using that mip level a texture attachment to render to the next mip level.</p>
 <p>But, sometimes using 2d canvas can make certain things easy. The 2d canvas has relatively
@@ -1171,7 +1171,7 @@ texture coordinates</p>
     },
   });
 </pre>
-<p>To keep the data smaller we’re going to use a indices like we covered in <a href="webgpu-vertex-buffers.html">the article on vertex buffers</a>.</p>
+<p>To keep the data smaller we’re going to use indices like we covered in <a href="webgpu-vertex-buffers.html">the article on vertex buffers</a>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const { vertexData, numVertices } = createFVertices();
 +  const { vertexData, indexData, numVertices } = createCubeVertices();
   const vertexBuffer = device.createBuffer({

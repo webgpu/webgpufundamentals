@@ -344,7 +344,7 @@ use</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    pass.setPipeline(pipeline);
 +    pass.setVertexBuffer(0, vertexBuffer);
 </pre>
-<p>The <code class="notranslate" translate="no">0</code> here corresponds to first element of the the render pipeline <code class="notranslate" translate="no">buffers</code>
+<p>The <code class="notranslate" translate="no">0</code> here corresponds to first element of the render pipeline <code class="notranslate" translate="no">buffers</code>
 array we specified above.</p>
 <p>And with that we’ve switched from using a storage buffer for vertices to a
 vertex buffer.</p>
@@ -436,8 +436,8 @@ struct VSOutput {
   @location(0) color: vec4f,
 };
 
-@group(0) @binding(0) var&lt;storage, read&gt; ourStructs: array&lt;OurStruct&gt;;
-@group(0) @binding(1) var&lt;storage, read&gt; otherStructs: array&lt;OtherStruct&gt;;
+-@group(0) @binding(0) var&lt;storage, read&gt; ourStructs: array&lt;OurStruct&gt;;
+-@group(0) @binding(1) var&lt;storage, read&gt; otherStructs: array&lt;OtherStruct&gt;;
 
 @vertex fn vs(
   vert: Vertex,
@@ -581,7 +581,7 @@ and no storage buffers.</p>
 </div>
 
 <p></p>
-<p>Just for fun, let’s add a another attribute for a per vertex color. First let’s change the shader</p>
+<p>Just for fun, let’s add another attribute for a per vertex color. First let’s change the shader</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Vertex {
   @location(0) position: vec2f,
   @location(1) color: vec4f,

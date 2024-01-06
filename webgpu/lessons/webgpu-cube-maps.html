@@ -614,7 +614,7 @@ we copy each source to its respective layer.</p>
 <p>We added a loop to handle each layer of the texture.
 We changed the views so they select a single layer. We also had to explicitly choose
 <code class="notranslate" translate="no">dimension: '2d'</code> for our views because by default, a view of a 2d texture with more than
-1 layer gets the <code class="notranslate" translate="no">dimension: '2d-array'</code> which for the the purpose of generating
+1 layer gets the <code class="notranslate" translate="no">dimension: '2d-array'</code> which for the purpose of generating
 mipmaps is not what we want.</p>
 <p>Although we won’t use them here, our original <code class="notranslate" translate="no">createTextureFromSource</code> and
 <code class="notranslate" translate="no">copySourceToTexture</code> functions can easily be replaced with</p>

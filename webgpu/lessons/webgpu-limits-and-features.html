@@ -237,7 +237,7 @@ console.log(adapter.limits.maxColorAttachments);
 <p>Might print <code class="notranslate" translate="no">8</code> to the console meaning the adapter supports a maximum
 of 8 color attachments.</p>
 <p>Here is a list of all the limits, including the limits of your default adapter
-as well as the the minimum required limits.</p>
+as well as the minimum required limits.</p>
 <div class="webgpu_center data-table limits" data-diagram="limits"></div>
 <p>The minimum limits are the limits you can count on all devices that support WebGPU
 to have.</p>
@@ -310,7 +310,7 @@ enabled it.</p>
 <p>On the user’s phone, your program fails mysteriously because the <code class="notranslate" translate="no">'float32-filterable'</code>
 feature didn’t exist and you happened to be using it without realizing that it’s
 an optional feature.</p>
-<p>Or you might allocate a buffer larger the the minimum <code class="notranslate" translate="no">maxBufferSize</code> and again
+<p>Or you might allocate a buffer larger the minimum <code class="notranslate" translate="no">maxBufferSize</code> and again
 not be aware you went over the limit. You ship and a bunch of users can’t run
 your page.</p>
 <h2 id="recommended-way-to-request-features-and-limits">Recommended Way to Request Features and Limits</h2>
