@@ -63,7 +63,7 @@ we get this
 </div>
 
 Above, with 4x rendering and the triangle covering 3 pixels' centers, the fragment shader is called 3 times.
-We then bilinear filter the result.
+Later we then bilinear filter the result.
 
 This is where multisampling is more efficient. We create a special "multisample texture".
 When we draw a triangle to a multisample texture, If any of the 4 *samples*
@@ -79,8 +79,9 @@ We then *resolve* the result. The process would be similar if the triangle cover
 shader would only be called once but its result would be written to all 4 samples.
 
 Notice that, unlike the 4x rendering where the CPU checked if the centers of the 4 pixels were inside the triangle,
-with multisampled rendering the GPU checks "sample positions" which are not in the center. These un-centered
-sample positions apparently result in better anti-aliasing for most situations.
+with multisampled rendering the GPU checks "sample positions" which are not in a grid. Similarly, the sample
+values themselves do not represent a grid so the process of "resolving" them is not bilinear filtering but rather
+up to the GPU. These un-centered sample positions apparently result in better anti-aliasing for most situations.
 
 ## <a id="a-multisampling"></a> How to use multisampling.
 
