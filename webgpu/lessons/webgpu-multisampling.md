@@ -55,18 +55,36 @@ so there is no need for anti-aliasing. All 4 pixels are red.
 
 Drawing 4 red pixels instead of 1 pixel is a waste of time.
 The GPU called our fragment shader 4 times. Fragment shaders can be fairly large and do a lots
-of work so we'd like to call them as few times as possible.
+of work so we'd like to call them as few times as possible. Even when the triangle crosses 3 pixels
+we get this
 
-This is where multisampling comes in. We create a special "multisampled texture".
-When we draw a triangle to a multisampled texture, if
-all 4 pixels are inside the triangle then the GPU just calls our fragment shader once and stores the result
-in all 4 pixels. If only some of those 4 pixels are inside the triangle the GPU still only calls
-our fragment shader once but it only writes the result to the pixels that are inside the triangle.
-This means using a multisampled texture is up to 4x faster than our 4x resolution solution above.
+<div class="webgpu_center">
+  <img src="resources/antialias-4x.svg" width="600">
+</div>
+
+Above, with 4x rendering and the triangle covering 3 pixels' centers, the fragment shader is called 3 times.
+We then bilinear filter the result.
+
+This is where multisampling is more efficient. We create a special "multisample texture".
+When we draw a triangle to a multisample texture, If any of the 4 *samples*
+are inside the triangle, the GPU calls our fragment shader one time, it then writes
+the result in only those *samples* that are inside the triangle.
+
+<div class="webgpu_center">
+  <img src="resources/antialias-multisample-4.svg" width="600">
+</div>
+
+Above, with multisampled rendering and the triangle covering 3 *samples*, the fragment shader is called only 1 time.
+We then *resolve* the result. The process would be similar if the triangle covered all 4 sample points. The fragment
+shader would only be called once but its result would be written to all 4 samples.
+
+Notice that, unlike the 4x rendering where the CPU checked if the centers of the 4 pixels were inside the triangle,
+with multisampled rendering the GPU checks "sample positions" which are not in the center. These un-centered
+sample positions apparently result in better anti-aliasing for most situations.
 
 ## <a id="a-multisampling"></a> How to use multisampling.
 
-So how do we use a multisampling? We do it via 3 basic steps
+So how do we use multisampling? We do it via 3 basic steps
 
 1. Set our pipeline to render to a multisample texture
 2. Create a multisample texture the same size as the final texture.
@@ -190,15 +208,10 @@ Some things to note:
 
 * <a id="a-not-a-grid"></a> Multisampling does not use a grid
 
-  Above we mentioned manually rendering to a 4x resolution texture and using bilinear filtering
-  to our desired size but that is not exactly what multisampling does.
-
-  Multisampling actually uses offsets like this for the 4 points it tests for inside/outside
-  of the triangle
+  As pointed out above, multisampling does not happen on a grid. For sampleCount = 4
+  the sample locations are like this.
 
   <img src="resources/multisample-4x.svg" width="256" >
-
-  This is even more interesting for other count settings.
 
   count: 2
 
@@ -212,12 +225,12 @@ Some things to note:
 
   <img src="resources/multisample-16x.svg" width="256">
 
-  WebGPU does currently only supports a count of 4 but the point is, multisampling is not a grid.
+  **WebGPU does currently only supports a count of 4**
 
 * You can optionally run the fragment shader on each multisampled pixel
 
-  Above we said that the fragment shader only runs once for every 2x2 pixels in the multisampled
-  texture. It runs it once and then it stores the result in the pixels that were actually inside
+  Above we said that the fragment shader only runs once for every 4 samples in the multisample
+  texture. It runs it once and then it stores the result in the samples that were actually inside
   the triangle. This is why it's faster than rendering at 4x the resolution.
 
   In [the article on inter-stage variables](webgpu-inter-stage-variables.html#a-interpolate)
@@ -239,12 +252,18 @@ Some things to note:
 
 ## What about inside a triangle?
 
-Multisampling only handles the edges of triangles so what about when we're drawing with a texture, there
-may be contrasty colors next to each other inside the triangle. Don't we want anti-aliasing there too?
+Multisampling generally only helps the edges of triangles. Since it's only calling the fragment
+shader once, when all sample positions are inside the triangle we just get the same result of the fragment shader
+written to all samples, which means the result will be no different than if we were not multisampling.
+
+In the example above, since we were drawing solid red, there's clearly nothing wrong.
+What about when we're sampling from with a texture, there may be contrasty colors next to each other inside the triangle.
+Don't we want each sample's color to come from a different place in the texture?
+
 Inside the triangle we use [mipmaps and filtering](webgpu-textures.html) to pick the appropriate color
 so anti-aliasing may be less important inside a triangle. On the other hand, this can also be a problem
-with certain rendering techniques which is why there are other solutions to
-anti-aliasing.
+with certain rendering techniques which is why there are other solutions to anti-aliasing and also possibly
+why you can use `@interpolate(..., sample)` if you want to do per sample processing.
 
 ## Multisampling is not the only solution for anti-aliasing.
 
