@@ -275,7 +275,7 @@ we get this</p>
   <img src="resources/antialias-4x.svg" width="600">
 </div>
 <p>Above, with 4x rendering and the triangle covering 3 pixels’ centers, the fragment shader is called 3 times.
-We then bilinear filter the result.</p>
+Later we then bilinear filter the result.</p>
 <p>This is where multisampling is more efficient. We create a special “multisample texture”.
 When we draw a triangle to a multisample texture, If any of the 4 <em>samples</em>
 are inside the triangle, the GPU calls our fragment shader one time, it then writes
@@ -287,8 +287,9 @@ the result in only those <em>samples</em> that are inside the triangle.</p>
 We then <em>resolve</em> the result. The process would be similar if the triangle covered all 4 sample points. The fragment
 shader would only be called once but its result would be written to all 4 samples.</p>
 <p>Notice that, unlike the 4x rendering where the CPU checked if the centers of the 4 pixels were inside the triangle,
-with multisampled rendering the GPU checks “sample positions” which are not in the center. These un-centered
-sample positions apparently result in better anti-aliasing for most situations.</p>
+with multisampled rendering the GPU checks “sample positions” which are not in a grid. Similarly, the sample
+values themselves do not represent a grid so the process of “resolving” them is not bilinear filtering but rather
+up to the GPU. These un-centered sample positions apparently result in better anti-aliasing for most situations.</p>
 <h2 id="how-to-use-multisampling"><a id="a-multisampling"></a> How to use multisampling.</h2>
 <p>So how do we use multisampling? We do it via 3 basic steps</p>
 <ol>
