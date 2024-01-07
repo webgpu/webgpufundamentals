@@ -549,7 +549,7 @@ function crossProductDiagram(elem, mode) {
       yAxisUniforms.u_color = flash ? ltGreen : flashColor;
       drawModel(axisProgramInfo, axisBufferInfo, gl.TRIANGLES, yAxisUniforms, m4t0);
     }
-    m4.rotationZ(Math.PI / 2, m4t1);
+    m4.rotationZ(Math.PI / -2, m4t1);
     m4.multiply(m4t0, m4t1, world);
     if (mode === 1) {
       xAxisUniforms.u_color = flash ? ltRed : flashColor;
