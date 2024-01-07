@@ -8,7 +8,7 @@ primitive topology to `'point-list'` in a render pipeline.
 Let's create a simple example with random points
 starting with ideas presented in [the article on vertex buffers](webgpu-vertex-buffers.html).
 
-First a simple vertex shader and fragment shader. To keep it simple we'll
+First, a simple vertex shader and fragment shader. To keep it simple we'll
 just use clip space coordinates for positions and hard code the color
 yellow in our fragment shader.
 
@@ -144,7 +144,7 @@ struct VSOutput {
 ```
 
 In JavaScript we need to add an attribute for a size per point, we need to set
-the attributes advance per instance by setting `stepMode: 'instance'`, and we
+the attributes to advance per instance by setting `stepMode: 'instance'`, and we
 can remove the topology setting since we want the default `'triangle-list'`
 
 ```js
@@ -493,18 +493,18 @@ Let's also change the texture from 🥑 to 👉
 Hopefully this gives you some ideas.
 
 <div class="webgpu_bottombar">
-<h3>Why doesn't WebGPU support points large than 1x1 pixel?</h3>
+<h3>Why doesn't WebGPU support points larger than 1x1 pixel?</h3>
 <p>WebGPU is based on native GPU APIs like Vulkan, Metal, DirectX, and even OpenGL.
 Unfortunately, those APIs do not agree with each other on what it means to support
-rendering points. Some APIs have a device dependent limits on the size of points.
+rendering points. Some APIs have device dependent limits on the size of points.
 Some APIs don't render a point if its center is outside of clip space while others
 do. In some APIs, this second issue is up to the driver. All of that means WebGPU decided to do the portable thing and only support 1x1
 sized pixels.</p>
 <p>The good thing is it's easy to support larger points yourself as shown above. The solutions
 above are portable across devices, they have no limit on the size of a point and
-the consistently clip points across devices. They draw the portion of any point
+they consistently clip points across devices. They draw the portion of any point
 that is inside clip space regardless of if the point's center is outside of clip space.</p>
 <p>Even better, these solutions are more flexible. For example rotating points
-is not a thing supported by native APIs but by easily implementing our own solutions
+is not a thing supported by native APIs. By implementing our own solutions
 we can easily add more features making things even more flexible.</p>
 </div>
