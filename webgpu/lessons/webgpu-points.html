@@ -662,7 +662,326 @@ struct VSOutput {
 </div>
 
 <p></p>
-<p>Hopefully this gives you some ideas.</p>
+<h1 id="what-about-points-in-3d">What about points in 3D?</h1>
+<p>The simple answer is just add in the quad values after doing
+<a href="webgpu-perspective-projection.html">the 3d math for the vertices</a>.</p>
+<p>For example, here’s some code to make 3d positions for a
+<a href="https://www.google.com/search?q=fibonacci+sphere">fibonacci sphere</a>.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function createFibonacciSphereVertices({
+  numSamples,
+  radius,
+}) {
+  const vertices = [];
+  const increment = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i &lt; numSamples; ++i) {
+    const offset = 2 / numSamples;
+    const y = ((i * offset) - 1) + (offset / 2);
+    const r = Math.sqrt(1 - Math.pow(y, 2));
+    const phi = (i % numSamples) * increment;
+    const x = Math.cos(phi) * r;
+    const z = Math.sin(phi) * r;
+    vertices.push(x * radius, y * radius, z * radius);
+  }
+  return new Float32Array(vertices);
+}
+</pre>
+<p>We can draw the vertices with points by applying 3D math to the vertices
+like <a href="webgpu-cameras.js">we covered in the series on 3d math</a>.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Vertex {
+  @location(0) position: vec4f,
+};
+
+struct Uniforms {
+*  matrix: mat4x4f,
+};
+
+struct VSOutput {
+  @builtin(position) position: vec4f,
+};
+
+@group(0) @binding(0) var&lt;uniform&gt; uni: Uniforms;
+
+@vertex fn vs(
+    vert: Vertex,
+) -&gt; VSOutput {
+  var vsOut: VSOutput;
+*  let clipPos = uni.matrix * vert.position;
+  vsOut.position = clipPos;
+  return vsOut;
+}
+
+@fragment fn fs(vsOut: VSOutput) -&gt; @location(0) vec4f {
+  return vec4f(1, 0.5, 0.2, 1);  // orange
+}
+</pre>
+<p>Here’s our pipeline and vertex buffer</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: '3d points with fixed size',
+    layout: 'auto',
+    vertex: {
+      module,
+      entryPoint: 'vs',
+      buffers: [
+        {
+          arrayStride: (3) * 4, // 3 floats, 4 bytes each
+          attributes: [
+            {shaderLocation: 0, offset: 0, format: 'float32x3'},  // position
+          ],
+        },
+      ],
+    },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [
+        {
+         format: presentationFormat,
+        },
+      ],
+    },
+    primitive: {
+      topology: 'point-list',
+    },
+  });
+
+  const vertexData = createFibonacciSphereVertices({
+    radius: 1,
+    numSamples: 1000,
+  });
+  const kNumPoints = vertexData.length / 3;
+
+  const vertexBuffer = device.createBuffer({
+    label: 'vertex buffer vertices',
+    size: vertexData.byteLength,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(vertexBuffer, 0, vertexData);
+</pre>
+<p>And, a uniform buffer and uniform values for our matrix as well
+as a bindGroup to pass the uniform buffer our shader.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const uniformValues = new Float32Array(16);
+  const uniformBuffer = device.createBuffer({
+    size: uniformValues.byteLength,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const kMatrixOffset = 0;
+  const matrixValue = uniformValues.subarray(
+      kMatrixOffset, kMatrixOffset + 16);
+
+  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: uniformBuffer }},
+    ],
+  });
+</pre>
+<p>And the code to draw using a projection matrix, camera, and other
+3d math.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render(time) {
+    time *= 0.001;
+
+    // Get the current texture from the canvas context and
+    // set it as the texture to render to.
+    const canvasTexture = context.getCurrentTexture();
+    renderPassDescriptor.colorAttachments[0].view =
+        canvasTexture.createView();
+
+    // Set the matrix in the uniform buffer
+    const fov = 90 * Math.PI / 180;
+    const aspect = canvas.clientWidth / canvas.clientHeight;
+    const projection = mat4.perspective(fov, aspect, 0.1, 50);
+    const view = mat4.lookAt(
+      [0, 0, 1.5],  // position
+      [0, 0, 0],    // target
+      [0, 1, 0],    // up
+    );
+    const viewProjection = mat4.multiply(projection, view);
+    mat4.rotateY(viewProjection, time, matrixValue);
+    mat4.rotateX(matrixValue, time * 0.5, matrixValue);
+
+    // Copy the uniform values to the GPU
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+
+    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.setVertexBuffer(0, vertexBuffer);
+    pass.setBindGroup(0, bindGroup);
+    pass.draw(kNumPoints);
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+</pre>
+<p>We also switched to a <code class="notranslate" translate="no">requestAnimationFrame</code> loop.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-points-3d-1px.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-points-3d-1px.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>That’s hard to see, so, to apply the techniques above, we just
+add the in quad position just like we did previously.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Vertex {
+  @location(0) position: vec4f,
+};
+
+struct Uniforms {
+  matrix: mat4x4f,
++  resolution: vec2f,
++  size: f32,
+};
+
+struct VSOutput {
+  @builtin(position) position: vec4f,
+};
+
+@group(0) @binding(0) var&lt;uniform&gt; uni: Uniforms;
+
+@vertex fn vs(
+    vert: Vertex,
++    @builtin(vertex_index) vNdx: u32,
+) -&gt; VSOutput {
++  let points = array(
++    vec2f(-1, -1),
++    vec2f( 1, -1),
++    vec2f(-1,  1),
++    vec2f(-1,  1),
++    vec2f( 1, -1),
++    vec2f( 1,  1),
++  );
+  var vsOut: VSOutput;
++  let pos = points[vNdx];
++  let clipPos = uni.matrix * vert.position;
++  let pointPos = vec4f(pos * uni.size / uni.resolution, 0, 0);
+-  vsOut.position = clipPos;
++  vsOut.position = clipPos + pointPos;
+  return vsOut;
+}
+
+@fragment fn fs(vsOut: VSOutput) -&gt; @location(0) vec4f {
+  return vec4f(1, 0.5, 0.2, 1);
+}
+</pre>
+<p>Unlike the previous example we won’t use a different size for each vertex.
+Instead we’ll pass a single size for all vertices.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const uniformValues = new Float32Array(16);
++  const uniformValues = new Float32Array(16 + 2 + 1 + 1);
+  const uniformBuffer = device.createBuffer({
+    size: uniformValues.byteLength,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const kMatrixOffset = 0;
++  const kResolutionOffset = 16;
++  const kSizeOffset = 18;
+  const matrixValue = uniformValues.subarray(
+      kMatrixOffset, kMatrixOffset + 16);
++  const resolutionValue = uniformValues.subarray(
++      kResolutionOffset, kResolutionOffset + 2);
++  const sizeValue = uniformValues.subarray(
++      kSizeOffset, kSizeOffset + 1);
+</pre>
+<p>We need to set the resolution as we did above, and we need to set a size</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render(time) {
+    ...
++    // Set the size in the uniform buffer
++    sizeValue[0] = 10;
+
+    const fov = 90 * Math.PI / 180;
+    const aspect = canvas.clientWidth / canvas.clientHeight;
+    const projection = mat4.perspective(fov, aspect, 0.1, 50);
+    const view = mat4.lookAt(
+      [0, 0, 1.5],  // position
+      [0, 0, 0],    // target
+      [0, 1, 0],    // up
+    );
+    const viewProjection = mat4.multiply(projection, view);
+    mat4.rotateY(viewProjection, time, matrixValue);
+    mat4.rotateX(matrixValue, time * 0.5, matrixValue);
+
++    // Update the resolution in the uniform buffer
++    resolutionValue.set([canvasTexture.width, canvasTexture.height]);
+
+    // Copy the uniform values to the GPU
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+</pre>
+<p>And, like we did before, we need to switch from drawing points to drawing
+instanced quads</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: '3d points',
+    layout: 'auto',
+    vertex: {
+      module,
+      entryPoint: 'vs',
+      buffers: [
+        {
+          arrayStride: (3) * 4, // 3 floats, 4 bytes each
++          stepMode: 'instance',
+          attributes: [
+            {shaderLocation: 0, offset: 0, format: 'float32x3'},  // position
+          ],
+        },
+      ],
+    },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [
+        {
+         format: presentationFormat,
+        },
+      ],
+    },
+-    primitive: {
+-      topology: 'point-list',
+-    },
+  });
+
+  ...
+
+  function render(time) {
+
+    ...
+
+-    pass.draw(kNumPoints);
++    pass.draw(6, kNumPoints);
+
+    ...
+</pre>
+<p>This gives us points in 3D. They even scale based on their distance from the camera.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-points-3d.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-points-3d.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<h2 id="fixed-size-3d-points"><a id="a-fixed-size-3d-points"></a> Fixed size 3d points</h2>
+<p>What if we want the points to stay a fixed size?</p>
+<p>Recall from <a href="webgpu-perspective-projection.html">the article on perspective projection</a> that the GPU divides the position
+we return from the vertex shader by W. This divide gives us perspective by making
+things further way appear smaller. So, for points we don’t want to change size we
+just need to multiply them by that W so after they’re divided they’ll be the
+value we really wanted.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">    var vsOut: VSOutput;
+    let pos = points[vNdx];
+    let clipPos = uni.matrix * vert.position;
+-    let pointPos = vec4f(pos * uni.size / uni.resolution, 0, 0);
++    let pointPos = vec4f(pos * uni.size / uni.resolution * clipPos.w, 0, 0);
+    vsOut.position = clipPos + pointPos;
+    return vsOut;
+</pre>
+<p>And now they stay the same size</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-points-3d-fixed-size.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-points-3d-fixed-size.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
 <div class="webgpu_bottombar">
 <h3>Why doesn't WebGPU support points larger than 1x1 pixel?</h3>
 <p>WebGPU is based on native GPU APIs like Vulkan, Metal, DirectX, and even OpenGL.
