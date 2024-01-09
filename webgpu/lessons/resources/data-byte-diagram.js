@@ -200,18 +200,16 @@ function getSizeOfTypeDef(typeDef/*: TypeDefinition*/, options)/*: number*/ {
     }
   } else {
     const asStructDef = typeDef/* as StructDefinition*/;
-    const numElements = asArrayDef.numElements;
     if (asStructDef.fields) {
         const lastField = Object.values(asStructDef.fields).pop();
-        const numElements = asArrayDef.numElements
-            ? asArrayDef.numElements
-            : numElementsForUnsizedArrays;
-        const extra = lastField.size > 0
+        // Is the last field an array?
+        const extra = lastField.type.size > 0
            ? 0
-           : getSizeAndAlignmentOfUnsizedArrayElement(lastField.type).size * numElements;
+           : getSizeAndAlignmentOfUnsizedArrayElement(lastField.type).size * numElementsForUnsizedArrays;
         return typeDef.size + extra;
     } else {
         const asIntrinsicDef = typeDef/* as IntrinsicDefinition*/;
+        const numElements = asIntrinsicDef.numElements;
         const { align } = typeInfo[asIntrinsicDef.type];
         return numElements > 1
            ? roundUpToMultipleOf(typeDef.size, align) * numElements
