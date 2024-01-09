@@ -18,7 +18,7 @@ Java, Swift, Kotlin, etc then you're used to this.
 
 ### plain types
 
-The *plain* types in WGSL are
+The *plain* types in WGSL are:
 
 * `i32` a 32 bit signed integer
 * `u32` a 32 bit unsigned integer
@@ -28,7 +28,7 @@ The *plain* types in WGSL are
 
 ### variable declaration
 
-In JavaScript you can declare variables and functions like this
+In JavaScript you can declare variables and functions like this.
 
 ```js
 var a = 1;
@@ -51,7 +51,7 @@ for the variable declarations and `-> <type>` to function declarations.
 
 WGSL has a *shortcut* for variables. Similar to typescript, if you don't
 declare the type of the variable then it automatically becomes the type of
-the expression on the right
+the expression on the right.
 
 ```wgsl
 fn foo() -> bool { return false; }
@@ -64,7 +64,7 @@ var d = foo(); // d is bool
 
 ### type conversion
 
-Further, being strictly type means you often have to convert types
+Further, being strictly type means you often have to convert types.
 
 ```wgsl
 let a = 1;     // a is an i32
@@ -72,7 +72,7 @@ let b = 2.0;   // b is a f32
 *let c = a + b; // ERROR can't add an i32 to an f32
 ```
 
-The fix is to convert one to the other
+The fix is to convert one to the other.
 
 ```wgsl
 let a = 1;     // a is an i32
@@ -153,7 +153,7 @@ let c = vec4<u32>(9, 10, 11, 12);
 
 ### accessors
 
-You can access the values inside a vector with various accessors
+You can access the values inside a vector with various accessors.
 
 ```wgsl
 let a = vec4<f32>(1, 2, 3, 4);
@@ -177,7 +177,7 @@ let d = vec2<f32>(a[2], a[0]);
 
 Above, `b`, `c`, and `d` are all the same. They are all a `vec2<f32>(3, 1)`.
 
-You can also repeat elements
+You can also repeat elements.
 
 ```wgsl
 let a = vec4<f32>(1, 2, 3, 4);
@@ -185,7 +185,7 @@ let b = vec3<f32>(a.z, a.z, a.y);
 let c = a.zzy;
 ```
 
-Above `b` and `c` are the same. They both `vec3<f32>` who contents is 3, 3, 2
+Above `b` and `c` are the same. They both `vec3<f32>` who contents is 3, 3, 2.
 
 ### vector shortcuts
 
@@ -196,11 +196,11 @@ let a = vec4<f32>(1, 2, 3, 4);
 let b = vec4f(1, 2, 3, 4);
 ```
 
-`a` and `b` are the same type
+`a` and `b` are the same type.
 
 ### vector construction
 
-vectors can be constructed with smaller types
+vectors can be constructed with smaller types.
 
 ```wgsl
 let a = vec4f(1, 2, 3, 4);
@@ -215,7 +215,7 @@ let f = vec2f(1, a.yzw);
 
 ### vector math
 
-You can do math on vectors
+You can do math on vectors.
 
 ```wgsl
 let a = vec4f(1, 2, 3, 4);
@@ -225,7 +225,7 @@ let d = a * b;  // d is vec4f(5, 12, 21, 32)
 let e = a - b;  // e is vec4f(-4, -4, -4, -4)
 ```
 
-Many functions also work on vectors
+Many functions also work on vectors.
 
 ```wgsl
 let a = vec4f(1, 2, 3, 4);
@@ -246,11 +246,11 @@ let a: mat4x4<f32> = ...
 let b: mat4x4f = ...
 ```
 
-`a` and `b` are the same type
+`a` and `b` are the same type.
 
 ### matrix vector access
 
-You can reference a vector of a matrix with array syntax
+You can reference a vector of a matrix with array syntax.
 
 ```wgsl
 let a = mat4x4f(...);
@@ -258,7 +258,7 @@ let b = a[2];   // b is a vec4f of the 3rd vector of a
 ```
 
 The most common matrix type for 3D computation is `mat4x4f` and can be multiplied directly
-with a `vec4f` to produce another `vec4f`
+with a `vec4f` to produce another `vec4f`.
 
 ```wgsl
 let a = mat4x4f(....);
@@ -268,7 +268,7 @@ let c = a * b;  // c is a vec4f and the result of a * b
 
 ## arrays
 
-Arrays in WGSL are declared with the `array<type, numElements>` syntax
+Arrays in WGSL are declared with the `array<type, numElements>` syntax.
 
 ```wgsl
 let a = array<f32, 5>;   // an array of five f32s
@@ -291,7 +291,7 @@ fixed size array.
 ### runtime sized arrays
 
 Arrays that are at the root scope storage declarations
-are the only arrays that can be specified with no size
+are the only arrays that can be specified with no size.
 
 ```wgsl
 @group(0) @binding(0) var<storage> foo: array<mat4x4f>;
@@ -319,7 +319,7 @@ fn add(a: f32, b: f32) -> f32 {
 
 ## entry points
 
-WGSL programs need an entry point. An entry point is designated by either `@vertex`, `@fragment` or `@compute`
+WGSL programs need an entry point. An entry point is designated by either `@vertex`, `@fragment` or `@compute`.
 
 ```wgsl
 @vertex fn myFunc(a: f32, b: f32) -> @builtin(position): vec4f {
@@ -361,7 +361,7 @@ The other is in WGSL where an attribute starts with `@`.
 #### vertex shader inputs
 
 For a vertex shader, inputs are defined by the `@location` attributes
-of the entry point function of the vertex shader
+of the entry point function of the vertex shader.
 
 ```wgsl
 @vertex vs1(@location(0) foo: f32, @location(1) bar: vec4f) ...
@@ -377,7 +377,7 @@ Both `vs1` and `vs2` declare inputs to the vertex shader on locations 0 and 1 wh
 
 #### inter stage variables
 
-For inter stage variables, `@location` attributes define the location where the variables are passed between shaders
+For inter stage variables, `@location` attributes define the location where the variables are passed between shaders.
 
 ```wgsl
 struct VSOut {
@@ -413,7 +413,7 @@ struct FSOut {
 ### `@builtin(name)`
 
 The `@builtin` attribute is used to specify that a particular variable's value comes
-from a built-in feature of WebGPU
+from a built-in feature of WebGPU.
 
 ```wgsl
 @vertex fn vs1(@builtin(vertex_index) foo: u32, @builtin(instance_index) bar: u32) ... {
@@ -421,7 +421,7 @@ from a built-in feature of WebGPU
 }
 ```
 
-Above `foo` gets its value from the builtin `vertex_index` and `bar` gets its value from `instance_index`
+Above `foo` gets its value from the builtin `vertex_index` and `bar` gets its value from `instance_index`.
 
 ```wgsl
 struct Foo {
@@ -433,7 +433,7 @@ struct Foo {
 }
 ```
 
-Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx` gets its value from `instance_index`
+Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx` gets its value from `instance_index`.
 
 <div class="webgpu-center center data-table">
 <table class="data">
@@ -677,7 +677,7 @@ Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx`
    }
 ```
 
-`discard` exits the shader. It can only be used in a fragment shader
+`discard` exits the shader. It can only be used in a fragment shader.
 
 ### switch
 
@@ -811,7 +811,7 @@ if a < 5 {
 ### no ternary operator
 
 Many languages have a ternary operator `condition ? trueExpression : falseExpression`
-WGSL does not. WGSL does have `select`
+WGSL does not. WGSL does have `select`.
 
 ```wgsl
   let a = select(falseExpression, trueExpression, condition);
@@ -819,7 +819,7 @@ WGSL does not. WGSL does have `select`
 
 ### `++` and `--` are statements, not expressions.
 
-Many languages have *pre-increment* and *post-increment* operators
+Many languages have *pre-increment* and *post-increment* operators.
 
 ```js
 // JavaScript
@@ -828,7 +828,7 @@ let b = a++;  // b = 5, a = 6  (post-increment)
 let c = ++a;  // c = 7, a = 7  (pre-increment)
 ```
 
-WGSL has neither. It just has the increment and decrement statements
+WGSL has neither. It just has the increment and decrement statements.
 
 ```wgsl
 // WGSL
@@ -856,7 +856,7 @@ a += 2;           // a is 7
 
 ## Swizzles can not appear on the left
 
-In some languages but not WGSL
+In some languages but not WGSL.
 
 ```
 var color = vec4f(0.25, 0.5, 0.75, 1);
