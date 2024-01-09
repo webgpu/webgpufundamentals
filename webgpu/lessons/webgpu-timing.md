@@ -8,7 +8,7 @@ turn it on by enabling on <a href="chrome://flags/#enable-webgpu-developer-featu
 </div>
 
 Let's go over various things you might want
-to time for performance. We'll time 3 things
+to time for performance. We'll time 3 things:
 
 * The frame rate in frames per second (fps)
 * The time spent in JavaScript per frame
@@ -17,10 +17,10 @@ to time for performance. We'll time 3 things
 First, let's take a circle example from
 [the article on vertex buffers](webgpu-vertex-buffers.html)
 and lets animate them so we have something that's easy
-to see changes in how much time things take
+to see changes in how much time things take.
 
 In that example we had 3 vertex buffers. One was for
-the positions and brightness of a the vertices for a circle.
+the positions and brightness of the vertices for a circle.
 One was for things that are per instance but static
 which included the circle's offset and color. And, the last
 one was for things that change each time we render, in this
@@ -64,7 +64,7 @@ as the scale.
           attributes: [
 -            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
 +            {shaderLocation: 2, offset: 0, format: 'float32x2'},  // offset
-            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
+-            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
 +            {shaderLocation: 3, offset: 8, format: 'float32x2'},   // scale
           ],
         },
@@ -108,9 +108,9 @@ to move the offsets together with the scales.
 
   // offsets to the various uniform values in float32 indices
   const kColorOffset = 0;
-+  const kOffsetOffset = 1;
+-  const kOffsetOffset = 1;
 +
-+  const kScaleOffset = 0;
+-  const kScaleOffset = 0;
 +  const kOffsetOffset = 0;
 +  const kScaleOffset = 2;
 
@@ -324,9 +324,9 @@ We already have the data needed to display
 frames per second. It's the `deltaTime` we
 computed above.
 
-For JavaScript time we can record the time
+For JavaScript time, we can record the time
 our `requestAnimationFrame` started and the
-time it ended 
+time it ended.
 
 ```js
   let then = 0;
@@ -393,7 +393,7 @@ the purpose of reading the values from JavaScript. If your use-case only needs t
 results to stay on the GPU, for example as input to something else, then you don't need
 to copy the results to a mappable buffer.
 
-So, first we create a query set
+So, first we create a query set.
 
 ```js
   const querySet = device.createQuerySet({
@@ -406,7 +406,7 @@ We need count to be at least 2 so we can write
 both a start and end timestamp.
 
 We need a buffer to convert the querySet info
-into data we can access
+into data we can access.
 
 ```js
   const resolveBuffer = device.createBuffer({
@@ -422,7 +422,7 @@ back in JavaScript we need the `COPY_SRC` usage
 so we can copy the result to a mappable buffer.
 
 Finally we create a mappable buffer to read the
-results
+results.
 
 ```js
   const resultBuffer = device.createBuffer({
@@ -518,7 +518,7 @@ resolves. After we `unmap` it it goes back to `'unmapped'`.
 ```
 
 After we've submitted the command buffer we can map the `resultBuffer`. Like
-above, only want to map it if it's `'unmapped'`
+above, only want to map it if it's `'unmapped'`.
 
 ```js
 +  let gpuTime = 0;
@@ -827,7 +827,7 @@ async function main() {
     ...
 ```
 
-A few points about the `TimingHelper` class
+A few points about the `TimingHelper` class:
 
 * You still have to manually request the `'timestamp-query'` feature when you
   create your device but, the class handles whether it exists or not on the
@@ -838,7 +838,7 @@ A few points about the `TimingHelper` class
   also returns a pass encoder who's `end` function automatically resolves the
   queries.
 
-* It's designed so if you use it wrong it will complain
+* It's designed so if you use it wrong it will complain.
 
 * It only handles 1 pass.
 
@@ -858,7 +858,7 @@ A few points about the `TimingHelper` class
   All of that seemed overkill so for now it seemed best to make it handle one
   pass and you can build on top of it until you decide it needs to be changed.
 
-You could also make a `NoTimingHelper`
+You could also make a `NoTimingHelper`.
 
 ```js
 class NoTimingHelper {

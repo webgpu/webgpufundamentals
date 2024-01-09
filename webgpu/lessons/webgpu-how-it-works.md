@@ -92,7 +92,7 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    ```
 
    So, the concept of uniforms hopefully seems pretty straight forward. The
-   indirection through `bindings` is there because this "similar" to how things
+   indirection through `bindings` is there because this is "similar" to how things
    are done in WebGPU. Like was mentioned above, we access the things, in this case
    the uniforms, by location/index. Here they are found in `bindings[0]`.
 
@@ -106,7 +106,7 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    because we are just counting, we need to tell WebGPU
    about these inputs and how to get data out of them.
 
-   Imagine we updated `draw` like this
+   Imagine we updated `draw` like this.
 
    ```js
    *function draw(count, vertexShaderFn, bindings, attribsSpec) {
@@ -123,7 +123,7 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    +}
    ```
 
-   Then we could call it like this
+   Then we could call it like this.
 
    ```js
    const buffer1 = [0, 1, 2, 3, 4, 5, 6, 7];
@@ -143,7 +143,7 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    As you can see above, `getAttribs` uses `offset`, and `stride` to
    compute indices into the corresponding `source` buffer and pulls out values.
    The pulled out values are then sent to the shader. On each iteration
-   `attribs` will be different
+   `attribs` will be different.
 
    ```
     iteration |  attribs
@@ -195,7 +195,7 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    a JavaScript analogy again.
 
    First we'll create a function `textureSample` that *samples* an array
-   between values
+   between values.
 
    ```js
    function textureSample(texture, ndx) {

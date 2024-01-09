@@ -19,7 +19,7 @@ configured the context.
 ```
 
 To draw to the canvas we used that context to get a texture for the canvas
-and set that texture as a the first `colorAttachment` of a render pass
+and set that texture as the first `colorAttachment` of a render pass
 
 ```js
   const renderPassDescriptor = {

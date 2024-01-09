@@ -119,7 +119,7 @@ sure it doesn't go to zero or again we'll get errors.
 
 If we're only rendering on demand then we might put a call to our render function
 inside the code above. Otherwise, if we're animating by using a `requestAnimationFrame` loop (rAF loop), or other means, then the next time
-we render we'll get a a texture the matches the size we set on the canvas
+we render we'll get a texture the matches the size we set on the canvas
 when we call `context.getCurrentTexture()`.
 
 > Note that `inlineSize` and `blockSize` are not integers
