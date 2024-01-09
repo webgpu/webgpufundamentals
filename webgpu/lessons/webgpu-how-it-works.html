@@ -294,7 +294,7 @@ draw(count, vertexShader, bindings2);
 // outputs [0, 5, 10, 15]
 </pre>
 <p>So, the concept of uniforms hopefully seems pretty straight forward. The
-indirection through <code class="notranslate" translate="no">bindings</code> is there because this “similar” to how things
+indirection through <code class="notranslate" translate="no">bindings</code> is there because this is “similar” to how things
 are done in WebGPU. Like was mentioned above, we access the things, in this case
 the uniforms, by location/index. Here they are found in <code class="notranslate" translate="no">bindings[0]</code>.</p>
 </li>
@@ -306,7 +306,7 @@ to the function. This is very similar to an attribute in a shader.</p>
 <p>The difference is, we are not mapping over the input, instead,
 because we are just counting, we need to tell WebGPU
 about these inputs and how to get data out of them.</p>
-<p>Imagine we updated <code class="notranslate" translate="no">draw</code> like this</p>
+<p>Imagine we updated <code class="notranslate" translate="no">draw</code> like this.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">*function draw(count, vertexShaderFn, bindings, attribsSpec) {
   const internalBuffer = [];
   for (let i = 0; i &lt; count; ++i) {
@@ -320,7 +320,7 @@ about these inputs and how to get data out of them.</p>
 +  return attribs.map(({source, offset, stride}) =&gt; source[ndx * stride + offset]);
 +}
 </pre>
-<p>Then we could call it like this</p>
+<p>Then we could call it like this.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const buffer1 = [0, 1, 2, 3, 4, 5, 6, 7];
 const buffer2 = [11, 22, 33, 44];
 const attribsSpec = [
@@ -337,7 +337,7 @@ draw(count, vertexShader, bindings, attribsSpec);
 <p>As you can see above, <code class="notranslate" translate="no">getAttribs</code> uses <code class="notranslate" translate="no">offset</code>, and <code class="notranslate" translate="no">stride</code> to
 compute indices into the corresponding <code class="notranslate" translate="no">source</code> buffer and pulls out values.
 The pulled out values are then sent to the shader. On each iteration
-<code class="notranslate" translate="no">attribs</code> will be different</p>
+<code class="notranslate" translate="no">attribs</code> will be different.</p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no"> iteration |  attribs
  ----------+-------------
      0     | [0, 1, 11]
@@ -383,7 +383,7 @@ a value between the values we supply. We’ll cover that this means in
 <a href="webgpu-textures.html">the article on textures</a>. For now, let’s make
 a JavaScript analogy again.</p>
 <p>First we’ll create a function <code class="notranslate" translate="no">textureSample</code> that <em>samples</em> an array
-between values</p>
+between values.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">function textureSample(texture, ndx) {
   const startNdx = ndx | 0;  // round down to an int
   const fraction = ndx % 1;  // get the fractional part between indices

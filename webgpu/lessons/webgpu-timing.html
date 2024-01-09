@@ -229,7 +229,7 @@ should be available in Chrome 121 or 122. If it's not available you can probably
 turn it on by enabling on <a href="chrome://flags/#enable-webgpu-developer-features">enable-webgpu-developer-features</a> in <a href="chrome://flags/#enable-webgpu-developer-features">about:flags</a>.
 </div>
 <p>Let’s go over various things you might want
-to time for performance. We’ll time 3 things</p>
+to time for performance. We’ll time 3 things:</p>
 <ul>
 <li>The frame rate in frames per second (fps)</li>
 <li>The time spent in JavaScript per frame</li>
@@ -238,9 +238,9 @@ to time for performance. We’ll time 3 things</p>
 <p>First, let’s take a circle example from
 <a href="webgpu-vertex-buffers.html">the article on vertex buffers</a>
 and lets animate them so we have something that’s easy
-to see changes in how much time things take</p>
+to see changes in how much time things take.</p>
 <p>In that example we had 3 vertex buffers. One was for
-the positions and brightness of a the vertices for a circle.
+the positions and brightness of the vertices for a circle.
 One was for things that are per instance but static
 which included the circle’s offset and color. And, the last
 one was for things that change each time we render, in this
@@ -281,7 +281,7 @@ as the scale.</p>
           attributes: [
 -            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
 +            {shaderLocation: 2, offset: 0, format: 'float32x2'},  // offset
-            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
+-            {shaderLocation: 3, offset: 0, format: 'float32x2'},   // scale
 +            {shaderLocation: 3, offset: 8, format: 'float32x2'},   // scale
           ],
         },
@@ -322,9 +322,9 @@ to move the offsets together with the scales.</p>
 
   // offsets to the various uniform values in float32 indices
   const kColorOffset = 0;
-+  const kOffsetOffset = 1;
+-  const kOffsetOffset = 1;
 +
-+  const kScaleOffset = 0;
+-  const kScaleOffset = 0;
 +  const kOffsetOffset = 0;
 +  const kScaleOffset = 2;
 
@@ -516,9 +516,9 @@ canvas {
 <p>We already have the data needed to display
 frames per second. It’s the <code class="notranslate" translate="no">deltaTime</code> we
 computed above.</p>
-<p>For JavaScript time we can record the time
+<p>For JavaScript time, we can record the time
 our <code class="notranslate" translate="no">requestAnimationFrame</code> started and the
-time it ended</p>
+time it ended.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  let then = 0;
   function render(now) {
     now *= 0.001;  // convert to seconds
@@ -574,7 +574,7 @@ compute or render pass. A <a href="https://developer.mozilla.org/en-US/docs/Web/
 results. You tell WebGPU which element in the array to record the time the pass started
 and which element in the array to record when the pass ended. You can then copy those
 timestamps to a buffer and map the buffer to read the results.<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup></p>
-<p>So, first we create a query set</p>
+<p>So, first we create a query set.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const querySet = device.createQuerySet({
      type: 'timestamp',
      count: 2,
@@ -583,7 +583,7 @@ timestamps to a buffer and map the buffer to read the results.<sup class="footno
 <p>We need count to be at least 2 so we can write
 both a start and end timestamp.</p>
 <p>We need a buffer to convert the querySet info
-into data we can access</p>
+into data we can access.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const resolveBuffer = device.createBuffer({
     size: querySet.count * 8,
     usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
@@ -595,7 +595,7 @@ and, if we want be able to read the results
 back in JavaScript we need the <code class="notranslate" translate="no">COPY_SRC</code> usage
 so we can copy the result to a mappable buffer.</p>
 <p>Finally we create a mappable buffer to read the
-results</p>
+results.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const resultBuffer = device.createBuffer({
     size: resolveBuffer.size,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
@@ -675,7 +675,7 @@ resolves. After we <code class="notranslate" translate="no">unmap</code> it it g
     }
 </pre>
 <p>After we’ve submitted the command buffer we can map the <code class="notranslate" translate="no">resultBuffer</code>. Like
-above, only want to map it if it’s <code class="notranslate" translate="no">'unmapped'</code></p>
+above, only want to map it if it’s <code class="notranslate" translate="no">'unmapped'</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  let gpuTime = 0;
 
    ...
@@ -966,7 +966,7 @@ end a pass but don’t resolve it or, if we resolve it but don’t read the resu
 
     ...
 </pre>
-<p>A few points about the <code class="notranslate" translate="no">TimingHelper</code> class</p>
+<p>A few points about the <code class="notranslate" translate="no">TimingHelper</code> class:</p>
 <ul>
 <li>
 <p>You still have to manually request the <code class="notranslate" translate="no">'timestamp-query'</code> feature when you
@@ -980,7 +980,7 @@ also returns a pass encoder who’s <code class="notranslate" translate="no">end
 queries.</p>
 </li>
 <li>
-<p>It’s designed so if you use it wrong it will complain</p>
+<p>It’s designed so if you use it wrong it will complain.</p>
 </li>
 <li>
 <p>It only handles 1 pass.</p>
@@ -998,7 +998,7 @@ need to handle having multiple <a href="https://developer.mozilla.org/en-US/docs
 pass and you can build on top of it until you decide it needs to be changed.</p>
 </li>
 </ul>
-<p>You could also make a <code class="notranslate" translate="no">NoTimingHelper</code></p>
+<p>You could also make a <code class="notranslate" translate="no">NoTimingHelper</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">class NoTimingHelper {
   constructor() { }
   beginRenderPass(encoder, descriptor = {}) {

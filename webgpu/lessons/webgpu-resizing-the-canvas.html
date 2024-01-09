@@ -315,7 +315,7 @@ errors that we tried to make a texture that is too large. We also need to make
 sure it doesn’t go to zero or again we’ll get errors.</p>
 <p>If we’re only rendering on demand then we might put a call to our render function
 inside the code above. Otherwise, if we’re animating by using a <code class="notranslate" translate="no">requestAnimationFrame</code> loop (rAF loop), or other means, then the next time
-we render we’ll get a a texture the matches the size we set on the canvas
+we render we’ll get a texture the matches the size we set on the canvas
 when we call <code class="notranslate" translate="no">context.getCurrentTexture()</code>.</p>
 <blockquote>
 <p>Note that <code class="notranslate" translate="no">inlineSize</code> and <code class="notranslate" translate="no">blockSize</code> are not integers</p>

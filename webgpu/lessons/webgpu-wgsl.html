@@ -235,7 +235,7 @@ shader programs.</p>
 function parameter and function return type. If you’ve used typescript, rust, C++, C#,
 Java, Swift, Kotlin, etc then you’re used to this.</p>
 <h3 id="plain-types">plain types</h3>
-<p>The <em>plain</em> types in WGSL are</p>
+<p>The <em>plain</em> types in WGSL are:</p>
 <ul>
 <li><code class="notranslate" translate="no">i32</code> a 32 bit signed integer</li>
 <li><code class="notranslate" translate="no">u32</code> a 32 bit unsigned integer</li>
@@ -244,7 +244,7 @@ Java, Swift, Kotlin, etc then you’re used to this.</p>
 <li><code class="notranslate" translate="no">f16</code> a 16 bit floating point number (this is an optional feature you need to check for and request)</li>
 </ul>
 <h3 id="variable-declaration">variable declaration</h3>
-<p>In JavaScript you can declare variables and functions like this</p>
+<p>In JavaScript you can declare variables and functions like this.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">var a = 1;
 let c = 3;
 function d(e) { return e * 2; }
@@ -259,7 +259,7 @@ for the variable declarations and <code class="notranslate" translate="no">-&gt;
 <h3 id="auto-types">auto types</h3>
 <p>WGSL has a <em>shortcut</em> for variables. Similar to typescript, if you don’t
 declare the type of the variable then it automatically becomes the type of
-the expression on the right</p>
+the expression on the right.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">fn foo() -&gt; bool { return false; }
 
 var a = 1;     // a is an i32
@@ -268,12 +268,12 @@ var c = 3u;    // c is a u32
 var d = foo(); // d is bool
 </pre>
 <h3 id="type-conversion">type conversion</h3>
-<p>Further, being strictly type means you often have to convert types</p>
+<p>Further, being strictly type means you often have to convert types.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = 1;     // a is an i32
 let b = 2.0;   // b is a f32
 *let c = a + b; // ERROR can't add an i32 to an f32
 </pre>
-<p>The fix is to convert one to the other</p>
+<p>The fix is to convert one to the other.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = 1;     // a is an i32
 let b = 2.0;   // b is a f32
 let c = f32(a) + b; // ok
@@ -327,7 +327,7 @@ let b = vec3&lt;f32&gt;(3.4, 5.6, 7.8);
 let c = vec4&lt;u32&gt;(9, 10, 11, 12);
 </pre>
 <h3 id="accessors">accessors</h3>
-<p>You can access the values inside a vector with various accessors</p>
+<p>You can access the values inside a vector with various accessors.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4);
 let b = a.z;   // via x,y,z,w
 let c = a.b;   // via r,g,b,a
@@ -342,20 +342,20 @@ let c = a.br;   // via r,g,b,a
 let d = vec2&lt;f32&gt;(a[2], a[0]);
 </pre>
 <p>Above, <code class="notranslate" translate="no">b</code>, <code class="notranslate" translate="no">c</code>, and <code class="notranslate" translate="no">d</code> are all the same. They are all a <code class="notranslate" translate="no">vec2&lt;f32&gt;(3, 1)</code>.</p>
-<p>You can also repeat elements</p>
+<p>You can also repeat elements.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4);
 let b = vec3&lt;f32&gt;(a.z, a.z, a.y);
 let c = a.zzy;
 </pre>
-<p>Above <code class="notranslate" translate="no">b</code> and <code class="notranslate" translate="no">c</code> are the same. They both <code class="notranslate" translate="no">vec3&lt;f32&gt;</code> who contents is 3, 3, 2</p>
+<p>Above <code class="notranslate" translate="no">b</code> and <code class="notranslate" translate="no">c</code> are the same. They both <code class="notranslate" translate="no">vec3&lt;f32&gt;</code> who contents is 3, 3, 2.</p>
 <h3 id="vector-shortcuts">vector shortcuts</h3>
 <p>There are shortcuts for the base types. Change the <code class="notranslate" translate="no">&lt;i32&gt;</code> =&gt; <code class="notranslate" translate="no">i</code>, <code class="notranslate" translate="no">&lt;f32&gt;</code> =&gt; <code class="notranslate" translate="no">f</code>, <code class="notranslate" translate="no">&lt;u32&gt;</code> to <code class="notranslate" translate="no">u</code> and <code class="notranslate" translate="no">&lt;f16&gt;</code> to <code class="notranslate" translate="no">h</code> so</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4&lt;f32&gt;(1, 2, 3, 4);
 let b = vec4f(1, 2, 3, 4);
 </pre>
-<p><code class="notranslate" translate="no">a</code> and <code class="notranslate" translate="no">b</code> are the same type</p>
+<p><code class="notranslate" translate="no">a</code> and <code class="notranslate" translate="no">b</code> are the same type.</p>
 <h3 id="vector-construction">vector construction</h3>
-<p>vectors can be constructed with smaller types</p>
+<p>vectors can be constructed with smaller types.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4f(1, 2, 3, 4);
 let b = vec2f(2, 3);
 let c = vec4f(1, b, 4);
@@ -365,14 +365,14 @@ let f = vec2f(1, a.yzw);
 </pre>
 <p><code class="notranslate" translate="no">a</code>, <code class="notranslate" translate="no">c</code>, <code class="notranslate" translate="no">d</code>, <code class="notranslate" translate="no">e</code> and <code class="notranslate" translate="no">f</code> are the same.</p>
 <h3 id="vector-math">vector math</h3>
-<p>You can do math on vectors</p>
+<p>You can do math on vectors.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4f(1, 2, 3, 4);
 let b = vec4f(5, 6, 7, 8);
 let c = a + b;  // c is vec4f(6, 8, 10, 12)
 let d = a * b;  // d is vec4f(5, 12, 21, 32)
 let e = a - b;  // e is vec4f(-4, -4, -4, -4)
 </pre>
-<p>Many functions also work on vectors</p>
+<p>Many functions also work on vectors.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4f(1, 2, 3, 4);
 let b = vec4f(5, 6, 7, 8);
 let c = mix(a, b, 0.5);                   // c is vec4f(3, 4, 5, 6)
@@ -386,20 +386,20 @@ have the same shortcuts</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a: mat4x4&lt;f32&gt; = ...
 let b: mat4x4f = ...
 </pre>
-<p><code class="notranslate" translate="no">a</code> and <code class="notranslate" translate="no">b</code> are the same type</p>
+<p><code class="notranslate" translate="no">a</code> and <code class="notranslate" translate="no">b</code> are the same type.</p>
 <h3 id="matrix-vector-access">matrix vector access</h3>
-<p>You can reference a vector of a matrix with array syntax</p>
+<p>You can reference a vector of a matrix with array syntax.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = mat4x4f(...);
 let b = a[2];   // b is a vec4f of the 3rd vector of a
 </pre>
 <p>The most common matrix type for 3D computation is <code class="notranslate" translate="no">mat4x4f</code> and can be multiplied directly
-with a <code class="notranslate" translate="no">vec4f</code> to produce another <code class="notranslate" translate="no">vec4f</code></p>
+with a <code class="notranslate" translate="no">vec4f</code> to produce another <code class="notranslate" translate="no">vec4f</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = mat4x4f(....);
 let b = vec4f(1, 2, 3, 4);
 let c = a * b;  // c is a vec4f and the result of a * b
 </pre>
 <h2 id="arrays">arrays</h2>
-<p>Arrays in WGSL are declared with the <code class="notranslate" translate="no">array&lt;type, numElements&gt;</code> syntax</p>
+<p>Arrays in WGSL are declared with the <code class="notranslate" translate="no">array&lt;type, numElements&gt;</code> syntax.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = array&lt;f32, 5&gt;;   // an array of five f32s
 let b = array&lt;vec4f, 6&gt;; // an array of six vec4fs
 </pre>
@@ -413,7 +413,7 @@ let arrOf3Vec3fsB = array&lt;vec3f, 3&gt;(vec3f(1,2,3), vec3f(4,5,6), vec3f(7,8,
 fixed size array.</p>
 <h3 id="runtime-sized-arrays">runtime sized arrays</h3>
 <p>Arrays that are at the root scope storage declarations
-are the only arrays that can be specified with no size</p>
+are the only arrays that can be specified with no size.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage&gt; foo: array&lt;mat4x4f&gt;;
 </pre>
 <p>The number of elements in <code class="notranslate" translate="no">foo</code> is defined by the settings of the bind group
@@ -430,7 +430,7 @@ used at runtime. You can query this size in your WGSL with <code class="notransl
 }
 </pre>
 <h2 id="entry-points">entry points</h2>
-<p>WGSL programs need an entry point. An entry point is designated by either <code class="notranslate" translate="no">@vertex</code>, <code class="notranslate" translate="no">@fragment</code> or <code class="notranslate" translate="no">@compute</code></p>
+<p>WGSL programs need an entry point. An entry point is designated by either <code class="notranslate" translate="no">@vertex</code>, <code class="notranslate" translate="no">@fragment</code> or <code class="notranslate" translate="no">@compute</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@vertex fn myFunc(a: f32, b: f32) -&gt; @builtin(position): vec4f {
   return vec4f(0, 0, 0, 0);
 }
@@ -460,7 +460,7 @@ The other is in WGSL where an attribute starts with <code class="notranslate" tr
 <p><code class="notranslate" translate="no">@location(number)</code> is used to defined inputs and outputs of shaders.</p>
 <h4 id="vertex-shader-inputs">vertex shader inputs</h4>
 <p>For a vertex shader, inputs are defined by the <code class="notranslate" translate="no">@location</code> attributes
-of the entry point function of the vertex shader</p>
+of the entry point function of the vertex shader.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@vertex vs1(@location(0) foo: f32, @location(1) bar: vec4f) ...
 
 struct Stuff {
@@ -471,7 +471,7 @@ struct Stuff {
 </pre>
 <p>Both <code class="notranslate" translate="no">vs1</code> and <code class="notranslate" translate="no">vs2</code> declare inputs to the vertex shader on locations 0 and 1 which need to be supplied by <a href="webgpu-vertex-buffers.html">vertex buffers</a>.</p>
 <h4 id="inter-stage-variables">inter stage variables</h4>
-<p>For inter stage variables, <code class="notranslate" translate="no">@location</code> attributes define the location where the variables are passed between shaders</p>
+<p>For inter stage variables, <code class="notranslate" translate="no">@location</code> attributes define the location where the variables are passed between shaders.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct VSOut {
   @builtin(position) pos: vec4f,
   @location(0) color: vec4f,
@@ -498,12 +498,12 @@ The fragment shader <code class="notranslate" translate="no">bar</code> receives
 </pre>
 <h3 id="builtinname"><code class="notranslate" translate="no">@builtin(name)</code></h3>
 <p>The <code class="notranslate" translate="no">@builtin</code> attribute is used to specify that a particular variable’s value comes
-from a built-in feature of WebGPU</p>
+from a built-in feature of WebGPU.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@vertex fn vs1(@builtin(vertex_index) foo: u32, @builtin(instance_index) bar: u32) ... {
   ...
 }
 </pre>
-<p>Above <code class="notranslate" translate="no">foo</code> gets its value from the builtin <code class="notranslate" translate="no">vertex_index</code> and <code class="notranslate" translate="no">bar</code> gets its value from <code class="notranslate" translate="no">instance_index</code></p>
+<p>Above <code class="notranslate" translate="no">foo</code> gets its value from the builtin <code class="notranslate" translate="no">vertex_index</code> and <code class="notranslate" translate="no">bar</code> gets its value from <code class="notranslate" translate="no">instance_index</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Foo {
   @builtin(vertex_index) vNdx: u32,
   @builtin(instance_index) iNdx: u32,
@@ -512,7 +512,7 @@ from a built-in feature of WebGPU</p>
   ...
 }
 </pre>
-<p>Above <code class="notranslate" translate="no">blap.vNdx</code> gets its value from the builtin <code class="notranslate" translate="no">vertex_index</code> and <code class="notranslate" translate="no">blap.iNdx</code> gets its value from <code class="notranslate" translate="no">instance_index</code></p>
+<p>Above <code class="notranslate" translate="no">blap.vNdx</code> gets its value from the builtin <code class="notranslate" translate="no">vertex_index</code> and <code class="notranslate" translate="no">blap.iNdx</code> gets its value from <code class="notranslate" translate="no">instance_index</code>.</p>
 <div class="webgpu-center center data-table">
 <table class="data">
   <thead>
@@ -724,7 +724,7 @@ from a built-in feature of WebGPU</p>
      discard;
    }
 </pre>
-<p><code class="notranslate" translate="no">discard</code> exits the shader. It can only be used in a fragment shader</p>
+<p><code class="notranslate" translate="no">discard</code> exits the shader. It can only be used in a fragment shader.</p>
 <h3 id="switch">switch</h3>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">var a : i32;
 let x : i32 = generateValue();
@@ -844,17 +844,17 @@ switch x {
 </pre>
 <h3 id="no-ternary-operator">no ternary operator</h3>
 <p>Many languages have a ternary operator <code class="notranslate" translate="no">condition ? trueExpression : falseExpression</code>
-WGSL does not. WGSL does have <code class="notranslate" translate="no">select</code></p>
+WGSL does not. WGSL does have <code class="notranslate" translate="no">select</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  let a = select(falseExpression, trueExpression, condition);
 </pre>
 <h3 id="-and----are-statements-not-expressions"><code class="notranslate" translate="no">++</code> and <code class="notranslate" translate="no">--</code> are statements, not expressions.</h3>
-<p>Many languages have <em>pre-increment</em> and <em>post-increment</em> operators</p>
+<p>Many languages have <em>pre-increment</em> and <em>post-increment</em> operators.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// JavaScript
 let a = 5;
 let b = a++;  // b = 5, a = 6  (post-increment)
 let c = ++a;  // c = 7, a = 7  (pre-increment)
 </pre>
-<p>WGSL has neither. It just has the increment and decrement statements</p>
+<p>WGSL has neither. It just has the increment and decrement statements.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">// WGSL
 var a = 5;
 a++;          // is now 6
@@ -873,7 +873,7 @@ a += 2;           // a is 7
 *let b = a += 2;  // ERROR: a += 2 is not an expression
 </pre>
 <h2 id="swizzles-can-not-appear-on-the-left">Swizzles can not appear on the left</h2>
-<p>In some languages but not WGSL</p>
+<p>In some languages but not WGSL.</p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">var color = vec4f(0.25, 0.5, 0.75, 1);
 *color.rgb = color.bgr; // ERROR
 color = vec4(color.bgr, color.a);  // Ok
@@ -896,7 +896,8 @@ color = vec4(color.bgr, color.a);  // Ok
 <p>Above neither <code class="notranslate" translate="no">uni1</code> nor <code class="notranslate" translate="no">uni2</code> are accessed by <code class="notranslate" translate="no">vs1</code> and so they will not show up as a required
 bindings if you use <code class="notranslate" translate="no">vs1</code> in a pipeline. <code class="notranslate" translate="no">vs2</code> does reference both <code class="notranslate" translate="no">uni1</code> and <code class="notranslate" translate="no">uni2</code>
 so they will both show up as a required bindings when using <code class="notranslate" translate="no">vs2</code> in a pipeline.</p>
-<p class="copyright" data-fill-with="copyright">  <a href="https://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2023 <a href="https://www.w3.org/">World Wide Web Consortium</a>. <abbr title="World Wide Web Consortium">W3C</abbr><sup>®</sup> <a href="https://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="https://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document" rel="license">permissive document license</a> rules apply. </p><hr class="footnotes-sep">
+<p class="copyright" data-fill-with="copyright">  <a href="https://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2023 <a href="https://www.w3.org/">World Wide Web Consortium</a>. <abbr title="World Wide Web Consortium">W3C</abbr><sup>®</sup> <a href="https://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="https://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document" rel="license">permissive document license</a> rules apply. </p>
+<hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
 <li id="fn1" class="footnote-item"><p>Variables in JavaScript hold base types of <code class="notranslate" translate="no">undefined</code>, <code class="notranslate" translate="no">null</code>, <code class="notranslate" translate="no">boolean</code>, <code class="notranslate" translate="no">number</code>, <code class="notranslate" translate="no">string</code>, <code class="notranslate" translate="no">reference-to-object</code>.
