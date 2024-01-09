@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "Some webgpu Tutorials",
   "main": "index.js",
-  "type": "module",
   "devDependencies": {
     "@gfxfundamentals/lesson-builder": "github:gfxfundamentals/lesson-builder#v2.3.2",
     "@gfxfundamentals/live-editor": "github:gfxfundamentals/live-editor#v1.5.1",
@@ -45,7 +44,7 @@
     "lint": "npm run eslint",
     "pre-push": "ld-check-dependencies && grunt eslint && npm test",
     "pre-build": "grunt eslint",
-    "test": "node test/puppeteer.js",
+    "test": "node test/puppeteer.mjs",
     "test-links": "check-all-the-errors --follow-links=both --output=webgpufundamentals.check.json out \"*.html\"",
     "generate-wgsl-function-reference": "node build/generate-wgsl-function-reference.js",
     "check-external-refs": "node build/check-external-refs.js"
