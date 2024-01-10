@@ -24,7 +24,7 @@ canvas {
 // see https://webgpufundamentals.org/webgpu/lessons/webgpu-utils.html#wgpu-matrix
 import {mat4} from '/3rdparty/wgpu-matrix.module.js';
 
-function createSphereVertices({
+function createFibonacciSphereVertices({
   numSamples,
   radius,
 }) {
@@ -130,7 +130,7 @@ async function main() {
     },
   });
 
-  const vertexData = createSphereVertices({
+  const vertexData = createFibonacciSphereVertices({
     radius: 1,
     numSamples: 1000,
   });
