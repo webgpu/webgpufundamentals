@@ -411,19 +411,21 @@ the sample locations are like this.</p>
 <img src="resources/multisample-8x.svg" width="256">
 <p>count: 16</p>
 <img src="resources/multisample-16x.svg" width="256">
-<p><strong>WebGPU does currently only supports a count of 4</strong></p>
+<p><strong>WebGPU currently only supports a count of 4</strong></p>
 </li>
 <li>
-<p>You can optionally run the fragment shader on each multisampled pixel</p>
+<p>You can optionally run the fragment shader on each sample point.</p>
 <p>Above we said that the fragment shader only runs once for every 4 samples in the multisample
 texture. It runs it once and then it stores the result in the samples that were actually inside
 the triangle. This is why it’s faster than rendering at 4x the resolution.</p>
 <p>In <a href="webgpu-inter-stage-variables.html#a-interpolate">the article on inter-stage variables</a>
 we brought up that you can mark how to interpolate inter-stage variables
 with the <code class="notranslate" translate="no">@interpolate(...)</code> attribute. One option
-is <code class="notranslate" translate="no">sample</code> in which case the fragment shader will be run once for each sample.
-There are also builtins like <code class="notranslate" translate="no">@builtin(sample_index)</code> and <code class="notranslate" translate="no">@builtin(sample_mask)</code>
-that will give you more info about which sample you are currently working on.</p>
+is <code class="notranslate" translate="no">sample</code>, in which case the fragment shader will be run once for each sample.
+There are also builtins like <code class="notranslate" translate="no">@builtin(sample_index)</code>, which well tell you which sample
+you are currently working on, and <code class="notranslate" translate="no">@builtin(sample_mask)</code>, which, as an input, will tell you which
+samples were inside the triangle, and, as an output, will they you prevent sample points
+from getting updated.</p>
 </li>
 <li>
 <p>You do not have to set a resolve target on every render pass</p>
