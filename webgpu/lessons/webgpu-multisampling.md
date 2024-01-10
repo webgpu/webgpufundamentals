@@ -226,9 +226,9 @@ Some things to note:
 
   <img src="resources/multisample-16x.svg" width="256">
 
-  **WebGPU does currently only supports a count of 4**
+  **WebGPU currently only supports a count of 4**
 
-* You can optionally run the fragment shader on each multisampled pixel
+* You can optionally run the fragment shader on each sample point.
 
   Above we said that the fragment shader only runs once for every 4 samples in the multisample
   texture. It runs it once and then it stores the result in the samples that were actually inside
@@ -237,9 +237,11 @@ Some things to note:
   In [the article on inter-stage variables](webgpu-inter-stage-variables.html#a-interpolate)
   we brought up that you can mark how to interpolate inter-stage variables
   with the `@interpolate(...)` attribute. One option
-  is `sample` in which case the fragment shader will be run once for each sample.
-  There are also builtins like `@builtin(sample_index)` and `@builtin(sample_mask)`
-  that will give you more info about which sample you are currently working on.
+  is `sample`, in which case the fragment shader will be run once for each sample.
+  There are also builtins like `@builtin(sample_index)`, which well tell you which sample
+  you are currently working on, and `@builtin(sample_mask)`, which, as an input, will tell you which
+  samples were inside the triangle, and, as an output, will they you prevent sample points
+  from getting updated.
 
 * You do not have to set a resolve target on every render pass
 
