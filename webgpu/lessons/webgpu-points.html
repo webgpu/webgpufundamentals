@@ -857,7 +857,7 @@ struct VSOutput {
 +  );
   var vsOut: VSOutput;
 +  let pos = points[vNdx];
-+  let clipPos = uni.matrix * vert.position;
+  let clipPos = uni.matrix * vert.position;
 +  let pointPos = vec4f(pos * uni.size / uni.resolution, 0, 0);
 -  vsOut.position = clipPos;
 +  vsOut.position = clipPos + pointPos;
