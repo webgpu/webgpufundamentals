@@ -246,6 +246,9 @@
                       <label>num elements for unsized arrays:<input id="numElements" type="number" value="5" min="0" max="20"></label>
                     </div>
                     <div>
+                      <label><input id="bindGroupLayouts" type="checkbox" value="bindGroupLayouts" checked>show bindGroupLayouts</label>
+                    </div>
+                    <div>
                       <button type="button" id="process">Process</button>
                       <button type="button" id="help">Help(?)</button>
                     </div>
@@ -303,8 +306,10 @@ struct Light {
 /* global monaco */
 /* global LZMA */
 /* global Split */
+/* global globalThis */
 // see https://webgpufundamentals.org/webgpu/lessons/webgpu-utils.html#webgpu-utils
 import {
+  makeBindGroupLayoutDescriptors,
   makeShaderDataDefinitions,
   setIntrinsicsToView,
 } from '/3rdparty/webgpu-utils-1.x.module.js';
@@ -406,6 +411,7 @@ const errorsElem = document.querySelector('#errors');
 const structsElem = document.querySelector('#structs');
 const flattenElem = document.querySelector('#flatten');
 const numElementsElem = document.querySelector('#numElements');
+const bindGroupLayoutsElem = document.querySelector('#bindGroupLayouts');
 const helpElem = document.querySelector('#help');
 const docsElem = document.querySelector('#docs');
 const globals = {};
@@ -450,9 +456,11 @@ function makeHex(code) {
   return new Promise(resolve => {
     const save = JSON.stringify({
       x: code,
+      style: document.querySelector('input[name=style]:checked').value,
       structs: structsElem.checked,
       flatten: flattenElem.checked,
       numElements: numElementsElem.value,
+      bindGroupLayouts: bindGroupLayoutsElem.checked,
     });
     compressor.compress(save, 1, function(bytes) {
       const hex = convertBytesToHex(bytes);
@@ -485,6 +493,70 @@ async function updateResults(code, style) {
             numElementsForUnsizedArrays: parseInt(numElementsElem.value),
           }));
         }
+      }
+    }
+
+    if (bindGroupLayoutsElem.checked) {
+      const entryPointsByStage = new Map();
+      for (const [name, entryPoint] of Object.entries(defs.entryPoints)) {
+        const entryPoints = entryPointsByStage.get(entryPoint.stage) || [];
+        entryPointsByStage.set(entryPoint.stage, entryPoints);
+        entryPoints.push({
+          name,
+          entryPoint,
+        });
+      }
+
+      function getUsage(name, id) {
+          const obj = globalThis[name];
+          return Object.entries(obj)
+               .filter(([,b]) => id & b)
+               .map(([k]) => `${name}.${k}`)
+               .join(' | ');
+      }
+
+      function stringifyBindGroupLayoutDescriptor(key, value) {
+        return (key === 'visibility')
+            ? getUsage('GPUShaderStage', value)
+            : value;
+      }
+
+      function bindGroupLayoutDescriptorsToString(bindGroupLayoutDescriptors) {
+        return JSON.stringify(bindGroupLayoutDescriptors, stringifyBindGroupLayoutDescriptor, 2)
+            .replace(/"(\w+)":/g, '$1:')
+            .replace(/"(GPUS.*?)"/g, '$1');
+      }
+
+      const epLines = [];
+      const vsEntryPoints = entryPointsByStage.get(GPUShaderStage.VERTEX) || [];
+      const fsEntryPoints = entryPointsByStage.get(GPUShaderStage.FRAGMENT) || [];
+      if (vsEntryPoints.length || fsEntryPoints.length) {
+        if (vsEntryPoints.length === 1 && fsEntryPoints.length === 1) {
+          const bindGroupLayoutDescriptors = makeBindGroupLayoutDescriptors(defs, {
+            vertex: { entryPoint: vsEntryPoints[0].name },
+            fragment: { entryPoint: fsEntryPoints[0].name },
+          });
+          epLines.push(`const bindGroupLayoutDescriptors = ${bindGroupLayoutDescriptorsToString(bindGroupLayoutDescriptors)};`);
+        } else {
+          epLines.push(`\
+making bindGroupLayouts requires knowing which entryPoints for a pipeline but we
+can only guess for render pipelines if there is only 1 vertex shader entry point
+and 1 fragment shader entry point.
+`);
+        }
+      }
+
+      const csEntryPoints = entryPointsByStage.get(GPUShaderStage.COMPUTE) || [];
+      for (const {name} of csEntryPoints) {
+        const bindGroupLayoutDescriptors = makeBindGroupLayoutDescriptors(defs, {
+          compute: { entryPoint: name },
+        });
+        epLines.push(`const ${name}BindGroupLayoutDescriptors = ${bindGroupLayoutDescriptorsToString(bindGroupLayoutDescriptors)};`);
+      }
+
+      if (epLines.length) {
+        results.push('\n// --- bindGroupLayoutDescriptors for auto generated layouts ---');
+        results.push(epLines.join('\n\n// --------------------\n\n'));
       }
     }
 
@@ -542,6 +614,11 @@ async function main(editor) {
             numElementsElem.value = data.numElements || 5;
             structsElem.checked = !(data.structs === false);
             flattenElem.checked = !(data.flatten === false);
+            const styleElem = document.querySelector(`input[name=style][value=${data.style}]`);
+            if (styleElem) {
+              styleElem.checked = true;
+            }
+            bindGroupLayoutsElem.checked = !(data.bindGroupLayouts === false);
             editor.setValue(data.x);
             resolve();
           },
