@@ -523,8 +523,9 @@ async function updateResults(code, style) {
 
       function bindGroupLayoutDescriptorsToString(bindGroupLayoutDescriptors) {
         return JSON.stringify(bindGroupLayoutDescriptors, stringifyBindGroupLayoutDescriptor, 2)
-            .replace(/"(\w+)":/g, '$1:')
-            .replace(/"(GPUS.*?)"/g, '$1');
+            .replace(/"(\w+)":/g, '$1:')            // "key": value -> key: value
+            .replace(/(}|\]|"|\d|\w)\n/g, '$1,\n')  // add trailing commas
+            .replace(/"(GPUS.*?)"/g, '$1');         // remove quotes from GPUShaderStage
       }
 
       const epLines = [];
