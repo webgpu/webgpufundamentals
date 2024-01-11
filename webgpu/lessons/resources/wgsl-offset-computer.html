@@ -523,9 +523,10 @@ async function updateResults(code, style) {
 
       function bindGroupLayoutDescriptorsToString(bindGroupLayoutDescriptors) {
         return JSON.stringify(bindGroupLayoutDescriptors, stringifyBindGroupLayoutDescriptor, 2)
-            .replace(/"(\w+)":/g, '$1:')            // "key": value -> key: value
-            .replace(/(}|\]|"|\d|\w)\n/g, '$1,\n')  // add trailing commas
-            .replace(/"(GPUS.*?)"/g, '$1');         // remove quotes from GPUShaderStage
+            .replace(/"(\w+)":/g, '$1:')                  // "key": value -> key: value
+            .replace(/(}|\]|"|\d|\w)\n/g, '$1,\n')        // add trailing commas
+            .replace(/"(GPUS.*?)"/g, '$1')                // remove quotes from GPUShaderStage
+            .replace(' null,\n', ' , // empty group\n');  // empty group elements
       }
 
       const epLines = [];
@@ -540,9 +541,10 @@ async function updateResults(code, style) {
           epLines.push(`const bindGroupLayoutDescriptors = ${bindGroupLayoutDescriptorsToString(bindGroupLayoutDescriptors)};`);
         } else {
           epLines.push(`\
-making bindGroupLayouts requires knowing which entryPoints for a pipeline but we
-can only guess for render pipelines if there is only 1 vertex shader entry point
-and 1 fragment shader entry point.
+// Making bindGroupLayouts requires knowing which entryPoints are
+// used in a pipeline but we can only guess for render pipelines
+// if there is only 1 vertex shader entry point and 1 fragment shader
+// entry point.
 `);
         }
       }
