@@ -412,16 +412,26 @@ let arrOf3Vec3fsB = array&lt;vec3f, 3&gt;(vec3f(1,2,3), vec3f(4,5,6), vec3f(7,8,
 <p>Unfortunately, as of version 1 of WGSL there is no way to get the size of
 fixed size array.</p>
 <h3 id="runtime-sized-arrays">runtime sized arrays</h3>
-<p>Arrays that are at the root scope storage declarations
+<p>Arrays that are at the root scope storage declarations or as the last
+field in a root scope struct
 are the only arrays that can be specified with no size.</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage&gt; foo: array&lt;mat4x4f&gt;;
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Stuff {
+  color: vec4f,
+  size: f32,
+  verts: array&lt;vec3f&gt;,
+};
+@group(0) @binding(0) var&lt;storage&gt; foo: array&lt;mat4x4f&gt;;
+@group(0) @binding(1) var&lt;storage&gt; bar: Stuff;
 </pre>
-<p>The number of elements in <code class="notranslate" translate="no">foo</code> is defined by the settings of the bind group
-used at runtime. You can query this size in your WGSL with <code class="notranslate" translate="no">arrayLength</code>.</p>
+<p>The number of elements in <code class="notranslate" translate="no">foo</code> and in <code class="notranslate" translate="no">bar.verts</code> is defined by the settings
+of the bind group used at runtime. You can query this size in your WGSL with
+<code class="notranslate" translate="no">arrayLength</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage&gt; foo: array&lt;mat4x4f&gt;;
+@group(0) @binding(1) var&lt;storage&gt; bar: Stuff;
 
 ...
   let numMatrices = arrayLength(&amp;foo);
+  let numVerts = arrayLength(&amp;bar.verts);
 </pre>
 <h2 id="functions">functions</h2>
 <p>Functions in WGSL follow the pattern <code class="notranslate" translate="no">fn name(parameters) -&gt; returnType { ..body... }</code>.</p>
@@ -454,7 +464,7 @@ vec4f fn foo() {
 binding if you use <code class="notranslate" translate="no">vs1</code> in a pipeline. <code class="notranslate" translate="no">vs2</code> does reference <code class="notranslate" translate="no">uni</code> indirectly through
 calling <code class="notranslate" translate="no">foo</code> so it will show up as a required binding when using <code class="notranslate" translate="no">vs2</code> in a pipeline.</p>
 <h2 id="attributes">attributes</h2>
-<p>The word <em>attributes</em> has 2 means in WebGPU. One is <em>vertex attributes</em> which is covered in <a href="webgpu-vertex-buffers.html">the article on vertex buffers</a>.
+<p>The word <em>attributes</em> has 2 meanings in WebGPU. One is <em>vertex attributes</em> which is covered in <a href="webgpu-vertex-buffers.html">the article on vertex buffers</a>.
 The other is in WGSL where an attribute starts with <code class="notranslate" translate="no">@</code>.</p>
 <h3 id="locationnumber"><code class="notranslate" translate="no">@location(number)</code></h3>
 <p><code class="notranslate" translate="no">@location(number)</code> is used to defined inputs and outputs of shaders.</p>
@@ -489,7 +499,7 @@ struct FSIn {
 <p>Above, the vertex shader <code class="notranslate" translate="no">foo</code> passes <code class="notranslate" translate="no">color</code> as <code class="notranslate" translate="no">vec4f</code> on <code class="notranslate" translate="no">location(0)</code> and <code class="notranslate" translate="no">texcoords</code> as a <code class="notranslate" translate="no">vec2f</code> on <code class="notranslate" translate="no">location(1)</code>.
 The fragment shader <code class="notranslate" translate="no">bar</code> receives them as <code class="notranslate" translate="no">uv</code> and <code class="notranslate" translate="no">diffuse</code> because their locations match.</p>
 <h4 id="fragment-shader-outputs">fragment shader outputs</h4>
-<p>For fragment shaders <code class="notranslate" translate="no">@location</code> specifies which <code class="notranslate" translate="no">GPURenderPassDescriptor.colorAttachment</code> to store the result in.</p>
+<p>For fragment shaders, <code class="notranslate" translate="no">@location</code> specifies which <code class="notranslate" translate="no">GPURenderPassDescriptor.colorAttachment</code> to store the result in.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct FSOut {
   @location(0) albedo: vec4f;
   @location(1) normal: vec4f;
@@ -503,7 +513,7 @@ from a built-in feature of WebGPU.</p>
   ...
 }
 </pre>
-<p>Above <code class="notranslate" translate="no">foo</code> gets its value from the builtin <code class="notranslate" translate="no">vertex_index</code> and <code class="notranslate" translate="no">bar</code> gets its value from <code class="notranslate" translate="no">instance_index</code>.</p>
+<p>Above <code class="notranslate" translate="no">foo</code> gets its value from the builtin <code class="notranslate" translate="no">vertex_index</code> and <code class="notranslate" translate="no">bar</code> gets its value from the builtin <code class="notranslate" translate="no">instance_index</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Foo {
   @builtin(vertex_index) vNdx: u32,
   @builtin(instance_index) iNdx: u32,
@@ -512,7 +522,7 @@ from a built-in feature of WebGPU.</p>
   ...
 }
 </pre>
-<p>Above <code class="notranslate" translate="no">blap.vNdx</code> gets its value from the builtin <code class="notranslate" translate="no">vertex_index</code> and <code class="notranslate" translate="no">blap.iNdx</code> gets its value from <code class="notranslate" translate="no">instance_index</code>.</p>
+<p>Above <code class="notranslate" translate="no">blap.vNdx</code> gets its value from the builtin <code class="notranslate" translate="no">vertex_index</code> and <code class="notranslate" translate="no">blap.iNdx</code> gets its value from the builtin <code class="notranslate" translate="no">instance_index</code>.</p>
 <div class="webgpu-center center data-table">
 <table class="data">
   <thead>
@@ -654,6 +664,7 @@ from a built-in feature of WebGPU.</p>
   </table>
 </div>
 <h2 id="flow-control">flow control</h2>
+<p>Like most computer languages, WGSL has flow control statements.</p>
 <h3 id="for">for</h3>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  for (var i = 0; i &lt; 10; i++) { ... }
 </pre>
@@ -858,7 +869,7 @@ let c = ++a;  // c = 7, a = 7  (pre-increment)
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">// WGSL
 var a = 5;
 a++;          // is now 6
-*++a;          // ERROR: no such thing has pre-increment
+*++a;          // ERROR: no such thing as pre-increment
 *let b = a++;  // ERROR: a++ is not an expression, it's a statement
 </pre>
 <h2 id="---are-not-expressions-theyre-assignment-statements"><code class="notranslate" translate="no">+=</code>, <code class="notranslate" translate="no">-=</code> are not expressions, they’re assignment statements</h2>
@@ -878,6 +889,7 @@ a += 2;           // a is 7
 *color.rgb = color.bgr; // ERROR
 color = vec4(color.bgr, color.a);  // Ok
 </pre>
+<p>Note: there is a proposal to add this feature.</p>
 <h2 id="phony-assignment-to-_">Phony assignment to <code class="notranslate" translate="no">_</code></h2>
 <p><code class="notranslate" translate="no">_</code> is a special variable you can assign to to make something appear used but not actually use it.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;uniforms&gt; uni1: vec4f;
