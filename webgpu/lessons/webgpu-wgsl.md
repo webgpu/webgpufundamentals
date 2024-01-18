@@ -290,21 +290,31 @@ fixed size array.
 
 ### runtime sized arrays
 
-Arrays that are at the root scope storage declarations
+Arrays that are at the root scope storage declarations or as the last
+field in a root scope struct
 are the only arrays that can be specified with no size.
 
 ```wgsl
+struct Stuff {
+  color: vec4f,
+  size: f32,
+  verts: array<vec3f>,
+};
 @group(0) @binding(0) var<storage> foo: array<mat4x4f>;
+@group(0) @binding(1) var<storage> bar: Stuff;
 ```
 
-The number of elements in `foo` is defined by the settings of the bind group
-used at runtime. You can query this size in your WGSL with `arrayLength`.
+The number of elements in `foo` and in `bar.verts` is defined by the settings
+of the bind group used at runtime. You can query this size in your WGSL with
+`arrayLength`.
 
 ```wgsl
 @group(0) @binding(0) var<storage> foo: array<mat4x4f>;
+@group(0) @binding(1) var<storage> bar: Stuff;
 
 ...
   let numMatrices = arrayLength(&foo);
+  let numVerts = arrayLength(&bar.verts);
 ```
 
 ## functions
@@ -351,7 +361,7 @@ calling `foo` so it will show up as a required binding when using `vs2` in a pip
 
 ## attributes
 
-The word *attributes* has 2 means in WebGPU. One is *vertex attributes* which is covered in [the article on vertex buffers](webgpu-vertex-buffers.html).
+The word *attributes* has 2 meanings in WebGPU. One is *vertex attributes* which is covered in [the article on vertex buffers](webgpu-vertex-buffers.html).
 The other is in WGSL where an attribute starts with `@`.
 
 ### `@location(number)`
@@ -400,7 +410,7 @@ The fragment shader `bar` receives them as `uv` and `diffuse` because their loca
 
 #### fragment shader outputs
 
-For fragment shaders `@location` specifies which `GPURenderPassDescriptor.colorAttachment` to store the result in.
+For fragment shaders, `@location` specifies which `GPURenderPassDescriptor.colorAttachment` to store the result in.
 
 ```wgsl
 struct FSOut {
@@ -421,7 +431,7 @@ from a built-in feature of WebGPU.
 }
 ```
 
-Above `foo` gets its value from the builtin `vertex_index` and `bar` gets its value from `instance_index`.
+Above `foo` gets its value from the builtin `vertex_index` and `bar` gets its value from the builtin `instance_index`.
 
 ```wgsl
 struct Foo {
@@ -433,7 +443,7 @@ struct Foo {
 }
 ```
 
-Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx` gets its value from `instance_index`.
+Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx` gets its value from the builtin `instance_index`.
 
 <div class="webgpu-center center data-table">
 <table class="data">
@@ -577,6 +587,8 @@ Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx`
 </div>
 
 ## flow control
+
+Like most computer languages, WGSL has flow control statements.
 
 ### for
 
@@ -834,7 +846,7 @@ WGSL has neither. It just has the increment and decrement statements.
 // WGSL
 var a = 5;
 a++;          // is now 6
-*++a;          // ERROR: no such thing has pre-increment
+*++a;          // ERROR: no such thing as pre-increment
 *let b = a++;  // ERROR: a++ is not an expression, it's a statement
 ```
 
@@ -863,6 +875,8 @@ var color = vec4f(0.25, 0.5, 0.75, 1);
 *color.rgb = color.bgr; // ERROR
 color = vec4(color.bgr, color.a);  // Ok
 ```
+
+Note: there is a proposal to add this feature.
 
 ## Phony assignment to `_`
 
