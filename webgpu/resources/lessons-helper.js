@@ -525,6 +525,7 @@ async function checkVersion() {
   } catch (e) {
     const msg = document.createElement('div');
     msg.textContent = 'You need Chrome version 121 or later or a newer version of Firefox Nightly or Safari Technology Preview';
+    msg.style = 'max-width: 80%; margin-bottom: 1em;';
     const a = document.createElement('a');
     a.textContent = '[why?]';
     a.target = '_blank';
@@ -535,6 +536,7 @@ async function checkVersion() {
       position: fixed;
       display: flex;
       flex-direction: column;
+      text-align: center;
       top: 0;
       left: 0;
       width: 100%;
