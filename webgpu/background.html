@@ -183,7 +183,6 @@ async function main() {
     layout: 'auto',
     vertex: {
       module: shaderModule,
-      entryPoint: 'myVSMain',
       buffers: [
         {
           arrayStride: (3 + 3 + 4) * 4, // 5 floats, 4 bytes each
@@ -197,7 +196,6 @@ async function main() {
     },
     fragment: {
       module: shaderModule,
-      entryPoint: 'myFSMain',
       targets: [
         {format: presentationFormat},
       ],

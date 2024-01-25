@@ -421,7 +421,7 @@ for each pixel to be drawn/rasterized when drawing triangles/lines/points</p>
 </pre>
 <p>All of the JavaScript below will go inside this script tag</p>
 <p>WebGPU is an asynchronous API so it’s easiest to use in an async function. We
-start off by requesting an adaptor, and then requesting a device from the adapter.</p>
+start off by requesting an adapter, and then requesting a device from the adapter.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
@@ -557,11 +557,9 @@ issue.</p>
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -569,10 +567,9 @@ issue.</p>
 <p>In this case, there isn’t much to see. We set <code class="notranslate" translate="no">layout</code> to <code class="notranslate" translate="no">'auto'</code> which means
 to ask WebGPU to derive the layout of data from the shaders. We’re not using
 any data though.</p>
-<p>We then tell the render pipeline to use the <code class="notranslate" translate="no">vs</code> function from our shader module
-for a vertex shader and the <code class="notranslate" translate="no">fs</code> function for our fragment shader. Otherwise, we
-tell it the format of the first render target. “render target” means the texture
-we will render to. When we create a pipeline
+<p>As long as there is only one function marked as <code class="notranslate" translate="no">@vertex</code> in the module specified in the <code class="notranslate" translate="no">vertex</code> section above, the render pipeline will use that function
+for a vertex shader. Similarly, if there is only one function marked as <code class="notranslate" translate="no">@fragment</code> in the module specified in <code class="notranslate" translate="no">fragment</code> section, the render pipeline will use that function as a fragment shader.</p>
+<p>We also need to specify the format of the first render target. “render target” means the texture we will render to. When we create a pipeline
 we have to specify the format for the texture(s) we’ll use this pipeline to
 eventually render to.</p>
 <p>Element 0 for the <code class="notranslate" translate="no">targets</code> array corresponds to location 0 as we specified for
@@ -789,7 +786,6 @@ by 2.</p>
     layout: 'auto',
     compute: {
       module,
-      entryPoint: 'computeSomething',
     },
   });
 </pre>

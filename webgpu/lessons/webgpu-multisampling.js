@@ -109,7 +109,6 @@ async function initWebGPUPixelRender(webgpuCanvas) {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: 8,
@@ -121,7 +120,6 @@ async function initWebGPUPixelRender(webgpuCanvas) {
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -131,7 +129,6 @@ async function initWebGPUPixelRender(webgpuCanvas) {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: 8,
@@ -143,7 +140,6 @@ async function initWebGPUPixelRender(webgpuCanvas) {
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     multisample: {

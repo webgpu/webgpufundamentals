@@ -287,7 +287,6 @@ for <code class="notranslate" translate="no">@location(0)</code></p>
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
 +      buffers: [
 +        {
 +          arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -299,7 +298,6 @@ for <code class="notranslate" translate="no">@location(0)</code></p>
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -470,7 +468,6 @@ per instance, the other will hold the <code class="notranslate" translate="no">s
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -497,7 +494,6 @@ per instance, the other will hold the <code class="notranslate" translate="no">s
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -621,7 +617,6 @@ so its <code class="notranslate" translate="no">offset</code> into the buffer is
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -650,7 +645,6 @@ so its <code class="notranslate" translate="no">offset</code> into the buffer is
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -904,7 +898,6 @@ new size.</p>
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: 5 * 4, // 5 floats, 4 bytes each
@@ -937,7 +930,6 @@ new size.</p>
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

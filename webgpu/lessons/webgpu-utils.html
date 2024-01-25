@@ -1024,7 +1024,6 @@ and 3 sets of attributes.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
     vertex: {
       module: shaderModule,
-      entryPoint: 'myVSMain',
 *      buffers: [
 *        // position
 *        {
@@ -1113,7 +1112,6 @@ we still need to setup our pipeline</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
     vertex: {
       module: shaderModule,
-      entryPoint: 'myVSMain',
 *      buffers: [
 *        // position
 *        {
@@ -1155,7 +1153,6 @@ the <code class="notranslate" translate="no">bufferLayout</code> which is the po
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
     vertex: {
       module: shaderModule,
-      entryPoint: 'myVSMain',
 *      buffers: bufferLayout
     },
     ...
@@ -1201,7 +1198,6 @@ but it’s part of an article on WebGPU from WebGL and seem inappropriate.</p>
     layout: 'auto',
     vertex: {
       module: shaderModule,
-      entryPoint: 'myVSMain',
       buffers: [
         // position
         {
@@ -1228,7 +1224,6 @@ but it’s part of an article on WebGPU from WebGL and seem inappropriate.</p>
     },
     fragment: {
       module: shaderModule,
-      entryPoint: 'myFSMain',
       targets: [
         {format: presentationFormat},
       ],
@@ -1285,12 +1280,10 @@ but it’s part of an article on WebGPU from WebGL and seem inappropriate.</p>
     layout: 'auto',
     vertex: {
       module: shaderModule,
-      entryPoint: 'myVSMain',
       buffers: bufferLayouts,
     },
     fragment: {
       module: shaderModule,
-      entryPoint: 'myFSMain',
       targets: [
         {format: presentationFormat},
       ],
@@ -1508,7 +1501,6 @@ has scales.</p>
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
 -        {
 -          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes
@@ -1539,7 +1531,6 @@ has scales.</p>
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

@@ -304,11 +304,9 @@ up to the GPU. These un-centered sample positions apparently result in better an
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
 +    multisample: {

@@ -139,7 +139,6 @@ async function showCube(canvas, uiDiv) {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (3) * 4, // (3) floats 4 bytes each
@@ -151,7 +150,6 @@ async function showCube(canvas, uiDiv) {
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {
