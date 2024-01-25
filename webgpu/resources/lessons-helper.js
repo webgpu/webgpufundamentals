@@ -524,7 +524,7 @@ async function checkVersion() {
     device.createComputePipeline({ layout: 'auto', compute: { module } });
   } catch (e) {
     const msg = document.createElement('div');
-    msg.textContent = 'You need Chrome version 121 or later';
+    msg.textContent = 'You need Chrome version 121 or later or a newer version of Firefox Nightly or Safari Technology Preview';
     const a = document.createElement('a');
     a.textContent = '[why?]';
     a.target = '_blank';
