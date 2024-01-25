@@ -236,7 +236,7 @@ Then we need a `<script>` tag to hold our JavaScript.
 All of the JavaScript below will go inside this script tag
 
 WebGPU is an asynchronous API so it's easiest to use in an async function. We
-start off by requesting an adaptor, and then requesting a device from the adapter.
+start off by requesting an adapter, and then requesting a device from the adapter.
 
 ```js
 async function main() {
@@ -417,11 +417,9 @@ Now that we've created a shader module, we next need to make a render pipeline
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -431,10 +429,10 @@ In this case, there isn't much to see. We set `layout` to `'auto'` which means
 to ask WebGPU to derive the layout of data from the shaders. We're not using
 any data though.
 
-We then tell the render pipeline to use the `vs` function from our shader module
-for a vertex shader and the `fs` function for our fragment shader. Otherwise, we
-tell it the format of the first render target. "render target" means the texture
-we will render to. When we create a pipeline
+As long as there is only one function marked as `@vertex` in the module specified in the `vertex` section above, the render pipeline will use that function
+for a vertex shader. Similarly, if there is only one function marked as `@fragment` in the module specified in `fragment` section, the render pipeline will use that function as a fragment shader. 
+
+We also need to specify the format of the first render target. "render target" means the texture we will render to. When we create a pipeline
 we have to specify the format for the texture(s) we'll use this pipeline to
 eventually render to.
 
@@ -697,7 +695,6 @@ Now that we've created the shader, we need to create a pipeline.
     layout: 'auto',
     compute: {
       module,
-      entryPoint: 'computeSomething',
     },
   });
 ```

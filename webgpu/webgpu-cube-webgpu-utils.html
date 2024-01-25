@@ -141,12 +141,10 @@ async function main() {
     layout: 'auto',
     vertex: {
       module: shaderModule,
-      entryPoint: 'myVSMain',
       buffers: bufferLayouts,
     },
     fragment: {
       module: shaderModule,
-      entryPoint: 'myFSMain',
       targets: [
         {format: presentationFormat},
       ],

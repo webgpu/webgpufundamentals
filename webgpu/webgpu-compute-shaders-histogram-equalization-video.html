@@ -456,7 +456,6 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
     layout: 'auto',
     compute: {
       module: histogramChunkModule,
-      entryPoint: 'cs',
     },
   });
 
@@ -465,7 +464,6 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
     layout: 'auto',
     compute: {
       module: chunkSumModule,
-      entryPoint: 'cs',
     },
   });
 
@@ -474,7 +472,6 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
     layout: 'auto',
     compute: {
       module: maxModule,
-      entryPoint: 'cs',
     },
   });
 
@@ -483,11 +480,9 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
     layout: 'auto',
     vertex: {
       module: drawHistogramModule,
-      entryPoint: 'vs',
     },
     fragment: {
       module: drawHistogramModule,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -497,11 +492,9 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
     layout: 'auto',
     vertex: {
       module: drawNewLightnessModule,
-      entryPoint: 'vs',
     },
     fragment: {
       module: drawNewLightnessModule,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {
@@ -514,11 +507,9 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
     layout: 'auto',
     vertex: {
       module: videoModule,
-      entryPoint: 'vs',
     },
     fragment: {
       module: videoModule,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -528,11 +519,9 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
     layout: 'auto',
     vertex: {
       module: videoAdjustedModule,
-      entryPoint: 'vs',
     },
     fragment: {
       module: videoAdjustedModule,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

@@ -71,7 +71,6 @@ struct VSOutput {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
 +      buffers: [
 +        {
 +          arrayStride: 2 * 4, // 2개 부동소수점 각각 4바이트
@@ -83,7 +82,6 @@ struct VSOutput {
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -265,7 +263,6 @@ struct VSOutput {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -292,7 +289,6 @@ struct VSOutput {
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -431,7 +427,6 @@ perVertexColor 데이터를 아래와 같이 엮을 것입니다.
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -460,7 +455,6 @@ perVertexColor 데이터를 아래와 같이 엮을 것입니다.
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -735,7 +729,6 @@ function createCircleVertices({
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: 5 * 4, // 5 floats, 4 bytes each
@@ -768,7 +761,6 @@ function createCircleVertices({
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

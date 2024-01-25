@@ -383,11 +383,9 @@ WebGPUで生成するオブジェクトは、ほぼすべてについて`label`�
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -626,7 +624,6 @@ function dispatchWorkgroup(workgroup_id) {
     layout: 'auto',
     compute: {
       module,
-      entryPoint: 'computeSomething',
     },
   });
 ```

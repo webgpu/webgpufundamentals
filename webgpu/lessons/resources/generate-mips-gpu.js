@@ -77,11 +77,9 @@ export const generateMips = (() => {
         layout: 'auto',
         vertex: {
           module,
-          entryPoint: 'vs',
         },
         fragment: {
           module,
-          entryPoint: 'fs',
           targets: [{ format: texture.format }],
         },
       });

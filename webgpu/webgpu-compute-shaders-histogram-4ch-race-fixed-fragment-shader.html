@@ -80,11 +80,9 @@ async function main() {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [
         {format: 'r8unorm', writeMask: 0},
       ],

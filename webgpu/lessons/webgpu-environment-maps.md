@@ -298,7 +298,6 @@ And of course we need to change our pipeline to provide the normals
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (3) * 4, // (3) floats 4 bytes each

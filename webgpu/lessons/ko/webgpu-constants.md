@@ -49,11 +49,9 @@ override blue = 0.0;
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
 +      constants: {
 +        red: 1,

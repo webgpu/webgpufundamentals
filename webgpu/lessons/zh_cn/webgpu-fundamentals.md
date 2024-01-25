@@ -306,11 +306,9 @@ const pipeline = device.createRenderPipeline({
     layout: 'auto',
     vertex: {
         module,
-        entryPoint: 'vs',
     },
     fragment: {
         module,
-        entryPoint: 'fs',
         targets: [{ format: presentationFormat }],
     },
 });
@@ -528,7 +526,6 @@ const pipeline = device.createComputePipeline({
     layout: 'auto',
     compute: {
         module,
-        entryPoint: 'computeSomething',
     },
 });
 ```

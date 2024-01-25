@@ -39,7 +39,6 @@ Then, when we create a pipeline, we set the topology to `'point-list'`
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -51,7 +50,6 @@ Then, when we create a pipeline, we set the topology to `'point-list'`
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
 +    primitive: {
@@ -153,7 +151,6 @@ can remove the topology setting since we want the default `'triangle-list'`
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -168,7 +165,6 @@ can remove the topology setting since we want the default `'triangle-list'`
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
 -    primitive: {
@@ -350,7 +346,6 @@ Let's also turn on blending so we get [transparency](webgpu-transparency.html)
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (2 + 1) * 4, // 3 floats, 4 bytes each
@@ -364,7 +359,6 @@ Let's also turn on blending so we get [transparency](webgpu-transparency.html)
     },
     fragment: {
       module,
-      entryPoint: 'fs',
 -      targets: [{ format: presentationFormat }],
 +      targets: [
 +        {
@@ -447,7 +441,6 @@ We need to add the rotation attribute to our pipeline
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (2 + 1) * 4, // 3 floats, 4 bytes each
@@ -558,7 +551,6 @@ Here's our pipeline and vertex buffer
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (3) * 4, // 3 floats, 4 bytes each
@@ -570,7 +562,6 @@ Here's our pipeline and vertex buffer
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [
         {
          format: presentationFormat,
@@ -770,7 +761,6 @@ instanced quads
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (3) * 4, // 3 floats, 4 bytes each
@@ -783,7 +773,6 @@ instanced quads
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [
         {
          format: presentationFormat,
