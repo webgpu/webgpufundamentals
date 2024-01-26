@@ -298,10 +298,12 @@ And we'd have to update our pipeline creation to use these
     vertex: {
 -      module,
 +      module: vsModule,
+      entryPoint: 'vs',
     },
     fragment: {
 -      module,
 +      module: fsModule,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -314,12 +316,12 @@ And this would also work
 
 The point is, the fact that both shaders are in the same string in most WebGPU
 examples is just a convenience. In reality, first WebGPU parses the WGSL to make
-sure it's syntactically correct. Then, WebGPU looks at either the `entryPoint`
-you specify, or, as in the case above, if there is only one entry point of the right type that will be used. From there, it goes and looks at the parts that entry point references
-and nothing else for that entry point. It's useful because you don't have to type
+sure it's syntactically correct. Then, WebGPU looks at the `entryPoint`
+you specify. From there, it goes and looks at the parts that entryPoint references
+and nothing else for that entryPoint. It's useful because you don't have to type
 things like structures or binding and group locations twice if two or more shaders
 share bindings or structures or constants or functions. But, from the POV of WebGPU,
-it's as though you did duplicate all of them, once for each entry point.
+it's as though you did duplicate all of them, once for each entryPoint.
 
 Note: It is not that common to generate a checkerboard using the
 `@builtin(position)`. Checkerboards or other patterns are far more commonly

@@ -217,10 +217,12 @@ async function main() {
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: bufferLayouts,
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {

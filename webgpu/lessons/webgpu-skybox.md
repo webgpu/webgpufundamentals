@@ -100,9 +100,11 @@ The pipeline has no buffers in the vertex stage
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     depthStencil: {

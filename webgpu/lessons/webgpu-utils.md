@@ -907,6 +907,7 @@ and 3 sets of attributes.
   const pipeline = device.createRenderPipeline({
     vertex: {
       module: shaderModule,
+      entryPoint: 'myVSMain',
 *      buffers: [
 *        // position
 *        {
@@ -1005,6 +1006,7 @@ we still need to setup our pipeline
   const pipeline = device.createRenderPipeline({
     vertex: {
       module: shaderModule,
+      entryPoint: 'myVSMain',
 *      buffers: [
 *        // position
 *        {
@@ -1056,6 +1058,7 @@ the `bufferLayout` which is the portion of the pipeline called buffers
   const pipeline = device.createRenderPipeline({
     vertex: {
       module: shaderModule,
+      entryPoint: 'myVSMain',
 *      buffers: bufferLayout
     },
     ...
@@ -1109,6 +1112,7 @@ It's reasonably ok comparison though:
     layout: 'auto',
     vertex: {
       module: shaderModule,
+      entryPoint: 'myVSMain',
       buffers: [
         // position
         {
@@ -1135,6 +1139,7 @@ It's reasonably ok comparison though:
     },
     fragment: {
       module: shaderModule,
+      entryPoint: 'myFSMain',
       targets: [
         {format: presentationFormat},
       ],
@@ -1192,10 +1197,12 @@ It's reasonably ok comparison though:
     layout: 'auto',
     vertex: {
       module: shaderModule,
+      entryPoint: 'myVSMain',
       buffers: bufferLayouts,
     },
     fragment: {
       module: shaderModule,
+      entryPoint: 'myFSMain',
       targets: [
         {format: presentationFormat},
       ],
@@ -1427,6 +1434,7 @@ The code that sets up the pipeline changes to this
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
 -        {
 -          arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes
@@ -1457,6 +1465,7 @@ The code that sets up the pipeline changes to this
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

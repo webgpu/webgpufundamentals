@@ -169,6 +169,7 @@ struct VSOutput {
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (3 + 2) * 4, // (3+2) floats 4 bytes each
@@ -182,6 +183,7 @@ struct VSOutput {
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {
@@ -325,9 +327,11 @@ struct VSOutput {
           layout: 'auto',
           vertex: {
             module,
+            entryPoint: 'vs',
           },
           fragment: {
             module,
+            entryPoint: 'fs',
             targets: [{ format: texture.format }],
           },
         });

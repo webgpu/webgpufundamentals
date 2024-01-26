@@ -130,6 +130,7 @@ async function main() {
     layout: 'auto',
     compute: {
       module: histogramChunkModule,
+      entryPoint: 'cs',
     },
   });
 
@@ -138,6 +139,7 @@ async function main() {
     layout: 'auto',
     compute: {
       module: chunkSumModule,
+      entryPoint: 'cs',
     },
   });
 

@@ -74,6 +74,7 @@ for `@location(0)`
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
 +      buffers: [
 +        {
 +          arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -85,6 +86,7 @@ for `@location(0)`
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -276,6 +278,7 @@ per instance, the other will hold the `scale`.
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -302,6 +305,7 @@ per instance, the other will hold the `scale`.
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -447,6 +451,7 @@ so its `offset` into the buffer is 8 bytes.
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -475,6 +480,7 @@ so its `offset` into the buffer is 8 bytes.
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -757,6 +763,7 @@ new size.
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: 5 * 4, // 5 floats, 4 bytes each
@@ -789,6 +796,7 @@ new size.
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

@@ -246,6 +246,7 @@ After making a shader module we setup a compute pipeline to use it.
     layout: 'auto',
     compute: {
       module,
+      entryPoint: 'cs',
     },
   });
 ```

@@ -340,9 +340,11 @@ here's a typical pipeline from our other examples so far
       layout: pipelineLayout,
       vertex: {
         module,
+        entryPoint: 'vs',
       },
       fragment: {
         module,
+        entryPoint: 'fs',
         targets: [
           {
             format: presentationFormat,
@@ -360,9 +362,11 @@ And here it is with blending added to `target[0]`.
       layout: pipelineLayout,
       vertex: {
         module,
+        entryPoint: 'vs',
       },
       fragment: {
         module,
+        entryPoint: 'fs',
         targets: [
           {
             format: presentationFormat,
@@ -788,9 +792,11 @@ not use blending. Notice we're passing in the pipelineLayout instead of using
     layout: pipelineLayout,
     vertex: {
       module,
+      entryPoint: 'vs',
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [ { format: presentationFormat } ],
     },
   });
@@ -819,9 +825,11 @@ The other pipeline will be created at render time with whatever blend options we
       layout: pipelineLayout,
       vertex: {
         module,
+        entryPoint: 'vs',
       },
       fragment: {
         module,
+        entryPoint: 'fs',
         targets: [
           {
             format: presentationFormat,
@@ -851,9 +859,11 @@ the src texture with the srcPipeline (with blending)
       layout: pipelineLayout,
       vertex: {
         module,
+        entryPoint: 'vs',
       },
       fragment: {
         module,
+        entryPoint: 'fs',
         targets: [
           {
             format: presentationFormat,

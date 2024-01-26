@@ -49,9 +49,11 @@ But, we can change those constants, or "override" them when we specify the pipel
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
 +      constants: {
 +        red: 1,

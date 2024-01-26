@@ -342,11 +342,10 @@ separate the vertex shader from the fragment shader.
 
 Another difference between WebGL and WebGPU is that in WebGPU you can put
 multiple shaders in the same source. In WebGL a shader's entry point was always
-called `main` but in WebGPU when you use a shader the entry point can be
-any name. If there is more than one entry point of the same type then
-you must specify the name of the entry point.
+called `main` but in WebGPU when you use a shader you specify which function to
+call.
 
-Notice in WebGPU the vertex attributes are declared as parameters to the vertex shader
+Notice in WebGPU the attributes are declared as parameters to the vertex shader
 function vs GLSL where they are declared as globals outside the function and
 unlike GLSL where if you don't choose a location the compiler will assign one,
 in WGSL we must supply the locations.
@@ -656,6 +655,7 @@ const pipeline = device.createRenderPipeline({
   layout: 'auto',
   vertex: {
     module: shaderModule,
+    entryPoint: 'myVSMain',
     buffers: [
       // position
       {
@@ -682,6 +682,7 @@ const pipeline = device.createRenderPipeline({
   },
   fragment: {
     module: shaderModule,
+    entryPoint: 'myFSMain',
     targets: [
       {format: presentationFormat},
     ],
@@ -710,9 +711,7 @@ Parts to note:
 Shader linking happens when you call `createRenderPipeline` and in fact
 `createRenderPipeline` is a slow call as your shaders might be adjusted
 internally depending on the settings. You can see, for `vertex` and `fragment`
-we specify a shader `module`. WebGPU looks for a vertex entry point by finding
-a function with the `@vertex` attribute and a fragment entry point by finding
-a function with the `@fragment` attribute.
+we specify a shader `module` and specify which function to call via `entryPoint`.
 WebGPU then needs to make sure those 2 functions are compatible with each other
 in the same way that linking two shaders into a program in WebGL checks the shaders
 are compatible with each other.

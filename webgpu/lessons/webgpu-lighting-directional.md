@@ -196,6 +196,7 @@ colors
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color

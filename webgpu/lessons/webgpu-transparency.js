@@ -194,9 +194,11 @@ const drawBlendResultsP = deviceP.then(device => {
     layout: pipelineLayout,
     vertex: {
       module,
+      entryPoint: 'vs',
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [
         { format: presentationFormat },
       ],
@@ -228,9 +230,11 @@ const drawBlendResultsP = deviceP.then(device => {
       layout: pipelineLayout,
       vertex: {
         module,
+        entryPoint: 'vs',
       },
       fragment: {
         module,
+        entryPoint: 'fs',
         targets: [
           {
             format: presentationFormat,

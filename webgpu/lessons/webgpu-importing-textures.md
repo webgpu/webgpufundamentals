@@ -228,9 +228,11 @@ Here's the code
           layout: 'auto',
           vertex: {
             module,
+            entryPoint: 'vs',
           },
           fragment: {
             module,
+            entryPoint: 'fs',
             targets: [{ format: texture.format }],
           },
         });
@@ -318,9 +320,11 @@ What's changed
           layout: 'auto',
           vertex: {
             module,
+            entryPoint: 'vs',
           },
           fragment: {
             module,
+            entryPoint: 'fs',
   +          targets: [{ format: texture.format }],
           },
         });
@@ -1048,6 +1052,7 @@ texture coordinates
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color
@@ -1062,6 +1067,7 @@ texture coordinates
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {

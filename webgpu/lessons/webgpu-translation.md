@@ -130,6 +130,7 @@ We've only got one attribute so our pipeline looks like this
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
 *          arrayStride: (2) * 4, // (2) floats, 4 bytes each
@@ -141,6 +142,7 @@ We've only got one attribute so our pipeline looks like this
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

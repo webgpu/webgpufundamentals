@@ -437,6 +437,7 @@ We create a compute pipeline to run the shader
     layout: 'auto',
     compute: {
       module,
+      entryPoint: 'cs',
     },
   });
 ```
@@ -1085,7 +1086,8 @@ We need to create pipelines for both shaders
 -    layout: 'auto',
 -    compute: {
 -      module,
---    },
+-      entryPoint: 'cs',
+-    },
 -  });
 
 +  const histogramChunkPipeline = device.createComputePipeline({
@@ -1093,7 +1095,8 @@ We need to create pipelines for both shaders
 +    layout: 'auto',
 +    compute: {
 +      module: histogramChunkModule,
-++    },
++      entryPoint: 'cs',
++    },
 +  });
 +
 +  const chunkSumPipeline = device.createComputePipeline({
@@ -1101,7 +1104,8 @@ We need to create pipelines for both shaders
 +    layout: 'auto',
 +    compute: {
 +      module: chunkSumModule,
-++    },
++      entryPoint: 'cs',
++    },
 +  });
 ```
 

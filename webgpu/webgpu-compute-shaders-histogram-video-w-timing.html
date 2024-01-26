@@ -317,6 +317,7 @@ async function main() {
     layout: 'auto',
     compute: {
       module: histogramChunkModule,
+      entryPoint: 'cs',
     },
   });
 
@@ -325,6 +326,7 @@ async function main() {
     layout: 'auto',
     compute: {
       module: chunkSumModule,
+      entryPoint: 'cs',
     },
   });
 
@@ -333,6 +335,7 @@ async function main() {
     layout: 'auto',
     compute: {
       module: scaleModule,
+      entryPoint: 'cs',
     },
   });
 
@@ -341,9 +344,11 @@ async function main() {
     layout: 'auto',
     vertex: {
       module: drawHistogramModule,
+      entryPoint: 'vs',
     },
     fragment: {
       module: drawHistogramModule,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -353,9 +358,11 @@ async function main() {
     layout: 'auto',
     vertex: {
       module: videoModule,
+      entryPoint: 'vs',
     },
     fragment: {
       module: videoModule,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

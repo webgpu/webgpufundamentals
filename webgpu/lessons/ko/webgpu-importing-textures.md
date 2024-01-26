@@ -223,9 +223,11 @@ WebGPU에서 우리는 노멀 맵이나 높이(height) 맵등 색상이 아닌 �
           layout: 'auto',
           vertex: {
             module,
+            entryPoint: 'vs',
           },
           fragment: {
             module,
+            entryPoint: 'fs',
             targets: [{ format: texture.format }],
           },
         });
@@ -312,9 +314,11 @@ WebGPU에서 우리는 노멀 맵이나 높이(height) 맵등 색상이 아닌 �
           layout: 'auto',
           vertex: {
             module,
+            entryPoint: 'vs',
           },
           fragment: {
             module,
+            entryPoint: 'fs',
   +          targets: [{ format: texture.format }],
           },
         });
@@ -1012,6 +1016,7 @@ struct VSOutput {
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color
@@ -1026,6 +1031,7 @@ struct VSOutput {
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {

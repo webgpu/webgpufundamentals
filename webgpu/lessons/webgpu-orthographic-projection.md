@@ -113,6 +113,7 @@ Above we just added a ` 0,` to the end of each line
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (2) * 4, // (2) floats, 4 bytes each
@@ -126,6 +127,7 @@ Above we just added a ` 0,` to the end of each line
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -961,6 +963,7 @@ Now that we have the data, we need to change our pipeline to use it.
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (3) * 4, // (3) floats, 4 bytes each
@@ -974,6 +977,7 @@ Now that we have the data, we need to change our pipeline to use it.
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -1049,6 +1053,7 @@ triangles.  We can turn that feature on by modifying the pipeline
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color
@@ -1061,6 +1066,7 @@ triangles.  We can turn that feature on by modifying the pipeline
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
 +    primitive: {
@@ -1192,6 +1198,7 @@ To setup and use a depth texture we need to update our pipeline
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color
@@ -1204,6 +1211,7 @@ To setup and use a depth texture we need to update our pipeline
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {
