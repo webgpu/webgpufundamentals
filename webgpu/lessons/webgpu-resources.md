@@ -24,9 +24,15 @@ Here are some other webgpu resources
 * [Shader Graph WGSL](https://deepkolos.github.io/shader-graph-wgsl/)
 * [Compute Toys](https://compute.toys)
 
+# Debugging / Profiling
+
+* [Profiling WebGPU with PIX (Windows Only)](https://toji.dev/webgpu-profiling/pix)
+
 # Tools
 
 * [WebGPUReport.org](https://webgpureport.org) - shows your WebGPU's features
+
+---
 
 # Libraries
 
@@ -38,12 +44,15 @@ Here are some other webgpu resources
 ## Utilities
 
 * [webgpu-utils](https://github.com/greggman/webgpu-utils) - helps set uniform buffer data and more
+* [wgsl-struct-buffer](https://github.com/deepkolos/wgsl-struct-buffer) - wgsl's struct buffer view in ts with type check & infer
+
+## Debugging / Profiling Libraries
+
+* [webgpu_inspector](https://github.com/brendan-duncan/webgpu_inspector) - inspect webgpu resource and commands
 * [webgpu-dev-extension](https://github.com/greggman/webgpu-dev-extension) - various helpers for debugging and development as an extension.
 * [webgpu-helpers](https://github.com/greggman/webgpu-helpers) - various helpers for debugging and development.
-* [wgsl-struct-buffer](https://github.com/deepkolos/wgsl-struct-buffer) - wgsl's struct buffer view in ts with type check & infer
 * [webgpu-memory](https://github.com/greggman/webgpu-memory) - tells you how much memory you're using
 * [webgpu-avoid-redundant-state-setting](https://github.com/greggman/webgpu-avoid-redundant-state-setting) - checks your code for redundant WebGPU calls
 * [webgpu_recorder](https://github.com/brendan-duncan/webgpu_recorder) - records WebGPU to an .HTML fil. Helpful for making a standalone repo of a bug/issue.
-
 
 
