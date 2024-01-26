@@ -134,9 +134,11 @@ async function main() {
     layout: 'auto',
     vertex: {
       module: skyBoxModule,
+      entryPoint: 'vs',
     },
     fragment: {
       module: skyBoxModule,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     depthStencil: {
@@ -193,6 +195,7 @@ async function main() {
     layout: 'auto',
     vertex: {
       module: envMapModule,
+      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (3 + 3) * 4, // (6) floats 4 bytes each
@@ -205,6 +208,7 @@ async function main() {
     },
     fragment: {
       module: envMapModule,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {
@@ -308,9 +312,11 @@ async function main() {
           layout: 'auto',
           vertex: {
             module,
+            entryPoint: 'vs',
           },
           fragment: {
             module,
+            entryPoint: 'fs',
             targets: [{ format: texture.format }],
           },
         });

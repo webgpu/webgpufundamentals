@@ -421,7 +421,7 @@ for each pixel to be drawn/rasterized when drawing triangles/lines/points</p>
 </pre>
 <p>All of the JavaScript below will go inside this script tag</p>
 <p>WebGPU is an asynchronous API so it’s easiest to use in an async function. We
-start off by requesting an adapter, and then requesting a device from the adapter.</p>
+start off by requesting an adaptor, and then requesting a device from the adapter.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
@@ -557,9 +557,11 @@ issue.</p>
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -567,9 +569,10 @@ issue.</p>
 <p>In this case, there isn’t much to see. We set <code class="notranslate" translate="no">layout</code> to <code class="notranslate" translate="no">'auto'</code> which means
 to ask WebGPU to derive the layout of data from the shaders. We’re not using
 any data though.</p>
-<p>As long as there is only one function marked as <code class="notranslate" translate="no">@vertex</code> in the module specified in the <code class="notranslate" translate="no">vertex</code> section above, the render pipeline will use that function
-for a vertex shader. Similarly, if there is only one function marked as <code class="notranslate" translate="no">@fragment</code> in the module specified in <code class="notranslate" translate="no">fragment</code> section, the render pipeline will use that function as a fragment shader.</p>
-<p>We also need to specify the format of the first render target. “render target” means the texture we will render to. When we create a pipeline
+<p>We then tell the render pipeline to use the <code class="notranslate" translate="no">vs</code> function from our shader module
+for a vertex shader and the <code class="notranslate" translate="no">fs</code> function for our fragment shader. Otherwise, we
+tell it the format of the first render target. “render target” means the texture
+we will render to. When we create a pipeline
 we have to specify the format for the texture(s) we’ll use this pipeline to
 eventually render to.</p>
 <p>Element 0 for the <code class="notranslate" translate="no">targets</code> array corresponds to location 0 as we specified for
@@ -786,11 +789,12 @@ by 2.</p>
     layout: 'auto',
     compute: {
       module,
+      entryPoint: 'computeSomething',
     },
   });
 </pre>
 <p>Here we just tell it we’re using a <code class="notranslate" translate="no">compute</code> stage from the shader <code class="notranslate" translate="no">module</code> we
-created and we want to call the <code class="notranslate" translate="no">computeSomething</code> function. <code class="notranslate" translate="no">layout</code> is
+created and since there is only one <code class="notranslate" translate="no">@compute</code> entry point WebGPU knows we want to call it. <code class="notranslate" translate="no">layout</code> is
 <code class="notranslate" translate="no">'auto'</code> again, telling WebGPU to figure out the layout from the shaders. <sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup></p>
 <p>Next, we need some data.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const input = new Float32Array([1, 3, 5]);
@@ -899,7 +903,7 @@ finish. Once mapped, we can call <code class="notranslate" translate="no">result
 parameters will return an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> of the entire buffer. We put that in a
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> typed array view and then we can look at the values. One
 important detail, the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> returned by <code class="notranslate" translate="no">getMappedRange</code> is only valid
-until we call <code class="notranslate" translate="no">unmap</code>. After <code class="notranslate" translate="no">unmap</code>, its length with be set to 0 and its data
+until we call <code class="notranslate" translate="no">unmap</code>. After <code class="notranslate" translate="no">unmap</code>, its length will be set to 0 and its data
 no longer accessible.</p>
 <p>Running that we can see we got the result back, all the numbers have been
 doubled.</p>
@@ -937,7 +941,7 @@ canvas {
 &lt;/style&gt;
 </pre>
 <p>That CSS alone will make the canvas get displayed to cover the page but it won’t change
-the resolution of the canvas itself so you might notice if you make the example below
+the resolution of the canvas itself so you might notice, if you make the example below
 large, like if you click the full-screen button, you’ll see the edges of the triangle
 are blocky.</p>
 <p></p><div class="webgpu_example_container">
@@ -947,7 +951,7 @@ are blocky.</p>
 
 <p></p>
 <p><code class="notranslate" translate="no">&lt;canvas&gt;</code> tags, by default, have a resolution of 300x150 pixels. We’d like to
-adjust the canvas resolution of the canvas to match the size it is displayed.
+adjust the resolution of the canvas to match the size it is displayed.
 One good way to do this is with a <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a>. You create a
 <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> and give it a function to call whenever the elements you’ve
 asked it to observe change their size. You then tell it which elements to

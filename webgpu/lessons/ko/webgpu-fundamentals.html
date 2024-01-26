@@ -503,9 +503,11 @@ WebGPU에서 색상은 대개 <code class="notranslate" translate="no">0.0</code
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -709,6 +711,7 @@ function dispatchWorkgroup(workgroup_id) {
     layout: 'auto',
     compute: {
       module,
+      entryPoint: 'computeSomething',
     },
   });
 </pre>

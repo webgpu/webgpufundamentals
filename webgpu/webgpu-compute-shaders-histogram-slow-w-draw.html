@@ -86,6 +86,7 @@ async function main() {
     layout: 'auto',
     compute: {
       module,
+      entryPoint: 'cs',
     },
   });
 
@@ -120,6 +121,7 @@ async function main() {
     layout: 'auto',
     compute: {
       module: rangeModule,
+      entryPoint: 'cs',
     },
   });
 
@@ -174,9 +176,11 @@ async function main() {
     layout: 'auto',
     vertex: {
       module: renderModule,
+      entryPoint: 'vs',
     },
     fragment: {
       module: renderModule,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

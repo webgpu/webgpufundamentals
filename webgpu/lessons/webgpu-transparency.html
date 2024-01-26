@@ -521,9 +521,11 @@ here’s a typical pipeline from our other examples so far</p>
       layout: pipelineLayout,
       vertex: {
         module,
+        entryPoint: 'vs',
       },
       fragment: {
         module,
+        entryPoint: 'fs',
         targets: [
           {
             format: presentationFormat,
@@ -538,9 +540,11 @@ here’s a typical pipeline from our other examples so far</p>
       layout: pipelineLayout,
       vertex: {
         module,
+        entryPoint: 'vs',
       },
       fragment: {
         module,
+        entryPoint: 'fs',
         targets: [
           {
             format: presentationFormat,
@@ -913,9 +917,11 @@ not use blending. Notice we’re passing in the pipelineLayout instead of using
     layout: pipelineLayout,
     vertex: {
       module,
+      entryPoint: 'vs',
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [ { format: presentationFormat } ],
     },
   });
@@ -941,9 +947,11 @@ not use blending. Notice we’re passing in the pipelineLayout instead of using
       layout: pipelineLayout,
       vertex: {
         module,
+        entryPoint: 'vs',
       },
       fragment: {
         module,
+        entryPoint: 'fs',
         targets: [
           {
             format: presentationFormat,
@@ -970,9 +978,11 @@ the src texture with the srcPipeline (with blending)</p>
       layout: pipelineLayout,
       vertex: {
         module,
+        entryPoint: 'vs',
       },
       fragment: {
         module,
+        entryPoint: 'fs',
         targets: [
           {
             format: presentationFormat,

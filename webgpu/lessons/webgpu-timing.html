@@ -256,6 +256,7 @@ as the scale.</p>
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: 2 * 4 + 4, // 2 floats, 4 bytes each + 4 bytes
@@ -288,6 +289,7 @@ as the scale.</p>
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

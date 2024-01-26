@@ -569,6 +569,7 @@ It takes a texture, an <code class="notranslate" translate="no">vec2u</code> tex
     layout: 'auto',
     compute: {
       module,
+      entryPoint: 'cs',
     },
   });
 </pre>
@@ -1107,7 +1108,8 @@ We need to create pipelines for both shaders</p>
 -    layout: 'auto',
 -    compute: {
 -      module,
---    },
+-      entryPoint: 'cs',
+-    },
 -  });
 
 +  const histogramChunkPipeline = device.createComputePipeline({
@@ -1115,7 +1117,8 @@ We need to create pipelines for both shaders</p>
 +    layout: 'auto',
 +    compute: {
 +      module: histogramChunkModule,
-++    },
++      entryPoint: 'cs',
++    },
 +  });
 +
 +  const chunkSumPipeline = device.createComputePipeline({
@@ -1123,7 +1126,8 @@ We need to create pipelines for both shaders</p>
 +    layout: 'auto',
 +    compute: {
 +      module: chunkSumModule,
-++    },
++      entryPoint: 'cs',
++    },
 +  });
 </pre>
 <p>We need to create a storage buffer large enough for all our chunks so we

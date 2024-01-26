@@ -508,10 +508,9 @@ there are 2 uniform blocks. We could have used 1. I chose to use 2 to more
 separate the vertex shader from the fragment shader.</p>
 <p>Another difference between WebGL and WebGPU is that in WebGPU you can put
 multiple shaders in the same source. In WebGL a shader’s entry point was always
-called <code class="notranslate" translate="no">main</code> but in WebGPU when you use a shader the entry point can be
-any name. If there is more than one entry point of the same type then
-you must specify the name of the entry point.</p>
-<p>Notice in WebGPU the vertex attributes are declared as parameters to the vertex shader
+called <code class="notranslate" translate="no">main</code> but in WebGPU when you use a shader you specify which function to
+call.</p>
+<p>Notice in WebGPU the attributes are declared as parameters to the vertex shader
 function vs GLSL where they are declared as globals outside the function and
 unlike GLSL where if you don’t choose a location the compiler will assign one,
 in WGSL we must supply the locations.</p>
@@ -783,6 +782,7 @@ gl.enable(gl.CULL_FACE);
   layout: 'auto',
   vertex: {
     module: shaderModule,
+    entryPoint: 'myVSMain',
     buffers: [
       // position
       {
@@ -809,6 +809,7 @@ gl.enable(gl.CULL_FACE);
   },
   fragment: {
     module: shaderModule,
+    entryPoint: 'myFSMain',
     targets: [
       {format: presentationFormat},
     ],
@@ -835,9 +836,7 @@ gl.enable(gl.CULL_FACE);
 <p>Shader linking happens when you call <code class="notranslate" translate="no">createRenderPipeline</code> and in fact
 <code class="notranslate" translate="no">createRenderPipeline</code> is a slow call as your shaders might be adjusted
 internally depending on the settings. You can see, for <code class="notranslate" translate="no">vertex</code> and <code class="notranslate" translate="no">fragment</code>
-we specify a shader <code class="notranslate" translate="no">module</code>. WebGPU looks for a vertex entry point by finding
-a function with the <code class="notranslate" translate="no">@vertex</code> attribute and a fragment entry point by finding
-a function with the <code class="notranslate" translate="no">@fragment</code> attribute.
+we specify a shader <code class="notranslate" translate="no">module</code> and specify which function to call via <code class="notranslate" translate="no">entryPoint</code>.
 WebGPU then needs to make sure those 2 functions are compatible with each other
 in the same way that linking two shaders into a program in WebGL checks the shaders
 are compatible with each other.</p>
