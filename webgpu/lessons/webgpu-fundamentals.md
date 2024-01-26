@@ -700,7 +700,7 @@ Now that we've created the shader, we need to create a pipeline.
 ```
 
 Here we just tell it we're using a `compute` stage from the shader `module` we
-created and we want to call the `computeSomething` function. `layout` is
+created and since there is only one `@compute` entry point WebGPU knows we want to call it. `layout` is
 `'auto'` again, telling WebGPU to figure out the layout from the shaders. [^layout-auto]
 
 [^layout-auto]: `layout: 'auto'` is convenient but it's impossible to share bind groups
@@ -847,7 +847,7 @@ finish. Once mapped, we can call `resultBuffer.getMappedRange()` which with no
 parameters will return an `ArrayBuffer` of the entire buffer. We put that in a
 `Float32Array` typed array view and then we can look at the values. One
 important detail, the `ArrayBuffer` returned by `getMappedRange` is only valid
-until we call `unmap`. After `unmap`, its length with be set to 0 and its data
+until we call `unmap`. After `unmap`, its length will be set to 0 and its data
 no longer accessible.
 
 Running that we can see we got the result back, all the numbers have been
@@ -890,14 +890,14 @@ canvas {
 ```
 
 That CSS alone will make the canvas get displayed to cover the page but it won't change
-the resolution of the canvas itself so you might notice if you make the example below
+the resolution of the canvas itself so you might notice, if you make the example below
 large, like if you click the full-screen button, you'll see the edges of the triangle
 are blocky.
 
 {{{example url="../webgpu-simple-triangle-with-canvas-css.html"}}}
 
 `<canvas>` tags, by default, have a resolution of 300x150 pixels. We'd like to
-adjust the canvas resolution of the canvas to match the size it is displayed.
+adjust the resolution of the canvas to match the size it is displayed.
 One good way to do this is with a `ResizeObserver`. You create a
 `ResizeObserver` and give it a function to call whenever the elements you've
 asked it to observe change their size. You then tell it which elements to

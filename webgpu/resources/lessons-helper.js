@@ -506,53 +506,6 @@ function installAlertCatcher() {
   };
 }
 
-async function checkVersion() {
-  const adapter = await navigator.gpu?.requestAdapter();
-  const device = await adapter?.requestDevice();
-  if (!device) {
-    return;  // samples already handle no WebGPU
-  }
-  // check for no entryPoint support
-  device.pushErrorScope('validation');
-  const module = device.createShaderModule({
-    code: `
-    @compute @workgroup_size(1) fn cs() {};
-    `,
-  });
-  try {
-    device.createComputePipeline({ layout: 'auto', compute: { module } });
-  } catch (e) {
-    const msg = document.createElement('div');
-    msg.textContent = 'You need Chrome version 121 or later or a newer version of Firefox Nightly or Safari Technology Preview';
-    msg.style = 'max-width: 80%; margin-bottom: 1em;';
-    const a = document.createElement('a');
-    a.textContent = '[why?]';
-    a.target = '_blank';
-    a.href = 'https://github.com/webgpu/webgpufundamentals#browser-version-issues';
-    a.style = 'color: yellow';
-    const elem = document.createElement('div');
-    elem.style = `
-      position: fixed;
-      display: flex;
-      flex-direction: column;
-      text-align: center;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      color: white;
-      background-color: red;
-      justify-content: center;
-      align-items: center;
-    `;
-    elem.appendChild(msg);
-    elem.appendChild(a);
-    document.body.appendChild(elem);
-  } finally {
-    device.destroy();
-  }
-}
-
 function installWebGPULessonSetup() {
   /*
   const isWebGLRE = /^(webgl|webgl2|experimental-webgl)$/i;
@@ -595,7 +548,6 @@ function installWebGPUDebugHelper() {
   }
 }
 
-checkVersion();
 installWebGPULessonSetup();
 
 if (isInEditor()) {

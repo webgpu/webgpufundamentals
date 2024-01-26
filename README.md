@@ -178,28 +178,3 @@ worked (build and look at the page). Of particular note, check that angle bracke
 
 For other languages you'll likely need to copy the English file and translate.
 
-## Browser Version Issues
-
-WebGPU version 1 has been getting minor updates with cooperation from all browsers. Chrome shipped
-WebGPU in May of 2023 in Chrome 113. As of January 2024, no other browser has shipped WebGPU although
-both Safari and Firefox have versions in progress and available in
-[Safari Technology Preview](https://developer.apple.com/safari/technology-preview/)
-and [Firefox Nightly](https://www.mozilla.org/en-US/firefox/channel/desktop/#nightly).
-
-In any case, with the consultation of all the major browser vendors, small features have been
-added to the version 1 spec. These include but are not limited to:
-
-* Support for `HTMLImageElement` with `copyExternalImageToTexture`
-
-  In the initial shipment of WebGPU, `HTMLImageElement` was not supported so this site used `ImageBitmap`
-  which was supported. Using `HTMLImageElement` is more familiar to developers so this site switched
-  to using `HTMLImageElement`.
-
-* Default entry points to shader modules
-
-  In the initial shipment of WebGPU you were require to specify an `entryPoint: 'nameOfFunction'`
-  when creating a pipeline. It was later agreed that if there was only one entry point of a particular
-  type in a shader module, then you didn't need to specify an entry point.
-
-  It seems pretty clear this no entry point specified way will be the idiomatic way to use WebGPU
-  going forward so this site switched to not using entry points.
