@@ -24,7 +24,7 @@ function showContributors() {
     const subs = {...settings, ...contributors[Math.random() * contributors.length | 0]};
     const template = settings.contribTemplate;
     const html = replaceParams(template, subs);
-    const parent = document.querySelector('#forkongithub>div');
+    const parent = document.querySelector('#forkongithub a');
     const div = document.createElement('div');
     div.className = 'contributors';
     div.innerHTML = html;

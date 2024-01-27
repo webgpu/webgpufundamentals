@@ -89,4 +89,8 @@
 }
 
 </style>
-<div id="forkongithub"><div><div><a href="https://github.com/webgpu/webgpufundamentals">Fix, Fork, Contribute {{{include "build/templates/octocat-icon.svg"}}}</a></div></div></div>
+<div id="forkongithub">
+  <div>
+    <div><a href="https://github.com/webgpu/webgpufundamentals">Fix, Fork, Contribute {{{include "build/templates/octocat-icon.svg"}}}</a></div>
+  </div>
+</div>
