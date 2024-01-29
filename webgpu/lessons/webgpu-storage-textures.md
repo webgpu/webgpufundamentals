@@ -150,18 +150,17 @@ storage textures. If we still wanted to render to the texture via a
 render pass, like most examples on this site, we'd also add the 
 `RENDER_ATTACHMENT` usage.
 
-There's a complication here though. Above we call
-`navigator.gpu.getPreferredCanvasFormat`. As we covered in
-[the first article](webgpu-fundamentals.html), `getPreferredCanvasFormat`
-will return either `rgba8unorm` or `bgra8unorm` depending on whichever
-format is more performant for the user's system.
+There's a complication here though.  As we covered in
+[the first article](webgpu-fundamentals.html), normally we call
+`navigator.gpu.getPreferredCanvasFormat` to get the preferred canvas format.
+`getPreferredCanvasFormat` will return either `rgba8unorm` or `bgra8unorm`
+depending on whichever format is more performant for the user's system.
 
 But, as mentioned above, by default, we can not use a `bgra8unorm`
 texture as a storage texture.
 
-Fortunately there is a [feature](webgpu-limits-and-features.html),
-`'bgra8unorm-storage'`, that
-will enable using a `bgra8unorm` texture as a storage texture.
+Fortunately there is a [feature](webgpu-limits-and-features.html) called
+`'bgra8unorm-storage'`. Enabling that feature will allow a `bgra8unorm` texture as a storage texture.
 In general, it *should* be available on any platform that reports
 `bgra8unorm` as its preferred canvas format but, there is some possibility
 it's not available. So, we need to check if the `'bgra8unorm-storage'`
