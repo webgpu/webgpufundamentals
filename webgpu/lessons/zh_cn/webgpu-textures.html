@@ -230,7 +230,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="lesson">
     <div class="lesson-main">
       <p>本文将介绍纹理的基本原理。在之前的文章中，我们介绍了向着色器传递数据的其他主要方法。它们是<a href="../webgpu-inter-stage-variables.html">inter-stage 变量</a>、<a href="../webgpu-uniforms.html">uniforms</a>、<a href="../webgpu-storage-buffers.html">存储缓冲区</a>和<a href="../webgpu-vertex-buffers">顶点缓冲区</a>。最后一种向着色器传递数据的主要方式是纹理。</p>
-<p>纹理通常代表 2d 图像。二维图像只是一个由颜色值组成的二维数组，因此你可能会问，为什么我们需要二维数组的纹理呢？我们可以直接使用存储缓冲区作为二维数组。纹理的特殊之处在于，它们可以被称为<em>采样器</em>的特殊硬件访问。采样器可以读取纹理中最多 16 个不同的值，并将它们混合在一起，这对许多常见的使用情况都很有用。</p>
+<p>纹理通常代表 2d 图像。二维图像只是一个由颜色值组成的二维数组，因此你可能会问，为什么我们需要二维数组的纹理呢？我们可以直接使用存储缓冲区作为二维数组。纹理的特殊之处在于，它们可以被称为 <em>采样器(sampler)</em> 的特殊硬件访问。采样器可以读取纹理中最多 16 个不同的值，并将它们混合在一起，这对许多常见的使用情况都很有用。</p>
 <p>举个例子，假设我想绘制一张比原始尺寸更大的 2D 图像。</p>
 <div class="center">
   <div>
@@ -238,7 +238,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <div style="text-align: center;">original</div>
   </div>
 </div>
-<p>如果我们只是简单地从原始图像中提取一个像素来制作大图中的每一个像素，就会出现下面的第一个例子。相反，如果我们对大图中的某一像素点考虑原始图像中的多个像素点，就会得到类似下面第二幅图的结果，希望这样显示出来的像素点会更少。</p>
+<p>如果我们只是简单地从原始图像中提取一个像素来制作大图中的每一个像素，就会出现下面的第一个例子。相反，如果我们对大图中的某一像素点考虑原始图像中的多个像素点，就会得到类似下面第二幅图的结果，希望这样显示出来的马赛克会更少。</p>
 <div class="webgpu_center compare">
   <div>
     <div><img class="pixel-perfect" src="../resources/kiana.png" style="max-width: 100%; width: 512px; height: 512px; image-rendering: pixelated; image-rendering: crisp-edges;"></div>
@@ -326,8 +326,8 @@ const textureData = new Uint8Array([
   ].flat());
 </pre>
 <p>希望你能看到 <code class="notranslate" translate="no">F</code> 以及左上角的蓝色像素（第一个值）。</p>
-<p>我们将创建一个 <code class="notranslate" translate="no">rgba8unorm</code> 纹理。<code class="notranslate" translate="no">rgba8unorm</code> "表示纹理将有有红、绿、蓝和 alpha 值。每个值都是 8 位无符号值，并且在纹理中使用时将进行归一化处理。<code class="notranslate" translate="no">unorm</code> "表示 <code class="notranslate" translate="no">unsigned normalized</code>。意思是 “无符号归一化”，它将 0~255 的值转换为 0.0~1.0 之间的浮点数值。</p>
-<p>换句话说，如果我们在纹理中输入的值是<code class="notranslate" translate="no">[64, 128, 192, 255]</code>，那么着色器中的值最终将是<code class="notranslate" translate="no">[64 / 255, 128 / 255, 192 / 255, 255 / 255]</code>。着色器中的值最终将是"[64 / 255, 128 / 255, 192 / 255, 255 / 255]"。或者换一种说法，在 shader 中最终的值是<code class="notranslate" translate="no">[0.25, 0.50, 0.75, 1.00]</code>。</p>
+<p>我们将创建一个 <code class="notranslate" translate="no">rgba8unorm</code> 纹理。<code class="notranslate" translate="no">rgba8unorm</code> 表示纹理将有有红、绿、蓝和 alpha 值。每个值都是 8 位无符号值，并且在纹理中使用时将进行归一化处理。<code class="notranslate" translate="no">unorm</code> 表示 <code class="notranslate" translate="no">unsigned normalized</code>。意思是 “无符号归一化”，它将 0~255 的值转换为 0.0~1.0 之间的浮点数值。</p>
+<p>换句话说，如果我们在纹理中输入的值是<code class="notranslate" translate="no">[64, 128, 192, 255]</code>，那么着色器中的值最终将是<code class="notranslate" translate="no">[64 / 255, 128 / 255, 192 / 255, 255 / 255]</code>。或者换一种说法，在 shader 中最终的值是<code class="notranslate" translate="no">[0.25, 0.50, 0.75, 1.00]</code>。</p>
 <p>现在我们有了数据，我们来制作一下纹理</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const texture = device.createTexture({
     size: [kTextureWidth, kTextureHeight],
@@ -335,7 +335,7 @@ const textureData = new Uint8Array([
     usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
 });
 </pre>
-<p>对于 <code class="notranslate" translate="no">device.createTexture</code>，<code class="notranslate" translate="no">size</code>参数应该非常明显。如上所述，纹理格式为 <code class="notranslate" translate="no">rgba8unorm</code>。对于<code class="notranslate" translate="no">usage</code>，<code class="notranslate" translate="no">GPUTextureUsage.TEXTURE_BINDING</code> 表示我们希望能将此纹理绑定到一个绑定组<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>，而 <code class="notranslate" translate="no">COPY_DST</code> 则表示我们希望能将数据复制到此纹理。</p>
+<p>对于 <code class="notranslate" translate="no">device.createTexture</code>，<code class="notranslate" translate="no">size</code> 参数应该非常明显。如上所述，纹理格式为 <code class="notranslate" translate="no">rgba8unorm</code>。对于 <code class="notranslate" translate="no">usage</code>，<code class="notranslate" translate="no">GPUTextureUsage.TEXTURE_BINDING</code> 表示我们希望能将此纹理绑定到一个绑定组<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>，而 <code class="notranslate" translate="no">COPY_DST</code> 则表示我们希望能将数据复制到此纹理。</p>
 <p>接下来，我们需要做的就是将数据复制到纹理上面。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.writeTexture(
     { texture },
@@ -414,11 +414,11 @@ const textureData = new Uint8Array([
 <p>翻转数据非常常见，甚至在从图片、视频和画布中加载纹理时都有选项来为你翻转数据。</p>
 </li>
 </ol>
-<h2 id="放大过滤器"><a id="a-mag-filter"></a>放大过滤器</h2>
-<p>在上面的示例中，我们使用了默认设置的采样器。由于我们绘制的 5x7 纹理比原始的 5x7 纹理要大，因此采样器使用了所谓的 <code class="notranslate" translate="no">magFilter</code> 或者说是放大纹理时使用的过滤器。如果我们将其从 <code class="notranslate" translate="no">nearest</code>改为 <code class="notranslate" translate="no">linear</code>，那么它将在 4 个像素之间进行线性插值。</p>
+<h2 id="放大过滤器magfilter"><a id="a-mag-filter"></a>放大过滤器(magFilter)</h2>
+<p>在上面的示例中，我们使用了默认设置的采样器。由于我们绘制的 5x7 纹理比原始的 5x7 纹理要大，因此采样器使用了所谓的 <code class="notranslate" translate="no">magFilter</code> 或者说是放大纹理时使用的过滤器。如果我们将其从 <code class="notranslate" translate="no">nearest</code> 改为 <code class="notranslate" translate="no">linear</code>，那么它将在 4 个像素之间进行线性插值。</p>
 <p><a id="a-linear-interpolation"></a></p>
 <div class="webgpu-center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
-<p>纹理坐标通常称为 “UVsZ”（读作 you-vees），因此在上图中，<code class="notranslate" translate="no">uv</code> 就是纹理坐标。<code class="notranslate" translate="no">t1</code> 是所选像素的左上方中心点与其右边中心点之间的水平距离，0 表示水平位于像素的左边中心点，1 表示水平位于像素的右边中心点。<code class="notranslate" translate="no">t2</code>与其类似，只不过是在竖直方向。</p>
+<p>纹理坐标通常称为 “UVs”（读作 you-vees），因此在上图中，<code class="notranslate" translate="no">uv</code> 就是纹理坐标。<code class="notranslate" translate="no">t1</code> 是所选像素的左上方中心点与其右边中心点之间的水平距离，0 表示水平位于像素的左边中心点，1 表示水平位于像素的右边中心点。<code class="notranslate" translate="no">t2</code> 与其类似，只不过是在竖直方向。</p>
 <p><code class="notranslate" translate="no">t1</code> 用于在顶部 2 个像素之间进行 <em>“混合”</em>，以生成中间色。 混合在 2 个值之间进行线性插值，因此当 <code class="notranslate" translate="no">t1</code> 为 0 时，我们只能得到第一种颜色。当 <code class="notranslate" translate="no">t1</code> = 1 时，我们只能得到第二种颜色。介于 0 和 1 之间的值会产生比例混合。例如，0.3 表示第一种颜色占 70%，第二种颜色占 30%。同样，底部 2 个像素也会计算出第二种中间色。最后，使用 <code class="notranslate" translate="no">t2</code> 将两种中间颜色混合为最终颜色。</p>
 <p>另外需要注意的是，在图的底部还有两个采样器设置，即 <code class="notranslate" translate="no">addressModeU</code> 和 <code class="notranslate" translate="no">addressModeV</code>。我们可以将其设置为 <code class="notranslate" translate="no">repeat</code> 或 <code class="notranslate" translate="no">clamp-to-edge</code><sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup>。当设置为 <code class="notranslate" translate="no">repeat</code> 时，当我们的纹理坐标位于纹理边缘半个图元以内时，我们就会环绕纹理并与纹理另一侧的像素混合。当设置为 <code class="notranslate" translate="no">clamp-to-edge</code> 时，为了计算要返回的颜色，纹理坐标会被夹住，使其不能进入每条边缘的最后半格距。这样做的效果是，在该范围之外的任何纹理坐标都会显示边缘颜色。</p>
 <p>让我们更新一下示例，这样就可以使用所有这些选项绘制四边形了。</p>
@@ -478,19 +478,19 @@ const textureData = new Uint8Array([
   gui.add(settings, 'addressModeV', addressOptions).onChange(render);
   gui.add(settings, 'magFilter', filterOptions).onChange(render);
 </pre>
-<p>上面的代码声明了<code class="notranslate" translate="no">settings</code>，然后创建了一个用户界面来设置它们，并在它们发生变化时调用 <code class="notranslate" translate="no">render</code>。</p>
+<p>上面的代码声明了 <code class="notranslate" translate="no">settings</code>，然后创建了一个用户界面来设置它们，并在它们发生变化时调用 <code class="notranslate" translate="no">render</code>。</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-textured-quad-linear.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-textured-quad-linear.html" target="_blank">点此在新窗口中浏览</a>
 </div>
 
 <p></p>
-<p>由于片段着色器接收的是插值纹理坐标，因此当我们的着色器使用这些坐标调用 <code class="notranslate" translate="no">textureSample</code> 时，会得到不同的混合颜色，因为它需要为渲染的每个像素提供一种颜色。请注意，当地址模式设置为 "repeat"时，我们可以看到 WebGPU 正在从纹理反面的纹理中 “采样”。</p>
-<h2 id="缩小过滤器"><a id="a-min-filter"></a>缩小过滤器</h2>
-<p>还有一个设置，即 <code class="notranslate" translate="no">minFilter</code>，当绘制的纹理小于其尺寸时，它也会进行与 <code class="notranslate" translate="no">magFilter</code> 类似的运算。当设置为 "线性 "时，它也会选择 4 个像素，并按照与上述类似的计算方法进行混合。</p>
+<p>由于片段着色器接收的是插值纹理坐标，因此当我们的着色器使用这些坐标调用 <code class="notranslate" translate="no">textureSample</code> 时，会得到不同的混合颜色，因为它需要为渲染的每个像素提供一种颜色。请注意，当 address mode 设置为 “repeat” 时，我们可以看到 WebGPU 正在从纹理的另一边 “采样”。</p>
+<h2 id="缩小过滤器minfilter"><a id="a-min-filter"></a>缩小过滤器(minFilter)</h2>
+<p>还有一个设置，即 <code class="notranslate" translate="no">minFilter</code>，当绘制的纹理小于其尺寸时，它也会进行与 <code class="notranslate" translate="no">magFilter</code> 类似的运算。当设置为 “linear” 时，它也会选择 4 个像素，并按照与上述类似的计算方法进行混合。</p>
 <p>问题是，如果从较大的纹理中选择 4 个混合像素来渲染 1 个像素，颜色就会发生变化，我们就会看到闪烁。</p>
 <p>让我们来做一下，以便了解问题所在</p>
-<p>首先，让我们将画布设置为低分辨率。为此，我们需要更新我们的 css，但是此时浏览器不会在画布上产生类似的的 <code class="notranslate" translate="no">magFilter: 'linear'</code>效果。我们可以通过如下设置 css 来实现这一点</p>
+<p>首先，让我们将画布设置为低分辨率。为此，我们需要更新我们的 css，但是此时浏览器不会在画布上产生类似的的 <code class="notranslate" translate="no">magFilter: 'linear'</code> 效果。我们可以通过如下设置 css 来实现这一点</p>
 <pre class="prettyprint showlinemods notranslate lang-css" translate="no">canvas {
   display: block;  /* make the canvas act like a block   */
   width: 100%;     /* make the canvas fill its container */
@@ -682,7 +682,7 @@ const textureData = new Uint8Array([
 </div>
 
 <p></p>
-<p>你可以看到四边形在闪烁并变换颜色。如果将 <code class="notranslate" translate="no">minFilter</code>设置为 <code class="notranslate" translate="no">nearest</code>，那么对于四边形的每个 2x2 像素，它都会从我们的纹理中选取一个像素。如果将其设置为线性，那么它就会执行我们上面提到的双线性滤波，但仍然会闪烁。</p>
+<p>你可以看到四边形在闪烁并变换颜色。如果将 <code class="notranslate" translate="no">minFilter</code> 设置为 <code class="notranslate" translate="no">nearest</code>，那么对于四边形的每个 2x2 像素，它都会从我们的纹理中选取一个像素。如果将其设置为 <code class="notranslate" translate="no">linear</code>，那么它就会执行我们上面提到的双线性滤波，但仍然会闪烁。</p>
 <p>其中一个原因是，四边形是用实数定位的，而像素是整数。纹理坐标是从实数中插值出来的，或者说是从实数中计算出来的。</p>
 <p><a id="a-pixel-to-texcoords"></a></p>
 <div class="webgpu-center center diagram">
@@ -831,8 +831,8 @@ const generateMips = (src, srcWidth) =&gt; {
 <p></p>
 <p>调整缩放比例，你会发现随着尺寸的增大，使用的 mip 级别也会发生变化。在缩放比例 2.4 和缩放比例 2.5 之间，GPU 会在 mip 级别 0（最大 mip 级别）和 mip 级别 1（中等大小）之间切换，这是一个非常严酷的过渡。这该怎么办？</p>
 <h2 id="mipmap-过滤器"><a id="a-mipmap-filter"></a>mipmap 过滤器</h2>
-<p>就像我们的 <code class="notranslate" translate="no">magFilter</code> 和 <code class="notranslate" translate="no">minFilter</code> 都可以是<code class="notranslate" translate="no">nearest</code>或<code class="notranslate" translate="no">linear</code>的一样，还有一个 <code class="notranslate" translate="no">mipmapFilter</code> 设置，也可以是<code class="notranslate" translate="no">nearest</code>或<code class="notranslate" translate="no">linear</code>的。</p>
-<p>如果我们在 mip 级别之间进行混合，就会选择这种方式。在 <code class="notranslate" translate="no">mipmapFilter: 'linear'</code>中，颜色从 2 个 mip 层采样，根据之前的设置进行最近过滤或线性过滤，然后再以类似的方式混合这 2 种颜色。</p>
+<p>就像我们可以设置 <code class="notranslate" translate="no">magFilter</code> 和 <code class="notranslate" translate="no">minFilter</code> 为 <code class="notranslate" translate="no">nearest</code> 或 <code class="notranslate" translate="no">linear</code> 一样，<code class="notranslate" translate="no">mipmapFilter</code> 也可以被设置为 <code class="notranslate" translate="no">nearest</code> 或 <code class="notranslate" translate="no">linear</code>。</p>
+<p>如果我们在 mip 级别之间进行混合，就会选择这种方式。在 <code class="notranslate" translate="no">mipmapFilter: 'linear'</code> 中，颜色从 2 个 mip 层采样，根据之前的设置进行 nearest 或 linear 过滤，然后再以类似的方式混合这 2 种颜色。</p>
 <p>在绘制三维图时，这种情况出现得最多。如何绘制 3D 图像在<a href="../webgpu-perspective.html">其他文章</a>中已有介绍，这里就不多说了，但我们将改变之前的示例，显示一些 3D 图像，以便更好地了解 <code class="notranslate" translate="no">mipmapFilter</code> 的工作原理。</p>
 <p>首先，让我们制作一些纹理。我们将制作一个 16x16 的纹理，我认为这样可以更好地展示 <code class="notranslate" translate="no">mipmapFilter</code> 的效果。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">//prettier-ignore
@@ -966,7 +966,7 @@ struct Uniforms {
   return textureSample(ourTexture, ourSampler, fsInput.texcoord);
 }
 </pre>
-<p>8 个平面将分别使用不同的 <code class="notranslate" translate="no">minFilter</code>、<code class="notranslate" translate="no">magFilter</code> 和 <code class="notranslate" translate="no">mipmapFilter</code> 组合。这意味着每个平面都需要一个不同的绑定组，其中包含一个具有特定滤镜组合的采样器。此外，我们还有 2 个纹理。纹理也是绑定组的一部分，因此每个对象需要 2 个绑定组，每个纹理一个。然后，我们可以在渲染时选择使用哪一个。要在 8 个位置绘制平面，我们还需要在每个位置使用一个制服缓冲区，就像我们在<a href="../webgpu-uniforms.html">uniform 一文</a>中所介绍的那样。</p>
+<p>8 个平面将分别使用不同的 <code class="notranslate" translate="no">minFilter</code>、<code class="notranslate" translate="no">magFilter</code> 和 <code class="notranslate" translate="no">mipmapFilter</code> 组合。这意味着每个平面都需要一个不同的绑定组，其中包含一个具有特定滤镜组合的采样器。此外，我们还有 2 个纹理。纹理也是绑定组的一部分，因此每个对象需要 2 个绑定组，每个纹理一个。然后，我们可以在渲染时选择使用哪一个。要在 8 个位置绘制平面，我们还需要在每个位置使用一个 uniform buffer，就像我们在<a href="../webgpu-uniforms.html">uniform 一文</a>中所介绍的那样。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// offsets to the various uniform values in float32 indices
 const kMatrixOffset = 0;
 
@@ -1108,8 +1108,8 @@ for (let i = 0; i &lt; 8; ++i) {
 </div>
 
 <p></p>
-<p>希望您能看到从左上角所有过滤设置为最近到右下角所有过滤设置为线性的过程。特别要指出的是，由于我们在本例中添加了 <code class="notranslate" translate="no">mipmapFilter</code>，如果点击图片来显示经过检查的纹理，其中每个 mip 层都是不同的颜色，你应该可以看到顶部的每个平面都将 mipmapFilter 设置为<code class="notranslate" translate="no">nearest</code>，因此从一个 mip 层切换到下一个 mip 层时是突然的。在底部，每个平面的 <code class="notranslate" translate="no">mipmapFilter</code> 都设置为<code class="notranslate" translate="no">linear</code>，因此在 mip 级别之间会发生混合。</p>
-<p>你可能会问，为什么不将所有过滤都设置为线性呢？显而易见的原因就是风格。如果你想制作一幅像素化的图像，那么当然不需要滤波。另一个原因是速度。当所有过滤都设置为最近时，从纹理中读取 1 个像素的速度要快于当所有过滤都设置为线性时，从纹理中读取 8 个像素的速度。</p>
+<p>希望您能看到从左上角所有过滤设置为最近到右下角所有过滤设置为线性的过程。特别要指出的是，由于我们在本例中添加了 <code class="notranslate" translate="no">mipmapFilter</code>，如果点击图片来显示经过检查的纹理，其中每个 mip 层都是不同的颜色，你应该可以看到顶部的每个平面都将 mipmapFilter 设置为 <code class="notranslate" translate="no">nearest</code>，因此从一个 mip 层切换到下一个 mip 层时是突变的。在底部，每个平面的 <code class="notranslate" translate="no">mipmapFilter</code> 都设置为 <code class="notranslate" translate="no">linear</code>，因此在 mip 级别之间会发生混合。</p>
+<p>你可能会问，为什么不将所有过滤都设置为 <code class="notranslate" translate="no">linear</code> 呢？显而易见的原因就是风格。如果你想制作一幅像素化的图像，那么当然不需要滤波。另一个原因是速度。当所有过滤都设置为 <code class="notranslate" translate="no">nearest</code> 时，从纹理中读取 1 个像素的速度要快于当所有过滤都设置为 <code class="notranslate" translate="no">linear</code> 时，从纹理中读取 8 个像素的速度。</p>
 <p>待定：重复模式</p>
 <p>待定：各向异性过滤模式</p>
 <h2 id="纹理类型与纹理视图">纹理类型与纹理视图</h2>
@@ -1119,7 +1119,7 @@ for (let i = 0; i &lt; 8; ++i) {
 <li>“2d”</li>
 <li>“3d”</li>
 </ul>
-<p>在某种程度上，您可以将 "2d "纹理视为深度为 1 的 "3d "纹理，而 "1d "纹理只是高度为 1 的 "2d "纹理。每种类型的纹理 “1d”、"2d "和 "3d "都有不同的限制。在设置画布大小时，我们使用的是 "2d "限制。</p>
+<p>在某种程度上，您可以将 “2d” 纹理视为深度为 1 的 “3d” 纹理，而 “1d” 纹理只是高度为 1 的 “2d” 纹理。每种类型的纹理 “1d”、“2d” 和 “3d” 都有不同的限制。在设置画布大小时，我们使用的是 "2d "限制。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">canvas.width = Math.max(
     1,
     Math.min(width, device.limits.maxTextureDimension2D)
@@ -1129,7 +1129,7 @@ canvas.height = Math.max(
     Math.min(height, device.limits.maxTextureDimension2D)
 );
 </pre>
-<p>另一个问题是速度，至少对于 3d 纹理与 2d 纹理的对比而言，在所有采样器滤波器都设置为<code class="notranslate" translate="no">linear</code>的情况下，3d 纹理采样需要查看 16 个像素并将它们混合在一起。而 2d 纹理采样只需要 8 个像素。1d 纹理可能只需要 4 个，但我不知道 GPU 是否真的针对 1d 纹理进行了优化。</p>
+<p>另一个问题是速度，至少对于 3d 纹理与 2d 纹理的对比而言，在所有采样器滤波器都设置为 <code class="notranslate" translate="no">linear</code> 的情况下，3d 纹理采样需要查看 16 个像素并将它们混合在一起。而 2d 纹理采样只需要 8 个像素。1d 纹理可能只需要 4 个，但我不知道 GPU 是否真的针对 1d 纹理进行了优化。</p>
 <h3 id="纹理视图">纹理视图</h3>
 <p>一共有 6 种纹理视图，如下</p>
 <ul>
@@ -1140,11 +1140,11 @@ canvas.height = Math.max(
 <li>“cube”</li>
 <li>“cube-array”</li>
 </ul>
-<p>"1d "纹理只能有 "1d "视图。"3d "纹理只能有 "3d "视图。"2d "纹理可以有 "2d-数组 "视图。如果一个 "2d "纹理有 6 层，它可以有一个 "立方体 "视图。如果是 6 层的倍数，则可以使用 "立方体阵列 "视图。您可以在调用 <code class="notranslate" translate="no">someTexture.createView</code> 时选择如何查看纹理。纹理视图默认与其尺寸相同，但您也可以向 <code class="notranslate" translate="no">someTexture.createVie</code>w 传递不同的尺寸。</p>
-<p>我们将在<a href="../webgpu-3dluts.html">色调映射/3dLUT 的文章</a>中介绍 "3d "纹理。</p>
-<p>"cube"纹理是表示立方体 6 个面的纹理。立方体纹理通常用于绘制天空框、反射和环境贴图。我们将在<a href="../webgpu-cube-maps.html">有关立方体贴图的文章</a>中介绍这一点。</p>
-<p>"2d-array"是一个二维纹理数组。您可以选择在着色器中访问数组中的哪种纹理。除其他外，它们通常用于地形渲染。</p>
-<p>"cube-array"是一个立方体纹理数组。</p>
+<p>“1d” 纹理只能有 “1d” 视图。“3d” 纹理只能有 “3d” 视图。“2d” 纹理可以有 “2d-array” 视图。如果一个 “2d” 纹理有 6 层，它可以有一个 “cube” 视图。如果是 6 层的倍数，则可以使用 “cube-array” 视图。您可以在调用 <code class="notranslate" translate="no">someTexture.createView</code> 时选择如何查看纹理。纹理视图默认与其尺寸相同，但您也可以向 <code class="notranslate" translate="no">someTexture.createView</code> 传递不同的尺寸。</p>
+<p>我们将在<a href="../webgpu-3dluts.html">色调映射/3dLUT 的文章</a>中介绍 “3d” 纹理。</p>
+<p>“cube” 纹理是表示立方体 6 个面的纹理。Cube 纹理通常用于绘制天空框、反射和环境贴图。我们将在<a href="../webgpu-cube-maps.html">有关立方体贴图的文章</a>中介绍这一点。</p>
+<p>“2d-array” 是一个二维纹理数组。您可以选择在着色器中访问数组中的哪种纹理。除其他外，它们通常用于地形渲染。</p>
+<p>“cube-array” 是一个 cube 纹理数组。</p>
 <p>每种类型的纹理在 WGSL 中都有自己对应的类型。</p>
 <div class="webgpu_center data-table" style="max-width: 500px;">
   <style>
@@ -1174,16 +1174,16 @@ canvas.height = Math.max(
    </tbody>
   </table>
 </div>
-<p>我们将在实际使用中介绍其中的一些内容，但在创建纹理（调用 <code class="notranslate" translate="no">device.createTexture</code>）时，只有 “1d”、"2d "或 "3d "可供选择，而默认值为 “2d”，这可能会让人有些困惑，因此我们还不需要指定尺寸。</p>
+<p>我们将在实际使用中介绍其中的一些内容，但在创建纹理（调用 <code class="notranslate" translate="no">device.createTexture</code>）时，只有 “1d”、“2d” 或 “3d” 可供选择，而默认值为 “2d”，这可能会让人有些困惑，因此我们还不需要指定尺寸。</p>
 <h2 id="纹理格式">纹理格式</h2>
 <p>目前，这只是纹理的基础知识。纹理是一个庞大的话题，还有很多内容需要涉及。</p>
 <p>我们在本文中使用的是 <code class="notranslate" translate="no">rgba8unorm</code> 纹理，但其实有很多不同的纹理格式。</p>
-<p>这里介绍的是 "颜色 "格式，当然你不一定要在其中存储颜色。</p>
+<p>这里介绍的是 “颜色” 格式，当然你不一定要在其中存储颜色。</p>
 <div class="webgpu_center data-table"><div data-diagram="color-texture-formats"></div></div>
-<p>要读取格式，如 “rg16float”，第一个字母表示纹理支持的通道，因此 "rg16float "支持 "rg "或红色和绿色（2 个通道）。数字 16 表示每个通道都是 16 位。末尾的单词表示通道中的数据类型。“float” 表示浮点数据。</p>
-<p>"unorm "是无符号归一化数据（0 到 1），表示纹理中的数据从 0 到 N，其中 N 是该位数的最大整数值。该整数范围被解释为（0 至 1）的浮点范围。换句话说，对于 8unorm 纹理来说，就是 8 个比特（因此数值从 0 到 255）被解释为数值从（0 到 1）。</p>
-<p>"snorm "是带符号的归一化数据（-1 至 +1），因此数据范围是从位数所代表的最负整数到最正整数。作为有符号整数，最低位数为 -128，最高位数为 +127。这个范围被转换为（-1 至 +1）。</p>
-<p>"sint "是有符号整数。"uint "是无符号整数。如果有多个字母数字组合，则指定每个通道的位数。例如，"rg11b10ufloat "表示 “rg11”，即红色和绿色各 11 位。"b10 "是 10 位蓝色，它们都是无符号浮点数。</p>
+<p>要读取格式，如 “rg16float”，第一个字母表示纹理支持的通道，因此 “rg16float” 支持 “rg” 或红色和绿色（2 个通道）。数字 16 表示每个通道都是 16 位。末尾的单词表示通道中的数据类型。“float” 表示浮点数据。</p>
+<p>“unorm” 是无符号归一化数据（0 到 1），表示纹理中的数据从 0 到 N，其中 N 是该位数的最大整数值。该整数范围被解释为（0 至 1）的浮点范围。换句话说，对于 8unorm 纹理来说，就是 8 个比特（因此数值从 0 到 255）被解释为数值从（0 到 1）。</p>
+<p>“snorm” 是带符号的归一化数据（-1 至 +1），因此数据范围是从位数所代表的最负整数到最正整数。作为有符号整数，最低位数为 -128，最高位数为 +127。这个范围被转换为（-1 至 +1）。</p>
+<p>“sint” 是有符号整数。“uint” 是无符号整数。如果有多个字母数字组合，则指定每个通道的位数。例如，“rg11b10ufloat” 表示 “rg11”，即红色和绿色各 11 位。“b10” 是 10 位蓝色，它们都是无符号浮点数。</p>
 <ul>
 <li>
 <p><strong>renderable</strong></p>
@@ -1194,13 +1194,13 @@ canvas.height = Math.max(
 <p>能够被<a href="../webgpu-multisampling.html">多重采样</a></p>
 </li>
 <li>
-<p><strong>存 storage 储</strong></p>
+<p><strong>storage</strong></p>
 <p>纹理可写作为<a href="../webgpu-storage-textures.html">storage texture</a></p>
 </li>
 <li>
 <p><strong>sampler type</strong></p>
 <p>这关系到在 WGSL 中需要声明哪种类型的纹理，以及如何将采样器绑定到绑定组。上面我们使用了 <code class="notranslate" translate="no">texture_2d&lt;f32&gt;</code>，但例如，在 WGSL 中，<code class="notranslate" translate="no">sint</code> 需要 <code class="notranslate" translate="no">texture_2d&lt;i32&gt;</code>，<code class="notranslate" translate="no">uint</code> 需要 <code class="notranslate" translate="no">texture_2d&lt;u32&gt;</code>。</p>
-<p>在采样器类型一栏中，<code class="notranslate" translate="no">unfilterable-float</code>（不可过滤浮点型）意味着采样器只能使用<code class="notranslate" translate="no">nearest</code>的格式，这意味着你可能需要手动创建一个绑定组布局，而这是我们之前一直使用 <code class="notranslate" translate="no">'auto'</code>布局时没有做过的。这主要是因为桌面 GPU 通常可以过滤 32 位浮点纹理，但至少到 2023 年，大多数移动设备还不能。如果您的适配器支持 <code class="notranslate" translate="no">float32-filterable</code> 功能，并且您在请求设备时启用了该功能，那么 <code class="notranslate" translate="no">r32float</code>、<code class="notranslate" translate="no">rg32float</code> 和 <code class="notranslate" translate="no">rgba32float</code> 格式就会从不可过滤浮点格式转换为浮点格式，这些纹理格式无需其他更改即可正常工作。</p>
+<p>在采样器类型一栏中，<code class="notranslate" translate="no">unfilterable-float</code>（不可过滤浮点型）意味着采样器只能使用 <code class="notranslate" translate="no">nearest</code> 的格式，这意味着你可能需要手动创建一个绑定组布局，而这是我们之前一直使用 <code class="notranslate" translate="no">'auto'</code> 布局时没有做过的。这主要是因为桌面 GPU 通常可以过滤 32 位浮点纹理，但至少到 2023 年，大多数移动设备还不能。如果您的适配器支持 <code class="notranslate" translate="no">float32-filterable</code> 功能，并且您在请求设备时启用了该功能，那么 <code class="notranslate" translate="no">r32float</code>、<code class="notranslate" translate="no">rg32float</code> 和 <code class="notranslate" translate="no">rgba32float</code> 格式就会从不可过滤浮点格式转换为浮点格式，这些纹理格式无需其他更改即可正常工作。</p>
 </li>
 </ul>
 <p><a id="a-depth-stencil-formats"></a>以下是深度和模板格式</p>
@@ -1230,11 +1230,11 @@ canvas.height = Math.max(
 <ol class="footnotes-list">
 <li id="fn1" class="footnote-item"><p>纹理坐标是向上（0 = 底部，1 = 顶部）还是向下（0 = 顶部，1 = 底部）是一个视角问题。重要的是纹理坐标 0,0 是纹理中的第一个数据。︎ <a href="#fnref1" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn2" class="footnote-item"><p>texel 是 "纹理元素 "的简称，而 pixel 则是 "图片元素 "的简称。对我来说，texel 和 pixel 基本上是同义词，但有些人在讨论纹理时喜欢使用 texel 这个词。 <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+<li id="fn2" class="footnote-item"><p>texel 是 "纹理元素 "的简称，而 pixel 则是 "图片元素 "的简称。对我来说，texel 和 pixel 基本上是同义词，但有些人在讨论纹理时喜欢使用 <em>texel</em> 这个词。 <a href="#fnref2" class="footnote-backref">↩︎</a></p>
 </li>
 <li id="fn3" class="footnote-item"><p>纹理的另一个常见用法是 <code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code>，用于我们要渲染的纹理。例如，从 <code class="notranslate" translate="no">context.getCurrentTexture()</code> 获取的画布纹理默认设置为 <code class="notranslate" translate="no">GPUTextureUsage.RENDER_ATTACHMENT</code>。 <a href="#fnref3" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn4" class="footnote-item"><p>还有一种地址模式，即 “镜像重复”。如果我们的纹理是"🟥🟩🟦"，那么重复的地址是"🟥🟩🟦🟥🟩🟦🟥🟩🟦🟥🟩🟦"，镜像重复的地址是"🟥🟩🟦🟦🟩🟥🟥🟩🟦🟦🟩🟥"。 <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+<li id="fn4" class="footnote-item"><p>还有一种 address mode，即 “mirror-repeat”。如果我们的纹理是"🟥🟩🟦"，那么 repeat 会表现成 “🟥🟩🟦🟥🟩🟦🟥🟩🟦🟥🟩🟦”，而 mirror- repeat 会表现成 “🟥🟩🟦🟦🟩🟥🟥🟩🟦🟦🟩🟥”。 <a href="#fnref4" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>
