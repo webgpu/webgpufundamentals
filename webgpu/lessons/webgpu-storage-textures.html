@@ -350,16 +350,15 @@ to the page. <code class="notranslate" translate="no">STORAGE_BINDING</code> let
 storage textures. If we still wanted to render to the texture via a
 render pass, like most examples on this site, we’d also add the
 <code class="notranslate" translate="no">RENDER_ATTACHMENT</code> usage.</p>
-<p>There’s a complication here though. Above we call
-<code class="notranslate" translate="no">navigator.gpu.getPreferredCanvasFormat</code>. As we covered in
-<a href="webgpu-fundamentals.html">the first article</a>, <code class="notranslate" translate="no">getPreferredCanvasFormat</code>
-will return either <code class="notranslate" translate="no">rgba8unorm</code> or <code class="notranslate" translate="no">bgra8unorm</code> depending on whichever
-format is more performant for the user’s system.</p>
+<p>There’s a complication here though.  As we covered in
+<a href="webgpu-fundamentals.html">the first article</a>, normally we call
+<code class="notranslate" translate="no">navigator.gpu.getPreferredCanvasFormat</code> to get the preferred canvas format.
+<code class="notranslate" translate="no">getPreferredCanvasFormat</code> will return either <code class="notranslate" translate="no">rgba8unorm</code> or <code class="notranslate" translate="no">bgra8unorm</code>
+depending on whichever format is more performant for the user’s system.</p>
 <p>But, as mentioned above, by default, we can not use a <code class="notranslate" translate="no">bgra8unorm</code>
 texture as a storage texture.</p>
-<p>Fortunately there is a <a href="webgpu-limits-and-features.html">feature</a>,
-<code class="notranslate" translate="no">'bgra8unorm-storage'</code>, that
-will enable using a <code class="notranslate" translate="no">bgra8unorm</code> texture as a storage texture.
+<p>Fortunately there is a <a href="webgpu-limits-and-features.html">feature</a> called
+<code class="notranslate" translate="no">'bgra8unorm-storage'</code>. Enabling that feature will allow a <code class="notranslate" translate="no">bgra8unorm</code> texture as a storage texture.
 In general, it <em>should</em> be available on any platform that reports
 <code class="notranslate" translate="no">bgra8unorm</code> as its preferred canvas format but, there is some possibility
 it’s not available. So, we need to check if the <code class="notranslate" translate="no">'bgra8unorm-storage'</code>
