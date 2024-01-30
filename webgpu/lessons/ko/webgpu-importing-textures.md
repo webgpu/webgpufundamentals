@@ -881,7 +881,7 @@ requestAnimationFrame(render);
 
 포토샵이나 [Photopea](https://photopea.com)와 같은 이미지 편집 소프트웨어를 사용해 여섯 개의 이미지를 하나의 이미지에 넣을 수 있습니다.
 
-<img class="webgpu_center" src="../resources/noodles.jpg" />
+<img class="webgpu_center" src="../resources/images/noodles.jpg" />
 
 그리고 큐브의 각 면에 해당하는 이미지를 선택할 수 있도록 텍스처 좌표를 제공하는 큐브들 만듭니다. 
 간단하게 하기 위해 여섯 개의 이미지를 4x2의 형태로 배치하였습니다. 

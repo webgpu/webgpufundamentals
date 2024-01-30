@@ -912,7 +912,7 @@ Let's wrap a cube with these 6 images
 
 Using some image editing software like Photoshop or [Photopea](https://photopea.com) we could put all 6 images into a single image
 
-<img class="webgpu_center" src="../resources/noodles.jpg" />
+<img class="webgpu_center" src="../resources/images/noodles.jpg" />
 
 We'd then make a cube and provide texture coordinates that select each
 portion of the image onto a specific face of the cube. To keep it simple I put
