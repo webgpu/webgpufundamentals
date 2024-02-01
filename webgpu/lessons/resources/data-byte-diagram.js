@@ -1,6 +1,9 @@
+/* global globalThis */
+
 import {
-  makeStructuredView,
   getSizeAndAlignmentOfUnsizedArrayElement,
+  makeBindGroupLayoutDescriptors,
+  makeStructuredView,
 } from '/3rdparty/webgpu-utils-1.x.module.js';
 import typeInfo from './wgsl-data-types.js';
 import {
@@ -350,4 +353,33 @@ export function getCodeForUniform(name, uniform, options = {}) {
 
 export function createByteDiagramForType(name, typeDef, options = {}) {
   return el('div', {className: 'byte-diagram'}, [addTypeToGrid(name, typeDef, options)]);
+}
+
+function getUsage(name, id) {
+  const obj = globalThis[name];
+  return Object.entries(obj)
+       .filter(([,b]) => id & b)
+       .map(([k]) => `${name}.${k}`)
+       .join(' | ');
+}
+
+function stringifyBindGroupLayoutDescriptor(key, value) {
+return (key === 'visibility')
+    ? getUsage('GPUShaderStage', value)
+    : value;
+}
+
+function bindGroupLayoutDescriptorsToString(bindGroupLayoutDescriptors) {
+return JSON.stringify(bindGroupLayoutDescriptors, stringifyBindGroupLayoutDescriptor, 2)
+    .replace(/"(\w+)":/g, '$1:')                  // "key": value -> key: value
+    .replace(/(}|\]|"|\d|\w)\n/g, '$1,\n')        // add trailing commas
+    .replace(/"(GPUS.*?)"/g, '$1')                // remove quotes from GPUShaderStage
+    .replace(' null,\n', ' , // empty group\n');  // empty group elements
+}
+
+export function makeBindGroupLayoutDescriptorsJS(
+    defs/*: ShaderDataDefinitions | ShaderDataDefinitions[]*/,
+    desc/*: PipelineDescriptor*/,
+) {
+  return bindGroupLayoutDescriptorsToString(makeBindGroupLayoutDescriptors(defs, desc));
 }

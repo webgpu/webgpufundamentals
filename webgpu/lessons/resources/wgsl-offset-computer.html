@@ -306,16 +306,15 @@ struct Light {
 /* global monaco */
 /* global LZMA */
 /* global Split */
-/* global globalThis */
 // see https://webgpufundamentals.org/webgpu/lessons/webgpu-utils.html#webgpu-utils
 import {
-  makeBindGroupLayoutDescriptors,
   makeShaderDataDefinitions,
   setIntrinsicsToView,
 } from '/3rdparty/webgpu-utils-1.x.module.js';
 import {
   createByteDiagramForType,
   getCodeForUniform,
+  makeBindGroupLayoutDescriptorsJS,
 } from './data-byte-diagram.js';
 import { createElem as el } from './elem.js';
 import {
@@ -507,38 +506,17 @@ async function updateResults(code, style) {
         });
       }
 
-      function getUsage(name, id) {
-          const obj = globalThis[name];
-          return Object.entries(obj)
-               .filter(([,b]) => id & b)
-               .map(([k]) => `${name}.${k}`)
-               .join(' | ');
-      }
-
-      function stringifyBindGroupLayoutDescriptor(key, value) {
-        return (key === 'visibility')
-            ? getUsage('GPUShaderStage', value)
-            : value;
-      }
-
-      function bindGroupLayoutDescriptorsToString(bindGroupLayoutDescriptors) {
-        return JSON.stringify(bindGroupLayoutDescriptors, stringifyBindGroupLayoutDescriptor, 2)
-            .replace(/"(\w+)":/g, '$1:')                  // "key": value -> key: value
-            .replace(/(}|\]|"|\d|\w)\n/g, '$1,\n')        // add trailing commas
-            .replace(/"(GPUS.*?)"/g, '$1')                // remove quotes from GPUShaderStage
-            .replace(' null,\n', ' , // empty group\n');  // empty group elements
-      }
 
       const epLines = [];
       const vsEntryPoints = entryPointsByStage.get(GPUShaderStage.VERTEX) || [];
       const fsEntryPoints = entryPointsByStage.get(GPUShaderStage.FRAGMENT) || [];
       if (vsEntryPoints.length || fsEntryPoints.length) {
         if (vsEntryPoints.length === 1 && fsEntryPoints.length === 1) {
-          const bindGroupLayoutDescriptors = makeBindGroupLayoutDescriptors(defs, {
+          const js = makeBindGroupLayoutDescriptorsJS(defs, {
             vertex: { entryPoint: vsEntryPoints[0].name },
             fragment: { entryPoint: fsEntryPoints[0].name },
           });
-          epLines.push(`const bindGroupLayoutDescriptors = ${bindGroupLayoutDescriptorsToString(bindGroupLayoutDescriptors)};`);
+          epLines.push(`const bindGroupLayoutDescriptors = ${js};`);
         } else {
           epLines.push(`\
 // Making bindGroupLayouts requires knowing which entryPoints are
@@ -551,10 +529,10 @@ async function updateResults(code, style) {
 
       const csEntryPoints = entryPointsByStage.get(GPUShaderStage.COMPUTE) || [];
       for (const {name} of csEntryPoints) {
-        const bindGroupLayoutDescriptors = makeBindGroupLayoutDescriptors(defs, {
+        const js = makeBindGroupLayoutDescriptorsJS(defs, {
           compute: { entryPoint: name },
         });
-        epLines.push(`const ${name}BindGroupLayoutDescriptors = ${bindGroupLayoutDescriptorsToString(bindGroupLayoutDescriptors)};`);
+        epLines.push(`const ${name}BindGroupLayoutDescriptors = ${js};`);
       }
 
       if (epLines.length) {

@@ -1,4 +1,4 @@
-/* webgpu-utils@1.4.0, license MIT */
+/* webgpu-utils@1.5.0, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
 function keysOf(obj) {
     return Object.keys(obj);
@@ -4226,7 +4226,7 @@ function makeBindGroupLayoutDescriptors(defs, desc) {
 }
 function getNamedVariables(reflect, variables) {
     return Object.fromEntries(variables.map(v => {
-        const typeDefinition = addType(reflect, v.type, 0);
+        const typeDefinition = addVariableType(reflect, v, 0);
         return [
             v.name,
             {
@@ -4415,15 +4415,23 @@ function makeShaderDataDefinitions(code) {
         return [structInfo.name, makeStructDefinition(reflect, structInfo, 0)];
     }));
     const uniforms = getNamedVariables(reflect, reflect.uniforms);
-    const storages = getNamedVariables(reflect, reflect.storage);
+    const storages = getNamedVariables(reflect, reflect.storage.filter(v => v.resourceType === ResourceType.Storage));
+    const storageTextures = getNamedVariables(reflect, reflect.storage.filter(v => v.resourceType === ResourceType.StorageTexture));
+    const textures = getNamedVariables(reflect, reflect.textures.filter(v => v.type.name !== 'texture_external'));
+    const externalTextures = getNamedVariables(reflect, reflect.textures.filter(v => v.type.name === 'texture_external'));
+    const samplers = getNamedVariables(reflect, reflect.samplers);
     const entryPoints = {
         ...addEntryPoints(reflect.entry.vertex, GPUShaderStage.VERTEX),
         ...addEntryPoints(reflect.entry.fragment, GPUShaderStage.FRAGMENT),
         ...addEntryPoints(reflect.entry.compute, GPUShaderStage.COMPUTE),
     };
     return {
+        externalTextures,
+        samplers,
         structs,
         storages,
+        storageTextures,
+        textures,
         uniforms,
         entryPoints,
     };
@@ -4481,6 +4489,19 @@ function assert(cond, msg = '') {
     ]
 
     */
+function addVariableType(reflect, v, offset) {
+    switch (v.resourceType) {
+        case ResourceType.Uniform:
+        case ResourceType.Storage:
+        case ResourceType.StorageTexture:
+            return addType(reflect, v.type, offset);
+        default:
+            return {
+                size: 0,
+                type: v.type.name,
+            };
+    }
+}
 function addType(reflect, typeInfo, offset) {
     if (typeInfo.isArray) {
         assert(!typeInfo.isStruct, 'struct array is invalid');
