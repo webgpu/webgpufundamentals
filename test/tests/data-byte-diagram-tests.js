@@ -4,8 +4,9 @@ import {
 } from '/3rdparty/webgpu-utils-1.x.module.js';
 import { assertEqual } from '../assert.js';
 import {
-    getCodeForUniform,
     createByteDiagramForType,
+    getCodeForUniform,
+    makeBindGroupLayoutDescriptorsJS,
 } from '../../webgpu/lessons/resources/data-byte-diagram.js';
 
 // normalize whitespace. Keep lines except for first and last so it's easier to read
@@ -153,6 +154,163 @@ describe('data-byte-diagram-tests', () => {
             });
             assertEqual(elem.querySelectorAll('tr').length, 2);
         });
+    });
+
+    describe('bind group layouts', () => {
+
+      it('handles storage textures', () => {
+        const shader = `
+        @group(0) @binding(2) var tex2d: texture_2d<f32>;
+        @group(0) @binding(1) var texMS2d: texture_multisampled_2d<f32>;
+        @group(0) @binding(0) var texDepth: texture_depth_2d;
+        @group(0) @binding(3) var samp: sampler;
+        @group(0) @binding(4) var sampC: sampler_comparison;
+        @group(0) @binding(5) var texExt: texture_external;
+        @group(1) @binding(0) var<uniform> u: mat4x4f;
+        @group(1) @binding(1) var<storage> s: mat4x4f;
+        @group(1) @binding(2) var<storage, read> sr: mat4x4f;
+        @group(1) @binding(3) var<storage, read_write> srw: mat4x4f;
+        @group(3) @binding(0) var tsR: texture_storage_2d<rgba8unorm, read>;
+        @group(3) @binding(1) var tsW: texture_storage_2d<rgba32float, write>;
+        @group(3) @binding(2) var tsRW: texture_storage_2d<rgba16uint, read_write>;
+        @compute @workgroup_size(1) fn cs() {
+          _ = tex2d;
+          _ = texMS2d;
+          _ = texDepth;
+          _ = samp;
+          _ = sampC;
+          _ = texExt;
+          _ = u;
+          _ = s;
+          _ = sr;
+          _ = srw;
+          _ = tsR;
+          _ = tsW;
+          _ = tsRW;
+        }
+        `;
+
+        const defs = makeShaderDataDefinitions(shader);
+        const js = makeBindGroupLayoutDescriptorsJS(defs, {
+          compute: { entryPoint: 'cs' },
+        });
+        const expected = `[
+  {
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.COMPUTE,
+        texture: {
+          sampleType: "depth",
+          viewDimension: "2d",
+          multisampled: false,
+        },
+      },
+      {
+        binding: 1,
+        visibility: GPUShaderStage.COMPUTE,
+        texture: {
+          sampleType: "float",
+          viewDimension: "2d",
+          multisampled: true,
+        },
+      },
+      {
+        binding: 2,
+        visibility: GPUShaderStage.COMPUTE,
+        texture: {
+          sampleType: "float",
+          viewDimension: "2d",
+          multisampled: false,
+        },
+      },
+      {
+        binding: 3,
+        visibility: GPUShaderStage.COMPUTE,
+        sampler: {
+          type: "filtering",
+        },
+      },
+      {
+        binding: 4,
+        visibility: GPUShaderStage.COMPUTE,
+        sampler: {
+          type: "comparison",
+        },
+      },
+      {
+        binding: 5,
+        visibility: GPUShaderStage.COMPUTE,
+        externalTexture: {},
+      },
+    ],
+  },
+  {
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {},
+      },
+      {
+        binding: 1,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "read-only-storage",
+        },
+      },
+      {
+        binding: 2,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "read-only-storage",
+        },
+      },
+      {
+        binding: 3,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "storage",
+        },
+      },
+    ],
+  },
+  , // empty group
+  {
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.COMPUTE,
+        storageTexture: {
+          access: "read-only",
+          format: "rgba8unorm",
+          viewDimension: "2d",
+        },
+      },
+      {
+        binding: 1,
+        visibility: GPUShaderStage.COMPUTE,
+        storageTexture: {
+          access: "write-only",
+          format: "rgba32float",
+          viewDimension: "2d",
+        },
+      },
+      {
+        binding: 2,
+        visibility: GPUShaderStage.COMPUTE,
+        storageTexture: {
+          access: "read-write",
+          format: "rgba16uint",
+          viewDimension: "2d",
+        },
+      },
+    ],
+  },
+]`;
+        assertEqual(js, expected);
+      });
+
     });
 
 });
