@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/uk/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/uk/webgpu-inter-stage-variables.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,72 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="uk"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Inter-stage Variables">
+
+<meta name="description" content="Передаємо дані з вершинного шейдера в фрагментний шейдер">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_uk.jpg">
+
+<meta property="og:title" content="Міжетапні змінні у WebGPU">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="Passing Data from a Vertex Shader to a Fragment Shader">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_uk.jpg">
+<meta property="og:description" content="Передаємо дані з вершинного шейдера в фрагментний шейдер">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-inter-stage-variables.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Inter-stage Variables">
+<meta name="twitter:title" content="Міжетапні змінні у WebGPU">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-inter-stage-variables.html">
-<meta name="twitter:description" content="Passing Data from a Vertex Shader to a Fragment Shader">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="Передаємо дані з вершинного шейдера в фрагментний шейдер">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_uk.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-inter-stage-variables.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-inter-stage-variables_uk.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-inter-stage-variables.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-inter-stage-variables.html",
+      "inLanguage":"uk",
+      "name":"Міжетапні змінні у WebGPU",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-inter-stage-variables.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Inter-stage Variables</title>
+<title>Міжетапні змінні у WebGPU</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -180,13 +225,325 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Inter-stage Variables</h1>
+    <h1>Міжетапні змінні у WebGPU</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>Вибачте, ця стаття ще не була перекладена.</p>
-<p><a href="https://github.com/webgpu/webgpufundamentals">Будемо раді допомозі в перекладі</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-inter-stage-variables.html">Тут ви знайдете оригінальну англійську версію статті на цю тему</a>.</p>
+      <p>В <a href="../webgpu-fundamentals.html">попередній статті</a> ми розглянули основи
+роботи з WebGPU. В цій статті ми пройдемось по <em>основам</em> роботи з міжетапними
+змінними.</p>
+<p>Міжетапні змінні вступають у гру між вершинним та фрагментним шейдером.</p>
+<p>Вершинний шейдер повертаючи 3 точки дає змогу нам намалювати трикутник між ними.
+Проте, вершинний шейдер може також повернути додаткові дані для кожної з цих точок,
+які, відповідно до стандартної поведінки, будуть інтерпольовані між цими точками.</p>
+<p>Наведемо невеликий приклад. Ми розпочнемо з шейдерного модуля з попередньої статті.
+Все, що ми збираємось зробити, це внести певні змінити в ці шейдери.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+-    label: 'our hardcoded red triangle shaders',
++    label: 'our hardcoded rgb triangle shaders',
+    code: `
++      struct OurVertexShaderOutput {
++        @builtin(position) position: vec4f,
++        @location(0) color: vec4f,
++      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+-      ) -&gt; @builtin(position) vec4f {
++      ) -&gt; OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
++        var color = array&lt;vec4f, 3&gt;(
++          vec4f(1, 0, 0, 1), // red
++          vec4f(0, 1, 0, 1), // green
++          vec4f(0, 0, 1, 1), // blue
++        );
+
+-        return vec4f(pos[vertexIndex], 0.0, 1.0);
++        var vsOutput: OurVertexShaderOutput;
++        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
++        vsOutput.color = color[vertexIndex];
++        return vsOutput;
+      }
+
+-      @fragment fn fs() -&gt; @location(0) vec4f {
+-        return vec4f(1, 0, 0, 1);
++      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
++        return fsInput.color;
+      }
+    `,
+  });
+</pre>
+<p>Перш за все ми оголошуємо структуру (<code class="notranslate" translate="no">struct</code>). Це один із простих способів
+координації міжетапних змінних між вершинним та фрагментним шейдерами.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+        @location(0) color: vec4f,
+      };
+</pre>
+<p>Далі ми оголошуємо, що наш вершинний шейдер повертатиме структуру цього типу.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+-      ) -&gt; @builtin(position) vec4f {
++      ) -&gt; OurVertexShaderOutput {
+</pre>
+<p>Створюємо масив з 3 кольорів.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        var color = array&lt;vec4f, 3&gt;(
+          vec4f(1, 0, 0, 1), // червоний
+          vec4f(0, 1, 0, 1), // зелений
+          vec4f(0, 0, 1, 1), // синій
+        );
+</pre>
+<p>Після цього, замість того, щоб просто повертати <code class="notranslate" translate="no">vec4f</code> для позиції, ми оголошуємо
+екземпляр нашої структури, заповнюємо його даними і повертаємо.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-        return vec4f(pos[vertexIndex], 0.0, 1.0);
++        var vsOutput: OurVertexShaderOutput;
++        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
++        vsOutput.color = color[vertexIndex];
++        return vsOutput;
+</pre>
+<p>В оголошенні фрагментного шейдера ми вказуємо, що він прийматиме цю нашу структуру,
+як параметр функції.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
+        return fsInput.color;
+      }
+</pre>
+<p>Далі, просто повертаємо колір з отриманої структури.</p>
+<p>Якщо ми запустимо цей приклад, то побачимо, що кожного разу, коли графічний процесор
+запускає наш фрагментний шейдер, то передає туди значення кольору, яке було
+інтерпольоване між нашими 3 точками.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-inter-stage-variables-triangle.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-inter-stage-variables-triangle.html" target="_blank">натисніть сюди, щоб відкрити в окремому вікні</a>
+</div>
+
+<p></p>
+<p>Міжетапні змінні зазвичай використовуються для інтерполяції координат текстури
+вздовж трикутника, що ми розглянемо в <a href="../webgpu-textures.html">цій статті про текстури</a>.
+Інший поширений спосіб використання цих змінних це інтерполяція нормалів вздовж
+трикутника, яку ми розглянемо в <a href="../webgpu-lighting-directional.html">першій статті про освітлення</a>.</p>
+<h2 id="міжетапні-змінні-зєднанні-з-допомогою-location">Міжетапні змінні з’єднанні з допомогою <code class="notranslate" translate="no">location</code></h2>
+<p>Важливо зазначити, що, як і майже все в WebGPU, зв’язок між вершинним та
+фрагментним шейдерами здійснюється за індексом. Для міжетапних змінних, цей зв’язок
+працює через індекс локації.</p>
+<p>Щоб побачити, що я маю на увазі, давайте змінимо фрагментний шейдер таким чином, щоб
+заміст структури він приймав параметр <code class="notranslate" translate="no">vec4f</code> з позначкою локації <code class="notranslate" translate="no">location(0)</code>.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs(@location(0) color: vec4f) -&gt; @location(0) vec4f {
+        return color;
+      }
+</pre>
+<p>Запустивши цей код, ми побачимо, що він досі працює.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-inter-stage-variables-triangle-by-fn-param.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-inter-stage-variables-triangle-by-fn-param.html" target="_blank">натисніть сюди, щоб відкрити в окремому вікні</a>
+</div>
+
+<p></p>
+<h2 id="builtinposition"><a id="a-builtin-position"></a> <code class="notranslate" translate="no">@builtin(position)</code></h2>
+<p>Це допомагає нам звернути увагу на ще одну особливість. Наш початковий шейдерний модуль,
+який використовував одну і ту ж структуру для вершинного та фрагментного шейдерів,
+мав поле <code class="notranslate" translate="no">position</code>, але воно не мало своєї локації. Натомість, воно було оголошене як
+<code class="notranslate" translate="no">@builtin(position)</code>.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      struct OurVertexShaderOutput {
+*        @builtin(position) position: vec4f,
+        @location(0) color: vec4f,
+      };
+</pre>
+<p>Це поле <strong>НЕ</strong> є міжетапною змінною. Натомість, це вбудоване змінна (<code class="notranslate" translate="no">builtin</code>).
+Так трапилось, що <code class="notranslate" translate="no">@builtin(position)</code> має різне значення для вершинного та для
+фрагментного шейдера.</p>
+<p>В вершинному шейдері, <code class="notranslate" translate="no">@builtin(position)</code> - це вихідні дані, які потрібні графічному
+процесору, щоб той намалював трикутник/лінію/точку.</p>
+<p>В фрагментному шейдері, <code class="notranslate" translate="no">@builtin(position)</code> - це вхідні дані. Це піксельні координати того
+пікселя, про колір якого ми попросили дізнатися у нашого фрагментного шейдера.</p>
+<p>Піксельні координати визначаються краями пікселя. Значення, яке передається в
+фрагментний шейдер це координати центру пікселя.</p>
+<p>Якщо б текстура, на якій ми малюємо була б розміром 3x2 пікселя, то координати
+були б такими як на малюнку.</p>
+<div class="webgpu_center"><img src="../resources/webgpu-pixels.svg" style="width: 500px;"></div>
+<p>Ми можемо змінити наш шейдер так, щоб він використовував ці позиції. Для прикладу,
+давайте намалюємо шахову дошку.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+    label: 'our hardcoded checkerboard triangle shaders',
+    code: `
+      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+-        @location(0) color: vec4f,
+      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+-        var color = array&lt;vec4f, 3&gt;(
+-          vec4f(1, 0, 0, 1), // red
+-          vec4f(0, 1, 0, 1), // green
+-          vec4f(0, 0, 1, 1), // blue
+-        );
+
+        var vsOutput: OurVertexShaderOutput;
+        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+-        vsOutput.color = color[vertexIndex];
+        return vsOutput;
+      }
+
+      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
+-        return fsInput.color;
++        let red = vec4f(1, 0, 0, 1);
++        let cyan = vec4f(0, 1, 1, 1);
++
++        let grid = vec2u(fsInput.position.xy) / 8;
++        let checker = (grid.x + grid.y) % 2 == 1;
++
++        return select(red, cyan, checker);
+      }
+    `,
+  });
+</pre>
+<p>Код, вказаний вище, бере змінну <code class="notranslate" translate="no">fsInput.position</code>, яка була оголошена як
+<code class="notranslate" translate="no">@builtin(position)</code>, і конвертує поле <code class="notranslate" translate="no">xy</code> з координатами в значення типу <code class="notranslate" translate="no">vec2u</code>
+з 2 беззнаковими числами. Далі ми ділимо цих два числа на 8, що дає нам число, яке
+збільшується кожних 8 пікселів. Далі ми додаємо <code class="notranslate" translate="no">x</code> та <code class="notranslate" translate="no">y</code> цього вектора, обчислюємо
+остачу від ділення на 2 і порівнює результат з 1. Це дозволить нам отримати булеве
+значення, яке буде правдивим чи хибним в залежності від нашого числа. В кінці,
+ми використовуємо WGSL функцію <code class="notranslate" translate="no">select</code>, яка отримує два значення та обирає з них одне
+залежно від булева умова. В JavaScript функція <code class="notranslate" translate="no">select</code> виглядала б так:</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// якщо condition хибне - повертаємо `a`, в іншому випадку - `b`
+select = (a, b, condition) =&gt; condition ? b : a;
+</pre>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-fragment-shader-builtin-position.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-fragment-shader-builtin-position.html" target="_blank">натисніть сюди, щоб відкрити в окремому вікні</a>
+</div>
+
+<p></p>
+<p>Навіть, якщо ви не використовуєте <code class="notranslate" translate="no">@builtin(position)</code> в фрагментному шейдері,
+зручно мати його в коді, оскільки ми зможемо використовувати одну і ту ж структуру
+в вершинному та фрагментному шейдері. Важливо запам’ятати, що значення поля <code class="notranslate" translate="no">position</code>
+нашої структури відрізняються в вершинному і фрагментному шейдері і зовсім не
+пов’язані між собою. Це абсолютно різні змінні.</p>
+<p>Як зазначалося вище, для міжетапних змінних має значення лише <code class="notranslate" translate="no">@location(?)</code>.
+Тому оголошення різних структур для вихідних даних вершинного шейдера
+та вхідних даних фрагментного шейдера.</p>
+<p>Для того щоб прояснити це все, той факт, що вершинний шейдер та фрагментний шейдер
+ми тримаємо в одній і тій самій текстовій змінній це лише заради зручності. Насправді
+ми також можемо розділити їх на різні модулі.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const module = device.createShaderModule({
+-    label: 'hardcoded checkerboard triangle shaders',
++  const vsModule = device.createShaderModule({
++    label: 'hardcoded triangle',
+    code: `
+      struct OurVertexShaderOutput {
+        @builtin(position) position: vec4f,
+      };
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; OurVertexShaderOutput {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+        var vsOutput: OurVertexShaderOutput;
+        vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+        return vsOutput;
+      }
++    `,
++  });
++
++  const fsModule = device.createShaderModule({
++    label: 'checkerboard',
++    code: `
+-      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
++      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -&gt; @location(0) vec4f {
+        let red = vec4f(1, 0, 0, 1);
+        let cyan = vec4f(0, 1, 1, 1);
+
+-        let grid = vec2u(fsInput.position.xy) / 8;
++        let grid = vec2u(pixelPosition.xy) / 8;
+        let checker = (grid.x + grid.y) % 2 == 1;
+
+        return select(red, cyan, checker);
+      }
+    `,
+  });
+</pre>
+<p>Та оновити створення нашого пайплайну, щоб використати ці модулі</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: 'hardcoded checkerboard triangle pipeline',
+    layout: 'auto',
+    vertex: {
+-      module,
++      module: vsModule,
+      entryPoint: 'vs',
+    },
+    fragment: {
+-      module,
++      module: fsModule,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+
+</pre>
+<p>І все це буде працювати так само</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-fragment-shader-builtin-position-separate-modules.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-fragment-shader-builtin-position-separate-modules.html" target="_blank">натисніть сюди, щоб відкрити в окремому вікні</a>
+</div>
+
+<p></p>
+<p>Справа в тому, що той факт, що обидва шейдери знаходяться в одному текстовому рядку
+в більшості прикладів є лише зручністю. Насправді спочатку WebGPU аналізує WGSL,
+щоб переконатися, що він синтаксично правильний. Потім WebGPU дивиться на вказану вами
+точку входу. Звідти він переходить і переглядає частини, на які посилається entryPoint, і
+нічого більше окрім цієї entryPoint. Це все зручно, тому що вам не потрібно двічі
+описувати такі речі, як структури, прив’язки та розташування груп, якщо два або
+більше шейдерів спільно використовують їх. Але з точки зору WebGPU це працює так, наче
+ви створили їх усі, по одному разу для кожної точки входу.</p>
+<p>Примітка: Генерування шахового патерну з допомогою <code class="notranslate" translate="no">@builtin(position)</code> не є
+дуже поширеною практикою. Шаховий та інші патерни зазвичай реалізовують з
+допомогою <a href="../webgpu-textures.html">текстур</a>. Фактично, ви можете побачити поточну
+проблему з цим підходом змінивши розмір вікна. Через те, що цей шаховий патерн
+залежить від координат полотна, то він бути обчислюватись відносно полотна, а
+не відносно трикутника.</p>
+<h2 id="налаштування-інтерполяції"><a id="a-interpolate"></a>Налаштування інтерполяції</h2>
+<p>Ми побачили вище, що міжетапні змінні, які повертаються з вершинного шейдера,
+інтерполюються в момент, коли передаються в фрагментний шейдер. Є два набори
+налаштувань для зміни способу інтерполяції. Зміна стандартних значень цих
+налаштувань не є дуже поширеною практикою, але є випадки коли це потрібно.
+Ми розглянемо такі випадки в інших статтях.</p>
+<p>Тип інтерполяції:</p>
+<ul>
+<li><code class="notranslate" translate="no">perspective</code>: Значення інтерполюються у перспективно правильний спосіб (<strong>стандартне значення</strong>)</li>
+<li><code class="notranslate" translate="no">linear</code>: Значення інтерполюються лінійно, не перспективно правильним способом.</li>
+<li><code class="notranslate" translate="no">flat</code>: Значення не інтерполюються. Вибірка інтерполяції не використовується з цим типом.</li>
+</ul>
+<p>Вибірка інтерполяції:</p>
+<ul>
+<li><code class="notranslate" translate="no">center</code>: Інтерполяція виконується в центрі пікселя (<strong>стандартне значення</strong>)</li>
+<li><code class="notranslate" translate="no">centroid</code>: Інтерполяція виконується в точці, яка лежить у межах усіх вибірок, охоплених фрагментом у поточному примітиві. Це значення однакове для всіх зразків у примітиві.</li>
+<li><code class="notranslate" translate="no">sample</code>:  Інтерполяція виконується для вибірки. Фрагментний шейдер викликається один раз на вибірку, коли застосовано цей атрибут.</li>
+</ul>
+<p>Ви зазначаєте їх, як атрибути. Наприклад</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  @location(2) @interpolate(linear, center) myVariableFoo: vec4f;
+  @location(3) @interpolate(flat) myVariableBar: vec4f;
+</pre>
+<p>Зверніть увагу, що якшо ваша міжетапна змінна має тип <code class="notranslate" translate="no">integer</code>, то ви маєте
+використати тип інтерполяції <code class="notranslate" translate="no">flat</code>.</p>
+<p>Якщо ви застосуєте тип <code class="notranslate" translate="no">flat</code>, то значення передане в фрагментний шейдер буде
+значенням міжетапної змінної в першій вершині переданого трикутника.</p>
+<p>В <a href="../webgpu-uniforms.html">наступній статті ми розглянемо юніформи</a>, як ще один
+спосіб передачі даних в шейдери.</p>
 
     </div>
     <div class="lesson-sidebar">
@@ -201,10 +558,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>Основи</li>
+        <div id="toc">
+          <ul>  <li>Основи</li>
         <ul>
           <li><a href="/webgpu/lessons/uk/webgpu-fundamentals.html">Fundamentals</a></li>
-<li><a href="/webgpu/lessons/uk/webgpu-inter-stage-variables.html">Inter-stage Variables</a></li>
+<li><a href="/webgpu/lessons/uk/webgpu-inter-stage-variables.html">Міжетапні змінні</a></li>
 <li><a href="/webgpu/lessons/uk/webgpu-uniforms.html">Uniforms</a></li>
 <li><a href="/webgpu/lessons/uk/webgpu-storage-buffers.html">Storage Buffers</a></li>
 <li><a href="/webgpu/lessons/uk/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
@@ -282,13 +640,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
 
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>Запитання? <a href="http://stackoverflow.com/questions/tagged/webgpu">Запитати на stackoverflow</a>.</div>
+<div>
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">Пропозиція</a>?
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">Запит</a>?
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">Проблема</a>?
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">Помилка</a>?
+</div>
+<div class="lesson-comment-notes">
+   Use <b>&lt;pre&gt;&lt;code&gt;</b>code goes here<b>&lt;/code&gt;&lt;/pre&gt;</b> for code blocks
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `Міжетапні змінні у WebGPU`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "Thank you <a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a><br>for <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} contributions</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
-<script src="/webgpu/lessons/resources/lesson.js"></script>
+<script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
 <!-- Google tag (gtag.js) -->
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-92BFT5PE4H"></script>
 <script>

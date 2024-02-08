@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id/>
+    <title>webgpufundamentals</title>
+    <updated>2024-02-08T16:26:43.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <author>
+        <name>webgpufundamentals Contributors</name>
+        <uri>https://webgpufundamentals.org/contributors.html</uri>
+    </author>
+    <link rel="alternate" href="http://webgpufundamentals.org/"/>
+    <subtitle>Вивчаємо webgpu</subtitle>
+    <logo>https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg</logo>
+    <entry>
+        <title type="html"><![CDATA[Міжетапні змінні у WebGPU]]></title>
+        <id>https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-inter-stage-variables.html</id>
+        <link href="https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-inter-stage-variables.html"/>
+        <updated>2024-02-08T16:26:43.000Z</updated>
+        <author>
+            <name>webgpufundamentals Contributors</name>
+            <uri>https://webgpufundamentals.org/contributors.html</uri>
+        </author>
+        <published>2024-02-08T16:26:43.000Z</published>
+    </entry>
+</feed>
