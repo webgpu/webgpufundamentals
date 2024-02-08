@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/uk/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/uk/webgpu-fundamentals.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,72 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="uk"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Fundamentals">
+
+<meta name="description" content="Основи WebGPU">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_uk.jpg">
+
+<meta property="og:title" content="Основи WebGPU">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="The fundamentals of WebGPU">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_uk.jpg">
+<meta property="og:description" content="Основи WebGPU">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-fundamentals.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Fundamentals">
+<meta name="twitter:title" content="Основи WebGPU">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-fundamentals.html">
-<meta name="twitter:description" content="The fundamentals of WebGPU">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="Основи WebGPU">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_uk.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-fundamentals.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-fundamentals_uk.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-fundamentals.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-fundamentals.html",
+      "inLanguage":"uk",
+      "name":"Основи WebGPU",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-fundamentals.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Fundamentals</title>
+<title>Основи WebGPU</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -180,13 +225,904 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Fundamentals</h1>
+    <h1>Основи WebGPU</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>Вибачте, ця стаття ще не була перекладена.</p>
-<p><a href="https://github.com/webgpu/webgpufundamentals">Будемо раді допомозі в перекладі</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-fundamentals.html">Тут ви знайдете оригінальну англійську версію статті на цю тему</a>.</p>
+      <p>Ця стаття спробує навчити вас основам WebGPU.</p>
+<div class="warn">
+Від вас очікується, що перед початком прочитання цієї статті у вас вже є певні 
+знання JavaScript. Такі концепти, як
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">відображення масивів</a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">присвоєння через деструктуризацію</a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">розкладання об’єктів </a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async/await</a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">es6 модулі</a>
+та багато інших будуть використовуватись досить широко. Якщо ви ще не знайомі з мовою
+JavaScript і хочете її вивчити, то можете переглянути
+<a href="https://javascript.info/">JavaScript.info</a>, <a href="https://eloquentjavascript.net/">Eloquent JavaScript</a>
+або <a href="https://www.codecademy.com/learn/introduction-to-javascript">CodeCademy</a>.
+</div>
+<div class="warn">Якщо ви уже знайомі з WebGL, <a href="../webgpu-from-webgl.html">то зазирніть сюди</a>.</div>
+<p>WebGPU - це API, яке дозволяє робити дві основні речі:</p>
+<ol>
+<li>
+<p><a href="#a-drawing-triangles-to-textures">Малювати трикутники/точки/лінії на текстури</a></p>
+</li>
+<li>
+<p><a href="#a-run-computations-on-the-gpu">Запускати обчислення на графічному процесорі</a></p>
+</li>
+</ol>
+<p>Оце і все!</p>
+<p>Усе інше, в технології WebGPU, залежить від вас. Це як вивчення комп’ютерної мови.
+Наприклад JavaScript, Rust або C++. Спочатку ви вивчаєте основи,
+а потім можете творчо використовувати ці основи для вирішення своєї проблеми.</p>
+<p>WebGPU — це API надзвичайно низького рівня. Хоча ви і можете створити кілька невеликих
+прикладів, але для багатьох програм, імовірно, знадобиться великий обсяг коду та серйозна
+організація даних. Наприклад, <a href="https://threejs.org">three.js</a>, який підтримує WebGPU,
+складається з ~600 тисяч мінімізованих рядків JavaScript коду, і це лише його основна
+частина, яка не включає в себе завантажувачі, елементи керування, постобробку та багато
+інших функцій. Подібним чином <a href="https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-webgpu">бібліотека TensorFlow із серверною частиною на WebGPU</a>
+становить ~500 тисяч мінімізованого JavaScript коду.</p>
+<p>Справа в тому, що якщо ви хочете просто намалювати щось на екрані, то в такому разі краще
+обрати бібліотеку, яка уже надає цю величезну кількість коду, яку вам довелося б писати,
+роблячи це самостійно.</p>
+<p>З іншого боку, якщо у вас дуже особливий випадок, чи ви хочете змінити існуючу
+бібліотеку, або вам просто цікаво, як усе це працює, тоді в цьому разі продовжуйте читати!</p>
+<h1 id="починаємо">Починаємо</h1>
+<p>Досить важко вирішити з чого почати. На певному рівні, WebGPU дуже проста система.
+Все, що вона робить це запускає 3 типи функцій. Вершинний шейдер, фрагментний шейдер
+та обчислювальний шейдер.</p>
+<p>Вершинний шейдер обчислює вершини. Цей шейдер повертає розташування цих вершин. Для кожної
+групи з 3 вершин, вершинний шейдер повертає трикутник намальований між цих 3 позицій.
+<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<p>Фрагментний шейдер обчислює кольори <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. Коли трикутник намальовано,
+для кожного пікселя графічний процесор викликає фрагментний шейдер. Цей шейдер
+в свою чергу повертає значення кольору.</p>
+<p>Обчислювальний шейдери це функції більш загального призначення. Фактично це просто функція,
+яку ви викликаєте і кажете “виконай це N кількість разів”. Графічний процесор передає
+номер ітерації кожного разу, коли він викликає вашу функцію, щоб ви могли використати
+це число для чогось унікального для кожної ітерації.</p>
+<p>Якщо сильно примружитись, можна вважати ці функції схожими на ті, які ми передаємо в
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach"><code class="notranslate" translate="no">array.forEach</code></a>
+чи
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map"><code class="notranslate" translate="no">array.map</code></a>.
+Функції, які ви запускаєте на графічному процесорі це такі ж звичайні функції,
+як і JavaScript функції. Частина, яка відрізняється, це те, що вони запускаються
+саме на графічному процесорі, тож для їхнього запуску вам потрібно скопіювати
+усі необхідні дані на графічний процесор у вигляді буферів та текстур та повертати
+з них дані у тих же буферах та текстурах. Вам потрібно зазначати в цих функціях в
+яких прив’язках чи розташуваннях ця функція буде шукати за даними. А в самому
+JavaScript коді вам потрібно прив’язати буфери та текстури, які містять ваші дані,
+до точок прив’язки та розташувань. Зробивши це, ви просите графічний процесор
+виконати цю функцію.</p>
+<p><a id="a-draw-diagram"></a>Можливо тут допоможе малюнок. Ось <em>спрощена</em> діаграма
+налаштувань WebGPU для малювання трикутника з допомогою вершинного шейдера та
+фрагментного шейдера.</p>
+<div class="webgpu_center"><img src="../resources/webgpu-draw-diagram.svg" style="width: 960px;"></div>
+<p>На що варто звернути увагу на цій діаграмі</p>
+<ul>
+<li>
+<p>Наявність <strong>Пайплайну (Pipeline)</strong>. Він містить в собі вершинний та фрагментний шейдер,
+які будуть виконані графічним процесором. Пайплайн також може містити обчислювальний шейдер.</p>
+</li>
+<li>
+<p>Шейдери посилаються на ресурси (буфери, текстури, семплери) опосередковано через
+<strong>Групи прив’язки (Bind Groups)</strong>.</p>
+</li>
+<li>
+<p>Пайплайн визначає атрибути, які посилаються на буфери опосередковано через внутрішній стан.</p>
+</li>
+<li>
+<p>Атрибути витягують дані з буферів і передають їх у вершинний шейдер.</p>
+</li>
+<li>
+<p>Вершинний шейдер може передавати дані в фрагментний шейдер.</p>
+</li>
+<li>
+<p>Фрагментний шейдер записує текстури опосередковано через <strong>render pass description</strong>.</p>
+</li>
+</ul>
+<p>Для запуску шейдерів на графічному процесорі, вам необхідно створити усі ці ресурси
+і налаштувати стан. Створення ресурсів відносно просте завдання. Одна важлива
+річ полягає в тому, що більшість ресурсів WebGPU не можна змінити після створення.
+Ви можете змінити їхній вміст, але не їхній розмір, використання, формат, тощо…
+Якщо вам потрібно змінити якусь з цих речей, ви мусите створити новий ресурс і
+знищити старий.</p>
+<p>Деякі з цих станів налаштовується створенням буферів команд. Буфери команд це буквально
+те, про що нам говорить їхня назва. Це буфери, які містять в собі команди. Ви створюєте
+кодеки. Ці кодеки перетворюють команди в буфери команд. Далі ви
+<em>завершуєте (finish)</em> ваш кодек, а він повертає вам буфер команд, який він створив.
+Далі ви можете <em>надіслати (submit)</em> ций буфер на виконання для того, щоб WebGPU запустив ці команди.</p>
+<p>Ось псевдокод для кодування буфера команд, поряд з відображенням цього буфера.</p>
+<div class="webgpu_center side-by-side"><div style="min-width: 300px; max-width: 400px; flex: 1 1;"><pre class="prettyprint showlinemods notranslate notranslate" translate="no">encoder = device.createCommandEncoder()
+// намалювати дещо
+{
+  pass = encoder.beginRenderPass(...)
+  pass.setPipeline(...)
+  pass.setVertexBuffer(0, …)
+  pass.setVertexBuffer(1, …)
+  pass.setIndexBuffer(...)
+  pass.setBindGroup(0, …)
+  pass.setBindGroup(1, …)
+  pass.draw(...)
+  pass.end()
+}
+// намалювати дещо інше
+{
+  pass = encoder.beginRenderPass(...)
+  pass.setPipeline(...)
+  pass.setVertexBuffer(0, …)
+  pass.setBindGroup(0, …)
+  pass.draw(...)
+  pass.end()
+}
+// обчислити щось
+{
+  pass = encoder.beginComputePass(...)
+  pass.beginComputePass(...)
+  pass.setBindGroup(0, …)
+  pass.setPipeline(...)
+  pass.dispatchWorkgroups(...)
+  pass.end();
+}
+commandBuffer = encoder.finish();
+</pre></div>
+<div><img src="../resources/webgpu-command-buffer.svg" style="width: 300px;"></div>
+</div>
+<p>Створивши буфер команд, ви можете <em>надіслати (submit)</em> його на виконання.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.submit([commandBuffer]);
+</pre>
+<p>Діаграма вище показує позиції команд <code class="notranslate" translate="no">draw</code> в буфері команд. Виконання цих
+команд встановить <em>внутрішній стан (internal state)</em>, а потім вкаже графічному процесору
+виконати вершинний шейдер (і опосередковано фрагментний шейдер). Команда <code class="notranslate" translate="no">dispatchWorkgroup</code>
+скаже графічному процесору виконати обчислювальний шейдер.</p>
+<p>Сподіваюся, це дало вам певне уявлення про стан, який вам потрібно створити. Як згадувалося вище, WebGPU має 2 основні функції:</p>
+<ol>
+<li>
+<p><a href="#a-drawing-triangles-to-textures">Малювати трикутники/точки/лінії на текстури</a></p>
+</li>
+<li>
+<p><a href="#a-run-computations-on-the-gpu">Запускати обчислення на графічному процесорі</a></p>
+</li>
+</ol>
+<p>Ми розглянемо невеликий приклад виконання кожної з цих функцій. Інші статті покажуть різні
+способи надсилання даних до цих функцій. Зверніть увагу, що цей приклад буде дуже спрощений. Нам потрібно побудувати фундамент з цих основ. Пізніше ми покажемо, як використовувати це
+для речей, які люди зазвичай роблять із графічним процесором, як-от 2D-графіка, 3D-графіка тощо…</p>
+<h1 id="малюємо-трикутник-на-текстурі"><a id="a-drawing-triangles-to-textures"></a>Малюємо трикутник на текстурі</h1>
+<p>WebGPU може малювати трикутники на <a href="../webgpu-textures.html">текстурах</a>. Для цілей цієї
+статті, текстура це двовимірний чотирикутник з пікселів.<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> Елемент <code class="notranslate" translate="no">&lt;canvas&gt;</code>
+репрезентує собою текстуру на вебсторінці. В WebGPU ми можемо попросити в цього елемента
+його текстуру і тоді намалювати щось на ції текстурі.</p>
+<p>Для того, щоб намалювати трикутник з допомогою WebGPU, ви маєте надати йому 2 шейдера.
+Знову ж таки, шейдери — це функції, які працюють на графічному процесорі. Цими
+шейдерами є:</p>
+<ol>
+<li>
+<p>Вершинні шейдери</p>
+<p>Вершинні шейдери - це функції, які вираховують позиції вершин для малювання трикутників/ліній/точок.</p>
+</li>
+<li>
+<p>Фрагментні шейдери</p>
+<p>Фрагментні шейдери - це функції, які вираховують колір (або щось інше) для кожного пікселя, який буде намальований під час малювання трикутників/ліній/точок.</p>
+</li>
+</ol>
+<p>Давайте почнемо з дуже маленької WebGPU програми для малювання трикутника.</p>
+<p>Спершу нам потрібне полотно для відображення цього трикутника.</p>
+<pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;canvas&gt;&lt;/canvas&gt;
+</pre>
+<p>Далі нам потрібен <code class="notranslate" translate="no">&lt;script&gt;</code> тег для для зберігання нашого JavaScript коду.</p>
+<pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;canvas&gt;&lt;/canvas&gt;
++&lt;script type="module"&gt;
+
+... тут буде javascript ...
+
++&lt;/script&gt;
+</pre>
+<p>Увесь JavaScript код, який буде нижче, буде зберігатись в цьому тезі.</p>
+<p>WebGPU - це асинхронний API, тож його легше використовувати з асинхронними функціями.
+Ми починаємо з того, що робимо запит за адаптером, а потім уже за пристроєм з
+цього адаптера.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
+  const adapter = await navigator.gpu?.requestAdapter();
+  const device = await adapter?.requestDevice();
+  if (!device) {
+    fail('цей код потребує браузера, який підтримує WebGPU');
+    return;
+  }
+}
+main();
+</pre>
+<p>Наведений вище код досить зрозумілий. Спершу, ми робимо запит за адаптером використовуючи
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining"><code class="notranslate" translate="no">?.</code> оператора опціонального ланцюжка</a> для того, щоб якщо об’єкт <code class="notranslate" translate="no">navigator.gpu</code>
+не існує, то в <code class="notranslate" translate="no">adapter</code> буде встановлене значення <code class="notranslate" translate="no">undefined</code>. Якщо він таки існує, то
+ми викликаємо <code class="notranslate" translate="no">requestAdapter</code>. Цей метод повертає свій результат асинхронно тож нам
+потрібно використати ключове слово <code class="notranslate" translate="no">await</code>. Цей адаптер уособлює собою конкретний
+графічний процесор. Деякі пристрої можуть мати декілька графічних процесорів.</p>
+<p>Ми робимо запит за пристроєм з цього адаптера і знову використовуємо оператор <code class="notranslate" translate="no">?.</code> для
+того, щоб якщо адаптера немає, то в змінну <code class="notranslate" translate="no">device</code> буде встановлене значення <code class="notranslate" translate="no">undefined</code>.</p>
+<p>Якщо значення <code class="notranslate" translate="no">device</code> дорівнює <code class="notranslate" translate="no">undefined</code>, то швидше за все у користувача старий браузер.</p>
+<p>Далі ми знаходимо наше полотно і створюємо <code class="notranslate" translate="no">webgpu</code> контекст для нього. Це дозволить
+нам отримати текстуру для візуалізації. Ця текстура буде використана для
+відображення полотна на вебсторінці.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Отримуємо WebGPU контекст з полотна і налаштовуємо його
+  const canvas = document.querySelector('canvas');
+  const context = canvas.getContext('webgpu');
+  const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+  context.configure({
+    device,
+    format: presentationFormat,
+  });
+</pre>
+<p>Знову ж таки, наведений вище код досить зрозумілий. Ми отримуємо контекст
+<code class="notranslate" translate="no">"webgpu"</code> з полотна. Запитуємо у системи, якому формату полотна вона надає
+перевагу. Це буде або <code class="notranslate" translate="no">"rgba8unorm"</code>, або <code class="notranslate" translate="no">"bgra8unorm"</code>. Насправді не
+настільки важливо, що це за формат, але запитуючи його ми робимо певні речі
+швидшими для користувацької системи.</p>
+<p>Ми передаємо це значення як <code class="notranslate" translate="no">format</code> в webgpu контекст нашого полотна
+роблячи виклик метода <code class="notranslate" translate="no">configure</code>. Ми також передаємо туди змінну <code class="notranslate" translate="no">device</code>, яка
+пов’язує це полотно з пристроєм, який ми щойно створили.</p>
+<p>Далі ми створюємо шейдерний модуль. Шейдерний модуль містить в собі один або більше
+шейдерів. В нашому випадку, ми створюємо 1 вершинний шейдер і один фрагментний
+шейдер.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+    label: 'our hardcoded red triangle shaders',
+    code: `
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; @builtin(position) vec4f {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+        return vec4f(pos[vertexIndex], 0.0, 1.0);
+      }
+
+      @fragment fn fs() -&gt; @location(0) vec4f {
+        return vec4f(1.0, 0.0, 0.0, 1.0);
+      }
+    `,
+  });
+</pre>
+<p>Шейдери пишуться мовою програмування, яка називається
+<a href="https://gpuweb.github.io/gpuweb/wgsl/">WebGPU Shading Language (WGSL)</a> і часто
+вимовляється як віґ-сіль (wig-sil). WGSL - це строго типізована мова, яку ми
+спробуємо описати в більшій кількості деталей в <a href="../webgpu-wgsl.html">іншій статті</a>.
+Наразі я сподіваюся, що з невеликими поясненнями ви зможете зрозуміти деякі основи.</p>
+<p>Вище ми бачимо, що функція під назвою <code class="notranslate" translate="no">vs</code> оголошена з атрибутом <code class="notranslate" translate="no">@vertex</code>. Це
+позначає її як функцію вершинного шейдера.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; @builtin(position) vec4f {
+         ...
+</pre>
+<p>Ця функція приймає один параметр, який ми назвали <code class="notranslate" translate="no">vertexIndex</code>. <code class="notranslate" translate="no">vertexIndex</code> має
+тип <code class="notranslate" translate="no">u32</code>, що означає 32-бітне беззнакове число. Цей параметр отримує своє
+значення з вбудованої змінної, яку називають <code class="notranslate" translate="no">vertex_index</code>. <code class="notranslate" translate="no">vertex_index</code> це
+наче номер ітерації, схожий на змінну <code class="notranslate" translate="no">index</code> в цьому JavaScript коді
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array.map(function(value, index) { ... })"><code class="notranslate" translate="no">Array.map(function(value, index) { ... })</code></a>. Якщо ми скажемо графічному процесору
+виконати цю функцію 10 разів викликаючи метод <code class="notranslate" translate="no">draw</code>, то першого разу
+<code class="notranslate" translate="no">vertex_index</code> буде <code class="notranslate" translate="no">0</code>, другого разу - <code class="notranslate" translate="no">1</code>, третього разу - <code class="notranslate" translate="no">2</code> і так далі<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup></p>
+<p>Ми визначили нашу <code class="notranslate" translate="no">vs</code> функцію, як таку, що повертає значення типу <code class="notranslate" translate="no">vec4f</code>, яке
+в свою чергу є вектором з чотирьох 32-бітних чисел з рухомою комою. Думаєте про
+це значення, як про масив з чотирьох чисел, або обʼєкт з 4 властивостями,
+схожий на цей <code class="notranslate" translate="no">{x: 0, y: 0, z: 0, w: 0}</code>. Це значення буде присвоєне вбудованій
+змінній <code class="notranslate" translate="no">position</code>. В режимі “triangle-list”, кожних 3 рази виконання цього
+вершинного шейдера буде намальовано трикутник, що з’єднує ті 3 значення, які
+ми повертаємо в вбудовану змінну <code class="notranslate" translate="no">position</code>.</p>
+<p>Позиції в WebGPU потрібно повертати у значеннях <em>простору відсікання (clip space)</em>,
+де X починається з -1.0 в лівій частині простору і закінчується значенням +1.0 в
+правій частині простору, а Y починається з -1.0 внизу і закінчується +1.0 зверху.
+Ці не залежить від розміру текстури, на якій ми малюємо.</p>
+<div class="webgpu_center"><img src="../resources/clipspace.svg" style="width: 500px"></div>
+<p>Функція <code class="notranslate" translate="no">vs</code> оголошує масив з трьох значень типу <code class="notranslate" translate="no">vec2f</code>. Кожне таке значення містить
+два 32-бітних числа з рухомою комою.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+</pre>
+<p>Нарешті, вона використовує <code class="notranslate" translate="no">vertexIndex</code> для того, щоб повернути одне з
+3 значень цього масиву. Оскільки функція вимагає повернути саме 4 числа та
+через те, що значення нашого масиву мають тип <code class="notranslate" translate="no">vec2f</code>, наш код надає
+два додаткових значення <code class="notranslate" translate="no">0.0</code> та <code class="notranslate" translate="no">1.0</code> до значення, яке ми повертаємо.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        return vec4f(pos[vertexIndex], 0.0, 1.0);
+</pre>
+<p>Шейдерний модуль також оголошує функцію <code class="notranslate" translate="no">fs</code> з атрибутом <code class="notranslate" translate="no">@fragment</code>, який
+робить її фрагментним шейдером.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs() -&gt; @location(0) vec4f {
+</pre>
+<p>Ця функція не приймає жодного параметра і повертає в змінну <code class="notranslate" translate="no">location(0)</code>
+значення з типом <code class="notranslate" translate="no">vec4f</code>. Це означає, що вона буде записувати значення в
+першу ціль візуалізації. Пізніше, цією ціллю візуалізації ми зробимо текстуру
+нашого полотна.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        return vec4f(1, 0, 0, 1);
+</pre>
+<p>Код повертає <code class="notranslate" translate="no">1, 0, 0, 1</code>, що позначає червоний колір. Кольори в WebGPU
+зазвичай описуються числовим значенням в межах від <code class="notranslate" translate="no">0.0</code> до <code class="notranslate" translate="no">1.0</code>. Чотири
+значення вище відповідають червоному, зеленому, синьому та альфа каналу.</p>
+<p>Під час того, як графічний процесор растеризує певний трикутник
+(малює його з допомогою пікселів), він викликає фрагментний шейдер, щоб
+отримати значення кольору для кожного пікселя. В нашому випадку, ми просто
+повертаємо червоний колір.</p>
+<p>Ще одна річ, на яку варто звернути увагу, це поле <code class="notranslate" translate="no">label</code>. Майже кожному об’єкту,
+який ви можете створити в WebGPU, можна передавати значення поля <code class="notranslate" translate="no">label</code>. Це
+значення не обов’язкове, але додавання цієї позначки вважається <em>кращою практикою</em>.
+Причина полягає в тому, що коли ви отримуєте помилку, більшість реалізацій WebGPU
+виведе повідомлення про помилку, яке міститиме цю позначку та інші речі
+пов’язані з помилкою.</p>
+<p>У звичайних програмах у вас було би від 100 до 1000 буферів, текстур, шейдерних
+модулів, пайплайнів, та іншого… Якщо б ви отримала повідомлення про помилку, схоже
+на це <code class="notranslate" translate="no">"WGSL syntax error in shaderModule at line 10"</code>, то в якому зі 100
+шейдерних модулів ви б шукали причину цієї помилки? Натомість, якщо ви передасте
+в поле <code class="notranslate" translate="no">label</code> якесь значення, то отримаєте помилку схожу на цю
+<code class="notranslate" translate="no">"WGSL syntax error in shaderModule('our hardcoded red triangle shaders')</code>,
+яка набагато корисніша та збереже вам купу часу у відстеженні проблеми.</p>
+<p>Тепер, коли ми створили шейдерний модуль, ми можемо створити пайплайн візуалізації:</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: 'our hardcoded red triangle pipeline',
+    layout: 'auto',
+    vertex: {
+      module,
+      entryPoint: 'vs',
+    },
+    fragment: {
+      module,
+      entryPoint: 'fs',
+      targets: [{ format: presentationFormat }],
+    },
+  });
+</pre>
+<p>У цьому випадку немає багато деталей, щоб детально їх розглянути. Ми встановили
+для параметра <code class="notranslate" translate="no">layout</code> значення <code class="notranslate" translate="no">'auto'</code>, що вказує WebGPU отримати макет даних
+із шейдерів. Проте ми не використовуємо тут жодних даних.</p>
+<p>Потім ми вказуємо пайплайну візуалізації, що потрібно використовувати функцію <code class="notranslate" translate="no">vs</code>
+з нашого шейдерного модуля для вершинного шейдера та функцію <code class="notranslate" translate="no">fs</code> для нашого фрагментного
+шейдера. В випадку фрагментного шейдера ми також повідомляємо йому формат першої
+цілі візуалізації. “Ціль візуалізації” позначає текстуру, яку ми будемо рендерити.
+Коли ми створюємо пайплайну ми маємо вказати формат текстури, яку ми будемо
+використовувати для рендерингу цього пайплайну.</p>
+<p>Елемент під індексом 0 з масиву <code class="notranslate" translate="no">targets</code> відповідає змінній <code class="notranslate" translate="no">@location(0)</code>, яку
+ми зазначили в типі повернення нашого фрагментного шейдера. Пізніше, ми встановимо
+в цю ціль текстуру для нашого полотна.</p>
+<p>Далі ми підготуємо <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a>, який опише, в які текстури ми
+хочемо малювати і як їх використати.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
+    label: 'our basic canvas renderPass',
+    colorAttachments: [
+      {
+        // view: &lt;- to be filled out when we render
+        clearValue: [0.3, 0.3, 0.3, 1],
+        loadOp: 'clear',
+        storeOp: 'store',
+      },
+    ],
+  };  
+</pre>
+<p><a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a> містить в собі масив <code class="notranslate" translate="no">colorAttachments</code>, який
+перелічує текстури, в які ми будемо рендерити і як їх до них ставитись.
+Поки ми відкладемо на потім опис тієї текстури, в яку ми хочемо рендерити.
+Наразі ми встановили в <code class="notranslate" translate="no">clearValue</code> значення напівтемного сірого, та
+визначили  <code class="notranslate" translate="no">loadOp</code> і <code class="notranslate" translate="no">storeOp</code>. <code class="notranslate" translate="no">loadOp: 'clear'</code> уточнює, що текстура
+повинна бути очищена до значення <code class="notranslate" translate="no">clearValue</code> перед малюванням. Іншим
+значенням цього поля може бути <code class="notranslate" translate="no">'load'</code>, що вказує на те, що поточний
+вміст текстури повинен бути завантажений на графічний процесор, щоб
+малювати поверх того, що уже в цій текстурі. <code class="notranslate" translate="no">storeOp: 'store'</code> вказує
+на те, що потрібно зберігати результати малювання. Ми можемо передати
+сюди також значення <code class="notranslate" translate="no">'discard'</code>, що буде викидати будь-які результати
+малювання. Ми пояснимо те, чому ми можемо захотіти таку поведінку в
+<a href="../webgpu-multisampling.html">іншій статті</a>.</p>
+<p>Тепер настав час рендерингу.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
+    // отримуємо поточну текстуру з контексту нашого полотна
+    // і встановлюємо її, як текстуру в яку потрібно малювати
+    renderPassDescriptor.colorAttachments[0].view =
+        context.getCurrentTexture().createView();
+
+    // вказуємо кодеку команд почати їхнє кодування 
+    const encoder = device.createCommandEncoder({ label: 'our encoder' });
+
+    // make a render pass encoder to encode render specific commands
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.draw(3);  // викликаємо наш вершинний шейдер 3 рази
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+  }
+
+  render();
+</pre>
+<p>Спершу ми викликаємо <code class="notranslate" translate="no">context.getCurrentTexture()</code>, щоб отримати текстуру, яка
+з’явиться на полотні. Виклик <code class="notranslate" translate="no">createView</code> встановлює область відображення в
+конкретну частину текстури, але викликаючи цей метод без параметрів ми отримаємо
+стандартну область відображення, що нам і потрібно в цьому випадку. Наразі,
+єдиним елементом масиву <code class="notranslate" translate="no">colorAttachments</code> є область відображення текстури з
+нашого полотна, яке ми отримала з контексту створеного на початку цієї статті.
+Знову ж таки, елемент під індексом 0 з масиву <code class="notranslate" translate="no">colorAttachments</code> відповідає
+змінній <code class="notranslate" translate="no">@location(0)</code>, яку ми зазначили в типі повернення нашого фрагментного шейдера.</p>
+<p>Далі ми створюємо кодек команд. Кодек команд використовується, щоб створити
+буфер команд. Ми використовуємо його для кодування команд і “надсилання” буфера
+команд, який він створив, на виконання.</p>
+<p>Потім ми використовуємо кодек команд, щоб створити кодек render-pass’у викликаючи
+<code class="notranslate" translate="no">beginRenderPass</code>. Кодек render-pass’у - це особливий кодек, для створення команд,
+які пов’язані з рендерингом. Ми передаємо йому наш <code class="notranslate" translate="no">renderPassDescriptor</code>, щоб
+вказати йому на текстуру, в яку ми плануємо рендерити.</p>
+<p>Ми викликаємо <code class="notranslate" translate="no">setPipeline</code> для встановлення нашого пайплайну і далі
+вказуємо йому виконати наш вершинний шейдер 3 рази, викликаючи метод <code class="notranslate" translate="no">draw</code>.
+Стандартною поведінкою в цьому випадку є: кожних три рази, коли виконується
+наший вершинний шейдер малюється один трикутник, який сполучає 3 значення,
+які повернулись в цей момент з нашого вершинного шейдера.</p>
+<p>Ми завершуємо роботу render-pass’у і після цього завершуємо процес кодування
+команд. Цим ми отримуємо буфер команд, який уособлює ті кроки, які ми щойно
+вказали. Зрештою, ми надсилаємо цей буфер команд в чергу на виконання.</p>
+<p>Коли командна <code class="notranslate" translate="no">draw</code> буде виконана, то стан нашої програми буде таким.</p>
+<div class="webgpu_center"><img src="../resources/webgpu-simple-triangle-diagram.svg" style="width: 723px;"></div>
+<p>Ми не маємо тут жодних текстур, буферів чи груп прив’язки, але ми точно маємо
+пайплайн, вершинний шейдер, фрагментний шейдер і render pass descriptor, який
+вказує нашому шейдеру на текстуру нашого полотна.</p>
+<p>А ось і результат.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle.html" target="_blank">натисніть сюди, щоб відкрити в окремому вікні</a>
+</div>
+
+<p></p>
+<p>Важливо наголосити, що такі функції як <code class="notranslate" translate="no">setPipeline</code> та <code class="notranslate" translate="no">draw</code> тільки
+додають команди в буфер команд. Вони насправді не виконують їх. Ці команди
+виконуються тільки тоді, коли ми надсилаємо цей буфер на чергу виконання
+нашого пристрою.</p>
+<p><a id="a-rasterization"></a>WebGPU дістає кожних 3 вершини, які повертаються з
+вершинного шейдера і використовує їх для растеризації трикутника. Він робить це
+з допомогою визначення пікселів, які перебувають в середині цього трикутника.
+Далі він викликає фрагментний шейдер для визначення кольору кожного з цих пікселів.</p>
+<p>Уявіть собі текстуру розміром 15х11 пікселів, в яку ми хочемо відрендерити
+наш трикутник. Це виглядатиме ось так:</p>
+<div class="webgpu_center">
+  <div data-diagram="clip-space-to-texels" style="display: inline-block; max-width: 500px; width: 100%"></div>
+  <div>drag the vertices</div>
+</div>
+<p>Отож, ми побачили невеликий робочий приклад WebGPU програми. Зрозуміло, що
+жорстке кодування трикутника в середині шейдера не є дуже гнучким підходом. Ми
+повинні мати певні способи передачі даних в шейдер і ми обов’язково розглянемо їх
+в наступних статтях. Ключові моменти з коду вище, які варто підкреслити:</p>
+<ul>
+<li>WebGPU лише виконує шейдери. Код, який робитиме щось корисне, це ваша відповідальність.</li>
+<li>Шейдери описуються в шейдерному модулі, а потім перетворюються на пайплайн.</li>
+<li>WebGPU здатен малювати трикутники.</li>
+<li>WebGPU малює в текстурах (в нашому випадку це текстура нашого вебполотна).</li>
+<li>WebGPU кодує команди, а потім надсилає їх на виконання.</li>
+</ul>
+<h1 id="запускаємо-обчислення-на-графічному-процесорі"><a id="a-run-computations-on-the-gpu"></a>Запускаємо обчислення на графічному процесорі</h1>
+<p>Давайте створимо базовий приклад обчислень на графічному процесорі.</p>
+<p>Ми почнемо з того ж самого коду, який отримує WebGPU пристрій.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
+  const adapter = await navigator.gpu?.requestAdapter();
+  const device = await adapter?.requestDevice();
+  if (!device) {
+    fail('цей код потребує браузера, який підтримує WebGPU');
+    return;
+  }
+</pre>
+<p>Далі ми створюємо шейдерний модуль.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+    label: 'doubling compute module',
+    code: `
+      @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
+
+      @compute @workgroup_size(1) fn computeSomething(
+        @builtin(global_invocation_id) id: vec3&lt;u32&gt;
+      ) {
+        let i = id.x;
+        data[i] = data[i] * 2.0;
+      }
+    `,
+  });
+</pre>
+<p>Спершу ми оголошуємо змінну <code class="notranslate" translate="no">data</code> типу <code class="notranslate" translate="no">storage</code>, яка повинна мати можливість
+читання та запису.
+First, we declare a variable called <code class="notranslate" translate="no">data</code> of type <code class="notranslate" translate="no">storage</code> that we want to be
+able to both read from and write to.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
+</pre>
+<p>Ми оголошуємо її тип як <code class="notranslate" translate="no">array&lt;f32&gt;</code>, що означає масив 32-бітних чисел з рухомою
+комою. Ми вказуємо, що цей масив буде в локації прив’язки під індексом 0 (<code class="notranslate" translate="no">binding(0)</code>),
+яка буде в групі прив’язок під індексом 0 (<code class="notranslate" translate="no">@group(0)</code>).</p>
+<p>Далі ми оголошуємо функцію <code class="notranslate" translate="no">computeSomething</code> з атрибутом <code class="notranslate" translate="no">@compute</code>, який
+робить її обчислювальний шейдер.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @compute @workgroup_size(1) fn computeSomething(
+        @builtin(global_invocation_id) id: vec3u
+      ) {
+        ...
+</pre>
+<p>Обчислювальний шейдер вимагає від нас оголосити також значення розміру робочої
+групи (workgroup size), значення якої ми пояснимо пізніше. Наразі ми встановимо
+це значення в 1 з допомогою атрибута <code class="notranslate" translate="no">@workgroup_size(1)</code>. Ми оголошуємо один
+параметр функції <code class="notranslate" translate="no">id</code> з типом <code class="notranslate" translate="no">vec3u</code>. <code class="notranslate" translate="no">vec3u</code> це три беззнакових 32-бітних
+числа. Як і в нашому вершинному шейдері вище, це номер ітерації. Різниця в тому,
+що в обчислювальному шейдері номер ітерації є тривимірним (має 3 значення).
+Ми вказуємо на те, що <code class="notranslate" translate="no">id</code> отримає своє значення з вбудованої змінної
+<code class="notranslate" translate="no">global_invocation_id</code>.</p>
+<p>Ви можете <em>приблизно</em> вважати, що обчислювальні шейдери працюють якось так. Це
+дуже спрощений приклад, але поки цього достатньо.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// pseudo code
+function dispatchWorkgroups(width, height, depth) {
+  for (z = 0; z &lt; depth; ++z) {
+    for (y = 0; y &lt; height; ++y) {
+      for (x = 0; x &lt; width; ++x) {
+        const workgroup_id = {x, y, z};
+        dispatchWorkgroup(workgroup_id)
+      }
+    }
+  }
+}
+
+function dispatchWorkgroup(workgroup_id) {
+  // from @workgroup_size in WGSL
+  const workgroup_size = shaderCode.workgroup_size;
+  const {x: width, y: height, z: depth} = workgroup_size;
+  for (z = 0; z &lt; depth; ++z) {
+    for (y = 0; y &lt; height; ++y) {
+      for (x = 0; x &lt; width; ++x) {
+        const local_invocation_id = {x, y, z};
+        const global_invocation_id =
+            workgroup_id * workgroup_size + local_invocation_id;
+        computeShader(global_invocation_id)
+      }
+    }
+  }
+}
+</pre>
+<p>Оскільки ми встановили <code class="notranslate" translate="no">@workgroup_size(1)</code>, то цей псевдокод перетворюється на:</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// pseudo code
+function dispatchWorkgroups(width, height, depth) {
+  for (z = 0; z &lt; depth; ++z) {
+    for (y = 0; y &lt; height; ++y) {
+      for (x = 0; x &lt; width; ++x) {
+        const workgroup_id = {x, y, z};
+        dispatchWorkgroup(workgroup_id)
+      }
+    }
+  }
+}
+
+function dispatchWorkgroup(workgroup_id) {
+  const global_invocation_id = workgroup_id;
+  computeShader(global_invocation_id)
+}
+</pre>
+<p>Нарешті ми використаємо поле <code class="notranslate" translate="no">x</code> параметру <code class="notranslate" translate="no">id</code> для індексації масиву <code class="notranslate" translate="no">data</code> і
+помножимо кожне число на 2.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let i = id.x;
+        data[i] = data[i] * 2.0;
+</pre>
+<p>Вище <code class="notranslate" translate="no">i</code> є лише першим із 3 чисел ітерації.</p>
+<p>Тепер, коли ми створили шейдер, нам потрібно створити пайплайн.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createComputePipeline({
+    label: 'doubling compute pipeline',
+    layout: 'auto',
+    compute: {
+      module,
+      entryPoint: 'computeSomething',
+    },
+  });
+</pre>
+<p>Тут вказуємо лише на те, що ми використаємо етап <code class="notranslate" translate="no">compute</code> з шейдерного модуля
+<code class="notranslate" translate="no">module</code>, який ми щойно створили, і оскільки там є тільки одна точка запуску з
+атрибутом <code class="notranslate" translate="no">@compute</code> WebGPU буде знати, що саме її потрібно викликати. В поле
+<code class="notranslate" translate="no">layout</code> встановлюємо значення <code class="notranslate" translate="no">'auto'</code>, що вказує WebGPU самому визначити
+цей це значення з шейдерів. <sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup></p>
+<p>Далі нам потрібні якісь дані.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const input = new Float32Array([1, 3, 5]);
+</pre>
+<p>Ці дані існують лише в JavaScript. Щоб WebGPU використав їх, нам потрібно створити
+буфер, який існуватиме на графічному процесорі, і скопіювати ті дані в цей буфер.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // створюємо буфер на графічному процесорі
+  const workBuffer = device.createBuffer({
+    label: 'work buffer',
+    size: input.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+  });
+  // копіюємо наші дані в цей буфер
+  device.queue.writeBuffer(workBuffer, 0, input);
+</pre>
+<p>Ми викликаємо <code class="notranslate" translate="no">device.createBuffer</code>, щоб створити буфер. <code class="notranslate" translate="no">size</code> це розмір буфера в
+байтах. В цьому випадку він буде 12, оскільки розмір масиву <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> з трьох
+елементів буде дорівнювати 12 байтам. Якщо ви не знайомі з <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> та
+типізованими масивами, то гляньте <a href="../webgpu-memory-layout.html">цю статтю</a>.</p>
+<p>Кожен створений WebGPU буфер має визначити значення поля <code class="notranslate" translate="no">usage</code>. Існує багато
+прапорців, які ми можемо передати туди, але не всі з них можна використовувати
+разом. Тут ми вказуємо, що хочемо використовувати як <code class="notranslate" translate="no">storage</code> передаючи
+прапорець <code class="notranslate" translate="no">GPUBufferUsage.STORAGE</code>. Це робить його сумісним з <code class="notranslate" translate="no">var&lt;storage,...&gt;</code>
+у шейдері. Далі, ми хочемо мати змогу копіювати дані в цей буфер, тому ми передаємо
+прапорець <code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code>. І нарешті, ми хочемо мати змогу копіювати
+дані з цього буфера, тому ми передаємо прапорець <code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code>.</p>
+<p>Зверніть увагу на те, що ви не можете напряму читати вміст WebGPU буфера
+з допомогою JavaScript. Натомість ви повинні “відобразити (map)” їх, що є
+просто іншим способом отримати доступ до буфера з допомогою WebGPU, через те,
+що цей буфер може бути зайнятим, або існувати тільки на графічному процесорі.</p>
+<p>WebGPU буфер, який можна відобразити в JavaScript, неможливо використати для чогось
+іншого. Іншими словами, ми не можемо відобразити буфер, який ми створили вище і навіть
+якщо ми спробуємо додати прапорець для відображення, то ми отримаємо помилку про те, що
+цей буфер не сумісний з типом використання <code class="notranslate" translate="no">STORAGE</code>.</p>
+<p>Тож, для того щоб отримати результати обчислень, нам потрібен інший буфер.
+Після запуску цих обчислень, ми скопіюємо цей наш буфер в новий результуючий
+буфер і передамо йому прапорець, який дозволить відображати його.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // створюємо буфер на графічному процесорі, щоб отримати копію результату
+  const resultBuffer = device.createBuffer({
+    label: 'result buffer',
+    size: input.byteLength,
+    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
+  });
+</pre>
+<p><code class="notranslate" translate="no">MAP_READ</code> означає, що ми хочемо мати можливість відобразити цей масив для читання
+даних з нього.</p>
+<p>Для того, щоб наш шейдер дізнався про буфер з яким він повинен буде працювати,
+ми маємо створити групу прив’язки (bindGroup).</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // налаштовуємо групу прив’язки для того,
+  // щоб вказати шейдеру на буфер, з яким потрібно буде працювати
+  const bindGroup = device.createBindGroup({
+    label: 'bindGroup for work buffer',
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: workBuffer } },
+    ],
+  });
+</pre>
+<p>Ми отримуємо схему (<code class="notranslate" translate="no">layout</code>) для цієї групи прив’язки з нашого пайплайну. Далі
+ми встановлюємо значення поля <code class="notranslate" translate="no">entries</code>. Цифра 0 в <code class="notranslate" translate="no">pipeline.getBindGroupLayout(0)</code>
+відповідає значенню <code class="notranslate" translate="no">@group(0)</code> в нашому шейдері. Значення <code class="notranslate" translate="no">{binding: 0 ...</code> в
+полі <code class="notranslate" translate="no">entries</code> відповідає значенню <code class="notranslate" translate="no">@group(0) @binding(0)</code> в шейдері.</p>
+<p>Тепер ми можемо почати кодувати команди.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // кодуємо команди для наших розрахунків
+  const encoder = device.createCommandEncoder({
+    label: 'doubling encoder',
+  });
+  const pass = encoder.beginComputePass({
+    label: 'doubling compute pass',
+  });
+  pass.setPipeline(pipeline);
+  pass.setBindGroup(0, bindGroup);
+  pass.dispatchWorkgroups(input.length);
+  pass.end();
+</pre>
+<p>Тут ми створюємо кодек команд. Запускаємо обчислювальний <code class="notranslate" translate="no">pass</code>. Встановлюємо
+пайплайн, а потім групу прив’язок. Цифра <code class="notranslate" translate="no">0</code> в <code class="notranslate" translate="no">pass.setBindGroup(0, bindGroup)</code>
+відповідає значенню <code class="notranslate" translate="no">@group(0)</code> в шейдері. Далі ми викликаємо метод
+<code class="notranslate" translate="no">dispatchWorkgroups</code>, якому в цьому випадку ми передаємо значення <code class="notranslate" translate="no">input.length</code>,
+що дорівнює числу <code class="notranslate" translate="no">3</code> і вказує WebGPU запустити обчислювальний шейдер 3 рази.
+Після цього ми зупиняємо наш <code class="notranslate" translate="no">pass</code>.</p>
+<p>Таким можна уявити діаграму стану WebGPU після виконання методу <code class="notranslate" translate="no">dispatchWorkgroups</code>.</p>
+<div class="webgpu_center"><img src="../resources/webgpu-simple-compute-diagram.svg" style="width: 553px;"></div>
+<p>Після закінчення обчислень ми просимо WebGPU скопіювати дані буфера <code class="notranslate" translate="no">workBuffer</code>
+в буфер <code class="notranslate" translate="no">resultBuffer</code>.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // кодуємо команду для копіювання результатів в resultBuffer
+  encoder.copyBufferToBuffer(workBuffer, 0, resultBuffer, 0, resultBuffer.size);
+</pre>
+<p>Тепер ми можемо <code class="notranslate" translate="no">завершити (finish)</code> наш кодек, отримати буфер команд та надіслати
+цей буфер на виконання.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // завершуємо кодування і відправляємо команди на виконання
+  const commandBuffer = encoder.finish();
+  device.queue.submit([commandBuffer]);
+</pre>
+<p>Далі ми відображаємо результуючий буфер і отримуємо копію його даних.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Read the results
+  await resultBuffer.mapAsync(GPUMapMode.READ);
+  const result = new Float32Array(resultBuffer.getMappedRange());
+
+  console.log('input', input);
+  console.log('result', result);
+
+  resultBuffer.unmap();
+</pre>
+<p>Для відображення буфера ми викликаємо метод <code class="notranslate" translate="no">mapAsync</code> і чекаємо (<code class="notranslate" translate="no">await</code>) на
+його завершення. Після цього, ми можемо викликати <code class="notranslate" translate="no">resultBuffer.getMappedRange()</code>,
+який поверне <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> з вмістом усього буфера. Ми передаємо це значення
+в конструктор типізованого масиву <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> і після цього маємо змогу
+переглядати ці значення. Одна важлива деталь - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>, який повертається
+з методу <code class="notranslate" translate="no">getMappedRange</code>, дійсний тільки до того моменту поки ми не викличемо
+метод <code class="notranslate" translate="no">unmap</code>. Після того, як ми викликали <code class="notranslate" translate="no">unmap</code>, значення довжини масиву
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> буде встановлене в 0 і його вміст перестане бути доступний.</p>
+<p>Запустивши увесь цей код ми побачимо наші результати - усі числа перемножені
+на 2.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-compute.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-compute.html" target="_blank">натисніть сюди, щоб відкрити в окремому вікні</a>
+</div>
+
+<p></p>
+<p>По пояснимо, як по справжньому користуватись обчислювальними шейдерами в
+іншій статті. Наразі, сподіваюсь, ви отримали розуміння того, що робить WebGPU.
+УСЕ ІНШЕ ЦЕ ВАША ВІДПОВІДАЛЬНІСТЬ! Думайте про WebGPU, як про іншу мову програмування.
+Він надає нам декілька базових функцій та залишає простір для вашої креативності.</p>
+<p>Те, що вершинні, фрагментні та обчислювальні шейдери запускаються на графічному
+процесорі, робить програмування на WebGPU дуже особливим. Графічний процесор може
+мати більше 10000 підпроцесорів, які потенційно можуть виконати більше 10000 обчислень
+паралельно, що, ймовірно, на 3 або більше порядків величин більше, ніж ваш центральний
+процесор може виконати паралельно.</p>
+<h2 id="проста-зміна-розміру-полотна"><a id="a-resizing"></a> Проста зміна розміру полотна</h2>
+<p>Перед тим, як ми перейдемо до інших статей, варто повернутись до прикладу з
+малюванням трикутника і додати базову підтримку зміни розміру полотна. Зміна
+розміру полотна це тема, яка може мати багато тонкощів тож <a href="../webgpu-resizing-the-canvas.html">існує ціла окрема стаття про це</a>. Наразі ж давайте додамо базову підтримку цього.</p>
+<p>Спочатку, ми додамо трішки CSS, щоб заповнити усю сторінку нашим полотном.</p>
+<pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;style&gt;
+html, body {
+  margin: 0;       /* remove the default margin          */
+  height: 100%;    /* make the html,body fill the page   */
+}
+canvas {
+  display: block;  /* make the canvas act like a block   */
+  width: 100%;     /* make the canvas fill its container */
+  height: 100%;
+}
+&lt;/style&gt;
+</pre>
+<p>Цей CSS код сам по собі розтягне наше полотно на весь екран, але не змінить
+його розширення, тож ви можете помітити, що краї трикутник нагадують маленькі
+блоки. Особливо, якщо збільшити приклад, натиснувши на кнопку повного екрану.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-with-canvas-css.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-with-canvas-css.html" target="_blank">натисніть сюди, щоб відкрити в окремому вікні</a>
+</div>
+
+<p></p>
+<p>Тег <code class="notranslate" translate="no">&lt;canvas&gt;</code> тут має розширення 300x150 пікселів. Ми б хотіли
+підігнати розширення полотна до розміру йог відображення. Один хороший спосіб -
+використати <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a>. Ви створюєте <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> і передаєте йому
+функцію, яку він має запустити кожного разу, коли об’єкт, за яким ви встановили
+спостереження, змінює свій розмір. Ми можете самостійно вказати, за яким
+елементом цей об’єкт повинен вести спостереження.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    ...
+-    render();
+
++    const observer = new ResizeObserver(entries =&gt; {
++      for (const entry of entries) {
++        const canvas = entry.target;
++        const width = entry.contentBoxSize[0].inlineSize;
++        const height = entry.contentBoxSize[0].blockSize;
++        canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
++        canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
++        // re-render
++        render();
++      }
++    });
++    observer.observe(canvas);
+</pre>
+<p>В коді вище, ми проходимось по масиву <code class="notranslate" translate="no">entries</code>, але тут має бути тільки один
+елемент, оскільки ми стежимо тільки за полотном. Нам потрібно обмежити розмір
+полотна до найбільшого значення, яке може підтримати наш пристрій. В іншому
+випадку WebGPU почне генерувати помилки про те, що ми намагаємось створити
+завелику текстуру. Також, нам потрібно запевнитись, що це значення не буде нулем,
+бо знову отримаємо помилки.
+<a href="../webgpu-resizing-the-canvas.html">Перегляньте цю довшу статтю для розуміння деталей</a>.</p>
+<p>Ми викликаємо метод <code class="notranslate" translate="no">render</code>, щоб заново намалювати трикутник з новим розширенням.
+Ми також видалили старий виклик <code class="notranslate" translate="no">render</code> тому, що він більше не потрібен.
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> запустить свій колбек щонайменше один раз, щоб сповістити про
+розмір елементу в момент, коли за ним почали слідкувати.</p>
+<p>Текстура з новим розміром створюється в момент, коли ми викликаємо
+<code class="notranslate" translate="no">context.getCurrentTexture()</code> в методі  <code class="notranslate" translate="no">render</code>, тож більше тут немає що змінювати.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-with-canvas-resize.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-with-canvas-resize.html" target="_blank">натисніть сюди, щоб відкрити в окремому вікні</a>
+</div>
+
+<p></p>
+<p>В наступних статтях, ми розглянемо різні методи передання даних в шейдери.</p>
+<ul>
+<li><a href="../webgpu-inter-stage-variables.html">міжетапні змінні</a></li>
+<li><a href="../webgpu-uniforms.html">юніформи</a></li>
+<li><a href="../webgpu-storage-buffers.html">буфери для зберігання</a></li>
+<li><a href="../webgpu-vertex-buffers.html">вершинні буфери</a></li>
+<li><a href="../webgpu-textures.html">текстури</a></li>
+<li><a href="../webgpu-constants.html">константи</a></li>
+</ul>
+<p>Потім ми розглянемо <a href="../webgpu-wgsl.html">основи WGSL</a>.</p>
+<p>В такому порядку ми підемо від найпростішого до найскладнішого. Міжетапні
+змінні не потребують додаткових зовнішнього налаштування для пояснення. Ми
+можемо побачити, як їх використовувати, лише з допомогою змін до WGSL коду,
+який ми використовували вище. Юніформи фактично є глобальними змінними і
+використовуються у всіх 3 видах шейдерів (вершинні, фрагментні та обчислювальні).
+Перехід від юніформних буферів до буферів зберігання досить тривіальний. Вершинні
+буфери використовуються лише у вершинних шейдерах. Вони складніші, оскільки
+вимагають опису макета даних у WebGPU. Текстури є найскладнішими, оскільки вони
+мають безліч типів і варіантів.</p>
+<p>Я трохи хвилююся, що спочатку ці статті будуть нудними. Не соромтеся перестрибувати
+з однієї на іншу, якщо цього хочете. Просто пам’ятайте, якщо ви чогось не розумієте,
+вам, ймовірно, потрібно прочитати або переглянути основи розглянуті в цій статті.
+Опанувавши основи, ми почнемо розглядати справжні техніки роботи з WebGPU.</p>
+<p>Ще одна річ. Усі приклади програм можна редагувати на цій же веб-сторінці. Крім того,
+їх можна легко експортувати в <a href="https://jsfiddle.net">jsfiddle</a>,
+<a href="https://codepen.io">codepen</a> і навіть <a href="https://stackoverflow.com">stackoverflow</a>.
+Просто натисніть «Експорт».</p>
+<div class="webgpu_bottombar">
+<p>
+Код вище отримує пристрій WebGPU дуже стислим способом. Більш повним способом 
+було б щось на кшталт цього
+</p>
+<pre class="prettyprint showmods">async function start() {
+  if (!navigator.gpu) {
+    fail('this browser does not support WebGPU');
+    return;
+  }
+
+  const adapter = await navigator.gpu.requestAdapter();
+  if (!adapter) {
+    fail('this browser supports webgpu but it appears disabled');
+    return;
+  }
+
+  const device = await adapter?.requestDevice();
+  device.lost.then((info) =&gt; {
+    console.error(`WebGPU device was lost: ${info.message}`);
+
+    // 'reason' will be 'destroyed' if we intentionally destroy the device.
+    if (info.reason !== 'destroyed') {
+      // try again
+      start();
+    }
+  });
+  
+  main(device);
+}
+start();
+
+function main(device) {
+  ... do webgpu ...
+}
+</pre>
+<p>
+<code class="notranslate" translate="no">device.lost</code> це проміс, який запускається не вирішеним. Він вирішиться
+в момент коли пристрій буде втрачено. Пристрій можна втратити з багатьох причин. 
+Можливо, користувач запустив дуже інтенсивну програму, і вона призвела до збою його
+графічного процесора. Можливо, користувач оновив свої драйвери. Можливо, користувач 
+має зовнішній графічний процесор і від’єднав його. Можливо, інша сторінка використовувала
+багато ресурсів графічного процесора, ваша вкладка була у фоновому режимі, і браузер 
+вирішив звільнити пам’ять, розірвавши зв’язок з пристроєм для фонових вкладок. Важливо те, 
+що для будь-яких серйозних програм ви, ймовірно, захочете впоратися з втратою пристрою.
+</p>
+<p>
+Зверніть увагу, що <code class="notranslate" translate="no">requestDevice</code> завжди повертає пристрій. Просто цей
+пристрій може бути одразу втраченим. WebGPU розроблений таким чином, що пристрій в
+будь-якому випадку буде здаватись працюючим. Виклики для створення різних речей
+теж будуть працювати, але по суті нічого не робитимуть. Опрацювання втраченого 
+(<code class="notranslate" translate="no">lost</code>) пристрою це ваша відповідальність.
+</p>
+</div>
+<!-- keep this at the bottom of the article -->
+<script type="module" src="../webgpu-fundamentals.js"></script>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>Насправді існує 5 режимів.</p>
+<ul>
+<li><code class="notranslate" translate="no">'point-list'</code>: для кожної позиції, намалювати точку</li>
+<li><code class="notranslate" translate="no">'line-list'</code>: для кожної пари точок, намалювати лінію</li>
+<li><code class="notranslate" translate="no">'line-strip'</code>: малювати лінії з’єднуючи нову точку з попередньою</li>
+<li><code class="notranslate" translate="no">'triangle-list'</code>: для кожної сукупності з 3 точок, намалювати трикутник  (<strong>за замовчуванням</strong>)</li>
+<li><code class="notranslate" translate="no">'triangle-strip'</code>: для кожної нової точки, намалювати трикутник з цієї точки і двох попередніх</li>
+</ul>
+ <a href="#fnref1" class="footnote-backref">↩︎</a></li>
+<li id="fn2" class="footnote-item"><p>Фрагментні шейдери опосередковано записують дані в текстури. Ці
+дані не обов’язково повинні бути саме кольорами. Для прикладу, загальноприйнято записувати
+туди напрямок поверхні, яку представляє цей піксель. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p>Текстурами також можуть бути тривимірні прямокутники пікселів,
+кубічні карти (6 квадратів пікселів, які формують куб) та певні інші речі, але
+найбільш поширені текстури це двовимірні прямокутники пікселів. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn4" class="footnote-item"><p>Ми можемо також використати буфер індексів для того, щоб
+визначити<code class="notranslate" translate="no">vertex_index</code>. Цей спосіб описаний в <a href="../webgpu-vertex-buffers.html#a-index-buffers">цій статті про вершинні буфери</a>. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code> це зручно, але в цьому випадку неможливо ділитись
+групами прив’язок між пайплайнами. Більшість прикладів на цьому сайті не використовує
+групи прив’язок з різними пайплайнами. Ми опишемо решту значень в <a href="../webgpu-drawing-multiple-things.html">іншій статті</a>. <a href="#fnref5" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
@@ -201,9 +1137,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>Основи</li>
+        <div id="toc">
+          <ul>  <li>Основи</li>
         <ul>
-          <li><a href="/webgpu/lessons/uk/webgpu-fundamentals.html">Fundamentals</a></li>
+          <li><a href="/webgpu/lessons/uk/webgpu-fundamentals.html">Основи</a></li>
 <li><a href="/webgpu/lessons/uk/webgpu-inter-stage-variables.html">Міжетапні змінні</a></li>
 <li><a href="/webgpu/lessons/uk/webgpu-uniforms.html">Uniforms</a></li>
 <li><a href="/webgpu/lessons/uk/webgpu-storage-buffers.html">Storage Buffers</a></li>
@@ -282,13 +1219,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
 
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>Запитання? <a href="http://stackoverflow.com/questions/tagged/webgpu">Запитати на stackoverflow</a>.</div>
+<div>
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">Пропозиція</a>?
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">Запит</a>?
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">Проблема</a>?
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">Помилка</a>?
+</div>
+<div class="lesson-comment-notes">
+   Use <b>&lt;pre&gt;&lt;code&gt;</b>code goes here<b>&lt;/code&gt;&lt;/pre&gt;</b> for code blocks
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `Основи WebGPU`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "Thank you <a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a><br>for <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} contributions</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
-<script src="/webgpu/lessons/resources/lesson.js"></script>
+<script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
 <!-- Google tag (gtag.js) -->
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-92BFT5PE4H"></script>
 <script>
