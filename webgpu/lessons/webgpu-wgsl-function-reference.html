@@ -230,7 +230,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="lesson">
     <div class="lesson-main">
       <div id="func-toc"></div>
-<div class="webgpu-center data-table">
+<div class="webgpu_center data-table">
 <div><h2 id="bit-reinterp-builtin-functions">Bit Reinterpretation Built-in Functions</h2><table><thead><tr><th>Function</th><th>Parameter Types</th><th>Description</th></tr></thead><tbody><tr><td><pre class="tableprettyprint lang-wgsl"> fn bitcast&lt;T&gt;(e : T) -&gt; T </pre></td><td>T is a concrete numeric scalar or concrete numeric vector 
      </td><td id="bitcast-builtin"><a href="https://www.w3.org/TR/WGSL/#bitcast-builtin" target="_blank"></a>Identity transform.<br> Component-wise when <code>T</code> is a vector.<br> The result is <code>e</code>. 
    </td></tr><tr><td><pre class="tableprettyprint lang-wgsl"> fn bitcast&lt;T&gt;(e : S) -&gt; T </pre></td><td>S is i32, u32, or f32 T is not S and is i32, u32, or f32 

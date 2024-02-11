@@ -418,7 +418,7 @@ const textureData = new Uint8Array([
 <h2 id="放大过滤器magfilter"><a id="a-mag-filter"></a>放大过滤器(magFilter)</h2>
 <p>在上面的示例中，我们使用了默认设置的采样器。由于我们绘制的 5x7 纹理比原始的 5x7 纹理要大，因此采样器使用了所谓的 <code class="notranslate" translate="no">magFilter</code> 或者说是放大纹理时使用的过滤器。如果我们将其从 <code class="notranslate" translate="no">nearest</code> 改为 <code class="notranslate" translate="no">linear</code>，那么它将在 4 个像素之间进行线性插值。</p>
 <p><a id="a-linear-interpolation"></a></p>
-<div class="webgpu-center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
 <p>纹理坐标通常称为 “UVs”（读作 you-vees），因此在上图中，<code class="notranslate" translate="no">uv</code> 就是纹理坐标。<code class="notranslate" translate="no">t1</code> 是所选像素的左上方中心点与其右边中心点之间的水平距离，0 表示水平位于像素的左边中心点，1 表示水平位于像素的右边中心点。<code class="notranslate" translate="no">t2</code> 与其类似，只不过是在竖直方向。</p>
 <p><code class="notranslate" translate="no">t1</code> 用于在顶部 2 个像素之间进行 <em>“混合”</em>，以生成中间色。 混合在 2 个值之间进行线性插值，因此当 <code class="notranslate" translate="no">t1</code> 为 0 时，我们只能得到第一种颜色。当 <code class="notranslate" translate="no">t1</code> = 1 时，我们只能得到第二种颜色。介于 0 和 1 之间的值会产生比例混合。例如，0.3 表示第一种颜色占 70%，第二种颜色占 30%。同样，底部 2 个像素也会计算出第二种中间色。最后，使用 <code class="notranslate" translate="no">t2</code> 将两种中间颜色混合为最终颜色。</p>
 <p>另外需要注意的是，在图的底部还有两个采样器设置，即 <code class="notranslate" translate="no">addressModeU</code> 和 <code class="notranslate" translate="no">addressModeV</code>。我们可以将其设置为 <code class="notranslate" translate="no">repeat</code> 或 <code class="notranslate" translate="no">clamp-to-edge</code><sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup>。当设置为 <code class="notranslate" translate="no">repeat</code> 时，当我们的纹理坐标位于纹理边缘半个图元以内时，我们就会环绕纹理并与纹理另一侧的像素混合。当设置为 <code class="notranslate" translate="no">clamp-to-edge</code> 时，为了计算要返回的颜色，纹理坐标会被夹住，使其不能进入每条边缘的最后半格距。这样做的效果是，在该范围之外的任何纹理坐标都会显示边缘颜色。</p>
@@ -686,7 +686,7 @@ const textureData = new Uint8Array([
 <p>你可以看到四边形在闪烁并变换颜色。如果将 <code class="notranslate" translate="no">minFilter</code> 设置为 <code class="notranslate" translate="no">nearest</code>，那么对于四边形的每个 2x2 像素，它都会从我们的纹理中选取一个像素。如果将其设置为 <code class="notranslate" translate="no">linear</code>，那么它就会执行我们上面提到的双线性滤波，但仍然会闪烁。</p>
 <p>其中一个原因是，四边形是用实数定位的，而像素是整数。纹理坐标是从实数中插值出来的，或者说是从实数中计算出来的。</p>
 <p><a id="a-pixel-to-texcoords"></a></p>
-<div class="webgpu-center center diagram">
+<div class="webgpu_center center diagram">
   <div class="fit-container">
     <div class="text-align: center">drag to move</div>
     <div class="fit-container" data-diagram="pixel-to-texcoords" style="display: inline-block; width: 600px;"></div>
@@ -695,7 +695,7 @@ const textureData = new Uint8Array([
 <p>在上图中，<span style="color: red;">红色</span>矩形代表我们要求 GPU 根据顶点着色器返回的值绘制的四边形。当 GPU 绘制时，它会计算哪些像素的中心在我们的四边形（我们的 2 个三角形）内。然后，它会根据要绘制的像素中心相对于原始点的位置，计算出要传递给片段着色器的插值阶段间变量值。然后，在片段着色器中，我们将纹理坐标传递给 WGSL <code class="notranslate" translate="no">textureSample</code> 函数，并返回上图所示的采样颜色。希望你能明白为什么颜色会闪烁。你可以看到它们混合成不同的颜色，这取决于为绘制的像素计算的 UV 坐标。</p>
 <p>纹理为这一问题提供了解决方案。它被称为 mip-mapping。我认为（但也可能是错的），"mipmap "是 "multi-image-pyramid-map "的缩写。</p>
 <p>我们使用纹理并创建一个较小的纹理，该纹理的每个维度的大小均为其一半，然后四舍五入。然后，我们用第一个原始纹理的混合颜色填充这个较小的纹理。如此反复，直到得到一个 1x1 的纹理。在我们的示例中，我们有一个 5x7 平方英寸的纹理。将每个维度除以 2 并向下舍入，就得到了一个 2x3 色素的纹理。我们取这一数值并重复，最终得到 1x1 色度的纹理。</p>
-<div class="webgpu-center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
 <p>有了 mipmap，当我们绘制比原始纹理尺寸更小的纹理时，就可以要求 GPU 选择更小的 mip 级别。这样看起来会更好，因为它已经过 “预混合”，能更好地表现纹理缩小后的颜色。</p>
 <p>将像素从一个 mip 混合到下一个 mip 的最佳算法既是一个研究课题，也是一个见仁见智的问题。作为第一个想法，这里有一些代码，可以通过双线性滤波（如上所示）从上一个 mip 生成每一个 mip。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const lerp = (a, b, t) =&gt; a + (b - a) * t;
@@ -866,7 +866,7 @@ const createBlendedMipmap = () =&gt; {
   };
 </pre>
 <p>这将生成这些 mip 级别</p>
-<div class="webgpu-center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
 <p>我们可以在每个 mip 层中自由放置任何数据，因此另一个查看发生了什么的好方法就是让每个 mip 层呈现不同的颜色。让我们使用 canvas 2d api 来制作 mip 层。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const createCheckedMipmap = () =&gt; {
     const ctx = document
@@ -894,7 +894,7 @@ const createBlendedMipmap = () =&gt; {
 };
 </pre>
 <p>该代码将生成这些 mip 级别。</p>
-<div class="webgpu-center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
 <p>现在我们已经创建了数据，让我们创建纹理吧</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const createTextureWithMips = (mips, label) =&gt; {
     const texture = device.createTexture({

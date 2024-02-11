@@ -225,7 +225,10 @@ div[data-diagram] {
 .lesson-main>.webgpu_example_container {
     max-width: min(90%, 1500px);
 }
-.lesson-main>img {
+.lesson-main>img,
+.lesson-main>svg,
+.lesson-main>canvas,
+.lesson-main>video {
   width: unset;
 }
 
@@ -441,9 +444,14 @@ div[data-diagram] {
   text-align: center;
   max-width: 95%;
 }
+.webgpu_center div,
 .webgpu_center img,
+.webgpu_center video,
 .webgpu_center>object {
   max-width: 100%;
+}
+.webgpu_center table {
+  display: inline-table;
 }
 .webgpu_image>img {
   width: 100%;

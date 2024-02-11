@@ -482,7 +482,7 @@ what’s called the <code class="notranslate" translate="no">magFilter</code> or
 If we change it from <code class="notranslate" translate="no">nearest</code> to <code class="notranslate" translate="no">linear</code> then it will linearly interpolate
 between 4 pixels.</p>
 <p><a id="a-linear-interpolation"></a></p>
-<div class="webgpu-center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
 <p>Texture coordinates are often called “UVs” (pronounced you-vees) so, in the
 diagram above, <code class="notranslate" translate="no">uv</code> is the texture coordinate. For a given uv, the closest 4
 pixels are chosen. <code class="notranslate" translate="no">t1</code> is the horizontal distance between the top left chosen
@@ -794,7 +794,7 @@ bilinear filtering we mentioned above but it still flickers.</p>
 The texture coordinates are interpolated from the real numbers, or rather, they
 are computed from the real numbers.</p>
 <p><a id="a-pixel-to-texcoords"></a></p>
-<div class="webgpu-center center diagram">
+<div class="webgpu_center center diagram">
   <div class="fit-container">
     <div class="text-align: center">drag to move</div>
     <div class="fit-container" data-diagram="pixel-to-texcoords" style="display: inline-block; width: 600px;"></div>
@@ -819,7 +819,7 @@ from the first original texture. We repeat this until we get to a 1x1 texture.
 In our example we have a 5x7 texel texture. Dividing by 2 in each dimension and
 rounding down gives us a 2x3 texel texture. We take that one and repeat so we
 end up with 1x1 texel texture.</p>
-<div class="webgpu-center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
 <p>Given a mipmap, we can then ask the GPU to choose a smaller mip level when we’re
 drawing something smaller than the original texture size. This will look better
 because it has been “pre-blended” and better represents what the texture’s color
@@ -1007,7 +1007,7 @@ better show <code class="notranslate" translate="no">mipmapFilter</code>’s eff
   };
 </pre>
 <p>This will generate these mip levels</p>
-<div class="webgpu-center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
 <p>We’re free to put any data in each mip level so another good way to see what’s happening
 is to make each mip level different colors. Let’s use the canvas 2d api to make mip levels.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const createCheckedMipmap = () =&gt; {
@@ -1034,7 +1034,7 @@ is to make each mip level different colors. Let’s use the canvas 2d api to mak
   };
 </pre>
 <p>This code will generate these mip levels.</p>
-<div class="webgpu-center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
 <p>Now that we’ve created the data lets create the textures</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const createTextureWithMips = (mips, label) =&gt; {
     const texture = device.createTexture({

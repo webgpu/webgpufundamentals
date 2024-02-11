@@ -576,11 +576,11 @@ struct VSOutput {
 perspective and that WebGPU conveniently does this divide by Z for us.</p>
 <p>But there are still some problems.  For example if you set Z to around
 -1100 you’ll see something like the animation below</p>
-<div class="webgpu-center"><div data-diagram="z-clipping" style="height: 400px;"></div></div>
+<div class="webgpu_center"><div data-diagram="z-clipping" style="height: 400px;"></div></div>
 <p>What’s going on?  Why is the F disappearing early?  Just like WebGPU clips
 X and Y or +1 to -1 it also clips Z. Unlike X and Y, Z clips 0 to +1.
 What we’re seeing here is Z &lt; 0 in clip space.</p>
-<div class="webgpu-center" style="width: 500px; height: 400px;"><div data-diagram="f-frustum-diagram"></div></div>
+<div class="webgpu_center" style="width: 500px; height: 400px;"><div data-diagram="f-frustum-diagram"></div></div>
 <p>With with divide by W in place, our matrix math + the divide by W defines
 a <em>frustum</em>. The front of the frustum is Z = 0, the back is Z = 1. Anything
 outside of that is clipped.</p>
@@ -640,7 +640,7 @@ respectively.  It computes what to use for X by just multiplying by the
 display area.  Finally, it figures out how much to scale things in Z so
 that stuff at zFar ends up at <code class="notranslate" translate="no">Z = 1</code>.</p>
 <p>Here’s a diagram of the matrix in action.</p>
-<div class="webgpu-center" style="width: 500px; height: 800px;"><div data-diagram="frustum-diagram"></div></div>
+<div class="webgpu_center" style="width: 500px; height: 800px;"><div data-diagram="frustum-diagram"></div></div>
 <p>The matrix takes the space inside the frustum and
 converts that to clip space.  <code class="notranslate" translate="no">zNear</code> defines where things will get
 clipped in the front and <code class="notranslate" translate="no">zFar</code> defines where things get clipped in the
