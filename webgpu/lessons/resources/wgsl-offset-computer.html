@@ -622,11 +622,6 @@ async function main(editor) {
     requiredFeatures: adapter.features,
   });
 
-  const compileStatusElem = document.querySelector('#compile-status');
-  if (!device) {
-    compileStatusElem.style.display = '';
-  }
-
   const processElem = document.querySelector('#process');
   processElem.addEventListener('click', process);
 
