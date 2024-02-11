@@ -411,13 +411,13 @@ perspective and that WebGPU conveniently does this divide by Z for us.
 But there are still some problems.  For example if you set Z to around
 -1100 you'll see something like the animation below
 
-<div class="webgpu-center"><div data-diagram="z-clipping" style="height: 400px;"></div></div>
+<div class="webgpu_center"><div data-diagram="z-clipping" style="height: 400px;"></div></div>
 
 What's going on?  Why is the F disappearing early?  Just like WebGPU clips
 X and Y or +1 to -1 it also clips Z. Unlike X and Y, Z clips 0 to +1.
 What we're seeing here is Z < 0 in clip space.
 
-<div class="webgpu-center" style="width: 500px; height: 400px;"><div data-diagram="f-frustum-diagram"></div></div>
+<div class="webgpu_center" style="width: 500px; height: 400px;"><div data-diagram="f-frustum-diagram"></div></div>
 
 With with divide by W in place, our matrix math + the divide by W defines
 a *frustum*. The front of the frustum is Z = 0, the back is Z = 1. Anything
@@ -487,7 +487,7 @@ that stuff at zFar ends up at `Z = 1`.
 
 Here's a diagram of the matrix in action.
 
-<div class="webgpu-center" style="width: 500px; height: 800px;"><div data-diagram="frustum-diagram"></div></div>
+<div class="webgpu_center" style="width: 500px; height: 800px;"><div data-diagram="frustum-diagram"></div></div>
 
 The matrix takes the space inside the frustum and
 converts that to clip space.  `zNear` defines where things will get

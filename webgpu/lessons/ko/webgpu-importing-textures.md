@@ -887,7 +887,7 @@ requestAnimationFrame(render);
 간단하게 하기 위해 여섯 개의 이미지를 4x2의 형태로 배치하였습니다. 
 이렇게 하면 각 사각형에 대한 텍스처 좌표의 계산이 간단해집니다.
 
-<div class="webgpu-center center diagram">
+<div class="webgpu_center center diagram">
   <div>
     <div data-diagram="texture-atlas" style="display: inline-block; width: 600px;"></div>
   </div>
@@ -900,7 +900,7 @@ requestAnimationFrame(render);
 > 0,0이 왼쪽 아래라는 것을 고수하고 싶다면 아래와 같이 보시면 됩니다.
 > **이렇게 해도 좌표는 같습니다**.
 
-<div class="webgpu-center center diagram">
+<div class="webgpu_center center diagram">
   <div>
     <div data-diagram="texture-atlas-bottom-left" style="display: inline-block; width: 600px;"></div>
     <div class="center">0,0 at bottom left</div>

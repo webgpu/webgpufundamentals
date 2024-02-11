@@ -316,7 +316,7 @@ If we change it from `nearest` to `linear` then it will linearly interpolate
 between 4 pixels.
 
 <a id="a-linear-interpolation"></a>
-<div class="webgpu-center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
 
 Texture coordinates are often called "UVs" (pronounced you-vees) so, in the
 diagram above, `uv` is the texture coordinate. For a given uv, the closest 4
@@ -669,7 +669,7 @@ The texture coordinates are interpolated from the real numbers, or rather, they
 are computed from the real numbers.
 
 <a id="a-pixel-to-texcoords"></a>
-<div class="webgpu-center center diagram">
+<div class="webgpu_center center diagram">
   <div class="fit-container">
     <div class="text-align: center">drag to move</div>
     <div class="fit-container" data-diagram="pixel-to-texcoords" style="display: inline-block; width: 600px;"></div>
@@ -698,7 +698,7 @@ In our example we have a 5x7 texel texture. Dividing by 2 in each dimension and
 rounding down gives us a 2x3 texel texture. We take that one and repeat so we
 end up with 1x1 texel texture.
 
-<div class="webgpu-center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
 
 Given a mipmap, we can then ask the GPU to choose a smaller mip level when we're
 drawing something smaller than the original texture size. This will look better
@@ -905,7 +905,7 @@ better show `mipmapFilter`'s effect.
 
 This will generate these mip levels
 
-<div class="webgpu-center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
 
 We're free to put any data in each mip level so another good way to see what's happening
 is to make each mip level different colors. Let's use the canvas 2d api to make mip levels.
@@ -937,7 +937,7 @@ is to make each mip level different colors. Let's use the canvas 2d api to make 
 
 This code will generate these mip levels.
 
-<div class="webgpu-center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
 
 Now that we've created the data lets create the textures
 

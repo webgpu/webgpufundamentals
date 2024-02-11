@@ -4,7 +4,7 @@ TOC: WGSL Function Reference
 
 <div id="func-toc"></div>
 
-<div class="webgpu-center data-table">
+<div class="webgpu_center data-table">
 {{{include "webgpu/lessons/webgpu-wgsl-function-reference.inc.html"}}}
 </div>
 

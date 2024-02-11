@@ -296,7 +296,7 @@ struct OurVertexShaderOutput {
 이를 `nearest` 에서 `linear`로 바꾸면 네 개 픽셀 사이에서 선형(linear) 보간합니다.
 
 <a id="a-linear-interpolation"></a>
-<div class="webgpu-center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
 
 텍스처 좌표는 일반적으로 "UV"(you-vee로 발음)로 불리며, 따라서 위 다이어그램에서 
 `uv`는 텍스처 좌표를 의미합니다. 주어진 uv에 대해 가까운 네 개 픽셀이 선택됩니다. 
@@ -633,7 +633,7 @@ uniform의 값을 설정하고 GPU에 업로드하는 코드도 추가해야 합
 텍스처 좌표는 실수를 기반으로 보간되는데, 좀 더 정확히 말하자면 실수 기준으로 계산된다고 할 수 있습니다.
 
 <a id="a-pixel-to-texcoords"></a>
-<div class="webgpu-center center diagram">
+<div class="webgpu_center center diagram">
   <div class="fit-container">
     <div class="text-align: center">drag to move</div>
     <div class="fit-container" data-diagram="pixel-to-texcoords" style="display: inline-block; width: 600px;"></div>
@@ -663,7 +663,7 @@ GPU가 그리기를 수행할 때, 어떤 픽셀의 중심이 사각형(두 개�
 우리 예제에서 5x7 텍셀의 텍스처로부터 가로세로 2로 나누고 내림하면 2x3 텍셀의 텍스처가 됩니다. 
 그리고 이 텍스처를 가지고 반복하면 최종적으로 1x1 텍셀 텍스처가 될겁니다.
 
-<div class="webgpu-center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
 
 이러한 밉맵을 가지고 GPU에게 원본 텍스처 크기보다 작게 그려져야 할 때에는 
 더 작은 밉 레벨을 선택하게 할 수 있습니다. 
@@ -867,7 +867,7 @@ scale이 2.4에서 2.5로 바뀔 때 변화가 큰데 이 구간이 밉 레벨 0
 
 생성된 밉 레벨들은 아래와 같습니다.
 
-<div class="webgpu-center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
 
 각 밉 레벨에 어떻 데이터를 넣을지는 자유이기 때문에 어떤 일이 벌어지고 
 있는지를 확인하는 좋은 방법으로 각 밉 레벨을 다른 색으로 채우는 방법이 있습니다. 
@@ -900,7 +900,7 @@ scale이 2.4에서 2.5로 바뀔 때 변화가 큰데 이 구간이 밉 레벨 0
 
 위 코드를 통해 아래와 같은 밉 레벨들이 만들어집니다.
 
-<div class="webgpu-center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
 
 데이터를 만들었으니 텍스처를 만들어봅시다.
 

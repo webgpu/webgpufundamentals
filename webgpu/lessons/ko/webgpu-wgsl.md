@@ -436,7 +436,7 @@ struct Foo {
 
 위에서 `blap.vNdx`는 내장된 `vertex_index`로부터, `blap.iNdx`는 내장된 `instance_index`로부터 값을 얻어옵니다.
 
-<div class="webgpu-center center data-table">
+<div class="webgpu_center center data-table">
 <table class="data">
   <thead>
     <tr>
@@ -698,7 +698,7 @@ switch x {
 
 ## Operators
 
-<div class="webgpu-center center data-table">
+<div class="webgpu_center center data-table">
 <table class="data">
   <thead>
     <tr>

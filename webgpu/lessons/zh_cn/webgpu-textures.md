@@ -245,7 +245,7 @@ pass.end();
 
 <a id="a-linear-interpolation"></a>
 
-<div class="webgpu-center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="linear-interpolation" style="display: inline-block; width: 600px;"></div></div>
 
 纹理坐标通常称为 "UVs"（读作 you-vees），因此在上图中，`uv` 就是纹理坐标。`t1` 是所选像素的左上方中心点与其右边中心点之间的水平距离，0 表示水平位于像素的左边中心点，1 表示水平位于像素的右边中心点。`t2` 与其类似，只不过是在竖直方向。
 
@@ -553,7 +553,7 @@ struct OurVertexShaderOutput {
 
 <a id="a-pixel-to-texcoords"></a>
 
-<div class="webgpu-center center diagram">
+<div class="webgpu_center center diagram">
   <div class="fit-container">
     <div class="text-align: center">drag to move</div>
     <div class="fit-container" data-diagram="pixel-to-texcoords" style="display: inline-block; width: 600px;"></div>
@@ -566,7 +566,7 @@ struct OurVertexShaderOutput {
 
 我们使用纹理并创建一个较小的纹理，该纹理的每个维度的大小均为其一半，然后四舍五入。然后，我们用第一个原始纹理的混合颜色填充这个较小的纹理。如此反复，直到得到一个 1x1 的纹理。在我们的示例中，我们有一个 5x7 平方英寸的纹理。将每个维度除以 2 并向下舍入，就得到了一个 2x3 色素的纹理。我们取这一数值并重复，最终得到 1x1 色度的纹理。
 
-<div class="webgpu-center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="mips" style="display: inline-block;"></div></div>
 
 有了 mipmap，当我们绘制比原始纹理尺寸更小的纹理时，就可以要求 GPU 选择更小的 mip 级别。这样看起来会更好，因为它已经过 "预混合"，能更好地表现纹理缩小后的颜色。
 
@@ -756,7 +756,7 @@ const createBlendedMipmap = () => {
 
 这将生成这些 mip 级别
 
-<div class="webgpu-center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="blended-mips" style="display: inline-block;"></div></div>
 
 我们可以在每个 mip 层中自由放置任何数据，因此另一个查看发生了什么的好方法就是让每个 mip 层呈现不同的颜色。让我们使用 canvas 2d api 来制作 mip 层。
 
@@ -789,7 +789,7 @@ const createCheckedMipmap = () => {
 
 该代码将生成这些 mip 级别。
 
-<div class="webgpu-center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
+<div class="webgpu_center center diagram"><div data-diagram="checkered-mips" style="display: inline-block;"></div></div>
 
 现在我们已经创建了数据，让我们创建纹理吧
 

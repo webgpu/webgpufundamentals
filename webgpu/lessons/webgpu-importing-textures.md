@@ -919,7 +919,7 @@ portion of the image onto a specific face of the cube. To keep it simple I put
 all 6 images in the texture above in squares, 4x2. So it should be pretty
 easy to compute the texture coordinates for each square. 
 
-<div class="webgpu-center center diagram">
+<div class="webgpu_center center diagram">
   <div>
     <div data-diagram="texture-atlas" style="display: inline-block; width: 600px;"></div>
   </div>
@@ -932,7 +932,7 @@ easy to compute the texture coordinates for each square.
 > If you subscribe to the idea that 0,0 = bottom left then our texture coordinates
 > would be visualized like this. **They're still the same coordinates**.
 
-<div class="webgpu-center center diagram">
+<div class="webgpu_center center diagram">
   <div>
     <div data-diagram="texture-atlas-bottom-left" style="display: inline-block; width: 600px;"></div>
     <div class="center">0,0 at bottom left</div>
