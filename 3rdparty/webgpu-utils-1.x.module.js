@@ -1,4 +1,4 @@
-/* webgpu-utils@1.5.0, license MIT */
+/* webgpu-utils@1.5.1, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
 function keysOf(obj) {
     return Object.keys(obj);
@@ -4222,7 +4222,13 @@ function makeBindGroupLayoutDescriptors(defs, desc) {
             visibility: resource.entry.visibility | (entry?.visibility || 0),
         });
     }
-    return bindGroupLayoutDescriptorsByGroupByBinding.map(v => ({ entries: [...v.values()].sort(byBinding) }));
+    const descriptors = bindGroupLayoutDescriptorsByGroupByBinding.map(v => ({ entries: [...v.values()].sort(byBinding) }));
+    for (let i = 0; i < descriptors.length; ++i) {
+        if (!descriptors[i]) {
+            descriptors[i] = { entries: [] };
+        }
+    }
+    return descriptors;
 }
 function getNamedVariables(reflect, variables) {
     return Object.fromEntries(variables.map(v => {
