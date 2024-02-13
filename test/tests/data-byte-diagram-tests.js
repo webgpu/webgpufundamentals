@@ -275,7 +275,9 @@ describe('data-byte-diagram-tests', () => {
       },
     ],
   },
-  , // empty group
+  {
+    entries: [],
+  },
   {
     entries: [
       {
