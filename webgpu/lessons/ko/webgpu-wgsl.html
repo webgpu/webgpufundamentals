@@ -462,7 +462,7 @@ vec4f fn foo() {
 <code class="notranslate" translate="no">vs2</code>는 <code class="notranslate" translate="no">foo</code> 호출을 통해 <code class="notranslate" translate="no">uni</code>를 간접적으로 참조하므로 <code class="notranslate" translate="no">vs2</code>를 파이프라인에서 사용할 때에는 <code class="notranslate" translate="no">uni</code>의 바인딩이 필요합니다.</p>
 <h2 id="어트리뷰트attributes">어트리뷰트(attributes)</h2>
 <p>WebGPU에서 <em>어트리뷰트</em>는 두 가지 의미를 가집니다.
-하나는 <em>정점 어트리뷰트</em>로 <a href="../webgpu-vertex-buffers.html">정점 버퍼에 관한 글</a>에서 설명한 것과 같습니다.
+하나는 <em>정점 어트리뷰트</em>로 <a href="webgpu-vertex-buffers.html">정점 버퍼에 관한 글</a>에서 설명한 것과 같습니다.
 다른 하나는 WGSL에서 <code class="notranslate" translate="no">@</code>로 시작하는 어트리뷰트입니다.</p>
 <h3 id="locationnumber"><code class="notranslate" translate="no">@location(number)</code></h3>
 <p><code class="notranslate" translate="no">@location(number)</code>는 셰이더의 입력과 출력을 정의할 떄 사용됩니다.</p>
@@ -476,7 +476,7 @@ struct Stuff {
 };
 @vertex vs2(s: Stuff) ...
 </pre>
-<p><code class="notranslate" translate="no">vs1</code>와 <code class="notranslate" translate="no">vs2</code> 모두 정점 셰이더의 입력값을 location 0과 1을 통해 선언하고 있으며 이 값들은 <a href="../webgpu-vertex-buffers.html">정점 버퍼</a>를 통해 전달되어야 합니다.</p>
+<p><code class="notranslate" translate="no">vs1</code>와 <code class="notranslate" translate="no">vs2</code> 모두 정점 셰이더의 입력값을 location 0과 1을 통해 선언하고 있으며 이 값들은 <a href="webgpu-vertex-buffers.html">정점 버퍼</a>를 통해 전달되어야 합니다.</p>
 <h4 id="스테이지간-변수">스테이지간 변수</h4>
 <p>스테이지간 변수에서 <code class="notranslate" translate="no">@location</code> 어트리뷰트는 셰이더간 전달되는 변수의 location을 명시합니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct VSOut {
@@ -831,7 +831,7 @@ switch x {
 </table>
 </div>
 <h2 id="내장-함수">내장 함수</h2>
-<p><a href="../webgpu-wgsl-function-reference.html">WGSL Function reference</a>를 참고하세요.</p>
+<p><a href="webgpu-wgsl-function-reference.html">WGSL Function reference</a>를 참고하세요.</p>
 <h2 id="다른-언어와의-차이점">다른 언어와의 차이점</h2>
 <h3 id="if-while-switch-break-if-표현식에-괄호가-필요하지-않습니다"><code class="notranslate" translate="no">if</code>, <code class="notranslate" translate="no">while</code>, <code class="notranslate" translate="no">switch</code>, <code class="notranslate" translate="no">break-if</code> 표현식에 괄호가 필요하지 않습니다.</h3>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">if a &lt; 5 {

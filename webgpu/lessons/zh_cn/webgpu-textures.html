@@ -230,7 +230,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>本文将介绍纹理的基本原理。在之前的文章中，我们介绍了向着色器传递数据的其他主要方法。它们是<a href="../webgpu-inter-stage-variables.html">inter-stage 变量</a>、<a href="../webgpu-uniforms.html">uniforms</a>、<a href="../webgpu-storage-buffers.html">存储缓冲区</a>和<a href="../webgpu-vertex-buffers">顶点缓冲区</a>。最后一种向着色器传递数据的主要方式是纹理。</p>
+      <p>本文将介绍纹理的基本原理。在之前的文章中，我们介绍了向着色器传递数据的其他主要方法。它们是<a href="webgpu-inter-stage-variables.html">inter-stage 变量</a>、<a href="webgpu-uniforms.html">uniforms</a>、<a href="webgpu-storage-buffers.html">存储缓冲区</a>和<a href="../webgpu-vertex-buffers">顶点缓冲区</a>。最后一种向着色器传递数据的主要方式是纹理。</p>
 <p>纹理通常代表 2d 图像。二维图像只是一个由颜色值组成的二维数组，因此你可能会问，为什么我们需要二维数组的纹理呢？我们可以直接使用存储缓冲区作为二维数组。纹理的特殊之处在于，它们可以被称为 <em>采样器(sampler)</em> 的特殊硬件访问。采样器可以读取纹理中最多 16 个不同的值，并将它们混合在一起，这对许多常见的使用情况都很有用。</p>
 <p>举个例子，假设我想绘制一张比原始尺寸更大的 2D 图像。</p>
 <div class="center">
@@ -254,7 +254,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>这些 WGSL 函数需要一个表示数据的纹理、一个表示我们希望如何从纹理中提取数据的采样器，以及一个指定我们希望从纹理中获取值的纹理坐标。</p>
 <p>采样纹理的纹理坐标横向和纵向都是从 0.0 到 1.0，与纹理的实际大小无关。<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
 <div class="webgpu_center"><img src="../resources/texture-coordinates-diagram.svg" style="width: 500px;"></div>
-<p>让我们从<a href="../webgpu-inter-stage-variables.html">inter-stage 变量的文章</a>中选取一个示例，对其进行修改，以绘制带有纹理的四边形（2 个三角形）。</p>
+<p>让我们从<a href="webgpu-inter-stage-variables.html">inter-stage 变量的文章</a>中选取一个示例，对其进行修改，以绘制带有纹理的四边形（2 个三角形）。</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct OurVertexShaderOutput {
   @builtin(position) position: vec4f,
 -  @location(0) color: vec4f,
@@ -307,7 +307,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>我们将 <code class="notranslate" translate="no">OutVertexShaderOutput</code> 改为传递 <code class="notranslate" translate="no">texcoord</code>（一个 <code class="notranslate" translate="no">vec2f</code>），以便将纹理坐标传递给片段着色器。我们更改了顶点着色器，将 <code class="notranslate" translate="no">vsOutput.texcoord</code> 设置为与我们从硬编码 position 数组中提取的裁剪空间位置相同的值。<code class="notranslate" translate="no">vsOutput.texcoord</code>的值在传递给片段着色器时将会在三角形的三个顶点中进行插值。</p>
 <p>然后，我们声明了采样器和纹理，并在片段着色器中引用了它们。函数 <code class="notranslate" translate="no">textureSample</code> 对纹理进行采样。第一个参数是要采样的纹理。第二个参数是采样器，用于指定如何对纹理进行采样。第三个参数是纹理坐标，用于指定采样位置。</p>
 <blockquote>
-<p>注：将位置值作为纹理坐标传递的做法并不常见，但在这种单位四边形（宽和高各为一个单位的四边形）的特殊情况下，我们需要的纹理坐标恰好与位置值相匹配。这样做可以使示例更小更简单。通过<a href="../webgpu-vertex-buffers.html">顶点缓冲区</a>提供纹理坐标要常见得多。</p>
+<p>注：将位置值作为纹理坐标传递的做法并不常见，但在这种单位四边形（宽和高各为一个单位的四边形）的特殊情况下，我们需要的纹理坐标恰好与位置值相匹配。这样做可以使示例更小更简单。通过<a href="webgpu-vertex-buffers.html">顶点缓冲区</a>提供纹理坐标要常见得多。</p>
 </blockquote>
 <p>现在我们需要创建纹理数据。我们将创建一个 5x7 的像素化 F。<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const kTextureWidth = 5;
@@ -388,7 +388,7 @@ pass.end();
 +  let texcoord = vec2f(fsInput.texcoord.x, 1.0 - fsInput.texcoord.y);
 +  return textureSample(ourTexture, ourSampler, texcoord);
 </pre>
-<p>当然，如果我们是通过<a href="../webgpu-vertex-buffers.html">顶点缓冲区</a>或<a href="../webgpu-storage-buffers.html">存储缓冲区</a>提供纹理坐标，那么理想的做法是在源文件中翻转它们。</p>
+<p>当然，如果我们是通过<a href="webgpu-vertex-buffers.html">顶点缓冲区</a>或<a href="webgpu-storage-buffers.html">存储缓冲区</a>提供纹理坐标，那么理想的做法是在源文件中翻转它们。</p>
 </li>
 <li>
 <p>翻转纹理数据</p>
@@ -516,7 +516,7 @@ const textureData = new Uint8Array([
   });
   observer.observe(canvas);
 </pre>
-<p>我们要移动和缩放四边形，因此我们要添加一个 uniform 缓冲区，就像在<a href="../webgpu-uniforms.html">uniform 文章</a>的第一个示例中所做的那样。</p>
+<p>我们要移动和缩放四边形，因此我们要添加一个 uniform 缓冲区，就像在<a href="webgpu-uniforms.html">uniform 文章</a>的第一个示例中所做的那样。</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct OurVertexShaderOutput {
   @builtin(position) position: vec4f,
   @location(0) texcoord: vec2f,
@@ -767,7 +767,7 @@ const generateMips = (src, srcWidth) =&gt; {
     return mips;
 };
 </pre>
-<p>我们将在<a href="../webgpu-importing-textures.html">另一篇文章</a>中介绍如何在 GPU 上实现这一功能。现在，我们可以使用上面的代码生成 mipmap。</p>
+<p>我们将在<a href="webgpu-importing-textures.html">另一篇文章</a>中介绍如何在 GPU 上实现这一功能。现在，我们可以使用上面的代码生成 mipmap。</p>
 <p>我们将纹理数据传递给上面的函数，它会返回一个 mip 级数据数组。然后我们就可以创建一个包含所有 mip 级别的纹理了</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const mips = generateMips(textureData, kTextureWidth);
 
@@ -834,7 +834,7 @@ const generateMips = (src, srcWidth) =&gt; {
 <h2 id="mipmap-过滤器"><a id="a-mipmap-filter"></a>mipmap 过滤器</h2>
 <p>就像我们可以设置 <code class="notranslate" translate="no">magFilter</code> 和 <code class="notranslate" translate="no">minFilter</code> 为 <code class="notranslate" translate="no">nearest</code> 或 <code class="notranslate" translate="no">linear</code> 一样，<code class="notranslate" translate="no">mipmapFilter</code> 也可以被设置为 <code class="notranslate" translate="no">nearest</code> 或 <code class="notranslate" translate="no">linear</code>。</p>
 <p>如果我们在 mip 级别之间进行混合，就会选择这种方式。在 <code class="notranslate" translate="no">mipmapFilter: 'linear'</code> 中，颜色从 2 个 mip 层采样，根据之前的设置进行 nearest 或 linear 过滤，然后再以类似的方式混合这 2 种颜色。</p>
-<p>在绘制三维图时，这种情况出现得最多。如何绘制 3D 图像在<a href="../webgpu-perspective.html">其他文章</a>中已有介绍，这里就不多说了，但我们将改变之前的示例，显示一些 3D 图像，以便更好地了解 <code class="notranslate" translate="no">mipmapFilter</code> 的工作原理。</p>
+<p>在绘制三维图时，这种情况出现得最多。如何绘制 3D 图像在<a href="webgpu-perspective.html">其他文章</a>中已有介绍，这里就不多说了，但我们将改变之前的示例，显示一些 3D 图像，以便更好地了解 <code class="notranslate" translate="no">mipmapFilter</code> 的工作原理。</p>
 <p>首先，让我们制作一些纹理。我们将制作一个 16x16 的纹理，我认为这样可以更好地展示 <code class="notranslate" translate="no">mipmapFilter</code> 的效果。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">//prettier-ignore
 const createBlendedMipmap = () =&gt; {
@@ -923,7 +923,7 @@ const createBlendedMipmap = () =&gt; {
 +    createTextureWithMips(createCheckedMipmap(), 'checker'),
 +  ];
 </pre>
-<p>我们将在 8 个位置绘制一个向远处延伸的四边形。我们将使用<a href="../webgpu-cameras.html">有关 3D 的系列文章</a>中涉及的矩阵数学。</p>
+<p>我们将在 8 个位置绘制一个向远处延伸的四边形。我们将使用<a href="webgpu-cameras.html">有关 3D 的系列文章</a>中涉及的矩阵数学。</p>
 <pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">struct OurVertexShaderOutput {
   @builtin(position) position: vec4f,
   @location(0) texcoord: vec2f,
@@ -967,7 +967,7 @@ struct Uniforms {
   return textureSample(ourTexture, ourSampler, fsInput.texcoord);
 }
 </pre>
-<p>8 个平面将分别使用不同的 <code class="notranslate" translate="no">minFilter</code>、<code class="notranslate" translate="no">magFilter</code> 和 <code class="notranslate" translate="no">mipmapFilter</code> 组合。这意味着每个平面都需要一个不同的绑定组，其中包含一个具有特定滤镜组合的采样器。此外，我们还有 2 个纹理。纹理也是绑定组的一部分，因此每个对象需要 2 个绑定组，每个纹理一个。然后，我们可以在渲染时选择使用哪一个。要在 8 个位置绘制平面，我们还需要在每个位置使用一个 uniform buffer，就像我们在<a href="../webgpu-uniforms.html">uniform 一文</a>中所介绍的那样。</p>
+<p>8 个平面将分别使用不同的 <code class="notranslate" translate="no">minFilter</code>、<code class="notranslate" translate="no">magFilter</code> 和 <code class="notranslate" translate="no">mipmapFilter</code> 组合。这意味着每个平面都需要一个不同的绑定组，其中包含一个具有特定滤镜组合的采样器。此外，我们还有 2 个纹理。纹理也是绑定组的一部分，因此每个对象需要 2 个绑定组，每个纹理一个。然后，我们可以在渲染时选择使用哪一个。要在 8 个位置绘制平面，我们还需要在每个位置使用一个 uniform buffer，就像我们在<a href="webgpu-uniforms.html">uniform 一文</a>中所介绍的那样。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// offsets to the various uniform values in float32 indices
 const kMatrixOffset = 0;
 
@@ -1013,7 +1013,7 @@ for (let i = 0; i &lt; 8; ++i) {
     });
 }
 </pre>
-<p>在渲染时，我们会<a href="../webgpu-cameras.html">计算视图投影矩阵</a>。</p>
+<p>在渲染时，我们会<a href="webgpu-cameras.html">计算视图投影矩阵</a>。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
     const fov = 60 * Math.PI / 180;  // 60 degrees in radians
     const aspect = canvas.clientWidth / canvas.clientHeight;
@@ -1142,8 +1142,8 @@ canvas.height = Math.max(
 <li>“cube-array”</li>
 </ul>
 <p>“1d” 纹理只能有 “1d” 视图。“3d” 纹理只能有 “3d” 视图。“2d” 纹理可以有 “2d-array” 视图。如果一个 “2d” 纹理有 6 层，它可以有一个 “cube” 视图。如果是 6 层的倍数，则可以使用 “cube-array” 视图。您可以在调用 <code class="notranslate" translate="no">someTexture.createView</code> 时选择如何查看纹理。纹理视图默认与其尺寸相同，但您也可以向 <code class="notranslate" translate="no">someTexture.createView</code> 传递不同的尺寸。</p>
-<p>我们将在<a href="../webgpu-3dluts.html">色调映射/3dLUT 的文章</a>中介绍 “3d” 纹理。</p>
-<p>“cube” 纹理是表示立方体 6 个面的纹理。Cube 纹理通常用于绘制天空框、反射和环境贴图。我们将在<a href="../webgpu-cube-maps.html">有关立方体贴图的文章</a>中介绍这一点。</p>
+<p>我们将在<a href="webgpu-3dluts.html">色调映射/3dLUT 的文章</a>中介绍 “3d” 纹理。</p>
+<p>“cube” 纹理是表示立方体 6 个面的纹理。Cube 纹理通常用于绘制天空框、反射和环境贴图。我们将在<a href="webgpu-cube-maps.html">有关立方体贴图的文章</a>中介绍这一点。</p>
 <p>“2d-array” 是一个二维纹理数组。您可以选择在着色器中访问数组中的哪种纹理。除其他外，它们通常用于地形渲染。</p>
 <p>“cube-array” 是一个 cube 纹理数组。</p>
 <p>每种类型的纹理在 WGSL 中都有自己对应的类型。</p>
@@ -1192,11 +1192,11 @@ canvas.height = Math.max(
 </li>
 <li>
 <p><strong>multisample</strong></p>
-<p>能够被<a href="../webgpu-multisampling.html">多重采样</a></p>
+<p>能够被<a href="webgpu-multisampling.html">多重采样</a></p>
 </li>
 <li>
 <p><strong>storage</strong></p>
-<p>纹理可写作为<a href="../webgpu-storage-textures.html">storage texture</a></p>
+<p>纹理可写作为<a href="webgpu-storage-textures.html">storage texture</a></p>
 </li>
 <li>
 <p><strong>sampler type</strong></p>
@@ -1209,7 +1209,7 @@ canvas.height = Math.max(
 <ul>
 <li>
 <p><strong>feature</strong>
-表示使用此格式需要此<a href="../webgpu-limits-and-features.html">可选功能</a>。</p>
+表示使用此格式需要此<a href="webgpu-limits-and-features.html">可选功能</a>。</p>
 </li>
 <li>
 <p><strong>copy src</strong></p>
@@ -1220,9 +1220,9 @@ canvas.height = Math.max(
 <p>是否允许指定 <code class="notranslate" translate="no">GPUTextureUsage.COPY_DST</code></p>
 </li>
 </ul>
-<p>我们将在 <a href="../webgpu-orthographic-projection.html">3d 系列的一篇文章</a>中使用深度纹理，以及在有关<a href="../webgpu-shadow-maps.html">阴影贴图的文章</a>中使用深度纹理。</p>
+<p>我们将在 <a href="webgpu-orthographic-projection.html">3d 系列的一篇文章</a>中使用深度纹理，以及在有关<a href="webgpu-shadow-maps.html">阴影贴图的文章</a>中使用深度纹理。</p>
 <p>还有许多压缩纹理格式，我们将留待下一篇文章介绍。</p>
-<p>接下来我们来介绍<a href="../webgpu-importing-textures.html">外部纹理的导入</a>。</p>
+<p>接下来我们来介绍<a href="webgpu-importing-textures.html">外部纹理的导入</a>。</p>
 <!-- keep this at the bottom of the article -->
 <script type="module" src="/3rdparty/pixel-perfect.js"></script>
 <script type="module" src="../webgpu-textures.js"></script>

@@ -243,7 +243,7 @@ JavaScript і хочете її вивчити, то можете перегля
 <a href="https://javascript.info/">JavaScript.info</a>, <a href="https://eloquentjavascript.net/">Eloquent JavaScript</a>
 або <a href="https://www.codecademy.com/learn/introduction-to-javascript">CodeCademy</a>.
 </div>
-<div class="warn">Якщо ви уже знайомі з WebGL, <a href="../webgpu-from-webgl.html">то зазирніть сюди</a>.</div>
+<div class="warn">Якщо ви уже знайомі з WebGL, <a href="webgpu-from-webgl.html">то зазирніть сюди</a>.</div>
 <p>WebGPU - це API, яке дозволяє робити дві основні речі:</p>
 <ol>
 <li>
@@ -390,7 +390,7 @@ commandBuffer = encoder.finish();
 способи надсилання даних до цих функцій. Зверніть увагу, що цей приклад буде дуже спрощений. Нам потрібно побудувати фундамент з цих основ. Пізніше ми покажемо, як використовувати це
 для речей, які люди зазвичай роблять із графічним процесором, як-от 2D-графіка, 3D-графіка тощо…</p>
 <h1 id="малюємо-трикутник-на-текстурі"><a id="a-drawing-triangles-to-textures"></a>Малюємо трикутник на текстурі</h1>
-<p>WebGPU може малювати трикутники на <a href="../webgpu-textures.html">текстурах</a>. Для цілей цієї
+<p>WebGPU може малювати трикутники на <a href="webgpu-textures.html">текстурах</a>. Для цілей цієї
 статті, текстура це двовимірний чотирикутник з пікселів.<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> Елемент <code class="notranslate" translate="no">&lt;canvas&gt;</code>
 репрезентує собою текстуру на вебсторінці. В WebGPU ми можемо попросити в цього елемента
 його текстуру і тоді намалювати щось на ції текстурі.</p>
@@ -489,7 +489,7 @@ main();
 <p>Шейдери пишуться мовою програмування, яка називається
 <a href="https://gpuweb.github.io/gpuweb/wgsl/">WebGPU Shading Language (WGSL)</a> і часто
 вимовляється як віґ-сіль (wig-sil). WGSL - це строго типізована мова, яку ми
-спробуємо описати в більшій кількості деталей в <a href="../webgpu-wgsl.html">іншій статті</a>.
+спробуємо описати в більшій кількості деталей в <a href="webgpu-wgsl.html">іншій статті</a>.
 Наразі я сподіваюся, що з невеликими поясненнями ви зможете зрозуміти деякі основи.</p>
 <p>Вище ми бачимо, що функція під назвою <code class="notranslate" translate="no">vs</code> оголошена з атрибутом <code class="notranslate" translate="no">@vertex</code>. Це
 позначає її як функцію вершинного шейдера.</p>
@@ -614,7 +614,7 @@ main();
 на те, що потрібно зберігати результати малювання. Ми можемо передати
 сюди також значення <code class="notranslate" translate="no">'discard'</code>, що буде викидати будь-які результати
 малювання. Ми пояснимо те, чому ми можемо захотіти таку поведінку в
-<a href="../webgpu-multisampling.html">іншій статті</a>.</p>
+<a href="webgpu-multisampling.html">іншій статті</a>.</p>
 <p>Тепер настав час рендерингу.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
     // отримуємо поточну текстуру з контексту нашого полотна
@@ -833,7 +833,7 @@ function dispatchWorkgroup(workgroup_id) {
 <p>Ми викликаємо <code class="notranslate" translate="no">device.createBuffer</code>, щоб створити буфер. <code class="notranslate" translate="no">size</code> це розмір буфера в
 байтах. В цьому випадку він буде 12, оскільки розмір масиву <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> з трьох
 елементів буде дорівнювати 12 байтам. Якщо ви не знайомі з <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> та
-типізованими масивами, то гляньте <a href="../webgpu-memory-layout.html">цю статтю</a>.</p>
+типізованими масивами, то гляньте <a href="webgpu-memory-layout.html">цю статтю</a>.</p>
 <p>Кожен створений WebGPU буфер має визначити значення поля <code class="notranslate" translate="no">usage</code>. Існує багато
 прапорців, які ми можемо передати туди, але не всі з них можна використовувати
 разом. Тут ми вказуємо, що хочемо використовувати як <code class="notranslate" translate="no">storage</code> передаючи
@@ -947,7 +947,7 @@ function dispatchWorkgroup(workgroup_id) {
 <h2 id="проста-зміна-розміру-полотна"><a id="a-resizing"></a> Проста зміна розміру полотна</h2>
 <p>Перед тим, як ми перейдемо до інших статей, варто повернутись до прикладу з
 малюванням трикутника і додати базову підтримку зміни розміру полотна. Зміна
-розміру полотна це тема, яка може мати багато тонкощів тож <a href="../webgpu-resizing-the-canvas.html">існує ціла окрема стаття про це</a>. Наразі ж давайте додамо базову підтримку цього.</p>
+розміру полотна це тема, яка може мати багато тонкощів тож <a href="webgpu-resizing-the-canvas.html">існує ціла окрема стаття про це</a>. Наразі ж давайте додамо базову підтримку цього.</p>
 <p>Спочатку, ми додамо трішки CSS, щоб заповнити усю сторінку нашим полотном.</p>
 <pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;style&gt;
 html, body {
@@ -998,7 +998,7 @@ canvas {
 випадку WebGPU почне генерувати помилки про те, що ми намагаємось створити
 завелику текстуру. Також, нам потрібно запевнитись, що це значення не буде нулем,
 бо знову отримаємо помилки.
-<a href="../webgpu-resizing-the-canvas.html">Перегляньте цю довшу статтю для розуміння деталей</a>.</p>
+<a href="webgpu-resizing-the-canvas.html">Перегляньте цю довшу статтю для розуміння деталей</a>.</p>
 <p>Ми викликаємо метод <code class="notranslate" translate="no">render</code>, щоб заново намалювати трикутник з новим розширенням.
 Ми також видалили старий виклик <code class="notranslate" translate="no">render</code> тому, що він більше не потрібен.
 <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> запустить свій колбек щонайменше один раз, щоб сповістити про
@@ -1013,14 +1013,14 @@ canvas {
 <p></p>
 <p>В наступних статтях, ми розглянемо різні методи передання даних в шейдери.</p>
 <ul>
-<li><a href="../webgpu-inter-stage-variables.html">міжетапні змінні</a></li>
-<li><a href="../webgpu-uniforms.html">юніформи</a></li>
-<li><a href="../webgpu-storage-buffers.html">буфери для зберігання</a></li>
-<li><a href="../webgpu-vertex-buffers.html">вершинні буфери</a></li>
-<li><a href="../webgpu-textures.html">текстури</a></li>
-<li><a href="../webgpu-constants.html">константи</a></li>
+<li><a href="webgpu-inter-stage-variables.html">міжетапні змінні</a></li>
+<li><a href="webgpu-uniforms.html">юніформи</a></li>
+<li><a href="webgpu-storage-buffers.html">буфери для зберігання</a></li>
+<li><a href="webgpu-vertex-buffers.html">вершинні буфери</a></li>
+<li><a href="webgpu-textures.html">текстури</a></li>
+<li><a href="webgpu-constants.html">константи</a></li>
 </ul>
-<p>Потім ми розглянемо <a href="../webgpu-wgsl.html">основи WGSL</a>.</p>
+<p>Потім ми розглянемо <a href="webgpu-wgsl.html">основи WGSL</a>.</p>
 <p>В такому порядку ми підемо від найпростішого до найскладнішого. Міжетапні
 змінні не потребують додаткових зовнішнього налаштування для пояснення. Ми
 можемо побачити, як їх використовувати, лише з допомогою змін до WGSL коду,
@@ -1119,7 +1119,7 @@ function main(device) {
 </li>
 <li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code> це зручно, але в цьому випадку неможливо ділитись
 групами прив’язок між пайплайнами. Більшість прикладів на цьому сайті не використовує
-групи прив’язок з різними пайплайнами. Ми опишемо решту значень в <a href="../webgpu-drawing-multiple-things.html">іншій статті</a>. <a href="#fnref5" class="footnote-backref">↩︎</a></p>
+групи прив’язок з різними пайплайнами. Ми опишемо решту значень в <a href="webgpu-drawing-multiple-things.html">іншій статті</a>. <a href="#fnref5" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>

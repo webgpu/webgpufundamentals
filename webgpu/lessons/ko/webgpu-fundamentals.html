@@ -239,7 +239,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async/await</a>,
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">es6 modules</a>과 같은 것들이 많이 사용될 것입니다.
 </div>
-<div class="warn">WebGL을 알고 계시다면, <a href="../webgpu-from-webgl.html">이 글을 읽어보세요</a>.</div>
+<div class="warn">WebGL을 알고 계시다면, <a href="webgpu-from-webgl.html">이 글을 읽어보세요</a>.</div>
 <p>WebGPU는 여러분에게 두 가지 기본적인 것을 할 수 있게 해주는 API입니다.</p>
 <ol>
 <li>
@@ -369,7 +369,7 @@ commandBuffer = encoder.finish();
 이것들은 아주 기초적인 내용임을 명심하세요. 이러한 기초를 기반으로 알아야 합니다.
 나중에는 이들을 활용해 일반적으로 GPU를 사용해 수행하는 2차원, 3차원 그래픽 등을 보여드릴 것입니다.</p>
 <h1 id="텍스처에-삼각형-그리기"><a id="a-drawing-triangles-to-textures"></a>텍스처에 삼각형 그리기</h1>
-<p>WebGPU는 <a href="../webgpu-textures.html">텍스처</a>에 삼각형을 그릴 수 있습니다. 이 글의 목적을 생각해서, 텍스처를 2차원 사각형이라고 가정하겠습니다.<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>
+<p>WebGPU는 <a href="webgpu-textures.html">텍스처</a>에 삼각형을 그릴 수 있습니다. 이 글의 목적을 생각해서, 텍스처를 2차원 사각형이라고 가정하겠습니다.<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>
 <code class="notranslate" translate="no">&lt;canvas&gt;</code> 엘리먼트(element)는 웹페이지 내의 텍스처를 의미합니다.
 WebGPU에서 우리는 캔버스(canvas)의 텍스처를 요청하고 거기에 렌더링(render)을 할 수 있습니다.</p>
 <p>WebGPU를 사용해 삼각형을 그리려면 두 개의 "셰이더"를 제공해야 합니다.
@@ -455,7 +455,7 @@ main();
   });
 </pre>
 <p>셰이더는 <a href="https://gpuweb.github.io/gpuweb/wgsl/">WebGPU Shading Language (WGSL)</a> 언어로 작성되었는데, 이는 wig-sil로 발음합니다.
-WGSL은 강 타입 언어(strongly typed language)로 <a href="../webgpu-wgsl.html">다른 글</a>에서 보다 자세히 알아볼 것입니다.
+WGSL은 강 타입 언어(strongly typed language)로 <a href="webgpu-wgsl.html">다른 글</a>에서 보다 자세히 알아볼 것입니다.
 지금은 기본적인 이해를 위한 최소한의 설명만 하겠습니다.</p>
 <p>위에 <code class="notranslate" translate="no">vs</code>로 정의된 함수가 <code class="notranslate" translate="no">@vertex</code> 어트리뷰트를 가지고 있습니다.
 이를 통해 해당 함수가 정점 셰이더 함수임을 알려줍니다.</p>
@@ -542,7 +542,7 @@ WebGPU에서 색상은 대개 <code class="notranslate" translate="no">0.0</code
 다른 옵션으로는 텍스처에 존재하는 내용(contents)을 GPU로 로드하여 이미 그려진 것에 덮어 그릴 수 있는 <code class="notranslate" translate="no">'load'</code> 옵션이 있습니다.
 <code class="notranslate" translate="no">storeOp: 'store'</code>는 그린 결과를 저장하겠다는 뜻입니다.
 <code class="notranslate" translate="no">'discard'</code> 옵션을 사용하면 그려진 것을 버릴 수 있습니다.
-왜 이러한 옵션도 필요한지는 <a href="../webgpu-multisampling.html">다른 글</a>에서 이야기 할 것입니다.</p>
+왜 이러한 옵션도 필요한지는 <a href="webgpu-multisampling.html">다른 글</a>에서 이야기 할 것입니다.</p>
 <p>이제 렌더링을 수행할 때입니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
     // 캔버스 컨텍스트로부터 현재 텍스처를 가져오고
@@ -738,7 +738,7 @@ WebGPU를 위해서는 GPU에 상주하는 버퍼를 만들고 데이터를 그 
 </pre>
 <p>위에서는 <code class="notranslate" translate="no">device.createBuffer</code>를 호출하여 버퍼를 생성하고 있습니다.
 <code class="notranslate" translate="no">size</code>는 바이트 단위이고, 우리의 경우 12인데 3개의 값을 갖는 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>의 크기는 12이기 떄문입니다.
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>나 다른 타입이 명시된 배열이 낮설다면 <a href="../webgpu-memory-layout.html">이 글</a>을 참고하세요.</p>
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>나 다른 타입이 명시된 배열이 낮설다면 <a href="webgpu-memory-layout.html">이 글</a>을 참고하세요.</p>
 <p>모든 WebGPU 버퍼에는 <code class="notranslate" translate="no">usage</code>가 명시되어야 합니다.
 다양한 플래그를 넘겨줄 수 있지만 동시에 같이 사용할 수 없는 것들도 있습니다.
 여기서는 <code class="notranslate" translate="no">GPUBufferUsage.STORAGE</code>를 사용해 해당 버퍼가 <code class="notranslate" translate="no">storage</code>로 사용될 수 있도록 하고 있습니다.
@@ -832,7 +832,7 @@ GPU는 10,000개 이상의 처리장치(processor)가 있을 수 있으며 그 �
 이는 일반적으로 CPU에서 할 수 있는 병렬 연산보다 1,000배 이상 높은 수치입니다.</p>
 <h2 id="간단한-캔버스-리사이징resizing">간단한 캔버스 리사이징(resizing)</h2>
 <p>더 진행하기 전에, 삼각형 그리기 예제로 다시 돌아가서 캔버스 리사이징 지원을 위한 기본 기능을 추가해 봅시다.
-캔버스 리사이징은 사실 꽤나 까다로운 주제라서 <a href="../webgpu-resizing-the-canvas.html">이를 위한 별도의 글도 있습니다</a>.
+캔버스 리사이징은 사실 꽤나 까다로운 주제라서 <a href="webgpu-resizing-the-canvas.html">이를 위한 별도의 글도 있습니다</a>.
 지금은 기본적인 지원 기능만을 추가하겠습니다.</p>
 <p>먼저 캔버스가 페이지 전체를 채우도록 CSS를 추가합니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;style&gt;
@@ -878,7 +878,7 @@ canvas {
 <p>위 코드에서는 모든 entry를 순회하였지만 사실 캔버스만 관찰합니다.
 캔버스의 크기를 장치가 지원하는 최대 크기로 제한해야 하는데, 그렇지 않으면 텍스처가 너무 커지는 경우 WebGPU가 오류를 생성하기 때문입니다.
 0으로 되는 경우에도 오류가 발생합니다.
-<a href="../webgpu-resizing-the-canvas.html">세부 사항은 더 자세한 글을 확인하세요</a>.</p>
+<a href="webgpu-resizing-the-canvas.html">세부 사항은 더 자세한 글을 확인하세요</a>.</p>
 <p>삼각형을 새로운 해상도로 다시 그리기 위해 <code class="notranslate" translate="no">render</code>를 호출합니다.
 이전의 <code class="notranslate" translate="no">render</code>는 필요하지 않기 때문에 삭제합니다.
 어떤 요소가 관찰되기 시작하면 <a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a>는 최소한 한 번 콜백(callback)함수를 호출하게 됩니다.</p>
@@ -891,14 +891,14 @@ canvas {
 <p></p>
 <p>아래 글들에서 셰이더에 데이터를 전달하기 위한 다양한 방법을 다룰 것입니다.</p>
 <ul>
-<li><a href="../webgpu-inter-stage-variables.html">스테이지간 변수(inter-stage variable)</a></li>
-<li><a href="../webgpu-uniforms.html">uniforms</a></li>
-<li><a href="../webgpu-storage-buffers.html">스토리지 버퍼(storage buffers)</a></li>
-<li><a href="../webgpu-vertex-buffers.html">정점 버퍼(vertex buffers)</a></li>
-<li><a href="../webgpu-textures.html">텍스처(textures)</a></li>
-<li><a href="../webgpu-constants.html">상수(constants)</a></li>
+<li><a href="webgpu-inter-stage-variables.html">스테이지간 변수(inter-stage variable)</a></li>
+<li><a href="webgpu-uniforms.html">uniforms</a></li>
+<li><a href="webgpu-storage-buffers.html">스토리지 버퍼(storage buffers)</a></li>
+<li><a href="webgpu-vertex-buffers.html">정점 버퍼(vertex buffers)</a></li>
+<li><a href="webgpu-textures.html">텍스처(textures)</a></li>
+<li><a href="webgpu-constants.html">상수(constants)</a></li>
 </ul>
-<p>또한 <a href="../webgpu-wgsl.html">WGSL 기초</a>도 다룰 것입니다.</p>
+<p>또한 <a href="webgpu-wgsl.html">WGSL 기초</a>도 다룰 것입니다.</p>
 <p>순서는 간단한 것에서부터 복잡한 것 까지입니다.
 스테이지간 변수는 설명하기 위한 별도의 설정이 필요 없습니다.
 위에서 본 WGSL을 수정만 하면 사용법을 배울 수 있습니다.
@@ -979,7 +979,7 @@ function main(device) {
 </li>
 <li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code> 는 편리하지만, <code class="notranslate" translate="no">layout: 'auto'</code>를 사용하면 파이프라인간에 바인드그룹을 공유하는 것이 불가능합니다.
 이 사이트의 대부분의 예제에서는 여러 파이프라인에서 바인드그룹을 사용하지 않습니다.
-명시적인 레이아웃에 대해서는 <a href="../webgpu-drawing-multiple-things.html">이 글</a>에서 설명합니다. <a href="#fnref5" class="footnote-backref">↩︎</a></p>
+명시적인 레이아웃에 대해서는 <a href="webgpu-drawing-multiple-things.html">이 글</a>에서 설명합니다. <a href="#fnref5" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>

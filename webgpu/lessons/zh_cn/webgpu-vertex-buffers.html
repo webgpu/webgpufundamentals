@@ -230,9 +230,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>在<a href="../webgpu-storage-buffers.html">上一篇文章中</a>，我们将顶点数据放入存储缓冲区，并使用内置的 <code class="notranslate" translate="no">vertex_index</code> 对其进行索引。虽然这种技术越来越受欢迎，但向顶点着色器提供顶点数据的传统方法是通过顶点缓冲区和属性。</p>
+      <p>在<a href="webgpu-storage-buffers.html">上一篇文章中</a>，我们将顶点数据放入存储缓冲区，并使用内置的 <code class="notranslate" translate="no">vertex_index</code> 对其进行索引。虽然这种技术越来越受欢迎，但向顶点着色器提供顶点数据的传统方法是通过顶点缓冲区和属性。</p>
 <p>顶点缓冲区与其他 WebGPU 缓冲区一样。它们都保存数据。不同的是，我们不直接从顶点着色器访问它们。相反，我们要告诉 WebGPU 缓冲区中的数据种类、位置和组织方式。然后，WebGPU 会从缓冲区中提取数据并提供给我们。</p>
-<p>让我们将<a href="../webgpu-storage-buffers.html">上一篇文章</a>中的最后一个示例从使用存储缓冲区改为使用顶点缓冲区。</p>
+<p>让我们将<a href="webgpu-storage-buffers.html">上一篇文章</a>中的最后一个示例从使用存储缓冲区改为使用顶点缓冲区。</p>
 <p>首先要做的是更改着色器，使其从顶点缓冲区获取顶点数据。</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct OurStruct {
   color: vec4f,
@@ -1078,7 +1078,7 @@ pass.setVertexBuffer(2, changingVertexBuffer);
 </div>
 
 <p></p>
-<p>请注意，我们也可以在<a href="../webgpu-storage-buffers.html">上一篇文章</a>中的存储缓冲区示例中使用索引缓冲区。在这种情况下，从 <code class="notranslate" translate="no">@builtin(vertex_index)</code> 中传入的值与索引缓冲区中的索引相匹配。</p>
+<p>请注意，我们也可以在<a href="webgpu-storage-buffers.html">上一篇文章</a>中的存储缓冲区示例中使用索引缓冲区。在这种情况下，从 <code class="notranslate" translate="no">@builtin(vertex_index)</code> 中传入的值与索引缓冲区中的索引相匹配。</p>
 
     </div>
     <div class="lesson-sidebar">

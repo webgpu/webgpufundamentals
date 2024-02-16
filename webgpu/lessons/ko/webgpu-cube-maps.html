@@ -230,10 +230,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>이 글은 여러분이 <a href="../webgpu-textures.html">텍스처에 관한 글</a> 과 <a href="../webgpu-importing-textures.html">이미지를 텍스처로 가져오는 법</a>에 대해 읽으셨다고 가정합니다.
-또한 <a href="../webgpu-lighting-directional.html">방향성 조명</a>에 관한 글에서 설명한 개념도 사용합니다.
+      <p>이 글은 여러분이 <a href="webgpu-textures.html">텍스처에 관한 글</a> 과 <a href="webgpu-importing-textures.html">이미지를 텍스처로 가져오는 법</a>에 대해 읽으셨다고 가정합니다.
+또한 <a href="webgpu-lighting-directional.html">방향성 조명</a>에 관한 글에서 설명한 개념도 사용합니다.
 이 글들을 읽지 않으셨으면 먼저 읽으시는 것이 좋습니다.</p>
-<p><a href="../webgpu-textures.html">이전 글</a>에서 우리는 텍스처를 사용하는 방법과 0과 1사이의 텍스처 좌표로 어떻게 참조되는지, 추가적으로 밉을 사용해 어떻게 필터링되는지 살펴 봤습니다.</p>
+<p><a href="webgpu-textures.html">이전 글</a>에서 우리는 텍스처를 사용하는 방법과 0과 1사이의 텍스처 좌표로 어떻게 참조되는지, 추가적으로 밉을 사용해 어떻게 필터링되는지 살펴 봤습니다.</p>
 <p>다른 종류의 텍스처로 *큐브맵(cubemap)*이 있습니다.
 큐브맵은 큐브(육면체)의 여섯 개 면을 표현하는 텍스처입니다.
 기본적인 텍스처 좌표는 두 개의 차원을 사용하지만, 큐브맵은 법선(normal), 즉 3차원 방향을 사용합니다.
@@ -308,7 +308,7 @@ struct VSOutput {
 </pre>
 <p>셰이더에서 텍스처 좌표를 제거하고 스테이지간 변수로 법선(normal)을 프래그먼트 셰이더로 전달하였습니다.
 큐브는 원점에 위치해 있기 때문에 위치를 법선으로 그냥 사용할 수 있습니다.</p>
-<p><a href="../webgpu-lighting-directional.html">라이팅에 관한 글</a>에서 봤던 것처럼 법선은 어떤 정점의 표면 방향을 명시하기 위해 사용됩니다.
+<p><a href="webgpu-lighting-directional.html">라이팅에 관한 글</a>에서 봤던 것처럼 법선은 어떤 정점의 표면 방향을 명시하기 위해 사용됩니다.
 우리는 정점의 위치를 정규화하여 법선으로 사용하고 있으므로 조명 효과가 있다면 아래 그림과 같이 큐브 전체에 걸쳐 부드러운 효과를 얻게 됩니다.</p>
 <p></p><div class="webgpu_diagram_container">
   <iframe class="webgpu_diagram " style="width: 700px; height: 400px;" src="/webgpu/lessons/resources/cube-normals.html"></iframe>
@@ -645,7 +645,7 @@ struct VSOutput {
 큐브를 텍스처링하는 <em>올바른</em> 또는 표준적인 방법은 <a href="../webgpu-importing-textures.html#a-texture-atlases">이전에 이야기한 것처럼</a> 텍스처 아틀라스를 사용하는 것입니다.
 이 글의 요지는 큐브맵에 대한 개념을 소개하고 방향(법선)을 전달하면 그 방향에 맞는 색상값이 반환된다는 사실을 보여드리는 것이었습니다.</p>
 <p>이제 큐브맵이 무엇인지 배웠고 설정하는 법도 배웠는데, 그러면 큐브맵은 뭐에 사용하는 걸까요?
-아마도 큐브맵이 사용되는 가장 일반적인 용도는 <a href="../webgpu-environment-maps.html"><em>환경 맵(environment map)</em></a>일 겁니다.</p>
+아마도 큐브맵이 사용되는 가장 일반적인 용도는 <a href="webgpu-environment-maps.html"><em>환경 맵(environment map)</em></a>일 겁니다.</p>
 
     </div>
     <div class="lesson-sidebar">

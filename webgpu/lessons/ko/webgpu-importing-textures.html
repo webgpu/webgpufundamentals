@@ -230,7 +230,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p><a href="../webgpu-textures.html">이전 글</a>에서 텍스처 사용법에 대한 기본적인 내용을 알아봤습니다.
+      <p><a href="webgpu-textures.html">이전 글</a>에서 텍스처 사용법에 대한 기본적인 내용을 알아봤습니다.
 이 글에서는 이미지를 텍스처로 로딩하고 GPU에 밉맵을 만드는 법을 알아보겠습니다.</p>
 <p>이전 글에서 우리는 <code class="notranslate" translate="no">device.createTexture</code>를 사용해 텍스처를 생성하고,
 <code class="notranslate" translate="no">device.queue.writeTexture</code>를 호출하여 데이터를 텍스처에 넣었습니다.
@@ -943,11 +943,11 @@ requestAnimationFrame(render);
 예를 들어 디스플레이 주사율이 120프레임인 장치에서는 1초에 120번씩 프레임이 그려지므로 애니메이션, 카메라 움직임 등이 더 부드러울 것입니다.
 하지만 텍스처는 그 자신의 프레임 레이트(예를들어 30fps)로만 업데이트 될것입니다.</p>
 <p><strong>하지만! WebGPU는 효율적인 비디오 사용을 위한 특수 기능을 지원합니다</strong></p>
-<p>이러한 내용은 <a href="../webgpu-textures-external-video.html">다른 글</a>에서 다룰 것입니다.
+<p>이러한 내용은 <a href="webgpu-textures-external-video.html">다른 글</a>에서 다룰 것입니다.
 위에서 <code class="notranslate" translate="no">device.query.copyExternalImageToTexture</code>를 사용하면 실제로는 <strong>사본</strong>을 만드는 것입니다.
 그리고 복사에는 시간이 걸립니다.
 예를 들어 4K 비디오의 일반적인 해상도는 3840 x 2160인데, <code class="notranslate" translate="no">rgba8unorm</code> 포맷의 경우 31MB의 데이터가 <strong>프레임마다</strong> 복사되어야 한다는 뜻입니다.
-<a href="../webgpu-textures-external-video.html">외부(External) 텍스처</a>를 사용하면 (복사 없이) 비디오 데이터를 직접 사용 가능하지만 다른 방법을 사용해야 하고 제약 사항이 좀 있습니다.</p>
+<a href="webgpu-textures-external-video.html">외부(External) 텍스처</a>를 사용하면 (복사 없이) 비디오 데이터를 직접 사용 가능하지만 다른 방법을 사용해야 하고 제약 사항이 좀 있습니다.</p>
 <h2 id="텍스처-아틀라스atlas"><a id="a-texture-atlases"></a>텍스처 아틀라스(Atlas)</h2>
 <p>위 예제에서, 우리는 텍스처를 사용해서 무언가를 그리기 위해서는 우선 텍스처를 만들고, 데이터를 넣은 후에 샘플러와 함께 바인드그룹에 바인드하고, 셰이더에서 참조해야 한다는 것을 배웠습니다.
 어떤 물체에 여러 개의 서로 다른 텍스처를 사용하려면 어떻게 해야 할까요?
@@ -1071,7 +1071,7 @@ requestAnimationFrame(render);
   };
 }
 </pre>
-<p>이 예제는 <a href="../webgpu-cameras.html">카메라에 관한 글</a>의 예제에서부터 시작합니다.
+<p>이 예제는 <a href="webgpu-cameras.html">카메라에 관한 글</a>의 예제에서부터 시작합니다.
 해당 글을 아직 읽지 않으셨으면 3D에 관한 글의 일부이므로, 읽어 보시길 바랍니다.
 지금 중요한 것은 이전에 했던 것처럼 정점 셰이더에서 위치와 텍스처 좌표를 출력할 것이고 이를 사용하여 프래그맨트 셰이더에서 텍스처로부터 값을 얻어올 때 사용할 것이라는 사실입니다.
 아래는 카메라 예제에서부터 수정된 셰이더입니다.</p>
@@ -1144,7 +1144,7 @@ struct VSOutput {
     },
   });
 </pre>
-<p><a href="../webgpu-vertex-buffers.html">정점 버퍼에 관한 글</a>에서처럼 데이터를 가볍게 하기위해 인덱스를 사용합니다.</p>
+<p><a href="webgpu-vertex-buffers.html">정점 버퍼에 관한 글</a>에서처럼 데이터를 가볍게 하기위해 인덱스를 사용합니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const { vertexData, numVertices } = createFVertices();
 +  const { vertexData, indexData, numVertices } = createCubeVertices();
   const vertexBuffer = device.createBuffer({
@@ -1183,7 +1183,7 @@ struct VSOutput {
     ],
   });
 </pre>
-<p>3차원 그리지를 위한 행렬들을 설정합니다. (다시 말씀드리지만 이러한 내용들은 <a href="../webgpu-cameras.html">카메라에 관한 글</a>의 3차원 수학 부분을 참고하세요.)</p>
+<p>3차원 그리지를 위한 행렬들을 설정합니다. (다시 말씀드리지만 이러한 내용들은 <a href="webgpu-cameras.html">카메라에 관한 글</a>의 3차원 수학 부분을 참고하세요.)</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const degToRad = d =&gt; d * Math.PI / 180;
 
   const settings = {

@@ -230,12 +230,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>이전 글은 <a href="../webgpu-inter-stage-variables.html">스테이지간 변수</a>에 관한 글이었습니다.
+      <p>이전 글은 <a href="webgpu-inter-stage-variables.html">스테이지간 변수</a>에 관한 글이었습니다.
 이번 글은 uniform에 관한 글입니다.</p>
 <p>uniform은 셰이더에서 사용하는 전역 변수같은 겁니다.
 셰이더를 실행하기 전에 값을 설정하고 그 값을 셰이더의 모든 반복 과정에서 사용할 수 있습니다.
 그리고 GPU에게 다음 번 셰이더 실행 명령을 내릴 때에 다른 값으로 설정할 수 있습니다.</p>
-<p><a href="../webgpu-fundamentals.html">첫 번째 글</a>에서의 삼각형 예제 코드부터 시작해서 uniform을 사용하도록 수정합니다.</p>
+<p><a href="webgpu-fundamentals.html">첫 번째 글</a>에서의 삼각형 예제 코드부터 시작해서 uniform을 사용하도록 수정합니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'triangle shaders with uniforms',
     code: `
@@ -299,9 +299,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </pre>
 <p>이제 셰이더가 uniform을 사용하도록 설정하였으니 여기에 사용할 값을 저장할 버퍼를 GPU에 만들어야 합니다.</p>
 <p>이제부터의 내용은 여러분이 네이티브(native) 데이터와 크기를 다루어 본 적이 없다면 배울 것이 많을 것입니다.
-이는 꽤 큰 주제이므로 <a href="../webgpu-memory-layout.html">해당 주제에 대한 별도의 글이 있습니다</a>.
-구조체를 메모리에 어떻게 레이아웃(layout)하는지 모르면, <a href="../webgpu-memory-layout.html">이 글을 읽어보고</a> 다시 돌아오세요. 여기서는 여러분이 <a href="../webgpu-memory-layout.html">이 글을 읽었다고</a> 가정하고 진행합니다.</p>
-<p><a href="../webgpu-memory-layout.html">이 글</a>을 읽으셨으면 이제 셰이더의 구조체와 매칭되도록 버퍼에 데이터를 채울 것입니다.</p>
+이는 꽤 큰 주제이므로 <a href="webgpu-memory-layout.html">해당 주제에 대한 별도의 글이 있습니다</a>.
+구조체를 메모리에 어떻게 레이아웃(layout)하는지 모르면, <a href="webgpu-memory-layout.html">이 글을 읽어보고</a> 다시 돌아오세요. 여기서는 여러분이 <a href="webgpu-memory-layout.html">이 글을 읽었다고</a> 가정하고 진행합니다.</p>
+<p><a href="webgpu-memory-layout.html">이 글</a>을 읽으셨으면 이제 셰이더의 구조체와 매칭되도록 버퍼에 데이터를 채울 것입니다.</p>
 <p>먼저 버퍼를 만들고 usage 플래그를 통해 그것이 uniform을 위해 사용될 것이고 데이터를 여기에 복사하여 갱신할 것임을 명시합니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const uniformBufferSize =
     4 * 4 + // color는 4개의 32비트 부동소수점 (각각 4바이트)
@@ -317,7 +317,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   const uniformValues = new Float32Array(uniformBufferSize / 4);
 </pre>
 <p>그리고 구조체에서, 나중에 바뀌지 않을 두 개의 값을 채울 것입니다.
-오프셋은 <a href="../webgpu-memory-layout.html">메모리 레이아웃에 관한 글</a>에서 설명한 방식대로 계산합니다.</p>
+오프셋은 <a href="webgpu-memory-layout.html">메모리 레이아웃에 관한 글</a>에서 설명한 방식대로 계산합니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // float32 기준의 uniform 값들에 대한 오프셋
   const kColorOffset = 0;
   const kScaleOffset = 4;
@@ -348,7 +348,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </pre>
 <blockquote>
 <p>참고: <code class="notranslate" translate="no">writeBuffer</code>는 데이터를 버퍼로 복사하는 방법 중 하나입니다.
-다른 방법들은 <a href="../webgpu-copying-data.html">이 글</a>에서 설명합니다.</p>
+다른 방법들은 <a href="webgpu-copying-data.html">이 글</a>에서 설명합니다.</p>
 </blockquote>
 <p>scale은 절반 크기로 하였고 캔버스의 종횡비(aspect ratio)를 고려하였으므로 삼각형은 캔버스의 크기가 변해도 일정한 가로세로 비율을 유지할 것입니다.</p>
 <p>마지막으로, 그리기 전에 바인드 그룹을 설정합니다.</p>
@@ -644,7 +644,7 @@ device.queue.submit([commandBuffer]);
 <p>셰이더가 참조하는 또다른 uniform 버퍼는 별도로 구분된, 각 객체에 대해 다른 값을 가지는 world/model 행렬이나 노멀(normal) 행렬이 될 것입니다.</p>
 <p>또 다른 uniform 버퍼는 머티리얼(material) 세팅값을 가지고 있을 수 있습니다. 이러한 세팅값은 여러 객체에서 공유될 것입니다.</p>
 <p>이러한 내용은 3D 그리기 많이 활용할 것입니다.</p>
-<p>다음은 <a href="../webgpu-storage-buffers.html">스토리지 버퍼(storage buffer)</a>입니다.</p>
+<p>다음은 <a href="webgpu-storage-buffers.html">스토리지 버퍼(storage buffer)</a>입니다.</p>
 
     </div>
     <div class="lesson-sidebar">

@@ -229,7 +229,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>前回の「<a href="../webgpu-fundamentals.html">基本</a>」と題した記事では、
+      <p>前回の「<a href="webgpu-fundamentals.html">基本</a>」と題した記事では、
 WebGPUの、とてもとても基本的な事柄について説明しました。
 今回は、inter-stage変数について、<em>普通に基本的な</em>事柄について説明します。</p>
 <p>inter-stage変数が登場するのは、頂点シェーダとフラグメントシェーダの間です。</p>
@@ -326,10 +326,10 @@ WebGPUの、とてもとても基本的な事柄について説明しました�
 
 <p></p>
 <p>inter-stage変数は、主に三角形中のテクスチャ座標の補間のために利用されます。
-これについては「<a href="../webgpu-textures.html">テクスチャについて</a>」で説明します。
+これについては「<a href="webgpu-textures.html">テクスチャについて</a>」で説明します。
 ほかの用途としては、三角形の法線情報の補間があります。
 これについては、光源処理に関する記事の１本目、
-「<a href="../webgpu-lighting-directional.html">平行光源について</a>」で扱います。</p>
+「<a href="webgpu-lighting-directional.html">平行光源について</a>」で扱います。</p>
 <h2 id="inter-stage変数はlocationで結び付けられる">inter-stage変数は<code class="notranslate" translate="no">location</code>で結び付けられる</h2>
 <p>頂点シェーダとフラグメントシェーダの間での情報の受け渡しは、インデックスを介して行われる、という点に注意してください。
 インデックスを介したデータの受け渡し、という考え方は、inter-stage変数に限らずWebGPUの多くの場面で登場します。
@@ -518,7 +518,7 @@ WebGPUは次に、指定した<code class="notranslate" translate="no">entryPoin
 <p>注：今回、市松模様を描くために<code class="notranslate" translate="no">@builtin(position)</code>を使っていますが、
 これはあまり一般的なやり方ではありません。
 市松模様に限らず、何がしかのパターンを描きたいとき、通常はテクスチャの仕組みを利用します。
-これについては別の記事、「<a href="../webgpu-textures.html">テクスチャについて</a>」で説明します。
+これについては別の記事、「<a href="webgpu-textures.html">テクスチャについて</a>」で説明します。
 今回のやり方に問題があることは、ウィンドウサイズを変えてみると観察することができます。
 市松模様の「パターンの大きさ」はピクセル座標の値を元にしているので、
 描画される三角形の大きさとは関係なく、canvasの解像度に依存して決定されます。</p>
@@ -547,7 +547,7 @@ WebGPUでは、この「補間」をどうやるかについて、設定項目�
 <p>なお、inter-stage変数が整数型の場合は、<code class="notranslate" translate="no">flat</code>の設定にする必要があります。</p>
 <p>補間タイプ<code class="notranslate" translate="no">flat</code>に設定した場合、フラグメントシェーダに渡される値は、
 「三角形の１つめの頂点」のinter-stage変数の値です。</p>
-<p>次の記事「<a href="../webgpu-uniforms.html">uniform変数</a>」では、
+<p>次の記事「<a href="webgpu-uniforms.html">uniform変数</a>」では、
 シェーダにデータを渡す、別な方法を紹介します。</p>
 
     </div>

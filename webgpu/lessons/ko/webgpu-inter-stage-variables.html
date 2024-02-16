@@ -230,7 +230,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p><a href="../webgpu-fundamentals.html">이전 글</a>에서, WebGPU에 대한 아주 기초적인 내용을 알아 보았습니다.
+      <p><a href="webgpu-fundamentals.html">이전 글</a>에서, WebGPU에 대한 아주 기초적인 내용을 알아 보았습니다.
 이 글에서는 스테이지간 변수(inter-stage variable)에 대한 <em>기초</em>를 다룰 것입니다.</p>
 <p>스테이지간 변수는 정점 셰이더와 프래그먼트 셰이더 사이에서 역할을 하게 됩니다.</p>
 <p>정점 셰이더가 세 개의 위치값을 출력하면 삼각형이 래스터화됩니다.
@@ -320,9 +320,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <p></p>
 <p>스테이지간 변수는 삼각형 내에서 텍스처 좌표(texture coordinate)를 보간하는 데 자주 사용됩니다.
-이러한 내용은 <a href="../webgpu-textures.html">텍스처에 관한 글</a>에서 다룰 것입니다.
+이러한 내용은 <a href="webgpu-textures.html">텍스처에 관한 글</a>에서 다룰 것입니다.
 다른 사용 예로는 삼각형 내의 노멀(normal)값의 보간으로,
-<a href="../webgpu-lighting-directional.html">라이팅(lighting)에 관한 첫 번째 글</a>에서 다룹니다.</p>
+<a href="webgpu-lighting-directional.html">라이팅(lighting)에 관한 첫 번째 글</a>에서 다룹니다.</p>
 <h2 id="location으로-연결된-스테이지간-변수"><code class="notranslate" translate="no">location</code>으로 연결된 스테이지간 변수</h2>
 <p>중요한 점은 다른 거의 모든 WebGPU의 요소들과 같이, 정점 셰이더와 프래그먼트 셰이더는 인덱스를 기반으로 연결된다는 점입니다.
 스테이지간 변수의 경우 로케이션(location) 인덱스를 기반으로 연결됩니다.</p>
@@ -496,7 +496,7 @@ select = (a, b, condition) =&gt; condition ? b : a;
 그렇게 함으로써 두 셰이더가 바인딩, 구조체, 상수, 함수 등을 공유할 떄 그것들을 두 번씩 타이핑할 필요가 없어지기 때문에 편리합니다.
 하지만, WebGPU의 입장에서는 여러분이 마치 그 두 개를 진입점마다 두 번씩 타이핑한것처럼 취급합니다.</p>
 <p>주의: <code class="notranslate" translate="no">@builtin(position)</code>를 사용해 체커보드를 생성하는 것은 흔한 일은 아닙니다.
-체커보드나 다른 패턴은 <a href="../webgpu-textures.html">텍스처</a>를 사용해 구현하는 것이 일반적입니다.
+체커보드나 다른 패턴은 <a href="webgpu-textures.html">텍스처</a>를 사용해 구현하는 것이 일반적입니다.
 사실 윈도우 크기를 조정하면 쉽게 문제가 보일 겁니다.
 체커보드가 캔버스의 픽셀 좌표계에 기반하여 계산되기 때문에 삼각형이 아닌 캔버스에 상대적으로 그려지기 떄문입니다.</p>
 <h2 id="보간interpolation-설정"><a id="a-interpolate"></a>보간(Interpolation) 설정</h2>
@@ -521,7 +521,7 @@ select = (a, b, condition) =&gt; condition ? b : a;
 </pre>
 <p>스테이지별 변수가 정수형이라면 보간 타입은 <code class="notranslate" translate="no">flat</code>으로 설정해야 합니다.</p>
 <p>보간 타입을 <code class="notranslate" translate="no">flat</code>으로 설정했으면 프래그먼트 셰이더에 전달되는 값은 삼각형의 첫 번째 정점에 대한 스테이지별 변수 값입니다.</p>
-<p>다음 글에서는 셰이더에 데이터를 전달하는 또 다른 방법인 <a href="../webgpu-uniforms.html">uniform</a>에 대해 알아보겠습니다.</p>
+<p>다음 글에서는 셰이더에 데이터를 전달하는 또 다른 방법인 <a href="webgpu-uniforms.html">uniform</a>에 대해 알아보겠습니다.</p>
 
     </div>
     <div class="lesson-sidebar">

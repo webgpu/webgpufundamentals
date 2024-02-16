@@ -230,9 +230,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>上一篇文章介绍了<a href="../webgpu-inter-stage-variables.html">Inter-stage 变量</a>。本文将介绍 uniforms。</p>
+      <p>上一篇文章介绍了<a href="webgpu-inter-stage-variables.html">Inter-stage 变量</a>。本文将介绍 uniforms。</p>
 <p>uniforms 就像是着色器的全局变量。你可以在执行着色器之前设置它们的值，然后在着色器的每次迭代中都使用这些值。在下次 GPU 执行着色器时，你可以将其设置为其他值。</p>
-<p>我们从<a href="../webgpu-fundamentals.html">第一篇文章</a>中的三角形示例开始，对其进行修改以使用 uniforms 值。</p>
+<p>我们从<a href="webgpu-fundamentals.html">第一篇文章</a>中的三角形示例开始，对其进行修改以使用 uniforms 值。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const module = device.createShaderModule({
     label: 'triangle shaders with uniforms',
     code: `
@@ -293,8 +293,8 @@ The variable is <code class="notranslate" translate="no">ourStruct</code> and it
       }
 </pre>
 <p>既然我们已经设置了着色器来使用 uniforms 值，就需要在 GPU 上创建一个缓冲区来保存 uniform 的值。</p>
-<p>在继续这个话题之前，如果你从未处理过内存数据和大小，那么你有很多东西需要学习。这是一个很大的话题，因此这里有一篇关于这个话题的独立文章。如果你不知道如何在内存中布局结构体，请先<a href="../webgpu-memory-layout.html">阅读这篇文章</a>。然后再回到这里。本文将假定你已经<a href="../webgpu-memory-layout.html">阅读过这篇文章</a>。</p>
-<p><a href="../webgpu-memory-layout.html">阅读完这篇文章</a>后，我们就可以在缓冲区中填入与着色器中的结构体相匹配的数据了。</p>
+<p>在继续这个话题之前，如果你从未处理过内存数据和大小，那么你有很多东西需要学习。这是一个很大的话题，因此这里有一篇关于这个话题的独立文章。如果你不知道如何在内存中布局结构体，请先<a href="webgpu-memory-layout.html">阅读这篇文章</a>。然后再回到这里。本文将假定你已经<a href="webgpu-memory-layout.html">阅读过这篇文章</a>。</p>
+<p><a href="webgpu-memory-layout.html">阅读完这篇文章</a>后，我们就可以在缓冲区中填入与着色器中的结构体相匹配的数据了。</p>
 <p>首先，我们创建一个缓冲区，并为其分配使用标志，这样它就可以与 uniforms 一起使用，我们也可以通过向其复制数据来进行更新。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const uniformBufferSize =
     4 * 4 + // color is 4 32bit floats (4bytes each)
@@ -309,7 +309,7 @@ const uniformBuffer = device.createBuffer({
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// create a typedarray to hold the values for the uniforms in JavaScript
 const uniformValues = new Float32Array(uniformBufferSize / 4);
 </pre>
-<p>并填写结构体中 2 个以后不会改变的值。偏移量的计算方法我们在<a href="../webgpu-memory-layout.html">有关内存布局的文章</a>中已经介绍过。</p>
+<p>并填写结构体中 2 个以后不会改变的值。偏移量的计算方法我们在<a href="webgpu-memory-layout.html">有关内存布局的文章</a>中已经介绍过。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// offsets to the various uniform values in float32 indices
 const kColorOffset = 0;
 const kScaleOffset = 4;
@@ -337,7 +337,7 @@ uniformValues.set([-0.5, -0.25], kOffsetOffset); // set the offset
 </pre>
 <blockquote>
 <p>注：<code class="notranslate" translate="no">writeBuffer</code> 是将数据复制到缓冲区的一种方法。
-<a href="../webgpu-copying-data.html">这篇文章</a>还介绍了其他几种方法。</p>
+<a href="webgpu-copying-data.html">这篇文章</a>还介绍了其他几种方法。</p>
 </blockquote>
 <p>我们将缩放比例设置为一半大小，同时考虑画布的纵横比，这样无论画布大小如何，三角形都能保持相同的宽高比例。</p>
 <p>最后，我们需要在绘制前设置绑定组</p>
@@ -614,7 +614,7 @@ device.queue.submit([commandBuffer]);
 <p>另外，我们的着色器可能会引用另一个<code class="notranslate" translate="no">uniform</code>缓冲区，该缓冲区只包含该对象特有的内容，如其世界/模型矩阵和法线矩阵。</p>
 <p>另一个统一缓冲区可能包含材质设置。这些设置可能由多个对象共享。</p>
 <p>我们将在讲解绘制 3D 时详细介绍这些内容。</p>
-<p>接下来是<a href="../webgpu-storage-buffers.html">存储缓冲区(storage buffers)</a></p>
+<p>接下来是<a href="webgpu-storage-buffers.html">存储缓冲区(storage buffers)</a></p>
 
     </div>
     <div class="lesson-sidebar">

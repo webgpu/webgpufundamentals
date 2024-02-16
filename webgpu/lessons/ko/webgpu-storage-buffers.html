@@ -230,7 +230,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>이 글에서는 <a href="../webgpu-uniforms.html">지난 글</a>에 이어서,
+      <p>이 글에서는 <a href="webgpu-uniforms.html">지난 글</a>에 이어서,
 스토리지 버퍼에 대해 알아보겠습니다.</p>
 <p>스토리지 버퍼는 여러 면에서 uniform 버퍼와 비슷합니다.
 자바스크립트에서 <code class="notranslate" translate="no">UNIFORM</code>을 <code class="notranslate" translate="no">STORAGE</code>로 바꾸고, WEGSL 예시에서는
@@ -283,11 +283,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>버퍼의 종류에 따라 보장되는 최대 크기의 하한이 다를 수 있습니다.
 uniform 버퍼의 경우 최대 크기는 하한이 64k 입니다.
 스토리지 버퍼는 128M입니다. 이러한 제약에 대해서는
-<a href="../webgpu-limits-and-features.html">다른 글</a>에서 설명합니다.</p>
+<a href="webgpu-limits-and-features.html">다른 글</a>에서 설명합니다.</p>
 </li>
 <li>
 <p>스토리지 버퍼는 읽기/쓰기가 가능하지만 uniform 버퍼는 읽기 전용</p>
-<p>스토리지 버퍼에 값을 쓰는 예제를 <a href="../webgpu-fundamentals.html">첫 번째 글</a>의
+<p>스토리지 버퍼에 값을 쓰는 예제를 <a href="webgpu-fundamentals.html">첫 번째 글</a>의
 컴퓨트 셰이더 예제에서 이미 살펴본 바 있습니다.</p>
 </li>
 </ol>
@@ -334,8 +334,8 @@ uniform 버퍼의 경우 최대 크기는 하한이 64k 입니다.
 <p><code class="notranslate" translate="no">instanceIndex</code>를 사용하여 구조체의 배열로부터 특정 구조체 요소를 얻을 수 있습니다.</p>
 <p>또한 올바를 배열 요소로부터 색상값을 얻어와 프래그먼트 셰이더에서 사용해야 합니다.
 프래먼트 셰이더는 <code class="notranslate" translate="no">@builtin(instance_index)</code>에 접근할 수 없는데 이는 말이 안되기 때문입니다.
-<a href="../webgpu-inter-stage-variables.html">스테이지간 변수</a>로 넘겨줄 수도 있지만 정점 셰이더에서 색상값을 읽어와 전달하는 것이 더 일반적입니다.</p>
-<p>이를 위해서 <a href="../webgpu-inter-stage-variables.html">스테이지간 변수에 관한 글</a>에서처럼
+<a href="webgpu-inter-stage-variables.html">스테이지간 변수</a>로 넘겨줄 수도 있지만 정점 셰이더에서 색상값을 읽어와 전달하는 것이 더 일반적입니다.</p>
+<p>이를 위해서 <a href="webgpu-inter-stage-variables.html">스테이지간 변수에 관한 글</a>에서처럼
 새로운 구조체를 사용할 것입니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">+struct VSOutput {
 +  @builtin(position) position: vec4f,
@@ -642,7 +642,7 @@ struct VSOutput {
 <p>하지만 구조체를 만들면 나중에 정점별(per-vertex)데이터를 추가하는 것이 훨씬 쉬워지겠죠?</p>
 <p>스토리지 버퍼를 사용해 정점을 넘기는 방법이 인기를 얻고 있습니다.
 하지만 제가 듣기로 이러한 방법은 오래된 장치에서는 <em>고전적인</em> 방법에 비해 느리다고 들었고,
-이 고전적인 방법은 다음 글인 <a href="../webgpu-vertex-buffers.html">정점 버퍼(vertex buffers)</a>에서 설명하도록 하겠습니다.</p>
+이 고전적인 방법은 다음 글인 <a href="webgpu-vertex-buffers.html">정점 버퍼(vertex buffers)</a>에서 설명하도록 하겠습니다.</p>
 <!-- keep this at the bottom of the article -->
 <script type="module" src=".././webgpu-storage-buffers.js"></script>
 <hr class="footnotes-sep">

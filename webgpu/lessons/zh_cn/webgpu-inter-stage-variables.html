@@ -230,7 +230,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>在<a href="../webgpu-fundamentals.html">上一篇文章</a>中，我们介绍了有关 WebGPU 的一些基础知识。在本文中，我们将介绍 Inter-stage 变量的基础知识。</p>
+      <p>在<a href="webgpu-fundamentals.html">上一篇文章</a>中，我们介绍了有关 WebGPU 的一些基础知识。在本文中，我们将介绍 Inter-stage 变量的基础知识。</p>
 <p>Inter-stage 变量在顶点着色器和片段着色器之间发挥作用。</p>
 <p>当顶点着色器输出 3 个位置时，一个三角形就会被光栅化。顶点着色器可以在每个位置输出额外的值，默认情况下，这些值将在 3 个点之间进行插值。</p>
 <p>让我们举一个小例子。我们从上一篇文章中的三角形着色器开始。我们要做的就是更改着色器。</p>
@@ -312,7 +312,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </div>
 
 <p></p>
-<p>Inter-stage 变量最常用于在三角形内进行纹理坐标插值，我们将在<a href="../webgpu-textures.html">有关纹理的文章</a>中介绍这一点。另一个常用的方法是在三角形内对法线进行插值，这将在<a href="../webgpu-lighting-directional.html">第一篇关于光照的文章</a>中介绍。</p>
+<p>Inter-stage 变量最常用于在三角形内进行纹理坐标插值，我们将在<a href="webgpu-textures.html">有关纹理的文章</a>中介绍这一点。另一个常用的方法是在三角形内对法线进行插值，这将在<a href="webgpu-lighting-directional.html">第一篇关于光照的文章</a>中介绍。</p>
 <h2 id="inter-stage-变量通过-location-连接">Inter-stage 变量通过 <code class="notranslate" translate="no">location</code> 连接</h2>
 <p>重要的一点是，与 WebGPU 中的几乎所有功能一样，顶点着色器和片段着色器之间是通过索引连接的。对于 Inter-stage 变量，它们也是通过 location 索引进行连接。</p>
 <p>为了理解我的意思，让我们只更改片段着色器，在 <code class="notranslate" translate="no">location(0)</code> 处获取 <code class="notranslate" translate="no">vec4f</code> 参数，而不是通过 struct 获取参数。</p>
@@ -463,7 +463,7 @@ select = (a, b, condition) =&gt; (condition ? b : a);
 
 <p></p>
 <p>关键在于，在大多数 WebGPU 示例中，两个着色器都在同一个字符串中只是为了方便。实际上，WebGPU 首先会解析 WGSL，确保其语法正确。然后，WebGPU 会查看您指定的 <code class="notranslate" translate="no">entryPoint</code>。然后，WebGPU 会查看该入口点所引用的部分，而不会查看该入口点的其他部分。这很有用，因为如果两个或多个着色器共享绑定、结构、常量或函数，就不必重复键入结构、绑定和分组位置等内容。但是，从 WebGPU 的角度来看，这就好像你一次性为每个入口点都复制了一次所有的内容。</p>
-<p>注：使用 <code class="notranslate" translate="no">@builtin(position)</code> 生成棋盘格并不常见。<a href="../webgpu-textures.html">使用纹理</a>.生成棋盘格或其他图案更为常见。事实上，如果您调整窗口大小，就会发现一个问题。因为棋盘格是基于画布的像素坐标生成的，它是相对于画布的，而不是相对于三角形的。</p>
+<p>注：使用 <code class="notranslate" translate="no">@builtin(position)</code> 生成棋盘格并不常见。<a href="webgpu-textures.html">使用纹理</a>.生成棋盘格或其他图案更为常见。事实上，如果您调整窗口大小，就会发现一个问题。因为棋盘格是基于画布的像素坐标生成的，它是相对于画布的，而不是相对于三角形的。</p>
 <h2 id="插值设置"><a id="a-interpolate"></a>插值设置</h2>
 <p>我们在上文看到，Inter-stage 变量从顶点着色器的输出在传递给片段着色器时会进行插值。对于如何进行插值，有两组设置可以更改。将它们设置为默认值以外的值并不常见，但在其他文章中会介绍一些用例。</p>
 <p>插值类型:</p>
@@ -484,7 +484,7 @@ select = (a, b, condition) =&gt; (condition ? b : a);
 </pre>
 <p>请注意，如果 Inter-stage 变量是整数类型，则必须将其插值设置为<code class="notranslate" translate="no">flat</code>。</p>
 <p>如果将插值类型设置为<code class="notranslate" translate="no">flat</code>，那么传递给片段着色器的值就是该三角形中第一个顶点的 Inter-stage 变量值。</p>
-<p><a href="../webgpu-uniforms.html">在下一篇文章中，我们将介绍 uniforms</a>，它是一种向着色器传递数据的另一种方法。</p>
+<p><a href="webgpu-uniforms.html">在下一篇文章中，我们将介绍 uniforms</a>，它是一种向着色器传递数据的另一种方法。</p>
 
     </div>
     <div class="lesson-sidebar">

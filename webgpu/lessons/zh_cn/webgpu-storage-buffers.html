@@ -230,7 +230,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>这篇文章是关于存储缓冲区(Storage buffer)的，是<a href="../webgpu-uniforms.html">上一篇文章</a>的延续。</p>
+      <p>这篇文章是关于存储缓冲区(Storage buffer)的，是<a href="webgpu-uniforms.html">上一篇文章</a>的延续。</p>
 <p>存储缓冲区在很多方面与 uniform 缓冲区相似。如果我们只需将 JavaScript 中的 <code class="notranslate" translate="no">UNIFORM</code> 改为 <code class="notranslate" translate="no">STORAGE</code>，将 WGSL 中的 <code class="notranslate" translate="no">var&lt;uniform&gt;</code> 改为 <code class="notranslate" translate="no">var&lt;storage,read&gt;</code>，上一篇文章中的示例就可以正常工作了。</p>
 <p>事实上，在不对变量重新命名的情况下，它们的区别如下。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    const staticUniformBuffer = device.createBuffer({
@@ -274,11 +274,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li>uniform 缓冲区的最小最大值为 64KiB(65536 bytes)</li>
 <li>存储缓冲区的最小最大值为 128MiB(134217728 bytes)</li>
 </ul>
-<p>所谓的最小最大值，是指某类缓冲区的最大容量。对于 uniform 缓冲区，最大大小至少为 64KiB。对于存储缓冲区，则至少为 128 MiB。我们将在<a href="../webgpu-limits-and-features.html">另一篇文章</a>中介绍这类限制。</p>
+<p>所谓的最小最大值，是指某类缓冲区的最大容量。对于 uniform 缓冲区，最大大小至少为 64KiB。对于存储缓冲区，则至少为 128 MiB。我们将在<a href="webgpu-limits-and-features.html">另一篇文章</a>中介绍这类限制。</p>
 </li>
 <li>
 <p>存储缓冲区可读写，uniform 缓冲区只能读</p>
-<p>在<a href="../webgpu-fundamentals.html">第一篇文章</a>的计算着色器示例中，我们看到了向存储缓冲区写入数据的示例。</p>
+<p>在<a href="webgpu-fundamentals.html">第一篇文章</a>的计算着色器示例中，我们看到了向存储缓冲区写入数据的示例。</p>
 </li>
 </ol>
 <h2 id="使用存储缓冲区进行多实例绘制"><a id="a-instancing"></a>使用存储缓冲区进行多实例绘制</h2>
@@ -309,8 +309,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </pre>
 <p>我们为顶点着色器添加了一个名为 <code class="notranslate" translate="no">instanceIndex</code> 的新参数，并赋予其 <code class="notranslate" translate="no">@builtin(instance_index)</code> 属性，这意味着每绘制一个 “实例”，它就会从 WebGPU 获取一个值。当我们调用<code class="notranslate" translate="no">draw</code>时，我们可以传递第二个参数 “实例数”，每绘制一个实例，正在被处理的实例数就会传递给我们的函数。</p>
 <p>使用<code class="notranslate" translate="no">instanceIndex</code>，我们就能够从数组中获取到特定的结构体元素。</p>
-<p>我们还需要从正确的数组元素中获取颜色，并将其用于片段着色器。片段着色器无法访问 <code class="notranslate" translate="no">@builtin(instance_index)</code>，因为这样做毫无意义。但更常见的做法是在顶点着色器中查找颜色，将其作为<a href="../webgpu-inter-stage-variables.html">inter-stage 变量</a>传递颜色到片段着色器。</p>
-<p>为此，我们将使用另一个结构体，就像在关于<a href="../webgpu-inter-stage-variables.html">inter-stage 变量</a>的文章中所做的那样。</p>
+<p>我们还需要从正确的数组元素中获取颜色，并将其用于片段着色器。片段着色器无法访问 <code class="notranslate" translate="no">@builtin(instance_index)</code>，因为这样做毫无意义。但更常见的做法是在顶点着色器中查找颜色，将其作为<a href="webgpu-inter-stage-variables.html">inter-stage 变量</a>传递颜色到片段着色器。</p>
+<p>为此，我们将使用另一个结构体，就像在关于<a href="webgpu-inter-stage-variables.html">inter-stage 变量</a>的文章中所做的那样。</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">+struct VSOutput {
 +  @builtin(position) position: vec4f,
 +  @location(0) color: vec4f,
@@ -612,7 +612,7 @@ device.queue.writeBuffer(vertexStorageBuffer, 0, vertexData);
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(2) var&lt;storage, read&gt; pos: vec2f;
 </pre>
 <p>但是，如果把它变成一个结构体，以后添加每个顶点的数据会不会更容易呢？</p>
-<p>通过存储缓冲区传递顶点的方法越来越受欢迎。不过我听说在一些较老的设备上，这种方式比传统方式要慢，我们将在下一篇关于<a href="../webgpu-vertex-buffers.html">顶点缓冲区</a>的文章中介绍这种方式。</p>
+<p>通过存储缓冲区传递顶点的方法越来越受欢迎。不过我听说在一些较老的设备上，这种方式比传统方式要慢，我们将在下一篇关于<a href="webgpu-vertex-buffers.html">顶点缓冲区</a>的文章中介绍这种方式。</p>
 <!-- keep this at the bottom of the article -->
 <script type="module" src=".././webgpu-storage-buffers.js"></script>
 <hr class="footnotes-sep">

@@ -240,7 +240,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <a href="https://developer.mozilla.org/zh_CN/docs/Web/JavaScript/Guide/Modules">es6 模块</a>,
 等概念。
 </div>
-<div class="warn">如果您已经了解 WebGL, <a href="../webgpu-from-webgl.html">请阅读此文</a>.</div>
+<div class="warn">如果您已经了解 WebGL, <a href="webgpu-from-webgl.html">请阅读此文</a>.</div>
 <p>WebGPU 是一个应用程序接口，可让您做两件基本的事情。</p>
 <ol>
 <li>
@@ -341,7 +341,7 @@ commandBuffer = encoder.finish();
 </ol>
 <p>我们将以一个小例子逐一说明。其他文章将介绍向这些设备提供数据的各种方法。请注意，这将是非常基础的内容。我们需要为这些基础知识打下基础。稍后我们将展示如何使用它们来完成人们通常使用 GPU 完成的工作，如 2D 图形、3D 图形等。</p>
 <h1 id="绘制三角形到纹理上"><a id="a-drawing-triangles-to-textures"></a>绘制三角形到纹理上</h1>
-<p>WebGPU 能够绘制三角形到 <a href="../webgpu-textures.html">纹理</a>. 在本文中，纹理是指像素组成的 2D 矩形区域.<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> <code class="notranslate" translate="no">&lt;canvas&gt;</code> 元素表示了网页上的纹理。在 WebGPU 中，我们可以向画布请求纹理并将结果渲染到纹理（画布）上。</p>
+<p>WebGPU 能够绘制三角形到 <a href="webgpu-textures.html">纹理</a>. 在本文中，纹理是指像素组成的 2D 矩形区域.<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> <code class="notranslate" translate="no">&lt;canvas&gt;</code> 元素表示了网页上的纹理。在 WebGPU 中，我们可以向画布请求纹理并将结果渲染到纹理（画布）上。</p>
 <p>要使用 WebGPU 绘制三角形，我们必须提供 2 个 “着色器”。再说一次，着色器就是在 GPU 上运行的函数。这两个着色器是</p>
 <ol>
 <li>
@@ -420,7 +420,7 @@ context.configure({
 });
 </pre>
 <p>着色器是用一种名为
-<a href="https://gpuweb.github.io/gpuweb/wgsl/">WebGPU Shading Language (WGSL)</a> 的语言编写的，它的发音通常是 wig-sil。WGSL 是一种强类型语言，我们将在<a href="../webgpu-wgsl.html">另一篇文章</a>中详细介绍。现在，我希望在稍作解释后，你能推断出一些基本知识。</p>
+<a href="https://gpuweb.github.io/gpuweb/wgsl/">WebGPU Shading Language (WGSL)</a> 的语言编写的，它的发音通常是 wig-sil。WGSL 是一种强类型语言，我们将在<a href="webgpu-wgsl.html">另一篇文章</a>中详细介绍。现在，我希望在稍作解释后，你能推断出一些基本知识。</p>
 <p>上面我们看到一个名为 <code class="notranslate" translate="no">vs</code> 的函数声明了 <code class="notranslate" translate="no">@vertex</code> 属性。这表明它是一个顶点着色器函数。</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
@@ -484,7 +484,7 @@ context.configure({
     ],
 };
 </pre>
-<p><a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a> 有一个 <code class="notranslate" translate="no">colorAttachments</code> 数组，其中列出了我们要渲染的纹理以及如何处理它们。我们将等待填入实际要渲染的纹理。目前，我们设置了一个半深灰色的清除值，以及一个<code class="notranslate" translate="no">loadOp</code>和<code class="notranslate" translate="no">storeOp</code>。<code class="notranslate" translate="no">loadOp: clear</code> 指定在绘制前将纹理清除为<code class="notranslate" translate="no">clearValue</code>。另一个选项是 <code class="notranslate" translate="no">load</code>，意思是将纹理的现有内容加载到 GPU 中，这样我们就可以在已有内容上绘图了。<code class="notranslate" translate="no">storeOp: 'store'</code>表示存储绘制结果。我们也可以通过 <code class="notranslate" translate="no">discard</code>来丢弃绘制的结果。我们将在<a href="../webgpu-multisampling.html">另一篇文章</a>中介绍为什么要这样做。</p>
+<p><a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a> 有一个 <code class="notranslate" translate="no">colorAttachments</code> 数组，其中列出了我们要渲染的纹理以及如何处理它们。我们将等待填入实际要渲染的纹理。目前，我们设置了一个半深灰色的清除值，以及一个<code class="notranslate" translate="no">loadOp</code>和<code class="notranslate" translate="no">storeOp</code>。<code class="notranslate" translate="no">loadOp: clear</code> 指定在绘制前将纹理清除为<code class="notranslate" translate="no">clearValue</code>。另一个选项是 <code class="notranslate" translate="no">load</code>，意思是将纹理的现有内容加载到 GPU 中，这样我们就可以在已有内容上绘图了。<code class="notranslate" translate="no">storeOp: 'store'</code>表示存储绘制结果。我们也可以通过 <code class="notranslate" translate="no">discard</code>来丢弃绘制的结果。我们将在<a href="webgpu-multisampling.html">另一篇文章</a>中介绍为什么要这样做。</p>
 <p>现在是渲染的时候了。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">function render() {
     // Get the current texture from the canvas context and
@@ -655,7 +655,7 @@ const workBuffer = device.createBuffer({
 // Copy our input data to that buffer
 device.queue.writeBuffer(workBuffer, 0, input);
 </pre>
-<p>上面我们调用 <code class="notranslate" translate="no">device.createBuffer</code> 来创建缓冲区。<code class="notranslate" translate="no">size</code> 是以字节为单位的大小，在本例中为 12，因为包含 3 个值的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 的字节大小为 12。如果您不熟悉 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 和类型数组，请<a href="../webgpu-memory-layout.html">参阅本文</a>。</p>
+<p>上面我们调用 <code class="notranslate" translate="no">device.createBuffer</code> 来创建缓冲区。<code class="notranslate" translate="no">size</code> 是以字节为单位的大小，在本例中为 12，因为包含 3 个值的 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 的字节大小为 12。如果您不熟悉 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> 和类型数组，请<a href="webgpu-memory-layout.html">参阅本文</a>。</p>
 <p>我们创建的每个 WebGPU 缓冲区都必须指定<code class="notranslate" translate="no">usage</code>。我们可以为用途传递一系列标志，但并非所有标志都能同时使用。在这里，我们通过传递 <code class="notranslate" translate="no">GPUBufferUsage.STORAGE</code> 来表示我们希望将此缓冲区用作<code class="notranslate" translate="no">storage</code>用途。这样就可以与着色器中的 <code class="notranslate" translate="no">var&lt;storage,...&gt;</code> 兼容。此外，我们希望能将数据复制到此缓冲区，因此我们加入了 <code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code> 标志。最后，我们希望能从该缓冲区复制数据，因此加入了 <code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code>。</p>
 <p>请注意，您不能直接从 JavaScript 中读取 WebGPU 缓冲区的内容。相反，您必须 "映射 "它，这是从 WebGPU 请求访问缓冲区的另一种方式，因为缓冲区可能正在使用中，而且可能只存在于 GPU 上。</p>
 <p>可以在 JavaScript 中映射的 WebGPU 缓冲区不能用于其他用途。换句话说，我们无法映射刚刚创建的缓冲区，如果我们尝试添加标记使其可以映射，就会得到一个与使用 <code class="notranslate" translate="no">STORAGE</code> 不兼容的错误信息。</p>
@@ -724,7 +724,7 @@ resultBuffer.unmap();
 <p>我们将在其他文章中介绍如何真正使用计算着色器。现在，希望你已经对 WebGPU 的作用有了一些了解。其他一切都取决于你！WebGPU 与其他编程语言类似。它提供了一些基本功能，剩下的就看你的创造力了。</p>
 <p>WebGPU 编程的特别之处在于这些功能（顶点着色器、片段着色器和计算着色器）都在 GPU 上运行。GPU 可以有超过 10000 个处理器，这意味着它们可以并行进行超过 10000 次计算，这可能比 CPU 的并行计算能力高出 3 个或更多数量级。</p>
 <h2 id="简要调整画布大小">简要调整画布大小</h2>
-<p>在继续之前，让我们回到三角形绘制示例，并为调整画布大小添加一些基本支持。画布大小的调整实际上是一个有很多微妙之处的话题，因此<a href="../webgpu-resizing-the-canvas.html">有一整篇文章</a>来讨论这个问题。现在，我们只需添加一些基本支持。</p>
+<p>在继续之前，让我们回到三角形绘制示例，并为调整画布大小添加一些基本支持。画布大小的调整实际上是一个有很多微妙之处的话题，因此<a href="webgpu-resizing-the-canvas.html">有一整篇文章</a>来讨论这个问题。现在，我们只需添加一些基本支持。</p>
 <p>首先，我们要添加一些 CSS，使画布填满页面。</p>
 <pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;style&gt;
     html,
@@ -763,7 +763,7 @@ resultBuffer.unmap();
 +    });
 +    observer.observe(canvas);
 </pre>
-<p>在上面的代码中，我们查看了所有条目，但应该只有一个，因为我们只观察画布。我们需要将画布的大小限制在设备支持的最大尺寸内，否则 WebGPU 将开始生成错误，提示我们试图制作过大的纹理。我们还需要确保它不会归零，否则同样会出错。详情请参见<a href="../webgpu-resizing-the-canvas.html">另一篇更长的文章</a>。</p>
+<p>在上面的代码中，我们查看了所有条目，但应该只有一个，因为我们只观察画布。我们需要将画布的大小限制在设备支持的最大尺寸内，否则 WebGPU 将开始生成错误，提示我们试图制作过大的纹理。我们还需要确保它不会归零，否则同样会出错。详情请参见<a href="webgpu-resizing-the-canvas.html">另一篇更长的文章</a>。</p>
 <p>我们调用 <code class="notranslate" translate="no">render</code> 以新的分辨率重新渲染三角形。我们删除了对 <code class="notranslate" translate="no">render</code> 的旧调用，因为不需要它。<a href="https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"><code class="notranslate" translate="no">ResizeObserver</code></a> 总是会至少调用一次回调，以报告元素开始被观察时的大小。</p>
 <p>当我们在 <code class="notranslate" translate="no">render</code> 中调用 <code class="notranslate" translate="no">context.getCurrentTexture()</code> 时，就会创建新大小的纹理，因此没有什么可做的了。</p>
 <p></p><div class="webgpu_example_container">
@@ -774,14 +774,14 @@ resultBuffer.unmap();
 <p></p>
 <p>在以下文章中，我们将介绍向着色器传递数据的各种方法。</p>
 <ul>
-<li><a href="../webgpu-inter-stage-variables.html">inter-stage variables</a></li>
-<li><a href="../webgpu-uniforms.html">uniforms</a></li>
-<li><a href="../webgpu-storage-buffers.html">storage buffers</a></li>
-<li><a href="../webgpu-vertex-buffers.html">vertex buffers</a></li>
-<li><a href="../webgpu-textures.html">textures</a></li>
-<li><a href="../webgpu-constants.html">constants</a></li>
+<li><a href="webgpu-inter-stage-variables.html">inter-stage variables</a></li>
+<li><a href="webgpu-uniforms.html">uniforms</a></li>
+<li><a href="webgpu-storage-buffers.html">storage buffers</a></li>
+<li><a href="webgpu-vertex-buffers.html">vertex buffers</a></li>
+<li><a href="webgpu-textures.html">textures</a></li>
+<li><a href="webgpu-constants.html">constants</a></li>
 </ul>
-<p>我们接着介绍 <a href="../webgpu-wgsl.html">WGSL 的基础知识</a>。</p>
+<p>我们接着介绍 <a href="webgpu-wgsl.html">WGSL 的基础知识</a>。</p>
 <p>这个顺序从最简单到最复杂。<code class="notranslate" translate="no">inter-stage</code>不需要外部设置来解释。我们只需更改上面使用的 WGSL，就能知道如何使用它们。<code class="notranslate" translate="no">uniform</code>实际上是全局变量，因此可用于所有三种着色器（顶点、片段和计算）。从<code class="notranslate" translate="no">uniform</code>到<code class="notranslate" translate="no">storage buffer</code>的转换非常简单，如文章顶部的<code class="notranslate" translate="no">storage buffer</code>所示。<code class="notranslate" translate="no">vertex buffer</code>仅用于顶点着色器。它们更为复杂，因为需要向 WebGPU 描述数据布局。<code class="notranslate" translate="no">texture</code>最为复杂，因为它们有大量类型和选项。</p>
 <p>我有点担心这些文章一开始会很无聊。如果你愿意，可以随意跳读。请记住，如果你有不明白的地方，你可能需要阅读或复习这些基础知识。一旦我们掌握了基础知识，我们就会开始讲解实际的技术。</p>
 <p>还有一件事。所有示例程序都可以在网页中进行实时编辑。此外，它们都可以轻松导出到 <a href="https://jsfiddle.net">jsfiddle</a> 和 <a href="https://codepen.io">codepen</a>，甚至 <a href="https://stackoverflow.com">stackoverflow</a>。只需点击 "导出 "即可。</p>
@@ -848,7 +848,7 @@ function main(device) {
 </li>
 <li id="fn4" class="footnote-item"><p>我们还可以使用索引缓冲区来指定顶点索引。<a href="../webgpu-vertex-buffers.html#a-index-buffers">有关顶点缓冲区的文章</a>对此进行了介绍。︎ <a href="#fnref4" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code>很方便，但使用 <code class="notranslate" translate="no">layout: 'auto'</code> 布局无法在不同管道中共享绑定组。本网站上的大多数示例从未在多个管道中使用过绑定组。我们将在另一篇文章中介绍<a href="../webgpu-drawing-multiple-things.html">显式布局</a>。︎ <a href="#fnref5" class="footnote-backref">↩︎</a></p>
+<li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code>很方便，但使用 <code class="notranslate" translate="no">layout: 'auto'</code> 布局无法在不同管道中共享绑定组。本网站上的大多数示例从未在多个管道中使用过绑定组。我们将在另一篇文章中介绍<a href="webgpu-drawing-multiple-things.html">显式布局</a>。︎ <a href="#fnref5" class="footnote-backref">↩︎</a></p>
 </li>
 </ol>
 </section>
