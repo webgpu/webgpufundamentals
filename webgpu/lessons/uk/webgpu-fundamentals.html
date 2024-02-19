@@ -715,7 +715,7 @@ main();
       @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
 
       @compute @workgroup_size(1) fn computeSomething(
-        @builtin(global_invocation_id) id: vec3&lt;u32&gt;
+        @builtin(global_invocation_id) id: vec3u
       ) {
         let i = id.x;
         data[i] = data[i] * 2.0;

@@ -632,7 +632,7 @@ WebGPU는 정점 셰이더에서 우리가 반환하는 세 개의 정점을 받
       @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
 
       @compute @workgroup_size(1) fn computeSomething(
-        @builtin(global_invocation_id) id: vec3&lt;u32&gt;
+        @builtin(global_invocation_id) id: vec3u
       ) {
         let i = id.x;
         data[i] = data[i] * 2.0;
