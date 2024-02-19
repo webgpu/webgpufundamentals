@@ -30,9 +30,10 @@ struct OtherStruct {
   scale: vec2f,
 };
 
-+struct Vertex {
+struct Vertex {
+-  position: vec2f,
 +  @location(0) position: vec2f,
-+};
+};
 
 struct VSOutput {
   @builtin(position) position: vec4f,
@@ -62,8 +63,8 @@ struct VSOutput {
 ...
 ```
 
-As you can see, it's a small change. We declared a struct `Vertex` to define the data
-for a vertex. The important part is declaring the position field with `@location(0)`
+As you can see, it's a small change. The important part is declaring the
+position field with `@location(0)`
 
 Then, when we create the render pipeline, we have to tell WebGPU how to get data
 for `@location(0)`
