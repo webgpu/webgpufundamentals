@@ -35,8 +35,10 @@ appropriate names.
 and in our WSGL
 
 ```wsgl
-      @group(0) @binding(0) var<storage, read> ourStruct: OurStruct;
-      @group(0) @binding(1) var<storage, read> otherStruct: OtherStruct;
+-@group(0) @binding(0) var<uniform> ourStruct: OurStruct;
+-@group(0) @binding(1) var<uniform> otherStruct: OtherStruct;
++@group(0) @binding(0) var<storage, read> ourStruct: OurStruct;
++@group(0) @binding(1) var<storage, read> otherStruct: OtherStruct;
 ```
 
 And with no other changes it works, just like before.
@@ -467,7 +469,11 @@ struct Vertex {
 we could have just as easily used no struct and just directly used a `vec2f`.
 
 ```wgsl
-@group(0) @binding(2) var<storage, read> pos: vec2f;
+-@group(0) @binding(2) var<storage, read> pos: array<Vertex>;
++@group(0) @binding(2) var<storage, read> pos: array<vec2f>;
+...
+-pos[vertexIndex].position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
++pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
 ```
 
 But, by making it a struct, it would arguably be easier to add per-vertex
