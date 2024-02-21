@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/uk/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/uk/webgpu-uniforms.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,72 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="uk"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Uniforms">
+
+<meta name="description" content="Надсилання констант в шейдери">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-uniforms_uk.jpg">
+
+<meta property="og:title" content="Юніформи в WebGPU">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="Passing Constant Data to a Shader">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-uniforms_uk.jpg">
+<meta property="og:description" content="Надсилання констант в шейдери">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-uniforms.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Uniforms">
+<meta name="twitter:title" content="Юніформи в WebGPU">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-uniforms.html">
-<meta name="twitter:description" content="Passing Constant Data to a Shader">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="Надсилання констант в шейдери">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-uniforms_uk.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-uniforms.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-uniforms_uk.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-uniforms.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-uniforms.html",
+      "inLanguage":"uk",
+      "name":"Юніформи в WebGPU",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/uk/webgpu-uniforms.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Uniforms</title>
+<title>Юніформи в WebGPU</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -180,13 +225,472 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Uniforms</h1>
+    <h1>Юніформи в WebGPU</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>Вибачте, ця стаття ще не була перекладена.</p>
-<p><a href="https://github.com/webgpu/webgpufundamentals">Будемо раді допомозі в перекладі</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-uniforms.html">Тут ви знайдете оригінальну англійську версію статті на цю тему</a>.</p>
+      <p>Попередня стаття була про <a href="webgpu-inter-stage-variables.html">міжетапні змінні</a>.
+Ця стаття буде про юніформи.</p>
+<p>Юніформи це наче глобальні змінні для вашого шейдера. Ви можете встановити їх
+перед тим як запустите шейдер і тоді на кожній ітерації свого виконання шейдер
+буде мати доступ до цих змінних. Ви також можете встановити їм інше значення
+наступного разу, коли попросите графічний процесор заново виконати цей шейдер.</p>
+<p>Ми знову почнемо з прикладу з трикутником з нашої <a href="webgpu-fundamentals.html">першої статті</a>
+і зробимо певні зміни, щоб використати юніформи.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+    label: 'triangle shaders with uniforms',
+    code: `
++      struct OurStruct {
++        color: vec4f,
++        scale: vec2f,
++        offset: vec2f,
++      };
++
++      @group(0) @binding(0) var&lt;uniform&gt; ourStruct: OurStruct;
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; @builtin(position) vec4f {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+-        return vec4f(pos[vertexIndex], 0.0, 1.0);
++        return vec4f(
++          pos[vertexIndex] * ourStruct.scale + ourStruct.offset, 0.0, 1.0);
+      }
+
+      @fragment fn fs() -&gt; @location(0) vec4f {
+-        return vec4f(1, 0, 0, 1);
++        return ourStruct.color;
+      }
+    `,
+  });
+
+  });
+</pre>
+<p>Спершу ми оголошуємо структуру з 3 полями.</p>
+<pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">      struct OurStruct {
+        color: vec4f,
+        scale: vec2f,
+        offset: vec2f,
+      };
+</pre>
+<p>Далі ми оголошуємо юніформ-змінну з типом цієї структури. Це буде
+змінна <code class="notranslate" translate="no">ourStruct</code> з типом <code class="notranslate" translate="no">OurStruct</code>.</p>
+<pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">      @group(0) @binding(0) var&lt;uniform&gt; ourStruct: OurStruct;
+</pre>
+<p>Після цього ми робимо зміни в коді для використання нашої
+юніформ-змінної в обчисленні результату.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
+         ...
+      ) ... {
+        ...
+        return vec4f(
+          pos[vertexIndex] * ourStruct.scale + ourStruct.offset, 0.0, 1.0);
+      }
+</pre>
+<p>Ви можете побачити, що ми множимо значення позиції вершини на значення поля
+<code class="notranslate" translate="no">scale</code> і далі додаємо зміщення (<code class="notranslate" translate="no">offset</code>). Це дозволить нам задати розмір трикутника
+та змінити його позицію.</p>
+<p>Ми також внесли зміни в фрагментний шейдер. Тепер він повертає значення
+кольору з нашої юніформ-змінної.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs() -&gt; @location(0) vec4f {
+        return ourStruct.color;
+      }
+</pre>
+<p>Тепер, коли ми використовуємо юніформ-змінну в шейдері, ми мусимо створити
+буфер на графічному процесорі, щоб він містив дані цієї змінної.</p>
+<p>Це місце, де якщо ви ніколи не мали справи з нативними даними та розмірами,
+то тут вам прийдеться дещо підівчити. Це досить велика тема, тому
+<a href="webgpu-memory-layout.html">тут ви знайдете окрему статтю на цю тему</a>.
+Якщо ви нічого не знаєте про схему розміщення пам’яті, то обов’язково
+<a href="webgpu-memory-layout.html">прочитайте цю статтю</a>. Після цього повертайтесь сюди.
+Ця стаття припускає, що ви <a href="webgpu-memory-layout.html">уже прочитали все це</a>.</p>
+<p>Прочитавши <a href="webgpu-memory-layout.html">цю статтю</a>, ми можемо продовжити
+і заповнити буфер даними, які співпадають з структурою в нашому шейдері.</p>
+<p>Спершу ми створюємо буфер і задаємо йому прапорці, які вказують
+не те, що він може використовуватись юніформ змінною та бути оновлений
+копіюванням даних в середину нього ж.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const uniformBufferSize =
+    4 * 4 + // color is 4 32bit floats (4bytes each)
+    2 * 4 + // scale is 2 32bit floats (4bytes each)
+    2 * 4;  // offset is 2 32bit floats (4bytes each)
+  const uniformBuffer = device.createBuffer({
+    size: uniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+</pre>
+<p>Далі ми створюємо <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> для того, щоб мати змогу встановити
+значення юніформ змінної з JavaScript коду.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // create a typedarray to hold the values for the uniforms in JavaScript
+  const uniformValues = new Float32Array(uniformBufferSize / 4);
+</pre>
+<p>І після цього ми заповнимо 2 з 3 полів нашої структури, які не будуть
+змінюватись пізніше. Значення зміщень полів ми вирахували так, як це
+описано в <a href="webgpu-memory-layout.html">цій статті про розміщення даних в пам’яті</a>.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // offsets to the various uniform values in float32 indices
+  const kColorOffset = 0;
+  const kScaleOffset = 4;
+  const kOffsetOffset = 6;
+
+  uniformValues.set([0, 1, 0, 1], kColorOffset);        // set the color
+  uniformValues.set([-0.5, -0.25], kOffsetOffset);      // set the offset
+</pre>
+<p>В коді вище, ми встановлюємо значення кольору в зелений. Змінна offset
+змістить трикутник вліво на 1/4 розміру полотна і вниз на 1/8.
+(згадуємо, що простір відсікання лежить в координатах від -1 до 1, тому
+0.25 - це 1/8 від довжини всього простору, що дорівнює 2).</p>
+<p>Далі, <a href="../webgpu-fundamentals.html#a-draw-diagram">як нам ілюструє діаграма з першої статті</a>, для того, щоб повідомити шейдеру про наш буфер,
+ми повинні створити групу прив’язки і прив’язати цей буфер до того
+самого <code class="notranslate" translate="no">@binding(?)</code>, який ми описали в нашому шейдері.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: uniformBuffer }},
+    ],
+  });
+</pre>
+<p>Тепер, перед тим як ми відправимо наш буфер команд на виконання, ми
+маємо встановити решту значень <code class="notranslate" translate="no">uniformValues</code> і скопіювати їх
+в буфер на графічному процесорі. Ми зробимо це на початку нашої
+<code class="notranslate" translate="no">render</code> функції.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
+    // встановлюємо решту значень в нашому типізованому масиві
+    const aspect = canvas.width / canvas.height;
+    uniformValues.set([0.5 / aspect, 0.5], kScaleOffset); // встановлюємо scale
+
+    // копіюємо ці значення з JavaScript в пам’ять графічного процесора
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+</pre>
+<blockquote>
+<p>Примітка: <code class="notranslate" translate="no">writeBuffer</code> - це лише один із способів копіювання
+даних в буфер. Існують інші способи, про які більш детально
+описано в <a href="webgpu-copying-data.html">цій статті</a>.</p>
+</blockquote>
+<p>Ми встановлюємо масштаб в пів розміру полотна і беремо в розрахунок
+співвідношення його сторін для того, щоб трикутник зберігав однакове
+відношення висоти до ширини не залежно від розміру цього полотна.</p>
+<p>Врешті нам потрібно задати групу прив’язки перед початком малювання.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    pass.setPipeline(pipeline);
++    pass.setBindGroup(0, bindGroup);
+    pass.draw(3);  // викликаємо наш вершинний шейдер 3 рази
+    pass.end();
+</pre>
+<p>З допомогою цього всього, ми отримали наш зелений трикутник.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-uniforms.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-uniforms.html" target="_blank">натисніть сюди, щоб відкрити в окремому вікні</a>
+</div>
+
+<p></p>
+<p>Після виконання команди <code class="notranslate" translate="no">draw</code> для цього одного трикутника, стан системи
+виглядатиме так.</p>
+<div class="webgpu_center"><img src="../resources/webgpu-draw-diagram-triangle-uniform.svg" style="width: 863px;"></div>
+<p>До цього часу, усі дані, які ми використовували в наших шейдерах
+були захардкоджені (позиції вершин у вершинному шейдері чи кольори
+в фрагментному шейдері). Тепер, коли ми маємо можливість передати
+дані в середину нашого шейдера, ми можемо викликати команду <code class="notranslate" translate="no">draw</code>
+безліч разів з різними наборами даних.</p>
+<p>Ми можемо малювати трикутники в різних місцях, з різними відступами,
+масштабами та кольорами оновлюючи наш буфер. Важливо пригадати, що
+незважаючи на те, що команди відправляються в командний буфер одразу,
+вони не виконуються поки ми не відправимо цей буфер на виконання.
+Саме тому ми <strong>НЕ можемо</strong> робити таким чином:</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    // НЕ РОБІТЬ ТАК!
+    for (let x = -1; x &lt; 1; x += 0.1) {
+      uniformValues.set([x, x], kOffsetOffset);
+      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+      pass.draw(3);
+    }
+    pass.end();
+
+    // закінчуємо кодування команд і відправляємо їх на виконання
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+</pre>
+<p>Причина полягає в тому, що функції <code class="notranslate" translate="no">device.queue.xxx</code> записуються в чергу
+<code class="notranslate" translate="no">queue</code>, а функції <code class="notranslate" translate="no">pass.xxx</code> просто кодують команди в буфер команд. Коли
+ми викликаємо функцію <code class="notranslate" translate="no">submit</code> з нашим буфером команд, то в буфері з даними
+будуть тільки останні записані туди дані.</p>
+<p>Ми можемо змінити це в такий спосіб:</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    // НЕ РОБІТЬ ТАК! Це працюватиме повільно!
+    for (let x = -1; x &lt; 1; x += 0.1) {
+      uniformValues.set([x, 0], kOffsetOffset);
+      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+
+      const encoder = device.createCommandEncoder();
+      const pass = encoder.beginRenderPass(renderPassDescriptor);
+      pass.setPipeline(pipeline);
+      pass.setBindGroup(0, bindGroup);
+      pass.draw(3);
+      pass.end();
+
+      // закінчуємо кодування команд і відправляємо їх на виконання
+      const commandBuffer = encoder.finish();
+      device.queue.submit([commandBuffer]);
+    }
+</pre>
+<p>Цей код оновлює один буфер, створює один буфер команд, додає туди
+команди для малювання одного трикутника, далі відправляє цей буфер
+на виконання. Це працюватиме, але працюватиме повільно через декілька
+причин. Одна з причин полягає в тому, що найкращою практикою є використання
+одного буфера команд для виконання більшої кількості задач.</p>
+<p>Тому натомість ми можемо створити один юніформ буфер на кожен трикутник, який
+ми хочемо намалювати. І, оскільки буфери використовуються не напряму, а через
+групи прив’язки, то ми мусимо також створити одну таку групу на кожен трикутник.
+Після цього, ми зможемо вкласти усі команди малювання в один буфер команд.</p>
+<p>Давайте зробимо це.</p>
+<p>Для початку, зробимо функцію <code class="notranslate" translate="no">random</code>.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// випадкове число між [min та max)
+// з одним аргументом це буде між [0 to min)
+// без аргументів це буде між [0 to 1)
+const rand = (min, max) =&gt; {
+  if (min === undefined) {
+    min = 0;
+    max = 1;
+  } else if (max === undefined) {
+    max = min;
+    min = 0;
+  }
+  return min + Math.random() * (max - min);
+};
+
+</pre>
+<p>Тепер, давайте налаштуємо буфери з значеннями різних кольорів
+та відступів, з якими ми зможемо малювати наші трикутники.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // відступи для різних юніформ змінних
+  const kColorOffset = 0;
+  const kScaleOffset = 4;
+  const kOffsetOffset = 6;
+
++  const kNumObjects = 100;
++  const objectInfos = [];
++
++  for (let i = 0; i &lt; kNumObjects; ++i) {
++    const uniformBuffer = device.createBuffer({
++      label: `uniforms for obj: ${i}`,
++      size: uniformBufferSize,
++      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
++    });
++
++    // створюємо типізований масив для зберігання даних для юніформ змінної в JavaScript
++    const uniformValues = new Float32Array(uniformBufferSize / 4);
+-  uniformValues.set([0, 1, 0, 1], kColorOffset);        // задаємо колір
+-  uniformValues.set([-0.5, -0.25], kOffsetOffset);      // задаємо відступ
++    uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // задаємо колір
++    uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset); // задаємо відступ
++
++    const bindGroup = device.createBindGroup({
++      label: `bind group for obj: ${i}`,
++      layout: pipeline.getBindGroupLayout(0),
++      entries: [
++        { binding: 0, resource: { buffer: uniformBuffer }},
++      ],
++    });
++
++    objectInfos.push({
++      scale: rand(0.2, 0.5),
++      uniformBuffer,
++      uniformValues,
++      bindGroup,
++    });
++  }
+</pre>
+<p>Ми не встановлюємо значення в буфер поки що через те, що ми поки не знаємо
+відношення сторін нашого полотна і не можемо його дізнатись перед рендерингом.</p>
+<p>Під час рендеринг, ми оновлюємо всі буфери з правильними значеннями масштабу.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
+-    // встановлюємо значення масштабу в типізований масив
+-    const aspect = canvas.width / canvas.height;
+-    uniformValues.set([0.5 / aspect, 0.5], kScaleOffset);
+-
+-    // копіюємо дані з JavaScript в пам’ять графічного процесору
+-    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+
+    // отримуємо поточну текстуру з контексту полотна
+    // та встановлюємо її як текстуру, в яку потрібно рендерити
+    renderPassDescriptor.colorAttachments[0].view =
+        context.getCurrentTexture().createView();
+
+    const encoder = device.createCommandEncoder();
+    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
+
+    // встановлюємо значення масштабу в типізований масив
+    const aspect = canvas.width / canvas.height;
+
++    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
++      uniformValues.set([scale / aspect, scale], kScaleOffset);
++      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+       pass.setBindGroup(0, bindGroup);
+       pass.draw(3);  // викликаємо наш шейдер три рази
++    }
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+  }
+</pre>
+<p>Знову згадаємо, що об’єкти <code class="notranslate" translate="no">encoder</code> та <code class="notranslate" translate="no">pass</code> лише кодують команди в
+буфер команд. Тому коли закінчиться функція <code class="notranslate" translate="no">render</code> ми запустимо ці
+команди в такому порядку.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.writeBuffer(...) // оновлюємо юніформ 0 даними з буфера 0
+device.queue.writeBuffer(...) // оновлюємо юніформ 1 даними з буфера 1
+device.queue.writeBuffer(...) // оновлюємо юніформ 2 даними з буфера 2
+device.queue.writeBuffer(...) // оновлюємо юніформ 3 даними з буфера 3
+...
+// виконуємо команди, які намалюють 100 трикутників
+device.queue.submit([commandBuffer]);
+</pre>
+<p>Ось наш результат:</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-uniforms-multiple.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-uniforms-multiple.html" target="_blank">натисніть сюди, щоб відкрити в окремому вікні</a>
+</div>
+
+<p></p>
+<p>Допоки ми тут, розглянемо ще одну річ. Ви можете покликатись на декілька юніформ
+буферів у ваших шейдерах. В нашому прикладі вище, під час малювання ми кожного разу
+оновлюємо масштаб, далі ми викликаємо <code class="notranslate" translate="no">writeBuffer</code> для завантаження значень
+<code class="notranslate" translate="no">uniformValues</code> в необхідний юніформ буфер. Проте, тут оновлюється лише значення
+масштабу, а колі та відступ залишаються незмінними. Виходить, що ми витрачаємо час
+на оновлення кольору та відступу.</p>
+<p>Ми можемо розділити нашу юніформ змінну на дві: ту, яка буде встановлена тільки раз
+і ту, яка має оновлюватись кожного разу, коли ми щось малюємо.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+    code: `
+      struct OurStruct {
+        color: vec4f,
+-        scale: vec2f,
+        offset: vec2f,
+      };
+
++      struct OtherStruct {
++        scale: vec2f,
++      };
+
+      @group(0) @binding(0) var&lt;uniform&gt; ourStruct: OurStruct;
++      @group(0) @binding(1) var&lt;uniform&gt; otherStruct: OtherStruct;
+
+      @vertex fn vs(
+        @builtin(vertex_index) vertexIndex : u32
+      ) -&gt; @builtin(position) vec4f {
+        let pos = array(
+          vec2f( 0.0,  0.5),  // top center
+          vec2f(-0.5, -0.5),  // bottom left
+          vec2f( 0.5, -0.5)   // bottom right
+        );
+
+        return vec4f(
+-          pos[vertexIndex] * ourStruct.scale + ourStruct.offset, 0.0, 1.0);
++          pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
+      }
+
+      @fragment fn fs() -&gt; @location(0) vec4f {
+        return ourStruct.color;
+      }
+    `,
+  });
+</pre>
+<p>Тепер нам потрібні 2 буфери для кожного разу, коли ми хочемо щось намалювати.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  // create a buffer for the uniform values
+-  const uniformBufferSize =
+-    4 * 4 + // color is 4 32bit floats (4bytes each)
+-    2 * 4 + // scale is 2 32bit floats (4bytes each)
+-    2 * 4;  // offset is 2 32bit floats (4bytes each)
+-  // offsets to the various uniform values in float32 indices
+-  const kColorOffset = 0;
+-  const kScaleOffset = 4;
+-  const kOffsetOffset = 6;
++  // створюємо 2 буфера для наших юніформ змінних
++  const staticUniformBufferSize =
++    4 * 4 + // color is 4 32bit floats (4bytes each)
++    2 * 4 + // offset is 2 32bit floats (4bytes each)
++    2 * 4;  // padding
++  const uniformBufferSize =
++    2 * 4;  // scale is 2 32bit floats (4bytes each)
++
++  // offsets to the various uniform values in float32 indices
++  const kColorOffset = 0;
++  const kOffsetOffset = 4;
++
++  const kScaleOffset = 0;
+
+  const kNumObjects = 100;
+  const objectInfos = [];
+
+  for (let i = 0; i &lt; kNumObjects; ++i) {
++    const staticUniformBuffer = device.createBuffer({
++      label: `static uniforms for obj: ${i}`,
++      size: staticUniformBufferSize,
++      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
++    });
++
++    // ці значення встановлюються лише раз
++    {
+-      const uniformValues = new Float32Array(uniformBufferSize / 4);
++      const uniformValues = new Float32Array(staticUniformBufferSize / 4);
+      uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // задаємо колір
+      uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset);      // задаємо відступ
+
+      // копіюємо ці дані на графічний процесор
+-      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
++      device.queue.writeBuffer(staticUniformBuffer, 0, uniformValues);
+    }
+
++    // створюємо типізований масив для зберігання юніформ змінних в JavaScript
++    const uniformValues = new Float32Array(uniformBufferSize / 4);
++    const uniformBuffer = device.createBuffer({
++      label: `changing uniforms for obj: ${i}`,
++      size: uniformBufferSize,
++      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
++    });
+
+    const bindGroup = device.createBindGroup({
+      label: `bind group for obj: ${i}`,
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: staticUniformBuffer }},
++        { binding: 1, resource: { buffer: uniformBuffer }},
+      ],
+    });
+
+    objectInfos.push({
+      scale: rand(0.2, 0.5),
+      uniformBuffer,
+      uniformValues,
+      bindGroup,
+    });
+  }
+</pre>
+<p>В нашому коді рендерингу нічого не змінилось. Група прив’язки кожного
+об’єкту містить в собі посилання на обидва юніформ буфери. Як і раніше, ми
+оновлюємо масштаб. Але тепер ми завантажуємо в пам’ять тільки цей масштаб
+викликаючи <code class="notranslate" translate="no">device.queue.writeBuffer</code> та оновлюючи юніформ буфер, який
+містить в собі це значення в той час, як раніше ми завантажували в цьому місці
+значення кольору, відступу та масштабу для кожного такого об’єкту.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-triangle-uniforms-split.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-triangle-uniforms-split.html" target="_blank">натисніть сюди, щоб відкрити в окремому вікні</a>
+</div>
+
+<p></p>
+<p>В цьому конкретному випадку, поділ на два юніформ буфери міг бути перебором,
+але зазвичай поділ цих буферів в залежності від частоти їх оновлення та
+використання є досить поширеним. Прикладом цього може слугувати юніформ буфер
+для матриць з спільним доступом. Для прикладу матриця проекції, матриця огляду
+та матриця камери. Оскільки дуже часто це одна і та ж матриця ми можемо просто
+створити один юніформ буфер і використати його для усіх об’єктів, які ви
+плануєте намалювати.</p>
+<p>Окремо, наш шейдер може посилатись на інший юніформ буфер, який міститиме тільки ті
+речі, які властиві тільки йому (матриця моделі чи матриця нормалей).</p>
+<p>Інший юніформ буфер може містити налаштування матеріалів. Ці налаштування можуть
+спільно використовуватись різними об’єктами.</p>
+<p>Ми використаємо більшість з описаного вище, коли будемо розглядати малювання в 3D.</p>
+<p>Далі за списком <a href="webgpu-storage-buffers.html">буфери зберігання</a>.</p>
 
     </div>
     <div class="lesson-sidebar">
@@ -201,11 +705,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>Основи</li>
+        <div id="toc">
+          <ul>  <li>Основи</li>
         <ul>
           <li><a href="/webgpu/lessons/uk/webgpu-fundamentals.html">Основи</a></li>
 <li><a href="/webgpu/lessons/uk/webgpu-inter-stage-variables.html">Міжетапні змінні</a></li>
-<li><a href="/webgpu/lessons/uk/webgpu-uniforms.html">Uniforms</a></li>
+<li><a href="/webgpu/lessons/uk/webgpu-uniforms.html">Юніформи</a></li>
 <li><a href="/webgpu/lessons/uk/webgpu-storage-buffers.html">Storage Buffers</a></li>
 <li><a href="/webgpu/lessons/uk/webgpu-vertex-buffers.html">Vertex Buffers</a></li>
   <li>Текстури</li>
@@ -282,13 +787,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
 
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>Запитання? <a href="http://stackoverflow.com/questions/tagged/webgpu">Запитати на stackoverflow</a>.</div>
+<div>
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">Пропозиція</a>?
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">Запит</a>?
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">Проблема</a>?
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">Помилка</a>?
+</div>
+<div class="lesson-comment-notes">
+   Use <b>&lt;pre&gt;&lt;code&gt;</b>code goes here<b>&lt;/code&gt;&lt;/pre&gt;</b> for code blocks
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `Юніформи в WebGPU`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "Thank you <a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a><br>for <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} contributions</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
-<script src="/webgpu/lessons/resources/lesson.js"></script>
+<script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
 <!-- Google tag (gtag.js) -->
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-92BFT5PE4H"></script>
 <script>
