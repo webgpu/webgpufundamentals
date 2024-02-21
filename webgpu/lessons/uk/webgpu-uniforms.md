@@ -105,9 +105,9 @@ TOC: Юніформи
 Прочитавши [цю статтю](webgpu-memory-layout.html), ми можемо продовжити 
 і заповнити буфер даними, які співпадають з структурою в нашому шейдері.
 
-First, we make a buffer and assign it usage flags so it can
-be used with uniforms, and so that we can update by copying
-data to it.
+Спершу ми створюємо буфер і задаємо йому прапорці, які вказують
+не те, що він може використовуватись юніформ змінною та бути оновлений
+копіюванням даних в середину нього ж.
 
 ```js
   const uniformBufferSize =
@@ -120,16 +120,17 @@ data to it.
   });
 ```
 
-Then we make a `TypedArray` so we can set values in JavaScript.
+Далі ми створюємо `TypedArray` для того, щоб мати змогу встановити
+значення юніформ змінної з JavaScript коду.
 
 ```js
   // create a typedarray to hold the values for the uniforms in JavaScript
   const uniformValues = new Float32Array(uniformBufferSize / 4);
 ```
 
-and we'll fill out 2 of the values of our struct that won't be changing later.
-The offsets were computed using what we covered in
-[the article on memory-layout](webgpu-memory-layout.html).
+І після цього ми заповнимо 2 з 3 полів нашої структури, які не будуть
+змінюватись пізніше. Значення зміщень полів ми вирахували так, як це 
+описано в [цій статті про розміщення даних в пам’яті](webgpu-memory-layout.html).
 
 ```js
   // offsets to the various uniform values in float32 indices
@@ -141,13 +142,14 @@ The offsets were computed using what we covered in
   uniformValues.set([-0.5, -0.25], kOffsetOffset);      // set the offset
 ```
 
-Above we're setting the color to green. The offset will move the triangle
-to the left 1/4th of the canvas and down 1/8th. (remember, clip space goes
-from -1 to 1 which is 2 units wide so 0.25 is 1/8 of 2). 
+В коді вище, ми встановлюємо значення кольору в зелений. Змінна offset
+змістить трикутник вліво на 1/4 розміру полотна і вниз на 1/8. 
+(згадуємо, що простір відсікання лежить в координатах від -1 до 1, тому
+0.25 - це 1/8 від довжини всього простору, що дорівнює 2). 
 
-Next, [as the diagram showed in the first article](webgpu-fundamentals.html#a-draw-diagram),
-to tell a shader about our buffer we need to create a bind group
-and bind the buffer to the same `@binding(?)` we set in our shader.
+Далі, [як нам ілюструє діаграма з першої статті](webgpu-fundamentals.html#a-draw-diagram), для того, щоб повідомити шейдеру про наш буфер,
+ми повинні створити групу прив’язки і прив’язати цей буфер до того
+самого `@binding(?)`, який ми описали в нашому шейдері.
 
 ```js
   const bindGroup = device.createBindGroup({
@@ -158,58 +160,61 @@ and bind the buffer to the same `@binding(?)` we set in our shader.
   });
 ```
 
-Now sometimes before we submit our command buffer, we need to set
-the remaining values of `uniformValues` and then copy those values to the buffer on the GPU.
-We'll do it at the top of our `render` function. 
+Тепер, перед тим як ми відправимо наш буфер команд на виконання, ми
+маємо встановити решту значень `uniformValues` і скопіювати їх 
+в буфер на графічному процесорі. Ми зробимо це на початку нашої
+`render` функції. 
 
 ```js
   function render() {
-    // Set the uniform values in our JavaScript side Float32Array
+    // встановлюємо решту значень в нашому типізованому масиві
     const aspect = canvas.width / canvas.height;
-    uniformValues.set([0.5 / aspect, 0.5], kScaleOffset); // set the scale
+    uniformValues.set([0.5 / aspect, 0.5], kScaleOffset); // встановлюємо scale
 
-    // copy the values from JavaScript to the GPU
+    // копіюємо ці значення з JavaScript в пам’ять графічного процесора
     device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
 ```
 
-> Note: `writeBuffer` is one way to copy data to a buffer. 
-> There are several other ways covered in [this article](webgpu-copying-data.html).
+> Примітка: `writeBuffer` - це лише один із способів копіювання
+> даних в буфер. Існують інші способи, про які більш детально
+> описано в [цій статті](webgpu-copying-data.html).
 
-We're setting the scale to half size AND taking into account the aspect of the canvas
-so the triangle will keep the same width-to-height ratio regardless
-of the size of the canvas. 
+Ми встановлюємо масштаб в пів розміру полотна і беремо в розрахунок
+співвідношення його сторін для того, щоб трикутник зберігав однакове 
+відношення висоти до ширини не залежно від розміру цього полотна.
 
-Finally, we need to set the bind group before drawing.
+Врешті нам потрібно задати групу прив’язки перед початком малювання.
 
 ```js
     pass.setPipeline(pipeline);
 +    pass.setBindGroup(0, bindGroup);
-    pass.draw(3);  // call our vertex shader 3 times
+    pass.draw(3);  // викликаємо наш вершинний шейдер 3 рази
     pass.end();
 ```
 
-And with that, we get a green triangle as described.
+З допомогою цього всього, ми отримали наш зелений трикутник.
 
 {{{example url="../webgpu-simple-triangle-uniforms.html"}}}
 
-For this single triangle, our state when the draw command is
-executed is something like this.
+Після виконання команди `draw` для цього одного трикутника, стан системи
+виглядатиме так.
 
 <div class="webgpu_center"><img src="resources/webgpu-draw-diagram-triangle-uniform.svg" style="width: 863px;"></div>
 
-Up until now, all of the data we've used in our shaders was either
-hardcoded (the triangle vertex positions in the vertex shader, 
-and the color in the fragment shader).
-Now that we're able to pass values into our shader, we can call `draw`
-multiple times with different data.
+До цього часу, усі дані, які ми використовували в наших шейдерах
+були захардкоджені (позиції вершин у вершинному шейдері чи кольори
+в фрагментному шейдері). Тепер, коли ми маємо можливість передати
+дані в середину нашого шейдера, ми можемо викликати команду `draw`
+безліч разів з різними наборами даних.
 
-We could draw in different places with different offsets, scales,
-and colors by updating our single buffer. It's important to remember
-though that our commands get put in a command buffer, they are not
-actually executed until we submit them. So, we **can NOT** do this
+Ми можемо малювати трикутники в різних місцях, з різними відступами,
+масштабами та кольорами оновлюючи наш буфер. Важливо пригадати, що
+незважаючи на те, що команди відправляються в командний буфер одразу,
+вони не виконуються поки ми не відправимо цей буфер на виконання. 
+Саме тому ми **НЕ можемо** робити таким чином: 
 
 ```js
-    // BAD!
+    // НЕ РОБІТЬ ТАК!
     for (let x = -1; x < 1; x += 0.1) {
       uniformValues.set([x, x], kOffsetOffset);
       device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
@@ -217,20 +222,20 @@ actually executed until we submit them. So, we **can NOT** do this
     }
     pass.end();
 
-    // Finish encoding and submit the commands
+    // закінчуємо кодування команд і відправляємо їх на виконання
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
 ```
 
-Because, as you can see above, the `device.queue.xxx` functions happen on
-a "queue" but the `pass.xxx` functions just encode a command in the command buffer.\
-When we actually call `submit` with our command buffer,
-the only thing in our buffer would be the last values we wrote.
+Причина полягає в тому, що функції `device.queue.xxx` записуються в чергу 
+`queue`, а функції `pass.xxx` просто кодують команди в буфер команд. Коли
+ми викликаємо функцію `submit` з нашим буфером команд, то в буфері з даними
+будуть тільки останні записані туди дані.
 
-We could change it to this. 
+Ми можемо змінити це в такий спосіб:
 
 ```js
-    // BAD! Slow!
+    // НЕ РОБІТЬ ТАК! Це працюватиме повільно!
     for (let x = -1; x < 1; x += 0.1) {
       uniformValues.set([x, 0], kOffsetOffset);
       device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
@@ -242,30 +247,31 @@ We could change it to this.
       pass.draw(3);
       pass.end();
 
-      // Finish encoding and submit the commands
+      // закінчуємо кодування команд і відправляємо їх на виконання
       const commandBuffer = encoder.finish();
       device.queue.submit([commandBuffer]);
     }
 ```
 
-The code above updates one buffer, creates one command buffer,
-adds commands to draw one thing, then finishes the command buffer
-and submits it. This works but is slow for multiple reasons. The biggest is that it's
-best practice to do more work in a single command buffer.
+Цей код оновлює один буфер, створює один буфер команд, додає туди
+команди для малювання одного трикутника, далі відправляє цей буфер
+на виконання. Це працюватиме, але працюватиме повільно через декілька
+причин. Одна з причин полягає в тому, що найкращою практикою є використання
+одного буфера команд для виконання більшої кількості задач.
 
-So instead, we could create one uniform buffer per thing we want
-to draw. And, since buffers are used indirectly through bind groups,
-we'll also need one bind group per thing we want to draw. Then we
-can put all the things we want to draw into a single command buffer.
+Тому натомість ми можемо створити один юніформ буфер на кожен трикутник, який
+ми хочемо намалювати. І, оскільки буфери використовуються не напряму, а через
+групи прив’язки, то ми мусимо також створити одну таку групу на кожен трикутник.
+Після цього, ми зможемо вкласти усі команди малювання в один буфер команд.
 
-Let's do it.
+Давайте зробимо це.
 
-First, let's make a random function.
+Для початку, зробимо функцію `random`.
 
 ```js
-// A random number between [min and max)
-// With 1 argument it will be [0 to min)
-// With no arguments it will be [0 to 1)
+// випадкове число між [min та max)
+// з одним аргументом це буде між [0 to min)
+// без аргументів це буде між [0 to 1)
 const rand = (min, max) => {
   if (min === undefined) {
     min = 0;
@@ -279,11 +285,10 @@ const rand = (min, max) => {
 
 ```
 
-And now, let's set up buffers with a bunch of colors and offsets
-we can draw a bunch of individual things.
-
+Тепер, давайте налаштуємо буфери з значеннями різних кольорів
+та відступів, з якими ми зможемо малювати наші трикутники.
 ```js
-  // offsets to the various uniform values in float32 indices
+  // відступи для різних юніформ змінних
   const kColorOffset = 0;
   const kScaleOffset = 4;
   const kOffsetOffset = 6;
@@ -298,12 +303,12 @@ we can draw a bunch of individual things.
 +      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 +    });
 +
-+    // create a typedarray to hold the values for the uniforms in JavaScript
++    // створюємо типізований масив для зберігання даних для юніформ змінної в JavaScript
 +    const uniformValues = new Float32Array(uniformBufferSize / 4);
--  uniformValues.set([0, 1, 0, 1], kColorOffset);        // set the color
--  uniformValues.set([-0.5, -0.25], kOffsetOffset);      // set the offset
-+    uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // set the color
-+    uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset);      // set the offset
+-  uniformValues.set([0, 1, 0, 1], kColorOffset);        // задаємо колір
+-  uniformValues.set([-0.5, -0.25], kOffsetOffset);      // задаємо відступ
++    uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // задаємо колір
++    uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset); // задаємо відступ
 +
 +    const bindGroup = device.createBindGroup({
 +      label: `bind group for obj: ${i}`,
@@ -322,24 +327,22 @@ we can draw a bunch of individual things.
 +  }
 ```
 
-We're not setting the values in our buffer yet because we want it to take into account
-the aspect of the canvas and we won't know the aspect of the canvas until
-render time.
+Ми не встановлюємо значення в буфер поки що через те, що ми поки не знаємо
+відношення сторін нашого полотна і не можемо його дізнатись перед рендерингом.
 
-At render time, we'll update all of the buffers with the correct aspect-adjusted
-scale.
+Під час рендеринг, ми оновлюємо всі буфери з правильними значеннями масштабу. 
 
 ```js
   function render() {
--    // Set the uniform values in our JavaScript side Float32Array
+-    // встановлюємо значення масштабу в типізований масив
 -    const aspect = canvas.width / canvas.height;
--    uniformValues.set([0.5 / aspect, 0.5], kScaleOffset); // set the scale
+-    uniformValues.set([0.5 / aspect, 0.5], kScaleOffset);
 -
--    // copy the values from JavaScript to the GPU
+-    // копіюємо дані з JavaScript в пам’ять графічного процесору
 -    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
 
-    // Get the current texture from the canvas context and
-    // set it as the texture to render to.
+    // отримуємо поточну текстуру з контексту полотна
+    // та встановлюємо її як текстуру, в яку потрібно рендерити
     renderPassDescriptor.colorAttachments[0].view =
         context.getCurrentTexture().createView();
 
@@ -347,14 +350,14 @@ scale.
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
 
-    // Set the uniform values in our JavaScript side Float32Array
+    // встановлюємо значення масштабу в типізований масив
     const aspect = canvas.width / canvas.height;
 
 +    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
-+      uniformValues.set([scale / aspect, scale], kScaleOffset); // set the scale
++      uniformValues.set([scale / aspect, scale], kScaleOffset);
 +      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
        pass.setBindGroup(0, bindGroup);
-       pass.draw(3);  // call our vertex shader 3 times
+       pass.draw(3);  // викликаємо наш шейдер три рази
 +    }
     pass.end();
 
@@ -363,32 +366,33 @@ scale.
   }
 ```
 
-Again, remember that the `encoder` and `pass` objects are just encoding commands
-into a command buffer. So when the `render` function exits we've effectively
-issued these *commands* in this order.
+Знову згадаємо, що об’єкти `encoder` та `pass` лише кодують команди в 
+буфер команд. Тому коли закінчиться функція `render` ми запустимо ці
+команди в такому порядку.
 
 ```js
-device.queue.writeBuffer(...) // update uniform buffer 0 with data for object 0
-device.queue.writeBuffer(...) // update uniform buffer 1 with data for object 1
-device.queue.writeBuffer(...) // update uniform buffer 2 with data for object 2
-device.queue.writeBuffer(...) // update uniform buffer 3 with data for object 3
+device.queue.writeBuffer(...) // оновлюємо юніформ 0 даними з буфера 0
+device.queue.writeBuffer(...) // оновлюємо юніформ 1 даними з буфера 1
+device.queue.writeBuffer(...) // оновлюємо юніформ 2 даними з буфера 2
+device.queue.writeBuffer(...) // оновлюємо юніформ 3 даними з буфера 3
 ...
-// execute commands that draw 100 things, each with its own uniform buffer.
+// виконуємо команди, які намалюють 100 трикутників
 device.queue.submit([commandBuffer]);
 ```
 
-Here's that
+Ось наш результат:
 
 {{{example url="../webgpu-simple-triangle-uniforms-multiple.html"}}}
 
-While we're here, one more thing to cover. You're free to reference multiple
-uniform buffers in your shaders. In our example above, every time we draw
-we update the scale, then we `writeBuffer` to upload `uniformValues` for that
-object to the corresponding uniform buffer. But, only the scale is being updated,
-color and offset are not, so we're wasting time uploading color and offset.
+Допоки ми тут, розглянемо ще одну річ. Ви можете покликатись на декілька юніформ
+буферів у ваших шейдерах. В нашому прикладі вище, під час малювання ми кожного разу
+оновлюємо масштаб, далі ми викликаємо `writeBuffer` для завантаження значень
+`uniformValues` в необхідний юніформ буфер. Проте, тут оновлюється лише значення
+масштабу, а колі та відступ залишаються незмінними. Виходить, що ми витрачаємо час
+на оновлення кольору та відступу.
 
-We could split the uniforms into uniforms that need to be set once and uniforms
-that are updated each time we draw.
+Ми можемо розділити нашу юніформ змінну на дві: ту, яка буде встановлена тільки раз
+і ту, яка має оновлюватись кожного разу, коли ми щось малюємо.
 
 ```js
   const module = device.createShaderModule({
@@ -427,7 +431,7 @@ that are updated each time we draw.
   });
 ```
 
-When we need 2 uniform buffers per thing we want to draw
+Тепер нам потрібні 2 буфери для кожного разу, коли ми хочемо щось намалювати.
 
 ```js
 -  // create a buffer for the uniform values
@@ -439,7 +443,7 @@ When we need 2 uniform buffers per thing we want to draw
 -  const kColorOffset = 0;
 -  const kScaleOffset = 4;
 -  const kOffsetOffset = 6;
-+  // create 2 buffers for the uniform values
++  // створюємо 2 буфера для наших юніформ змінних
 +  const staticUniformBufferSize =
 +    4 * 4 + // color is 4 32bit floats (4bytes each)
 +    2 * 4 + // offset is 2 32bit floats (4bytes each)
@@ -463,19 +467,19 @@ When we need 2 uniform buffers per thing we want to draw
 +      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 +    });
 +
-+    // These are only set once so set them now
++    // ці значення встановлюються лише раз
 +    {
 -      const uniformValues = new Float32Array(uniformBufferSize / 4);
 +      const uniformValues = new Float32Array(staticUniformBufferSize / 4);
-      uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // set the color
-      uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset);      // set the offset
+      uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // задаємо колір
+      uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset);      // задаємо відступ
 
-      // copy these values to the GPU
+      // копіюємо ці дані на графічний процесор
 -      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
 +      device.queue.writeBuffer(staticUniformBuffer, 0, uniformValues);
     }
 
-+    // create a typedarray to hold the values for the uniforms in JavaScript
++    // створюємо типізований масив для зберігання юніформ змінних в JavaScript
 +    const uniformValues = new Float32Array(uniformBufferSize / 4);
 +    const uniformBuffer = device.createBuffer({
 +      label: `changing uniforms for obj: ${i}`,
@@ -501,26 +505,29 @@ When we need 2 uniform buffers per thing we want to draw
   }
 ```
 
-Nothing changes in our render code. The bind group for each object contains
-a reference to both uniform buffers for each object. Just as before we are
-updating the scale. But now we're only uploading the scale when we call
-`device.queue.writeBuffer` to update the uniform buffer that holds the scale value
-whereas before we were uploading the color + offset + scale for each object.
+В нашому коді рендерингу нічого не змінилось. Група прив’язки кожного 
+об’єкту містить в собі посилання на обидва юніформ буфери. Як і раніше, ми
+оновлюємо масштаб. Але тепер ми завантажуємо в пам’ять тільки цей масштаб 
+викликаючи `device.queue.writeBuffer` та оновлюючи юніформ буфер, який
+містить в собі це значення в той час, як раніше ми завантажували в цьому місці
+значення кольору, відступу та масштабу для кожного такого об’єкту.
 
 {{{example url="../webgpu-simple-triangle-uniforms-split.html"}}}
 
-While in this simple example, splitting into multiple uniform buffers was probably
-overkill, it's common to split based on what changes and when. Examples might include
-one uniform buffer for matrices that are shared. For example a project matrix, a view
-matrix, and a camera matrix. Since often these are the same for all things we want to draw
-we can just make one buffer and have all objects use the same uniform buffer.
+В цьому конкретному випадку, поділ на два юніформ буфери міг бути перебором,
+але зазвичай поділ цих буферів в залежності від частоти їх оновлення та 
+використання є досить поширеним. Прикладом цього може слугувати юніформ буфер
+для матриць з спільним доступом. Для прикладу матриця проекції, матриця огляду
+та матриця камери. Оскільки дуже часто це одна і та ж матриця ми можемо просто
+створити один юніформ буфер і використати його для усіх об’єктів, які ви 
+плануєте намалювати.
 
-Separately our shader might reference another uniform buffer that contains just the
-things that are specific to this object like its world / model matrix and its normal matrix.
+Окремо, наш шейдер може посилатись на інший юніформ буфер, який міститиме тільки ті
+речі, які властиві тільки йому (матриця моделі чи матриця нормалей).
 
-Another uniform buffer might contain material settings. Those settings might be shared
-by multiple objects.
+Інший юніформ буфер може містити налаштування матеріалів. Ці налаштування можуть
+спільно використовуватись різними об’єктами.
 
-We'll do much of this when we cover drawing 3D.
+Ми використаємо більшість з описаного вище, коли будемо розглядати малювання в 3D.
 
-Next up, [storage buffers](webgpu-storage-buffers.html)
+Далі за списком [буфери зберігання](webgpu-storage-buffers.html).
