@@ -458,6 +458,96 @@ and not stretch them out 50 to 1 like we had before.</p>
 </div>
 
 <p></p>
+<h2 id="why-texture_external">Why <code class="notranslate" translate="no">texture_external</code>?</h2>
+<p>Some of you might notice the fact that this way if using video uses
+<code class="notranslate" translate="no">texture_external</code> instead of something more common like <code class="notranslate" translate="no">texture_2d&lt;f32&gt;</code>
+and it uses <code class="notranslate" translate="no">textureSampleBaseClampToEdge</code> instead of just <code class="notranslate" translate="no">textureSample</code>
+and that means if you want to use this way of using textures and you want
+to mix it with with other parts of your rendering, you’ll need different
+shaders. Shaders that using <code class="notranslate" translate="no">texture_2d&lt;f32&gt;</code> when using a static
+texture and different shaders using <code class="notranslate" translate="no">texture_external</code> when you want
+to use a video.</p>
+<p>I think it’s important to understand what’s happing under the hood here.</p>
+<p>Video is often delivered with the luminance part of the video (the brightness of each pixel),
+separate from the chroma part of the video (the color of each pixel). Often the resolution
+of the color is lower than the luminance part. A common way of separating and encoding this is
+<a href="https://en.wikipedia.org/wiki/Y%E2%80%B2UV">YUV</a> where the data is separated into
+luminance (Y), and (UV) color info. This representation generally compresses better
+too.</p>
+<p>WebGPU’s goal for external textures is to use the video directly in the format it’s provided.
+To do this it <em>pretends</em> there is a video texture but in the actual implementation
+there may be multiple textures. For example, one texture with the luminance values (Y)
+and a separate texture with the UV values. And, those UV values might be specially separated.
+Instead being a texture of something like 2 values per pixel interleaved</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">uvuvuvuvuvuvuvuv
+uvuvuvuvuvuvuvuv
+uvuvuvuvuvuvuvuv
+uvuvuvuvuvuvuvuv
+uvuvuvuvuvuvuvuv
+uvuvuvuvuvuvuvuv
+</pre>
+<p>They might be arranged like this</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">uuuuuuuu
+uuuuuuuu
+uuuuuuuu
+uuuuuuuu
+uuuuuuuu
+uuuuuuuu
+vvvvvvvv
+vvvvvvvv
+vvvvvvvv
+vvvvvvvv
+vvvvvvvv
+vvvvvvvv
+</pre>
+<p>one (u) value per pixel in one area of a texture and one (v) value in another area.
+Again, because arranging the data like this often compresses better.</p>
+<p>When you add <code class="notranslate" translate="no">texture_external</code> and <code class="notranslate" translate="no">textureSampleBaseClampToEdge</code> to your
+shader, WebGPU, behind the scenes, injects code into your shader that takes this
+video data and gives you back an RGBA value. It may sample from multiple
+textures and or have to do texture coordinate math in order to pull the correct
+data out from 2, 3 or more places and convert to RGB.</p>
+<p>Here are the Y, U, and V channels from the video above</p>
+<div class="webgpu_center">
+  <div class="side-by-side">
+    <div class="separate">
+      <img src="../resources/videos/pexels-anna-bordarenko-5534310-y-channel.png" style="width: 300px;">
+      <div>Y channel (luminance)</div>
+    </div>
+    <div class="separate">
+      <div class="side-by-side">
+        <div class="separate">
+          <img src="../resources/videos/pexels-anna-bordarenko-5534310-u-channel.png" style="width: 150px;">
+          <div>U channel<br>(red ↔ yellow)</div>
+        </div>
+        <div class="separate">
+          <img src="../resources/videos/pexels-anna-bordarenko-5534310-v-channel.png" style="width: 150px;">
+          <div>V channel<br>( blue ↔ yellow)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p>WebGPU is effectively providing an optimization here. Traditional graphics
+libraries this would be left to you. Either you’d write the code yourself
+to convert from YUV to RGB, or you’d ask the OS to do it. You’d copy the data
+to an RGBA texture and then use that RGBA texture as <code class="notranslate" translate="no">texture_2d&lt;f32&gt;</code>. This
+way is more flexible. You don’t have to write different shaders for video vs
+static textures. But, it’s slower because the conversion has to happen from
+the YUV textures, to the RGBA texture.</p>
+<p>This slower more flexible method is still available in WebGPU and we covered it
+<a href="webgpu-importing-textures.html#a-loading-video">in the previous article</a>.
+If you need the flexibility, if you want to be able to use video everywhere without
+needing different shaders for video vs static images then use that method.</p>
+<p>One reason WebGPU provides this optimization for <code class="notranslate" translate="no">texture_external</code> is because this
+is the web. What formats of video are supported in the browser change over time.
+WebGPU will handle this for you where as if you had to write the shader yourself
+to convert from YUV to RGB, you’d also need to know the format of videos will not
+change and that is not a guarantee the web can make.</p>
+<p>The most obvious places to use the <code class="notranslate" translate="no">texture_external</code> method described
+in this article would be video related features like say meet, zoom, FB messenger
+related features, like when doing face recognition for adding visualizations or
+background separation. Another might be for VR video once WebGPU is supported in WebXR.</p>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
