@@ -575,7 +575,7 @@ With that we're able to upload a canvas AND generate mips levels for it
 
 {{{example url="../webgpu-simple-textured-quad-import-canvas.html"}}}
 
-## Loading Video
+## <a id="a-loading-video"></a> Loading Video
 
 Loading video this way is no different. We can create a `<video>` element and pass
 it to the same functions we passed the canvas to in the previous example and it should

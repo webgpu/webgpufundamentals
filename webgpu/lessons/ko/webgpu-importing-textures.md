@@ -563,7 +563,7 @@ requestAnimationFrame(render);
 
 {{{example url="../webgpu-simple-textured-quad-import-canvas.html"}}}
 
-## 비디오 로딩
+## <a id="a-loading-video"></a> 비디오 로딩
 
 비디오를 이러한 방식으로 로딩하는 것도 다를 바 없습니다. 
 `<video>` 엘리먼트(element)를 만들고 이전 예제에서 캔버스를 전달한것과 동일한 함수에 전달합니다. 
