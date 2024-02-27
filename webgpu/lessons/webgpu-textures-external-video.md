@@ -276,3 +276,107 @@ and not stretch them out 50 to 1 like we had before.
 And with that we get a zero copy video texture in WebGPU
 
 {{{example url="../webgpu-simple-textured-quad-external-video.html"}}}
+
+## Why `texture_external`?
+
+Some of you might notice the fact that this way if using video uses
+`texture_external` instead of something more common like `texture_2d<f32>`
+and it uses `textureSampleBaseClampToEdge` instead of just `textureSample`
+and that means if you want to use this way of using textures and you want
+to mix it with with other parts of your rendering, you'll need different
+shaders. Shaders that using `texture_2d<f32>` when using a static
+texture and different shaders using `texture_external` when you want
+to use a video.
+
+I think it's important to understand what's happing under the hood here.
+
+Video is often delivered with the luminance part of the video (the brightness of each pixel),
+separate from the chroma part of the video (the color of each pixel). Often the resolution
+of the color is lower than the luminance part. A common way of separating and encoding this is
+[YUV](https://en.wikipedia.org/wiki/Y%E2%80%B2UV) where the data is separated into
+luminance (Y), and (UV) color info. This representation generally compresses better
+too.
+
+WebGPU's goal for external textures is to use the video directly in the format it's provided.
+To do this it *pretends* there is a video texture but in the actual implementation
+there may be multiple textures. For example, one texture with the luminance values (Y)
+and a separate texture with the UV values. And, those UV values might be specially separated.
+Instead being a texture of something like 2 values per pixel interleaved
+
+    uvuvuvuvuvuvuvuv
+    uvuvuvuvuvuvuvuv
+    uvuvuvuvuvuvuvuv
+    uvuvuvuvuvuvuvuv
+    uvuvuvuvuvuvuvuv
+    uvuvuvuvuvuvuvuv
+
+They might be arranged like this
+
+    uuuuuuuu
+    uuuuuuuu
+    uuuuuuuu
+    uuuuuuuu
+    uuuuuuuu
+    uuuuuuuu
+    vvvvvvvv
+    vvvvvvvv
+    vvvvvvvv
+    vvvvvvvv
+    vvvvvvvv
+    vvvvvvvv
+
+one (u) value per pixel in one area of a texture and one (v) value in another area.
+Again, because arranging the data like this often compresses better.
+
+When you add `texture_external` and `textureSampleBaseClampToEdge` to your
+shader, WebGPU, behind the scenes, injects code into your shader that takes this
+video data and gives you back an RGBA value. It may sample from multiple
+textures and or have to do texture coordinate math in order to pull the correct
+data out from 2, 3 or more places and convert to RGB.
+
+Here are the Y, U, and V channels from the video above
+
+<div class="webgpu_center">
+  <div class="side-by-side">
+    <div class="separate">
+      <img src="../resources/videos/pexels-anna-bordarenko-5534310-y-channel.png" style="width: 300px;">
+      <div>Y channel (luminance)</div>
+    </div>
+    <div class="separate">
+      <div class="side-by-side">
+        <div class="separate">
+          <img src="../resources/videos/pexels-anna-bordarenko-5534310-u-channel.png" style="width: 150px;">
+          <div>U channel<br>(red ↔ yellow)</div>
+        </div>
+        <div class="separate">
+          <img src="../resources/videos/pexels-anna-bordarenko-5534310-v-channel.png" style="width: 150px;">
+          <div>V channel<br>( blue ↔ yellow)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+WebGPU is effectively providing an optimization here. Traditional graphics
+libraries this would be left to you. Either you'd write the code yourself
+to convert from YUV to RGB, or you'd ask the OS to do it. You'd copy the data
+to an RGBA texture and then use that RGBA texture as `texture_2d<f32>`. This
+way is more flexible. You don't have to write different shaders for video vs
+static textures. But, it's slower because the conversion has to happen from
+the YUV textures, to the RGBA texture.
+
+This slower more flexible method is still available in WebGPU and we covered it
+[in the previous article](webgpu-importing-textures.html#a-loading-video).
+If you need the flexibility, if you want to be able to use video everywhere without
+needing different shaders for video vs static images then use that method.
+
+One reason WebGPU provides this optimization for `texture_external` is because this
+is the web. What formats of video are supported in the browser change over time.
+WebGPU will handle this for you where as if you had to write the shader yourself
+to convert from YUV to RGB, you'd also need to know the format of videos will not
+change and that is not a guarantee the web can make.
+
+The most obvious places to use the `texture_external` method described
+in this article would be video related features like say meet, zoom, FB messenger
+related features, like when doing face recognition for adding visualizations or
+background separation. Another might be for VR video once WebGPU is supported in WebXR.
