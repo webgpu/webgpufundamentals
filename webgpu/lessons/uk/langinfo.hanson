@@ -4,7 +4,7 @@
   defaultExampleCaption: "натисніть сюди, щоб відкрити в окремому вікні",
   title: 'webgpufundamentals',
   description: 'Вивчаємо webgpu',
-  link: 'http://webgpufundamentals.org/',
+  link: 'http://webgpufundamentals.org/webgpu/lessons/uk',
   commentSectionHeader: `
 <div>Запитання? <a href="http://stackoverflow.com/questions/tagged/webgpu">Запитати на stackoverflow</a>.</div>
 <div>
