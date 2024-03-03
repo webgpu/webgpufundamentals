@@ -426,7 +426,7 @@ for each pixel to be drawn/rasterized when drawing triangles/lines/points</p>
 </pre>
 <p>All of the JavaScript below will go inside this script tag</p>
 <p>WebGPU is an asynchronous API so it’s easiest to use in an async function. We
-start off by requesting an adaptor, and then requesting a device from the adapter.</p>
+start off by requesting an adapter, and then requesting a device from the adapter.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();

@@ -1400,7 +1400,7 @@ use <code class="notranslate" translate="no">nearest</code> for that format and 
 create a bind group layout, something we haven’t done before as we’ve been
 using <code class="notranslate" translate="no">'auto'</code> layout. This mostly exists because desktop GPU can generally
 filter 32bit floating point textures but, at least as of 2023, most mobile
-devices can not. If your adaptor supports the <code class="notranslate" translate="no">float32-filterable</code>
+devices can not. If your adapter supports the <code class="notranslate" translate="no">float32-filterable</code>
 <a href="webgpu-limits-and-features.html">feature</a> and you enable it when requesting a
 device then the formats <code class="notranslate" translate="no">r32float</code>, <code class="notranslate" translate="no">rg32float</code>, and <code class="notranslate" translate="no">rgba32float</code> switch from
 <code class="notranslate" translate="no">unfilterable-float</code> to <code class="notranslate" translate="no">float</code> and these textures formats will work with no
