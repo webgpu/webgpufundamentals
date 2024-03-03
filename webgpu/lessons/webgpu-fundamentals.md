@@ -236,7 +236,7 @@ Then we need a `<script>` tag to hold our JavaScript.
 All of the JavaScript below will go inside this script tag
 
 WebGPU is an asynchronous API so it's easiest to use in an async function. We
-start off by requesting an adaptor, and then requesting a device from the adapter.
+start off by requesting an adapter, and then requesting a device from the adapter.
 
 ```js
 async function main() {
