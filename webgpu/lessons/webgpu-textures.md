@@ -1351,7 +1351,7 @@ For example "rg11b10ufloat" is "rg11" so 11bits each of red and green. "b10" so
   create a bind group layout, something we haven't done before as we've been
   using `'auto'` layout. This mostly exists because desktop GPU can generally
   filter 32bit floating point textures but, at least as of 2023, most mobile
-  devices can not. If your adaptor supports the `float32-filterable`
+  devices can not. If your adapter supports the `float32-filterable`
   [feature](webgpu-limits-and-features.html) and you enable it when requesting a
   device then the formats `r32float`, `rg32float`, and `rgba32float` switch from
   `unfilterable-float` to `float` and these textures formats will work with no
