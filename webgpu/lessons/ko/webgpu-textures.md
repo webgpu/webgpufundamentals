@@ -1318,7 +1318,7 @@ canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D
   이러한 것이 존재하는 이유는 데스크탑 GPU는 일반적으로 32비트 부동소수점 
   텍스처를 필터링이 가능하지만 2023년 현재를 기준으로 대부분의 모바일 
   장치에서는 불가능하기 때문입니다. 
-  여러분의 어댑터(adaptor)가 `float32-filterable`
+  여러분의 어댑터(adapter)가 `float32-filterable`
   [기능(feature)](webgpu-limits-and-features.html)을 지원하고 
   장치를 요청할 때 이를 활성화하였다면 `r32float`, `rg32float`, 
   `rgba32float` 포맷이 `float`으로 변화하고 
