@@ -255,8 +255,10 @@ appropriate names.</p>
     });
 </pre>
 <p>and in our WSGL</p>
-<pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">      @group(0) @binding(0) var&lt;storage, read&gt; ourStruct: OurStruct;
-      @group(0) @binding(1) var&lt;storage, read&gt; otherStruct: OtherStruct;
+<pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">-@group(0) @binding(0) var&lt;uniform&gt; ourStruct: OurStruct;
+-@group(0) @binding(1) var&lt;uniform&gt; otherStruct: OtherStruct;
++@group(0) @binding(0) var&lt;storage, read&gt; ourStruct: OurStruct;
++@group(0) @binding(1) var&lt;storage, read&gt; otherStruct: OtherStruct;
 </pre>
 <p>And with no other changes it works, just like before.</p>
 <p></p><div class="webgpu_example_container">
@@ -646,7 +648,11 @@ First, let’s make a function to generate some vertex data. Let’s make a circ
 @group(0) @binding(2) var&lt;storage, read&gt; pos: array&lt;Vertex&gt;;
 </pre>
 <p>we could have just as easily used no struct and just directly used a <code class="notranslate" translate="no">vec2f</code>.</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(2) var&lt;storage, read&gt; pos: vec2f;
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-@group(0) @binding(2) var&lt;storage, read&gt; pos: array&lt;Vertex&gt;;
++@group(0) @binding(2) var&lt;storage, read&gt; pos: array&lt;vec2f&gt;;
+...
+-pos[vertexIndex].position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
++pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
 </pre>
 <p>But, by making it a struct, it would arguably be easier to add per-vertex
 data later?</p>

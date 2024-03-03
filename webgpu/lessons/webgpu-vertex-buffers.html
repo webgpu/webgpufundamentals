@@ -252,9 +252,10 @@ struct OtherStruct {
   scale: vec2f,
 };
 
-+struct Vertex {
+struct Vertex {
+-  position: vec2f,
 +  @location(0) position: vec2f,
-+};
+};
 
 struct VSOutput {
   @builtin(position) position: vec4f,
@@ -283,8 +284,8 @@ struct VSOutput {
 
 ...
 </pre>
-<p>As you can see, it’s a small change. We declared a struct <code class="notranslate" translate="no">Vertex</code> to define the data
-for a vertex. The important part is declaring the position field with <code class="notranslate" translate="no">@location(0)</code></p>
+<p>As you can see, it’s a small change. The important part is declaring the
+position field with <code class="notranslate" translate="no">@location(0)</code></p>
 <p>Then, when we create the render pipeline, we have to tell WebGPU how to get data
 for <code class="notranslate" translate="no">@location(0)</code></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
