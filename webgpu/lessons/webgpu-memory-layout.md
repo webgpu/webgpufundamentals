@@ -376,7 +376,7 @@ even though the array is a single `vec3f` and the `Ex4a` struct is also a single
   </style>
   <table class="wgsl-types">
     <thead>
-      <tr><th>type</th><th>size</th><th>align</th><tr>
+      <tr><th>type</th><th>align</th><th>size</th><tr>
     </thead>
     <tbody>
       <tr><td><code>struct</code> S with members M<sub>1</sub>...M<sub>N</sub></td><td>max(AlignOfMember(S,1), ... , AlignOfMember(S,N))</td><td>roundUp(AlignOf(S), justPastLastMember)
