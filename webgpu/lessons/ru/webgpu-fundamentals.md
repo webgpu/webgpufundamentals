@@ -322,9 +322,11 @@ JavaScript'те `Array.map(function(value, index) { ... })`. Если мы го�
     layout: 'auto',
     vertex: {
       module,
+      entryPoint: 'vs',
     },
     fragment: {
       module,
+      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -549,6 +551,7 @@ function dispatchWorkgroup(workgroup_id) {
     layout: 'auto',
     compute: {
       module,
+      entryPoint: 'computeSomething',
     },
   });
 ```
