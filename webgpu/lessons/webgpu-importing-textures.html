@@ -424,11 +424,9 @@ existing mip level, to the next level, with <code class="notranslate" translate=
           layout: 'auto',
           vertex: {
             module,
-            entryPoint: 'vs',
           },
           fragment: {
             module,
-            entryPoint: 'fs',
             targets: [{ format: texture.format }],
           },
         });
@@ -513,11 +511,9 @@ This is because a pipeline needs to know the format to use.</p>
         layout: 'auto',
         vertex: {
           module,
-          entryPoint: 'vs',
         },
         fragment: {
           module,
-          entryPoint: 'fs',
 +          targets: [{ format: texture.format }],
         },
       });
@@ -1148,7 +1144,6 @@ texture coordinates</p>
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color
@@ -1163,7 +1158,6 @@ texture coordinates</p>
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {

@@ -212,7 +212,6 @@ async function main() {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (3 + 4) * 4, // (3 + 4) floats, 4 bytes each
@@ -225,7 +224,6 @@ async function main() {
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

@@ -328,7 +328,6 @@ to be 1 but we can take advantage of the fact that for attributes
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (2) * 4, // (2) floats, 4 bytes each
@@ -342,7 +341,6 @@ to be 1 but we can take advantage of the fact that for attributes
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -1112,7 +1110,6 @@ shader. This which means it will make them go from 0 to 1, in this case by divid
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (3) * 4, // (3) floats, 4 bytes each
@@ -1126,7 +1123,6 @@ shader. This which means it will make them go from 0 to 1, in this case by divid
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -1191,7 +1187,6 @@ triangles.  We can turn that feature on by modifying the pipeline</p>
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color
@@ -1204,7 +1199,6 @@ triangles.  We can turn that feature on by modifying the pipeline</p>
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
 +    primitive: {
@@ -1323,7 +1317,6 @@ drawn.</p>
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color
@@ -1336,7 +1329,6 @@ drawn.</p>
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {

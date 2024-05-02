@@ -471,11 +471,9 @@ JavaScript’те <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScri
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -652,7 +650,6 @@ function dispatchWorkgroup(workgroup_id) {
     layout: 'auto',
     compute: {
       module,
-      entryPoint: 'computeSomething',
     },
   });
 </pre>

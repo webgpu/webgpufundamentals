@@ -395,7 +395,6 @@ setting up the texture coordinates.</p>
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (3 + 2) * 4, // (3+2) floats 4 bytes each
@@ -409,7 +408,6 @@ setting up the texture coordinates.</p>
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {
@@ -541,11 +539,9 @@ we copy each source to its respective layer.</p>
           layout: 'auto',
           vertex: {
             module,
-            entryPoint: 'vs',
           },
           fragment: {
             module,
-            entryPoint: 'fs',
             targets: [{ format: texture.format }],
           },
         });

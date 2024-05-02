@@ -147,7 +147,6 @@ async function main() {
     layout: 'auto',
     vertex: {
       module: shaderModule,
-      entryPoint: 'myVSMain',
       buffers: [
         // position
         {
@@ -174,7 +173,6 @@ async function main() {
     },
     fragment: {
       module: shaderModule,
-      entryPoint: 'myFSMain',
       targets: [
         {format: presentationFormat},
       ],

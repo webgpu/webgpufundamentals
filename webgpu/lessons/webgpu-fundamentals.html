@@ -561,12 +561,12 @@ issue.</p>
     label: 'our hardcoded red triangle pipeline',
     layout: 'auto',
     vertex: {
-      module,
       entryPoint: 'vs',
+      module,
     },
     fragment: {
-      module,
       entryPoint: 'fs',
+      module,
       targets: [{ format: presentationFormat }],
     },
   });
@@ -583,6 +583,24 @@ eventually render to.</p>
 <p>Element 0 for the <code class="notranslate" translate="no">targets</code> array corresponds to location 0 as we specified for
 the fragment shader’s return value. Later, we’ll set that target to be a texture
 for the canvas.</p>
+<p>One shortcut, for each shader stage, <code class="notranslate" translate="no">vertex</code> and <code class="notranslate" translate="no">fragment</code>, if there is only one
+function of the corresponding type then we don’t need to specify the <code class="notranslate" translate="no">entryPoint</code>.
+WebGPU will use the sole function that matches the shader stage. So we can shorten
+the code above to</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: 'our hardcoded red triangle pipeline',
+    layout: 'auto',
+    vertex: {
+-      entryPoint: 'vs',
+      module,
+    },
+    fragment: {
+-      entryPoint: 'fs',
+      module,
+      targets: [{ format: presentationFormat }],
+    },
+  });
+</pre>
 <p>Next up we prepare a <a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a> which describes which textures
 we want to draw to and how to use them.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
@@ -794,7 +812,6 @@ by 2.</p>
     layout: 'auto',
     compute: {
       module,
-      entryPoint: 'computeSomething',
     },
   });
 </pre>

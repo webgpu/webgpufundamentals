@@ -787,7 +787,6 @@ gl.enable(gl.CULL_FACE);
   layout: 'auto',
   vertex: {
     module: shaderModule,
-    entryPoint: 'myVSMain',
     buffers: [
       // position
       {
@@ -814,7 +813,6 @@ gl.enable(gl.CULL_FACE);
   },
   fragment: {
     module: shaderModule,
-    entryPoint: 'myFSMain',
     targets: [
       {format: presentationFormat},
     ],

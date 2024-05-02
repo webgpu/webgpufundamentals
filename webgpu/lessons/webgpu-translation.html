@@ -344,7 +344,6 @@ which we can output from the shader.</p>
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 *          arrayStride: (2) * 4, // (2) floats, 4 bytes each
@@ -356,7 +355,6 @@ which we can output from the shader.</p>
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

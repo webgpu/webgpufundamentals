@@ -259,7 +259,6 @@ struct VSOutput {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -271,7 +270,6 @@ struct VSOutput {
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
 +    primitive: {
@@ -363,7 +361,6 @@ can remove the topology setting since we want the default <code class="notransla
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: 2 * 4, // 2 floats, 4 bytes each
@@ -378,7 +375,6 @@ can remove the topology setting since we want the default <code class="notransla
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
 -    primitive: {
@@ -533,7 +529,6 @@ struct VSOutput {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (2 + 1) * 4, // 3 floats, 4 bytes each
@@ -547,7 +542,6 @@ struct VSOutput {
     },
     fragment: {
       module,
-      entryPoint: 'fs',
 -      targets: [{ format: presentationFormat }],
 +      targets: [
 +        {
@@ -627,7 +621,6 @@ struct VSOutput {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (2 + 1) * 4, // 3 floats, 4 bytes each
@@ -725,7 +718,6 @@ struct VSOutput {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (3) * 4, // 3 floats, 4 bytes each
@@ -737,7 +729,6 @@ struct VSOutput {
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [
         {
          format: presentationFormat,
@@ -922,7 +913,6 @@ instanced quads</p>
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (3) * 4, // 3 floats, 4 bytes each
@@ -935,7 +925,6 @@ instanced quads</p>
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [
         {
          format: presentationFormat,
