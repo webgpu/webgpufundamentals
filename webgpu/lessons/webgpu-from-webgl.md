@@ -655,7 +655,6 @@ const pipeline = device.createRenderPipeline({
   layout: 'auto',
   vertex: {
     module: shaderModule,
-    entryPoint: 'myVSMain',
     buffers: [
       // position
       {
@@ -682,7 +681,6 @@ const pipeline = device.createRenderPipeline({
   },
   fragment: {
     module: shaderModule,
-    entryPoint: 'myFSMain',
     targets: [
       {format: presentationFormat},
     ],

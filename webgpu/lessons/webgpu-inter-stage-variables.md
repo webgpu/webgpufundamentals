@@ -298,12 +298,10 @@ And we'd have to update our pipeline creation to use these
     vertex: {
 -      module,
 +      module: vsModule,
-      entryPoint: 'vs',
     },
     fragment: {
 -      module,
 +      module: fsModule,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

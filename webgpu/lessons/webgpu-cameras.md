@@ -200,7 +200,6 @@ Finally let's set the `cullMode` to cull *back facing* triangles.
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
           arrayStride: (4) * 4, // (3) floats 4 bytes each + one 4 byte color
@@ -213,7 +212,6 @@ Finally let's set the `cullMode` to cull *back facing* triangles.
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {

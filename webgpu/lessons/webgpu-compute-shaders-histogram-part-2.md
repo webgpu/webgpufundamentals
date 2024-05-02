@@ -565,7 +565,6 @@ and create pipelines for each one.
     layout: 'auto',
     compute: {
       module: scaleModule,
-      entryPoint: 'cs',
     },
   });
 
@@ -574,11 +573,9 @@ and create pipelines for each one.
     layout: 'auto',
     vertex: {
       module: drawHistogramModule,
-      entryPoint: 'vs',
     },
     fragment: {
       module: drawHistogramModule,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

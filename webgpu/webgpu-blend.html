@@ -241,11 +241,9 @@ async function main() {
           layout: 'auto',
           vertex: {
             module,
-            entryPoint: 'vs',
           },
           fragment: {
             module,
-            entryPoint: 'fs',
             targets: [{ format: texture.format }],
           },
         });
@@ -584,11 +582,9 @@ async function main() {
     layout: pipelineLayout,
     vertex: {
       module,
-      entryPoint: 'vs',
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [ { format: presentationFormat } ],
     },
   });
@@ -611,11 +607,9 @@ async function main() {
       layout: pipelineLayout,
       vertex: {
         module,
-        entryPoint: 'vs',
       },
       fragment: {
         module,
-        entryPoint: 'fs',
         targets: [
           {
             format: presentationFormat,

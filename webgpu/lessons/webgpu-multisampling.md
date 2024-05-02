@@ -101,11 +101,9 @@ To keep it simple, lets take our responsive triangle example at the end of [the 
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
 +    multisample: {

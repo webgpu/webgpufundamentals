@@ -298,12 +298,10 @@ select = (a, b, condition) => condition ? b : a;
     vertex: {
 -      module,
 +      module: vsModule,
-      entryPoint: 'vs',
     },
     fragment: {
 -      module,
 +      module: fsModule,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

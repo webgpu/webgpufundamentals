@@ -188,7 +188,6 @@ async function main() {
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         vertexBufferLayout,
         staticVertexBufferLayout,
@@ -197,7 +196,6 @@ async function main() {
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

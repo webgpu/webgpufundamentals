@@ -303,12 +303,10 @@ inter-stage変数の本質は、ロケーション、`@location(?)`の部分で�
     vertex: {
 -      module,
 +      module: vsModule,
-      entryPoint: 'vs',
     },
     fragment: {
 -      module,
 +      module: fsModule,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

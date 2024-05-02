@@ -178,7 +178,6 @@ setting up the texture coordinates.
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
       buffers: [
         {
 -          arrayStride: (3 + 2) * 4, // (3+2) floats 4 bytes each
@@ -192,7 +191,6 @@ setting up the texture coordinates.
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
     primitive: {
@@ -340,11 +338,9 @@ Now we need to update `generateMips` to handle multiple sources.
           layout: 'auto',
           vertex: {
             module,
-            entryPoint: 'vs',
           },
           fragment: {
             module,
-            entryPoint: 'fs',
             targets: [{ format: texture.format }],
           },
         });

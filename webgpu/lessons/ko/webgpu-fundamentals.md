@@ -357,11 +357,9 @@ GPU가 삼각형을 래스터화(rasterize)할 때(즉, 픽셀로 그릴 때), �
     layout: 'auto',
     vertex: {
       module,
-      entryPoint: 'vs',
     },
     fragment: {
       module,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });
@@ -613,7 +611,6 @@ function dispatchWorkgroup(workgroup_id) {
     layout: 'auto',
     compute: {
       module,
-      entryPoint: 'computeSomething',
     },
   });
 ```

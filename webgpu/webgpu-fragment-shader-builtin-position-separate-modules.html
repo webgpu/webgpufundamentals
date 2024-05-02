@@ -81,11 +81,9 @@ async function main() {
     layout: 'auto',
     vertex: {
       module: vsModule,
-      entryPoint: 'vs',
     },
     fragment: {
       module: fsModule,
-      entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
   });

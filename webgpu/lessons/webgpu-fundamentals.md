@@ -416,12 +416,12 @@ Now that we've created a shader module, we next need to make a render pipeline
     label: 'our hardcoded red triangle pipeline',
     layout: 'auto',
     vertex: {
-      module,
       entryPoint: 'vs',
+      module,
     },
     fragment: {
-      module,
       entryPoint: 'fs',
+      module,
       targets: [{ format: presentationFormat }],
     },
   });
@@ -441,6 +441,27 @@ eventually render to.
 Element 0 for the `targets` array corresponds to location 0 as we specified for
 the fragment shader's return value. Later, we'll set that target to be a texture
 for the canvas.
+
+One shortcut, for each shader stage, `vertex` and `fragment`, if there is only one
+function of the corresponding type then we don't need to specify the `entryPoint`.
+WebGPU will use the sole function that matches the shader stage. So we can shorten
+the code above to
+
+```js
+  const pipeline = device.createRenderPipeline({
+    label: 'our hardcoded red triangle pipeline',
+    layout: 'auto',
+    vertex: {
+-      entryPoint: 'vs',
+      module,
+    },
+    fragment: {
+-      entryPoint: 'fs',
+      module,
+      targets: [{ format: presentationFormat }],
+    },
+  });
+```
 
 Next up we prepare a `GPURenderPassDescriptor` which describes which textures
 we want to draw to and how to use them.
@@ -697,7 +718,6 @@ Now that we've created the shader, we need to create a pipeline.
     layout: 'auto',
     compute: {
       module,
-      entryPoint: 'computeSomething',
     },
   });
 ```
