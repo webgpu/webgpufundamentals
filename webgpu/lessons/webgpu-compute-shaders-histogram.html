@@ -553,7 +553,7 @@ It takes a texture, an <code class="notranslate" translate="no">vec2u</code> tex
 
       @compute @workgroup_size(1) fn cs() {
         let size = textureDimensions(ourTexture, 0);
-        let numBins = f32(arrayLength(&amp;histogram));
+        let numBins = f32(arrayLength(&amp;bins));
         let lastBinIndex = u32(numBins - 1);
         for (var y = 0u; y &lt; size.y; y++) {
           for (var x = 0u; x &lt; size.x; x++) {
