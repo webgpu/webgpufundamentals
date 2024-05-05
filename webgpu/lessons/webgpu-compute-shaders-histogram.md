@@ -413,7 +413,7 @@ then we create our shader
 
       @compute @workgroup_size(1) fn cs() {
         let size = textureDimensions(ourTexture, 0);
-        let numBins = f32(arrayLength(&histogram));
+        let numBins = f32(arrayLength(&bins));
         let lastBinIndex = u32(numBins - 1);
         for (var y = 0u; y < size.y; y++) {
           for (var x = 0u; x < size.x; x++) {
