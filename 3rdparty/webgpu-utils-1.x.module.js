@@ -1,4 +1,4 @@
-/* webgpu-utils@1.5.1, license MIT */
+/* webgpu-utils@1.7.1, license MIT */
 const roundUpToMultipleOf = (v, multiple) => (((v + multiple - 1) / multiple) | 0) * multiple;
 function keysOf(obj) {
     return Object.keys(obj);
@@ -639,12 +639,15 @@ class Statement extends Node {
  * @category AST
  */
 class Function extends Statement {
-    constructor(name, args, returnType, body) {
+    constructor(name, args, returnType, body, startLine, endLine) {
         super();
+        this.calls = new Set();
         this.name = name;
         this.args = args;
         this.returnType = returnType;
         this.body = body;
+        this.startLine = startLine;
+        this.endLine = endLine;
     }
     get astNodeType() {
         return "function";
@@ -792,6 +795,7 @@ class Let extends Statement {
     }
     search(callback) {
         var _a;
+        callback(this);
         (_a = this.value) === null || _a === void 0 ? void 0 : _a.search(callback);
     }
 }
@@ -817,6 +821,7 @@ class Const extends Statement {
     }
     search(callback) {
         var _a;
+        callback(this);
         (_a = this.value) === null || _a === void 0 ? void 0 : _a.search(callback);
     }
 }
@@ -893,6 +898,7 @@ class Assign extends Statement {
         return "assign";
     }
     search(callback) {
+        this.variable.search(callback);
         this.value.search(callback);
     }
 }
@@ -909,6 +915,12 @@ class Call extends Statement {
     }
     get astNodeType() {
         return "call";
+    }
+    search(callback) {
+        for (const node of this.args) {
+            node.search(callback);
+        }
+        callback(this);
     }
 }
 /**
@@ -997,6 +1009,21 @@ class Enable extends Statement {
     }
 }
 /**
+ * @class Diagnostic
+ * @extends Statement
+ * @category AST
+ */
+class Diagnostic extends Statement {
+    constructor(severity, rule) {
+        super();
+        this.severity = severity;
+        this.rule = rule;
+    }
+    get astNodeType() {
+        return "diagnostic";
+    }
+}
+/**
  * @class Alias
  * @extends Statement
  * @category AST
@@ -1076,9 +1103,11 @@ class Type extends Statement {
  * @category AST
  */
 class Struct extends Type {
-    constructor(name, members) {
+    constructor(name, members, startLine, endLine) {
         super(name);
         this.members = members;
+        this.startLine = startLine;
+        this.endLine = endLine;
     }
     get astNodeType() {
         return "struct";
@@ -1203,6 +1232,12 @@ class CreateExpr extends Expression {
     }
     get astNodeType() {
         return "createExpr";
+    }
+    search(callback) {
+        callback(this);
+        for (const node of this.args) {
+            node.search(callback);
+        }
     }
 }
 /**
@@ -1346,6 +1381,13 @@ class VariableExpr extends Expression {
     }
     search(callback) {
         callback(this);
+    }
+    evaluate(context) {
+        const constant = context.constants.get(this.name);
+        if (!constant) {
+            throw new Error("Cannot evaluate node");
+        }
+        return constant.evaluate(context);
     }
 }
 /**
@@ -1778,6 +1820,7 @@ TokenTypes.keywords = {
     discard: new TokenType("discard", TokenClass.keyword, "discard"),
     else: new TokenType("else", TokenClass.keyword, "else"),
     enable: new TokenType("enable", TokenClass.keyword, "enable"),
+    diagnostic: new TokenType("diagnostic", TokenClass.keyword, "diagnostic"),
     fallthrough: new TokenType("fallthrough", TokenClass.keyword, "fallthrough"),
     false: new TokenType("false", TokenClass.keyword, "false"),
     fn: new TokenType("fn", TokenClass.keyword, "fn"),
@@ -1850,7 +1893,7 @@ TokenTypes.tokens = {
     hex_float_literal: new TokenType("hex_float_literal", TokenClass.token, /-?0x((([0-9a-fA-F]*\.[0-9a-fA-F]+|[0-9a-fA-F]+\.[0-9a-fA-F]*)((p|P)(\+|-)?[0-9]+f?)?)|([0-9a-fA-F]+(p|P)(\+|-)?[0-9]+f?))/),
     int_literal: new TokenType("int_literal", TokenClass.token, /-?0x[0-9a-fA-F]+|0i?|-?[1-9][0-9]*i?/),
     uint_literal: new TokenType("uint_literal", TokenClass.token, /0x[0-9a-fA-F]+u|0u|[1-9][0-9]*u/),
-    ident: new TokenType("ident", TokenClass.token, /[a-zA-Z][0-9a-zA-Z_]*/),
+    ident: new TokenType("ident", TokenClass.token, /[_a-zA-Z][0-9a-zA-Z_]*/),
     and: new TokenType("and", TokenClass.token, "&"),
     and_and: new TokenType("and_and", TokenClass.token, "&&"),
     arrow: new TokenType("arrow ", TokenClass.token, "->"),
@@ -1899,6 +1942,65 @@ TokenTypes.tokens = {
     xor_equal: new TokenType("xor_equal", TokenClass.token, "^="),
     shift_right_equal: new TokenType("shift_right_equal", TokenClass.token, ">>="),
     shift_left_equal: new TokenType("shift_left_equal", TokenClass.token, "<<="),
+};
+TokenTypes.simpleTokens = {
+    "@": _a.tokens.attr,
+    "{": _a.tokens.brace_left,
+    "}": _a.tokens.brace_right,
+    ":": _a.tokens.colon,
+    ",": _a.tokens.comma,
+    "(": _a.tokens.paren_left,
+    ")": _a.tokens.paren_right,
+    ";": _a.tokens.semicolon,
+};
+TokenTypes.literalTokens = {
+    "&": _a.tokens.and,
+    "&&": _a.tokens.and_and,
+    "->": _a.tokens.arrow,
+    "[[": _a.tokens.attr_left,
+    "]]": _a.tokens.attr_right,
+    "/": _a.tokens.forward_slash,
+    "!": _a.tokens.bang,
+    "[": _a.tokens.bracket_left,
+    "]": _a.tokens.bracket_right,
+    "=": _a.tokens.equal,
+    "==": _a.tokens.equal_equal,
+    "!=": _a.tokens.not_equal,
+    ">": _a.tokens.greater_than,
+    ">=": _a.tokens.greater_than_equal,
+    ">>": _a.tokens.shift_right,
+    "<": _a.tokens.less_than,
+    "<=": _a.tokens.less_than_equal,
+    "<<": _a.tokens.shift_left,
+    "%": _a.tokens.modulo,
+    "-": _a.tokens.minus,
+    "--": _a.tokens.minus_minus,
+    ".": _a.tokens.period,
+    "+": _a.tokens.plus,
+    "++": _a.tokens.plus_plus,
+    "|": _a.tokens.or,
+    "||": _a.tokens.or_or,
+    "*": _a.tokens.star,
+    "~": _a.tokens.tilde,
+    "_": _a.tokens.underscore,
+    "^": _a.tokens.xor,
+    "+=": _a.tokens.plus_equal,
+    "-=": _a.tokens.minus_equal,
+    "*=": _a.tokens.times_equal,
+    "/=": _a.tokens.division_equal,
+    "%=": _a.tokens.modulo_equal,
+    "&=": _a.tokens.and_equal,
+    "|=": _a.tokens.or_equal,
+    "^=": _a.tokens.xor_equal,
+    ">>=": _a.tokens.shift_right_equal,
+    "<<=": _a.tokens.shift_left_equal,
+};
+TokenTypes.regexTokens = {
+    decimal_float_literal: _a.tokens.decimal_float_literal,
+    hex_float_literal: _a.tokens.hex_float_literal,
+    int_literal: _a.tokens.int_literal,
+    uint_literal: _a.tokens.uint_literal,
+    ident: _a.tokens.ident,
 };
 TokenTypes.storage_class = [
     _a.keywords.function,
@@ -2024,7 +2126,7 @@ TokenTypes.template_types = [
 ];
 // The grammar calls out 'block', but attribute grammar is defined to use a 'ident'.
 // The attribute grammar should be ident | block.
-TokenTypes.attribute_name = [_a.tokens.ident, _a.keywords.block];
+TokenTypes.attribute_name = [_a.tokens.ident, _a.keywords.block, _a.keywords.diagnostic];
 TokenTypes.assignment_operators = [
     _a.tokens.equal,
     _a.tokens.plus_equal,
@@ -2076,8 +2178,9 @@ class WgslScanner {
     scanTokens() {
         while (!this._isAtEnd()) {
             this._start = this._current;
-            if (!this.scanToken())
+            if (!this.scanToken()) {
                 throw `Invalid syntax at line ${this._line}`;
+            }
         }
         this._tokens.push(new Token(TokenTypes.eof, "", this._line));
         return this._tokens;
@@ -2099,8 +2202,9 @@ class WgslScanner {
             // If it's a // comment, skip everything until the next line-feed.
             if (this._peekAhead() == "/") {
                 while (lexeme != "\n") {
-                    if (this._isAtEnd())
+                    if (this._isAtEnd()) {
                         return true;
+                    }
                     lexeme = this._advance();
                 }
                 // skip the linefeed
@@ -2113,8 +2217,9 @@ class WgslScanner {
                 this._advance();
                 let commentLevel = 1;
                 while (commentLevel > 0) {
-                    if (this._isAtEnd())
+                    if (this._isAtEnd()) {
                         return true;
+                    }
                     lexeme = this._advance();
                     if (lexeme == "\n") {
                         this._line++;
@@ -2138,7 +2243,35 @@ class WgslScanner {
                 return true;
             }
         }
+        // Shortcut single character tokens
+        const simpleToken = TokenTypes.simpleTokens[lexeme];
+        if (simpleToken) {
+            this._addToken(simpleToken);
+            return true;
+        }
+        // Shortcut keywords and identifiers
         let matchType = TokenTypes.none;
+        const isAlpha = this._isAlpha(lexeme);
+        const isUnderscore = lexeme === "_";
+        if (this._isAlphaNumeric(lexeme)) {
+            let nextChar = this._peekAhead();
+            while (this._isAlphaNumeric(nextChar)) {
+                lexeme += this._advance();
+                nextChar = this._peekAhead();
+            }
+        }
+        if (isAlpha) {
+            const matchedType = TokenTypes.keywords[lexeme];
+            if (matchedType) {
+                this._addToken(matchedType);
+                return true;
+            }
+        }
+        if (isAlpha || isUnderscore) {
+            this._addToken(TokenTypes.tokens.ident);
+            return true;
+        }
+        // Scan for the next valid token type
         for (;;) {
             let matchedType = this._findType(lexeme);
             // An exception to "longest lexeme" rule is '>>'. In the case of 1>>2, it's a
@@ -2192,8 +2325,9 @@ class WgslScanner {
                     }
                 }
                 if (matchedType === TokenTypes.none) {
-                    if (matchType === TokenTypes.none)
+                    if (matchType === TokenTypes.none) {
                         return false;
+                    }
                     this._current--;
                     this._addToken(matchType);
                     return true;
@@ -2202,47 +2336,43 @@ class WgslScanner {
                 this._current += lookAhead + 1;
             }
             matchType = matchedType;
-            if (this._isAtEnd())
+            if (this._isAtEnd()) {
                 break;
+            }
             lexeme += this._advance();
         }
         // We got to the end of the input stream. Then the token we've ready so far is it.
-        if (matchType === TokenTypes.none)
+        if (matchType === TokenTypes.none) {
             return false;
+        }
         this._addToken(matchType);
         return true;
     }
     _findType(lexeme) {
-        for (const name in TokenTypes.keywords) {
-            const type = TokenTypes.keywords[name];
+        for (const name in TokenTypes.regexTokens) {
+            const type = TokenTypes.regexTokens[name];
             if (this._match(lexeme, type.rule)) {
                 return type;
             }
         }
-        for (const name in TokenTypes.tokens) {
-            const type = TokenTypes.tokens[name];
-            if (this._match(lexeme, type.rule)) {
-                return type;
-            }
+        const type = TokenTypes.literalTokens[lexeme];
+        if (type) {
+            return type;
         }
         return TokenTypes.none;
     }
     _match(lexeme, rule) {
-        if (typeof rule === "string") {
-            if (rule == lexeme) {
-                return true;
-            }
-        }
-        else {
-            // regex
-            const match = rule.exec(lexeme);
-            if (match && match.index == 0 && match[0] == lexeme)
-                return true;
-        }
-        return false;
+        const match = rule.exec(lexeme);
+        return match && match.index == 0 && match[0] == lexeme;
     }
     _isAtEnd() {
         return this._current >= this._source.length;
+    }
+    _isAlpha(c) {
+        return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z");
+    }
+    _isAlphaNumeric(c) {
+        return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c == "_" || (c >= "0" && c <= "9");
     }
     _isWhitespace(c) {
         return c == " " || c == "\t" || c == "\r";
@@ -2256,8 +2386,9 @@ class WgslScanner {
     }
     _peekAhead(offset = 0) {
         offset = offset || 0;
-        if (this._current + offset >= this._source.length)
+        if (this._current + offset >= this._source.length) {
             return "\0";
+        }
         return this._source[this._current + offset];
     }
     _addToken(type) {
@@ -2274,16 +2405,43 @@ class WgslParser {
     constructor() {
         this._tokens = [];
         this._current = 0;
+        this._currentLine = 0;
         this._context = new ParseContext();
+        this._deferArrayCountEval = [];
     }
     parse(tokensOrCode) {
         this._initialize(tokensOrCode);
-        let statements = [];
+        this._deferArrayCountEval.length = 0;
+        const statements = [];
         while (!this._isAtEnd()) {
             const statement = this._global_decl_or_directive();
-            if (!statement)
+            if (!statement) {
                 break;
+            }
             statements.push(statement);
+        }
+        // Since constants can be declared after they are used, and
+        // constants can be used to size arrays, defer calculating the
+        // size until after the shader has finished parsing.
+        if (this._deferArrayCountEval.length > 0) {
+            for (const arrayDecl of this._deferArrayCountEval) {
+                const arrayType = arrayDecl["arrayType"];
+                const countNode = arrayDecl["countNode"];
+                if (countNode instanceof VariableExpr) {
+                    const variable = countNode;
+                    const name = variable.name;
+                    const constant = this._context.constants.get(name);
+                    if (constant) {
+                        try {
+                            const count = constant.evaluate(this._context);
+                            arrayType.count = count;
+                        }
+                        catch (e) {
+                        }
+                    }
+                }
+            }
+            this._deferArrayCountEval.length = 0;
         }
         return statements;
     }
@@ -2303,7 +2461,6 @@ class WgslParser {
         this._current = 0;
     }
     _error(token, message) {
-        console.error(token, message);
         return {
             token,
             message,
@@ -2334,24 +2491,29 @@ class WgslParser {
         return false;
     }
     _consume(types, message) {
-        if (this._check(types))
+        if (this._check(types)) {
             return this._advance();
+        }
         throw this._error(this._peek(), message);
     }
     _check(types) {
-        if (this._isAtEnd())
+        if (this._isAtEnd()) {
             return false;
+        }
         const tk = this._peek();
         if (types instanceof Array) {
-            let t = tk.type;
-            let index = types.indexOf(t);
+            const t = tk.type;
+            const index = types.indexOf(t);
             return index != -1;
         }
         return tk.type == types;
     }
     _advance() {
-        if (!this._isAtEnd())
+        var _a, _b;
+        this._currentLine = (_b = (_a = this._peek()) === null || _a === void 0 ? void 0 : _a.line) !== null && _b !== void 0 ? _b : -1;
+        if (!this._isAtEnd()) {
             this._current++;
+        }
         return this._previous();
     }
     _peek() {
@@ -2376,6 +2538,11 @@ class WgslParser {
             this._consume(TokenTypes.tokens.semicolon, "Expected ';'");
             return type;
         }
+        if (this._match(TokenTypes.keywords.diagnostic)) {
+            const directive = this._diagnostic();
+            this._consume(TokenTypes.tokens.semicolon, "Expected ';'");
+            return directive;
+        }
         if (this._match(TokenTypes.keywords.enable)) {
             const enable = this._enable_directive();
             this._consume(TokenTypes.tokens.semicolon, "Expected ';'");
@@ -2385,42 +2552,48 @@ class WgslParser {
         const attrs = this._attribute();
         if (this._check(TokenTypes.keywords.var)) {
             const _var = this._global_variable_decl();
-            if (_var != null)
+            if (_var != null) {
                 _var.attributes = attrs;
+            }
             this._consume(TokenTypes.tokens.semicolon, "Expected ';'.");
             return _var;
         }
         if (this._check(TokenTypes.keywords.override)) {
             const _override = this._override_variable_decl();
-            if (_override != null)
+            if (_override != null) {
                 _override.attributes = attrs;
+            }
             this._consume(TokenTypes.tokens.semicolon, "Expected ';'.");
             return _override;
         }
         if (this._check(TokenTypes.keywords.let)) {
             const _let = this._global_let_decl();
-            if (_let != null)
+            if (_let != null) {
                 _let.attributes = attrs;
+            }
             this._consume(TokenTypes.tokens.semicolon, "Expected ';'.");
             return _let;
         }
         if (this._check(TokenTypes.keywords.const)) {
             const _const = this._global_const_decl();
-            if (_const != null)
+            if (_const != null) {
                 _const.attributes = attrs;
+            }
             this._consume(TokenTypes.tokens.semicolon, "Expected ';'.");
             return _const;
         }
         if (this._check(TokenTypes.keywords.struct)) {
             const _struct = this._struct_decl();
-            if (_struct != null)
+            if (_struct != null) {
                 _struct.attributes = attrs;
+            }
             return _struct;
         }
         if (this._check(TokenTypes.keywords.fn)) {
             const _fn = this._function_decl();
-            if (_fn != null)
+            if (_fn != null) {
                 _fn.attributes = attrs;
+            }
             return _fn;
         }
         return null;
@@ -2428,15 +2601,18 @@ class WgslParser {
     _function_decl() {
         // attribute* function_header compound_statement
         // function_header: fn ident paren_left param_list? paren_right (arrow attribute* type_decl)?
-        if (!this._match(TokenTypes.keywords.fn))
+        if (!this._match(TokenTypes.keywords.fn)) {
             return null;
+        }
+        const startLine = this._currentLine;
         const name = this._consume(TokenTypes.tokens.ident, "Expected function name.").toString();
         this._consume(TokenTypes.tokens.paren_left, "Expected '(' for function arguments.");
         const args = [];
         if (!this._check(TokenTypes.tokens.paren_right)) {
             do {
-                if (this._check(TokenTypes.tokens.paren_right))
+                if (this._check(TokenTypes.tokens.paren_right)) {
                     break;
+                }
                 const argAttrs = this._attribute();
                 const name = this._consume(TokenTypes.tokens.ident, "Expected argument name.").toString();
                 this._consume(TokenTypes.tokens.colon, "Expected ':' for argument type.");
@@ -2453,11 +2629,13 @@ class WgslParser {
         if (this._match(TokenTypes.tokens.arrow)) {
             const attrs = this._attribute();
             _return = this._type_decl();
-            if (_return != null)
+            if (_return != null) {
                 _return.attributes = attrs;
+            }
         }
         const body = this._compound_statement();
-        return new Function(name, args, _return, body);
+        const endLine = this._currentLine;
+        return new Function(name, args, _return, body, startLine, endLine);
     }
     _compound_statement() {
         // brace_left statement* brace_right
@@ -2465,8 +2643,9 @@ class WgslParser {
         this._consume(TokenTypes.tokens.brace_left, "Expected '{' for block.");
         while (!this._check(TokenTypes.tokens.brace_right)) {
             const statement = this._statement();
-            if (statement !== null)
+            if (statement !== null) {
                 statements.push(statement);
+            }
         }
         this._consume(TokenTypes.tokens.brace_right, "Expected '}' for block.");
         return statements;
@@ -2492,69 +2671,94 @@ class WgslParser {
         // Ignore any stand-alone semicolons
         while (this._match(TokenTypes.tokens.semicolon) && !this._isAtEnd())
             ;
-        if (this._check(TokenTypes.keywords.if))
+        if (this._check(TokenTypes.tokens.attr)) {
+            this._attribute();
+        }
+        if (this._check(TokenTypes.keywords.if)) {
             return this._if_statement();
-        if (this._check(TokenTypes.keywords.switch))
+        }
+        if (this._check(TokenTypes.keywords.switch)) {
             return this._switch_statement();
-        if (this._check(TokenTypes.keywords.loop))
+        }
+        if (this._check(TokenTypes.keywords.loop)) {
             return this._loop_statement();
-        if (this._check(TokenTypes.keywords.for))
+        }
+        if (this._check(TokenTypes.keywords.for)) {
             return this._for_statement();
-        if (this._check(TokenTypes.keywords.while))
+        }
+        if (this._check(TokenTypes.keywords.while)) {
             return this._while_statement();
-        if (this._check(TokenTypes.keywords.continuing))
+        }
+        if (this._check(TokenTypes.keywords.continuing)) {
             return this._continuing_statement();
-        if (this._check(TokenTypes.keywords.static_assert))
+        }
+        if (this._check(TokenTypes.keywords.static_assert)) {
             return this._static_assert_statement();
-        if (this._check(TokenTypes.tokens.brace_left))
+        }
+        if (this._check(TokenTypes.tokens.brace_left)) {
             return this._compound_statement();
+        }
         let result = null;
-        if (this._check(TokenTypes.keywords.return))
+        if (this._check(TokenTypes.keywords.return)) {
             result = this._return_statement();
+        }
         else if (this._check([
             TokenTypes.keywords.var,
             TokenTypes.keywords.let,
             TokenTypes.keywords.const,
-        ]))
+        ])) {
             result = this._variable_statement();
-        else if (this._match(TokenTypes.keywords.discard))
+        }
+        else if (this._match(TokenTypes.keywords.discard)) {
             result = new Discard();
-        else if (this._match(TokenTypes.keywords.break))
+        }
+        else if (this._match(TokenTypes.keywords.break)) {
             result = new Break();
-        else if (this._match(TokenTypes.keywords.continue))
+        }
+        else if (this._match(TokenTypes.keywords.continue)) {
             result = new Continue();
-        else
+        }
+        else {
             result =
                 this._increment_decrement_statement() ||
                     this._func_call_statement() ||
                     this._assignment_statement();
-        if (result != null)
+        }
+        if (result != null) {
             this._consume(TokenTypes.tokens.semicolon, "Expected ';' after statement.");
+        }
         return result;
     }
     _static_assert_statement() {
-        if (!this._match(TokenTypes.keywords.static_assert))
+        if (!this._match(TokenTypes.keywords.static_assert)) {
             return null;
-        let expression = this._optional_paren_expression();
+        }
+        const expression = this._optional_paren_expression();
         return new StaticAssert(expression);
     }
     _while_statement() {
-        if (!this._match(TokenTypes.keywords.while))
+        if (!this._match(TokenTypes.keywords.while)) {
             return null;
-        let condition = this._optional_paren_expression();
+        }
+        const condition = this._optional_paren_expression();
+        if (this._check(TokenTypes.tokens.attr)) {
+            this._attribute();
+        }
         const block = this._compound_statement();
         return new While(condition, block);
     }
     _continuing_statement() {
-        if (!this._match(TokenTypes.keywords.continuing))
+        if (!this._match(TokenTypes.keywords.continuing)) {
             return null;
+        }
         const block = this._compound_statement();
         return new Continuing(block);
     }
     _for_statement() {
         // for paren_left for_header paren_right compound_statement
-        if (!this._match(TokenTypes.keywords.for))
+        if (!this._match(TokenTypes.keywords.for)) {
             return null;
+        }
         this._consume(TokenTypes.tokens.paren_left, "Expected '('.");
         // for_header: (variable_statement assignment_statement func_call_statement)? semicolon short_circuit_or_expression? semicolon (assignment_statement func_call_statement)?
         const init = !this._check(TokenTypes.tokens.semicolon)
@@ -2569,6 +2773,9 @@ class WgslParser {
             ? this._for_increment()
             : null;
         this._consume(TokenTypes.tokens.paren_right, "Expected ')'.");
+        if (this._check(TokenTypes.tokens.attr)) {
+            this._attribute();
+        }
         const body = this._compound_statement();
         return new For(init, condition, increment, body);
     }
@@ -2591,11 +2798,13 @@ class WgslParser {
         // const (ident variable_ident_decl) equal short_circuit_or_expression
         if (this._check(TokenTypes.keywords.var)) {
             const _var = this._variable_decl();
-            if (_var === null)
+            if (_var === null) {
                 throw this._error(this._peek(), "Variable declaration expected.");
+            }
             let value = null;
-            if (this._match(TokenTypes.tokens.equal))
+            if (this._match(TokenTypes.tokens.equal)) {
                 value = this._short_circuit_or_expression();
+            }
             return new Var(_var.name, _var.type, _var.storage, _var.access, value);
         }
         if (this._match(TokenTypes.keywords.let)) {
@@ -2604,8 +2813,9 @@ class WgslParser {
             if (this._match(TokenTypes.tokens.colon)) {
                 const typeAttrs = this._attribute();
                 type = this._type_decl();
-                if (type != null)
+                if (type != null) {
                     type.attributes = typeAttrs;
+                }
             }
             this._consume(TokenTypes.tokens.equal, "Expected '=' for let.");
             const value = this._short_circuit_or_expression();
@@ -2617,8 +2827,9 @@ class WgslParser {
             if (this._match(TokenTypes.tokens.colon)) {
                 const typeAttrs = this._attribute();
                 type = this._type_decl();
-                if (type != null)
+                if (type != null) {
                     type.attributes = typeAttrs;
+                }
             }
             this._consume(TokenTypes.tokens.equal, "Expected '=' for const.");
             const value = this._short_circuit_or_expression();
@@ -2629,8 +2840,9 @@ class WgslParser {
     _increment_decrement_statement() {
         const savedPos = this._current;
         const _var = this._unary_expression();
-        if (_var == null)
+        if (_var == null) {
             return null;
+        }
         if (!this._check(TokenTypes.increment_operators)) {
             this._current = savedPos;
             return null;
@@ -2659,8 +2871,9 @@ class WgslParser {
     }
     _func_call_statement() {
         // ident argument_expression_list
-        if (!this._check(TokenTypes.tokens.ident))
+        if (!this._check(TokenTypes.tokens.ident)) {
             return null;
+        }
         const savedPos = this._current;
         const name = this._consume(TokenTypes.tokens.ident, "Expected function name.");
         const args = this._argument_expression_list();
@@ -2672,8 +2885,12 @@ class WgslParser {
     }
     _loop_statement() {
         // loop brace_left statement* continuing_statement? brace_right
-        if (!this._match(TokenTypes.keywords.loop))
+        if (!this._match(TokenTypes.keywords.loop)) {
             return null;
+        }
+        if (this._check(TokenTypes.tokens.attr)) {
+            this._attribute();
+        }
         this._consume(TokenTypes.tokens.brace_left, "Expected '{' for loop.");
         // statement*
         const statements = [];
@@ -2691,20 +2908,26 @@ class WgslParser {
         }
         // continuing_statement: continuing compound_statement
         let continuing = null;
-        if (this._match(TokenTypes.keywords.continuing))
+        if (this._match(TokenTypes.keywords.continuing)) {
             continuing = this._compound_statement();
+        }
         this._consume(TokenTypes.tokens.brace_right, "Expected '}' for loop.");
         return new Loop(statements, continuing);
     }
     _switch_statement() {
         // switch optional_paren_expression brace_left switch_body+ brace_right
-        if (!this._match(TokenTypes.keywords.switch))
+        if (!this._match(TokenTypes.keywords.switch)) {
             return null;
+        }
         const condition = this._optional_paren_expression();
+        if (this._check(TokenTypes.tokens.attr)) {
+            this._attribute();
+        }
         this._consume(TokenTypes.tokens.brace_left, "Expected '{' for switch.");
         const body = this._switch_body();
-        if (body == null || body.length == 0)
+        if (body == null || body.length == 0) {
             throw this._error(this._previous(), "Expected 'case' or 'default'.");
+        }
         this._consume(TokenTypes.tokens.brace_right, "Expected '}' for switch.");
         return new Switch(condition, body);
     }
@@ -2715,6 +2938,9 @@ class WgslParser {
         if (this._match(TokenTypes.keywords.case)) {
             const selector = this._case_selectors();
             this._match(TokenTypes.tokens.colon); // colon is optional
+            if (this._check(TokenTypes.tokens.attr)) {
+                this._attribute();
+            }
             this._consume(TokenTypes.tokens.brace_left, "Exected '{' for switch case.");
             const body = this._case_body();
             this._consume(TokenTypes.tokens.brace_right, "Exected '}' for switch case.");
@@ -2722,6 +2948,9 @@ class WgslParser {
         }
         if (this._match(TokenTypes.keywords.default)) {
             this._match(TokenTypes.tokens.colon); // colon is optional
+            if (this._check(TokenTypes.tokens.attr)) {
+                this._attribute();
+            }
             this._consume(TokenTypes.tokens.brace_left, "Exected '{' for switch default.");
             const body = this._case_body();
             this._consume(TokenTypes.tokens.brace_right, "Exected '}' for switch default.");
@@ -2734,13 +2963,12 @@ class WgslParser {
         return cases;
     }
     _case_selectors() {
-        var _a, _b, _c, _d;
         // const_literal (comma const_literal)* comma?
         const selectors = [
-            (_b = (_a = this._shift_expression()) === null || _a === void 0 ? void 0 : _a.evaluate(this._context).toString()) !== null && _b !== void 0 ? _b : "",
+            this._shift_expression(), //?.evaluate(this._context).toString() ?? "",
         ];
         while (this._match(TokenTypes.tokens.comma)) {
-            selectors.push((_d = (_c = this._shift_expression()) === null || _c === void 0 ? void 0 : _c.evaluate(this._context).toString()) !== null && _d !== void 0 ? _d : "");
+            selectors.push(this._shift_expression());
         }
         return selectors;
     }
@@ -2752,29 +2980,42 @@ class WgslParser {
             return [];
         }
         let statement = this._statement();
-        if (statement == null)
+        if (statement == null) {
             return [];
+        }
         if (!(statement instanceof Array)) {
             statement = [statement];
         }
         const nextStatement = this._case_body();
-        if (nextStatement.length == 0)
+        if (nextStatement.length == 0) {
             return statement;
+        }
         return [...statement, nextStatement[0]];
     }
     _if_statement() {
         // if optional_paren_expression compound_statement elseif_statement? else_statement?
-        if (!this._match(TokenTypes.keywords.if))
+        if (!this._match(TokenTypes.keywords.if)) {
             return null;
+        }
         const condition = this._optional_paren_expression();
+        if (this._check(TokenTypes.tokens.attr)) {
+            this._attribute();
+        }
         const block = this._compound_statement();
         let elseif = [];
         if (this._match_elseif()) {
+            if (this._check(TokenTypes.tokens.attr)) {
+                this._attribute();
+            }
             elseif = this._elseif_statement(elseif);
         }
         let _else = null;
-        if (this._match(TokenTypes.keywords.else))
+        if (this._match(TokenTypes.keywords.else)) {
+            if (this._check(TokenTypes.tokens.attr)) {
+                this._attribute();
+            }
             _else = this._compound_statement();
+        }
         return new If(condition, block, elseif, _else);
     }
     _match_elseif() {
@@ -2792,14 +3033,18 @@ class WgslParser {
         const block = this._compound_statement();
         elseif.push(new ElseIf(condition, block));
         if (this._match_elseif()) {
+            if (this._check(TokenTypes.tokens.attr)) {
+                this._attribute();
+            }
             this._elseif_statement(elseif);
         }
         return elseif;
     }
     _return_statement() {
         // return short_circuit_or_expression?
-        if (!this._match(TokenTypes.keywords.return))
+        if (!this._match(TokenTypes.keywords.return)) {
             return null;
+        }
         const value = this._short_circuit_or_expression();
         return new Return(value);
     }
@@ -3009,12 +3254,14 @@ class WgslParser {
     }
     _argument_expression_list() {
         // paren_left ((short_circuit_or_expression comma)* short_circuit_or_expression comma?)? paren_right
-        if (!this._match(TokenTypes.tokens.paren_left))
+        if (!this._match(TokenTypes.tokens.paren_left)) {
             return null;
+        }
         const args = [];
         do {
-            if (this._check(TokenTypes.tokens.paren_right))
+            if (this._check(TokenTypes.tokens.paren_right)) {
                 break;
+            }
             const arg = this._short_circuit_or_expression();
             args.push(arg);
         } while (this._match(TokenTypes.tokens.comma));
@@ -3037,8 +3284,10 @@ class WgslParser {
     }
     _struct_decl() {
         // attribute* struct ident struct_body_decl
-        if (!this._match(TokenTypes.keywords.struct))
+        if (!this._match(TokenTypes.keywords.struct)) {
             return null;
+        }
+        const startLine = this._currentLine;
         const name = this._consume(TokenTypes.tokens.ident, "Expected name for struct.").toString();
         // struct_body_decl: brace_left (struct_member comma)* struct_member comma? brace_right
         this._consume(TokenTypes.tokens.brace_left, "Expected '{' for struct body.");
@@ -3050,8 +3299,9 @@ class WgslParser {
             this._consume(TokenTypes.tokens.colon, "Expected ':' for struct member type.");
             const typeAttrs = this._attribute();
             const memberType = this._type_decl();
-            if (memberType != null)
+            if (memberType != null) {
                 memberType.attributes = typeAttrs;
+            }
             if (!this._check(TokenTypes.tokens.brace_right))
                 this._consume(TokenTypes.tokens.comma, "Expected ',' for struct member.");
             else
@@ -3059,35 +3309,40 @@ class WgslParser {
             members.push(new Member(memberName, memberType, memberAttrs));
         }
         this._consume(TokenTypes.tokens.brace_right, "Expected '}' after struct body.");
-        const structNode = new Struct(name, members);
+        const endLine = this._currentLine;
+        const structNode = new Struct(name, members, startLine, endLine);
         this._context.structs.set(name, structNode);
         return structNode;
     }
     _global_variable_decl() {
         // attribute* variable_decl (equal const_expression)?
         const _var = this._variable_decl();
-        if (_var && this._match(TokenTypes.tokens.equal))
+        if (_var && this._match(TokenTypes.tokens.equal)) {
             _var.value = this._const_expression();
+        }
         return _var;
     }
     _override_variable_decl() {
         // attribute* override_decl (equal const_expression)?
         const _override = this._override_decl();
-        if (_override && this._match(TokenTypes.tokens.equal))
+        if (_override && this._match(TokenTypes.tokens.equal)) {
             _override.value = this._const_expression();
+        }
         return _override;
     }
     _global_const_decl() {
         // attribute* const (ident variable_ident_decl) global_const_initializer?
-        if (!this._match(TokenTypes.keywords.const))
+        if (!this._match(TokenTypes.keywords.const)) {
             return null;
+        }
         const name = this._consume(TokenTypes.tokens.ident, "Expected variable name");
         let type = null;
         if (this._match(TokenTypes.tokens.colon)) {
             const attrs = this._attribute();
             type = this._type_decl();
-            if (type != null)
+            if (type != null) {
                 type.attributes = attrs;
+            }
         }
         let value = null;
         if (this._match(TokenTypes.tokens.equal)) {
@@ -3115,15 +3370,17 @@ class WgslParser {
     }
     _global_let_decl() {
         // attribute* let (ident variable_ident_decl) global_const_initializer?
-        if (!this._match(TokenTypes.keywords.let))
+        if (!this._match(TokenTypes.keywords.let)) {
             return null;
+        }
         const name = this._consume(TokenTypes.tokens.ident, "Expected variable name");
         let type = null;
         if (this._match(TokenTypes.tokens.colon)) {
             const attrs = this._attribute();
             type = this._type_decl();
-            if (type != null)
+            if (type != null) {
                 type.attributes = attrs;
+            }
         }
         let value = null;
         if (this._match(TokenTypes.tokens.equal)) {
@@ -3134,15 +3391,17 @@ class WgslParser {
     _const_expression() {
         // type_decl paren_left ((const_expression comma)* const_expression comma?)? paren_right
         // const_literal
-        if (this._match(TokenTypes.const_literal))
+        if (this._match(TokenTypes.const_literal)) {
             return new StringExpr(this._previous().toString());
+        }
         const type = this._type_decl();
         this._consume(TokenTypes.tokens.paren_left, "Expected '('.");
         let args = [];
         while (!this._check(TokenTypes.tokens.paren_right)) {
             args.push(this._const_expression());
-            if (!this._check(TokenTypes.tokens.comma))
+            if (!this._check(TokenTypes.tokens.comma)) {
                 break;
+            }
             this._advance();
         }
         this._consume(TokenTypes.tokens.paren_right, "Expected ')'.");
@@ -3150,8 +3409,9 @@ class WgslParser {
     }
     _variable_decl() {
         // var variable_qualifier? (ident variable_ident_decl)
-        if (!this._match(TokenTypes.keywords.var))
+        if (!this._match(TokenTypes.keywords.var)) {
             return null;
+        }
         // variable_qualifier: less_than storage_class (comma access_mode)? greater_than
         let storage = "";
         let access = "";
@@ -3166,24 +3426,36 @@ class WgslParser {
         if (this._match(TokenTypes.tokens.colon)) {
             const attrs = this._attribute();
             type = this._type_decl();
-            if (type != null)
+            if (type != null) {
                 type.attributes = attrs;
+            }
         }
         return new Var(name.toString(), type, storage, access, null);
     }
     _override_decl() {
         // override (ident variable_ident_decl)
-        if (!this._match(TokenTypes.keywords.override))
+        if (!this._match(TokenTypes.keywords.override)) {
             return null;
+        }
         const name = this._consume(TokenTypes.tokens.ident, "Expected variable name");
         let type = null;
         if (this._match(TokenTypes.tokens.colon)) {
             const attrs = this._attribute();
             type = this._type_decl();
-            if (type != null)
+            if (type != null) {
                 type.attributes = attrs;
+            }
         }
         return new Override(name.toString(), type, null);
+    }
+    _diagnostic() {
+        // diagnostic(severity_control_name, diagnostic_rule_name)
+        this._consume(TokenTypes.tokens.paren_left, "Expected '('");
+        const severity = this._consume(TokenTypes.tokens.ident, "Expected severity control name.");
+        this._consume(TokenTypes.tokens.comma, "Expected ','");
+        const rule = this._consume(TokenTypes.tokens.ident, "Expected diagnostic rule name.");
+        this._consume(TokenTypes.tokens.paren_right, "Expected ')'");
+        return new Diagnostic(severity.toString(), rule.toString());
     }
     _enable_directive() {
         // enable ident semicolon
@@ -3247,8 +3519,9 @@ class WgslParser {
         }
         // texture_sampler_types
         let type = this._texture_sampler_types();
-        if (type)
+        if (type) {
             return type;
+        }
         if (this._check(TokenTypes.template_types)) {
             let type = this._advance().toString();
             let format = null;
@@ -3256,8 +3529,9 @@ class WgslParser {
             if (this._match(TokenTypes.tokens.less_than)) {
                 format = this._type_decl();
                 access = null;
-                if (this._match(TokenTypes.tokens.comma))
+                if (this._match(TokenTypes.tokens.comma)) {
                     access = this._consume(TokenTypes.access_mode, "Expected access_mode for pointer").toString();
+                }
                 this._consume(TokenTypes.tokens.greater_than, "Expected '>' for type.");
             }
             return new TemplateType(type, format, access);
@@ -3270,8 +3544,9 @@ class WgslParser {
             this._consume(TokenTypes.tokens.comma, "Expected ',' for pointer.");
             const decl = this._type_decl();
             let access = null;
-            if (this._match(TokenTypes.tokens.comma))
+            if (this._match(TokenTypes.tokens.comma)) {
                 access = this._consume(TokenTypes.access_mode, "Expected access_mode for pointer").toString();
+            }
             this._consume(TokenTypes.tokens.greater_than, "Expected '>' for pointer.");
             return new PointerType(pointer, storage.toString(), decl, access);
         }
@@ -3283,6 +3558,7 @@ class WgslParser {
             let format = null;
             let countInt = -1;
             const array = this._previous();
+            let countNode = null;
             if (this._match(TokenTypes.tokens.less_than)) {
                 format = this._type_decl();
                 if (this._context.aliases.has(format.name)) {
@@ -3290,23 +3566,38 @@ class WgslParser {
                 }
                 let count = "";
                 if (this._match(TokenTypes.tokens.comma)) {
-                    let c = this._shift_expression();
-                    count = c.evaluate(this._context).toString();
+                    countNode = this._shift_expression();
+                    // If we can't evaluate the node, defer evaluating it until after the shader has
+                    // finished being parsed, because const statements can be declared **after** they
+                    // are used.
+                    try {
+                        count = countNode.evaluate(this._context).toString();
+                        countNode = null;
+                    }
+                    catch (e) {
+                        count = "1";
+                    }
                 }
                 this._consume(TokenTypes.tokens.greater_than, "Expected '>' for array.");
                 countInt = count ? parseInt(count) : 0;
             }
-            return new ArrayType(array.toString(), attrs, format, countInt);
+            const arrayType = new ArrayType(array.toString(), attrs, format, countInt);
+            if (countNode) {
+                this._deferArrayCountEval.push({ arrayType, countNode });
+            }
+            return arrayType;
         }
         return null;
     }
     _texture_sampler_types() {
         // sampler_type
-        if (this._match(TokenTypes.sampler_type))
+        if (this._match(TokenTypes.sampler_type)) {
             return new SamplerType(this._previous().toString(), null, null);
+        }
         // depth_texture_type
-        if (this._match(TokenTypes.depth_texture_type))
+        if (this._match(TokenTypes.depth_texture_type)) {
             return new SamplerType(this._previous().toString(), null, null);
+        }
         // sampled_texture_type less_than type_decl greater_than
         // multisampled_texture_type less_than type_decl greater_than
         if (this._match(TokenTypes.sampled_texture_type) ||
@@ -3380,8 +3671,9 @@ class WgslParser {
             // Consume ]]
             this._consume(TokenTypes.tokens.attr_right, "Expected ']]' after attribute declarations");
         }
-        if (attributes.length == 0)
+        if (attributes.length == 0) {
             return null;
+        }
         return attributes;
     }
 }
@@ -3447,6 +3739,9 @@ class StructInfo extends TypeInfo {
         super(name, attributes);
         this.members = [];
         this.align = 0;
+        this.startLine = -1;
+        this.endLine = -1;
+        this.inUse = false;
     }
     get isStruct() {
         return true;
@@ -3557,6 +3852,10 @@ class FunctionInfo {
         this.inputs = [];
         this.outputs = [];
         this.resources = [];
+        this.startLine = -1;
+        this.endLine = -1;
+        this.inUse = false;
+        this.calls = new Set();
         this.name = name;
         this.stage = stage;
     }
@@ -3579,6 +3878,8 @@ class OverrideInfo {
 class _FunctionResources {
     constructor(node) {
         this.resources = null;
+        this.inUse = false;
+        this.info = null;
         this.node = node;
     }
 }
@@ -3600,6 +3901,8 @@ class WgslReflect {
         this.structs = [];
         /// All entry functions in the shader: vertex, fragment, and/or compute.
         this.entry = new EntryFunctions();
+        /// All functions in the shader, including entry functions.
+        this.functions = [];
         this._types = new Map();
         this._functions = new Map();
         if (code) {
@@ -3626,8 +3929,9 @@ class WgslReflect {
                 if (info instanceof StructInfo) {
                     this.structs.push(info);
                 }
-                continue;
             }
+        }
+        for (const node of ast) {
             if (node instanceof Alias) {
                 this.aliases.push(this._getAliasInfo(node));
                 continue;
@@ -3687,16 +3991,87 @@ class WgslReflect {
                 const fragmentStage = this._getAttribute(node, "fragment");
                 const computeStage = this._getAttribute(node, "compute");
                 const stage = vertexStage || fragmentStage || computeStage;
+                const fn = new FunctionInfo(node.name, stage === null || stage === void 0 ? void 0 : stage.name);
+                fn.startLine = node.startLine;
+                fn.endLine = node.endLine;
+                this.functions.push(fn);
+                this._functions.get(node.name).info = fn;
                 if (stage) {
-                    const fn = new FunctionInfo(node.name, stage === null || stage === void 0 ? void 0 : stage.name);
+                    this._functions.get(node.name).inUse = true;
+                    fn.inUse = true;
+                    fn.resources = this._findResources(node, !!stage);
                     fn.inputs = this._getInputs(node.args);
                     fn.outputs = this._getOutputs(node.returnType);
-                    fn.resources = this._findResources(node);
                     this.entry[stage.name].push(fn);
                 }
                 continue;
             }
         }
+        for (const fn of this._functions.values()) {
+            if (fn.info) {
+                fn.info.inUse = fn.inUse;
+                this._addCalls(fn.node, fn.info.calls);
+            }
+        }
+        for (const u of this.uniforms) {
+            this._markStructsInUse(u.type);
+        }
+        for (const s of this.storage) {
+            this._markStructsInUse(s.type);
+        }
+    }
+    _markStructsInUse(type) {
+        if (type.isStruct) {
+            type.inUse = true;
+            for (const m of type.members) {
+                this._markStructsInUse(m.type);
+            }
+        }
+        else if (type.isArray) {
+            this._markStructsInUse(type.format);
+        }
+        else if (type.isTemplate) {
+            this._markStructsInUse(type.format);
+        }
+        else {
+            const alias = this._getAlias(type.name);
+            if (alias) {
+                this._markStructsInUse(alias);
+            }
+        }
+    }
+    _addCalls(fn, calls) {
+        var _a;
+        for (const call of fn.calls) {
+            const info = (_a = this._functions.get(call.name)) === null || _a === void 0 ? void 0 : _a.info;
+            if (info) {
+                calls.add(info);
+            }
+        }
+    }
+    /// Find a resource by its group and binding.
+    findResource(group, binding) {
+        for (const u of this.uniforms) {
+            if (u.group == group && u.binding == binding) {
+                return u;
+            }
+        }
+        for (const s of this.storage) {
+            if (s.group == group && s.binding == binding) {
+                return s;
+            }
+        }
+        for (const t of this.textures) {
+            if (t.group == group && t.binding == binding) {
+                return t;
+            }
+        }
+        for (const s of this.samplers) {
+            if (s.group == group && s.binding == binding) {
+                return s;
+            }
+        }
+        return null;
     }
     _findResource(name) {
         for (const u of this.uniforms) {
@@ -3721,7 +4096,11 @@ class WgslReflect {
         }
         return null;
     }
-    _findResources(fn) {
+    _markStructsFromAST(type) {
+        const info = this._getTypeInfo(type, null);
+        this._markStructsInUse(info);
+    }
+    _findResources(fn, isEntry) {
         const resources = [];
         const self = this;
         const varStack = [];
@@ -3733,14 +4112,26 @@ class WgslReflect {
                 varStack.pop();
             }
             else if (node instanceof Var) {
+                const v = node;
+                if (isEntry && v.type !== null) {
+                    this._markStructsFromAST(v.type);
+                }
                 if (varStack.length > 0) {
-                    const v = node;
                     varStack[varStack.length - 1][v.name] = v;
                 }
             }
+            else if (node instanceof CreateExpr) {
+                const c = node;
+                if (isEntry && c.type !== null) {
+                    this._markStructsFromAST(c.type);
+                }
+            }
             else if (node instanceof Let) {
+                const v = node;
+                if (isEntry && v.type !== null) {
+                    this._markStructsFromAST(v.type);
+                }
                 if (varStack.length > 0) {
-                    const v = node;
                     varStack[varStack.length - 1][v.name] = v;
                 }
             }
@@ -3761,12 +4152,30 @@ class WgslReflect {
             }
             else if (node instanceof CallExpr) {
                 const c = node;
-                const fn = self._functions.get(c.name);
-                if (fn) {
-                    if (fn.resources === null) {
-                        fn.resources = self._findResources(fn.node);
+                const callFn = self._functions.get(c.name);
+                if (callFn) {
+                    if (isEntry) {
+                        callFn.inUse = true;
                     }
-                    resources.push(...fn.resources);
+                    fn.calls.add(callFn.node);
+                    if (callFn.resources === null) {
+                        callFn.resources = self._findResources(callFn.node, isEntry);
+                    }
+                    resources.push(...callFn.resources);
+                }
+            }
+            else if (node instanceof Call) {
+                const c = node;
+                const callFn = self._functions.get(c.name);
+                if (callFn) {
+                    if (isEntry) {
+                        callFn.inUse = true;
+                    }
+                    fn.calls.add(callFn.node);
+                    if (callFn.resources === null) {
+                        callFn.resources = self._findResources(callFn.node, isEntry);
+                    }
+                    resources.push(...callFn.resources);
                 }
             }
         });
@@ -3775,12 +4184,15 @@ class WgslReflect {
     getBindGroups() {
         const groups = [];
         function _makeRoom(group, binding) {
-            if (group >= groups.length)
+            if (group >= groups.length) {
                 groups.length = group + 1;
-            if (groups[group] === undefined)
+            }
+            if (groups[group] === undefined) {
                 groups[group] = [];
-            if (binding >= groups[group].length)
+            }
+            if (binding >= groups[group].length) {
                 groups[group].length = binding + 1;
+            }
         }
         for (const u of this.uniforms) {
             _makeRoom(u.group, u.binding);
@@ -3805,15 +4217,17 @@ class WgslReflect {
         return groups;
     }
     _getOutputs(type, outputs = undefined) {
-        if (outputs === undefined)
+        if (outputs === undefined) {
             outputs = [];
+        }
         if (type instanceof Struct) {
             this._getStructOutputs(type, outputs);
         }
         else {
             const output = this._getOutputInfo(type);
-            if (output !== null)
+            if (output !== null) {
                 outputs.push(output);
+            }
         }
         return outputs;
     }
@@ -3845,16 +4259,18 @@ class WgslReflect {
         return null;
     }
     _getInputs(args, inputs = undefined) {
-        if (inputs === undefined)
+        if (inputs === undefined) {
             inputs = [];
+        }
         for (const arg of args) {
             if (arg.type instanceof Struct) {
                 this._getStructInputs(arg.type, inputs);
             }
             else {
                 const input = this._getInputInfo(arg);
-                if (input !== null)
+                if (input !== null) {
                     inputs.push(input);
+                }
             }
         }
         return inputs;
@@ -3866,8 +4282,9 @@ class WgslReflect {
             }
             else {
                 const input = this._getInputInfo(m);
-                if (input !== null)
+                if (input !== null) {
                     inputs.push(input);
+                }
             }
         }
     }
@@ -3901,8 +4318,9 @@ class WgslReflect {
     }
     _getAlias(name) {
         for (const a of this.aliases) {
-            if (a.name == name)
+            if (a.name == name) {
                 return a.type;
+            }
         }
         return null;
     }
@@ -3926,6 +4344,8 @@ class WgslReflect {
         if (type instanceof Struct) {
             const s = type;
             const info = new StructInfo(s.name, attributes);
+            info.startLine = s.startLine;
+            info.endLine = s.endLine;
             for (const m of s.members) {
                 const t = this._getTypeInfo(m.type, m.attributes);
                 info.members.push(new MemberInfo(m.name, t, m.attributes));
@@ -3982,8 +4402,9 @@ class WgslReflect {
         for (let mi = 0, ml = struct.members.length; mi < ml; ++mi) {
             const member = struct.members[mi];
             const sizeInfo = this._getTypeSize(member);
-            if (!sizeInfo)
+            if (!sizeInfo) {
                 continue;
+            }
             (_a = this._getAlias(member.type.name)) !== null && _a !== void 0 ? _a : member.type;
             const align = sizeInfo.align;
             const size = sizeInfo.size;
@@ -4000,12 +4421,14 @@ class WgslReflect {
     }
     _getTypeSize(type) {
         var _a;
-        if (type === null || type === undefined)
+        if (type === null || type === undefined) {
             return null;
+        }
         const explicitSize = this._getAttributeNum(type.attributes, "size", 0);
         const explicitAlign = this._getAttributeNum(type.attributes, "align", 0);
-        if (type instanceof MemberInfo)
+        if (type instanceof MemberInfo) {
             type = type.type;
+        }
         if (type instanceof TypeInfo) {
             const alias = this._getAlias(type.name);
             if (alias !== null) {
@@ -4048,8 +4471,9 @@ class WgslReflect {
             const N = arrayType.count;
             const stride = this._getAttributeNum((_a = type === null || type === void 0 ? void 0 : type.attributes) !== null && _a !== void 0 ? _a : null, "stride", this._roundUp(align, size));
             size = N * stride;
-            if (explicitSize)
+            if (explicitSize) {
                 size = explicitSize;
+            }
             return new _TypeSize(Math.max(explicitAlign, align), Math.max(explicitSize, size));
         }
         if (type instanceof StructInfo) {
@@ -4093,18 +4517,21 @@ class WgslReflect {
     }
     _getAttribute(node, name) {
         const obj = node;
-        if (!obj || !obj["attributes"])
+        if (!obj || !obj["attributes"]) {
             return null;
+        }
         const attrs = obj["attributes"];
         for (let a of attrs) {
-            if (a.name == name)
+            if (a.name == name) {
                 return a;
+            }
         }
         return null;
     }
     _getAttributeNum(attributes, name, defaultValue) {
-        if (attributes === null)
+        if (attributes === null) {
             return defaultValue;
+        }
         for (let a of attributes) {
             if (a.name == name) {
                 let v = a !== null && a.value !== null ? a.value : defaultValue;
@@ -5558,6 +5985,13 @@ class TypedArrayWrapper {
 function createAugmentedTypedArray(numComponents, numElements, Type) {
     return new TypedArrayWrapper(new Type(numComponents * numElements), numComponents);
 }
+// I couldn't figure out how to make this because TypedArrayWrapper wants a type
+// but this is explicity kind of type-less.
+function createAugmentedTypedArrayFromExisting(numComponents, numElements, existingArray) {
+    const Ctor = existingArray.constructor;
+    const array = new Ctor(numComponents * numElements);
+    return new TypedArrayWrapper(array, numComponents);
+}
 /**
  * Creates XY quad vertices
  *
@@ -6219,90 +6653,6 @@ function create3DFVertices() {
     return Object.fromEntries(Object.entries(arrays).map(([k, v]) => [k, v.typedArray]));
 }
 /**
- * Creates crescent vertices.
- *
- * @param params
- * @param params.verticalRadius The vertical radius of the crescent. Default = 2
- * @param params.outerRadius The outer radius of the crescent. Default = 1
- * @param params.innerRadius The inner radius of the crescent. Default = 0
- * @param params.thickness The thickness of the crescent. Default = 1
- * @param params.subdivisionsDown number of steps around the crescent. Default = 12
- * @param params.startOffset Where to start arc. Default 0. Default = 0
- * @param params.endOffset Where to end arg. Default 1. Default = 1
- * @return The created vertices.
- */
-function createCrescentVertices({ verticalRadius = 2, outerRadius = 1, innerRadius = 0, thickness = 1, subdivisionsDown = 12, startOffset = 0, endOffset = 1, } = {}) {
-    if (subdivisionsDown <= 0) {
-        throw new Error('subdivisionDown must be > 0');
-    }
-    const subdivisionsThick = 2;
-    const offsetRange = endOffset - startOffset;
-    const numVertices = (subdivisionsDown + 1) * 2 * (2 + subdivisionsThick);
-    const positions = createAugmentedTypedArray(3, numVertices, Float32Array);
-    const normals = createAugmentedTypedArray(3, numVertices, Float32Array);
-    const texcoords = createAugmentedTypedArray(2, numVertices, Float32Array);
-    function lerp(a, b, s) {
-        return a + (b - a) * s;
-    }
-    function vAdd(a, b) {
-        return a.map((v, i) => v + b[i]);
-    }
-    function vMultiply(a, b) {
-        return a.map((v, i) => v * b[i]);
-    }
-    function createArc(arcRadius, x, normalMult, normalAdd, uMult, uAdd) {
-        for (let z = 0; z <= subdivisionsDown; z++) {
-            const uBack = x / (subdivisionsThick - 1);
-            const v = z / subdivisionsDown;
-            const xBack = (uBack - 0.5) * 2;
-            const angle = (startOffset + (v * offsetRange)) * Math.PI;
-            const s = Math.sin(angle);
-            const c = Math.cos(angle);
-            const radius = lerp(verticalRadius, arcRadius, s);
-            const px = xBack * thickness;
-            const py = c * verticalRadius;
-            const pz = s * radius;
-            positions.push(px, py, pz);
-            const n = vAdd(vMultiply([0, s, c], normalMult), normalAdd);
-            normals.push(n);
-            texcoords.push(uBack * uMult + uAdd, v);
-        }
-    }
-    // Generate the individual vertices in our vertex buffer.
-    for (let x = 0; x < subdivisionsThick; x++) {
-        const uBack = (x / (subdivisionsThick - 1) - 0.5) * 2;
-        createArc(outerRadius, x, [1, 1, 1], [0, 0, 0], 1, 0);
-        createArc(outerRadius, x, [0, 0, 0], [uBack, 0, 0], 0, 0);
-        createArc(innerRadius, x, [1, 1, 1], [0, 0, 0], 1, 0);
-        createArc(innerRadius, x, [0, 0, 0], [uBack, 0, 0], 0, 1);
-    }
-    // Do outer surface.
-    const indices = createAugmentedTypedArray(3, (subdivisionsDown * 2) * (2 + subdivisionsThick), Uint16Array);
-    function createSurface(leftArcOffset, rightArcOffset) {
-        for (let z = 0; z < subdivisionsDown; ++z) {
-            // Make triangle 1 of quad.
-            indices.push(leftArcOffset + z + 0, leftArcOffset + z + 1, rightArcOffset + z + 0);
-            // Make triangle 2 of quad.
-            indices.push(leftArcOffset + z + 1, rightArcOffset + z + 1, rightArcOffset + z + 0);
-        }
-    }
-    const numVerticesDown = subdivisionsDown + 1;
-    // front
-    createSurface(numVerticesDown * 0, numVerticesDown * 4);
-    // right
-    createSurface(numVerticesDown * 5, numVerticesDown * 7);
-    // back
-    createSurface(numVerticesDown * 6, numVerticesDown * 2);
-    // left
-    createSurface(numVerticesDown * 3, numVerticesDown * 1);
-    return {
-        position: positions.typedArray,
-        normal: normals.typedArray,
-        texcoord: texcoords.typedArray,
-        indices: indices.typedArray,
-    };
-}
-/**
  * Creates cylinder vertices. The cylinder will be created around the origin
  * along the y-axis.
  *
@@ -6460,12 +6810,78 @@ function createDiscVertices({ radius = 1, divisions = 24, stacks = 1, innerRadiu
         indices: indices.typedArray,
     };
 }
+function allButIndices(name) {
+    return name !== "indices";
+}
+/**
+ * Given indexed vertices creates a new set of vertices un-indexed by expanding the vertices by index.
+ */
+function deindex(arrays) {
+    const indicesP = arrays.indices;
+    const newVertices = {};
+    const indices = makeTypedArrayFromArrayUnion(indicesP, 'indices');
+    const numElements = indices.length;
+    function expandToUnindexed(channel) {
+        const srcBuffer = makeTypedArrayFromArrayUnion(arrays[channel], channel);
+        const numComponents = getNumComponents(srcBuffer, channel);
+        const dstBuffer = createAugmentedTypedArrayFromExisting(numComponents, numElements, srcBuffer);
+        for (let ii = 0; ii < numElements; ++ii) {
+            const ndx = indices[ii];
+            const offset = ndx * numComponents;
+            for (let jj = 0; jj < numComponents; ++jj) {
+                dstBuffer.push(srcBuffer[offset + jj]);
+            }
+        }
+        newVertices[channel] = dstBuffer.typedArray;
+    }
+    Object.keys(arrays).filter(allButIndices).forEach(expandToUnindexed);
+    return newVertices;
+}
+// I don't want to pull in a whole math library
+const normalize = ([x, y, z]) => {
+    const len = x * x + y * y + z * z;
+    return new Float32Array([x / len, y / len, z / len]);
+};
+const subtract = (a, b) => {
+    const r = new Float32Array(a.length);
+    for (let i = 0; i < a.length; ++i) {
+        r[i] = a[i] - b[i];
+    }
+    return r;
+};
+const cross = (a, b) => {
+    const r = new Float32Array(a.length);
+    r[0] = a[1] * b[2] - a[2] * b[1];
+    r[1] = a[2] * b[0] - a[0] * b[2];
+    r[2] = a[0] * b[1] - a[1] * b[0];
+    return r;
+};
+/**
+ * Generate triangle normals from positions.
+ * Assumes every 3 values is a position and every 3 positions come from the same triangle
+ */
+function generateTriangleNormals(positions) {
+    const normals = new Float32Array(positions.length);
+    for (let ii = 0; ii < positions.length; ii += 9) {
+        // pull out the 3 positions for this triangle
+        const p0 = positions.subarray(ii, ii + 3);
+        const p1 = positions.subarray(ii + 3, ii + 6);
+        const p2 = positions.subarray(ii + 6, ii + 9);
+        const n0 = normalize(subtract(p0, p1));
+        const n1 = normalize(subtract(p0, p2));
+        const n = cross(n0, n1);
+        // copy them back in
+        normals.set(n, ii);
+        normals.set(n, ii + 3);
+        normals.set(n, ii + 6);
+    }
+    return normals;
+}
 
 var primitives = /*#__PURE__*/Object.freeze({
     __proto__: null,
     TypedArrayWrapper: TypedArrayWrapper,
     create3DFVertices: create3DFVertices,
-    createCrescentVertices: createCrescentVertices,
     createCubeVertices: createCubeVertices,
     createCylinderVertices: createCylinderVertices,
     createDiscVertices: createDiscVertices,
@@ -6473,8 +6889,10 @@ var primitives = /*#__PURE__*/Object.freeze({
     createSphereVertices: createSphereVertices,
     createTorusVertices: createTorusVertices,
     createTruncatedConeVertices: createTruncatedConeVertices,
-    createXYQuadVertices: createXYQuadVertices
+    createXYQuadVertices: createXYQuadVertices,
+    deindex: deindex,
+    generateTriangleNormals: generateTriangleNormals
 });
 
-export { TypedArrayViewGenerator, copySourceToTexture, copySourcesToTexture, createBufferLayoutsFromArrays, createBuffersAndAttributesFromArrays, createTextureFromImage, createTextureFromImages, createTextureFromSource, createTextureFromSources, drawArrays, generateMipmap, getSizeAndAlignmentOfUnsizedArrayElement, getSizeForMipFromTexture, getSizeFromSource, interleaveVertexData, isTypedArray, kTypes, loadImageBitmap, makeBindGroupLayoutDescriptors, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayViews, normalizeGPUExtent3D, numMipLevels, primitives, setIntrinsicsToView, setStructuredValues, setStructuredView, setTypedValues, setVertexAndIndexBuffers, subarray };
+export { TypedArrayViewGenerator, copySourceToTexture, copySourcesToTexture, createBufferLayoutsFromArrays, createBuffersAndAttributesFromArrays, createTextureFromImage, createTextureFromImages, createTextureFromSource, createTextureFromSources, drawArrays, generateMipmap, getNumComponents, getSizeAndAlignmentOfUnsizedArrayElement, getSizeForMipFromTexture, getSizeFromSource, interleaveVertexData, isTypedArray, kTypes, loadImageBitmap, makeBindGroupLayoutDescriptors, makeShaderDataDefinitions, makeStructuredView, makeTypedArrayFromArrayUnion, makeTypedArrayViews, normalizeGPUExtent3D, numMipLevels, primitives, setIntrinsicsToView, setStructuredValues, setStructuredView, setTypedValues, setVertexAndIndexBuffers, subarray };
 //# sourceMappingURL=webgpu-utils.module.js.map
