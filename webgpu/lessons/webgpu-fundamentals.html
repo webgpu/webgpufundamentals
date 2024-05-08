@@ -503,7 +503,7 @@ This designates it as a vertex shader function.</p>
 </pre>
 <p>It accepts one parameter we named <code class="notranslate" translate="no">vertexIndex</code>. <code class="notranslate" translate="no">vertexIndex</code> is a <code class="notranslate" translate="no">u32</code> which
 means a <em>32-bit unsigned integer</em>. It gets its value from the builtin called
-<code class="notranslate" translate="no">vertex_index</code>. <code class="notranslate" translate="no">vertex_index</code> is the like an iteration number, similar to <code class="notranslate" translate="no">index</code> in
+<code class="notranslate" translate="no">vertex_index</code>. <code class="notranslate" translate="no">vertex_index</code> is like an iteration number, similar to <code class="notranslate" translate="no">index</code> in
 JavaScript’s <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array.map(function(value, index) { ... })"><code class="notranslate" translate="no">Array.map(function(value, index) { ... })</code></a>. If we tell the GPU to
 execute this function 10 times by calling <code class="notranslate" translate="no">draw</code>, the first time <code class="notranslate" translate="no">vertex_index</code> would be <code class="notranslate" translate="no">0</code>, the
 2nd time it would be <code class="notranslate" translate="no">1</code>, the 3rd time it would be <code class="notranslate" translate="no">2</code>, etc…<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup></p>
