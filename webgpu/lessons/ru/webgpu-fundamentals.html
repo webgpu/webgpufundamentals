@@ -231,74 +231,112 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <div class="lesson-main">
       <p>Эта статья обучит вас основам WebGPU.</p>
 <div class="warn">
-Рекомендую читателю ознакомится с JavaScript перед прочтением этой статьи. Особенно важно понимать эти темы:
+Рекомендую читателю ознакомится с JavaScript перед
+прочтением этой статьи. Концепции вроде
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">mapping arrays</a>,
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">destructuring assignment</a>,
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">spreading values</a>,
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async/await</a>,
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">es6 modules</a>,
-Многие другие концепции также будут часто использоваться. Если вы не знакомы с JavaScript, то ознакомится с ним можно тут:
+и иногие другие концепции будут часто использоваться. Если вы ещё не знаете с JavaScript, и хотите изучить, посмотрите
 <a href="https://javascript.info/">JavaScript.info</a>, <a href="https://eloquentjavascript.net/">Eloquent JavaScript</a>,
 и/или <a href="https://www.codecademy.com/learn/introduction-to-javascript">CodeCademy</a>.
 </div>
 <div class="warn">Если вы уже знакомы с WebGL <a href="webgpu-from-webgl.html">читайте это</a>.</div>
-<p>WebGPU это API которая поможет вам с этими задачами:</p>
+<p>WebGPU это API которая позволяет делать 2 базовые вещи:</p>
 <ol>
 <li>
-<p><a href="#a-drawing-triangles-to-textures">Отрисовка треугольников/точек/линий в текстуры</a></p>
+<p><a href="#a-drawing-triangles-to-textures">Рисовать треугольники/точки/линии на текстурах</a></p>
 </li>
 <li>
-<p><a href="#a-run-computations-on-the-gpu">Отрисовывать это все с помощью GPU ( видеокарты )</a></p>
+<p><a href="#a-run-computations-on-the-gpu">Запускать вычисления на графическом процессоре (GPU)</a></p>
 </li>
 </ol>
 <p>Вот и все!</p>
-<p>Все остальное об WebGPU после этой информации обязательно будет понято правильно. Это как учить язык программирования по типу JavaScript, Rust или C++. Сначала вы изучите самые основы и после сможете использовать эти знания для решения ваших проблем.</p>
-<p>WebGPU это крайне низкоуровневое ( low-level ) API. Пока вы делаете простые задачи это не заметно, но с ростом требований кодовая база будет расширяться и количество информации для нее. Для примера, <a href="https://threejs.org">three.js</a> который поддерживает WebGPU содержит около 600 тысяч строк кода на JavaScript и это просто базовая библиотека, которая не включает в себя загрузчики ( loaders ), контроль ( controls ), пост-процессинг ( post-processing ) и многих других фишек. Еще, <a href="https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-webgpu">TensorFlow с WebGPU backend ( поддержкой )</a>
-Содержит около полумиллиона строчек кода на JavaScript.</p>
-<p>Для начала, если вы просто хотите отрисовать что-то на вашем экране, то не стоит выбирать подобные библиотеки где придется писать все самостоятельно.</p>
-<p>В ином случае у вас есть конкретная цель. Возможно вам нужен собственный рендеринг или вы хотите изменить уже существующую библиотеку или… Вам интересно как оно работает изнутри. В таком случае - бегом читать!</p>
-<h1 id="начало">Начало</h1>
-<p>Сложно точно сказать с чего нужно начинать. С одной стороны, WebGPU это очень простая система. Все работает на трех функциях вашей видеокарты ( GPU ). Vertex Shaders, Fragment Shaders, Compute Shaders.</p>
-<p>От переводчика:
-Vertex переводится как “вершина” и правильно перевести слово-сочетание Vertex Shader сложно. Возможно подходит вариант шейдер вершин, но при разработке вы будете часто встречать название vertex и лучше понимать, что vertex и вершина - одно и тоже.</p>
-<p>Vertex Shader расчитывает вершины. Этот шейдер возвращает расположение вершин. Для каждых трех вершин шейдер возвращает треугольник нарисованный по этим трем точкам. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
-<p>Fragment Shader, в свою очередь, расчитывает цвет <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. Когда треугольник отрисован для каждого пикселя видеокарта вызовет fragment shader. Он возвращает цвет.</p>
-<p>Compute Shader является более универсальным. Это просто функция, которую вы вызываете и говорите: “вызови эту функцию N-ное количество раз”. Видеокарта вызывает этот шейдер и возвращает число, чтобы делать что-то каждую итерацию.</p>
-<p>Если вы прищурились, то можете подумать об этом как о функциях в JavaScript:
+<p>Все остальное об WebGPU после этого зависит от вас. Это как учить язык программирования
+типа JavaScript, Rust или C++. Сначала вы изучаете самые основы и после лишь от вас зависит,
+насколько творчески вы будете использовать эти знания для решения ваших задач.</p>
+<p>WebGPU - это крайне низкоуровневое (low-level) API. Пока что вы можете делаете простые задачи, это не проблема,
+но для множества приложений, скорее всего, потребуется большое количество кода и серьёзная
+организация данных. Например, <a href="https://threejs.org">three.js</a>,
+поддерживающий WebGPU, содержит около 600 тысяч строк минифицированного кода на JavaScript и это просто
+базовая библиотека, которая не включает в себя загрузчики (loaders), элементы управления (controls), пост-процессинг (post-processing) и
+многих других фишек. Аналогично, <a href="https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-webgpu">TensorFlow с WebGPU backend (поддержкой)</a>
+содержит около полумиллиона минифицированных строчек кода на JavaScript.</p>
+<p>Но дело в том, что если вы хотите просто отрисовать что-нибудь на экране,
+лучше выбрать библиотеку с большим количеством кода,
+который в противном случае придётся писать самостоятельно.</p>
+<p>С другой стороны, у вас может быть необычный (неподдерживаемый библиотекой) случай, или может вы хотите изменить
+уже существующую библиотеку, или вам просто интересно, как оно работает. В таком случае -
+бегом читать!</p>
+<h1 id="приступая-к-работе">Приступая к работе</h1>
+<p>Сложно точно сказать, с чего нужно начинать. На определённом уровне, WebGPU - это очень простая
+система. Все, что WebGPU делает - запускает три типа функций вашейна графическом процессоре. Вершинные (vertex),
+фрагментные (fragment) и вычислительные (compute) шейдеры (shaders).</p>
+<p>Вершинный шейдер расчитывает вершины. Этот шейдер возвращает позиции вершин. Для каждой группы из трех вершин,
+возвращенных шейдером, между этими тремя позициями отрисовывается треугольник. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<p>Фрагментный шейдер расчитывает цвета <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. Когда треугольник отрисован для каждого пикселя
+графический процессор вызовет фрагментный шейдер. Шейдер возвращает цвет.</p>
+<p>Вычислительный шейдер является более универсальным. Это просто функция, которую вы вызываете и
+говорите: “вызови эту функцию N раз”. Графический процессор передаёт номер итерации каждый
+раз, когда вызывает вашу функцию, так что вы можете использовать этот номер, чтобы сделать что-либо уникальное
+на каждой итерации.</p>
+<p>Если вы прищурились, то можете подумать об этом как о функциях,
+передаваемых в
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach"><code class="notranslate" translate="no">array.forEach</code></a>
 или
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map"><code class="notranslate" translate="no">array.map</code></a>.
-Когда вы вызываете функцию на своей видеокарте - это те же самые функции как, например, в JavaScript. Безусловно, это отличается, так как требует много данных, чтобы получить доступ к видеокарте, такие как информация о буфере ( buffers ) и текстурах ( textures ) и это только самые основные вещи. Вам нужна информация, которая содержит биндинги ( bindings ) или информация о функции из которая вам нужна информация. И, вернемся в JavaScript, вам нужно связать буфер и текстуры, которые будут делится данными связки или расположением этих связей. Как только вы это сделаете вы можете запустить нужную функцию на вашей видеокарте.</p>
-<p><a id="a-draw-diagram"></a>Возможно это поможет понять. Здесь <em>упрощенная</em> диаграмма о работе WebGPU для отрисовки треугольников с помощью vertex shader и fragment shader</p>
+Когда вы вызываете функцию на графическом процессоре - это те же самые функции как, например, в JavaScript.
+Отличие в том, что они запускаются на графическом процессоре, поэтому, чтобы запустить их, вам
+нужно скопировать на графический процессор все нужные им данные в виде
+буферов и текстур, а ещё эти функции могут писать только в буферы и текстуры.
+В функциях вам нужно указать привязки (bindings) и слоты (locations),
+откуда брать данные. А в JavaScript, вам нужно привязать буферы и
+текстуры к привязкам или слотам. Как только вы это сделаете, вы можете запустить
+нужную функцию на графическом процессоре.</p>
+<p><a id="a-draw-diagram"></a>Возможно, это поможет понять. Здесь <em>упрощенная</em> диаграмма о работе WebGPU для отрисовки треугольников
+с помощью вершинных и фрагментных шейдеров</p>
 <div class="webgpu_center"><img src="../resources/webgpu-draw-diagram.svg" style="width: 960px;"></div>
 <p>Обратите внимание на:</p>
 <ul>
 <li>
-<p><strong>Pipeline</strong>. Который хранит в себе vertex shader и fragment shader, которые будет запускать видеокарта. Вы также можете создать pipeline с compute shader.</p>
+<p><strong>Конвейер</strong> (pipeline). Содержит вершинный и фрагментный шейдеры, которые
+будут запускаться на графическом процессоре. Также можно создать pipeline с вычислительным шейдером.</p>
 </li>
 <li>
-<p>Ссылки на ресурсы для шейдеров (buffers, textures, samplers) косвенно через <strong>Bind Groups</strong></p>
+<p>Ссылки на ресурсы для шейдеров (буферы, текстуры, семплеры) - неявно
+через <strong>Bind Groups</strong>.</p>
 </li>
 <li>
-<p>Pipeline определяет атрибуты которые косвенно ссылкаются на buffers через внутреннее состояние</p>
+<p>Pipeline определяет атрибуты, косвенно ссылающиеся на буферы через
+внутреннее состояние.</p>
 </li>
 <li>
-<p>Атрибуты возвращают данные из buffers и устанавливает их для vertex shader’a</p>
+<p>Атрибуты вытаскивают данные из буферов и передают их в вершинный шейдер.</p>
 </li>
 <li>
-<p>Vertex shader может устанавливать данные в fragment shader</p>
+<p>Вершинный шейдер может передавать данные в фрагментный шейдер.</p>
 </li>
 <li>
-<p>Fragment shader записывает данные в текстуры косвенно через <strong>описание рендер паса</strong> ( переводчик: я понимаю это как глобальные данные для каждого кадра рендеринга ) или в оригинале <strong>render pass description</strong></p>
+<p>Фрагментный шейдер неявно записывает данные в текстуры через описание прохода рендера
+(render pass description).</p>
 </li>
 </ul>
-<p>Чтобы запустить шейдеры на видеокарте вам нужно создать все ресурсы и установить их для состояния. Создания ресурсов это относительно простой процесс. Одна интересная фишка в WebGPU заключается в том, что ресурсы не могут быть изменены после создания. Вы можете изменить их наполнение, но не их размер ( size ), usage ( не знаю что это и как перевести ), формат ( format ) и другое… Если вы хотите изменить, то нужно создать новый ресурс и удалить старый.</p>
-<p>Некоторые из этих состояний устанавливаются их созданием и вызовом команд буферов ( buffers ).
-Соманды буферов это буквально то как они названы. Они называются буфером команд ( buffers of commands ). Вы создаете шаблоны команд ( в оригинале command encoders ). Шаблоны превращают команду шаблона в команду буфера.
-После вы <em>завершаете</em> шаблон и передаете его команде буфера. После чего вы можете <em>подтвердить</em> эту команду буфера и тогда WebGPU вызовет команды.</p>
-<p>Здесь немного псевдо-кода для создания шаблона из которого создается командный буфер.</p>
+<p>Чтобы запустить шейдеры на графическом процессоре, вам нужно создать все ресурсы и
+выставить состояние (state). Создание ресурсов - относительно простой процесс. Одна
+интересная фишка WebGPU заключается в том, что большинство ресурсов не могут быть изменены после создания. Вы
+можете изменить их наполнение, но не их размер (size), использование (usage), формат (format) и т.д. Если вы хотите
+изменить что-то из этого, нужно создать новый ресурс и удалить старый.</p>
+<p>Некоторые из этих состояний устанавливаются их созданием и вызовом буферов команд (command buffers; не путать с буферами данных).
+Буферы команд - это буквально то, как они названы. Это буферы
+с командами. Вы создаете кодировщики команд (command encoders). Кодировщики кодируют команды в командный
+буфер. После вы <em>завершаете</em> (finish) кодировщик, и он отдаёт вам созданный им командный буфер.
+После чего вы можете <em>отправить</em> (submit) этот командный буфер, чтобы WebGPU исполнил
+эти команды.</p>
+<p>Вот немного псевдо-кода кодирования буфера команд с последующим получением
+созданного командного буфера.</p>
 <div class="webgpu_center side-by-side"><div style="min-width: 300px; max-width: 400px; flex: 1 1;"><pre class="prettyprint showlinemods notranslate notranslate" translate="no">encoder = device.createCommandEncoder()
-// отрисовать что-то
+// отрисовать что-нибудь
 {
   pass = encoder.beginRenderPass(...)
   pass.setPipeline(...)
@@ -310,7 +348,7 @@ Vertex переводится как “вершина” и правильно 
   pass.draw(...)
   pass.end()
 }
-// отрисовать что-то еще
+// отрисовать что-нибудь еще
 {
   pass = encoder.beginRenderPass(...)
   pass.setPipeline(...)
@@ -319,7 +357,7 @@ Vertex переводится как “вершина” и правильно 
   pass.draw(...)
   pass.end()
 }
-// расчитать что-то
+// расчитать что-нибудь
 {
   pass = encoder.beginComputePass(...)
   pass.beginComputePass(...)
@@ -332,47 +370,63 @@ commandBuffer = encoder.finish();
 </pre></div>
 <div><img src="../resources/webgpu-command-buffer.svg" style="width: 300px;"></div>
 </div>
-<p>После создания командного буфера вы можете <em>подтвердить</em> и вызвать его.</p>
+<p>После создания командного буфера вы можете <em>отправить</em> его на исполнение.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.submit([commandBuffer]);
 </pre>
-<p>Диаграма показывает несколько команд для <code class="notranslate" translate="no">отрисовки</code> в командном буфере. Вызов команд будет устанавливать <em>внутренее состояние</em> и после команду <em>отрисовки</em> которая будет говорить видеокарте вызвать vertex shader ( и косвенно fragment shader ). <code class="notranslate" translate="no">dispatchWorkgroup</code> команда говорит видеокарте вызвать compute shader.</p>
-<p>Я надеюсь это дало вам представление о том как работает состояния. Как говорилось ранее у WebGPU есть две основные вещи которые он может делать.</p>
+<p>Диаграмма показывает состояние в момент исполнения команды <code class="notranslate" translate="no">draw</code> из командного
+буфера. Вызов команд будет устанавливать <em>внутреннее состояние</em>, а затем
+команда <em>отрисовки</em> (<code class="notranslate" translate="no">draw</code>) скажет графическому процессору исполнить вершинный (и неявно
+fragment shader). Команда <code class="notranslate" translate="no">dispatchWorkgroup</code> скажет графическому процессору исполнить
+вычислительный шейдер.</p>
+<p>Надеюсь, это дало вам представление о том, как работают состояния. Как
+упоминалось выше, у WebGPU есть 2 основные вещи, которые он может делать.</p>
 <ol>
 <li>
-<p><a href="#a-drawing-triangles-to-textures">Рисовать треугольники/точки/линии в текстуры</a></p>
+<p><a href="#a-drawing-triangles-to-textures">Рисовать треугольники/точки/линии на текстурах</a></p>
 </li>
 <li>
-<p><a href="#a-run-computations-on-the-gpu">Запускать отрисовку на видеокарте</a></p>
+<p><a href="#a-run-computations-on-the-gpu">Запускать расчёты на графическом процессоре</a></p>
 </li>
 </ol>
-<p>Мы рассмотрим подробнее как работает каждый из этих примеров. Другие статьи покажут разные пути передачи данных в эти штуки. Хочу сказать, что это будет очень просто. Нам нужно сначала изучить их основы. Позже я покажу как использовать их для разных реальных задач, такие как 2д графика, 3д графика и многое другое…</p>
+<p>Мы рассмотрим небольшие примеры, как делается каждая из этих вещей. Другие
+статьи покажут разные пути передачи данных в эти штуки. Обратите внимание,
+это всего лишь основы. Нам нужно построить из них фундамент. Позже
+мы покажем, как использовать их для вещей, которые люди обычно делают на графических процессорах, таких как
+2D-графика, 3D-графика и т.д…</p>
 <h1 id="отрисовка-треугольников-с-текстурами"><a id="a-drawing-triangles-to-textures"></a>Отрисовка треугольников с текстурами</h1>
-<p>WebGPU может магическим образом ( отрисовкой ) превращать треугольники в <a href="webgpu-textures.html">текстуры</a>. Для примера - пиксельная текстура 2д прямоугольника ( правильнее сказать модель прямоугольника, но я перевожу довольно прямо ). <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> как <code class="notranslate" translate="no">&lt;canvas&gt;</code> элемент представляет текстуру на странице в браузере ( webpage ). В WebGPU мы можем спросить canvas об текстуре и после отрендерить ее.</p>
-<p>Для рисования треугольников с помощью WebGPU нам нужно два “шейдера”. Повторюсь, шейдеры - это функции, которые запускаются на видеокарте. Два вида шейдеров:</p>
+<p>WebGPU может отрисовывать треугольники на <a href="webgpu-textures.html">текстурах</a>. Для целей данной
+статьи текстура - двумерный прямоугольник, состоящий из пикселей. <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> Элемент <code class="notranslate" translate="no">&lt;canvas&gt;</code> (холст)
+представляет собой текстуру на веб-странице. В WebGPU мы можем попросить у canvas текстуру
+и затем рендерить на неё.</p>
+<p>Для рисования треугольников с помощью WebGPU нам нужно два “шейдера”. Повторюсь, шейдеры -
+это функции, которые запускаются на графическом процессоре. Два вида шейдеров:</p>
 <ol>
 <li>
-<p>Vertex Shaders</p>
-<p>Vertex shaders - это функции для расчета позиций вершин для отрисовки треугольников/линий/точек</p>
+<p>Вершинные шейдеры</p>
+<p>Вершинные шейдеры - это функции для расчета позиций вершин для отрисовки
+треугольников/линий/точек</p>
 </li>
 <li>
-<p>Fragment Shaders</p>
-<p>Fragment shaders - это функции для расчета цветов ( или других данных ) для каждого пикселя, чтобы отрисовать/растеризовать ( rasterized ) их в треугольники/линии/точки</p>
+<p>Фрагментные шейдеры</p>
+<p>Фрагментные шейдеры - это функции для расчета цветов (или других данных)
+для каждого пикселя, который надо отрисовать/растеризовать при отрисовке треугольников/линий/точек</p>
 </li>
 </ol>
-<p>Давайте начнем с самых простых примеров WebGPU для отрисовки треугольников.</p>
-<p>Нам нужен canvas для того чтобы увидеть их.</p>
+<p>Давайте начнем с самого простой программы WebGPU для отрисовки треугольника.</p>
+<p>Нам нужен холст (canvas), чтобы отобразить наш треугольник.</p>
 <pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;canvas&gt;&lt;/canvas&gt;
 </pre>
-<p>Теперь нам нужен <code class="notranslate" translate="no">&lt;script&gt;</code> тег, чтобы добавить JavaScript.</p>
+<p>Теперь нам нужен тег <code class="notranslate" translate="no">&lt;script&gt;</code>, чтобы добавить JavaScript.</p>
 <pre class="prettyprint showlinemods notranslate lang-html" translate="no">&lt;canvas&gt;&lt;/canvas&gt;
 +&lt;script type="module"&gt;
 
-... javascript выполняется здесь ...
+... здесь находится javascript ...
 
 +&lt;/script&gt;
 </pre>
-<p>Весь JavaScript ниже будет выполнен в этом месте</p>
-<p>WebGPU - это асинхронный API, поэтому легче использовать асинхронные функции. Мы начнем с получения адаптера ( adapter ) и получения девайса ( device ) из адаптера</p>
+<p>Весь JavaScript ниже будет находиться внутри этого тега <code class="notranslate" translate="no">script</code>.</p>
+<p>WebGPU - это асинхронный API, поэтому проще всего использовать асинхронные функции. Мы
+начнем с получения адаптера (adapter) и получения устройства (device) из адаптера.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
@@ -383,14 +437,19 @@ commandBuffer = encoder.finish();
 }
 main();
 </pre>
-<p>Приведенный ниже код достаточно простой. Сначала мы получаем адаптер используя
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining"><code class="notranslate" translate="no">?.</code> оператор проверки на null</a>.
-Если <code class="notranslate" translate="no">navigator.gpu</code> отсутствует, тогда <code class="notranslate" translate="no">adapter</code> будет равен undefined ( не присвоен ).
-Если он существует, тогда мы вызываем <code class="notranslate" translate="no">requestAdapter</code>. Этот метод возвращает результат асинхронно, поэтому нам нужно добавить оператор <code class="notranslate" translate="no">await</code>. Адаптер представляет собой видеокарту. Некоторые устройства имеют несколько видеокарт.</p>
-<p>Из адаптера мы получаем девайс, но снова используем оператор <code class="notranslate" translate="no">?.</code>, так как если что-то случиться с адаптером, то лучше, если девайс тоже будет undefined.</p>
+<p>Приведенный выше код достаточно простой. Сначала мы получаем адаптер используя
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining">оператор опциональной цепочки <code class="notranslate" translate="no">?.</code></a>.
+Если <code class="notranslate" translate="no">navigator.gpu</code> отсутствует, тогда <code class="notranslate" translate="no">adapter</code> будет не определён (undefined).
+Если он существует, тогда мы вызовем <code class="notranslate" translate="no">requestAdapter</code>. Этот метод возвращает результат асинхронно,
+поэтому нам нужно добавить оператор <code class="notranslate" translate="no">await</code>. Адаптер представляет собой видеокарту. Некоторые устройства
+имеют несколько видеокарт.</p>
+<p>Из адаптера мы получаем устройство (device), но снова используем оператор <code class="notranslate" translate="no">?.</code>, так как если адаптер окажется
+undefined, то и устройство тоже будет undefined.</p>
 <p>Если <code class="notranslate" translate="no">device</code> не назначен, то, скорее всего, у пользователя старый браузер.</p>
-<p>Далее, мы получаем канвас и создаем <code class="notranslate" translate="no">webgpu</code> контекст для него. Это также позволит нам получить текстуру для отрисовки. Эта текстура будет использоватся для отрисовки на канвасе на странице в браузере.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Получаем WebGPU контекст из канваса и настраиваем его
+<p>Далее, мы получаем холст (canvas) и создаем контекст <code class="notranslate" translate="no">webgpu</code> для него. Это также
+позволит нам получить текстуру для отрисовки. Эта текстура будет использоватся для отображения на холсте на
+веб-странице.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Получаем контекст WebGPU из холста и настраиваем его
   const canvas = document.querySelector('canvas');
   const context = canvas.getContext('webgpu');
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -399,10 +458,11 @@ main();
     format: presentationFormat,
   });
 </pre>
-<p>Опять же, этот код максимально простой. Мы получаем <code class="notranslate" translate="no">"webgpu"</code> контекст из canvas. Мы спрашиваем систему какой формат он использует/предпочитает. Это будет либо <code class="notranslate" translate="no">"rgba8unorm"</code> либо <code class="notranslate" translate="no">"bgra8unorm"</code>. Не сказать что это важно, но от этого зависит производительность на системе пользователя.</p>
-<p>Мы устанавливаем <code class="notranslate" translate="no">format</code> в webgpu canvas контекст с помощью вызова <code class="notranslate" translate="no">configure</code>.
-Мы также устанавливаем <code class="notranslate" translate="no">device</code> который связывает canvas с созданым девайсом.</p>
-<p>Далее, мы создаем модуль шейдера. Шейдер модуль содержит один или больше функций шейдеров. В нашем случае, мы создадим одну функцию в vertex shader и одну функцию в fragment shader.</p>
+<p>Опять же, этот код максимально простой. Мы получаем контекст <code class="notranslate" translate="no">"webgpu"</code> из холста. Мы спрашиваем систему, каков предпочитаемый формат. Это будет либо <code class="notranslate" translate="no">"rgba8unorm"</code>, либо <code class="notranslate" translate="no">"bgra8unorm"</code>. Не сказать что это важно, но от этого зависит производительность на системе пользователя.</p>
+<p>Мы устанавливаем <code class="notranslate" translate="no">format</code> в контексте webgpu холст с помощью вызова <code class="notranslate" translate="no">configure</code>.
+Мы также устанавливаем <code class="notranslate" translate="no">device</code> который связывает холст с созданым устройством.</p>
+<p>Далее, мы создаем модуль шейдера. Модуль шейдера содержит одну или больше функций шейдеров.
+В нашем случае, мы создадим одну функцию вершинного шейдера и одну функцию в фрагментного шейдера.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'our hardcoded red triangle shaders',
     code: `
@@ -425,23 +485,35 @@ main();
   });
 </pre>
 <p>Шейдер написан на языке, который называется
-<a href="https://gpuweb.github.io/gpuweb/wgsl/">WebGPU Shading Language (WGSL)</a> который часто произносится как wig-sil. WGSL это строго-типированный язык, который мы будем изучать более глубоко в <a href="webgpu-wgsl.html">другой статье</a>.
+<a href="https://gpuweb.github.io/gpuweb/wgsl/">WebGPU Shading Language (WGSL)</a>, который
+часто произносится как виг-сил. WGSL это строго-типированный язык,
+который мы будем изучать более глубоко в <a href="webgpu-wgsl.html">другой статье</a>.
 А сейчас, я надеюсь небольшое погружение поможет вам понять основы.</p>
-<p>Выше мы видим функцию <code class="notranslate" translate="no">vs</code> она обьявляется с атрибутом <code class="notranslate" translate="no">@vertex</code>.
-Вот так выглядит обьявление функции в vertex shader.</p>
+<p>Выше мы видим функцию <code class="notranslate" translate="no">vs</code> она обьявлена с атрибутом <code class="notranslate" translate="no">@vertex</code>.
+Он указывает, что это функция вершинного шейдера.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -&gt; @builtin(position) vec4f {
          ...
 </pre>
-<p>Функция принимает один параметр с именем <code class="notranslate" translate="no">vertexIndex</code>. <code class="notranslate" translate="no">vertexIndex</code> это переменная <code class="notranslate" translate="no">u32</code> которая представляет собой <em>32-битное целое число со знаком</em>. Он получает его значение, когда builtin вызовет
-<code class="notranslate" translate="no">vertex_index</code>. <code class="notranslate" translate="no">vertex_index</code> это что-то вроде целого числа, схожее с <code class="notranslate" translate="no">index</code> в
-JavaScript’те <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array.map(function(value, index) { ... })"><code class="notranslate" translate="no">Array.map(function(value, index) { ... })</code></a>. Если мы говорим видеокарте вызвать функцию десять раз с помощью функции <code class="notranslate" translate="no">draw</code>, в первый раз <code class="notranslate" translate="no">vertex_index</code> должен быть <code class="notranslate" translate="no">0</code>, во второй раз он должен быть <code class="notranslate" translate="no">1</code>, в третий раз уже <code class="notranslate" translate="no">2</code> и так далее…<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup></p>
-<p>Наш <code class="notranslate" translate="no">vs</code> функция будет возвращать <code class="notranslate" translate="no">vec4f</code>. Эта переменная является четырехмерным вектором с 32-битными числами с плавающей запятой ( не целыми ). Это можно представить как массив с четырьмя значениями или обьект с четырьмя свойствами по типу <code class="notranslate" translate="no">{x: 0, y: 0, z: 0, w: 0}</code>. Получение значение будет названо <code class="notranslate" translate="no">position</code> в builtin. В “triangle-list” режиме, каждые три раза vertex shader будет вызван и отрисует три <code class="notranslate" translate="no">position</code> которые будут возвращены из шейдера.</p>
-<p>Позиции в WebGPU возвращаются в <em>clip space</em>, где X может быть от -1.0
-в лево и до +1.0 в право. Y от -1.0 вниз и до +1.0 вверх. Это будет является точным размером текстуры для отрисовки.</p>
+<p>Функция принимает один параметр с именем <code class="notranslate" translate="no">vertexIndex</code>. <code class="notranslate" translate="no">vertexIndex</code> - это <code class="notranslate" translate="no">u32</code>,
+означающее <em>32-битное целое число со знаком</em>. Он получает своё значение из встроенного (builtin)
+<code class="notranslate" translate="no">vertex_index</code>. <code class="notranslate" translate="no">vertex_index</code> это что-то вроде номера итерации, схожее с <code class="notranslate" translate="no">index</code> в
+JavaScript-овом <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array.map(function(value, index) { ... })"><code class="notranslate" translate="no">Array.map(function(value, index) { ... })</code></a>. Если мы говорим графическому процессору
+вызвать функцию 10 раз с помощью функции <code class="notranslate" translate="no">draw</code>, в первый раз <code class="notranslate" translate="no">vertex_index</code> будет <code class="notranslate" translate="no">0</code>,
+во второй раз - <code class="notranslate" translate="no">1</code>, в третий раз - <code class="notranslate" translate="no">2</code> и так далее…<sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup></p>
+<p>Наш <code class="notranslate" translate="no">vs</code> функция будет возвращать <code class="notranslate" translate="no">vec4f</code>, являющийся вектором из 4
+32-битных чисел с плавающей запятой. Думайте о нём, как о массиве с четырьмя значениями или об как обьекте
+с четырьмя свойствами типа <code class="notranslate" translate="no">{x: 0, y: 0, z: 0, w: 0}</code>. Возвращённое значение будет
+назначено встроенному значению (builtin) <code class="notranslate" translate="no">position</code>. В режиме “triangle-list”, каждые 3 запуска
+вершинного шейдера будет отрисован треугольник, соединяющий 3 позиции <code class="notranslate" translate="no">position</code>,
+возвращённые из шейдера.</p>
+<p>Позиции в WebGPU возвращаются в <em>clip space</em>, где X - от -1.0
+влево и до +1.0 в право, а Y - от -1.0 вниз и до +1.0
+вверх. Это верно, независимо от размера текстуры, в которую мы рисуем.</p>
 <div class="webgpu_center"><img src="../resources/clipspace.svg" style="width: 500px"></div>
-<p><code class="notranslate" translate="no">vs</code> функция возвращает массив их трех <code class="notranslate" translate="no">vec2f</code>. Каждый <code class="notranslate" translate="no">vec2f</code> содержит два 32-битных чисел с плавающей запятой ( не целое ).</p>
+<p><code class="notranslate" translate="no">vs</code> функция объявляет массив их трех <code class="notranslate" translate="no">vec2f</code>. Каждый <code class="notranslate" translate="no">vec2f</code> содержит два
+32-битных числа с плавающей запятой.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        let pos = array(
           vec2f( 0.0,  0.5),  // top center
           vec2f(-0.5, -0.5),  // bottom left
@@ -460,7 +532,7 @@ JavaScript’те <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScri
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        return vec4f(1, 0, 0, 1);
 </pre>
 <p>Код возвращает <code class="notranslate" translate="no">1, 0, 0, 1</code>, то есть красный. Цвета в WebGPU часто представленны как числа с плавающей запятой ( напоминаю, не целые ) от <code class="notranslate" translate="no">0.0</code> до <code class="notranslate" translate="no">1.0</code> где четыре числа выше запишутся как красный, зеленый, синий и альфа канал.</p>
-<p>Когда видеокарта будет растрирует треугольник ( нарисует из него пиксели ), вызовется fragment shader, чтобы найти цвет для каждого пикселя. В нашем случае, мы просто вернем красный.</p>
+<p>Когда графический процессор будет растрирует треугольник ( нарисует из него пиксели ), вызовется fragment shader, чтобы найти цвет для каждого пикселя. В нашем случае, мы просто вернем красный.</p>
 <p>Еще одна фишка - это <code class="notranslate" translate="no">label</code> или <code class="notranslate" translate="no">название</code> на русском. Для каждого обьекта созданого WebGPU может быть назначен <code class="notranslate" translate="no">label</code>. Назначать названия для сущностей не обязательно, но принято как <em>хороший тон</em> называть все что ты создаешь. Это поможет, когда вы получите ошибку. В большинстве случаев WebGPU напишет ошибку, которая будет содержать название того, где произошла ошибка.</p>
 <p>В большом приложении может быть сто или тысячи буферов, текстур, модулей шейдеров, pipelines и другого… Если вы получите ошибку
 <code class="notranslate" translate="no">"WGSL syntax error in shaderModule at line 10"</code> и у вас сто модулей шейдеров, то возникнет вопрос: “А в каком из них конкретно ошибка?”. Если вы дадите название модулю, то при получении ошибки это будет выглядеть как
@@ -554,8 +626,8 @@ JavaScript’те <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScri
 <li>WebGPU отрисовывает треугольники НА текстуре ( мы получаем текстуру из canvas’а )</li>
 <li>WebGPU работает с помощью шаблонов команд, их вызова и подтверждения.</li>
 </ul>
-<h1 id="запуск-на-видеокарте"><a id="a-run-computations-on-the-gpu"></a>Запуск на видеокарте</h1>
-<p>Давайте напишем простой пример отрисовки на видеокарте.</p>
+<h1 id="запуск-на-графическом-процессоре"><a id="a-run-computations-on-the-gpu"></a>Запуск на графическом процессоре</h1>
+<p>Давайте напишем простой пример отрисовки на графическом процессоре.</p>
 <p>Мы начинаем с того же самого кода для получения девайса</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
@@ -662,8 +734,8 @@ function dispatchWorkgroup(workgroup_id) {
 <p>Далее, нам нужно немного данных.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const input = new Float32Array([1, 3, 5]);
 </pre>
-<p>Эти данные существуют только в JavaScript. Для WebGPU нам нужен создать буфер, который будет на видеокарте и будет копировать данные в этот буфер.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Создает буфер на видеокарте, чтобы перенести наши вычисления
+<p>Эти данные существуют только в JavaScript. Для WebGPU нам нужен создать буфер, который будет на графическом процессоре и будет копировать данные в этот буфер.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Создает буфер на графическом процессоре, чтобы перенести наши вычисления
   // входные и выходные
   const workBuffer = device.createBuffer({
     label: 'work buffer',
@@ -680,11 +752,11 @@ function dispatchWorkgroup(workgroup_id) {
 <code class="notranslate" translate="no">GPUBufferUsage.STORAGE</code>. Это добавляет возможность использовать <code class="notranslate" translate="no">var&lt;storage,...&gt;</code> из шейдера.
 Дальше, мы хотим копировать данные из буфера, поэтому добавляем флаг <code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code>. И последнее, мы хотим добавить возможность копировать данные из буфера, поэтому добавляем флаг <code class="notranslate" translate="no">GPUBufferUsage.COPY_SRC</code>.</p>
 <p>Также хочу добавить, что вы не можете напрямую читать информацию из WebGPU буфера в JavaScript.
-Вместо этого, у вас есть “карта” ( в оригинале “map” ) с помощью которой вы можете отправлять запросы к доступу к буферу из WebGPU, потому что буфер существует только на видеокарте.</p>
+Вместо этого, у вас есть “карта” ( в оригинале “map” ) с помощью которой вы можете отправлять запросы к доступу к буферу из WebGPU, потому что буфер существует только на графическом процессоре.</p>
 <p>Такой доступ к WebGPU буфере есть только в JavaScript. Другими словами, мы не можем сопоставить буфер, который мы только что создали выше, и если мы попытаемся добавить флаг, чтобы сделать его отображаемым, мы получим ошибку, с которой он несовместим использование <code class="notranslate" translate="no">STORAGE</code>.</p>
 <p>Таким образом, чтобы получить результат наших вычислений нам нужен другой буфер.
 После запуска вычислений мы копируем буфер выше в этот буфер с результатом и указываем флаг и мы можем отправлять запросы к нему.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Создает буфер на видеокарте и копирует результат
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // Создает буфер на графическом процессоре и копирует результат
   const resultBuffer = device.createBuffer({
     label: 'result buffer',
     size: input.byteLength,
@@ -759,7 +831,7 @@ function dispatchWorkgroup(workgroup_id) {
 Сейчас вам нужно только понять как работает WebGPU. ВСЕ ОСТАЛЬНОЕ ВЫ УЗНАЕТЕ ДАЛЬШЕ!.
 WebGPU похож на другие языки программирования. Он дает возможность делать базовые вещи и дает возможность воссоздать все ваши идеи.</p>
 <p>Особенным WebGPU делают эти функции, vertex shader, fragment shader и compute shader запускаемыми на вашей видеокарте.
-У видеокарты есть более 10 000 процессоров, которые потенциально могут делать более 10 000 параллельных вычислений, которые невозможно делать на процессоре.</p>
+У видеокарты есть более 10 000 процессоров, которые потенциально могут делать более 10 000 параллельных вычислений, которые невозможно делать на центральном процессоре (CPU).</p>
 <h2 id="изменение-размера-canvasa"><a id="a-resizing"></a> Изменение размера Canvas’a</h2>
 <p>Чтобы продвинуться дальше, давайте вернемся к отрисовке треугольника и добавим возможность изменения размера окна ( в данном случае canvas’a ).
 Изменения размера имеет много мелочей, поэтому более подробно это описано <a href="webgpu-resizing-the-canvas.html">здесь</a>.
@@ -879,24 +951,27 @@ WebGPU спроектирован так, что в большинстве сл�
 </p>
 </div>
 <!-- keep this at the bottom of the article -->
-<script type="module" src="../webgpu-fundamentals.js"></script><hr class="footnotes-sep">
+<script type="module" src="../webgpu-fundamentals.js"></script>
+<hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
 <li id="fn1" class="footnote-item"><p>Есть пять режимом отрисовки.</p>
 <ul>
-<li><code class="notranslate" translate="no">'point-list'</code>: для каждой позиции, рисует точку</li>
-<li><code class="notranslate" translate="no">'line-list'</code>: для каждых двух позиций, рисует линию</li>
-<li><code class="notranslate" translate="no">'line-strip'</code>: рисует линии соединяя следующую точку с предыдущей</li>
-<li><code class="notranslate" translate="no">'triangle-list'</code>: Для каждых трех позиций, рисует треугольник (<strong>по умолчанию</strong>)</li>
-<li><code class="notranslate" translate="no">'triangle-strip'</code>: Для каждой новой позиции, рисует треугольник соединяя последние две позиции</li>
+<li><code class="notranslate" translate="no">'point-list'</code>: для каждой позиции рисует точку</li>
+<li><code class="notranslate" translate="no">'line-list'</code>: для каждых двух позиций рисует линию</li>
+<li><code class="notranslate" translate="no">'line-strip'</code>: рисует линии, соединяя следующую точку с предыдущей</li>
+<li><code class="notranslate" translate="no">'triangle-list'</code>: для каждых трех позиций рисует треугольник (<strong>по умолчанию</strong>)</li>
+<li><code class="notranslate" translate="no">'triangle-strip'</code>: для каждой новой позиции рисует треугольник, соединяя последние две позиции</li>
 </ul>
  <a href="#fnref1" class="footnote-backref">↩︎</a></li>
-<li id="fn2" class="footnote-item"><p>Fragment shaders косвенно записывает данные в текстуру. Эти данные не имеют информации о цвете. Например, обычно шейдер возвращает цвет пикселя какой-либо поверхности. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+<li id="fn2" class="footnote-item"><p>Фрагментные шейдеры неявно записывают данные в текстуры. Эти данные
+не обязаны быть цветами. Например, обычное дело - записывать в текстуру нормаль поверхности,
+представленной пикселем. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn3" class="footnote-item"><p>Текстуры также могут быть трехмерными прямоугольниками пикселей, cube maps ( 6 квадратов пикселей ) и несколькими другими вещами, но в большинстве случаев текстуры - это прямоугольники пикселей. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+<li id="fn3" class="footnote-item"><p>Текстуры также могут быть трехмерными кубическими - cube maps (6 квадратов пикселей, формирущих куб) и другими, но в большинстве случаев текстуры - это двумерные пиксельные прямоугольники. <a href="#fnref3" class="footnote-backref">↩︎</a></p>
 </li>
-<li id="fn4" class="footnote-item"><p>Мы также используем index buffer, чтобы указать <code class="notranslate" translate="no">vertex_index</code>.
-Это написано в <a href="../webgpu-vertex-buffers.html#a-index-buffers">статье об vertex-buffers</a>. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+<li id="fn4" class="footnote-item"><p>Мы также можем использовать индексный буфер, чтобы указать <code class="notranslate" translate="no">vertex_index</code>.
+Это написано в <a href="../webgpu-vertex-buffers.html#a-index-buffers">статье об индексных буферах</a>. <a href="#fnref4" class="footnote-backref">↩︎</a></p>
 </li>
 <li id="fn5" class="footnote-item"><p><code class="notranslate" translate="no">layout: 'auto'</code> - это удобно, но не дает возможности поделиться bind groups с другими pipeline’ами. В большинстве примеров тут мы никогда не будем использовать bind group для множества pipeline’ов. Мы будет использовать явные макеты в <a href="webgpu-drawing-multiple-things.html">другой статье</a>. <a href="#fnref5" class="footnote-backref">↩︎</a></p>
 </li>
