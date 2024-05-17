@@ -436,9 +436,9 @@ the triangle. This is why it’s faster than rendering at 4x the resolution.</p>
 we brought up that you can mark how to interpolate inter-stage variables
 with the <code class="notranslate" translate="no">@interpolate(...)</code> attribute. One option
 is <code class="notranslate" translate="no">sample</code>, in which case the fragment shader will be run once for each sample.
-There are also builtins like <code class="notranslate" translate="no">@builtin(sample_index)</code>, which well tell you which sample
+There are also builtins like <code class="notranslate" translate="no">@builtin(sample_index)</code>, which will tell you which sample
 you are currently working on, and <code class="notranslate" translate="no">@builtin(sample_mask)</code>, which, as an input, will tell you which
-samples were inside the triangle, and, as an output, will they you prevent sample points
+samples were inside the triangle, and, as an output, will let you prevent sample points
 from getting updated.</p>
 <h2 id="center-vs-centroid"><code class="notranslate" translate="no">center</code> vs <code class="notranslate" translate="no">centroid</code></h2>
 <p>There are 3 <em>sampling</em> interpolation modes. Above we mentioned <code class="notranslate" translate="no">'sample'</code> mode
@@ -524,8 +524,8 @@ to see the results</p>
 </pre>
 <p>and some CSS</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">canvas {
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
++  image-rendering: pixelated;
++  image-rendering: crisp-edges;
   display: block;  /* make the canvas act like a block   */
   width: 100%;     /* make the canvas fill its container */
   height: 100%;
@@ -565,8 +565,8 @@ to the centroid and the issue of the yellow pixels goes away.</p>
 
 <p></p>
 <blockquote>
-<p>Note: The GPU may or may not actually compute the actual centroid
-of the area of the triangle inside the pixel. All the guarantees
+<p>Note: The GPU may or may not actually compute the centroid
+of the area of the triangle inside the pixel. All that is guaranteed
 is that the inter-stage variables will be interpolated relative to
 some area inside the part of the triangle that intersects the pixel.</p>
 </blockquote>
