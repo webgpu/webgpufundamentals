@@ -252,9 +252,9 @@ In [the article on inter-stage variables](webgpu-inter-stage-variables.html#a-in
 we brought up that you can mark how to interpolate inter-stage variables
 with the `@interpolate(...)` attribute. One option
 is `sample`, in which case the fragment shader will be run once for each sample.
-There are also builtins like `@builtin(sample_index)`, which well tell you which sample
+There are also builtins like `@builtin(sample_index)`, which will tell you which sample
 you are currently working on, and `@builtin(sample_mask)`, which, as an input, will tell you which
-samples were inside the triangle, and, as an output, will they you prevent sample points
+samples were inside the triangle, and, as an output, will let you prevent sample points
 from getting updated.
 
 ## `center` vs `centroid`
@@ -354,8 +354,8 @@ and some CSS
 
 ```js
 canvas {
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
++  image-rendering: pixelated;
++  image-rendering: crisp-edges;
   display: block;  /* make the canvas act like a block   */
   width: 100%;     /* make the canvas fill its container */
   height: 100%;
@@ -396,8 +396,8 @@ to the centroid and the issue of the yellow pixels goes away.
 
 {{{example url="../webgpu-multisample-centroid.html"}}}
 
-> Note: The GPU may or may not actually compute the actual centroid
-of the area of the triangle inside the pixel. All the guarantees
+> Note: The GPU may or may not actually compute the centroid
+of the area of the triangle inside the pixel. All that is guaranteed
 is that the inter-stage variables will be interpolated relative to
 some area inside the part of the triangle that intersects the pixel.
 
