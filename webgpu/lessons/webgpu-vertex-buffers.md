@@ -533,8 +533,8 @@ function createCircleVertices({
 +    addVertex(c1 * radius, s1 * radius, ...outerColor);
 +    addVertex(c2 * radius, s2 * radius, ...outerColor);
 +    addVertex(c1 * innerRadius, s1 * innerRadius, ...innerColor);
--
--    // second triangle
+
+    // second triangle
 -    addVertex(c1 * innerRadius, s1 * innerRadius);
 -    addVertex(c2 * radius, s2 * radius);
 -    addVertex(c2 * innerRadius, s2 * innerRadius);
@@ -927,10 +927,13 @@ function createCircleVertices({
 +  const indexData = new Uint32Array(numSubdivisions * 6);
 +  let ndx = 0;
 +
-+  // 0---2---4---...
-+  // | //| //|
-+  // |// |// |//
-+  // 1---3-- 5---...
++  // 1st tri  2nd tri  3rd tri  4th tri
++  // 0 1 2    2 1 3    4 5 6    6 5 7
++  //
++  // 0--2        2     4--6        6  .....
++  // | /        /|     | /        /|
++  // |/        / |     |/        / |
++  // 1        1--3     5        5--7  .....
 +  for (let i = 0; i < numSubdivisions; ++i) {
 +    const ndxOffset = i * 2;
 +
