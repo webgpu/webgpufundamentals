@@ -520,8 +520,8 @@ struct VSOutput {
   vsOut.position = uni.worldViewProjection * vert.position;
 
   // Orient the normals and pass to the fragment shader
-+  vsOut.normal = (uni.world * vec4f(vert.normal, 0)).xyz;
--  vsOut.normal = uni.normalMatrix * vert.normal;
+-  vsOut.normal = (uni.world * vec4f(vert.normal, 0)).xyz;
++  vsOut.normal = uni.normalMatrix * vert.normal;
 
   return vsOut;
 }
