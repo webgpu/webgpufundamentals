@@ -1366,9 +1366,8 @@ WebGPU
 
 {{{example url="../webgpu-cube-multiple.html"}}}
 
-The important part to take away is that unlike WebGL, you'll need unique uniform buffers for
-any uniforms that are object specific (like a world matrix), and, because of that you also
-need a unique  bind group per object.
+The important part to take away is that unlike WebGL, you'll need uniform buffers for
+any uniforms that are object specific (like a world matrix), and, because of that you also may need a unique bind group per object.
 
 ## Other random differences
 
@@ -1387,7 +1386,7 @@ corner in both WebGL and WebGPU. On the other hand, setting the viewport or scis
 ### WGSL uses `@builtin(???)` for GLSL's `gl_XXX` variables.
 
 `gl_FragCoord` is `@builtin(position) myVarOrField: vec4f` and unlike
-WebGL goes down the screen instead of up so 0,0 is the top left vs WebGL where 0,0 is the bottom left.
+WebGL, goes down the screen instead of up so 0,0 is the top left vs WebGL where 0,0 is the bottom left.
 
 `gl_VertexID` is `@builtin(vertex_index) myVarOrField: u32`
 
@@ -1409,6 +1408,14 @@ than 1 pixel but, (a) lots of GPUs only supported a max size of 64 pixels and (b
 different GPU would clip or not clip based on the center of the point. So, it's arguably
 a good thing WebGPU doesn't support points of sizes other than 1. 
 This forces you to implement a portable point solution.
+
+### WebGPU optimizations are different than WebGL
+
+If you take a WebGL app and directly convert it to WebGPU you might find
+it runs slower. To get the benefits of WebGPU you'll need to change the
+way you organize and optimize how you draw. 
+See [this article on WebGPU optimization](webgpu-optimization.html) for
+ideas.
 
 ---
 
