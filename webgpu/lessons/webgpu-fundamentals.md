@@ -1047,8 +1047,3 @@ when the <code>lost</code> promise resolves.
 
 <!-- keep this at the bottom of the article -->
 <script type="module" src="webgpu-fundamentals.js"></script>
-
-
-
-
-f
