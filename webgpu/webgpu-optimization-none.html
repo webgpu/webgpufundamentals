@@ -45,6 +45,12 @@ canvas {
   <script type="module">
 import GUI from '/3rdparty/muigui-0.x.module.js';
 import {mat4, mat3, vec3} from '/3rdparty/wgpu-matrix.module.js';
+import {RollingAverage, TimingHelper} from './timing-helper.js';
+
+const fpsAverage = new RollingAverage();
+const jsAverage = new RollingAverage();
+const gpuAverage = new RollingAverage();
+const mathAverage = new RollingAverage();
 
 const cssColorToRGBA8 = (() => {
   const canvas = new OffscreenCanvas(1, 1);
@@ -77,12 +83,17 @@ function rand(min, max) {
 
 async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
-  const device = await adapter?.requestDevice();
+  const canTimestamp = adapter.features.has('timestamp-query');
+  const device = await adapter?.requestDevice({
+    requiredFeatures: [
+      ...(canTimestamp ? ['timestamp-query'] : []),
+     ],
+  });
   if (!device) {
-    fail('need a browser that supports WebGPU');
-    return;
+    fail('could not init WebGPU');
   }
 
+  const timingHelper = new TimingHelper(device);
   const infoElem = document.querySelector('#info');
 
   // Get a WebGPU context from the canvas and configure it
@@ -266,7 +277,7 @@ async function main() {
     minFilter: 'nearest',
   });
 
-  const maxObjects = 100;
+  const maxObjects = 10000;
   const objectInfos = [];
 
   for (let i = 0; i < maxObjects; ++i) {
@@ -349,6 +360,7 @@ async function main() {
     colorAttachments: [
       {
         // view: <- to be filled out when we render
+        clearValue: [0.3, 0.3, 0.3, 1],
         loadOp: 'clear',
         storeOp: 'store',
       },
@@ -361,10 +373,11 @@ async function main() {
     },
   };
 
+  const canvasToSizeMap = new WeakMap();
   const degToRad = d => d * Math.PI / 180;
 
   const settings = {
-    numObjects: maxObjects,
+    numObjects: 1000,
     render: true,
   };
 
@@ -383,6 +396,20 @@ async function main() {
     then = time;
 
     const startTimeMs = performance.now();
+
+    let width = 1;
+    let height = 1;
+    if (settings.render) {
+      const entry = canvasToSizeMap.get(canvas);
+      if (entry) {
+        width = Math.max(1, entry.contentBoxSize[0].inlineSize, device.limits.maxTextureDimension2D);
+        height = Math.max(1, entry.contentBoxSize[0].blockSize, device.limits.maxTextureDimension2D);
+      }
+    }
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
 
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
@@ -406,7 +433,7 @@ async function main() {
     renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
 
     const encoder = device.createCommandEncoder();
-    const pass = encoder.beginRenderPass(renderPassDescriptor);
+    const pass = timingHelper.beginRenderPass(encoder, renderPassDescriptor);
     pass.setPipeline(pipeline);
     pass.setVertexBuffer(0, positionBuffer);
     pass.setVertexBuffer(1, normalBuffer);
@@ -431,6 +458,8 @@ async function main() {
     // Combine the view and projection matrixes
     const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
 
+    let mathElapsedTimeMs = 0;
+
     for (let i = 0; i < settings.numObjects; ++i) {
       const {
         bindGroup,
@@ -452,14 +481,23 @@ async function main() {
         scale,
         shininess,
       } = objectInfos[i];
+      const mathTimeStartMs = performance.now();
+
       // Copy the viewProjectionMatrix into the uniform values for this object
       viewProjectionValue.set(viewProjectionMatrix);
 
       // Compute a world matrix
+//      mat4.identity(worldValue);
+//      mat4.axisRotate(worldValue, axis, time * speed, worldValue);
+//      mat4.translate(worldValue, [radius, 0, 0], worldValue);
+//      mat4.rotateY(worldValue, rotationSpeed * time, worldValue);
+//      mat4.scale(worldValue, [scale, scale, scale], worldValue);
+
       mat4.identity(worldValue);
-      mat4.axisRotate(worldValue, axis, time * speed, worldValue);
-      mat4.translate(worldValue, [radius, 0, 0], worldValue);
-      mat4.rotateY(worldValue, rotationSpeed * time, worldValue);
+      mat4.axisRotate(worldValue, axis, i + time * speed, worldValue);
+      mat4.translate(worldValue, [0, 0, Math.sin(i * 3.721 + time * speed) * radius], worldValue);
+      mat4.translate(worldValue, [0, 0, Math.sin(i * 9.721 + time * 0.1) * radius], worldValue);
+      mat4.rotateX(worldValue, time * rotationSpeed + i, worldValue);
       mat4.scale(worldValue, [scale, scale, scale], worldValue);
 
       // Inverse and transpose it into the worldInverseTranspose value
@@ -469,6 +507,8 @@ async function main() {
       lightWorldPositionValue.set([-10, 30, 100]);
       viewWorldPositionValue.set(eye);
       shininessValue[0] = shininess;
+
+      mathElapsedTimeMs += performance.now() - mathTimeStartMs;
 
       // upload the uniform values to the uniform buffer
       device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
@@ -482,10 +522,21 @@ async function main() {
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
 
+    timingHelper.getResult().then(gpuTime => {
+      gpuAverage.addSample(gpuTime / 1000);
+    });
+
     const elapsedTimeMs = performance.now() - startTimeMs;
+    fpsAverage.addSample(1 / deltaTime);
+    jsAverage.addSample(elapsedTimeMs);
+    mathAverage.addSample(mathElapsedTimeMs);
+
+
     infoElem.textContent = `\
-js : ${elapsedTimeMs.toFixed(0)}ms
-fps: ${(1 / deltaTime).toFixed(1)}
+js  : ${jsAverage.get().toFixed(1)}ms
+math: ${mathAverage.get().toFixed(1)}ms
+fps : ${fpsAverage.get().toFixed(0)}
+gpu : ${canTimestamp ? `${(gpuAverage.get() / 1000).toFixed(1)}ms` : 'N/A'}
 `;
 
     requestAnimationFrame(render);
@@ -493,13 +544,7 @@ fps: ${(1 / deltaTime).toFixed(1)}
   requestAnimationFrame(render);
 
   const observer = new ResizeObserver(entries => {
-    for (const entry of entries) {
-      const canvas = entry.target;
-      const width = entry.contentBoxSize[0].inlineSize;
-      const height = entry.contentBoxSize[0].blockSize;
-      canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-      canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
-    }
+    entries.forEach(e => canvasToSizeMap.set(e.target, e));
   });
   observer.observe(canvas);
 }
