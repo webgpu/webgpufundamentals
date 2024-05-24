@@ -799,7 +799,7 @@ this in <a href="webgpu-memory-layout.html">the article on memory layout</a>.</p
 +    mat4.multiply(viewProjectionMatrix, world, worldViewProjectionValue);
 +
 +    // Inverse and transpose it into the normalMatrix value
-+    mat3.fromMat4(mat4.transpose(mat4.inverse(world), worldInverseTransposeValue));
++    mat3.fromMat4(mat4.transpose(mat4.inverse(world)), normalMatrixValue);
 </pre>
 <p>Because the effect is subtle and because we aren’t scaling anything
 there’s no noticeable difference but at least now we’re prepared.</p>
