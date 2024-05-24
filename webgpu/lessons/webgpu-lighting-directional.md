@@ -622,7 +622,7 @@ Now that we have these 2 functions we can compute and set the normal matrix.
 +    mat4.multiply(viewProjectionMatrix, world, worldViewProjectionValue);
 +
 +    // Inverse and transpose it into the normalMatrix value
-+    mat3.fromMat4(mat4.transpose(mat4.inverse(world), worldInverseTransposeValue));
++    mat3.fromMat4(mat4.transpose(mat4.inverse(world)), normalMatrixValue);
 ```
 
 Because the effect is subtle and because we aren't scaling anything
