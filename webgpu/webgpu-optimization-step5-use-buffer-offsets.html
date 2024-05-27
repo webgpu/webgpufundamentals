@@ -433,7 +433,6 @@ async function main() {
   };
 
   const gui = new GUI();
-  gui.onChange(render);
   gui.add(settings, 'numObjects', { min: 0, max: maxObjects, step: 1});
   gui.add(settings, 'render');
 
