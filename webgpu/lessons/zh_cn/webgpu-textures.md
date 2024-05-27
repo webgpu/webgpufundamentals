@@ -305,7 +305,7 @@ const settings = {
 的 API
 
 ```js
-import GUI from '/3rdparty/muigui-0.x.module.js';
+import GUI from '../3rdparty/muigui-0.x.module.js';
 
 ...
 

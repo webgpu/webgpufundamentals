@@ -400,7 +400,7 @@ and when the setting change we need to re-render. I'm using a library
 called "muigui" which at the moment has an API similar to [dat.GUI](https://github.com/dataarts/dat.gui)
 
 ```js
-import GUI from '/3rdparty/muigui-0.x.module.js';
+import GUI from '../3rdparty/muigui-0.x.module.js';
 
 ...
 

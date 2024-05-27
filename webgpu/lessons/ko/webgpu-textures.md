@@ -371,7 +371,7 @@ struct OurVertexShaderOutput {
 저는 "muigui"라는, [dat.GUI](https://github.com/dataarts/dat.gui)와 유사한 API를 갖는 라이브러리를 사용합니다.
 
 ```js
-import GUI from '/3rdparty/muigui-0.x.module.js';
+import GUI from '../3rdparty/muigui-0.x.module.js';
 
 ...
 
