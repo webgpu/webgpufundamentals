@@ -81,6 +81,9 @@ function rand(min, max) {
   return Math.random() * (max - min) + min;
 }
 
+// Rounds up v to a multiple of alignment
+const roundUp = (v, alignment) => Math.ceil(v / alignment) * alignment;
+
 // Selects a random array element
 const randomArrayElement = arr => arr[Math.random() * arr.length | 0];
 
@@ -111,14 +114,20 @@ async function main() {
 
   const module = device.createShaderModule({
     code: `
-      struct Uniforms {
-        normalMatrix: mat3x3f,
+      struct GlobalUniforms {
         viewProjection: mat4x4f,
-        world: mat4x4f,
-        color: vec4f,
         lightWorldPosition: vec3f,
         viewWorldPosition: vec3f,
+      };
+
+      struct MaterialUniforms {
+        color: vec4f,
         shininess: f32,
+      };
+
+      struct PerObjectUniforms {
+        normalMatrix: mat3x3f,
+        world: mat4x4f,
       };
 
       struct Vertex {
@@ -137,25 +146,27 @@ async function main() {
 
       @group(0) @binding(0) var diffuseTexture: texture_2d<f32>;
       @group(0) @binding(1) var diffuseSampler: sampler;
-      @group(0) @binding(2) var<uniform> uni: Uniforms;
+      @group(0) @binding(2) var<uniform> obj: PerObjectUniforms;
+      @group(0) @binding(3) var<uniform> glb: GlobalUniforms;
+      @group(0) @binding(4) var<uniform> material: MaterialUniforms;
 
       @vertex fn vs(vert: Vertex) -> VSOutput {
         var vsOut: VSOutput;
-        vsOut.position = uni.viewProjection * uni.world * vert.position;
+        vsOut.position = glb.viewProjection * obj.world * vert.position;
 
         // Orient the normals and pass to the fragment shader
-        vsOut.normal = uni.normalMatrix * vert.normal;
+        vsOut.normal = obj.normalMatrix * vert.normal;
 
         // Compute the world position of the surface
-        let surfaceWorldPosition = (uni.world * vert.position).xyz;
+        let surfaceWorldPosition = (obj.world * vert.position).xyz;
 
         // Compute the vector of the surface to the light
         // and pass it to the fragment shader
-        vsOut.surfaceToLight = uni.lightWorldPosition - surfaceWorldPosition;
+        vsOut.surfaceToLight = glb.lightWorldPosition - surfaceWorldPosition;
 
         // Compute the vector of the surface to the light
         // and pass it to the fragment shader
-        vsOut.surfaceToView = uni.viewWorldPosition - surfaceWorldPosition;
+        vsOut.surfaceToView = glb.viewWorldPosition - surfaceWorldPosition;
 
         // Pass the texture coord on to the fragment shader
         vsOut.texcoord = vert.texcoord;
@@ -181,10 +192,10 @@ async function main() {
         var specular = dot(normal, halfVector);
         specular = select(
             0.0,                           // value if condition is false
-            pow(specular, uni.shininess),  // value if condition is true
+            pow(specular, material.shininess),  // value if condition is true
             specular > 0.0);               // condition
 
-        let diffuse = uni.color * textureSample(diffuseTexture, diffuseSampler, vsOut.texcoord);
+        let diffuse = material.color * textureSample(diffuseTexture, diffuseSampler, vsOut.texcoord);
         // Lets multiply just the color portion (not the alpha)
         // by the light
         let color = diffuse.rgb * light + specular;
@@ -196,20 +207,45 @@ async function main() {
   function createBufferWithData(device, data, usage) {
     const buffer = device.createBuffer({
       size: data.byteLength,
-      usage: usage | GPUBufferUsage.COPY_DST,
+      usage: usage,
+      mappedAtCreation: true,
     });
-    device.queue.writeBuffer(buffer, 0, data);
+    const dst = new Uint8Array(buffer.getMappedRange());
+    dst.set(new Uint8Array(data.buffer));
+    buffer.unmap();
     return buffer;
   }
 
-  const positions = new Float32Array([1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1]);
-  const normals   = new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1]);
-  const texcoords = new Float32Array([1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1]);
+  const vertexData = new Float32Array([
+  // position       normal        texcoord
+     1,  1, -1,     1,  0,  0,    1, 0,
+     1,  1,  1,     1,  0,  0,    0, 0,
+     1, -1,  1,     1,  0,  0,    0, 1,
+     1, -1, -1,     1,  0,  0,    1, 1,
+    -1,  1,  1,    -1,  0,  0,    1, 0,
+    -1,  1, -1,    -1,  0,  0,    0, 0,
+    -1, -1, -1,    -1,  0,  0,    0, 1,
+    -1, -1,  1,    -1,  0,  0,    1, 1,
+    -1,  1,  1,     0,  1,  0,    1, 0,
+     1,  1,  1,     0,  1,  0,    0, 0,
+     1,  1, -1,     0,  1,  0,    0, 1,
+    -1,  1, -1,     0,  1,  0,    1, 1,
+    -1, -1, -1,     0, -1,  0,    1, 0,
+     1, -1, -1,     0, -1,  0,    0, 0,
+     1, -1,  1,     0, -1,  0,    0, 1,
+    -1, -1,  1,     0, -1,  0,    1, 1,
+     1,  1,  1,     0,  0,  1,    1, 0,
+    -1,  1,  1,     0,  0,  1,    0, 0,
+    -1, -1,  1,     0,  0,  1,    0, 1,
+     1, -1,  1,     0,  0,  1,    1, 1,
+    -1,  1, -1,     0,  0, -1,    1, 0,
+     1,  1, -1,     0,  0, -1,    0, 0,
+     1, -1, -1,     0,  0, -1,    0, 1,
+    -1, -1, -1,     0,  0, -1,    1, 1,
+  ]);
   const indices   = new Uint16Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23]);
 
-  const positionBuffer = createBufferWithData(device, positions, GPUBufferUsage.VERTEX);
-  const normalBuffer = createBufferWithData(device, normals, GPUBufferUsage.VERTEX);
-  const texcoordBuffer = createBufferWithData(device, texcoords, GPUBufferUsage.VERTEX);
+  const vertexBuffer = createBufferWithData(device, vertexData, GPUBufferUsage.VERTEX);
   const indicesBuffer = createBufferWithData(device, indices, GPUBufferUsage.INDEX);
   const numVertices = indices.length;
 
@@ -219,25 +255,12 @@ async function main() {
     vertex: {
       module,
       buffers: [
-        // position
         {
-          arrayStride: 3 * 4, // 3 floats
+          arrayStride: (3 + 3 + 2) * 4, // 8 floats
           attributes: [
-            {shaderLocation: 0, offset: 0, format: 'float32x3'},
-          ],
-        },
-        // normal
-        {
-          arrayStride: 3 * 4, // 3 floats
-          attributes: [
-            {shaderLocation: 1, offset: 0, format: 'float32x3'},
-          ],
-        },
-        // uvs
-        {
-          arrayStride: 2 * 4, // 2 floats
-          attributes: [
-            {shaderLocation: 2, offset: 0, format: 'float32x2'},
+            {shaderLocation: 0, offset: 0 * 4, format: 'float32x3'}, // position
+            {shaderLocation: 1, offset: 3 * 4, format: 'float32x3'}, // normal
+            {shaderLocation: 2, offset: 6 * 4, format: 'float32x2'}, // texcoord
           ],
         },
       ],
@@ -285,61 +308,85 @@ async function main() {
   for (let i = 0; i < numMaterials; ++i) {
     const color = hslToRGBA(rand(), rand(0.5, 0.8), rand(0.5, 0.7));
     const shininess = rand(10, 120);
-    materials.push({
-      color,
+
+    const materialValues = new Float32Array([
+      ...color,
       shininess,
+      0, 0, 0,  // padding
+    ]);
+    const materialUniformBuffer = createBufferWithData(
+      device,
+      materialValues,
+      GPUBufferUsage.UNIFORM,
+    );
+
+    materials.push({
+      materialUniformBuffer,
       texture,
       sampler,
     });
   }
 
+  const globalUniformBufferSize = (16 + 4 + 4) * 4;
+  const globalUniformBuffer = device.createBuffer({
+    label: 'global uniforms',
+    size: globalUniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const globalUniformValues = new Float32Array(globalUniformBufferSize / 4);
+
+  const kViewProjectionOffset = 0;
+  const kLightWorldPositionOffset = 16;
+  const kViewWorldPositionOffset = 20;
+
+  const viewProjectionValue = globalUniformValues.subarray(
+      kViewProjectionOffset, kViewProjectionOffset + 16);
+  const lightWorldPositionValue = globalUniformValues.subarray(
+      kLightWorldPositionOffset, kLightWorldPositionOffset + 3);
+  const viewWorldPositionValue = globalUniformValues.subarray(
+      kViewWorldPositionOffset, kViewWorldPositionOffset + 3);
+
   const maxObjects = 10000;
   const objectInfos = [];
 
-  for (let i = 0; i < maxObjects; ++i) {
-    const uniformBufferSize = (12 + 16 + 16 + 4 + 4 + 4) * 4;
-    const uniformBuffer = device.createBuffer({
-      label: 'uniforms',
-      size: uniformBufferSize,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  const uniformBufferSize = (12 + 16) * 4;
+  const uniformBufferSpace = roundUp(uniformBufferSize, device.limits.minUniformBufferOffsetAlignment);
+  const uniformBuffers = [0, 1].map(() => device.createBuffer({
+    label: 'uniforms',
+    size: uniformBufferSpace * maxObjects,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  }));
+
+  const mappedTransferBuffers = [];
+  const getMappedTransferBuffer = () => {
+    return mappedTransferBuffers.pop() || device.createBuffer({
+      label: 'transfer buffer',
+      size: uniformBufferSpace * maxObjects,
+      usage: GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC,
+      mappedAtCreation: true,
     });
+  };
+  // offsets to the various uniform values in float32 indices
+  const kNormalMatrixOffset = 0;
+  const kWorldOffset = 12;
 
-    const uniformValues = new Float32Array(uniformBufferSize / 4);
-
-    // offsets to the various uniform values in float32 indices
-    const kNormalMatrixOffset = 0;
-    const kViewProjectionOffset = 12;
-    const kWorldOffset = 28;
-    const kColorOffset = 44;
-    const kLightWorldPositionOffset = 48;
-    const kViewWorldPositionOffset = 52;
-    const kShininessOffset = 55;
-
-    const normalMatrixValue = uniformValues.subarray(
-        kNormalMatrixOffset, kNormalMatrixOffset + 12);
-    const viewProjectionValue = uniformValues.subarray(
-        kViewProjectionOffset, kViewProjectionOffset + 16);
-    const worldValue = uniformValues.subarray(
-        kWorldOffset, kWorldOffset + 16);
-    const colorValue = uniformValues.subarray(kColorOffset, kColorOffset + 4);
-    const lightWorldPositionValue = uniformValues.subarray(
-        kLightWorldPositionOffset, kLightWorldPositionOffset + 3);
-    const viewWorldPositionValue = uniformValues.subarray(
-        kViewWorldPositionOffset, kViewWorldPositionOffset + 3);
-    const shininessValue = uniformValues.subarray(
-        kShininessOffset, kShininessOffset + 1);
+  for (let i = 0; i < maxObjects; ++i) {
+    const uniformBufferOffset = i * uniformBufferSpace;
 
     const material = randomArrayElement(materials);
 
-    const bindGroup = device.createBindGroup({
+    const bindGroups = [0, 1].map(i => device.createBindGroup({
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
-        { binding: 2, resource: { buffer: uniformBuffer }},
+        { binding: 2, resource: { buffer: uniformBuffers[i], offset: uniformBufferOffset, size: uniformBufferSize }},
+        { binding: 3, resource: { buffer: globalUniformBuffer }},
+        { binding: 4, resource: { buffer: material.materialUniformBuffer }},
       ],
-    });
+    }));
 
     const axis = vec3.normalize([rand(-1, 1), rand(-1, 1), rand(-1, 1)]);
     const radius = rand(10, 100);
@@ -348,21 +395,9 @@ async function main() {
     const scale = rand(2, 10);
 
     objectInfos.push({
-      bindGroup,
-
-      uniformBuffer,
-      uniformValues,
-
-      normalMatrixValue,
-      worldValue,
-      viewProjectionValue,
-      colorValue,
-      lightWorldPositionValue,
-      viewWorldPositionValue,
-      shininessValue,
+      bindGroups,
 
       axis,
-      material,
       radius,
       speed,
       rotationSpeed,
@@ -392,7 +427,7 @@ async function main() {
   const degToRad = d => d * Math.PI / 180;
 
   const settings = {
-    numObjects: 1000,
+    numObjects: 100,
     render: true,
   };
 
@@ -403,11 +438,16 @@ async function main() {
 
   let depthTexture;
   let then = 0;
+  let frameCount = 0;
+
+  const worldTemp = mat4.identity();
+  const normalMatrixTemp = mat3.identity();
 
   function render(time) {
     time *= 0.001;  // convert to seconds
     const deltaTime = time - then;
     then = time;
+    ++frameCount;
 
     const startTimeMs = performance.now();
 
@@ -447,12 +487,51 @@ async function main() {
     renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
 
     const encoder = device.createCommandEncoder();
-    const pass = timingHelper.beginRenderPass(encoder, renderPassDescriptor);
-    pass.setPipeline(pipeline);
-    pass.setVertexBuffer(0, positionBuffer);
-    pass.setVertexBuffer(1, normalBuffer);
-    pass.setVertexBuffer(2, texcoordBuffer);
-    pass.setIndexBuffer(indicesBuffer, 'uint16');
+
+    let mathElapsedTimeMs = 0;
+
+    const transferBuffer = getMappedTransferBuffer();
+    const uniformValues = new Float32Array(transferBuffer.getMappedRange());
+
+    for (let i = 0; i < settings.numObjects; ++i) {
+      const {
+        axis,
+        radius,
+        speed,
+        rotationSpeed,
+        scale,
+      } = objectInfos[i];
+      const mathTimeStartMs = performance.now();
+
+      const uniformBufferOffset = i * uniformBufferSpace;
+      const f32Offset = uniformBufferOffset / 4;
+
+      // Compute a world matrix
+      mat4.identity(worldTemp);
+      mat4.axisRotate(worldTemp, axis, i + time * speed, worldTemp);
+      mat4.translate(worldTemp, [0, 0, Math.sin(i * 3.721 + time * speed) * radius], worldTemp);
+      mat4.translate(worldTemp, [0, 0, Math.sin(i * 9.721 + time * 0.1) * radius], worldTemp);
+      mat4.rotateX(worldTemp, time * rotationSpeed + i, worldTemp);
+      mat4.scale(worldTemp, [scale, scale, scale], worldTemp);
+
+      // Inverse and transpose it into the worldInverseTranspose value
+      mat3.fromMat4(mat4.transpose(mat4.inverse(worldTemp)), normalMatrixTemp);
+
+      uniformValues.set(worldTemp, f32Offset + kWorldOffset);
+      uniformValues.set(normalMatrixTemp, f32Offset + kNormalMatrixOffset);
+
+      mathElapsedTimeMs += performance.now() - mathTimeStartMs;
+    }
+    transferBuffer.unmap();
+
+    const resourceIndex = frameCount % 2;
+    const uniformBuffer = uniformBuffers[resourceIndex];
+
+    // copy the uniform values from the transfer buffer to the uniform buffer
+    if (settings.numObjects) {
+      const size = (settings.numObjects - 1) * uniformBufferSpace + uniformBufferSize;
+      encoder.copyBufferToBuffer(transferBuffer, 0, uniformBuffer, 0, size);
+    }
 
     const aspect = canvas.clientWidth / canvas.clientHeight;
     const projection = mat4.perspective(
@@ -470,59 +549,21 @@ async function main() {
     const viewMatrix = mat4.lookAt(eye, target, up);
 
     // Combine the view and projection matrixes
-    const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
+    mat4.multiply(projection, viewMatrix, viewProjectionValue);
 
-    let mathElapsedTimeMs = 0;
+    lightWorldPositionValue.set([-10, 30, 300]);
+    viewWorldPositionValue.set(eye);
+
+    device.queue.writeBuffer(globalUniformBuffer, 0, globalUniformValues);
+
+    const pass = timingHelper.beginRenderPass(encoder, renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.setVertexBuffer(0, vertexBuffer);
+    pass.setIndexBuffer(indicesBuffer, 'uint16');
 
     for (let i = 0; i < settings.numObjects; ++i) {
-      const {
-        bindGroup,
-        uniformBuffer,
-        uniformValues,
-        normalMatrixValue,
-        worldValue,
-        viewProjectionValue,
-        colorValue,
-        lightWorldPositionValue,
-        viewWorldPositionValue,
-        shininessValue,
-
-        axis,
-        material,
-        radius,
-        speed,
-        rotationSpeed,
-        scale,
-      } = objectInfos[i];
-      const mathTimeStartMs = performance.now();
-
-      // Copy the viewProjectionMatrix into the uniform values for this object
-      viewProjectionValue.set(viewProjectionMatrix);
-
-      // Compute a world matrix
-      mat4.identity(worldValue);
-      mat4.axisRotate(worldValue, axis, i + time * speed, worldValue);
-      mat4.translate(worldValue, [0, 0, Math.sin(i * 3.721 + time * speed) * radius], worldValue);
-      mat4.translate(worldValue, [0, 0, Math.sin(i * 9.721 + time * 0.1) * radius], worldValue);
-      mat4.rotateX(worldValue, time * rotationSpeed + i, worldValue);
-      mat4.scale(worldValue, [scale, scale, scale], worldValue);
-
-      // Inverse and transpose it into the worldInverseTranspose value
-      mat3.fromMat4(mat4.transpose(mat4.inverse(worldValue)), normalMatrixValue);
-
-      const {color, shininess} = material;
-
-      colorValue.set(color);
-      lightWorldPositionValue.set([-10, 30, 300]);
-      viewWorldPositionValue.set(eye);
-      shininessValue[0] = shininess;
-
-      mathElapsedTimeMs += performance.now() - mathTimeStartMs;
-
-      // upload the uniform values to the uniform buffer
-      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
-
-      pass.setBindGroup(0, bindGroup);
+      const { bindGroups } = objectInfos[i];
+      pass.setBindGroup(0, bindGroups[resourceIndex]);
       pass.drawIndexed(numVertices);
     }
 
@@ -530,6 +571,10 @@ async function main() {
 
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
+
+    transferBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
+      mappedTransferBuffers.push(transferBuffer);
+    });
 
     timingHelper.getResult().then(gpuTime => {
       gpuAverage.addSample(gpuTime / 1000);
