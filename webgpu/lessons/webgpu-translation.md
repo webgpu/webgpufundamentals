@@ -355,7 +355,7 @@ And then we need to set a translation at render time
 Finally let's add a UI so we can adjust the translation
 
 ```js
-+import GUI from '/3rdparty/muigui-0.x.module.js';
++import GUI from '../3rdparty/muigui-0.x.module.js';
 
 ...
   const settings = {

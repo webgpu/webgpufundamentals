@@ -109,7 +109,7 @@ To that let's add a UI so we can set the alpha and color of
 the clear value as well as whether or not it's premultiplied
 
 ```js
-+import GUI from '/3rdparty/muigui-0.x.module.js';
++import GUI from '../3rdparty/muigui-0.x.module.js';
 
 ...
 

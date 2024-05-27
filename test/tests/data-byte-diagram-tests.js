@@ -1,7 +1,7 @@
 import { describe, it } from '../mocha-support.js';
 import {
     makeShaderDataDefinitions,
-} from '/3rdparty/webgpu-utils-1.x.module.js';
+} from '../../3rdparty/webgpu-utils-1.x.module.js';
 import { assertEqual } from '../assert.js';
 import {
     createByteDiagramForType,
