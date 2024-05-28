@@ -45,7 +45,10 @@ canvas {
   <script type="module">
 import GUI from '../3rdparty/muigui-0.x.module.js';
 import {mat4, mat3, vec3} from '../3rdparty/wgpu-matrix.module.js';
-import {RollingAverage, TimingHelper} from './timing-helper.js';
+// see https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html
+import TimingHelper from './resources/js/timing-helper.js';
+// see https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html
+import RollingAverage from './resources/js/rolling-average.js';
 
 const fpsAverage = new RollingAverage();
 const jsAverage = new RollingAverage();
