@@ -2,7 +2,7 @@ Title: WebGPU - Point Lighting
 Description: How to implement point lighting in WebGPU
 TOC: Point Lighting
 
-This article is a continuation of [WebGPU Directional Lighting](webgpu-ighting-directional.html).
+This article is a continuation of [WebGPU Directional Lighting](webgpu-lighting-directional.html).
 If you haven't read that I suggest [you start there](webgpu-lighting-directional.html).
 
 In the previous article we covered directional lighting where the light is coming
