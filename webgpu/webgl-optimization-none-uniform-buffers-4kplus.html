@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>WebGL Optimization - Uniform Blocks</title>
+    <title>WebGL Optimization - Uniform Blocks 4kplus</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -171,6 +171,7 @@ async function main() {
         vec3 viewWorldPosition;
         vec4 color;
         float shininess;
+        mat4 padding[4096 / 4 / 16];
       };
   `;
   const vs = `#version 300 es
