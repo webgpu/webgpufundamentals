@@ -4,6 +4,7 @@ function assert(cond, msg = '') {
   }
 }
 
+// See https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html
 export default class TimingHelper {
   #canTimestamp;
   #device;
