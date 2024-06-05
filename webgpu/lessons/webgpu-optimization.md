@@ -235,6 +235,12 @@ normal matrices, we'd have two. We'd ping-pong which one we're updating.
 This why, while WebGPU is drawing using one of those 2 buffers, we'r updating
 the other. So, WebGPU never has to wait.
 
+{{{example url="../webgpu-optimization-none.html"}}}
+
+{{{example url="../webgl-optimization-none-uniform-buffers.html"}}}
+
+
+
 
 
 * Texture Atlas or 2D-array
