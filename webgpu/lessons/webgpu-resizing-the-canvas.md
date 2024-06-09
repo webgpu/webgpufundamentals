@@ -285,7 +285,7 @@ with 3 children, each set be the 33% the width of their parent
 On one of my machines, with a default (un-zoomed) browser window, I get these
 results
 
-<pre style="padding: 1em">
+<pre class="fixed-size-text">
 devicePixelRatio: 2
 --------------- #left ---------------
                  inlineSize: 99.65625
@@ -333,7 +333,7 @@ If we add that measurement to our example it gives us the actual answer
 
 On the machine I used for the results above I get these results
 
-<pre style="padding: 1em">
+<pre class="fixed-size-text">
 devicePixelRatio: 2
 --------------- #left ---------------
                           inlineSize: 99.65625
