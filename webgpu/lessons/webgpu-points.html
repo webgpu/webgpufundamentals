@@ -247,6 +247,7 @@ struct VSOutput {
 @vertex fn vs(vert: Vertex,) -&gt; VSOutput {
   var vsOut: VSOutput;
   vsOut.position = vert.position;
+  return vsOut;
 }
 
 @fragment fn fs(vsOut: VSOutput) -&gt; @location(0) vec4f {
