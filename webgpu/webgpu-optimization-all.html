@@ -332,7 +332,7 @@ async function main() {
   const viewWorldPositionValue = sharedUniformValues.subarray(
       kViewWorldPositionOffset, kViewWorldPositionOffset + 3);
 
-  const maxObjects = 10000;
+  const maxObjects = 20000;
   const objectInfos = [];
 
   for (let i = 0; i < maxObjects; ++i) {
@@ -446,8 +446,8 @@ async function main() {
     if (settings.render) {
       const entry = canvasToSizeMap.get(canvas);
       if (entry) {
-        width = Math.max(1, entry.contentBoxSize[0].inlineSize, device.limits.maxTextureDimension2D);
-        height = Math.max(1, entry.contentBoxSize[0].blockSize, device.limits.maxTextureDimension2D);
+        width = Math.max(1, Math.min(entry.contentBoxSize[0].inlineSize, device.limits.maxTextureDimension2D));
+        height = Math.max(1, Math.min(entry.contentBoxSize[0].blockSize, device.limits.maxTextureDimension2D));
       }
     }
     if (canvas.width !== width || canvas.height !== height) {
