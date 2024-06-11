@@ -549,7 +549,7 @@ async function main() {
     // upload all uniform values to the uniform buffer
     if (settings.numObjects) {
       const size = (settings.numObjects - 1) * uniformBufferSpace + uniformBufferSize;
-      device.queue.writeBuffer( uniformBuffer, 0, uniformValues, 0, size);
+      device.queue.writeBuffer( uniformBuffer, 0, uniformValues, 0, size / uniformValues.BYTES_PER_ELEMENT);
     }
 
     pass.end();
