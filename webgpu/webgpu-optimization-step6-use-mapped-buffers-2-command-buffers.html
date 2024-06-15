@@ -496,6 +496,10 @@ async function main() {
     renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
 
     const encoder = device.createCommandEncoder();
+    const pass = timingHelper.beginRenderPass(encoder, renderPassDescriptor);
+    pass.setPipeline(pipeline);
+    pass.setVertexBuffer(0, vertexBuffer);
+    pass.setIndexBuffer(indicesBuffer, 'uint16');
 
     let mathElapsedTimeMs = 0;
 
@@ -504,6 +508,7 @@ async function main() {
 
     for (let i = 0; i < settings.numObjects; ++i) {
       const {
+        bindGroup,
         axis,
         radius,
         speed,
@@ -512,7 +517,6 @@ async function main() {
       } = objectInfos[i];
       const mathTimeStartMs = performance.now();
 
-      // Make views into the mapped buffer.
       const uniformBufferOffset = i * uniformBufferSpace;
       const f32Offset = uniformBufferOffset / 4;
       const normalMatrixValue = uniformValues.subarray(
@@ -532,14 +536,19 @@ async function main() {
       mat3.fromMat4(mat4.transpose(mat4.inverse(worldValue)), normalMatrixValue);
 
       mathElapsedTimeMs += performance.now() - mathTimeStartMs;
+
+      pass.setBindGroup(0, bindGroup);
+      pass.drawIndexed(numVertices);
     }
     transferBuffer.unmap();
 
     // copy the uniform values from the transfer buffer to the uniform buffer
+    const encoder2 = device.createCommandEncoder();
     if (settings.numObjects) {
       const size = (settings.numObjects - 1) * uniformBufferSpace + uniformBufferSize;
-      encoder.copyBufferToBuffer(transferBuffer, 0, uniformBuffer, 0, size);
+      encoder2.copyBufferToBuffer(transferBuffer, 0, uniformBuffer, 0, size);
     }
+    const cb2 = encoder2.finish();
 
     const aspect = canvas.clientWidth / canvas.clientHeight;
     const projection = mat4.perspective(
@@ -564,21 +573,10 @@ async function main() {
 
     device.queue.writeBuffer(globalUniformBuffer, 0, globalUniformValues);
 
-    const pass = timingHelper.beginRenderPass(encoder, renderPassDescriptor);
-    pass.setPipeline(pipeline);
-    pass.setVertexBuffer(0, vertexBuffer);
-    pass.setIndexBuffer(indicesBuffer, 'uint16');
-
-    for (let i = 0; i < settings.numObjects; ++i) {
-      const { bindGroup } = objectInfos[i];
-      pass.setBindGroup(0, bindGroup);
-      pass.drawIndexed(numVertices);
-    }
-
     pass.end();
 
     const commandBuffer = encoder.finish();
-    device.queue.submit([commandBuffer]);
+    device.queue.submit([cb2, commandBuffer]);
 
     transferBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
       mappedTransferBuffers.push(transferBuffer);

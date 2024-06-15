@@ -615,6 +615,10 @@ bind the bind group for this object, and draw.
     }
 ```
 
+> Note that the portion of the code labeled "Compute a world matrix" is not so common. It would
+be more common to have a [scene graph](webgpu-scene-graphs.html) but that would have clutter
+the example even more. We needed something showing animation I through something together.
+
 Then we can end the pass and submit it.
 
 ```js
@@ -881,7 +885,7 @@ steps listed near the top of the article, and it works.
 {{{example url="../webgpu-optimization-none.html"}}}
 
 Increase the number of objects and see when the framerate drops for you.
-For me, on my 75hz monitor on an M1 Mac I got ~9000 cubes before the 
+For me, on my 75hz monitor on an M1 Mac I got ~8000 cubes before the 
 framerate dropped.
 
 # <a id="a-mapped-on-creation"></a> Optimization: Mapped On Creation
@@ -1668,8 +1672,8 @@ We also no longer need to deal with this stuff at render time.
 Right now, each object has it's own uniform buffer. At render time,
 for each object, we update a typed array with the uniform values for
 that object and then call `device.queue.writeBuffer` to update that
-single uniform buffer's values. If we're rendering 8400 objects
-that's 8400 calls to `device.queue.writeBuffer`.
+single uniform buffer's values. If we're rendering 8000 objects
+that's 8000 calls to `device.queue.writeBuffer`.
 
 Instead, we could make one larger uniform buffer. We can then setup
 the bind group for each object to use it's own portion of the larger 
@@ -1813,10 +1817,201 @@ just one call to `device.queue.writeBuffer`.
 
 On my machine that shaved off 40% of the JavaScript time!
 
+# Optimization: Use Mapped Buffers
 
+When we call `device.queue.writeBuffer`, what happens is, WebGPU makes a copy
+of the data in the typed array. It copies that data to the GPU process (a separate process
+that talks to the GPU for security). In the GPU process that data is then copied
+to the GPU Buffer.
 
+We can skip one of those copies by using mapped buffers instead. We'll map a buffer,
+update the uniform values directly into that mapped buffer. Then we'll unmap the
+buffer and issue a `copyBufferToBuffer` command to copy to the uniform buffer.
+This will save a copy.
 
+WebGPU mapping happens asynchronously so rather then map a buffer and wait for it
+to be ready, we'll keep an array of already mapped buffers. Each frame, we either
+get an already mapped buffer or create a new one that is already mapped. After
+we render we'll setup a callback to map the buffer when it's available and put
+it back on the list of already mapped buffers. This way, we'll never have to wait
+for a mapped buffer.
 
+First we'll make an array of mapped buffers and a function to either get a pre-mapped
+buffer or make a new one.
+
+```js
+  const mappedTransferBuffers = [];
+  const getMappedTransferBuffer = () => {
+    return mappedTransferBuffers.pop() || device.createBuffer({
+      label: 'transfer buffer',
+      size: uniformBufferSpace * maxObjects,
+      usage: GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC,
+      mappedAtCreation: true,
+    });
+  };
+```
+
+We can't pre-create typedarray views anymore because mapping
+a buffer gives us a new `ArrayBuffer`. So, we'll have to
+make new typedarray views after mapping.
+
+```js
++  // offsets to the various uniform values in float32 indices
++  const kNormalMatrixOffset = 0;
++  const kWorldOffset = 12;
+
+  for (let i = 0; i < maxObjects; ++i) {
+    const uniformBufferOffset = i * uniformBufferSpace;
+-    const f32Offset = uniformBufferOffset / 4;
+-
+-    // offsets to the various uniform values in float32 indices
+-    const kNormalMatrixOffset = 0;
+-    const kWorldOffset = 12;
+-
+-    const normalMatrixValue = uniformValues.subarray(
+-        f32Offset + kNormalMatrixOffset, f32Offset + kNormalMatrixOffset + 12);
+-    const worldValue = uniformValues.subarray(
+-        f32Offset + kWorldOffset, f32Offset + kWorldOffset + 16);
+-    const material = randomArrayElement(materials);
+
+    const bindGroup = device.createBindGroup({
+      label: 'bind group for object',
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: material.texture.createView() },
+        { binding: 1, resource: material.sampler },
+        { binding: 2, resource: { buffer: uniformBuffer, offset: uniformBufferOffset, size: uniformBufferSize }},
+        { binding: 3, resource: { buffer: globalUniformBuffer }},
+        { binding: 4, resource: { buffer: material.materialUniformBuffer }},
+      ],
+    });
+
+    const axis = vec3.normalize([rand(-1, 1), rand(-1, 1), rand(-1, 1)]);
+    const radius = rand(10, 100);
+    const speed = rand(0.1, 0.4);
+    const rotationSpeed = rand(-1, 1);
+    const scale = rand(2, 10);
+
+    objectInfos.push({
+      bindGroup,
+
+-      normalMatrixValue,
+-      worldValue,
+
+      axis,
+      radius,
+      speed,
+      rotationSpeed,
+      scale,
+    });
+  }
+```
+
+At render time we have to loop through the objects twice. Once to update the mapped buffer
+and then again to draw each object. This is because, only after we've updated every
+object's values in the mapped buffer can we then unmap it can call `copyBufferToBuffer`
+to update the uniform buffer. `copyBufferToBuffer` only exists on the command encoder. It
+can not be called while we are encoding our render pass. At least not on the same command
+buffer, so we'll loop twice.
+
+First we loop and update the mapped buffer
+
+```js
+    const encoder = device.createCommandEncoder();
+-    const pass = timingHelper.beginRenderPass(encoder, renderPassDescriptor);
+-    pass.setPipeline(pipeline);
+-    pass.setVertexBuffer(0, vertexBuffer);
+-    pass.setIndexBuffer(indicesBuffer, 'uint16');
+
+    let mathElapsedTimeMs = 0;
+
++    const transferBuffer = getMappedTransferBuffer();
++    const uniformValues = new Float32Array(transferBuffer.getMappedRange());
+
+    for (let i = 0; i < settings.numObjects; ++i) {
+      const {
+-        bindGroup,
+-        normalMatrixValue,
+-        worldValue,
+        axis,
+        radius,
+        speed,
+        rotationSpeed,
+        scale,
+      } = objectInfos[i];
+      const mathTimeStartMs = performance.now();
+
++      // Make views into the mapped buffer.
++      const uniformBufferOffset = i * uniformBufferSpace;
++      const f32Offset = uniformBufferOffset / 4;
++      const normalMatrixValue = uniformValues.subarray(
++          f32Offset + kNormalMatrixOffset, f32Offset + kNormalMatrixOffset + 12);
++      const worldValue = uniformValues.subarray(
++          f32Offset + kWorldOffset, f32Offset + kWorldOffset + 16);
+
+      // Compute a world matrix
+      mat4.identity(worldValue);
+      mat4.axisRotate(worldValue, axis, i + time * speed, worldValue);
+      mat4.translate(worldValue, [0, 0, Math.sin(i * 3.721 + time * speed) * radius], worldValue);
+      mat4.translate(worldValue, [0, 0, Math.sin(i * 9.721 + time * 0.1) * radius], worldValue);
+      mat4.rotateX(worldValue, time * rotationSpeed + i, worldValue);
+      mat4.scale(worldValue, [scale, scale, scale], worldValue);
+
+      // Inverse and transpose it into the normalMatrix value
+      mat3.fromMat4(mat4.transpose(mat4.inverse(worldValue)), normalMatrixValue);
+
+      mathElapsedTimeMs += performance.now() - mathTimeStartMs;
+    }
++    transferBuffer.unmap();
+
+    // copy the uniform values from the transfer buffer to the uniform buffer
+    if (settings.numObjects) {
+      const size = (settings.numObjects - 1) * uniformBufferSpace + uniformBufferSize;
+-      device.queue.writeBuffer( uniformBuffer, 0, uniformValues, 0, size / uniformValues.BYTES_PER_ELEMENT);
++      encoder.copyBufferToBuffer(transferBuffer, 0, uniformBuffer, 0, size);
+    }
+```
+
+Then we loop and draw each object.
+
+```js
++    const pass = timingHelper.beginRenderPass(encoder, renderPassDescriptor);
++    pass.setPipeline(pipeline);
++    pass.setVertexBuffer(0, vertexBuffer);
++    pass.setIndexBuffer(indicesBuffer, 'uint16');
++
++    for (let i = 0; i < settings.numObjects; ++i) {
++      const { bindGroup } = objectInfos[i];
++      pass.setBindGroup(0, bindGroup);
++      pass.drawIndexed(numVertices);
++    }
+
+    pass.end();
+```
+
+Finally, as soon as we've submitted the command buffer we map the buffer again.
+Mapping is asynchronous so when it's finally ready we'll add it back to the
+list of already mapped buffer.
+
+```js
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+
++    transferBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
++      mappedTransferBuffers.push(transferBuffer);
++    });
+```
+
+On my machine, this version draws around 13000 objects at 75fps.
+which is almost 60% more than we started with.
+
+{{{example url="../webgpu-optimization-step6-use-mapped-buffers.html"}}}
+
+* double buffer?
+* Draw math with offset
+* Directly map the uniform buffer.
 * Use dynamic offsets
 * Texture Atlas or 2D-array
 * GPU Occlusion culling
