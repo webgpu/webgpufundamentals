@@ -2009,15 +2009,98 @@ which is almost 60% more than we started with.
 
 {{{example url="../webgpu-optimization-step6-use-mapped-buffers.html"}}}
 
-* double buffer?
-* Draw math with offset
-* Directly map the uniform buffer.
-* Use dynamic offsets
-* Texture Atlas or 2D-array
-* GPU Occlusion culling
-* GPU Scene graph matrix calculation
-* GPU Frustum culling
-* Indirect Drawing
-* Render Bundles
+Other things that *might* help
+
+* **Double buffer the large uniform buffer**
+
+  This comes up as a possible optimization because WebGPU, if a buffer is currently
+  in use, WebGPU can't update it.
+
+  So, imagine you start rendering (you call `device.queue.submit`). The GPU starts
+  rendering using our large uniform buffer. You immediately try to update that buffer.
+  In this case, WebGPU would have to pause and wait for the GPU to finish using the
+  buffer for rendering.
+
+  This is unlikely to happen in our example above. We don't directly update the
+  uniform buffer. Instead we update a transfer buffer and then later, ask the GPU
+  to copy it to the uniform buffer.
+
+  This issue would be more likely to come up if we update a buffer directly on the
+  GPU using a compute shader.
+
+* **Compute matrix math with offsets**
+
+  The math library we created in [the series on matrix math](webgpu-matrix-math.html)
+  Generates `Float32Array`s as outputs and takes in `Float32Array`s as inputs.
+  It can modify a `Float32Array` in place. But, what it can't do is update a
+  `Float32Array` at some offset.
+  
+  This is why, in our loop where we update our per object uniform values,
+  for each object we have to create 2 `Float32Array` views into our mapped
+  buffer. For 10000 objects that's creating 20000 of these temporary views.
+  
+  Adding offsets to every input would make them burdensome to use in my opinion
+  but, just as a test, I wrote a modified version of the math functions that
+  take an offset. In other words. 
+
+  ```js
+      mat4.multiply(a, b, dst);
+  ```
+
+  becomes
+
+  ```js
+     mat4.multiply(a, aOffset, b, bOffset, dst, dstOffset);
+  ```
+
+  [It appears to be about 7% faster to use the offsets](../webgpu-optimization-step6-use-mapped-buffers-math-w-offsets.html).
+
+  It's up to you if you feel that's worth it. For me personally, I'd prefer to keep it simple to use.
+  I'm rarely trying to draw 10000 things but it's good to know, if I wanted to squeeze out more performance,
+  this is one place I might find some.
+
+* **Directly map the uniform buffer**
+
+  In our example above we map a transfer buffer, a buffer that only has `COPY_SRC` and `MAP_WRITE`
+  usage flags. We then have to call `encoder.copyBufferToBuffer` to copy the contents into the
+  actual uniform buffer.
+
+  It would be much nicer if we could directly map the uniform buffer and avoid the copy.
+  Unfortunately, that's ability is not available in WebGPU version 1 but it is being
+  considered as an optional feature sometime in the future.
+
+* **Indirect Drawing**
+
+  Indirect drawing refers to draw commands that take their input from a GPU buffer.
+
+  ```js
+  pass.draw(vertexCount, instanceCount, firstVertex, firstInstance);  // direct
+  pass.drawIndirect(someBuffer, offsetIntoSomeBuffer);                // indirect
+  ```
+
+  In the indirect case above, `someBuffer` is a 16 byte portion of a buffer that holds
+  `[vertexCount, instanceCount, firstVertex, firstInstance]`.
+
+  The advantage to indirect draw is that can have the GPU itself, fill out the values.
+  You can even have the GPU set `vertexCount` and/or `instanceCount` to zero when you
+  don't want that thing to be drawn.
+
+  Using indirect drawing, you could do things like, for example, passing all of the
+  object's bounding box or bounding sphere to the GPU and then have the GPU do
+  frustum culling and if the object is inside the frustum it would update that
+  object's indirect drawing parameter to be drawn, otherwise it would update them
+  to not be drawn. "frustum culling" is a fancy way to say "check if the object
+  is possibly inside the frustum of the camera. We talked about frustums in
+  [the article on perspective projection](webgpu-persective-projection.html).
+
+* **Render Bundles**
+
+  Render bundles let you pre-record a bunch of command buffer commands and then
+  request them to be executed later. This can be useful, especially if your scene
+  is relatively static, meaning you don't need to add or remove objects later.
+
+  There's a great article [here](https://toji.dev/webgpu-best-practices/render-bundles)
+  that combines render bundles, indirect draws, GPU frustum culling, to show
+  some ideas for getting more speed in specialized situations.
 
 

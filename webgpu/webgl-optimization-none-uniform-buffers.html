@@ -358,19 +358,13 @@ async function main() {
 
     const startTimeMs = performance.now();
 
-    let width = 1;
-    let height = 1;
-    if (settings.render) {
-      const entry = canvasToSizeMap.get(canvas);
-      if (entry) {
-        width =  entry.contentBoxSize[0].inlineSize;
-        height = entry.contentBoxSize[0].blockSize;
-      }
-    }
+    const {width, height} = canvasToSizeMap.get(canvas) ?? canvas;
+    // Don't set the canvas size if it's already that size as it may be slow.
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
     }
+
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     // Get the current texture from the canvas context and
@@ -468,7 +462,12 @@ gpu : ${(gpuAverage.get() / 1000 / 1000).toFixed(1)}ms
   requestAnimationFrame(render);
 
   const observer = new ResizeObserver(entries => {
-    entries.forEach(e => canvasToSizeMap.set(e.target, e));
+    entries.forEach(entry => {
+      canvasToSizeMap.set(entry.target, {
+        width: Math.max(1, entry.contentBoxSize[0].inlineSize),
+        height: Math.max(1, entry.contentBoxSize[0].blockSize),
+      });
+    });
   });
   observer.observe(canvas);
 }

@@ -226,6 +226,46 @@ async function main() {
     `,
   });
 
+  const bindGroupLayout = device.createBindGroupLayout({
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.FRAGMENT,
+        texture: {
+          sampleType: 'float',
+          viewDimension: '2d',
+          multisampled: false,
+        },
+      },
+      {
+        binding: 1,
+        visibility: GPUShaderStage.FRAGMENT,
+        sampler: {
+          type: 'filtering',
+        },
+      },
+      {
+        binding: 2,
+        visibility: GPUShaderStage.VERTEX,
+        buffer: { hasDynamicOffset: true },
+      },
+      {
+        binding: 3,
+        visibility: GPUShaderStage.VERTEX,
+        buffer: {},
+      },
+      {
+        binding: 4,
+        visibility: GPUShaderStage.FRAGMENT,
+        buffer: {},
+      },
+    ],
+  });
+
+  const pipelineLayout = device.createPipelineLayout({
+    bindGroupLayouts: [ bindGroupLayout ],
+  });
+
   function createBufferWithData(device, data, usage) {
     const buffer = device.createBuffer({
       size: data.byteLength,
@@ -273,7 +313,7 @@ async function main() {
 
   const pipeline = device.createRenderPipeline({
     label: 'textured model with point light w/specular highlight',
-    layout: 'auto',
+    layout: pipelineLayout,
     vertex: {
       module,
       buffers: [
@@ -374,11 +414,11 @@ async function main() {
 
   const uniformBufferSize = (12 + 16) * 4;
   const uniformBufferSpace = roundUp(uniformBufferSize, device.limits.minUniformBufferOffsetAlignment);
-  const uniformBuffers = [0, 1].map(() => device.createBuffer({
+  const uniformBuffer = device.createBuffer({
     label: 'uniforms',
     size: uniformBufferSpace * maxObjects,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  }));
+  });
 
   const mappedTransferBuffers = [];
   const getMappedTransferBuffer = () => {
@@ -394,21 +434,19 @@ async function main() {
   const kWorldOffset = 12;
 
   for (let i = 0; i < maxObjects; ++i) {
-    const uniformBufferOffset = i * uniformBufferSpace;
-
     const material = randomArrayElement(materials);
 
-    const bindGroups = [0, 1].map(i => device.createBindGroup({
+    const bindGroup = device.createBindGroup({
       label: 'bind group for object',
-      layout: pipeline.getBindGroupLayout(0),
+      layout: bindGroupLayout,
       entries: [
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
-        { binding: 2, resource: { buffer: uniformBuffers[i], offset: uniformBufferOffset, size: uniformBufferSize }},
+        { binding: 2, resource: { buffer: uniformBuffer, size: uniformBufferSize }},
         { binding: 3, resource: { buffer: globalUniformBuffer }},
         { binding: 4, resource: { buffer: material.materialUniformBuffer }},
       ],
-    }));
+    });
 
     const axis = vec3.normalize([rand(-1, 1), rand(-1, 1), rand(-1, 1)]);
     const radius = rand(10, 100);
@@ -417,7 +455,7 @@ async function main() {
     const scale = rand(2, 10);
 
     objectInfos.push({
-      bindGroups,
+      bindGroup,
 
       axis,
       radius,
@@ -449,7 +487,7 @@ async function main() {
   const degToRad = d => d * Math.PI / 180;
 
   const settings = {
-    numObjects: 100,
+    numObjects: 1000,
     render: true,
   };
 
@@ -459,16 +497,11 @@ async function main() {
 
   let depthTexture;
   let then = 0;
-  let frameCount = 0;
-
-  const worldTemp = mat4.identity();
-  const normalMatrixTemp = mat3.identity();
 
   function render(time) {
     time *= 0.001;  // convert to seconds
     const deltaTime = time - then;
     then = time;
-    ++frameCount;
 
     const startTimeMs = performance.now();
 
@@ -517,29 +550,28 @@ async function main() {
       } = objectInfos[i];
       const mathTimeStartMs = performance.now();
 
+      // Make views into the mapped buffer.
       const uniformBufferOffset = i * uniformBufferSpace;
       const f32Offset = uniformBufferOffset / 4;
+      const normalMatrixValue = uniformValues.subarray(
+          f32Offset + kNormalMatrixOffset, f32Offset + kNormalMatrixOffset + 12);
+      const worldValue = uniformValues.subarray(
+          f32Offset + kWorldOffset, f32Offset + kWorldOffset + 16);
 
       // Compute a world matrix
-      mat4.identity(worldTemp);
-      mat4.axisRotate(worldTemp, axis, i + time * speed, worldTemp);
-      mat4.translate(worldTemp, [0, 0, Math.sin(i * 3.721 + time * speed) * radius], worldTemp);
-      mat4.translate(worldTemp, [0, 0, Math.sin(i * 9.721 + time * 0.1) * radius], worldTemp);
-      mat4.rotateX(worldTemp, time * rotationSpeed + i, worldTemp);
-      mat4.scale(worldTemp, [scale, scale, scale], worldTemp);
+      mat4.identity(worldValue);
+      mat4.axisRotate(worldValue, axis, i + time * speed, worldValue);
+      mat4.translate(worldValue, [0, 0, Math.sin(i * 3.721 + time * speed) * radius], worldValue);
+      mat4.translate(worldValue, [0, 0, Math.sin(i * 9.721 + time * 0.1) * radius], worldValue);
+      mat4.rotateX(worldValue, time * rotationSpeed + i, worldValue);
+      mat4.scale(worldValue, [scale, scale, scale], worldValue);
 
       // Inverse and transpose it into the normalMatrix value
-      mat3.fromMat4(mat4.transpose(mat4.inverse(worldTemp)), normalMatrixTemp);
-
-      uniformValues.set(worldTemp, f32Offset + kWorldOffset);
-      uniformValues.set(normalMatrixTemp, f32Offset + kNormalMatrixOffset);
+      mat3.fromMat4(mat4.transpose(mat4.inverse(worldValue)), normalMatrixValue);
 
       mathElapsedTimeMs += performance.now() - mathTimeStartMs;
     }
     transferBuffer.unmap();
-
-    const resourceIndex = frameCount % 2;
-    const uniformBuffer = uniformBuffers[resourceIndex];
 
     // copy the uniform values from the transfer buffer to the uniform buffer
     if (settings.numObjects) {
@@ -575,9 +607,13 @@ async function main() {
     pass.setVertexBuffer(0, vertexBuffer);
     pass.setIndexBuffer(indicesBuffer, 'uint16');
 
+    const offsets = new Uint32Array(1);
     for (let i = 0; i < settings.numObjects; ++i) {
-      const { bindGroups } = objectInfos[i];
-      pass.setBindGroup(0, bindGroups[resourceIndex]);
+      const uniformBufferOffset = i * uniformBufferSpace;
+      //offset: uniformBufferOffset, size: uniformBufferSize
+      offsets[0] = uniformBufferOffset;
+      const { bindGroup } = objectInfos[i];
+      pass.setBindGroup(0, bindGroup, offsets);
       pass.drawIndexed(numVertices);
     }
 
