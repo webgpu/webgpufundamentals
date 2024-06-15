@@ -9,7 +9,11 @@ Further, depending on what you need to do, there are a myriad of possible
 optimizations.
 
 In this article will cover some of the most basic optimizations and
-discuss a few others.
+discuss a few others. To be clear, IMO, you don't usually need to go
+this far. Most of the examples around the net using the GPU draw
+a couple of hundred things and so really wouldn't benefit from
+these optimizations. Still, it's always good to know how to make things
+go faster.
 
 The basics: **The less work you do, and the less work you ask WebGPU to do
 the faster things will go.**
@@ -40,8 +44,10 @@ and [vertex buffers](webgpu-vertex-buffers.html#a-instancing).
 I didn't want to clutter the code by handling tons of different kinds of
 objects. Instancing is certainly a great way to optimize if your
 project uses lots of the same model. Plants, trees, rocks, trash, etc
-are often optimized by using instancing. Other models, it's arguably
-less common. For example a table might have 4, 6 or 8 chairs around
+are often optimized by using instancing. For other models, it's arguably
+less common.
+
+For example a table might have 4, 6 or 8 chairs around
 it and it would probably be faster to use instancing to draw those
 chairs, except in a list of 500+ things to draw, if the chairs are the
 only exceptions, then it's probably not worth the effort to figure out
@@ -49,7 +55,10 @@ some optimal data organization that some how organizes the chairs
 to use instancing but finds no other situations to use instancing.
 
 The point of the paragraph above is, use instancing when it's
-appropriate.
+appropriate. If you are going to draw hundreds or more of the same
+thing than instancing is probably appropriate. If you are going to
+only draw a few of the same thing then it's probably not worth
+the effort to special case those few things.
 
 In any case, here's our code. We've got the initialization code
 we've been using in general.
@@ -162,10 +171,11 @@ Then let's make a shader module.
 ```
 
 This shader module is uses lighting similar to
-[the point light with specular highlights cover else where](webgpu-lighting-point.html#a-specular).
+[the point light with specular highlights covered else where](webgpu-lighting-point.html#a-specular).
 It uses a texture because most 3d models use textures so I thought it best to include one.
 It multiplies the texture by a color so we can adjust the colors of each cube.
-And it has all of the uniform we need to do the lighting and project the cube in 3d.
+And it has all of the uniforms we need to do the lighting and
+[project the cube in 3d](webgpu-perspective-projection.html).
 
 We need data for a cube and to put that data in buffers.
 
@@ -240,7 +250,7 @@ We need a render pipeline
 
 The pipeline above uses 1 buffer per attribute. One for position data,
 one for normal data, and one for texture coordinates (UVs). It culls
-back facing triangles, and it expects a depth texture to depth testing.
+back facing triangles, and it expects a depth texture for depth testing.
 All things we've covered in other articles.
 
 Let's insert a few utilities for making colors and random numbers.
@@ -329,13 +339,13 @@ just be a 2x2 texel texture with 4 shades of gray.
   });
 ```
 
-Now let's setup a set of material info. We haven't done this anywhere else
+Let's create a set of material info. We haven't done this anywhere else
 but it's a common setup. Unity, Unreal, Blender, Three.js, Babylon,js all
 have a concept of a *material*. Generally, a material holds things like
 the color of the material, how shiny it is, as well as which texture to
 use, etc...
 
-We'll make 20 "materials" and then pick one at random for each cube.
+We'll make 20 "materials" and then pick a material at random for each cube.
 
 ```js
   const numMaterials = 20;
@@ -357,7 +367,7 @@ We'll support a maximum of 20000. Like we have in the past,
 we'll make a uniform buffer for each object as well
 as a typed array we can update with uniform values.
 We'll also make a bind group for each object. And we'll pick
-some random values we can use to position an animate each object.
+some random values we can use to position and animate each object.
 
 ```js
   const maxObjects = 20000;
@@ -462,7 +472,6 @@ We pre-create a render pass descriptor which we'll update to begin a render pass
 
 We need a simple UI so we can adjust how many things we're drawing.
 
-
 ```js
   const settings = {
     numObjects: 1000,
@@ -529,7 +538,7 @@ We'll start a command buffer and a render pass and set our vertex and index buff
     pass.setIndexBuffer(indicesBuffer, 'uint16');
 ```
 
-when we'll compute a viewProjection matrix like we covered in
+Then we'll compute a viewProjection matrix like we covered in
 [the article on perspective projection](webgpu-perspective-projection.html).
 
 ```js
@@ -614,10 +623,10 @@ bind the bind group for this object, and draw.
 ```
 
 > Note that the portion of the code labeled "Compute a world matrix" is not so common. It would
-be more common to have a [scene graph](webgpu-scene-graphs.html) but that would have clutter
-the example even more. We needed something showing animation I through something together.
+be more common to have a [scene graph](webgpu-scene-graphs.html) but that would have cluttered
+the example even more. We needed something showing animation I threw something together.
 
-Then we can end the pass and submit it.
+Then we can end the pass, finish the command buffer, and submit it.
 
 ```js
 +    pass.end();
@@ -938,7 +947,8 @@ you can pass in `mappedAtCreation: true`. This has 2 benefits.
 
 2. You don't have to add `GPUBufferUsage.COPY_DST` to the buffer's usage.
 
-   This assumes you're not going to change the data later.
+   This assumes you're not going to change the data later via `writeBuffer`
+   nor one of the copy to buffer functions.
 
 ```js
   function createBufferWithData(device, data, usage) {
@@ -966,18 +976,18 @@ and one for texture coordinates. It's common to have 4 to 6 attributes where
 we'd have [tangents for normal mapping](webgpu-normal-mapping.html) and, if
 we had [a skinned model](webgpu-skinning.html), we'd add in weights and joints.
 
-In the example above each attribute is using it's own buffer.
+In the example above each attribute is using its own buffer.
 This is slower both on the CPU and GPU. It's slower on the CPU in JavaScript
 because we need to call `setVertexBuffer` once for each
 buffer for each model we want to draw.
 
-Imagine instead of just a cube we had 100s or models. Each time we switched
+Imagine instead of just a cube we had 100s of models. Each time we switched
 which model to draw we'd have to call `setVertexBuffer` up to 6 times.
 100 * 6 calls per model = 600 calls. 
 
 Following the rule "less work = go faster", if we merged the data for the
 attributes into a single buffer then we'd only need one call to `setVertexBuffer`
-pre model. 100 calls. That's like 600% faster!
+once per model. 100 calls. That's like 600% faster!
 
 On the GPU, loading things that are together in memory is usually faster
 than loading from different places in memory so on top of just putting
@@ -1088,9 +1098,9 @@ Above we put the data for all 3 attributes into a single buffer and then
 changed our render pass so it expects the data interleaved into a single
 buffer.
 
-Note: if you're loading gLTF files it's arguably good to either
+Note: if you're loading gLTF files, it's arguably good to either
 pre-process them so their vertex data is interleaved into a single buffer (best)
-or else interleave the data at load them (ok).
+or else interleave the data at load time (ok).
 
 # Optimization: Split uniform buffers (shared, material, per model)
 
@@ -1452,7 +1462,7 @@ A common organization in a 3D library is to have "models" (the vertex data),
 `color` and `shininess` never change so it's a waste to keep copying them
 to the uniform buffer every frame.
 
-Let's make a uniform buffer per material. Well copy the material settings
+Let's make a uniform buffer per material. We'll copy the material settings
 into them at init time and then just add them to our bind group.
 
 First let's change the shaders to use another uniform buffer.
@@ -1725,6 +1735,11 @@ Uniform buffer offsets have a minimum alignment which defaults to
 256 bytes so we'll round up the size we need per object to 256 bytes.
 
 ```js
++/** Rounds up v to a multiple of alignment */
++const roundUp = (v, alignment) => Math.ceil(v / alignment) * alignment;
+
+  ...
+
 +  const uniformBufferSize = (12 + 16) * 4;
 +  const uniformBufferSpace = roundUp(uniformBufferSize, device.limits.minUniformBufferOffsetAlignment);
 +  const uniformBuffer = device.createBuffer({
@@ -1871,7 +1886,7 @@ This will save a copy.
 WebGPU mapping happens asynchronously so rather then map a buffer and wait for it
 to be ready, we'll keep an array of already mapped buffers. Each frame, we either
 get an already mapped buffer or create a new one that is already mapped. After
-we render we'll setup a callback to map the buffer when it's available and put
+we render, we'll setup a callback to map the buffer when it's available and put
 it back on the list of already mapped buffers. This way, we'll never have to wait
 for a mapped buffer.
 
@@ -1948,7 +1963,7 @@ make new typedarray views after mapping.
 
 At render time we have to loop through the objects twice. Once to update the mapped buffer
 and then again to draw each object. This is because, only after we've updated every
-object's values in the mapped buffer can we then unmap it can call `copyBufferToBuffer`
+object's values in the mapped buffer can we then unmap it and call `copyBufferToBuffer`
 to update the uniform buffer. `copyBufferToBuffer` only exists on the command encoder. It
 can not be called while we are encoding our render pass. At least not on the same command
 buffer, so we'll loop twice.
@@ -2030,7 +2045,7 @@ Then we loop and draw each object.
 
 Finally, as soon as we've submitted the command buffer we map the buffer again.
 Mapping is asynchronous so when it's finally ready we'll add it back to the
-list of already mapped buffer.
+list of already mapped buffers.
 
 ```js
     pass.end();
@@ -2048,7 +2063,7 @@ which is almost 60% more than we started with.
 
 {{{example url="../webgpu-optimization-step6-use-mapped-buffers.html"}}}
 
-With rendering unchecked, the difference is even better. For me I get
+With rendering unchecked, the difference is even bigger. For me I get
 9000 at 75fps with the original non-optimized example and 18000 at 75fps
 in this last version. That's a 2x speed up!
 
@@ -2056,8 +2071,8 @@ Other things that *might* help
 
 * **Double buffer the large uniform buffer**
 
-  This comes up as a possible optimization because WebGPU, if a buffer is currently
-  in use, WebGPU can't update it.
+  This comes up as a possible optimization because WebGPU can not update a buffer
+  that is is currently in use.
 
   So, imagine you start rendering (you call `device.queue.submit`). The GPU starts
   rendering using our large uniform buffer. You immediately try to update that buffer.
@@ -2109,7 +2124,7 @@ Other things that *might* help
   actual uniform buffer.
 
   It would be much nicer if we could directly map the uniform buffer and avoid the copy.
-  Unfortunately, that's ability is not available in WebGPU version 1 but it is being
+  Unfortunately, that ability is not available in WebGPU version 1 but it is being
   considered as an optional feature sometime in the future.
 
 * **Indirect Drawing**
@@ -2121,7 +2136,7 @@ Other things that *might* help
   pass.drawIndirect(someBuffer, offsetIntoSomeBuffer);                // indirect
   ```
 
-  In the indirect case above, `someBuffer` is a 16 byte portion of a buffer that holds
+  In the indirect case above, `someBuffer` is a 16 byte portion of a GPU buffer that holds
   `[vertexCount, instanceCount, firstVertex, firstInstance]`.
 
   The advantage to indirect draw is that can have the GPU itself, fill out the values.
@@ -2131,7 +2146,7 @@ Other things that *might* help
   Using indirect drawing, you could do things like, for example, passing all of the
   object's bounding box or bounding sphere to the GPU and then have the GPU do
   frustum culling and if the object is inside the frustum it would update that
-  object's indirect drawing parameter to be drawn, otherwise it would update them
+  object's indirect drawing parameters to be drawn, otherwise it would update them
   to not be drawn. "frustum culling" is a fancy way to say "check if the object
   is possibly inside the frustum of the camera. We talked about frustums in
   [the article on perspective projection](webgpu-persective-projection.html).
