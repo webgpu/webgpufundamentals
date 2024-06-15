@@ -466,12 +466,10 @@ We need a simple UI so we can adjust how many things we're drawing.
 ```js
   const settings = {
     numObjects: 1000,
-    render: true,
   };
 
   const gui = new GUI();
   gui.add(settings, 'numObjects', { min: 0, max: maxObjects, step: 1});
-  gui.add(settings, 'render');
 ```
 
 Now we can write our render loop.
@@ -643,6 +641,7 @@ A few more things left to do. Let's add in resizing
     then = time;
 
 +    const {width, height} = canvasToSizeMap.get(canvas) ?? canvas;
++
 +    // Don't set the canvas size if it's already that size as it may be slow.
 +    if (canvas.width !== width || canvas.height !== height) {
 +      canvas.width = width;
@@ -844,7 +843,7 @@ async function main() {
   requestAnimationFrame(render);
 ```
 
-And finally we need to show the timing
+And we need to show the timing
 
 ```js
 async function main() {
@@ -878,6 +877,46 @@ async function main() {
   }
   requestAnimationFrame(render);
 ```
+
+One more thing, just to help with better comparisons. An issue we have now
+is, every visible cube has every pixel rendered or at least checked if it
+needs to be rendered. Since we're not optimizing the rendering of pixels
+but rather optimizing the usage of WebGPU itself, it can be useful to be
+able to draw to a 1x1 pixel canvas. This effectively removes nearly all
+of the time spend rasterizing triangles and instead leaves only the part
+of our code that is doing math and communicating with WebGPU.
+
+So let's add an option to do that
+
+```js
+  const settings = {
+    numObjects: 1000,
++    render: true,
+  };
+
+  const gui = new GUI();
+  gui.add(settings, 'numObjects', { min: 0, max: maxObjects, step: 1});
++  gui.add(settings, 'render');
+
+  let depthTexture;
+  let then = 0;
+  let frameCount = 0;
+
+  function render(time) {
+    time *= 0.001;  // convert to seconds
+    const deltaTime = time - then;
+    then = time;
+    ++frameCount;
+
+    const startTimeMs = performance.now();
+
+-    const {width, height} = canvasToSizeMap.get(canvas) ?? canvas;
++    const {width, height} = settings.render
++       ? canvasToSizeMap.get(canvas) ?? canvas
++       : { width: 1, height: 1 };
+```
+
+Now, if we uncheck 'render', we'll remove almost all of the um, ahh ..., rendering.
 
 And with that, we have our first "un-optimized" example. It's following the
 steps listed near the top of the article, and it works.
@@ -2008,6 +2047,10 @@ On my machine, this version draws around 13000 objects at 75fps.
 which is almost 60% more than we started with.
 
 {{{example url="../webgpu-optimization-step6-use-mapped-buffers.html"}}}
+
+With rendering unchecked, the difference is even better. For me I get
+9000 at 75fps with the original non-optimized example and 18000 at 75fps
+in this last version. That's a 2x speed up!
 
 Other things that *might* help
 

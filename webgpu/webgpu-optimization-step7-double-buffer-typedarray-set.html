@@ -472,7 +472,10 @@ async function main() {
 
     const startTimeMs = performance.now();
 
-    const {width, height} = canvasToSizeMap.get(canvas) ?? canvas;
+    const {width, height} = settings.render
+       ? canvasToSizeMap.get(canvas) ?? canvas
+       : { width: 1, height: 1 };
+
     // Don't set the canvas size if it's already that size as it may be slow.
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
