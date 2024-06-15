@@ -84,7 +84,7 @@ function rand(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-// Rounds up v to a multiple of alignment
+/** Rounds up v to a multiple of alignment */
 const roundUp = (v, alignment) => Math.ceil(v / alignment) * alignment;
 
 // Selects a random array element
@@ -292,10 +292,10 @@ async function main() {
   device.queue.writeTexture(
       { texture },
       new Uint8Array([
-        255, 255, 255, 255,
-        128, 128, 128, 255,
-        192, 192, 192, 255,
-        64, 64, 64, 255,
+        ...hslToRGBA8(0, 0, 1),
+        ...hslToRGBA8(0, 0, 0.5),
+        ...hslToRGBA8(0, 0, 0.75),
+        ...hslToRGBA8(0, 0, 0.25),
       ]),
       { bytesPerRow: 8, rowsPerImage: 2 },
       { width: 2, height: 2 },
@@ -453,15 +453,8 @@ async function main() {
 
     const startTimeMs = performance.now();
 
-    let width = 1;
-    let height = 1;
-    if (settings.render) {
-      const entry = canvasToSizeMap.get(canvas);
-      if (entry) {
-        width = Math.max(1, Math.min(entry.contentBoxSize[0].inlineSize, device.limits.maxTextureDimension2D));
-        height = Math.max(1, Math.min(entry.contentBoxSize[0].blockSize, device.limits.maxTextureDimension2D));
-      }
-    }
+    const {width, height} = canvasToSizeMap.get(canvas) ?? canvas;
+    // Don't set the canvas size if it's already that size as it may be slow.
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
@@ -516,7 +509,7 @@ async function main() {
       mat4.rotateX(worldTemp, time * rotationSpeed + i, worldTemp);
       mat4.scale(worldTemp, [scale, scale, scale], worldTemp);
 
-      // Inverse and transpose it into the worldInverseTranspose value
+      // Inverse and transpose it into the normalMatrix value
       mat3.fromMat4(mat4.transpose(mat4.inverse(worldTemp)), normalMatrixTemp);
 
       uniformValues.set(worldTemp, f32Offset + kWorldOffset);
@@ -599,7 +592,12 @@ gpu : ${canTimestamp ? `${(gpuAverage.get() / 1000).toFixed(1)}ms` : 'N/A'}
   requestAnimationFrame(render);
 
   const observer = new ResizeObserver(entries => {
-    entries.forEach(e => canvasToSizeMap.set(e.target, e));
+    entries.forEach(entry => {
+      canvasToSizeMap.set(entry.target, {
+        width: Math.max(1, Math.min(entry.contentBoxSize[0].inlineSize, device.limits.maxTextureDimension2D)),
+        height: Math.max(1, Math.min(entry.contentBoxSize[0].blockSize, device.limits.maxTextureDimension2D)),
+      });
+    });
   });
   observer.observe(canvas);
 }

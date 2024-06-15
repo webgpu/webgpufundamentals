@@ -55,6 +55,7 @@ const jsAverage = new RollingAverage();
 const gpuAverage = new RollingAverage();
 const mathAverage = new RollingAverage();
 
+/** Given a css color string, return an array of 4 values from 0 to 255 */
 const cssColorToRGBA8 = (() => {
   const canvas = new OffscreenCanvas(1, 1);
   const ctx = canvas.getContext('2d', {willReadFrequently: true});
@@ -66,13 +67,31 @@ const cssColorToRGBA8 = (() => {
   };
 })();
 
-const hsl = (h, s, l) => `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
+/** Given a css color string, return an array of 4 values from 0 to 1 */
 const cssColorToRGBA = cssColor => cssColorToRGBA8(cssColor).map(v => v / 255);
-const hslToRGBA = (h, s, l) => cssColorToRGBA(hsl(h, s, l));
 
-// Returns a random number between min and max.
-// If min and max are not specified, returns 0 to 1
-// If max is not specified, return 0 to min.
+/**
+ * Given hue, saturation, and luminance values in the range of 0 to 1
+ * return the corresponding CSS hsl string
+ */
+const hsl = (h, s, l) => `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
+
+/**
+ * Given hue, saturation, and luminance values in the range of 0 to 1
+ * returns an array of values from 0 to 1
+ */
+const hslToRGBA = (h, s, l) => cssColorToRGBA(hsl(h, s, l));
+/**
+ * Given hue, saturation, and luminance values in the range of 0 to 1
+ * returns an array of values from 0 to 255
+ */
+const hslToRGBA8 = (h, s, l) => cssColorToRGBA8(hsl(h, s, l));
+
+/**
+ * Returns a random number between min and max.
+ * If min and max are not specified, returns 0 to 1
+ * If max is not specified, return 0 to min.
+ */
 function rand(min, max) {
   if (min === undefined) {
     max = 1;
@@ -84,7 +103,7 @@ function rand(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-// Selects a random array element
+/** Selects a random array element */
 const randomArrayElement = arr => arr[Math.random() * arr.length | 0];
 
 async function main() {
@@ -284,10 +303,10 @@ async function main() {
   device.queue.writeTexture(
       { texture },
       new Uint8Array([
-        255, 255, 255, 255,
-        128, 128, 128, 255,
-        192, 192, 192, 255,
-        64, 64, 64, 255,
+        ...hslToRGBA8(0, 0, 1),
+        ...hslToRGBA8(0, 0, 0.5),
+        ...hslToRGBA8(0, 0, 0.75),
+        ...hslToRGBA8(0, 0, 0.25),
       ]),
       { bytesPerRow: 8, rowsPerImage: 2 },
       { width: 2, height: 2 },
@@ -441,15 +460,8 @@ async function main() {
 
     const startTimeMs = performance.now();
 
-    let width = 1;
-    let height = 1;
-    if (settings.render) {
-      const entry = canvasToSizeMap.get(canvas);
-      if (entry) {
-        width = Math.max(1, Math.min(entry.contentBoxSize[0].inlineSize, device.limits.maxTextureDimension2D));
-        height = Math.max(1, Math.min(entry.contentBoxSize[0].blockSize, device.limits.maxTextureDimension2D));
-      }
-    }
+    const {width, height} = canvasToSizeMap.get(canvas) ?? canvas;
+    // Don't set the canvas size if it's already that size as it may be slow.
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
@@ -534,7 +546,7 @@ async function main() {
       mat4.rotateX(worldValue, time * rotationSpeed + i, worldValue);
       mat4.scale(worldValue, [scale, scale, scale], worldValue);
 
-      // Inverse and transpose it into the worldInverseTranspose value
+      // Inverse and transpose it into the normalMatrix value
       mat3.fromMat4(mat4.transpose(mat4.inverse(worldValue)), normalMatrixValue);
 
       const {color, shininess} = material;
@@ -576,7 +588,12 @@ gpu : ${canTimestamp ? `${(gpuAverage.get() / 1000).toFixed(1)}ms` : 'N/A'}
   requestAnimationFrame(render);
 
   const observer = new ResizeObserver(entries => {
-    entries.forEach(e => canvasToSizeMap.set(e.target, e));
+    entries.forEach(entry => {
+      canvasToSizeMap.set(entry.target, {
+        width: Math.max(1, Math.min(entry.contentBoxSize[0].inlineSize, device.limits.maxTextureDimension2D)),
+        height: Math.max(1, Math.min(entry.contentBoxSize[0].blockSize, device.limits.maxTextureDimension2D)),
+      });
+    });
   });
   observer.observe(canvas);
 }

@@ -1413,7 +1413,7 @@ This forces you to implement a portable point solution.
 
 If you take a WebGL app and directly convert it to WebGPU you might find
 it runs slower. To get the benefits of WebGPU you'll need to change the
-way you organize and optimize how you draw. 
+way you organize data and optimize how you draw. 
 See [this article on WebGPU optimization](webgpu-optimization.html) for
 ideas.
 
