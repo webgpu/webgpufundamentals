@@ -55,6 +55,7 @@ const jsAverage = new RollingAverage();
 const gpuAverage = new RollingAverage();
 const mathAverage = new RollingAverage();
 
+/** Given a css color string, return an array of 4 values from 0 to 255 */
 const cssColorToRGBA8 = (() => {
   const canvas = new OffscreenCanvas(1, 1);
   const ctx = canvas.getContext('2d', {willReadFrequently: true});
@@ -66,13 +67,31 @@ const cssColorToRGBA8 = (() => {
   };
 })();
 
-const hsl = (h, s, l) => `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
+/** Given a css color string, return an array of 4 values from 0 to 1 */
 const cssColorToRGBA = cssColor => cssColorToRGBA8(cssColor).map(v => v / 255);
-const hslToRGBA = (h, s, l) => cssColorToRGBA(hsl(h, s, l));
 
-// Returns a random number between min and max.
-// If min and max are not specified, returns 0 to 1
-// If max is not specified, return 0 to min.
+/**
+ * Given hue, saturation, and luminance values in the range of 0 to 1
+ * return the corresponding CSS hsl string
+ */
+const hsl = (h, s, l) => `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
+
+/**
+ * Given hue, saturation, and luminance values in the range of 0 to 1
+ * returns an array of values from 0 to 1
+ */
+const hslToRGBA = (h, s, l) => cssColorToRGBA(hsl(h, s, l));
+/**
+ * Given hue, saturation, and luminance values in the range of 0 to 1
+ * returns an array of values from 0 to 255
+ */
+const hslToRGBA8 = (h, s, l) => cssColorToRGBA8(hsl(h, s, l));
+
+/**
+ * Returns a random number between min and max.
+ * If min and max are not specified, returns 0 to 1
+ * If max is not specified, return 0 to min.
+ */
 function rand(min, max) {
   if (min === undefined) {
     max = 1;
@@ -84,11 +103,11 @@ function rand(min, max) {
   return Math.random() * (max - min) + min;
 }
 
+/** Selects a random array element */
+const randomArrayElement = arr => arr[Math.random() * arr.length | 0];
+
 /** Rounds up v to a multiple of alignment */
 const roundUp = (v, alignment) => Math.ceil(v / alignment) * alignment;
-
-// Selects a random array element
-const randomArrayElement = arr => arr[Math.random() * arr.length | 0];
 
 async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
