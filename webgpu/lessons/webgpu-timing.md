@@ -2,11 +2,6 @@ Title: WebGPU Timing Performance
 Description: Timing operations in WebGPU
 TOC: Timing Performance
 
-<div class="warn">The `'timestamp-query'` feature used in this article
-should be available in Chrome 121 or 122. If it's not available you can probably
-turn it on by enabling on <a href="chrome://flags/#enable-webgpu-developer-features">enable-webgpu-developer-features</a> in <a href="chrome://flags/#enable-webgpu-developer-features">about:flags</a>.
-</div>
-
 Let's go over various things you might want
 to time for performance. We'll time 3 things:
 
@@ -824,6 +819,8 @@ async function main() {
 
     ...
 ```
+
+{{{example url="../webgpu-timing-with-timing-helper.html"}}}
 
 A few points about the `TimingHelper` class:
 

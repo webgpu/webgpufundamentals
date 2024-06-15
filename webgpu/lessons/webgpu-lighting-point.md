@@ -211,6 +211,8 @@ And here it is
 
 {{{example url="../webgpu-lighting-point.html" }}}
 
+# <a id="a-specular"></a> Specular Highlighting
+
 Now that we have a point we can add something called specular highlighting.
 
 If you look at on object in the real world, if it's remotely shiny, then if it happens
