@@ -2,24 +2,22 @@ Title: WebGPU Speed and Optimization
 Description: How to go faster in WebGPU
 TOC: Speed and Optimization
 
-Most of the examples on this site are written to be as understandable
-as possible. That means they work, and they're correct, but they don't
-necessarily show the most efficient way to do something in WebGPU.
-Further, depending on what you need to do, there are a myriad of possible
-optimizations.
+Most of the examples on this site are written to be as understandable as
+possible. That means they work, and they're correct, but they don't necessarily
+show the most efficient way to do something in WebGPU. Further, depending on
+what you need to do, there are a myriad of possible optimizations.
 
-In this article will cover some of the most basic optimizations and
-discuss a few others. To be clear, IMO, you don't usually need to go
-this far. Most of the examples around the net using the GPU draw
-a couple of hundred things and so really wouldn't benefit from
-these optimizations. Still, it's always good to know how to make things
-go faster.
+In this article will cover some of the most basic optimizations and discuss a
+few others. To be clear, IMO, **you don't usually need to go this far. Most of
+the examples around the net using WebGPU draw a couple of hundred things and so
+really wouldn't benefit from these optimizations**. Still, it's always good to
+know how to make things go faster.
 
-The basics: **The less work you do, and the less work you ask WebGPU to do
-the faster things will go.**
+The basics: **The less work you do, and the less work you ask WebGPU to do the
+faster things will go.**
 
-In pretty much all of the examples to date, if we draw multiple shapes
-we've done the following steps
+In pretty much all of the examples to date, if we draw multiple shapes we've
+done the following steps
 
 * At Init time:
    * for each thing we want to draw
@@ -33,35 +31,32 @@ we've done the following steps
       * bind the bindGroup for this object
       * draw
 
-Let's make an example we can optimize that follows the steps above so
-we can then optimize it.
+Let's make an example we can optimize that follows the steps above so we can
+then optimize it.
 
-Note, this a fake example.
-We are only going to draw a bunch of cubes and as such we could
-certainly optimize things by using *instancing* which we covered
+Note, this a fake example. We are only going to draw a bunch of cubes and as
+such we could certainly optimize things by using *instancing* which we covered
 in the articles on [storage buffers](webgpu-storage-buffers.html#a-instancing)
-and [vertex buffers](webgpu-vertex-buffers.html#a-instancing).
-I didn't want to clutter the code by handling tons of different kinds of
-objects. Instancing is certainly a great way to optimize if your
-project uses lots of the same model. Plants, trees, rocks, trash, etc
-are often optimized by using instancing. For other models, it's arguably
-less common.
+and [vertex buffers](webgpu-vertex-buffers.html#a-instancing). I didn't want to
+clutter the code by handling tons of different kinds of objects. Instancing is
+certainly a great way to optimize if your project uses lots of the same model.
+Plants, trees, rocks, trash, etc are often optimized by using instancing. For
+other models, it's arguably less common.
 
-For example a table might have 4, 6 or 8 chairs around
-it and it would probably be faster to use instancing to draw those
-chairs, except in a list of 500+ things to draw, if the chairs are the
-only exceptions, then it's probably not worth the effort to figure out
-some optimal data organization that some how organizes the chairs
-to use instancing but finds no other situations to use instancing.
+For example a table might have 4, 6 or 8 chairs around it and it would probably
+be faster to use instancing to draw those chairs, except in a list of 500+
+things to draw, if the chairs are the only exceptions, then it's probably not
+worth the effort to figure out some optimal data organization that some how
+organizes the chairs to use instancing but finds no other situations to use
+instancing.
 
-The point of the paragraph above is, use instancing when it's
-appropriate. If you are going to draw hundreds or more of the same
-thing than instancing is probably appropriate. If you are going to
-only draw a few of the same thing then it's probably not worth
-the effort to special case those few things.
+The point of the paragraph above is, use instancing when it's appropriate. If
+you are going to draw hundreds or more of the same thing than instancing is
+probably appropriate. If you are going to only draw a few of the same thing then
+it's probably not worth the effort to special case those few things.
 
-In any case, here's our code. We've got the initialization code
-we've been using in general.
+In any case, here's our code. We've got the initialization code we've been using
+in general.
 
 ```js
 async function main() {
@@ -248,10 +243,10 @@ We need a render pipeline
   });
 ```
 
-The pipeline above uses 1 buffer per attribute. One for position data,
-one for normal data, and one for texture coordinates (UVs). It culls
-back facing triangles, and it expects a depth texture for depth testing.
-All things we've covered in other articles.
+The pipeline above uses 1 buffer per attribute. One for position data, one for
+normal data, and one for texture coordinates (UVs). It culls back facing
+triangles, and it expects a depth texture for depth testing. All things we've
+covered in other articles.
 
 Let's insert a few utilities for making colors and random numbers.
 
@@ -339,11 +334,10 @@ just be a 2x2 texel texture with 4 shades of gray.
   });
 ```
 
-Let's create a set of material info. We haven't done this anywhere else
-but it's a common setup. Unity, Unreal, Blender, Three.js, Babylon,js all
-have a concept of a *material*. Generally, a material holds things like
-the color of the material, how shiny it is, as well as which texture to
-use, etc...
+Let's create a set of material info. We haven't done this anywhere else but it's
+a common setup. Unity, Unreal, Blender, Three.js, Babylon,js all have a concept
+of a *material*. Generally, a material holds things like the color of the
+material, how shiny it is, as well as which texture to use, etc...
 
 We'll make 20 "materials" and then pick a material at random for each cube.
 
@@ -362,12 +356,11 @@ We'll make 20 "materials" and then pick a material at random for each cube.
   }
 ```
 
-Now let's make data for each thing (cube) we want to draw.
-We'll support a maximum of 20000. Like we have in the past,
-we'll make a uniform buffer for each object as well
-as a typed array we can update with uniform values.
-We'll also make a bind group for each object. And we'll pick
-some random values we can use to position and animate each object.
+Now let's make data for each thing (cube) we want to draw. We'll support a
+maximum of 20000. Like we have in the past, we'll make a uniform buffer for each
+object as well as a typed array we can update with uniform values. We'll also
+make a bind group for each object. And we'll pick some random values we can use
+to position and animate each object.
 
 ```js
   const maxObjects = 20000;
@@ -448,7 +441,8 @@ some random values we can use to position and animate each object.
   }
 ```
 
-We pre-create a render pass descriptor which we'll update to begin a render pass at render time.
+We pre-create a render pass descriptor which we'll update to begin a render pass
+at render time.
 
 ```js
   const renderPassDescriptor = {
@@ -887,13 +881,13 @@ async function main() {
   requestAnimationFrame(render);
 ```
 
-One more thing, just to help with better comparisons. An issue we have now
-is, every visible cube has every pixel rendered or at least checked if it
-needs to be rendered. Since we're not optimizing the rendering of pixels
-but rather optimizing the usage of WebGPU itself, it can be useful to be
-able to draw to a 1x1 pixel canvas. This effectively removes nearly all
-of the time spend rasterizing triangles and instead leaves only the part
-of our code that is doing math and communicating with WebGPU.
+One more thing, just to help with better comparisons. An issue we have now is,
+every visible cube has every pixel rendered or at least checked if it needs to
+be rendered. Since we're not optimizing the rendering of pixels but rather
+optimizing the usage of WebGPU itself, it can be useful to be able to draw to a
+1x1 pixel canvas. This effectively removes nearly all of the time spend
+rasterizing triangles and instead leaves only the part of our code that is doing
+math and communicating with WebGPU.
 
 So let's add an option to do that
 
@@ -932,23 +926,22 @@ steps listed near the top of the article, and it works.
 
 {{{example url="../webgpu-optimization-none.html"}}}
 
-Increase the number of objects and see when the framerate drops for you.
-For me, on my 75hz monitor on an M1 Mac I got ~8000 cubes before the 
-framerate dropped.
+Increase the number of objects and see when the framerate drops for you. For me,
+on my 75hz monitor on an M1 Mac I got ~8000 cubes before the framerate dropped.
 
 # <a id="a-mapped-on-creation"></a> Optimization: Mapped On Creation
 
-In the example above, and in most of the examples on this site we've
-used `writeBuffer` to copy data into a vertex or index buffer. As a very
-minor optimization, for this particular case, when you create a buffer
-you can pass in `mappedAtCreation: true`. This has 2 benefits.
+In the example above, and in most of the examples on this site we've used
+`writeBuffer` to copy data into a vertex or index buffer. As a very minor
+optimization, for this particular case, when you create a buffer you can pass in
+`mappedAtCreation: true`. This has 2 benefits.
 
 1. It's slightly faster to put the data into the new buffer
 
 2. You don't have to add `GPUBufferUsage.COPY_DST` to the buffer's usage.
 
-   This assumes you're not going to change the data later via `writeBuffer`
-   nor one of the copy to buffer functions.
+   This assumes you're not going to change the data later via `writeBuffer` nor
+   one of the copy to buffer functions.
 
 ```js
   function createBufferWithData(device, data, usage) {
@@ -966,8 +959,8 @@ you can pass in `mappedAtCreation: true`. This has 2 benefits.
   }
 ```
 
-Note that this optimization only helps at creation time so it will not
-affect our performance at render time.
+Note that this optimization only helps at creation time so it will not affect
+our performance at render time.
 
 # <a id="a-pack-verts"></a> Optimization: Pack and interleave your vertices
 
@@ -976,23 +969,22 @@ and one for texture coordinates. It's common to have 4 to 6 attributes where
 we'd have [tangents for normal mapping](webgpu-normal-mapping.html) and, if
 we had [a skinned model](webgpu-skinning.html), we'd add in weights and joints.
 
-In the example above each attribute is using its own buffer.
-This is slower both on the CPU and GPU. It's slower on the CPU in JavaScript
-because we need to call `setVertexBuffer` once for each
-buffer for each model we want to draw.
+In the example above each attribute is using its own buffer. This is slower both
+on the CPU and GPU. It's slower on the CPU in JavaScript because we need to call
+`setVertexBuffer` once for each buffer for each model we want to draw.
 
 Imagine instead of just a cube we had 100s of models. Each time we switched
-which model to draw we'd have to call `setVertexBuffer` up to 6 times.
-100 * 6 calls per model = 600 calls. 
+which model to draw we'd have to call `setVertexBuffer` up to 6 times. 100 * 6
+calls per model = 600 calls. 
 
 Following the rule "less work = go faster", if we merged the data for the
-attributes into a single buffer then we'd only need one call to `setVertexBuffer`
-once per model. 100 calls. That's like 600% faster!
+attributes into a single buffer then we'd only need one call to
+`setVertexBuffer` once per model. 100 calls. That's like 600% faster!
 
-On the GPU, loading things that are together in memory is usually faster
-than loading from different places in memory so on top of just putting
-the vertex data for a single model into a single buffer, it's better
-to interleave the data.
+On the GPU, loading things that are together in memory is usually faster than
+loading from different places in memory so on top of just putting the vertex
+data for a single model into a single buffer, it's better to interleave the
+data.
 
 Let's make that change.
 
@@ -1094,13 +1086,12 @@ Let's make that change.
 +    pass.setVertexBuffer(0, vertexBuffer);
 ```
 
-Above we put the data for all 3 attributes into a single buffer and then
-changed our render pass so it expects the data interleaved into a single
-buffer.
+Above we put the data for all 3 attributes into a single buffer and then changed
+our render pass so it expects the data interleaved into a single buffer.
 
-Note: if you're loading gLTF files, it's arguably good to either
-pre-process them so their vertex data is interleaved into a single buffer (best)
-or else interleave the data at load time (ok).
+Note: if you're loading gLTF files, it's arguably good to either pre-process
+them so their vertex data is interleaved into a single buffer (best) or else
+interleave the data at load time.
 
 # Optimization: Split uniform buffers (shared, material, per model)
 
@@ -1276,8 +1267,8 @@ We need to create one global uniform buffer for the global uniforms.
       kViewWorldPositionOffset, kViewWorldPositionOffset + 3);
 ```
 
-Then we can removed these uniforms from our perObject uniform buffer
-and add the global uniform buffer to each object's bind group.
+Then we can removed these uniforms from our perObject uniform buffer and add the
+global uniform buffer to each object's bind group.
 
 ```js
   const maxObjects = 20000;
@@ -1363,8 +1354,8 @@ and add the global uniform buffer to each object's bind group.
   }
 ```
 
-Then, at render time, we update the global uniform buffer just once,
-outside the loop of rendering our objects.
+Then, at render time, we update the global uniform buffer just once, outside the
+loop of rendering our objects.
 
 ```js
     const aspect = canvas.clientWidth / canvas.clientHeight;
@@ -1457,13 +1448,13 @@ On my machine, with that change, our math portion dropped ~16%
 # Optimization: Separate more uniforms
 
 A common organization in a 3D library is to have "models" (the vertex data),
-"materials" (the colors, shininess, and textures), "lights" (which lights to use),
-"viewInfo" (the view and projection matrix). In particular, in our example,
-`color` and `shininess` never change so it's a waste to keep copying them
-to the uniform buffer every frame.
+"materials" (the colors, shininess, and textures), "lights" (which lights to
+use), "viewInfo" (the view and projection matrix). In particular, in our
+example, `color` and `shininess` never change so it's a waste to keep copying
+them to the uniform buffer every frame.
 
-Let's make a uniform buffer per material. We'll copy the material settings
-into them at init time and then just add them to our bind group.
+Let's make a uniform buffer per material. We'll copy the material settings into
+them at init time and then just add them to our bind group.
 
 First let's change the shaders to use another uniform buffer.
 
@@ -1595,9 +1586,9 @@ Then we'll make a uniform buffer for each material.
   }
 ```
 
-When we setup the per object info we no longer need to pass
-on the material settings. Instead we just need to add the
-material's uniform buffer to the object's bind group.
+When we setup the per object info we no longer need to pass on the material
+settings. Instead we just need to add the material's uniform buffer to the
+object's bind group.
 
 ```js
   const maxObjects = 20000;
@@ -1718,21 +1709,20 @@ We also no longer need to deal with this stuff at render time.
 
 # Optimization: Use One large Uniform Buffer with buffer offsets
 
-Right now, each object has it's own uniform buffer. At render time,
-for each object, we update a typed array with the uniform values for
-that object and then call `device.queue.writeBuffer` to update that
-single uniform buffer's values. If we're rendering 8000 objects
-that's 8000 calls to `device.queue.writeBuffer`.
+Right now, each object has it's own uniform buffer. At render time, for each
+object, we update a typed array with the uniform values for that object and then
+call `device.queue.writeBuffer` to update that single uniform buffer's values.
+If we're rendering 8000 objects that's 8000 calls to `device.queue.writeBuffer`.
 
-Instead, we could make one larger uniform buffer. We can then setup
-the bind group for each object to use it's own portion of the larger 
-buffer. At render time, we can update all the values for all of
-the objects in one large typed array and make just one call to
-`device.queue.writeBuffer` which should be faster.
+Instead, we could make one larger uniform buffer. We can then setup the bind
+group for each object to use it's own portion of the larger buffer. At render
+time, we can update all the values for all of the objects in one large typed
+array and make just one call to `device.queue.writeBuffer` which should be
+faster.
 
-First let's allocate a large uniform buffer and large typed array.
-Uniform buffer offsets have a minimum alignment which defaults to
-256 bytes so we'll round up the size we need per object to 256 bytes.
+First let's allocate a large uniform buffer and large typed array. Uniform
+buffer offsets have a minimum alignment which defaults to 256 bytes so we'll
+round up the size we need per object to 256 bytes.
 
 ```js
 +/** Rounds up v to a multiple of alignment */
@@ -1750,9 +1740,9 @@ Uniform buffer offsets have a minimum alignment which defaults to
 +  const uniformValues = new Float32Array(uniformBuffer.size / 4);
 ```
 
-Now we can change the per object views to view into that large
-typedarray. We can also set the bind group to use the correct
-portion of the large uniform buffer.
+Now we can change the per object views to view into that large typedarray. We
+can also set the bind group to use the correct portion of the large uniform
+buffer.
 
 ```js
   for (let i = 0; i < maxObjects; ++i) {
@@ -1873,25 +1863,25 @@ On my machine that shaved off 40% of the JavaScript time!
 
 # Optimization: Use Mapped Buffers
 
-When we call `device.queue.writeBuffer`, what happens is, WebGPU makes a copy
-of the data in the typed array. It copies that data to the GPU process (a separate process
-that talks to the GPU for security). In the GPU process that data is then copied
-to the GPU Buffer.
+When we call `device.queue.writeBuffer`, what happens is, WebGPU makes a copy of
+the data in the typed array. It copies that data to the GPU process (a separate
+process that talks to the GPU for security). In the GPU process that data is
+then copied to the GPU Buffer.
 
-We can skip one of those copies by using mapped buffers instead. We'll map a buffer,
-update the uniform values directly into that mapped buffer. Then we'll unmap the
-buffer and issue a `copyBufferToBuffer` command to copy to the uniform buffer.
-This will save a copy.
+We can skip one of those copies by using mapped buffers instead. We'll map a
+buffer, update the uniform values directly into that mapped buffer. Then we'll
+unmap the buffer and issue a `copyBufferToBuffer` command to copy to the uniform
+buffer. This will save a copy.
 
-WebGPU mapping happens asynchronously so rather then map a buffer and wait for it
-to be ready, we'll keep an array of already mapped buffers. Each frame, we either
-get an already mapped buffer or create a new one that is already mapped. After
-we render, we'll setup a callback to map the buffer when it's available and put
-it back on the list of already mapped buffers. This way, we'll never have to wait
-for a mapped buffer.
+WebGPU mapping happens asynchronously so rather then map a buffer and wait for
+it to be ready, we'll keep an array of already mapped buffers. Each frame, we
+either get an already mapped buffer or create a new one that is already mapped.
+After we render, we'll setup a callback to map the buffer when it's available
+and put it back on the list of already mapped buffers. This way, we'll never
+have to wait for a mapped buffer.
 
-First we'll make an array of mapped buffers and a function to either get a pre-mapped
-buffer or make a new one.
+First we'll make an array of mapped buffers and a function to either get a
+pre-mapped buffer or make a new one.
 
 ```js
   const mappedTransferBuffers = [];
@@ -1961,12 +1951,12 @@ make new typedarray views after mapping.
   }
 ```
 
-At render time we have to loop through the objects twice. Once to update the mapped buffer
-and then again to draw each object. This is because, only after we've updated every
-object's values in the mapped buffer can we then unmap it and call `copyBufferToBuffer`
-to update the uniform buffer. `copyBufferToBuffer` only exists on the command encoder. It
-can not be called while we are encoding our render pass. At least not on the same command
-buffer, so we'll loop twice.
+At render time we have to loop through the objects twice. Once to update the
+mapped buffer and then again to draw each object. This is because, only after
+we've updated every object's values in the mapped buffer can we then unmap it
+and call `copyBufferToBuffer` to update the uniform buffer. `copyBufferToBuffer`
+only exists on the command encoder. It can not be called while we are encoding
+our render pass. At least not on the same command buffer, so we'll loop twice.
 
 First we loop and update the mapped buffer
 
@@ -2044,8 +2034,8 @@ Then we loop and draw each object.
 ```
 
 Finally, as soon as we've submitted the command buffer we map the buffer again.
-Mapping is asynchronous so when it's finally ready we'll add it back to the
-list of already mapped buffers.
+Mapping is asynchronous so when it's finally ready we'll add it back to the list
+of already mapped buffers.
 
 ```js
     pass.end();
@@ -2058,33 +2048,33 @@ list of already mapped buffers.
 +    });
 ```
 
-On my machine, this version draws around 13000 objects at 75fps.
-which is almost 60% more than we started with.
+On my machine, this version draws around 13000 objects at 75fps. which is almost
+60% more than we started with.
 
 {{{example url="../webgpu-optimization-step6-use-mapped-buffers.html"}}}
 
-With rendering unchecked, the difference is even bigger. For me I get
-9000 at 75fps with the original non-optimized example and 18000 at 75fps
-in this last version. That's a 2x speed up!
+With rendering unchecked, the difference is even bigger. For me I get 9000 at
+75fps with the original non-optimized example and 18000 at 75fps in this last
+version. That's a 2x speed up!
 
 Other things that *might* help
 
 * **Double buffer the large uniform buffer**
 
-  This comes up as a possible optimization because WebGPU can not update a buffer
-  that is is currently in use.
+  This comes up as a possible optimization because WebGPU can not update a
+  buffer that is is currently in use.
 
-  So, imagine you start rendering (you call `device.queue.submit`). The GPU starts
-  rendering using our large uniform buffer. You immediately try to update that buffer.
-  In this case, WebGPU would have to pause and wait for the GPU to finish using the
-  buffer for rendering.
+  So, imagine you start rendering (you call `device.queue.submit`). The GPU
+  starts rendering using our large uniform buffer. You immediately try to update
+  that buffer. In this case, WebGPU would have to pause and wait for the GPU to
+  finish using the buffer for rendering.
 
   This is unlikely to happen in our example above. We don't directly update the
-  uniform buffer. Instead we update a transfer buffer and then later, ask the GPU
-  to copy it to the uniform buffer.
+  uniform buffer. Instead we update a transfer buffer and then later, ask the
+  GPU to copy it to the uniform buffer.
 
-  This issue would be more likely to come up if we update a buffer directly on the
-  GPU using a compute shader.
+  This issue would be more likely to come up if we update a buffer directly on
+  the GPU using a compute shader.
 
 * **Compute matrix math with offsets**
 
@@ -2093,9 +2083,9 @@ Other things that *might* help
   It can modify a `Float32Array` in place. But, what it can't do is update a
   `Float32Array` at some offset.
   
-  This is why, in our loop where we update our per object uniform values,
-  for each object we have to create 2 `Float32Array` views into our mapped
-  buffer. For 10000 objects that's creating 20000 of these temporary views.
+  This is why, in our loop where we update our per object uniform values, for
+  each object we have to create 2 `Float32Array` views into our mapped buffer.
+  For 10000 objects that's creating 20000 of these temporary views.
   
   Adding offsets to every input would make them burdensome to use in my opinion
   but, just as a test, I wrote a modified version of the math functions that
@@ -2113,23 +2103,27 @@ Other things that *might* help
 
   [It appears to be about 7% faster to use the offsets](../webgpu-optimization-step6-use-mapped-buffers-math-w-offsets.html).
 
-  It's up to you if you feel that's worth it. For me personally, I'd prefer to keep it simple to use.
-  I'm rarely trying to draw 10000 things but it's good to know, if I wanted to squeeze out more performance,
-  this is one place I might find some.
+  It's up to you if you feel that's worthß it. For me personally, like I
+  mentioned at the top of the article, I'd prefer to keep it simple to use. I'm
+  rarely trying to draw 10000 things. But, it's good to know, if I wanted to
+  squeeze out more performance, this is one place I might find some. More likely
+  I'd look into WebAssembly if I needed to go that far.
 
 * **Directly map the uniform buffer**
 
-  In our example above we map a transfer buffer, a buffer that only has `COPY_SRC` and `MAP_WRITE`
-  usage flags. We then have to call `encoder.copyBufferToBuffer` to copy the contents into the
+  In our example above we map a transfer buffer, a buffer that only has
+  `COPY_SRC` and `MAP_WRITE` usage flags. We then have to call
+  `encoder.copyBufferToBuffer` to copy the contents of that buffer into the
   actual uniform buffer.
 
-  It would be much nicer if we could directly map the uniform buffer and avoid the copy.
-  Unfortunately, that ability is not available in WebGPU version 1 but it is being
-  considered as an optional feature sometime in the future.
+  It would be much nicer if we could directly map the uniform buffer and avoid
+  the copy. Unfortunately, that ability is not available in WebGPU version 1 but
+  it is being considered as an optional feature sometime in the future,
+  especially for *uniform memory architectures* like some ARM based devices.
 
 * **Indirect Drawing**
 
-  Indirect drawing refers to draw commands that take their input from a GPU buffer.
+  Indirect drawing refers to draw commands that take their parameters from a GPU buffer.
 
   ```js
   pass.draw(vertexCount, instanceCount, firstVertex, firstInstance);  // direct
@@ -2139,12 +2133,12 @@ Other things that *might* help
   In the indirect case above, `someBuffer` is a 16 byte portion of a GPU buffer that holds
   `[vertexCount, instanceCount, firstVertex, firstInstance]`.
 
-  The advantage to indirect draw is that can have the GPU itself, fill out the values.
+  The advantage to indirect draw is that you can have the GPU itself fill out the values.
   You can even have the GPU set `vertexCount` and/or `instanceCount` to zero when you
   don't want that thing to be drawn.
 
   Using indirect drawing, you could do things like, for example, passing all of the
-  object's bounding box or bounding sphere to the GPU and then have the GPU do
+  objects' bounding boxes or bounding spheres to the GPU and then have the GPU do
   frustum culling and if the object is inside the frustum it would update that
   object's indirect drawing parameters to be drawn, otherwise it would update them
   to not be drawn. "frustum culling" is a fancy way to say "check if the object
@@ -2154,8 +2148,9 @@ Other things that *might* help
 * **Render Bundles**
 
   Render bundles let you pre-record a bunch of command buffer commands and then
-  request them to be executed later. This can be useful, especially if your scene
-  is relatively static, meaning you don't need to add or remove objects later.
+  request them to be executed later. This can be useful, especially if your
+  scene is relatively static, meaning you don't need to add or remove objects
+  later.
 
   There's a great article [here](https://toji.dev/webgpu-best-practices/render-bundles)
   that combines render bundles, indirect draws, GPU frustum culling, to show
