@@ -1420,8 +1420,10 @@ ideas.
 Note: If you are comparing WebGL to WebGPU in [the article on optimization](webgpu-optimization.html)
 here are 2 WebGL samples you can use to compare
 
-* [Drawing up to 20000 objects in WebGL using standard WebGL uniforms](../webgl-optimization-none.html)
-* [Drawing up to 20000 objects in WebGL using uniform blocks](../webgl-optimization-none-uniform-buffers.html)
+* [Drawing up to 30000 objects in WebGL using standard WebGL uniforms](../webgl-optimization-none.html)
+* [Drawing up to 30000 objects in WebGL using uniform blocks](../webgl-optimization-none-uniform-buffers.html)
+* [Drawing up to 30000 objects in WebGL using global/material/per object uniform blocks](../webgl-optimization-global-material-per-object-uniform-buffers.html)
+* [Drawing up to 30000 objects in WebGL using one large uniform buffer](../webgl-optimization-uniform-buffers-one-large.html)
 
 Another article, if you're comparing performance of WebGL vs WebGPU see
 [this article](https://toji.dev/webgpu-best-practices/webgl-performance-comparison).

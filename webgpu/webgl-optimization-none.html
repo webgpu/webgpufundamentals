@@ -299,7 +299,7 @@ async function main() {
     });
   }
 
-  const maxObjects = 20000;
+  const maxObjects = 30000;
   const objectInfos = [];
 
   for (let i = 0; i < maxObjects; ++i) {
@@ -395,6 +395,8 @@ async function main() {
     const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
 
     let mathElapsedTimeMs = 0;
+    let currentActiveTexture = -1;
+    const currentTextures = [];
 
     for (let i = 0; i < settings.numObjects; ++i) {
       const {
@@ -410,7 +412,7 @@ async function main() {
       const mathTimeStartMs = performance.now();
 
       // Copy the viewProjectionMatrix into the uniform values for this object
-      uniforms.viewProjection.set(viewProjectionMatrix);
+      // uniforms.viewProjection.set(viewProjectionMatrix);
 
       // Compute a world matrix
       const worldValue = uniforms.world;
@@ -426,17 +428,39 @@ async function main() {
 
       const {color, shininess} = material;
 
-      uniforms.color.set(color);
-      uniforms.lightWorldPosition.set([-10, 30, 300]);
-      uniforms.viewWorldPosition.set(eye);
-      uniforms.shininess = shininess;
+      // uniforms.color.set(color);
+      // uniforms.lightWorldPosition.set([-10, 30, 300]);
+      // uniforms.viewWorldPosition.set(eye);
+      // uniforms.shininess = shininess;
 
       mathElapsedTimeMs += performance.now() - mathTimeStartMs;
 
-      // upload the uniform values to the uniform buffer
-      twgl.setUniforms(prgInfo, uniforms);
+      // update the uniforms
+      // twgl.setUniforms(prgInfo, uniforms);
 
-      twgl.drawBufferInfo(gl, bufferInfo);
+      // Do it manually since we're doing it manually in WebGPU
+      const loc = prgInfo.uniformLocations;
+
+      if (currentTextures[0] !== uniforms.diffuseTexture) {
+        if (currentActiveTexture !== 0) {
+          currentActiveTexture = 0;
+          gl.activeTexture(gl.TEXTURE0);
+        }
+        currentTextures[0] = uniforms.diffuseTexture;
+        gl.bindTexture(gl.TEXTURE_2D, uniforms.diffuseTexture);
+        gl.uniform1i(loc.diffuseTexture, 0);
+      }
+
+      gl.uniformMatrix4fv(loc.world, false, worldValue);
+      gl.uniformMatrix4fv(loc.viewProjection, false, viewProjectionMatrix);
+      gl.uniformMatrix3fv(loc.normalMatrix, false, uniforms.normalMatrix);
+      gl.uniform3fv(loc.lightWorldPosition, [-10, 30, 300]);
+      gl.uniform3fv(loc.viewWorldPosition, eye);
+      gl.uniform4fv(loc.color, color);
+      gl.uniform1f(loc.shininess, shininess);
+
+      // twgl.drawBufferInfo(gl, bufferInfo);
+      gl.drawElements(gl.TRIANGLES, bufferInfo.numElements, gl.UNSIGNED_SHORT, 0);
     }
     timingHelper.end();
 

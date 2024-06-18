@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>WebGPU Optimization - None</title>
+    <title>WebGPU Optimization - Use One Large Uniform Buffer with Offsets</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -363,7 +363,7 @@ async function main() {
   const viewWorldPositionValue = globalUniformValues.subarray(
       kViewWorldPositionOffset, kViewWorldPositionOffset + 3);
 
-  const maxObjects = 20000;
+  const maxObjects = 30000;
   const objectInfos = [];
 
   const uniformBufferSize = (12 + 16) * 4;
