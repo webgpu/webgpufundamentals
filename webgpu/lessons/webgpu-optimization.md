@@ -274,14 +274,9 @@ const hsl = (h, s, l) => `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
 
 /**
  * Given hue, saturation, and luminance values in the range of 0 to 1
- * returns an array of values from 0 to 1
+ * returns an array of 4 values from 0 to 1
  */
 const hslToRGBA = (h, s, l) => cssColorToRGBA(hsl(h, s, l));
-/**
- * Given hue, saturation, and luminance values in the range of 0 to 1
- * returns an array of values from 0 to 255
- */
-const hslToRGBA8 = (h, s, l) => cssColorToRGBA8(hsl(h, s, l));
 
 /**
  * Returns a random number between min and max.
@@ -305,32 +300,31 @@ const randomArrayElement = arr => arr[Math.random() * arr.length | 0];
 
 Hopefully they are all pretty straight forward.
 
-Now let's make a texture and a sampler. The texture will
-just be a 2x2 texel texture with 4 shades of gray.
+Now let's make some textures and a sampler. We'll use
+a canvas, draw an emoji on it, and then use our function
+`createTextureFromSource` that we wrote in
+[the article on importing textures](webgpu-importing-textures.html)
+to create a texture from it.
 
 ```js
-  const texture = device.createTexture({
-    size: [2, 2],
-    format: 'rgba8unorm',
-    usage:
-      GPUTextureUsage.TEXTURE_BINDING |
-      GPUTextureUsage.COPY_DST,
+  const textures = [
+    '😂', '👾', '👍', '👀', '🌞', '🛟',
+  ].map(s => {
+    const size = 128;
+    const ctx = new OffscreenCanvas(size, size).getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, size, size);
+    ctx.font = `${size * 0.9}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(s, size / 2, size / 2);
+    return createTextureFromSource(device, ctx.canvas, {mips: true});
   });
-  device.queue.writeTexture(
-      { texture },
-      new Uint8Array([
-        ...hslToRGBA8(0, 0, 1),
-        ...hslToRGBA8(0, 0, 0.5),
-        ...hslToRGBA8(0, 0, 0.75),
-        ...hslToRGBA8(0, 0, 0.25),
-      ]),
-      { bytesPerRow: 8, rowsPerImage: 2 },
-      { width: 2, height: 2 },
-  );
 
   const sampler = device.createSampler({
-    magFilter: 'nearest',
-    minFilter: 'nearest',
+    magFilter: 'linear',
+    minFilter: 'linear',
+    mipmapFilter: 'nearest',
   });
 ```
 
@@ -350,7 +344,7 @@ We'll make 20 "materials" and then pick a material at random for each cube.
     materials.push({
       color,
       shininess,
-      texture,
+      texture: randomArrayElement(textures),
       sampler,
     });
   }
@@ -1580,7 +1574,7 @@ Then we'll make a uniform buffer for each material.
 -      color,
 -      shininess,
 +      materialUniformBuffer,
-      texture,
+      texture: randomArrayElement(textures),
       sampler,
     });
   }
