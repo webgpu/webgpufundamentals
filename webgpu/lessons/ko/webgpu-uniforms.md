@@ -474,7 +474,7 @@ device.queue.submit([commandBuffer]);
 
 {{{example url="../webgpu-simple-triangle-uniforms-split.html"}}}
 
-이 간단한 예제에서 uniform 버퍼를 구분하는 것은 과할 수고 있지만, 언제 무엇이 변하는지에 따라 구분하는 것이 일반적입니다.
+이 간단한 예제에서 uniform 버퍼를 구분하는 것은 과할 수도 있지만, 언제 무엇이 변하는지에 따라 구분하는 것이 일반적입니다.
 예를 들어 공유되는 행렬에 대한 uniform 버퍼가 있습니다. 
 투영(project), 뷰(view)/카메라 행렬이 있을 수 있겠죠.
 대부분 이 값들은 우리가 그리고자 하는 대상에 대해 동일한 값을 사용하기 때문에 하나의 버퍼를 만들어서 모든 객체가 동일한 uniform 버퍼를 사용하게 하면 됩니다.
@@ -483,6 +483,6 @@ device.queue.submit([commandBuffer]);
 
 또 다른 uniform 버퍼는 머티리얼(material) 세팅값을 가지고 있을 수 있습니다. 이러한 세팅값은 여러 객체에서 공유될 것입니다.
 
-이러한 내용은 3D 그리기 많이 활용할 것입니다.
+이러한 내용은 3D 그리기를 다룰 때 많이 활용할 것입니다.
 
 다음은 [스토리지 버퍼(storage buffer)](webgpu-storage-buffers.html)입니다.

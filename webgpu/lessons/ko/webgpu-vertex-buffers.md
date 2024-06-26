@@ -917,7 +917,7 @@ function createCircleVertices({
 +  }
 
   return {
-    positionData,
+    vertexData,
     colorData,
 +    indexData,
     numVertices: indexData.length,
