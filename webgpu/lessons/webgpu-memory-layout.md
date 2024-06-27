@@ -154,7 +154,7 @@ Further, every `TypedArray` has the following properties
 
 And `TypedArray`s have various methods, many are similar to `Array` but
 one that is not is `subarray`. It creates a new `TypedArray` view
-of the same type. Its parameters are `subarray(begin, end)` were
+of the same type. Its parameters are `subarray(begin, end)` where
 `end` is not included. So `someTypedArray.subarray(5, 10)` makes
 a new `TypedArray` of **the same `ArrayBuffer`** of elements 5 to 9
 of `someTypedArray`.
