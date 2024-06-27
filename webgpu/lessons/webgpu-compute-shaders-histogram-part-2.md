@@ -527,12 +527,12 @@ and create pipelines for each one.
         @builtin(vertex_index) vertexIndex : u32
       ) -> OurVertexShaderOutput {
         let pos = array(
-
+          // 1st triangle
           vec2f( 0.0,  0.0),  // center
           vec2f( 1.0,  0.0),  // right, center
           vec2f( 0.0,  1.0),  // center, top
 
-          // 2st triangle
+          // 2nd triangle
           vec2f( 0.0,  1.0),  // center, top
           vec2f( 1.0,  0.0),  // right, center
           vec2f( 1.0,  1.0),  // right, top
