@@ -1705,6 +1705,8 @@ We also no longer need to deal with this stuff at render time.
     }
 ```
 
+{{{example url="../webgpu-optimization-step4-material-uniforms.html"}}}
+
 # Optimization: Use One large Uniform Buffer with buffer offsets
 
 Right now, each object has it's own uniform buffer. At render time, for each
