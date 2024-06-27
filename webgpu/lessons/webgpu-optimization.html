@@ -559,11 +559,11 @@ material, how shiny it is, as well as which texture to use, etc…</p>
   }
 </pre>
 <p>Now let’s make data for each thing (cube) we want to draw. We’ll support a
-maximum of 20000. Like we have in the past, we’ll make a uniform buffer for each
+maximum of 30000. Like we have in the past, we’ll make a uniform buffer for each
 object as well as a typed array we can update with uniform values. We’ll also
 make a bind group for each object. And we’ll pick some random values we can use
 to position and animate each object.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const maxObjects = 20000;
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const maxObjects = 30000;
   const objectInfos = [];
 
   for (let i = 0; i &lt; maxObjects; ++i) {
@@ -1393,7 +1393,7 @@ with <code class="notranslate" translate="no">device.queue.writeBuffer</code></p
 </pre>
 <p>Then we can removed these uniforms from our perObject uniform buffer and add the
 global uniform buffer to each object’s bind group.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const maxObjects = 20000;
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const maxObjects = 30000;
   const objectInfos = [];
 
   for (let i = 0; i &lt; maxObjects; ++i) {
@@ -1700,7 +1700,7 @@ them at init time and then just add them to our bind group.</p>
 <p>When we setup the per object info we no longer need to pass on the material
 settings. Instead we just need to add the material’s uniform buffer to the
 object’s bind group.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const maxObjects = 20000;
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const maxObjects = 30000;
   const objectInfos = [];
 
   for (let i = 0; i &lt; maxObjects; ++i) {
@@ -2159,7 +2159,7 @@ It can modify a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> at some offset.</p>
 <p>This is why, in our loop where we update our per object uniform values, for
 each object we have to create 2 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a> views into our mapped buffer.
-For 10000 objects that’s creating 20000 of these temporary views.</p>
+For 20000 objects that’s creating 40000 of these temporary views.</p>
 <p>Adding offsets to every input would make them burdensome to use in my opinion
 but, just as a test, I wrote a modified version of the math functions that
 take an offset. In other words.</p>
@@ -2169,7 +2169,7 @@ take an offset. In other words.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">   mat4.multiply(a, aOffset, b, bOffset, dst, dstOffset);
 </pre>
 <p><a href="../webgpu-optimization-step6-use-mapped-buffers-math-w-offsets.html">It appears to be about 7% faster to use the offsets</a>.</p>
-<p>It’s up to you if you feel that’s worthß it. For me personally, like I
+<p>It’s up to you if you feel that’s worth it. For me personally, like I
 mentioned at the top of the article, I’d prefer to keep it simple to use. I’m
 rarely trying to draw 10000 things. But, it’s good to know, if I wanted to
 squeeze out more performance, this is one place I might find some. More likely
