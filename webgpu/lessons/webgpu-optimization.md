@@ -351,13 +351,13 @@ We'll make 20 "materials" and then pick a material at random for each cube.
 ```
 
 Now let's make data for each thing (cube) we want to draw. We'll support a
-maximum of 20000. Like we have in the past, we'll make a uniform buffer for each
+maximum of 30000. Like we have in the past, we'll make a uniform buffer for each
 object as well as a typed array we can update with uniform values. We'll also
 make a bind group for each object. And we'll pick some random values we can use
 to position and animate each object.
 
 ```js
-  const maxObjects = 20000;
+  const maxObjects = 30000;
   const objectInfos = [];
 
   for (let i = 0; i < maxObjects; ++i) {
@@ -1265,7 +1265,7 @@ Then we can removed these uniforms from our perObject uniform buffer and add the
 global uniform buffer to each object's bind group.
 
 ```js
-  const maxObjects = 20000;
+  const maxObjects = 30000;
   const objectInfos = [];
 
   for (let i = 0; i < maxObjects; ++i) {
@@ -1585,7 +1585,7 @@ settings. Instead we just need to add the material's uniform buffer to the
 object's bind group.
 
 ```js
-  const maxObjects = 20000;
+  const maxObjects = 30000;
   const objectInfos = [];
 
   for (let i = 0; i < maxObjects; ++i) {
@@ -2079,7 +2079,7 @@ Other things that *might* help
   
   This is why, in our loop where we update our per object uniform values, for
   each object we have to create 2 `Float32Array` views into our mapped buffer.
-  For 10000 objects that's creating 20000 of these temporary views.
+  For 20000 objects that's creating 40000 of these temporary views.
   
   Adding offsets to every input would make them burdensome to use in my opinion
   but, just as a test, I wrote a modified version of the math functions that
@@ -2097,7 +2097,7 @@ Other things that *might* help
 
   [It appears to be about 7% faster to use the offsets](../webgpu-optimization-step6-use-mapped-buffers-math-w-offsets.html).
 
-  It's up to you if you feel that's worthß it. For me personally, like I
+  It's up to you if you feel that's worth it. For me personally, like I
   mentioned at the top of the article, I'd prefer to keep it simple to use. I'm
   rarely trying to draw 10000 things. But, it's good to know, if I wanted to
   squeeze out more performance, this is one place I might find some. More likely
