@@ -8,9 +8,9 @@ TOC: 정점 버퍼
 넘기는 방법은 정점 버퍼와 어트리뷰트(attribute)를 사용하는 방법입니다.
 
 정점 버퍼는 다른 WebGPU 버퍼들과 다를 바 없습니다. 데이터를 저장하죠.
-차이점이라면 정점 셰이더로부터 직접 접근하지 않는다는 점입니다.
+차이점이라면 정점 셰이더에서 직접 접근하지 않는다는 점입니다.
 대신에, WebGPU에게 어떤 데이터가 버퍼에 있고, 어떤 구조로 저장되어 있는지 알려줍니다.
-그러면 데이터를 버퍼로부터 가져와 전달해줍니다.
+그런 다음 데이터를 버퍼로부터 가져와 전달해줍니다.
 
 [지난 글](webgpu-storage-buffers.html)의 마지막 예제를 가져와서, 
 스토리지 버퍼 대신에 정점 버퍼를 사용하도록 수정해 보겠습니다.
@@ -531,7 +531,7 @@ function createCircleVertices({
 
 {{{example url="../webgpu-vertex-buffers-per-vertex-colors.html"}}}
 
-## <a id="a-default-values"></a>WESL의 어트리뷰트와 자바스크립트 어트리뷰트가 매칭될 필요는 없습니다
+## <a id="a-default-values"></a>WGSL의 어트리뷰트와 자바스크립트 어트리뷰트가 매칭될 필요는 없습니다
 
 위에서 `perVertexColor` 어트리뷰트를 `vec3f` 타입으로 아래와 같이 선언했습니다.
 
@@ -917,7 +917,7 @@ function createCircleVertices({
 +  }
 
   return {
-    positionData,
+    vertexData,
     colorData,
 +    indexData,
     numVertices: indexData.length,
@@ -974,7 +974,7 @@ usage를 `INDEX`로 설정한 것에 주목하세요.
 
 {{{example url="../webgpu-vertex-buffers-index-buffer.html"}}}
 
-[이전 글](webgpu-storage-buffers.html)의 예제에서 스토리지 버퍼와 인덱스 버퍼 사용할 수도 있었음을 명심하세요.
+[이전 글](webgpu-storage-buffers.html)의 예제에서 스토리지 버퍼와 인덱스 버퍼를 사용할 수도 있었음을 명심하세요.
 이러한 경우 `@builtin(vertex_index)`로 넘어오는 값은 인덱스 버퍼의 인덱스 순서와 같습니다.
 
 다음으로 [텍스처](webgpu-textures.html)에 대해 다뤄보겠습니다.

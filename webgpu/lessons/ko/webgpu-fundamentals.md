@@ -58,7 +58,7 @@ WebGPU는 아주 저수준(low-level)의 API입니다. 작은 예제를 만들 �
     * `'triangle-list'`: 3개 위치마다 삼각형을 그림 (**기본값(default)**)
     * `'triangle-strip'`: 새로운 위치와 이전 마지막 2개 위치로 삼각형을 그림
 
-정점 셰이더는 색상값을 계산합니다[^fragment-output]. 
+프래그먼트 셰이더는 색상값을 계산합니다[^fragment-output]. 
 삼각형이 그려지면, 그려질 각 픽셀마다 GPU는 프래그먼트 셰이더를 호출(call)합니다.
 그리고 프래그먼트 셰이더는 색상을 반환합니다.
 
@@ -679,7 +679,7 @@ WebGPU 버퍼로부터 데이터를 직접 읽을 수는 없다는 점을 유념
 셰이더에 버퍼의 존재를 알려주기 위해서는 바인드그룹을 만들어야 합니다.
 
 ```js
-  // 셰산을 위해 어떤 버퍼를 사용해야 할지 알려주기 위해 바인드그룹을 설정함
+  // 계산을 위해 어떤 버퍼를 사용해야 할지 알려주기 위해 바인드그룹을 설정함
   const bindGroup = device.createBindGroup({
     label: 'bindGroup for work buffer',
     layout: pipeline.getBindGroupLayout(0),
