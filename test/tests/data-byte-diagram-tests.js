@@ -168,8 +168,8 @@ describe('data-byte-diagram-tests', () => {
         @group(0) @binding(5) var texExt: texture_external;
         @group(1) @binding(0) var<uniform> u: mat4x4f;
         @group(1) @binding(1) var<storage> s: mat4x4f;
-        @group(1) @binding(2) var<storage, read> sr: mat4x4f;
-        @group(1) @binding(3) var<storage, read_write> srw: mat4x4f;
+        @group(1) @binding(2) var<storage, read> sr: array<vec4f, 10>;
+        @group(1) @binding(3) var<storage, read_write> srw: array<vec4f>;
         @group(3) @binding(0) var tsR: texture_storage_2d<rgba8unorm, read>;
         @group(3) @binding(1) var tsW: texture_storage_2d<rgba32float, write>;
         @group(3) @binding(2) var tsRW: texture_storage_2d<rgba16uint, read_write>;
@@ -242,13 +242,16 @@ describe('data-byte-diagram-tests', () => {
       {
         binding: 0,
         visibility: GPUShaderStage.COMPUTE,
-        buffer: {},
+        buffer: {
+          minBindingSize: 64,
+        },
       },
       {
         binding: 1,
         visibility: GPUShaderStage.COMPUTE,
         buffer: {
           type: "read-only-storage",
+          minBindingSize: 64,
         },
       },
       {
@@ -256,6 +259,7 @@ describe('data-byte-diagram-tests', () => {
         visibility: GPUShaderStage.COMPUTE,
         buffer: {
           type: "read-only-storage",
+          minBindingSize: 160,
         },
       },
       {
@@ -311,8 +315,8 @@ describe('data-byte-diagram-tests', () => {
         @group(0) @binding(5) var texExt: texture_external;
         @group(1) @binding(0) var<uniform> u: mat4x4f;
         @group(1) @binding(1) var<storage> s: mat4x4f;
-        @group(1) @binding(2) var<storage, read> sr: mat4x4f;
-        @group(1) @binding(3) var<storage, read_write> srw: mat4x4f;
+        @group(1) @binding(2) var<storage, read> sr: array<vec4f, 10>;
+        @group(1) @binding(3) var<storage, read_write> srw: array<vec4f>;
         @group(3) @binding(0) var tsR: texture_storage_2d<rgba8unorm, read>;
         @group(3) @binding(1) var tsW: texture_storage_2d<rgba32float, write>;
         @group(3) @binding(2) var tsRW: texture_storage_2d<rgba16uint, read_write>;
@@ -396,7 +400,7 @@ describe('data-byte-diagram-tests', () => {
         buffer: {
           type: "uniform",
           hasDynamicOffset: false,
-          minBindingSize: 0,
+          minBindingSize: 64,
         },
       },
       {
@@ -405,7 +409,7 @@ describe('data-byte-diagram-tests', () => {
         buffer: {
           type: "read-only-storage",
           hasDynamicOffset: false,
-          minBindingSize: 0,
+          minBindingSize: 64,
         },
       },
       {
@@ -414,7 +418,7 @@ describe('data-byte-diagram-tests', () => {
         buffer: {
           type: "read-only-storage",
           hasDynamicOffset: false,
-          minBindingSize: 0,
+          minBindingSize: 160,
         },
       },
       {
