@@ -440,7 +440,7 @@ when viewed from the outside.
 
 Another way to look at this is, from inside the cube we're in a "y-up right handed coordinate system".
 This means positive-z is forward. Where as all of our 3d math so far uses a "y-up left handed coordinate system" [^xxx-handed]
-where negative-z is forward. A simple solution is to flip the X coordinate when we sample the
+where negative-z is forward. A simple solution is to flip the Z coordinate when we sample the
 texture.
 
 [^xxx-handed]: To be honest I find this talk of "left handed" vs "right handed" coordinate systems to be super confusing
@@ -449,7 +449,7 @@ though you can [google it](https://www.google.com/search?q=right+handed+vs+left+
 
 ```wgsl
 -  return textureSample(ourTexture, ourSampler, direction);
-+  return textureSample(ourTexture, ourSampler, direction * vec3f(-1, 1, 1));
++  return textureSample(ourTexture, ourSampler, direction * vec3f(1, 1, -1));
 ```
 
 Now the reflection is flipped, just like in a mirror.
