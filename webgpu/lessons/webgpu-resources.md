@@ -8,6 +8,7 @@ Here are some other webgpu resources
 
 * [Your first WebGPU app](https://codelabs.developers.google.com/your-first-webgpu-app#0)
 * [Tour of WGSL](https://google.github.io/tour-of-wgsl/)
+* [WebGPU Unleashed: A practical tutorial](https://shi-yan.github.io/webgpuunleashed/)
 * [Efficiently rendering glTF models](https://toji.github.io/webgpu-gltf-case-study/)
 * [WebGPU Best Practices](https://toji.dev/webgpu-best-practices/)
 * [Rosetta](https://toji.github.io/rosetta/) - compare shaders in multiple shader languages
