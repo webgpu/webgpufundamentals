@@ -50,10 +50,10 @@ cases, read on!
 # Getting Started
 
 It's hard to decide where to start. At a certain level, WebGPU is a very simple
-system. All it does is run 3 types of functions on the GPU. Vertex Shaders,
-Fragment Shaders, Compute Shaders.
+system. All it does is run 3 types of functions on the GPU: Vertex Shaders,
+Fragment Shaders, and Compute Shaders.
 
-A Vertex Shader computes vertices. The shader returns vertex positions. For every group of 3 vertices the vertex shader function returns, a triangle is drawn between those 3 positions [^primitives]
+A Vertex Shader computes vertices. The shader returns vertex positions. For every group of 3 vertices the vertex shader function returns, a triangle is drawn between those 3 positions.[^primitives]
 
 [^primitives]: There are actually 5 modes.
 
@@ -63,7 +63,7 @@ A Vertex Shader computes vertices. The shader returns vertex positions. For ever
     * `'triangle-list'`: for each 3 positions, draw a triangle (**default**)
     * `'triangle-strip'`: for each new position, draw a triangle from it and the last 2 positions
 
-A Fragment Shader computes colors [^fragment-output]. When a triangle is drawn, for each pixel
+A Fragment Shader computes colors.[^fragment-output] When a triangle is drawn, for each pixel
 to be drawn the GPU calls your fragment shader. The fragment shader then returns a
 color.
 
@@ -91,11 +91,11 @@ textures holding your data to the bindings or locations. Once you've done that y
 function.
 
 <a id="a-draw-diagram"></a>Maybe a picture will help. Here is a *simplified* diagram of WebGPU setup to draw triangles
-by using a vertex shader and a fragment shader
+by using a vertex shader and a fragment shader:
 
 <div class="webgpu_center"><img src="resources/webgpu-draw-diagram.svg" style="width: 960px;"></div>
 
-What to notice about this diagram
+What to notice about this diagram:
 
 * There is a **Pipeline**. It contains the vertex shader and fragment shader the
   GPU will run. You could also have a pipeline with a compute shader.
@@ -106,7 +106,7 @@ What to notice about this diagram
 * The pipeline defines attributes that reference buffers indirectly through the
   internal state
 
-* Attributes pull data out of buffers and feed the data into the vertex shader.
+* Attributes pull data out of buffers and feed the data into the vertex shader
 
 * The vertex shader may feed data into the fragment shader
 
@@ -166,20 +166,20 @@ commandBuffer = encoder.finish();
 <div><img src="resources/webgpu-command-buffer.svg" style="width: 300px;"></div>
 </div>
 
-Once you create a command buffer, you can *submit* it to be executed
+Once you create a command buffer, you can *submit* it to be executed:
 
 ```js
 device.queue.submit([commandBuffer]);
 ```
 
-The diagram above represents the state at some `draw` command in the command
+The 'simplified diagram of WebGPU setup' shown previously represents the state at a *single* `draw` command in the command
 buffer. Executing the commands will set up the *internal state* and then the
-*draw* command will tell the GPU to execute a vertex shader (and indirectly a
+`draw` command will tell the GPU to execute a vertex shader (and indirectly a
 fragment shader). The `dispatchWorkgroup` command will tell the GPU to execute a
 compute shader.
 
 I hope that gave you some mental image of the state you need to set up. Like
-mentioned above, WebGPU has 2 basic things it can do
+mentioned above, WebGPU has 2 basic things it can do:
 
 1. [Draw triangles/points/lines to textures](#a-drawing-triangles-to-textures)
 
@@ -202,7 +202,7 @@ and then render to that texture.
 that form a cube), and a few other things but the most common textures are 2D rectangles of pixels.
 
 To draw triangles with WebGPU we have to supply 2 "shaders". Again, Shaders
-are functions that run on the GPU. These 2 shaders are
+are functions that run on the GPU. These 2 shaders are:
 
 1. Vertex Shaders
 
@@ -216,13 +216,13 @@ are functions that run on the GPU. These 2 shaders are
 
 Let's start with a very small WebGPU program to draw a triangle.
 
-We need a canvas to display our triangle
+We need a canvas to display our triangle:
 
 ```html
 <canvas></canvas>
 ```
 
-Then we need a `<script>` tag to hold our JavaScript.
+then we need a `<script>` tag to hold our JavaScript:
 
 ```html
 <canvas></canvas>
@@ -233,7 +233,7 @@ Then we need a `<script>` tag to hold our JavaScript.
 +</script>
 ```
 
-All of the JavaScript below will go inside this script tag
+All of the JavaScript below will go inside this script tag.
 
 WebGPU is an asynchronous API so it's easiest to use in an async function. We
 start off by requesting an adapter, and then requesting a device from the adapter.
@@ -409,7 +409,7 @@ shaderModule('our hardcoded red triangle shaders') at line 10` which is a way
 more useful error message and will save you a ton of time tracking down the
 issue.
 
-Now that we've created a shader module, we next need to make a render pipeline
+Now that we've created a shader module, we next need to make a render pipeline:
 
 ```js
   const pipeline = device.createRenderPipeline({
@@ -445,7 +445,7 @@ for the canvas.
 One shortcut, for each shader stage, `vertex` and `fragment`, if there is only one
 function of the corresponding type then we don't need to specify the `entryPoint`.
 WebGPU will use the sole function that matches the shader stage. So we can shorten
-the code above to
+the code above to:
 
 ```js
   const pipeline = device.createRenderPipeline({
@@ -679,7 +679,7 @@ function dispatchWorkgroup(workgroup_id) {
 }
 ```
 
-Since we set `@workgroup_size(1)`, effectively the pseudo-code above becomes
+Since we set `@workgroup_size(1)`, effectively the pseudo-code above becomes:
 
 ```js
 // pseudo code
