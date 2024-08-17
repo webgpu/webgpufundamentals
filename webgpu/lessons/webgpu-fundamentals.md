@@ -728,7 +728,7 @@ created and since there is only one `@compute` entry point WebGPU knows we want 
 
 [^layout-auto]: `layout: 'auto'` is convenient but it's impossible to share bind groups
 across pipelines using `layout: 'auto'`. Most of the examples on this site
-never use a bind group with multiple pipelines. We'll cover explicit layouts in [another article](webgpu-drawing-multiple-things.html).
+never use a bind group with multiple pipelines. We'll cover explicit layouts in [another article](webgpu-bind-group-layouts.html).
 
 Next, we need some data.
 
