@@ -314,12 +314,14 @@ These modifications render the same:
 
 The point is, the fact that both shaders are in the same string in most WebGPU
 examples is just a convenience. In reality, first WebGPU parses the WGSL to make
-sure it's syntactically correct. Then, WebGPU looks at the `entryPoint`
-you specify. From there, it goes and looks at the parts that entryPoint references
-and nothing else for that entryPoint. It's useful because you don't have to type
-things like structures or binding and group locations twice if two or more shaders
-share bindings or structures or constants or functions. But, from the POV of WebGPU,
-it's as though you did duplicate all of them, once for each entryPoint.
+sure it's syntactically correct. Then, WebGPU looks at each `entryPoint`
+you specify, separately. It looks at the parts that each entryPoint references
+and nothing else. 
+
+Shared strings are useful because you don't have to type things like structures, 
+binding and group locations, constants, and functions twice if multiple shaders 
+share the resources/entities. But, from the POV of WebGPU, it's as though you did duplicate 
+all of them, once for each entryPoint.
 
 Note: It is not that common to generate a checkerboard using the
 `@builtin(position)`. Checkerboards or other patterns are far more commonly
@@ -331,8 +333,8 @@ of the canvas it's relative to the canvas, not relative to the triangle.
 
 We saw above that inter-stage variables, the outputs from a vertex shader, are
 interpolated when passed to the fragment shader. There are 2 sets of settings
-that can be changed for how the interpolation happens. Setting them to anything
-other than the defaults is not extremely common but there are use cases which
+that can modify the behavior - interpolation type, and interpolation sampling. Setting them to anything
+other than the defaults is not too common, but there are use cases which
 will be covered in other articles.
 
 Interpolation type:
@@ -347,7 +349,7 @@ Interpolation sampling:
 * `centroid`: Interpolation is performed at a point that lies within all the samples covered by the fragment within the current primitive. This value is the same for all samples in the primitive.
 * `sample`:  Interpolation is performed per sample. The fragment shader is invoked once per sample when this attribute is applied.
 
-You specify these as attributes. For example:
+You specify these as attributes, for example:
 
 ```wgsl
   @location(2) @interpolate(linear, center) myVariableFoo: vec4f;
