@@ -377,8 +377,8 @@ work them out you'd see them simplify just like before
 Z rotation
 
 <div class="webgpu_center"><pre class="webgpu_math">
-newX = x *  c + y * s;
-newY = x * -s + y * c;
+newX = x * c + y * -s;
+newY = x * s + y *  c;
 </pre></div>
 
 Y rotation
@@ -391,8 +391,8 @@ newZ = x * -s + z * c;
 X rotation
 
 <div class="webgpu_center"><pre class="webgpu_math">
-newY = y *  c + z * s;
-newZ = y * -s + z * c;
+newY = y * c + z * -s;
+newZ = y * s + z *  c;
 </pre></div>
 
 which gives you these rotations.
