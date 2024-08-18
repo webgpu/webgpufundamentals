@@ -535,7 +535,7 @@ const pipeline = device.createComputePipeline({
 
 在这里，我们只需告诉它，我们正在使用我们创建的着色器模块中的`compute`阶段，并希望调用 `computeSomething` 函数。 layout 还是 "auto"，告诉 WebGPU 从着色器中找出布局。[^layout-auto]
 
-[^layout-auto]: `layout: 'auto'`很方便，但使用 `layout: 'auto'` 布局无法在不同管道中共享绑定组。本网站上的大多数示例从未在多个管道中使用过绑定组。我们将在另一篇文章中介绍[显式布局](webgpu-drawing-multiple-things.html)。︎
+[^layout-auto]: `layout: 'auto'`很方便，但使用 `layout: 'auto'` 布局无法在不同管道中共享绑定组。本网站上的大多数示例从未在多个管道中使用过绑定组。我们将在另一篇文章中介绍[显式布局](webgpu-bind-group-layouts.html)。︎
 
 接下来我们需要一些数据
 
