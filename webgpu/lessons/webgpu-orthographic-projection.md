@@ -316,12 +316,12 @@ We can also make X and Y rotation matrices
         <tr>
           <td class="m21">0</td>
           <td class="m22">c</td>
-          <td class="m23">s</td>
+          <td class="m23">-s</td>
           <td class="m24">0</td>
         </tr>
         <tr>
           <td class="m31">0</td>
-          <td class="m32">-s</td>
+          <td class="m32">s</td>
           <td class="m33">c</td>
           <td class="m34">0</td>
         </tr>
@@ -341,7 +341,7 @@ We can also make X and Y rotation matrices
         <tr>
           <td class="m11">c</td>
           <td class="m12">0</td>
-          <td class="m13">-s</td>
+          <td class="m13">s</td>
           <td class="m14">0</td>
         </tr>
         <tr>
@@ -351,7 +351,7 @@ We can also make X and Y rotation matrices
           <td class="m24">0</td>
         </tr>
         <tr>
-          <td class="m31">s</td>
+          <td class="m31">-s</td>
           <td class="m32">0</td>
           <td class="m33">c</td>
           <td class="m34">0</td>
