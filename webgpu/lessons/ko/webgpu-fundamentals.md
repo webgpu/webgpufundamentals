@@ -623,7 +623,7 @@ function dispatchWorkgroup(workgroup_id) {
 
 [^layout-auto]: `layout: 'auto'` 는 편리하지만, `layout: 'auto'`를 사용하면 파이프라인간에 바인드그룹을 공유하는 것이 불가능합니다.
 이 사이트의 대부분의 예제에서는 여러 파이프라인에서 바인드그룹을 사용하지 않습니다.
-명시적인 레이아웃에 대해서는 [이 글](webgpu-drawing-multiple-things.html)에서 설명합니다.
+명시적인 레이아웃에 대해서는 [이 글](webgpu-bind-group-layouts.html)에서 설명합니다.
 
 다음으로 데이터가 필요합니다.
 

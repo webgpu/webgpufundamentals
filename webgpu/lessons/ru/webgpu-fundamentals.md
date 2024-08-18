@@ -633,7 +633,7 @@ function dispatchWorkgroup(workgroup_id) {
 и там есть только один `@compute` как точка входа и поэтому WebGPU понимает, что мы хотим вызвать его. `layout` поставлен на режим
 `'auto'` снова, чтобы WebGPU возвращал обработанный макет из шейдера. [^layout-auto]
 
-[^layout-auto]: `layout: 'auto'` - это удобно, но не дает возможности поделиться bind groups с другими pipeline'ами. В большинстве примеров тут мы никогда не будем использовать bind group для множества pipeline'ов. Мы будет использовать явные макеты в [другой статье](webgpu-drawing-multiple-things.html).
+[^layout-auto]: `layout: 'auto'` - это удобно, но не дает возможности поделиться bind groups с другими pipeline'ами. В большинстве примеров тут мы никогда не будем использовать bind group для множества pipeline'ов. Мы будет использовать явные макеты в [другой статье](webgpu-bind-group-layouts.html).
 
 Далее, нам нужно немного данных.
 
