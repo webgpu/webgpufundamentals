@@ -540,6 +540,167 @@ will attempt to capture all of your WebGPU commands and can let you
 inspect buffers, textures, calls, and generally try to see what’s
 happening in your WebGPU code.</p>
 <div class="webgpu_center"><img src="https://github.com/brendan-duncan/webgpu_inspector/raw/main/docs/images/frame_capture_commands.png"></div>
+<h2 id="tips-for-debugging-shaders">Tips for debugging shaders</h2>
+<h3 id="simplify">Simplify:</h3>
+<p>Get your shader to a working state. Once it’s working, add stuff back in little by little</p>
+<h3 id="show-a-solid-color">Show a solid color</h3>
+<p>For render passes, the first thing I often do is show a solid color.</p>
+<p>Here is last shader from <a href="webgpu-lighitng-spot.html">the article on spot lights</a>.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@fragment fn fs(vsOut: VSOutput) -&gt; @location(0) vec4f {
+  // Because vsOut.normal is an inter-stage variable 
+  // it's interpolated so it will not be a unit vector.
+  // Normalizing it will make it a unit vector again
+  let normal = normalize(vsOut.normal);
+
+  let surfaceToLightDirection = normalize(vsOut.surfaceToLight);
+  let surfaceToViewDirection = normalize(vsOut.surfaceToView);
+  let halfVector = normalize(
+    surfaceToLightDirection + surfaceToViewDirection);
+
+  let dotFromDirection = dot(surfaceToLightDirection, -uni.lightDirection);
+  let inLight = smoothstep(uni.outerLimit, uni.innerLimit, dotFromDirection);
+
+  // Compute the light by taking the dot product
+  // of the normal with the direction to the light
+  let light = inLight * dot(normal, surfaceToLightDirection);
+
+  var specular = dot(normal, halfVector);
+  specular = inLight * select(
+      0.0,                           // value if condition false
+      pow(specular, uni.shininess),  // value if condition is true
+      specular &gt; 0.0);               // condition
+
+  // Lets multiply just the color portion (not the alpha)
+  // by the light
+  let color = uni.color.rgb * light + specular;
+  return vec4f(color, uni.color.a);
+}
+</pre>
+<p>The example is supposed to render a green F with a small portion lit by a
+spotlight. Here’s a version with a bug. Let’s debug it.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-debugging-spot-light-01.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-debugging-spot-light-01.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>We ran it and nothing appeared on the screen and there were
+no WebGPU errors. The first thing I might do is change it to return solid red</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  let color = uni.color.rgb * light + specular;
+-  return vec4f(color, uni.color.a);
++  //return vec4f(color, uni.color.a);
++  return vec4f(1, 0, 0, 1);  // solid red
+</pre>
+<p>If I see a red F then I know I should start looking in the fragment shader since
+clearly enough of the vertex shader was correct to draw the triangles that make the F.
+If I don’t see a red F then I should start looking in the vertex shader.</p>
+<p>Trying it:</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-debugging-spot-light-02.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-debugging-spot-light-02.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>We see a red F. Ok, lets try to visualize the normals.
+To do so, change the end of the fragment shader to:</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  let color = uni.color.rgb * light + specular;
+  //return vec4f(color, uni.color.a);
+-   return vec4f(1, 0, 0, 1);  // solid red
++   //return vec4f(1, 0, 0, 1);  // solid red
++   return vec4f(vsOut.normal * 0.5 + 0.5, 1);  // normal
+</pre>
+<p>Normals go from -1.0 to +1.0 but colors go from 0.0 to 1.0 so by multiplying
+by 0.5 and adding 0.5 we convert the normals to something that can be visualized
+with colors.</p>
+<p>Trying that:</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-debugging-spot-light-03.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-debugging-spot-light-03.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>Hmmm, that’s not right. That looks suspiciously like all the normals are 0,0,0.
+Clearly something is wrong the normals in the fragment shader. Those normals
+come from the vertex shader after being multiplied by <code class="notranslate" translate="no">normalMatrix</code>. Let’s try
+passing the normals straight through, without multiplying by <code class="notranslate" translate="no">normalMatrix</code>. If
+the F appears then we know the bug is in <code class="notranslate" translate="no">normalMatrix</code>. If the F doesn’t appear
+then the bug in the data being supplied to the vertex shader.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  // Orient the normals and pass to the fragment shader
+-  vsOut.normal = uni.normalMatrix * vert.normal;
++  //vsOut.normal = uni.normalMatrix * vert.normal;
++  vsOut.normal = vert.normal;
+</pre>
+<p>Running that:</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-debugging-spot-light-04.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-debugging-spot-light-04.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>That looks more like it. So apparently something is wrong with
+<code class="notranslate" translate="no">normalMatrix</code></p>
+<p>Checking the code it was commented out which left the matrix all zeros.
+Someone must have checking something and forgot to uncomment it.😅</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    // Inverse and transpose it into the worldInverseTranspose value
+-    //mat3.fromMat4(mat4.transpose(mat4.inverse(world)), normalMatrixValue);
++    mat3.fromMat4(mat4.transpose(mat4.inverse(world)), normalMatrixValue);
+</pre>
+<p>Let’s un-comment it. Then let’s put the vertex shader back the way it was</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  // Orient the normals and pass to the fragment shader
+-  //vsOut.normal = uni.normalMatrix * vert.normal;
+-  vsOut.normal = vert.normal;
++  vsOut.normal = uni.normalMatrix * vert.normal;
+</pre>
+<p>That gives us:</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-debugging-spot-light-05.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-debugging-spot-light-05.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>If you rotate the F you’ll see the colors change showing the normals
+are being re-oriented by <code class="notranslate" translate="no">normalMatrix</code>. Compare that to the one above
+where the colors don’t change as we rotate.</p>
+<p>With that we can finally restore the fragment shader.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  let color = uni.color.rgb * light + specular;
+-  //return vec4f(color, uni.color.a);
+-  //return vec4f(1, 0, 0, 1);  // solid red
+-  return vec4f(vsOut.normal * 0.5 + 0.5, 1);  // normal
++  return vec4f(color, uni.color.a);
+</pre>
+<p>And it’s working as it’s supposed to.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-debugging-spot-light-06.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-debugging-spot-light-06.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>Finding ways to visualize your data is a good way to check it.
+For example, to check <a href="webpgu-textures.html">texture coordinates</a>
+you might do something like</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">   return vec4f(fract(textureCoord), 0, 1);
+</pre>
+<p>Texture coordinates generally go from 0.0 to 1.0 but if you’re repeating
+the texture they might go higher so <code class="notranslate" translate="no">fract</code> covers that.</p>
+<p>To give an idea of what texture coordinates look like, here’s a few objects with their texture coordinates visualized.</p>
+<div class="webgpu_center">
+   <div data-diagram="texcoords" style="width: 1024px; height: 400px;"></div>
+   <div class="caption">texture coordinates visualized</div>
+</div>
+<p>Texture coordinates are generally smooth over some surface.</p>
+<p>Here are the same texture coordinates visualized with a bug.</p>
+<div class="webgpu_center">
+   <div data-diagram="texcoords-bad" style="width: 1024px; height: 400px;"></div>
+   <div class="caption">bad texture coordinates</div>
+</div>
+<p>They are no longer smooth so something is probably off.</p>
+<p>Following the same procedures as above we’d conclude that the data coming into
+the vertex shader must be bad. And indeed, this example is uploading the
+vertex data as <code class="notranslate" translate="no">float32x3</code> values but mistakenly specified them as <code class="notranslate" translate="no">float16x2</code>
+in the render pipeline descriptor.</p>
+<!-- keep this at the bottom of the article -->
+<link href="webgpu-debugging.css" rel="stylesheet">
+<script type="module" src="webgpu-debugging.js"></script>
 
     </div>
     <div class="lesson-sidebar">
