@@ -347,3 +347,188 @@ inspect buffers, textures, calls, and generally try to see what's
 happening in your WebGPU code.
 
 <div class="webgpu_center"><img src="https://github.com/brendan-duncan/webgpu_inspector/raw/main/docs/images/frame_capture_commands.png"></div>
+
+## Tips for debugging shaders
+
+### Simplify:
+
+Get your shader to a working state. Once it's working, add stuff back in little by little
+
+### Show a solid color
+
+For render passes, the first thing I often do is show a solid color.
+
+Here is last shader from [the article on spot lights](webgpu-lighitng-spot.html).
+
+```wgsl
+@fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
+  // Because vsOut.normal is an inter-stage variable 
+  // it's interpolated so it will not be a unit vector.
+  // Normalizing it will make it a unit vector again
+  let normal = normalize(vsOut.normal);
+
+  let surfaceToLightDirection = normalize(vsOut.surfaceToLight);
+  let surfaceToViewDirection = normalize(vsOut.surfaceToView);
+  let halfVector = normalize(
+    surfaceToLightDirection + surfaceToViewDirection);
+
+  let dotFromDirection = dot(surfaceToLightDirection, -uni.lightDirection);
+  let inLight = smoothstep(uni.outerLimit, uni.innerLimit, dotFromDirection);
+
+  // Compute the light by taking the dot product
+  // of the normal with the direction to the light
+  let light = inLight * dot(normal, surfaceToLightDirection);
+
+  var specular = dot(normal, halfVector);
+  specular = inLight * select(
+      0.0,                           // value if condition false
+      pow(specular, uni.shininess),  // value if condition is true
+      specular > 0.0);               // condition
+
+  // Lets multiply just the color portion (not the alpha)
+  // by the light
+  let color = uni.color.rgb * light + specular;
+  return vec4f(color, uni.color.a);
+}
+```
+
+The example is supposed to render a green F with a small portion lit by a
+spotlight. Here's a version with a bug. Let's debug it.
+
+{{{example url="../webgpu-debugging-spot-light-01.html"}}}
+
+We ran it and nothing appeared on the screen and there were
+no WebGPU errors. The first thing I might do is change it to return solid red
+
+```wgsl
+  let color = uni.color.rgb * light + specular;
+-  return vec4f(color, uni.color.a);
++  //return vec4f(color, uni.color.a);
++  return vec4f(1, 0, 0, 1);  // solid red
+```
+
+If I see a red F then I know I should start looking in the fragment shader since
+clearly enough of the vertex shader was correct to draw the triangles that make the F.
+If I don't see a red F then I should start looking in the vertex shader.
+
+Trying it:
+
+{{{example url="../webgpu-debugging-spot-light-02.html"}}}
+
+We see a red F. Ok, lets try to visualize the normals.
+To do so, change the end of the fragment shader to:
+
+```wgsl
+  let color = uni.color.rgb * light + specular;
+  //return vec4f(color, uni.color.a);
+-   return vec4f(1, 0, 0, 1);  // solid red
++   //return vec4f(1, 0, 0, 1);  // solid red
++   return vec4f(vsOut.normal * 0.5 + 0.5, 1);  // normal
+```
+
+Normals go from -1.0 to +1.0 but colors go from 0.0 to 1.0 so by multiplying
+by 0.5 and adding 0.5 we convert the normals to something that can be visualized
+with colors.
+
+Trying that:
+
+{{{example url="../webgpu-debugging-spot-light-03.html"}}}
+
+Hmmm, that's not right. That looks suspiciously like all the normals are 0,0,0.
+Clearly something is wrong the normals in the fragment shader. Those normals
+come from the vertex shader after being multiplied by `normalMatrix`. Let's try
+passing the normals straight through, without multiplying by `normalMatrix`. If
+the F appears then we know the bug is in `normalMatrix`. If the F doesn't appear
+then the bug in the data being supplied to the vertex shader.
+
+```wgsl
+  // Orient the normals and pass to the fragment shader
+-  vsOut.normal = uni.normalMatrix * vert.normal;
++  //vsOut.normal = uni.normalMatrix * vert.normal;
++  vsOut.normal = vert.normal;
+```
+
+Running that:
+
+{{{example url="../webgpu-debugging-spot-light-04.html"}}}
+
+That looks more like it. So apparently something is wrong with
+`normalMatrix`
+
+Checking the code it was commented out which left the matrix all zeros. 
+Someone must have checking something and forgot to uncomment it.😅
+
+```js
+    // Inverse and transpose it into the worldInverseTranspose value
+-    //mat3.fromMat4(mat4.transpose(mat4.inverse(world)), normalMatrixValue);
++    mat3.fromMat4(mat4.transpose(mat4.inverse(world)), normalMatrixValue);
+```
+
+Let's un-comment it. Then let's put the vertex shader back the way it was
+
+```wgsl
+  // Orient the normals and pass to the fragment shader
+-  //vsOut.normal = uni.normalMatrix * vert.normal;
+-  vsOut.normal = vert.normal;
++  vsOut.normal = uni.normalMatrix * vert.normal;
+```
+
+That gives us:
+
+{{{example url="../webgpu-debugging-spot-light-05.html"}}}
+
+If you rotate the F you'll see the colors change showing the normals
+are being re-oriented by `normalMatrix`. Compare that to the one above
+where the colors don't change as we rotate.
+
+With that we can finally restore the fragment shader.
+
+```wgsl
+  let color = uni.color.rgb * light + specular;
+-  //return vec4f(color, uni.color.a);
+-  //return vec4f(1, 0, 0, 1);  // solid red
+-  return vec4f(vsOut.normal * 0.5 + 0.5, 1);  // normal
++  return vec4f(color, uni.color.a);
+```
+
+And it's working as it's supposed to.
+
+{{{example url="../webgpu-debugging-spot-light-06.html"}}}
+
+Finding ways to visualize your data is a good way to check it.
+For example, to check [texture coordinates](webpgu-textures.html)
+you might do something like
+
+```wgsl
+   return vec4f(fract(textureCoord), 0, 1);
+```
+
+Texture coordinates generally go from 0.0 to 1.0 but if you're repeating
+the texture they might go higher so `fract` covers that. 
+
+To give an idea of what texture coordinates look like, here's a few objects with their texture coordinates visualized.
+
+<div class="webgpu_center">
+   <div data-diagram="texcoords" style="width: 1024px; height: 400px;"></div>
+   <div class="caption">texture coordinates visualized</div>
+</div>
+
+Texture coordinates are generally smooth over some surface.
+
+Here are the same texture coordinates visualized with a bug.
+
+<div class="webgpu_center">
+   <div data-diagram="texcoords-bad"  style="width: 1024px; height: 400px;"></div>
+   <div class="caption">bad texture coordinates</div>
+</div>
+
+They are no longer smooth so something is probably off.
+
+Following the same procedures as above we'd conclude that the data coming into
+the vertex shader must be bad. And indeed, this example is uploading the
+vertex data as `float32x3` values but mistakenly specified them as `float16x2`
+in the render pipeline descriptor.
+
+<!-- keep this at the bottom of the article -->
+<link href="webgpu-debugging.css" rel="stylesheet">
+<script type="module" src="webgpu-debugging.js"></script>
