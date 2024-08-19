@@ -431,7 +431,7 @@ rotation and scale. But the way they get used in the shader is much simpler.
 
 {{{example url="../webgpu-matrix-math-transform-trs-3x3.html"}}}
 
-## Columns are Rows
+## <a id="a-columns-are-rows"></a> Columns are Rows
 
 In the description of how a matrix works we talked about multiplying by columns.
 As one example we showed this matrix as an example of a translation matrix.
