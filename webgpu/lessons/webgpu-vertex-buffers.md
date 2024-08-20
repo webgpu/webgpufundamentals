@@ -67,7 +67,7 @@ As you can see, it's a small change. The important part is declaring the
 position field with `@location(0)`. 
 
 Next, we have to tell WebGPU how to get data for `@location(0)` - 
-for that, we create the render pipeline:
+for that, we use the render pipeline:
 
 ```js
   const pipeline = device.createRenderPipeline({
