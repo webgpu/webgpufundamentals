@@ -318,9 +318,9 @@ sure it's syntactically correct. Then, WebGPU looks at each `entryPoint`
 you specify, separately. It looks at the parts that each entryPoint references
 and nothing else. 
 
-Shared strings are useful because you don't have to type things like structures, 
-binding and group locations, constants, and functions twice if multiple shaders 
-share the resources/entities. But, from the POV of WebGPU, it's as though you did duplicate 
+Shared strings are useful because multiple shaders can then share things like 
+structures, binding and group locations, constants, and functions.
+But, from the POV of WebGPU, it's as though you did duplicate 
 all of them, once for each entryPoint.
 
 Note: It is not that common to generate a checkerboard using the
