@@ -308,14 +308,14 @@ per instance, the other will hold the `scale`.
   });
 ```
 
-Above we added 2 entries to the `buffers` array on our pipleine description so now there are 3 buffer entries, meaning
+Above we added 2 entries to the `buffers` array on our pipeline description so now there are 3 buffer entries, meaning
 we're telling WebGPU we'll supply the data in 3 buffers.
 
 For our 2 new entries we set the `stepMode` to `instance`. This means this attribute
 will only advance to next value once per instance. The default is `stepMode: 'vertex'`
 which advances once per vertex (and starts over for each instance).
 
-We have 2 buffers. The one that hold just `scale` is simple. Just like our
+We have 2 buffers. The one that holds just `scale` is simple. Just like our
 first buffer that holds `position` it's 2 32 floats per vertex.
 
 Our other buffer holds `color` and `offset` and they're going to be interleaved in the data like this
