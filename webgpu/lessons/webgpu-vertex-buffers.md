@@ -308,7 +308,7 @@ per instance, the other will hold the `scale`.
   });
 ```
 
-Above we added 2 entries to the `buffers` array on our pipleine description so now there are 3 buffer entries, meaning
+Above we added 2 entries to the `buffers` array on our pipeline description so now there are 3 buffer entries, meaning
 we're telling WebGPU we'll supply the data in 3 buffers.
 
 For our 2 new entries we set the `stepMode` to `instance`. This means this attribute
