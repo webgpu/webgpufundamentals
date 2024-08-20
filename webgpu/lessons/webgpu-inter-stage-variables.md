@@ -339,13 +339,13 @@ will be covered in other articles.
 
 Interpolation type:
 
-* `perspective`: Values are interpolated in a perspective correct manner. (**default**)
+* `perspective`: Values are interpolated in a perspective correct manner (**default**)
 * `linear`: Values are interpolated in a linear, non-perspective correct manner
 * `flat`: Values are not interpolated. Interpolation sampling is not used with flat interpolated
 
 Interpolation sampling:
 
-* `center`: Interpolation is performed at the center of the pixel (**default**)
+* `center`: Interpolation is performed at the center of the pixel. (**default**)
 * `centroid`: Interpolation is performed at a point that lies within all the samples covered by the fragment within the current primitive. This value is the same for all samples in the primitive.
 * `sample`:  Interpolation is performed per sample. The fragment shader is invoked once per sample when this attribute is applied.
 
