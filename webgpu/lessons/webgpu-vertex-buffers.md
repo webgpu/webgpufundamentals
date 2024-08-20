@@ -435,7 +435,7 @@ struct VSOutput {
 ```
 
 Then we need to update the pipeline to describe how we'll supply the data.
-We're going to interleave the `perVertexColor` data with the position like this:
+We're going to interleave the `perVertexColor` data with the `position` like this:
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-mixed.svg" style="width: 1024px;"></div>
 
