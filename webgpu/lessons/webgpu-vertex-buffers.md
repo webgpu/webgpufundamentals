@@ -315,7 +315,7 @@ For our 2 new entries we set the `stepMode` to `instance`. This means this attri
 will only advance to next value once per instance. The default is `stepMode: 'vertex'`
 which advances once per vertex (and starts over for each instance).
 
-We have 2 buffers. The one that hold just `scale` is simple. Just like our
+We have 2 buffers. The one that holds just `scale` is simple. Just like our
 first buffer that holds `position` it's 2 32 floats per vertex.
 
 Our other buffer holds `color` and `offset` and they're going to be interleaved in the data like this
