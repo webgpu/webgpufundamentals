@@ -161,7 +161,7 @@ In a fragment shader, `@builtin(position)` is an input. It's the pixel coordinat
 of the pixel that the fragment shader is currently being asked to compute a color
 for.
 
-The values provided *by* the vertex shader are the coordinates of the edges of pixels. The values provided *to*
+Pixel coordinates are specified by the edges of pixels. The values provided to
 the fragment shader are the coordinates of the center of the pixel.
 
 If the texture we were drawing to was 3x2 pixels in size, these would be the
