@@ -308,7 +308,7 @@ And we'd have to update our pipeline creation to use these:
 
 ```
 
-These modifications render the same:
+And this works the same:
 
 {{{example url="../webgpu-fragment-shader-builtin-position-separate-modules.html"}}}
 
