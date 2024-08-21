@@ -229,7 +229,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>TBD</p>
+      <p>Bind Group Layouts are used to make it easy and efficient
+for WebGPU to match Bind Groups to Compute and Render Pipelines.</p>
+<p>How it works:</p>
+<p>A Pipeline, like a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUComputePipeline"><code class="notranslate" translate="no">GPUComputePipeline</code></a> or <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPURenderPipeline"><code class="notranslate" translate="no">GPURenderPipeline</code></a>
+uses a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUPipelineLayout"><code class="notranslate" translate="no">GPUPipelineLayout</code></a> which defines 0 or more
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout"><code class="notranslate" translate="no">GPUBindGroupLayout</code></a>s. Each <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout"><code class="notranslate" translate="no">GPUBindGroupLayout</code></a> is assigned
+to a specific group index.</p>
+<p>Bind Groups are created with a specific <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout"><code class="notranslate" translate="no">GPUBindGroupLayout</code></a>
+as well.</p>
+<p>When you go to <code class="notranslate" translate="no">draw</code> or to <code class="notranslate" translate="no">dispatchWorkgroups</code>, WebGPU only
+needs to check, does the <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout"><code class="notranslate" translate="no">GPUBindGroupLayout</code></a> for each group index
+on the current pipeline’s <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUPipelineLayout"><code class="notranslate" translate="no">GPUPipelineLayout</code></a> match the
+currently bound bind groups, the ones set with <code class="notranslate" translate="no">setBindGroup</code>.
+This check is trivially simple. Most of the detailed checking
+happens when you create the bind group. That way, when you’re
+actually drawing or computing, there’s almost nothing left to
+check.</p>
+<p>Pipelines with generate their own <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUPipelineLayout"><code class="notranslate" translate="no">GPUPipelineLayout</code></a> and
+populate it with <code class="notranslate" translate="no">GPUBindGroupLayouts</code> automatically if you
+create the pipeline with <code class="notranslate" translate="no">layout: 'auto'</code> which is what
+most of the samples on this website do.</p>
+<p>There are 2 main reasons to <strong>NOT</strong> use <code class="notranslate" translate="no">layout: 'auto'</code>.</p>
+<ol>
+<li>
+<p><strong>You want to use a bind group with more than 1 pipeline</strong></p>
+<p>You can not use a bind group made with from a bindGroupLayout
+that was made from a pipeline with <code class="notranslate" translate="no">layout: 'auto'</code> with a
+different pipeline.</p>
+</li>
+<li>
+<p><strong>You want a layout that’s different than the default <code class="notranslate" translate="no">'auto'</code> layout</strong></p>
+</li>
+</ol>
+<h2 id="using-a-bind-group-with-more-than-1-pipeline">Using a bind group with more than 1 pipeline</h2>
+<p>— need a good example - problem is, drawing twice in 2 different locations
+— requires 2 different uniform buffers which means it requires 2 bind groups
+— which means sharing doesn’t matter.</p>
+<p>Let’s made a toy example. We’ll make 2 render pipelines and try
+to draw a cube with both pipelines.</p>
 
     </div>
     <div class="lesson-sidebar">
