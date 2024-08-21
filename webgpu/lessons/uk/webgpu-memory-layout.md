@@ -83,7 +83,7 @@ ourStructValuesAsF32[kAccelerationOffset] = 3.4;
 ourStructValuesAsU32[kFrameCountOffset] = 56;    // an integer value
 ```
 
-## `TypedArrays`
+## <a id="a-typed-arrays"></a> `TypedArrays`
 
 Зверніть увагу, що, як і багато речей в програмуванні, ми можемо зробити це
 різними способами. `TypedArray` має конструктор, який набуває різних форм.

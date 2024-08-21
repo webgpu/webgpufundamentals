@@ -87,6 +87,8 @@ ourStructValuesAsF32[kAccelerationOffset] = 3.4;
 ourStructValuesAsU32[kFrameCountOffset] = 56;    // これは整数値
 ```
 
+## <a id="a-typed-arrays"></a> `TypedArrays`
+
 以上で、「12バイトのバッファ」に「３つの数値」を適切に配置することができました。
 
 さて、プログラミングでは、同じことをやるために色々な書き方ができます。

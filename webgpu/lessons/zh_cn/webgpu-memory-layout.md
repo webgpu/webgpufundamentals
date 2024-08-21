@@ -59,6 +59,8 @@ ourStructValuesAsF32[kAccelerationOffset] = 3.4;
 ourStructValuesAsU32[kFrameCountOffset] = 56; // an integer value
 ```
 
+## <a id="a-typed-arrays"></a> `TypedArrays`
+
 请注意，就像编程中的许多事情一样，我们有多种方法可以做到这一点。TypedArray 的构造函数有多种形式。例如
 
 -   `new Float32Array(12)`

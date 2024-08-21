@@ -68,7 +68,7 @@ ourStructValuesAsF32[kAccelerationOffset] = 3.4;
 ourStructValuesAsU32[kFrameCountOffset] = 56;    // 정수값
 ```
 
-## `TypedArrays`
+## <a id="a-typed-arrays"></a> `TypedArrays`
 
 유의할 것은, 이를 수행하기 위한 방법에는 수많은 방법이 존재한다는 겁니다.
 `TypedArray`의 생성자는 다양한 형태를 가질 수 있습니다.
