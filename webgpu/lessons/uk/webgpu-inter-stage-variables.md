@@ -347,6 +347,8 @@ select = (a, b, condition) => condition ? b : a;
 * `center`: Інтерполяція виконується в центрі пікселя (**стандартне значення**)
 * `centroid`: Інтерполяція виконується в точці, яка лежить у межах усіх вибірок, охоплених фрагментом у поточному примітиві. Це значення однакове для всіх зразків у примітиві.
 * `sample`:  Інтерполяція виконується для вибірки. Фрагментний шейдер викликається один раз на вибірку, коли застосовано цей атрибут.
+* `first`: Used only with type = `flat`. (default) The value comes from the first vertex of the primitive being drawn
+* `either`: Used only with type = `flat`. The value comes from either the first or the last vertex of the primitive being drawn.
 
 Ви зазначаєте їх, як атрибути. Наприклад
 

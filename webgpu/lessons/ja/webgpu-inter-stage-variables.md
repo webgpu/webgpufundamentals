@@ -355,6 +355,8 @@ WebGPUでは、この「補間」をどうやるかについて、設定項目�
 * `center`: 補間に際して「ピクセルの中心」をサンプリングする(**default**)
 * `centroid`: 補間に際して「プリミティブ(三角形などの基本図形)」単位でサンプリングする。プリミティブ内の全ピクセルで同じ値となる
 * `sample`:  補間を「サンプル」単位で行なう。フラグメントシェーダは各サンプルについて実行される
+* `first`: Used only with type = `flat`. (default) The value comes from the first vertex of the primitive being drawn
+* `either`: Used only with type = `flat`. The value comes from either the first or the last vertex of the primitive being drawn.
 
 補間の設定は、inter-stage変数の属性として記述します。たとえばこんな風に書きます。
 

@@ -290,6 +290,8 @@ select = (a, b, condition) => (condition ? b : a);
 -   `center`: 插值在像素中心进行 (**默认**)
 -   `centroid`: 插值是在当前基元中片段所覆盖的所有样本内的某一点上进行的。该值对基元中的所有样本都是相同的。
 -   `sample`: 每次采样时执行插值。应用此属性时，每次采样都会调用一次片段着色器.
+-   `first`: Used only with type = `flat`. (default) The value comes from the first vertex of the primitive being drawn
+-   `either`: Used only with type = `flat`. The value comes from either the first or the last vertex of the primitive being drawn.
 
 您可以将其指定为属性。例如：
 
