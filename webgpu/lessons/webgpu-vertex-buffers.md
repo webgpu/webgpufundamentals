@@ -106,8 +106,8 @@ corresponds to `location(0)` in our `Vertex` struct. `offset: 0` says the data
 for this attribute starts at byte 0 in the vertex buffer. Finally `format:
 'float32x2'` says we want WebGPU to pull the data out of the buffer as two 32bit
 floating point numbers. Note the `attributes` property is the same entity pictured in the 
-[simplified draw diagram](https://webgpufundamentals.org/webgpu/lessons/resources/webgpu-draw-diagram.svg) 
-from [the first article](webgpu-fundamentals.html).
+[simplified draw diagram](webgpu-fundamentals.html#a-draw-diagram) 
+from the first article.
 
 We need to change the usages of the buffer holding vertex data from `STORAGE`
 to `VERTEX` and remove it from the bind group.
