@@ -76,7 +76,7 @@ ourStructValuesAsF32[kAccelerationOffset] = 3.4;
 ourStructValuesAsU32[kFrameCountOffset] = 56;    // an integer value
 ```
 
-## `TypedArrays`
+## <a id="a-typed-arrays"></a> `TypedArrays`
 
 Note, like many things in programming there are multiple ways we could
 do this. `TypedArray`s have a constructor that takes various forms. For example
