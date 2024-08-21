@@ -67,7 +67,7 @@ inter-stage variables between a vertex shader and a fragment shader.
       };
 ```
 
-We then declare our vertex shader to return a structure of this type
+We then declare our vertex shader to return a structure of this type:
 
 ```wgsl
       @vertex fn vs(
@@ -76,7 +76,7 @@ We then declare our vertex shader to return a structure of this type
 +      ) -> OurVertexShaderOutput {
 ```
 
-We create an array of 3 colors. 
+Next, we create an array of 3 colors. 
 
 ```wgsl
         var color = array<vec4f, 3>(
@@ -86,8 +86,8 @@ We create an array of 3 colors.
         );
 ```
 
-And then instead of returning just a `vec4f` for position, we declare an instance
-of the structure, fill it out, and return it
+Then, instead of returning just a `vec4f` for position, we declare an instance
+of the structure, fill it out, and return it:
 
 ```wgsl
 -        return vec4f(pos[vertexIndex], 0.0, 1.0);
@@ -98,7 +98,7 @@ of the structure, fill it out, and return it
 ```
 
 In the fragment shader, we declare it to take one of these structs as an argument to
-the function
+the function:
 
 ```wgsl
       @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
@@ -106,7 +106,7 @@ the function
       }
 ```
 
-And just return the color
+Finally returning the color.
 
 If we run that we'll see, that every time the GPU called our fragment shader, it
 passed in a color that was interpolated between all 3 points.
@@ -125,7 +125,7 @@ vertex shader and the fragment shader is by index. For inter-stage variables,
 they connect by location index.
 
 To see what I mean, let's change only the fragment shader to take `vec4f` parameter
-at `location(0)` instead of the struct
+at `location(0)` instead of the struct:
 
 ```wgsl
       @fragment fn fs(@location(0) color: vec4f) -> @location(0) vec4f {
@@ -154,18 +154,18 @@ That field is **NOT** an inter-stage variable. Instead, it's a `builtin`. It
 happens that `@builtin(position)` has a different meaning in a vertex shader vs
 a fragment shader.
 
-In a vertex shader `@builtin(position)` is the output that the GPU needs to draw
-triangles/lines/points
+In a vertex shader `@builtin(position)` is the output of a coordinate that the GPU uses to draw
+triangles/lines/points.
 
 In a fragment shader, `@builtin(position)` is an input. It's the pixel coordinate
 of the pixel that the fragment shader is currently being asked to compute a color
 for.
 
 Pixel coordinates are specified by the edges of pixels. The values provided to
-the fragment shader are the coordinates of the center of the pixel
+the fragment shader are the coordinates of the center of the pixel.
 
 If the texture we were drawing to was 3x2 pixels in size, these would be the
-coordinates.
+coordinates:
 
 <div class="webgpu_center"><img src="resources/webgpu-pixels.svg" style="width: 500px;"></div>
 
@@ -222,7 +222,7 @@ every 8 pixels. It then adds the `x` and `y` grid coordinates together, computes
 modulo 2, and compares the result to 1. This will give us a boolean that is true
 or false for every other integer. Finally, it uses the WGSL function `select` which
 given 2 values, selects one or the other based on a boolean condition. In
-JavaScript `select` would be written like this
+JavaScript `select` would be written like this:
 
 ```js
 // If condition is false return `a`, otherwise return `b`
@@ -243,7 +243,7 @@ shader's output vs a fragment shader's input.
 
 To hopefully make this more clear, the fact that the vertex shader and
 fragment shader are in the same string in our examples is just a convenience.
-We could also split them into separate modules
+We could also split them into separate modules:
 
 ```js
 -  const module = device.createShaderModule({
@@ -289,7 +289,7 @@ We could also split them into separate modules
   });
 ```
 
-And we'd have to update our pipeline creation to use these
+And we'd have to update our pipeline creation to use these:
 
 ```js
   const pipeline = device.createRenderPipeline({
@@ -308,18 +308,20 @@ And we'd have to update our pipeline creation to use these
 
 ```
 
-And this would also work
+And this works the same:
 
 {{{example url="../webgpu-fragment-shader-builtin-position-separate-modules.html"}}}
 
 The point is, the fact that both shaders are in the same string in most WebGPU
 examples is just a convenience. In reality, first WebGPU parses the WGSL to make
-sure it's syntactically correct. Then, WebGPU looks at the `entryPoint`
-you specify. From there, it goes and looks at the parts that entryPoint references
-and nothing else for that entryPoint. It's useful because you don't have to type
-things like structures or binding and group locations twice if two or more shaders
-share bindings or structures or constants or functions. But, from the POV of WebGPU,
-it's as though you did duplicate all of them, once for each entryPoint.
+sure it's syntactically correct. Then, WebGPU looks at each `entryPoint`
+you specify, separately. It looks at the parts that each entryPoint references
+and nothing else. 
+
+Shared strings are useful because multiple shaders can then share things like 
+structures, binding and group locations, constants, and functions.
+But, from the POV of WebGPU, it's as though you did duplicate 
+all of them, once for each entryPoint.
 
 Note: It is not that common to generate a checkerboard using the
 `@builtin(position)`. Checkerboards or other patterns are far more commonly
@@ -331,23 +333,23 @@ of the canvas it's relative to the canvas, not relative to the triangle.
 
 We saw above that inter-stage variables, the outputs from a vertex shader, are
 interpolated when passed to the fragment shader. There are 2 sets of settings
-that can be changed for how the interpolation happens. Setting them to anything
-other than the defaults is not extremely common but there are use cases which
+that can modify the behavior - interpolation type, and interpolation sampling. Setting them to anything
+other than the defaults is not too common, but there are use cases which
 will be covered in other articles.
 
 Interpolation type:
 
 * `perspective`: Values are interpolated in a perspective correct manner (**default**)
-* `linear`: Values are interpolated in a linear, non-perspective correct manner.
+* `linear`: Values are interpolated in a linear, non-perspective correct manner
 * `flat`: Values are not interpolated. Interpolation sampling is not used with flat interpolated
 
 Interpolation sampling:
 
-* `center`: Interpolation is performed at the center of the pixel (**default**)
+* `center`: Interpolation is performed at the center of the pixel. (**default**)
 * `centroid`: Interpolation is performed at a point that lies within all the samples covered by the fragment within the current primitive. This value is the same for all samples in the primitive.
 * `sample`:  Interpolation is performed per sample. The fragment shader is invoked once per sample when this attribute is applied.
 
-You specify these as attributes. For example
+You specify these as attributes, for example:
 
 ```wgsl
   @location(2) @interpolate(linear, center) myVariableFoo: vec4f;
