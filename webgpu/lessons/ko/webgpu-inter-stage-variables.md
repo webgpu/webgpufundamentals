@@ -327,6 +327,8 @@ select = (a, b, condition) => condition ? b : a;
 * `center`: 보간이 픽셀의 중앙에서 수행됨 (**기본값**)
 * `centroid`: 현재 프리미티브(primitive)가 차지하는 모든 프래그먼트의 모든 샘플 내에 존재하는 점에 대해 보간이 수행됨. 값은 프래그먼트 내의 모든 샘플에 대해 같은 값임
 * `sample`:  샘플 별로 보간이 수행됨. 이 값이 적용되는 경우 프래그먼트 셰이더는 모든 샘플별로 한 번씩 실행됨
+* `first`: Used only with type = `flat`. (default) The value comes from the first vertex of the primitive being drawn
+* `either`: Used only with type = `flat`. The value comes from either the first or the last vertex of the primitive being drawn.
 
 이러한 속성은 다음과 같이 명시됩니다.
 

@@ -348,6 +348,8 @@ Interpolation sampling:
 * `center`: Interpolation is performed at the center of the pixel. (**default**)
 * `centroid`: Interpolation is performed at a point that lies within all the samples covered by the fragment within the current primitive. This value is the same for all samples in the primitive.
 * `sample`:  Interpolation is performed per sample. The fragment shader is invoked once per sample when this attribute is applied.
+* `first`: Used only with type = `flat`. (default) The value comes from the first vertex of the primitive being drawn
+* `either`: Used only with type = `flat`. The value comes from either the first or the last vertex of the primitive being drawn.
 
 You specify these as attributes, for example:
 
@@ -359,8 +361,9 @@ You specify these as attributes, for example:
 Note that if the inter-stage variable is an integer type then you must set its
 interpolation to `flat`. 
 
-If you set the interpolation type to `flat`, the value passed to the fragment shader
-is the value of the inter-stage variable for the first vertex in that triangle.
+If you set the interpolation type to `flat`, by default, the value passed to the fragment shader
+is the value of the inter-stage variable for the first vertex in that triangle. For most
+`flat` use cases you should pick `either`. We'll cover why in [another article](webgpu-compatibility-mode.html).
 
 In the [next article we'll cover uniforms](webgpu-uniforms.html) as another way to
 pass data into shaders.

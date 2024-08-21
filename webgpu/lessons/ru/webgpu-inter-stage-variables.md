@@ -302,6 +302,8 @@ select = (a, b, condition) => condition ? b : a;
 * `center`: Интерполяция выполняется от центра пикселя (**по умолчанию**)
 * `centroid`: Интерполяция выполняется в точке, лежащей внутри всех выборок, охватываемых фрагментом внутри текущего примитива. Это значение одинаково для всех выборок в примитиве.
 * `sample`:  Интерполяция выполняется для каждой выборки. Fragment shader вызывается один раз для каждой выборки при применении этого атрибута.
+* `first`: Used only with type = `flat`. (default) The value comes from the first vertex of the primitive being drawn
+* `either`: Used only with type = `flat`. The value comes from either the first or the last vertex of the primitive being drawn.
 
 Вы указываете эти аттрибуты. Для примера
 
