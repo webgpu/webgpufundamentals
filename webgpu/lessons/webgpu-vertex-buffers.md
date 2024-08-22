@@ -750,9 +750,6 @@ We also need to update the per instance data.
   }
 ```
 
-Notice we queue'd the *second* view (`F32`) of the typed array, 
-and all the data from the first view (`U8`) is accessible, as mentioned previously.
-
 The layout for the per instance data is like this:
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-u8x4-f32x2.svg" style="width: 1024px;"></div>
