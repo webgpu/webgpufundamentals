@@ -64,10 +64,10 @@ struct VSOutput {
 ```
 
 As you can see, it's a small change. The important part is declaring the
-position field with `@location(0)`
+position field with `@location(0)`. 
 
-Then, when we create the render pipeline, we have to tell WebGPU how to get data
-for `@location(0)`
+Next, we have to tell WebGPU how to get data for `@location(0)` - 
+for that, we use the render pipeline:
 
 ```js
   const pipeline = device.createRenderPipeline({
@@ -93,7 +93,7 @@ for `@location(0)`
 
 To the [`vertex`](GPUVertexState) entry of the [`pipeline` descriptor](GPURenderPipelineDescriptor) 
 we added a `buffers` array which is used to describe how to pull data out of 1 or more vertex buffers.
-For our first and only buffer, we set an `arrayStride` in number of bytes. a *stride* in this case is
+For our first and only buffer, we set an `arrayStride` in number of bytes. A *stride* in this case is
 how many bytes to get from the data for one vertex in the buffer, to the next vertex in the buffer.
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-one.svg" style="width: 1024px;"></div>
@@ -101,11 +101,13 @@ how many bytes to get from the data for one vertex in the buffer, to the next ve
 Since our data is `vec2f`, which is two float32 numbers, we set the
 `arrayStride` to 8.
 
-Next we define an array of attributes. We only have one. `shaderLocation: 0`
+Next we define an array of attributes. We only have one: `shaderLocation: 0`
 corresponds to `location(0)` in our `Vertex` struct. `offset: 0` says the data
 for this attribute starts at byte 0 in the vertex buffer. Finally `format:
 'float32x2'` says we want WebGPU to pull the data out of the buffer as two 32bit
-floating point numbers.
+floating point numbers. Note the `attributes` property is the same entity pictured in the 
+[simplified draw diagram](webgpu-fundamentals.html#a-draw-diagram) 
+from the first article.
 
 We need to change the usages of the buffer holding vertex data from `STORAGE`
 to `VERTEX` and remove it from the bind group.
@@ -134,8 +136,7 @@ to `VERTEX` and remove it from the bind group.
   });
 ```
 
-And then at draw time we need to tell WebGPU which vertex buffer to
-use
+Then, at draw time we need to tell WebGPU which vertex buffer to use:
 
 ```js
     pass.setPipeline(pipeline);
@@ -145,16 +146,16 @@ use
 The `0` here corresponds to first element of the render pipeline `buffers`
 array we specified above.
 
-And with that we've switched from using a storage buffer for vertices to a
+With that, we've switched from using a storage buffer for vertices to a
 vertex buffer.
 
 {{{example url="../webgpu-vertex-buffers.html"}}}
 
-The state when the draw command is executed would look something like this
+The state when the draw command is executed would look something like this:
 
 <div class="webgpu_center"><img src="resources/webgpu-draw-diagram-vertex-buffer.svg" style="width: 960px;"></div>
 
-The attribute `format` field can be one of these types
+The attribute `format` field can be one of these types:
 
 <div class="webgpu_center data-table">
   <style>
@@ -362,7 +363,7 @@ did was change the usage from `STORAGE` to `VERTEX` (and we renamed all the
 variables from "storage" to "vertex").
 
 Since we're no longer using the storage buffers we no longer need
-the bindGroup
+the bind group:
 
 ```js
 -  const bindGroup = device.createBindGroup({
@@ -375,8 +376,8 @@ the bindGroup
 -  });
 ```
 
-And finally we don't need to set the bindGroup but we do need
-to set the vertex buffers
+Finally, we don't need to set the `bindGroup` but we do need
+to set the vertex buffers:
 
 ```js
     const encoder = device.createCommandEncoder();
@@ -393,15 +394,15 @@ to set the vertex buffers
     pass.end();
 ```
 
-Here, the first parameter to `setVertexBuffer` corresponds to the elements of
+Here the first parameter to `setVertexBuffer` corresponds to the elements of
 the `buffers` array in the pipeline we created above.
 
-And with that we have the same thing we had before but we're using all vertex buffers
+With that we have the same thing we had before, but we're using all vertex buffers
 and no storage buffers.
 
 {{{example url="../webgpu-vertex-buffers-instanced-colors"}}}
 
-Just for fun, let's add another attribute for a per vertex color. First let's change the shader
+Just for fun, let's add another attribute for a per vertex color. First let's change the shader:
 
 ```wgsl
 struct Vertex {
@@ -434,7 +435,7 @@ struct VSOutput {
 ```
 
 Then we need to update the pipeline to describe how we'll supply the data.
-We're going to interleave the perVertexColor data with the position like this
+We're going to interleave the `perVertexColor` data with the `position` like this:
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-mixed.svg" style="width: 1024px;"></div>
 
@@ -550,13 +551,13 @@ function createCircleVertices({
 }
 ```
 
-And with that we get shaded circles
+And with that we get shaded circles:
 
 {{{example url="../webgpu-vertex-buffers-per-vertex-colors.html"}}}
 
 ## <a id="a-default-values"></a>Attributes in WGSL do not have to match attributes in JavaScript
 
-Above in WGSL we declared the `perVertexColor` attribute as a `vec3f` like this
+Above in WGSL we declared the `perVertexColor` attribute as a `vec3f` like this:
 
 ```wgsl
 struct Vertex {
@@ -568,7 +569,7 @@ struct Vertex {
 };
 ```
 
-And used it like this
+And used it like this:
 
 ```wgsl
 @vertex fn vs(
@@ -582,7 +583,7 @@ And used it like this
 }
 ```
 
-We could also declare it as a `vec4f` and use it like this
+We could also declare it as a `vec4f` and use it like this:
 
 ```wgsl
 struct Vertex {
@@ -628,16 +629,16 @@ to `0, 0, 0, 1` so any values we don't supply get these defaults.
 
 ## <a id="a-normalized-attributes"></a>Using normalized values to save space
 
-We're using 32bit floating point values for colors. Each `perVertexColor` has 3 values for a total of 12 bytes per color per vertex. Each `color` has 4 values
-for a total of 16 bytes per color per instance.
+We're using 32bit floating point values for colors. Each `perVertexColor` has 3 values for a total of 
+12 bytes per color per vertex. Each `color` has 4 values for a total of 16 bytes per color per instance.
 
-We could optimize that by using 8bit values and telling WebGPU they should be normalized from 0 ↔ 255 to 0.0 ↔ 1.0
+We could optimize that by using 8bit values and telling WebGPU they should be normalized from 0 ↔ 255 to 0.0 ↔ 1.0.
 
 Looking at the list of valid attribute formats there is no 3 value 8bit format but there is `'unorm8x4'` so let's
 use that.
 
 First let's change the code that generates the vertices to store colors as 8bit values that
-will be normalized
+will be normalized:
 
 ```js
 function createCircleVertices({
@@ -672,13 +673,13 @@ function createCircleVertices({
   };
 ```
 
-Above we make `colorData` which is a `Uint8Array` view of the same
-data as `vertexData`
+Above we make `colorData`, which is a `Uint8Array` view of the same
+data as `vertexData`. Review the [data memory layout article](webgpu-memory-layout.html#multiple-views-of-the-same-arraybuffer) if this is unclear.
 
 We then use `colorData` to insert the colors, expanding them from 0 ↔ 1
-to 0 ↔ 255
+to 0 ↔ 255.
 
-The memory layout of this data is like this
+The memory layout of this (per vertex) data is like this:
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-f32x2-u8x4.svg" style="width: 1024px;"></div>
 
@@ -744,7 +745,7 @@ We also need to update the per instance data.
   }
 ```
 
-The layout for the per instance data is like this
+The layout for the per instance data is like this:
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-u8x4-f32x2.svg" style="width: 1024px;"></div>
 
@@ -801,7 +802,7 @@ per instance, now we're using 12, a 50% savings.
 
 {{{example url="../webgpu-vertex-buffers-8bit-colors.html"}}}
 
-Note that we don't have to use a struct. This would work just as well
+Note that we don't have to use a struct. This would work just as well:
 
 ```WGSL
 @vertex fn vs(
@@ -831,7 +832,7 @@ and supply data to those locations via the API.
 One last thing to cover here are index buffers. Index buffers describe
 the order to process and use the vertices.
 
-You can think of `draw` as going through the vertices in order
+You can think of `draw` as going through the vertices in order:
 
 ```
 0, 1, 2, 3, 4, 5, .....
@@ -845,7 +846,7 @@ of them were identical.
 <div class="webgpu_center"><img src="resources/vertices-non-indexed.svg" style="width: 400px"></div>  
 
 Now instead, we'll only create 4 but then use indices to
-use those 4 vertices 6 times by telling WebGPU to draw indices in this order
+use those 4 vertices 6 times by telling WebGPU to draw indices in this order:
 
 ```
 0, 1, 2, 2, 1, 3, ...
@@ -957,7 +958,7 @@ function createCircleVertices({
 }
 ```
 
-Then we need to create an index buffer
+Then we need to create an index buffer:
 
 ```js
 -  const { vertexData, numVertices } = createCircleVertices({
@@ -981,7 +982,7 @@ Then we need to create an index buffer
 
 Notice we set the usage to `INDEX`.
 
-Then finally at draw time we need to specify the index buffer
+Then finally at draw time we need to specify the index buffer:
 
 ```js
     pass.setPipeline(pipeline);
@@ -995,7 +996,7 @@ Because our buffer contains 32bit unsigned integer indices
 we need to pass `'uint32'` here. We could also use 16 bit
 unsigned indices in which case we'd pass in `'uint16'`.
 
-And we need to call `drawIndexed` instead of `draw`
+And we need to call `drawIndexed` instead of `draw`:
 
 ```js
 -    pass.draw(numVertices, kNumObjects);
