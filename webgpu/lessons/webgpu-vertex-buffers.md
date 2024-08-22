@@ -674,12 +674,7 @@ function createCircleVertices({
 ```
 
 Above we make `colorData`, which is a `Uint8Array` view of the same
-data as `vertexData`. We will only `queue` a `writeBuffer` from `vertexData` -
-all the data stored in `colorData` will also be accessible from `vertexData`.
-We could flip the declaration (create `vertexData` *from* `colorData`), 
-and still `writeBuffer` from `vertexData`, with no issue (all `colorData` would still be accessible). 
-See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Typed_arrays) 
-for a review of typed arrays.
+data as `vertexData`. Review the [data memory layout article](webgpu-memory-layout.html#multiple-views-of-the-same-arraybuffer) if this is unclear.
 
 We then use `colorData` to insert the colors, expanding them from 0 ↔ 1
 to 0 ↔ 255.
