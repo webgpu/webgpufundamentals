@@ -66,7 +66,7 @@ struct VSOutput {
 As you can see, it's a small change. The important part is declaring the
 position field with `@location(0)`. 
 
-Next, we have to tell WebGPU how to get data for `@location(0)` - 
+Next, we have to tell WebGPU how to supply data for `@location(0)` - 
 for that, we use the render pipeline:
 
 ```js
@@ -105,9 +105,9 @@ Next we define an array of attributes. We only have one: `shaderLocation: 0`
 corresponds to `location(0)` in our `Vertex` struct. `offset: 0` says the data
 for this attribute starts at byte 0 in the vertex buffer. Finally `format:
 'float32x2'` says we want WebGPU to pull the data out of the buffer as two 32bit
-floating point numbers. Note the `attributes` property is the same entity pictured in the 
+floating point numbers. (Note: the `attributes` property is shown in the 
 [simplified draw diagram](webgpu-fundamentals.html#a-draw-diagram) 
-from the first article.
+from the first article).
 
 We need to change the usages of the buffer holding vertex data from `STORAGE`
 to `VERTEX` and remove it from the bind group.
@@ -376,7 +376,7 @@ the bind group:
 -  });
 ```
 
-Finally, we don't need to set the `bindGroup` but we do need
+Finally, we don't need to set the bind group but, we do need
 to set the vertex buffers:
 
 ```js
