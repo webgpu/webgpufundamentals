@@ -286,7 +286,7 @@ struct VSOutput {
 </pre>
 <p>As you can see, it’s a small change. The important part is declaring the
 position field with <code class="notranslate" translate="no">@location(0)</code>.</p>
-<p>Next, we have to tell WebGPU how to get data for <code class="notranslate" translate="no">@location(0)</code> -
+<p>Next, we have to tell WebGPU how to supply data for <code class="notranslate" translate="no">@location(0)</code> -
 for that, we use the render pipeline:</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
     label: 'vertex buffer pipeline',
@@ -318,9 +318,9 @@ how many bytes to get from the data for one vertex in the buffer, to the next ve
 <p>Next we define an array of attributes. We only have one: <code class="notranslate" translate="no">shaderLocation: 0</code>
 corresponds to <code class="notranslate" translate="no">location(0)</code> in our <code class="notranslate" translate="no">Vertex</code> struct. <code class="notranslate" translate="no">offset: 0</code> says the data
 for this attribute starts at byte 0 in the vertex buffer. Finally <code class="notranslate" translate="no">format: 'float32x2'</code> says we want WebGPU to pull the data out of the buffer as two 32bit
-floating point numbers. Note the <code class="notranslate" translate="no">attributes</code> property is the same entity pictured in the
+floating point numbers. (Note: the <code class="notranslate" translate="no">attributes</code> property is shown in the
 <a href="webgpu-fundamentals.html#a-draw-diagram">simplified draw diagram</a>
-from the first article.</p>
+from the first article).</p>
 <p>We need to change the usages of the buffer holding vertex data from <code class="notranslate" translate="no">STORAGE</code>
 to <code class="notranslate" translate="no">VERTEX</code> and remove it from the bind group.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const vertexStorageBuffer = device.createBuffer({
@@ -559,7 +559,7 @@ the bind group:</p>
 -    ],
 -  });
 </pre>
-<p>Finally, we don’t need to set the <code class="notranslate" translate="no">bindGroup</code> but we do need
+<p>Finally, we don’t need to set the bind group but, we do need
 to set the vertex buffers:</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    const encoder = device.createCommandEncoder();
     const pass = encoder.beginRenderPass(renderPassDescriptor);
