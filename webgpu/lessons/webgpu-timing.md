@@ -539,7 +539,7 @@ them in JavaScript we can use a `BigInt64Array` typedarray view. Using
 `BigInt64Array` requires special care. When you read an element from a
 `BitInt64Array` the type is a `bigint`, not a `number` so you can't use with
 with lots of math functions. Also, when you convert them to numbers they may
-lose precision because a `number`` can only hold integers of 53 bits in size.
+lose precision because a `number` can only hold integers of 53 bits in size.
 So, first we subtract the 2 `bigint`s which stays a `bigint`. Then we convert
 the result to a number so we can use it as normal.
 
