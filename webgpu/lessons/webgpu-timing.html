@@ -699,7 +699,8 @@ them in JavaScript we can use a <a href="https://developer.mozilla.org/en-US/doc
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt64Array"><code class="notranslate" translate="no">BigInt64Array</code></a> requires special care. When you read an element from a
 <code class="notranslate" translate="no">BitInt64Array</code> the type is a <code class="notranslate" translate="no">bigint</code>, not a <code class="notranslate" translate="no">number</code> so you can’t use with
 with lots of math functions. Also, when you convert them to numbers they may
-lose precision because a <code class="notranslate" translate="no">number`` can only hold integers of 53 bits in size. So, first we subtract the 2 </code>bigint<code class="notranslate" translate="no">s which stays a </code>bigint`. Then we convert
+lose precision because a <code class="notranslate" translate="no">number</code> can only hold integers of 53 bits in size.
+So, first we subtract the 2 <code class="notranslate" translate="no">bigint</code>s which stays a <code class="notranslate" translate="no">bigint</code>. Then we convert
 the result to a number so we can use it as normal.</p>
 <p>In the code above, we are are only copying the results to <code class="notranslate" translate="no">resultBuffer</code> some
 times, when it’s not mapped. That means we’ll only be reading the time on some
