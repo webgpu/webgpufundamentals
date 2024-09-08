@@ -140,7 +140,7 @@ const code = `
 
 We used a JavaScript template literal so we can set the workgroup size
 from the JavaScript variable `workgroupSize`. This ends up being
-hard hard coded into the shader.
+hard coded into the shader.
 
 Now that we have the shader we can make 3 buffers to store these results.
 
