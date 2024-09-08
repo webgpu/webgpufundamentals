@@ -347,7 +347,7 @@ const code = `
 </pre>
 <p>We used a JavaScript template literal so we can set the workgroup size
 from the JavaScript variable <code class="notranslate" translate="no">workgroupSize</code>. This ends up being
-hard hard coded into the shader.</p>
+hard coded into the shader.</p>
 <p>Now that we have the shader we can make 3 buffers to store these results.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const numWorkgroups = arrayProd(dispatchCount);
   const numResults = numWorkgroups * numThreadsPerWorkgroup;
