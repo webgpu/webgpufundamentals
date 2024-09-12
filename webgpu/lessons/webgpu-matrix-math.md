@@ -39,7 +39,7 @@ The results are completely different. Even worse, if we needed the
 second example we'd have to write a different shader that applied
 the translation, rotation, and scale in our new desired order.
 
-Well, some smart people way figured out that you can do
+Well, some smart people figured out a way that you can do
 all the same stuff with matrix math. For 2D we use a 3x3 matrix.
 A 3x3 matrix is like a grid with 9 boxes:
 
