@@ -246,7 +246,7 @@ This check is trivially simple. Most of the detailed checking
 happens when you create the bind group. That way, when you’re
 actually drawing or computing, there’s almost nothing left to
 check.</p>
-<p>Pipelines with generate their own <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUPipelineLayout"><code class="notranslate" translate="no">GPUPipelineLayout</code></a> and
+<p>Pipelines will generate their own <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUPipelineLayout"><code class="notranslate" translate="no">GPUPipelineLayout</code></a> and
 populate it with <code class="notranslate" translate="no">GPUBindGroupLayouts</code> automatically if you
 create the pipeline with <code class="notranslate" translate="no">layout: 'auto'</code> which is what
 most of the samples on this website do.</p>
