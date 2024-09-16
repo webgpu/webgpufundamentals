@@ -24,7 +24,7 @@ happens when you create the bind group. That way, when you're
 actually drawing or computing, there's almost nothing left to
 check.
 
-Pipelines with generate their own `GPUPipelineLayout` and
+Pipelines will generate their own `GPUPipelineLayout` and
 populate it with `GPUBindGroupLayouts` automatically if you
 create the pipeline with `layout: 'auto'` which is what
 most of the samples on this website do.
