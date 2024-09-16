@@ -665,14 +665,16 @@ class TimingHelper {
   constructor(device) {
     this.#device = device;
     this.#canTimestamp = device.features.has('timestamp-query');
-    this.#querySet = device.createQuerySet({
-       type: 'timestamp',
-       count: 2,
-    });
-    this.#resolveBuffer = device.createBuffer({
-      size: this.#querySet.count * 8,
-      usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
-    });
+    if (this.#canTimestamp) {
+      this.#querySet = device.createQuerySet({
+         type: 'timestamp',
+         count: 2,
+      });
+      this.#resolveBuffer = device.createBuffer({
+        size: this.#querySet.count * 8,
+        usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
+      });
+    }
   }
 
   #beginTimestampPass(encoder, fnName, descriptor) {
