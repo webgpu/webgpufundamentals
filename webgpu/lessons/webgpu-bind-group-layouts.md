@@ -160,8 +160,8 @@ the sample types a particular texture format works with in
 
 To fix the example we need to adjust both the texture binding and the
 sampler binding. The sampler binding needs to be changed into a
-`'non-filtering` sampler. The texture binding needs to be changed to
-an `unfilterable-float`.
+`'non-filtering'` sampler. The texture binding needs to be changed to
+an `'unfilterable-float'`.
 
 So, first, we need to create a `GPUBindGroupLayout`
 
@@ -226,6 +226,13 @@ texture.
 
 {{{example url="../webgpu-bind-group-layouts-rgba32float-fixed.html"}}}
 
+Note: the example works both because we did the work above to make
+a bind group layout that accepted unfilterable-float but it also happens
+to work because the example uses a `GPUSampler` using only `'nearest'`
+filtering. If we set any of the filters, `magFilter`, `minFilter` or
+`mipmapFilter` to `'linear'` we'd get an error saying that we tried
+to use a `'filtering'` sampler on a `'non-filtering'` sampler binding.
+
 ## Using a bind group layout different than `layout: 'auto'` - dynamic offsets
 
 By default, when you make a bind group and you bind a uniform or storage buffer, the entire buffer is bound. You can also pass in an offset and length when creating your bind group. In both cases, once set, they can not
@@ -236,7 +243,7 @@ WebGPU has an option to let you change the offset when you call
 layouts and set `hasDynamicOffsets: true` for each binding you want to be
 able to set later.
 
-To keep this simple, let's use the simple example
+To keep this simple, let's use the simple compute example
 from [the article on fundamentals](webgpu-fundamentals.html#a-run-computations-on-the-gpu). We'll modify it to add
 2 sets of values from the same buffer and we'll choose which
 set using dynamic offsets.
@@ -311,8 +318,8 @@ now let's use it to create our pipeline
   });
 ```
 
-Let's setup the buffer. Offset must be multiples of 256 [^minStorageBufferOffsetAlignment] so, let's create a buffer
-256 * 3 bytes large so we have at least 3 sections.
+Let's setup the buffer. Offset must be a multiple of 256 [^minStorageBufferOffsetAlignment] so, let's create a buffer
+256 * 3 bytes large so we have at least 3 valid offsets, 0, 256, and 512.
 
 [^minStorageBufferOffsetAlignment]: It's possible your device
 supports smaller offsets. See the `minStorageBufferOffsetAlignment`
@@ -360,7 +367,7 @@ of the entire buffer. If we were to then set an offset > 0 we'd get an
 error since we'd be specifying a portion of the buffer that's out of range.
 
 In `setBindGroup` we now pass in 1 offset for each buffer that has dynamic offsets. Since we marked all 3 entries in the bind group layout as
-`hasDynamicOffset: true` we need 3 offsets
+`hasDynamicOffset: true` we need 3 offsets in the order of their binding slot.
 
 ```js
   ...
@@ -380,6 +387,8 @@ Finally, we need to change the code to show the result
 +  console.log('b', input.slice(64, 64 + 3));
 +  console.log('dst', result.slice(128, 128 + 3));
 ```
+
+{{{example url="../webgpu-bind-group-layouts-dynamic-offsets.html"}}}
 
 Note that, using dynamic offsets is slightly slower than non-dynamic offsets. The reason is, with non-dynamic offsets, whether the offset and size are in range of the buffer is checked when you create the bind group. With dynamic offsets, that check can not be made until you call `setBindGroup`. If you're only calling `setBindGroup` a few hundred times
 that difference probably won't matter. If you're calling `setBindGroup`
@@ -420,9 +429,9 @@ for both cases.
 
 That's a rather large sample to write, just to show off sharing
 bind groups. Although, [the article on shadows](webgpu-shadows.html)
-uses shared bind groups we'll make the simple example from [the article on fundamentals](webgpu-fundamentals.html#a-run-computations-on-the-gpu) and make it use 2 compute pipelines with one bind group.
+uses shared bind groups we'll take the simple compute example from [the article on fundamentals](webgpu-fundamentals.html#a-run-computations-on-the-gpu) again and make it use 2 compute pipelines with one bind group.
 
-First let's add another shader module that multiplies by 3
+First let's add another shader module that adds 3
 
 ```js
 -  const module = device.createShaderModule({
@@ -607,6 +616,9 @@ Some things to note about creating a `GPUBindGroupLayout`
     ],
   });
   ```
+
+[This part of the spec](https://www.w3.org/TR/webgpu/#dictdef-gpubindgrouplayoutentry) details all the options for making
+bind group layouts.
 
 [This article](https://toji.dev/webgpu-best-practices/bind-groups) also
 has some advice on bind groups and bind group layouts.
