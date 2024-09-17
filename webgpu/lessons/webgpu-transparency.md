@@ -672,7 +672,7 @@ bindGroupLayout and tell the pipelines to use it. This way we can create the bin
 at init time and they'll be compatible with any pipeline that uses the same bindGroupLayout.
 
 The details of creating a [bindGroupLayout](GPUBindGroupLayout) and [pipelineLayout](GPUPipelineLayout)
-are covered [in another article](webgpu-bindgrouplayout.html). For now, here's the code to create
+are covered [in another article](webgpu-bind-group-layouts.html). For now, here's the code to create
 them that match our shader module
 
 ```js
