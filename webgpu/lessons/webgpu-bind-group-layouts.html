@@ -370,8 +370,8 @@ the sample types a particular texture format works with in
 <a href="https://www.w3.org/TR/webgpu/#texture-format-caps">this table in the spec</a>.</p>
 <p>To fix the example we need to adjust both the texture binding and the
 sampler binding. The sampler binding needs to be changed into a
-<code class="notranslate" translate="no">'non-filtering</code> sampler. The texture binding needs to be changed to
-an <code class="notranslate" translate="no">unfilterable-float</code>.</p>
+<code class="notranslate" translate="no">'non-filtering'</code> sampler. The texture binding needs to be changed to
+an <code class="notranslate" translate="no">'unfilterable-float'</code>.</p>
 <p>So, first, we need to create a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout"><code class="notranslate" translate="no">GPUBindGroupLayout</code></a></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroupLayout = device.createBindGroupLayout({
     entries: [
@@ -427,6 +427,12 @@ texture.</p>
 </div>
 
 <p></p>
+<p>Note: the example works both because we did the work above to make
+a bind group layout that accepted unfilterable-float but it also happens
+to work because the example uses a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUSampler"><code class="notranslate" translate="no">GPUSampler</code></a> using only <code class="notranslate" translate="no">'nearest'</code>
+filtering. If we set any of the filters, <code class="notranslate" translate="no">magFilter</code>, <code class="notranslate" translate="no">minFilter</code> or
+<code class="notranslate" translate="no">mipmapFilter</code> to <code class="notranslate" translate="no">'linear'</code> we’d get an error saying that we tried
+to use a <code class="notranslate" translate="no">'filtering'</code> sampler on a <code class="notranslate" translate="no">'non-filtering'</code> sampler binding.</p>
 <h2 id="using-a-bind-group-layout-different-than-layout-auto---dynamic-offsets">Using a bind group layout different than <code class="notranslate" translate="no">layout: 'auto'</code> - dynamic offsets</h2>
 <p>By default, when you make a bind group and you bind a uniform or storage buffer, the entire buffer is bound. You can also pass in an offset and length when creating your bind group. In both cases, once set, they can not
 be changed.</p>
@@ -434,7 +440,7 @@ be changed.</p>
 <code class="notranslate" translate="no">setBindGroup</code>. To use this feature, you have to manually create bind group
 layouts and set <code class="notranslate" translate="no">hasDynamicOffsets: true</code> for each binding you want to be
 able to set later.</p>
-<p>To keep this simple, let’s use the simple example
+<p>To keep this simple, let’s use the simple compute example
 from <a href="webgpu-fundamentals.html#a-run-computations-on-the-gpu">the article on fundamentals</a>. We’ll modify it to add
 2 sets of values from the same buffer and we’ll choose which
 set using dynamic offsets.</p>
@@ -497,8 +503,8 @@ set using dynamic offsets.</p>
     },
   });
 </pre>
-<p>Let’s setup the buffer. Offset must be multiples of 256 <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> so, let’s create a buffer
-256 * 3 bytes large so we have at least 3 sections.</p>
+<p>Let’s setup the buffer. Offset must be a multiple of 256 <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> so, let’s create a buffer
+256 * 3 bytes large so we have at least 3 valid offsets, 0, 256, and 512.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const input = new Float32Array([1, 3, 5]);
 +  const input = new Float32Array(64 * 3);
 +  input.set([1, 3, 5]);
@@ -534,7 +540,7 @@ we’ll just bind the same buffer 3 times.</p>
 of the entire buffer. If we were to then set an offset &gt; 0 we’d get an
 error since we’d be specifying a portion of the buffer that’s out of range.</p>
 <p>In <code class="notranslate" translate="no">setBindGroup</code> we now pass in 1 offset for each buffer that has dynamic offsets. Since we marked all 3 entries in the bind group layout as
-<code class="notranslate" translate="no">hasDynamicOffset: true</code> we need 3 offsets</p>
+<code class="notranslate" translate="no">hasDynamicOffset: true</code> we need 3 offsets in the order of their binding slot.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  ...
   pass.setPipeline(pipeline);
 -  pass.setBindGroup(0, bindGroup);
@@ -549,6 +555,12 @@ error since we’d be specifying a portion of the buffer that’s out of range.<
 +  console.log('b', input.slice(64, 64 + 3));
 +  console.log('dst', result.slice(128, 128 + 3));
 </pre>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-bind-group-layouts-dynamic-offsets.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-bind-group-layouts-dynamic-offsets.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
 <p>Note that, using dynamic offsets is slightly slower than non-dynamic offsets. The reason is, with non-dynamic offsets, whether the offset and size are in range of the buffer is checked when you create the bind group. With dynamic offsets, that check can not be made until you call <code class="notranslate" translate="no">setBindGroup</code>. If you’re only calling <code class="notranslate" translate="no">setBindGroup</code> a few hundred times
 that difference probably won’t matter. If you’re calling <code class="notranslate" translate="no">setBindGroup</code>
 1000s of times it might be more noticeable.</p>
@@ -580,8 +592,8 @@ easier to just make one set of bind groups and use the same ones
 for both cases.</p>
 <p>That’s a rather large sample to write, just to show off sharing
 bind groups. Although, <a href="webgpu-shadows.html">the article on shadows</a>
-uses shared bind groups we’ll make the simple example from <a href="webgpu-fundamentals.html#a-run-computations-on-the-gpu">the article on fundamentals</a> and make it use 2 compute pipelines with one bind group.</p>
-<p>First let’s add another shader module that multiplies by 3</p>
+uses shared bind groups we’ll take the simple compute example from <a href="webgpu-fundamentals.html#a-run-computations-on-the-gpu">the article on fundamentals</a> again and make it use 2 compute pipelines with one bind group.</p>
+<p>First let’s add another shader module that adds 3</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const module = device.createShaderModule({
 +  const moduleTimes2 = device.createShaderModule({
     label: 'doubling compute module',
@@ -740,6 +752,8 @@ the sampler and texture entries like this</p>
 </pre>
 </li>
 </ul>
+<p><a href="https://www.w3.org/TR/webgpu/#dictdef-gpubindgrouplayoutentry">This part of the spec</a> details all the options for making
+bind group layouts.</p>
 <p><a href="https://toji.dev/webgpu-best-practices/bind-groups">This article</a> also
 has some advice on bind groups and bind group layouts.</p>
 <hr class="footnotes-sep">
