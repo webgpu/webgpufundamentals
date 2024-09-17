@@ -816,7 +816,7 @@ time.</p>
 bindGroupLayout and tell the pipelines to use it. This way we can create the bindGroups
 at init time and they’ll be compatible with any pipeline that uses the same bindGroupLayout.</p>
 <p>The details of creating a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout">bindGroupLayout</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUPipelineLayout">pipelineLayout</a>
-are covered <a href="webgpu-bindgrouplayout.html">in another article</a>. For now, here’s the code to create
+are covered <a href="webgpu-bind-group-layouts.html">in another article</a>. For now, here’s the code to create
 them that match our shader module</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroupLayout = device.createBindGroupLayout({
     entries: [
@@ -1398,6 +1398,7 @@ cover various techniques.</p>
 <li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
 <li><a href="/webgpu/lessons/webgpu-transparency.html">Transparency and Blending</a></li>
+<li><a href="/webgpu/lessons/webgpu-bind-group-layouts.html">Bind Group Layouts</a></li>
 <li><a href="/webgpu/lessons/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/webgpu-timing.html">Timing Performance</a></li>

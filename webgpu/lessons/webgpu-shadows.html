@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/webgpu-bindgrouplayout.md. Do not edited directly --><!--
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/webgpu-shadows.md. Do not edited directly --><!--
 Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
@@ -35,24 +35,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Creating BindGroupLayouts">
+<meta name="description" content="Shadows">
 <meta name="keywords" content="webgpu graphics">
-<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-bindgrouplayout_en.jpg">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-shadows_en.jpg">
 
-<meta property="og:title" content="WebGPU BindGroupLayout">
+<meta property="og:title" content="WebGPU Shadows">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-bindgrouplayout_en.jpg">
-<meta property="og:description" content="Creating BindGroupLayouts">
-<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-bindgrouplayout.html">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-shadows_en.jpg">
+<meta property="og:description" content="Shadows">
+<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-shadows.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU BindGroupLayout">
-<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-bindgrouplayout.html">
-<meta name="twitter:description" content="Creating BindGroupLayouts">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-bindgrouplayout_en.jpg">
+<meta name="twitter:title" content="WebGPU Shadows">
+<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/webgpu-shadows.html">
+<meta name="twitter:description" content="Shadows">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-shadows_en.jpg">
 
 <script type="application/ld+json">
 {
@@ -66,30 +66,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     },
     {
       "@type":"ImageObject",
-      "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-bindgrouplayout.html#primaryimage",
-      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-bindgrouplayout_en.jpg",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-shadows.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-shadows_en.jpg",
       "width":1200,
       "height":630
     },
     {
       "@type":"WebPage",
-      "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-bindgrouplayout.html#webpage",
-      "url":"https://webgpufundamentals.org/webgpu/lessons/webgpu-bindgrouplayout.html",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-shadows.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/webgpu-shadows.html",
       "inLanguage":"en",
-      "name":"WebGPU BindGroupLayout",
+      "name":"WebGPU Shadows",
       "keywords":"webgpu graphics programming",
       "isPartOf":{
         "@id":"https://webgpufundamentals.org/#website"
       },
       "primaryImageOfPage":{
-        "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-bindgrouplayout.html#primaryimage"
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/webgpu-shadows.html#primaryimage"
       }
     }
   ]
 }
 </script>
 
-<title>WebGPU BindGroupLayout</title>
+<title>WebGPU Shadows</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
 <link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
 <link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
@@ -101,13 +101,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="webgpu_navbar">
   <div>
     <select class="language">
-    <option value="/webgpu/lessons/webgpu-bindgrouplayout.html" selected="">English
-    </option><option value="/webgpu/lessons/es/webgpu-bindgrouplayout.html">Spanish
-    </option><option value="/webgpu/lessons/ja/webgpu-bindgrouplayout.html">日本語
-    </option><option value="/webgpu/lessons/ko/webgpu-bindgrouplayout.html">한국어
-    </option><option value="/webgpu/lessons/ru/webgpu-bindgrouplayout.html">Русский
-    </option><option value="/webgpu/lessons/uk/webgpu-bindgrouplayout.html">Українська
-    </option><option value="/webgpu/lessons/zh_cn/webgpu-bindgrouplayout.html">简体中文
+    <option value="/webgpu/lessons/webgpu-shadows.html" selected="">English
+    </option><option value="/webgpu/lessons/es/webgpu-shadows.html">Spanish
+    </option><option value="/webgpu/lessons/ja/webgpu-shadows.html">日本語
+    </option><option value="/webgpu/lessons/ko/webgpu-shadows.html">한국어
+    </option><option value="/webgpu/lessons/ru/webgpu-shadows.html">Русский
+    </option><option value="/webgpu/lessons/uk/webgpu-shadows.html">Українська
+    </option><option value="/webgpu/lessons/zh_cn/webgpu-shadows.html">简体中文
 </option></select>
 
 
@@ -225,22 +225,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU BindGroupLayout</h1>
+    <h1>WebGPU Shadows</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>TBD</p>
-
+      
     </div>
     <div class="lesson-sidebar">
         <select class="language">
-    <option value="/webgpu/lessons/webgpu-bindgrouplayout.html" selected="">English
-    </option><option value="/webgpu/lessons/es/webgpu-bindgrouplayout.html">Spanish
-    </option><option value="/webgpu/lessons/ja/webgpu-bindgrouplayout.html">日本語
-    </option><option value="/webgpu/lessons/ko/webgpu-bindgrouplayout.html">한국어
-    </option><option value="/webgpu/lessons/ru/webgpu-bindgrouplayout.html">Русский
-    </option><option value="/webgpu/lessons/uk/webgpu-bindgrouplayout.html">Українська
-    </option><option value="/webgpu/lessons/zh_cn/webgpu-bindgrouplayout.html">简体中文
+    <option value="/webgpu/lessons/webgpu-shadows.html" selected="">English
+    </option><option value="/webgpu/lessons/es/webgpu-shadows.html">Spanish
+    </option><option value="/webgpu/lessons/ja/webgpu-shadows.html">日本語
+    </option><option value="/webgpu/lessons/ko/webgpu-shadows.html">한국어
+    </option><option value="/webgpu/lessons/ru/webgpu-shadows.html">Русский
+    </option><option value="/webgpu/lessons/uk/webgpu-shadows.html">Українська
+    </option><option value="/webgpu/lessons/zh_cn/webgpu-shadows.html">简体中文
 </option></select>
 
 
@@ -264,6 +263,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/webgpu-constants.html">Constants</a></li>
 <li><a href="/webgpu/lessons/webgpu-memory-layout.html">Data Memory Layout</a></li>
 <li><a href="/webgpu/lessons/webgpu-transparency.html">Transparency and Blending</a></li>
+<li><a href="/webgpu/lessons/webgpu-bind-group-layouts.html">Bind Group Layouts</a></li>
 <li><a href="/webgpu/lessons/webgpu-copying-data.html">Copying Data</a></li>
 <li><a href="/webgpu/lessons/webgpu-limits-and-features.html">Optional Features and Limits</a></li>
 <li><a href="/webgpu/lessons/webgpu-timing.html">Timing Performance</a></li>
@@ -348,7 +348,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <script>
             var disqus_config = function () {
               this.page.url = `${window.location.origin}${window.location.pathname}`;
-              this.page.identifier = `WebGPU BindGroupLayout`;
+              this.page.identifier = `WebGPU Shadows`;
             };
             (function() { // DON'T EDIT BELOW THIS LINE
                 if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {

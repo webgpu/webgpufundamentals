@@ -32,23 +32,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --><html lang="ko"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU BindGroupLayout">
+<meta property="og:title" content="WebGPU Shadows">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="Creating BindGroupLayouts">
-<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-bindgrouplayout.html">
+<meta property="og:description" content="Shadows">
+<meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-shadows.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU BindGroupLayout">
-<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-bindgrouplayout.html">
-<meta name="twitter:description" content="Creating BindGroupLayouts">
+<meta name="twitter:title" content="WebGPU Shadows">
+<meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-shadows.html">
+<meta name="twitter:description" content="Shadows">
 <meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
 
 
-<title>WebGPU BindGroupLayout</title>
+<title>WebGPU Shadows</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
@@ -56,13 +56,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="webgpu_navbar">
   <div>
     <select class="language">
-    <option value="/webgpu/lessons/webgpu-bindgrouplayout.html">English
-    </option><option value="/webgpu/lessons/es/webgpu-bindgrouplayout.html">Spanish
-    </option><option value="/webgpu/lessons/ja/webgpu-bindgrouplayout.html">日本語
-    </option><option value="/webgpu/lessons/ko/webgpu-bindgrouplayout.html" selected="">한국어
-    </option><option value="/webgpu/lessons/ru/webgpu-bindgrouplayout.html">Русский
-    </option><option value="/webgpu/lessons/uk/webgpu-bindgrouplayout.html">Українська
-    </option><option value="/webgpu/lessons/zh_cn/webgpu-bindgrouplayout.html">简体中文
+    <option value="/webgpu/lessons/webgpu-shadows.html">English
+    </option><option value="/webgpu/lessons/es/webgpu-shadows.html">Spanish
+    </option><option value="/webgpu/lessons/ja/webgpu-shadows.html">日本語
+    </option><option value="/webgpu/lessons/ko/webgpu-shadows.html" selected="">한국어
+    </option><option value="/webgpu/lessons/ru/webgpu-shadows.html">Русский
+    </option><option value="/webgpu/lessons/uk/webgpu-shadows.html">Українська
+    </option><option value="/webgpu/lessons/zh_cn/webgpu-shadows.html">简体中文
 </option></select>
 
 
@@ -180,24 +180,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU BindGroupLayout</h1>
+    <h1>WebGPU Shadows</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
       <p>죄송합니다. 이 글은 아직 번역이 되지 않았습니다.</p>
 <p><a href="https://github.com/webgpu/webgpufundamentals">번역을 도와주세요</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-bindgrouplayout.html">여기서 원문을 볼 수 있습니다</a>.</p>
+<p><a href="/webgpu/lessons/webgpu-shadows.html">여기서 원문을 볼 수 있습니다</a>.</p>
 
     </div>
     <div class="lesson-sidebar">
         <select class="language">
-    <option value="/webgpu/lessons/webgpu-bindgrouplayout.html">English
-    </option><option value="/webgpu/lessons/es/webgpu-bindgrouplayout.html">Spanish
-    </option><option value="/webgpu/lessons/ja/webgpu-bindgrouplayout.html">日本語
-    </option><option value="/webgpu/lessons/ko/webgpu-bindgrouplayout.html" selected="">한국어
-    </option><option value="/webgpu/lessons/ru/webgpu-bindgrouplayout.html">Русский
-    </option><option value="/webgpu/lessons/uk/webgpu-bindgrouplayout.html">Українська
-    </option><option value="/webgpu/lessons/zh_cn/webgpu-bindgrouplayout.html">简体中文
+    <option value="/webgpu/lessons/webgpu-shadows.html">English
+    </option><option value="/webgpu/lessons/es/webgpu-shadows.html">Spanish
+    </option><option value="/webgpu/lessons/ja/webgpu-shadows.html">日本語
+    </option><option value="/webgpu/lessons/ko/webgpu-shadows.html" selected="">한국어
+    </option><option value="/webgpu/lessons/ru/webgpu-shadows.html">Русский
+    </option><option value="/webgpu/lessons/uk/webgpu-shadows.html">Українська
+    </option><option value="/webgpu/lessons/zh_cn/webgpu-shadows.html">简体中文
 </option></select>
 
 
@@ -220,6 +220,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/ko/webgpu-constants.html">상수(Constants)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-memory-layout.html">데이터 메모리 레이아웃</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-transparency.html">Transparency and Blending</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-bind-group-layouts.html">Bind Group Layouts</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-copying-data.html">데이터 복사하기</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-limits-and-features.html">선택적 기능(optional feature)과 제한(limit)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-timing.html">Timing Performance</a></li>
