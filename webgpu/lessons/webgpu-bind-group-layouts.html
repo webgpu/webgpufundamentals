@@ -236,7 +236,7 @@ for WebGPU to match Bind Groups to Compute and Render Pipelines.</p>
 uses a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUPipelineLayout"><code class="notranslate" translate="no">GPUPipelineLayout</code></a> which defines 0 or more
 <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout"><code class="notranslate" translate="no">GPUBindGroupLayout</code></a>s. Each <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout"><code class="notranslate" translate="no">GPUBindGroupLayout</code></a> is assigned
 to a specific group index.</p>
-<div class="webgpu_center"><img src="resources/webgpu-bind-group-layouts.svg" style="width: 800px;"></div>
+<div class="webgpu_center"><img src="resources/webgpu-bind-group-layouts.svg" style="width: 900px;"></div>
 <p>Bind Groups are each created with a specific <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout"><code class="notranslate" translate="no">GPUBindGroupLayout</code></a>
 as well.</p>
 <p>When you go to <code class="notranslate" translate="no">draw</code> or to <code class="notranslate" translate="no">dispatchWorkgroups</code>, WebGPU only
@@ -260,7 +260,7 @@ but you get an error when you try. (see below)</p>
 </li>
 <li>
 <p><strong>You want to use a bind group with more than 1 pipeline</strong></p>
-<p>You can not use a bind group made with from a bindGroupLayout
+<p>You can not use a bind group made from a bindGroupLayout
 that was made from a pipeline with <code class="notranslate" translate="no">layout: 'auto'</code> with a
 different pipeline.</p>
 </li>
