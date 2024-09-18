@@ -12,7 +12,7 @@ uses a `GPUPipelineLayout` which defines 0 or more
 `GPUBindGroupLayout`s. Each `GPUBindGroupLayout` is assigned
 to a specific group index.
 
-<div class="webgpu_center"><img src="resources/webgpu-bind-group-layouts.svg" style="width: 800px;"></div>
+<div class="webgpu_center"><img src="resources/webgpu-bind-group-layouts.svg" style="width: 900px;"></div>
 
 Bind Groups are each created with a specific `GPUBindGroupLayout`
 as well.
@@ -40,7 +40,7 @@ There are 2 main reasons to **NOT** use `layout: 'auto'`.
 
 2. **You want to use a bind group with more than 1 pipeline**
 
-   You can not use a bind group made with from a bindGroupLayout
+   You can not use a bind group made from a bindGroupLayout
    that was made from a pipeline with `layout: 'auto'` with a
    different pipeline.
 
