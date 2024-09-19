@@ -704,10 +704,10 @@ will be a technique you reach for.</p>
 <p>Some things to note about creating a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout"><code class="notranslate" translate="no">GPUBindGroupLayout</code></a></p>
 <ul>
 <li>
-<p>Each entry must declare which <code class="notranslate" translate="no">binding</code> it is for</p>
+<h2 id="each-entry-must-declare-which-binding-it-is-for">Each entry must declare which <code class="notranslate" translate="no">binding</code> it is for</h2>
 </li>
 <li>
-<p>Each entry must declare which stages it will be visible in.</p>
+<h2 id="each-entry-must-declare-which-stages-it-will-be-visible-in">Each entry must declare which stages it will be visible in.</h2>
 <p>In our examples above we declared just one visibility.
 If, for example, we wanted to reference the bind group both
 the vertex and the fragment shader we’d use:</p>
@@ -720,7 +720,7 @@ the vertex and the fragment shader we’d use:</p>
 </pre>
 </li>
 <li>
-<p>There are several defaults:</p>
+<h2 id="there-are-several-defaults">There are several defaults:</h2>
 <p>For <code class="notranslate" translate="no">texture:</code> bindings the defaults are:</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">{
   sampleType: 'float',
@@ -751,11 +751,54 @@ the sampler and texture entries like this</p>
 });
 </pre>
 </li>
+<li>
+<h2 id="buffer-entries-should-declare-a-minbindingsize-when-possible">buffer entries should declare a <code class="notranslate" translate="no">minBindingSize</code> when possible.</h2>
+<p>When you declare a buffer binding you can specify a <code class="notranslate" translate="no">minBindingSize</code>.</p>
+<p>A good example might be you make a struct for uniforms. For example
+in <a href="webgpu-uniforms.html">the article on uniforms</a> we had this struct:</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct OurStruct {
+  color: vec4f,
+  scale: vec2f,
+  offset: vec2f,
+};
+
+@group(0) @binding(0) var&lt;uniform&gt; ourStruct: OurStruct;
+</pre>
+<p>It requires 32 bytes so, we should declare it’s <code class="notranslate" translate="no">minBindingSize</code> like
+this:</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const bindGroupLayout = device.createBindGroupLayout({
+  entries: [
+    {
+      binding: 0,
+      visibility: GPUShaderStage.COMPUTE,
+      buffer: {
+        type: 'uniform',
+        minBindingSize: 32,
+      },
+    },
+  ],
+});
+</pre>
+<p>The reason to declare a <code class="notranslate" translate="no">minBindingSize</code> is it lets WebGPU check
+if your buffer size/offset is the correct size when you call
+<code class="notranslate" translate="no">createBindGroup</code>.  If you don’t set a <code class="notranslate" translate="no">minBindingSize</code>, then
+WebGPU will have to check at draw/dispatchWorkgroups time that
+the buffer is the correct size of the pipeline. Checking every
+draw calls is slower than checking once when you create a bind
+group.</p>
+<p>On the the other hand, in our example above that used a storage
+buffer to double numbers etc, we didn’t declare a <code class="notranslate" translate="no">minBindingSize</code>.
+That’s because, since the storage buffer is declared as an <code class="notranslate" translate="no">array</code>,
+are able to bind different size buffers depending on how
+many values you pass in.</p>
+</li>
 </ul>
 <p><a href="https://www.w3.org/TR/webgpu/#dictdef-gpubindgrouplayoutentry">This part of the spec</a> details all the options for making
 bind group layouts.</p>
 <p><a href="https://toji.dev/webgpu-best-practices/bind-groups">This article</a> also
 has some advice on bind groups and bind group layouts.</p>
+<p><a href="https://greggman.github.io/webgpu-utils">This Library</a> will compute
+struct sizes and default bind group layouts for you.</p>
 <hr class="footnotes-sep">
 <section class="footnotes">
 <ol class="footnotes-list">
