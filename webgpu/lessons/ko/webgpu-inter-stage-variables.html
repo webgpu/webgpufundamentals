@@ -403,7 +403,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <code class="notranslate" translate="no">xy</code> 좌표를 두 개의 부호없는 정수인 <code class="notranslate" translate="no">vec2u</code>로 좌표를 변환합니다.
 그리고 나서 이를 8로 나누어 8개의 픽셀마다 값이 증가되도록 합니다.
 그리고 <code class="notranslate" translate="no">x</code>와 <code class="notranslate" translate="no">y</code> 그리드 좌표를 더하고 2로 나눈 나머지를 계산하여 그 결과를 1과 비교합니다.
-그 결과 모든 정수에 대해 1 또는 0 값을 반한합니다.
+그 결과 모든 정수에 대해 1 또는 0 값을 반환합니다.
 마지막으로 불리언(boolean) 값에 따라 두 개의 값 중 하나를 반환하는 WGSL의 <code class="notranslate" translate="no">select</code> 함수를 사용합니다.
 자바스크립트로, <code class="notranslate" translate="no">select</code> 함수는 다음과 같습니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// condition이 false면 `a`를, 아니면 `b`를 반환함
