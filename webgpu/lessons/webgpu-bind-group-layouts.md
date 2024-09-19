@@ -557,9 +557,9 @@ will be a technique you reach for.
 
 Some things to note about creating a `GPUBindGroupLayout`
 
-* Each entry must declare which `binding` it is for
+* ## Each entry must declare which `binding` it is for
 
-* Each entry must declare which stages it will be visible in.
+* ## Each entry must declare which stages it will be visible in.
 
   In our examples above we declared just one visibility.
   If, for example, we wanted to reference the bind group both
@@ -577,7 +577,7 @@ Some things to note about creating a `GPUBindGroupLayout`
                  GPUShaderStage.VERTEX
   ```
 
-* There are several defaults:
+* ## There are several defaults:
 
   For `texture:` bindings the defaults are:
 
@@ -617,8 +617,61 @@ Some things to note about creating a `GPUBindGroupLayout`
   });
   ```
 
+* ## buffer entries should declare a `minBindingSize` when possible.
+
+  When you declare a buffer binding you can specify a `minBindingSize`.
+
+  A good example might be you make a struct for uniforms. For example
+  in [the article on uniforms](webgpu-uniforms.html) we had this struct:
+
+  ```wgsl
+  struct OurStruct {
+    color: vec4f,
+    scale: vec2f,
+    offset: vec2f,
+  };
+
+  @group(0) @binding(0) var<uniform> ourStruct: OurStruct;
+  ``` 
+
+  It requires 32 bytes so, we should declare it's `minBindingSize` like
+  this:
+
+  ```js
+  const bindGroupLayout = device.createBindGroupLayout({
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: 'uniform',
+          minBindingSize: 32,
+        },
+      },
+    ],
+  });
+  ```
+
+  The reason to declare a `minBindingSize` is it lets WebGPU check
+  if your buffer size/offset is the correct size when you call
+  `createBindGroup`.  If you don't set a `minBindingSize`, then
+  WebGPU will have to check at draw/dispatchWorkgroups time that
+  the buffer is the correct size of the pipeline. Checking every
+  draw calls is slower than checking once when you create a bind
+  group.
+
+  On the the other hand, in our example above that used a storage
+  buffer to double numbers etc, we didn't declare a `minBindingSize`.
+  That's because, since the storage buffer is declared as an `array`,
+  are able to bind different size buffers depending on how
+  many values you pass in.
+
+
 [This part of the spec](https://www.w3.org/TR/webgpu/#dictdef-gpubindgrouplayoutentry) details all the options for making
 bind group layouts.
 
 [This article](https://toji.dev/webgpu-best-practices/bind-groups) also
 has some advice on bind groups and bind group layouts.
+
+[This Library](https://greggman.github.io/webgpu-utils) will compute
+struct sizes and default bind group layouts for you.
