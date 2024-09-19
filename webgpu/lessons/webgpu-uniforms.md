@@ -508,12 +508,12 @@ whereas before we were uploading the color + offset + scale for each object.
 
 While in this simple example, splitting into multiple uniform buffers was probably
 overkill, it's common to split based on what changes and when. Examples might include
-one uniform buffer for matrices that are shared. For example a project matrix, a view
-matrix, and a camera matrix. Since often these are the same for all things we want to draw
+one uniform buffer for matrices that are shared. For example [a projection matrix, a view
+matrix, and a camera matrix](webgpu-cameras.html). Since often these are the same for all things we want to draw
 we can just make one buffer and have all objects use the same uniform buffer.
 
 Separately our shader might reference another uniform buffer that contains just the
-things that are specific to this object like its world / model matrix and its normal matrix.
+things that are specific to this object like its [world / model matrix](webgpu-cameras.html) and its [normal matrix](webgpu-lighting-directional.html).
 
 Another uniform buffer might contain material settings. Those settings might be shared
 by multiple objects.
