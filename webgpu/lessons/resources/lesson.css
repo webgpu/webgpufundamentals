@@ -998,6 +998,18 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
   }
 }
 
+@media (width < 540px) {
+  .byte-diagram {
+    --byte-grid-size: 20px;
+    font-size: 12px;
+  }  
+}
+@media (width < 400px) {
+  .byte-diagram {
+    --byte-grid-size: 16px;
+  }
+}
+
 /* disqus */
 
 #disqus_thread {
