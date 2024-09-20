@@ -286,8 +286,8 @@ ourStructValuesAsF32[kAccelerationOffset] = 3.4;
 ourStructValuesAsU32[kFrameCountOffset] = 56;    // an integer value
 </pre>
 <h2 id="typedarrays"><a id="a-typed-arrays"></a> <code class="notranslate" translate="no">TypedArrays</code></h2>
-<p>Note, like many things in programming there are multiple ways we could
-do this. <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>s have a constructor that takes various forms. For example</p>
+<p>Like many things in programming there are multiple ways we could
+set the data for <code class="notranslate" translate="no">OutStruct</code>. <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a>s have a constructor that takes various forms. For example</p>
 <ul>
 <li>
 <p><code class="notranslate" translate="no">new Float32Array(12)</code></p>
@@ -309,7 +309,7 @@ In other words, they are copied like this</p>
 const u32s = new Uint32Array(f32s); 
 console.log(u32s);   // produces 0, 0, 1, 1, 1
 </pre>
-<p>The reason is you can’t put values like 0.8 and 1.2 into a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array"><code class="notranslate" translate="no">Uint32Array</code></a></p>
+<p>The reason is you can’t put values like 0.8 and 1.2 into a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array"><code class="notranslate" translate="no">Uint32Array</code></a>. They get converted to unsigned integers</p>
 </li>
 <li>
 <p><code class="notranslate" translate="no">new Float32Array(someArrayBuffer)</code></p>
@@ -387,6 +387,27 @@ console.log(Array.from(u32).map(v =&gt; v.toString(16).padStart(8, '0')));
 // shows '3f800000', '447a0000', 'c47a0000' 
 </pre>
 <p>The values above are the 32bit hex representations of the floating point values for 1, 1000, -1000</p>
+<p>For example: Let’s create a 16 byte <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a>. Then we’ll create different
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> views of the same memory.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const arrayBuffer = new ArrayBuffer(16);
+const asInt8      = new Int8Array(arrayBuffer);
+const asUint8     = new Uint8Array(arrayBuffer);
+const asInt16     = new Int16Array(arrayBuffer);
+const asUint16    = new Uint16Array(arrayBuffer);
+const asInt32     = new Int32Array(arrayBuffer);
+const asUint32    = new Uint32Array(arrayBuffer);
+const asFloat32   = new Float32Array(arrayBuffer);
+const asFloat64   = new Float64Array(arrayBuffer);
+const asBigInt64  = new BigInt64Array(arrayBuffer);
+const asBigUint64 = new BigInt64Array(arrayBuffer);
+
+// Set some values to start.
+asFloat32.set([123, -456, 7.8, -0.123]);
+</pre>
+<p>Here’s a representation of all of those views, all viewing the same
+memory. Below, edit any one number and the corresponding values that are
+using the same memory will change.</p>
+<div data-diagram="typedArrays" data-caption="show integers as hex"></div>
 <h2 id="map-issues"><code class="notranslate" translate="no">map</code> issues</h2>
 <p>Be aware, the <code class="notranslate" translate="no">map</code> function of a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> makes a new typed array of the same type!</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const f32a = new Float32Array(1, 2, 3);
@@ -605,6 +626,7 @@ I’d rather use a library and avoid that pain.</p>
 <p>If you do want to do it manually though,
 <a href="resources/wgsl-offset-computer.html">here’s a page that will compute the offsets for you</a></p>
 <!-- keep this at the bottom of the article -->
+<link rel="stylesheet" href="webgpu-memory-layout.css">
 <script type="module" src="webgpu-memory-layout.js"></script>
 <hr class="footnotes-sep">
 <section class="footnotes">
