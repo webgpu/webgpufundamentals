@@ -78,8 +78,8 @@ ourStructValuesAsU32[kFrameCountOffset] = 56;    // an integer value
 
 ## <a id="a-typed-arrays"></a> `TypedArrays`
 
-Note, like many things in programming there are multiple ways we could
-do this. `TypedArray`s have a constructor that takes various forms. For example
+Like many things in programming there are multiple ways we could
+set the data for `OutStruct`. `TypedArray`s have a constructor that takes various forms. For example
 
 * `new Float32Array(12)`
 
@@ -109,7 +109,7 @@ do this. `TypedArray`s have a constructor that takes various forms. For example
    console.log(u32s);   // produces 0, 0, 1, 1, 1
    ```
 
-   The reason is you can't put values like 0.8 and 1.2 into a `Uint32Array`
+   The reason is you can't put values like 0.8 and 1.2 into a `Uint32Array`. They get converted to unsigned integers
 
 * `new Float32Array(someArrayBuffer)`
 
@@ -200,6 +200,32 @@ console.log(Array.from(u32).map(v => v.toString(16).padStart(8, '0')));
 ```
 
 The values above are the 32bit hex representations of the floating point values for 1, 1000, -1000
+
+For example: Let's create a 16 byte `ArrayBuffer`. Then we'll create different
+`TypedArray` views of the same memory.
+
+```js
+const arrayBuffer = new ArrayBuffer(16);
+const asInt8      = new Int8Array(arrayBuffer);
+const asUint8     = new Uint8Array(arrayBuffer);
+const asInt16     = new Int16Array(arrayBuffer);
+const asUint16    = new Uint16Array(arrayBuffer);
+const asInt32     = new Int32Array(arrayBuffer);
+const asUint32    = new Uint32Array(arrayBuffer);
+const asFloat32   = new Float32Array(arrayBuffer);
+const asFloat64   = new Float64Array(arrayBuffer);
+const asBigInt64  = new BigInt64Array(arrayBuffer);
+const asBigUint64 = new BigInt64Array(arrayBuffer);
+
+// Set some values to start.
+asFloat32.set([123, -456, 7.8, -0.123]);
+```
+
+Here's a representation of all of those views, all viewing the same
+memory. Below, edit any one number and the corresponding values that are
+using the same memory will change.
+
+<div data-diagram="typedArrays" data-caption="show integers as hex"></div>
 
 ## `map` issues
 
@@ -464,4 +490,5 @@ If you do want to do it manually though,
 [here's a page that will compute the offsets for you](resources/wgsl-offset-computer.html)
 
 <!-- keep this at the bottom of the article -->
+<link rel="stylesheet" href="webgpu-memory-layout.css">
 <script type="module" src="webgpu-memory-layout.js"></script>
