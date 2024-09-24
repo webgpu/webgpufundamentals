@@ -267,6 +267,7 @@ div[data-diagram] {
 .webgpu_navbar {
     background: black;
     color: white;
+    color-scheme: dark;
 }
 .webgpu_navbar a {
     color: white;
@@ -287,6 +288,8 @@ div[data-diagram] {
     font-size: large;
     color: white;
 }
+
+
 .home-lang select {
     font-size: large;
 }
@@ -817,6 +820,9 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
     }
     .compare {
       flex-direction: column;
+    }
+    #search {
+      display: none;
     }
 
 }
