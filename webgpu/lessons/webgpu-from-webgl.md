@@ -845,7 +845,7 @@ const renderPassDescriptor = {
     {
       // view: undefined, // Assigned later
       // resolveTarget: undefined, // Assigned Later
-      clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
+      clearValue: [0.5, 0.5, 0.5, 1],
       loadOp: 'clear',
       storeOp: 'store',
     },
