@@ -1145,7 +1145,7 @@ canvas {
 
 {{{example url="../webgpu-simple-textured-quad-mipmapfilter.html"}}}
 
-왼쪽 위의 경우 모든 필터링을 `nearest`로, 로흔쪽 아래의 경우 모든 필터링을 `linear`로 설정한 것의 차이가 보이시나요? 
+왼쪽 위의 경우 모든 필터링을 `nearest`로, 오른쪽 아래의 경우 모든 필터링을 `linear`로 설정한 것의 차이가 보이시나요? 
 특히이 예제에서는 `mipmapFilter`를 추가했기 때문에 이미지를 클릭하면 
 모든 레벨이 다른 색상으로 그려진 체크 무늬의 텍스처가 보이고 
 위쪽의 경우 모든 `mipmapFilter`가 `nearest`인 경우이니 
