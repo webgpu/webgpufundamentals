@@ -26,12 +26,14 @@ function makePromiseInfo() {
 
 async function test(port) {
   const browser = await puppeteer.launch({
-    headless: "new",
+    headless: 'new',
     args: [
       '--enable-unsafe-webgpu',
       '--enable-webgpu-developer-features',
       '--use-angle=swiftshader',
       '--user-agent=puppeteer',
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
     ],
   });
   const page = await browser.newPage();
@@ -45,7 +47,7 @@ async function test(port) {
   let waitingPromiseInfo;
 
   // Get the "viewport" of the page, as reported by the page.
-  page.on('domcontentloaded', async () => {
+  page.on('domcontentloaded', async() => {
     const failures = await page.evaluate(() => {
       return window.testsPromiseInfo.promise;
     });
