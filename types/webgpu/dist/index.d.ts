@@ -168,6 +168,10 @@ type GPUCanvasAlphaMode =
 
     | "opaque"
     | "premultiplied";
+type GPUCanvasToneMappingMode =
+
+    | "standard"
+    | "extended";
 type GPUCompareFunction =
 
     | "never"
@@ -202,8 +206,10 @@ type GPUFeatureName =
     | "depth-clip-control"
     | "depth32float-stencil8"
     | "texture-compression-bc"
+    | "texture-compression-bc-sliced-3d"
     | "texture-compression-etc2"
     | "texture-compression-astc"
+    | "texture-compression-astc-sliced-3d"
     | "timestamp-query"
     | "indirect-first-instance"
     | "shader-f16"
@@ -636,10 +642,24 @@ interface GPUCanvasConfiguration {
    */
   colorSpace?: PredefinedColorSpace;
   /**
+   * The tone mapping determines how the content of textures returned by
+   * {@link GPUCanvasContext#getCurrentTexture} are to be displayed.
+   */
+  toneMapping?: GPUCanvasToneMapping;
+  /**
    * Determines the effect that alpha values will have on the content of textures returned by
    * {@link GPUCanvasContext#getCurrentTexture} when read, displayed, or used as an image source.
    */
   alphaMode?: GPUCanvasAlphaMode;
+}
+
+type GPUCanvasConfigurationOut =
+  Required<GPUCanvasConfiguration> & {
+    viewFormats: GPUTextureFormat[];
+  };
+
+interface GPUCanvasToneMapping {
+  mode?: GPUCanvasToneMappingMode;
 }
 
 interface GPUColorDict {
@@ -753,15 +773,15 @@ interface GPUDepthStencilState {
    */
   stencilWriteMask?: GPUStencilValue;
   /**
-   * Constant depth bias added to each fragment. See [$biased fragment depth$] for details.
+   * Constant depth bias added to each triangle fragment. See [$biased fragment depth$] for details.
    */
   depthBias?: GPUDepthBias;
   /**
-   * Depth bias that scales with the fragment’s slope. See [$biased fragment depth$] for details.
+   * Depth bias that scales with the triangle fragment’s slope. See [$biased fragment depth$] for details.
    */
   depthBiasSlopeScale?: number;
   /**
-   * The maximum depth bias of a fragment. See [$biased fragment depth$] for details.
+   * The maximum depth bias of a triangle fragment. See [$biased fragment depth$] for details.
    */
   depthBiasClamp?: number;
 }
@@ -778,9 +798,9 @@ interface GPUDeviceDescriptor
   /**
    * Specifies the limits that are required by the device request.
    * The request will fail if the adapter cannot provide these limits.
-   * Each key must be the name of a member of supported limits.
-   * Exactly the specified limits, and no limit/better or worse,
-   * will be allowed in validation of API calls on the resulting device.
+   * Each key with a non-`undefined` value must be the name of a member of supported limits.
+   * API calls on the resulting device perform validation according to the exact limits of the
+   * device (not the adapter; see [[#limits]]).
    * <!-- If we ever need limit types other than GPUSize32/GPUSize64, we can change the value
    * type to `double` or `any` in the future and write out the type conversion explicitly (by
    * reference to WebIDL spec). Or change the entire type to `any` and add back a `dictionary
@@ -788,7 +808,8 @@ interface GPUDeviceDescriptor
    */
   requiredLimits?: Record<
     string,
-    GPUSize64
+    | GPUSize64
+    | undefined
   >;
   /**
    * The descriptor for the default {@link GPUQueue}.
@@ -819,7 +840,8 @@ interface GPUExternalTextureBindingLayout {}
 interface GPUExternalTextureDescriptor
   extends GPUObjectDescriptorBase {
   /**
-   * The video source to import the external texture from.
+   * The video source to import the external texture from. Source size is determined as described
+   * by the external source dimensions table.
    */
   source:
     | HTMLVideoElement
@@ -852,50 +874,8 @@ interface GPUImageCopyBuffer
 interface GPUImageCopyExternalImage {
   /**
    * The source of the image copy. The copy source data is captured at the moment that
-   * {@link GPUQueue#copyExternalImageToTexture} is issued. Source size is defined by source
-   * type, given by this table:
-   * <table class=data>
-   * <thead>
-   * <tr>
-   * <th>Source type
-   * <th>Dimensions
-   * </thead>
-   * <tbody>
-   * <tr>
-   * <td>{@link ImageBitmap}
-   * <td>{@link ImageBitmap#width|ImageBitmap.width},
-   * {@link ImageBitmap#height|ImageBitmap.height}
-   * <tr>
-   * <td>{@link HTMLImageElement}
-   * <td>{@link HTMLImageElement#naturalWidth|HTMLImageElement.naturalWidth},
-   * {@link HTMLImageElement#naturalHeight|HTMLImageElement.naturalHeight}
-   * <tr>
-   * <td>{@link HTMLVideoElement}
-   * <td>video/intrinsic width|intrinsic width of the frame,
-   * video/intrinsic height|intrinsic height of the frame
-   * <tr>
-   * <td>{@link VideoFrame}
-   * <td>{@link VideoFrame#codedWidth|VideoFrame.codedWidth},
-   * {@link VideoFrame#codedHeight|VideoFrame.codedHeight}
-   * <tr>
-   * <td>{@link ImageData}
-   * <td>{@link ImageData#width|ImageData.width},
-   * {@link ImageData#height|ImageData.height}
-   * <tr>
-   * <td>{@link HTMLCanvasElement} or {@link OffscreenCanvas} with {@link CanvasRenderingContext2D} or {@link GPUCanvasContext}
-   * <td>{@link HTMLCanvasElement#width|HTMLCanvasElement.width},
-   * {@link HTMLCanvasElement#height|HTMLCanvasElement.height}
-   * <tr>
-   * <td>{@link HTMLCanvasElement} or {@link OffscreenCanvas} with {@link WebGLRenderingContextBase}
-   * <td>{@link WebGLRenderingContextBase#drawingBufferWidth|WebGLRenderingContextBase.drawingBufferWidth},
-   * {@link WebGLRenderingContextBase#drawingBufferHeight|WebGLRenderingContextBase.drawingBufferHeight}
-   * <tr>
-   * <td>{@link HTMLCanvasElement} or {@link OffscreenCanvas} with {@link ImageBitmapRenderingContext}
-   * <td>{@link ImageBitmapRenderingContext}'s internal output bitmap
-   * {@link ImageBitmap#width|ImageBitmap.width},
-   * {@link ImageBitmap#height|ImageBitmap.height}
-   * </tbody>
-   * </table>
+   * {@link GPUQueue#copyExternalImageToTexture} is issued. Source size is determined as described
+   * by the external source dimensions table.
    */
   source: GPUImageCopyExternalImageSource;
   /**
@@ -1140,12 +1120,14 @@ interface GPURenderBundleEncoderDescriptor
    * If `true`, indicates that the render bundle does not modify the depth component of the
    * {@link GPURenderPassDepthStencilAttachment} of any render pass the render bundle is executed
    * in.
+   * See read-only depth-stencil.
    */
   depthReadOnly?: boolean;
   /**
    * If `true`, indicates that the render bundle does not modify the stencil component of the
    * {@link GPURenderPassDepthStencilAttachment} of any render pass the render bundle is executed
    * in.
+   * See read-only depth-stencil.
    */
   stencilReadOnly?: boolean;
 }
@@ -1336,6 +1318,7 @@ interface GPURenderPipelineDescriptor
 }
 
 interface GPURequestAdapterOptions {
+  featureLevel?: string;
   /**
    * Optionally provides a hint indicating what class of adapter should be selected from
    * the system's available adapters.
@@ -1390,12 +1373,12 @@ interface GPUSamplerDescriptor
    */
   addressModeW?: GPUAddressMode;
   /**
-   * Specifies the sampling behavior when the sample footprint is smaller than or equal to one
+   * Specifies the sampling behavior when the sampled area is smaller than or equal to one
    * texel.
    */
   magFilter?: GPUFilterMode;
   /**
-   * Specifies the sampling behavior when the sample footprint is larger than one texel.
+   * Specifies the sampling behavior when the sampled area is larger than one texel.
    */
   minFilter?: GPUFilterMode;
   /**
@@ -1454,18 +1437,6 @@ interface GPUShaderModuleDescriptor
    */
   code: string;
   /**
-   * If defined, **may** be interpreted in the [[!SourceMap]] v3 format.
-   * If an implementation supports this option but is unable to process the provided value,
-   * it should show a developer-visible warning but must not produce any application-observable
-   * error.
-   * Note:
-   * Source map support is optional, but serves as a semi-standardized way to support dev-tool
-   * integration such as source-language debugging.
-   * WGSL names (identifiers) in source maps follow the rules defined in WGSL identifier
-   * comparison.
-   */
-  sourceMap?: any;
-  /**
    * A list of {@link GPUShaderModuleCompilationHint}s.
    * Any hint provided by an application **should** contain information about one entry point of
    * a pipeline that will eventually be created from the entry point.
@@ -1495,8 +1466,8 @@ interface GPUShaderModuleDescriptor
 
 interface GPUStencilFaceState {
   /**
-   * The {@link GPUCompareFunction} used when testing fragments against
-   * {@link GPURenderPassDescriptor#depthStencilAttachment} stencil values.
+   * The {@link GPUCompareFunction} used when testing the {@link RenderState#[[stencilReference]]} value
+   * against the fragment's {@link GPURenderPassDescriptor#depthStencilAttachment} stencil values.
    */
   compare?: GPUCompareFunction;
   /**
@@ -1612,6 +1583,15 @@ interface GPUTextureViewDescriptor
    */
   dimension?: GPUTextureViewDimension;
   /**
+   * The allowed {@link GPUTextureUsage|usage(s)} for the texture view. Must be a subset of the
+   * {@link GPUTexture#usage} flags of the texture. If 0, defaults to the full set of
+   * {@link GPUTexture#usage} flags of the texture.
+   * Note: If the view's {@link GPUTextureViewDescriptor#format} doesn't support all of the
+   * texture's {@link GPUTextureDescriptor#usage}s, the default will fail,
+   * and the view's {@link GPUTextureViewDescriptor#usage} must be specified explicitly.
+   */
+  usage?: GPUTextureUsageFlags;
+  /**
    * Which {@link GPUTextureAspect|aspect(s)} of the texture are accessible to the texture view.
    */
   aspect?: GPUTextureAspect;
@@ -1675,8 +1655,8 @@ interface GPUVertexBufferLayout {
 interface GPUVertexState
   extends GPUProgrammableStage {
   /**
-   * A list of {@link GPUVertexBufferLayout}s defining the layout of the vertex attribute data in the
-   * vertex buffers used by this pipeline.
+   * A list of {@link GPUVertexBufferLayout}s, each defining the layout of vertex attribute data in a
+   * vertex buffer used by this pipeline.
    */
   buffers?: Iterable<GPUVertexBufferLayout | null>;
 }
@@ -1928,14 +1908,12 @@ interface GPUAdapter {
   /**
    * Requests a device from the adapter.
    * This is a one-time action: if a device is returned successfully,
-   * the adapter [$expires$].
+   * the adapter becomes {@link adapter#[[state]]} "consumed".
    * @param descriptor - Description of the {@link GPUDevice} to request.
    */
   requestDevice(
     descriptor?: GPUDeviceDescriptor
   ): Promise<GPUDevice>;
-  /** @deprecated Use `adapter.info` instead (once available in browsers). */
-  requestAdapterInfo(): Promise<GPUAdapterInfo>;
 }
 
 declare var GPUAdapter: {
@@ -2054,7 +2032,7 @@ interface GPUBuffer
     size?: GPUSize64
   ): ArrayBuffer;
   /**
-   * Unmaps the mapped range of the {@link GPUBuffer} and makes it's contents available for use by the
+   * Unmaps the mapped range of the {@link GPUBuffer} and makes its contents available for use by the
    * GPU again.
    */
   unmap(): undefined;
@@ -2097,6 +2075,10 @@ interface GPUCanvasContext {
    * Removes the context configuration. Destroys any textures produced while configured.
    */
   unconfigure(): undefined;
+  /**
+   * Returns the context configuration.
+   */
+  getConfiguration(): GPUCanvasConfigurationOut | null;
   /**
    * Get the {@link GPUTexture} that will be composited to the document by the {@link GPUCanvasContext}
    * next.
@@ -2495,6 +2477,7 @@ interface GPUDevice
    * The returned {@link Promise} resolves when the created pipeline
    * is ready to be used without additional delay.
    * If pipeline creation fails, the returned {@link Promise} rejects with an {@link GPUPipelineError}.
+   * (A {@link GPUError} is not dispatched to the device.)
    * Note: Use of this method is preferred whenever possible, as it prevents blocking the
    * queue timeline work on pipeline compilation.
    * @param descriptor - Description of the {@link GPUComputePipeline} to create.
@@ -2507,6 +2490,7 @@ interface GPUDevice
    * The returned {@link Promise} resolves when the created pipeline
    * is ready to be used without additional delay.
    * If pipeline creation fails, the returned {@link Promise} rejects with an {@link GPUPipelineError}.
+   * (A {@link GPUError} is not dispatched to the device.)
    * Note: Use of this method is preferred whenever possible, as it prevents blocking the
    * queue timeline work on pipeline compilation.
    * @param descriptor - Description of the {@link GPURenderPipeline} to create.
@@ -2991,7 +2975,7 @@ interface GPUShaderModule
   readonly __brand: "GPUShaderModule";
   /**
    * Returns any messages generated during the {@link GPUShaderModule}'s compilation.
-   * The locations, order, and contents of messages are implementation-defined.
+   * The locations, order, and contents of messages are implementation-defined
    * In particular, messages may not be ordered by {@link GPUCompilationMessage#lineNum}.
    */
   getCompilationInfo(): Promise<GPUCompilationInfo>;
@@ -3034,7 +3018,6 @@ interface GPUSupportedLimits {
   readonly maxBufferSize: number;
   readonly maxVertexAttributes: number;
   readonly maxVertexBufferArrayStride: number;
-  readonly maxInterStageShaderComponents: number;
   readonly maxInterStageShaderVariables: number;
   readonly maxColorAttachments: number;
   readonly maxColorAttachmentBytesPerSample: number;
