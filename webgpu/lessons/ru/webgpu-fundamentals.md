@@ -12,7 +12,7 @@ TOC: Основы
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax">spreading values</a>,
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">async/await</a>,
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">es6 modules</a>,
-и иногие другие концепции будут часто использоваться. Если вы ещё не знаете с JavaScript, и хотите изучить, посмотрите
+и иногие другие будут встречаться довольно часто. Если вы ещё не знакомы с JavaScript, и хотите его изучить, загляните в
 <a href="https://javascript.info/">JavaScript.info</a>, <a href="https://eloquentjavascript.net/">Eloquent JavaScript</a>,
 и/или <a href="https://www.codecademy.com/learn/introduction-to-javascript">CodeCademy</a>.
 </div>
