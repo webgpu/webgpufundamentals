@@ -19,8 +19,13 @@
   categoryMapping: {
     'basics': "基础概念",
     'misc': "杂项",
+    'textures': '纹理',
+    'techniques': '技术',
+    '3d': '3D',
+    '2d': '2D',
     '3d-math': '3D数学',
     'reference': '参考',
+    'lighting': '光照',
     'compute-shaders': '计算着色器',
   },
 }
