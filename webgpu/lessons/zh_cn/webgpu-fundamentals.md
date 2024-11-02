@@ -83,7 +83,7 @@ WebGPU 是一个极其低层次的 API. 虽然您可以制作一些小型示例�
 
 <div class="webgpu_center side-by-side"><div style="min-width: 300px; max-width: 400px; flex: 1 1;"><pre class="prettyprint lang-javascript"><code>{{#escapehtml}}
 encoder = device.createCommandEncoder()
-// draw something
+// 绘制
 {
   pass = encoder.beginRenderPass(...)
   pass.setPipeline(...)
@@ -95,7 +95,7 @@ encoder = device.createCommandEncoder()
   pass.draw(...)
   pass.end()
 }
-// draw something else
+// 绘制一些其他东西
 {
   pass = encoder.beginRenderPass(...)
   pass.setPipeline(...)
@@ -104,7 +104,7 @@ encoder = device.createCommandEncoder()
   pass.draw(...)
   pass.end()
 }
-// compute something
+// 计算
 {
   pass = encoder.beginComputePass(...)
   pass.beginComputePass(...)
@@ -198,7 +198,7 @@ main();
 接下来，我们查找画布并为其创建 Webgpu 上下文。这样我们就可以获得一个纹理来进行渲染。该纹理将用于在网页中显示画布。
 
 ```js
-// Get a WebGPU context from the canvas and configure it
+// 从画布获取 WebGPU 上下文并配置它
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('webgpu');
 const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -266,9 +266,9 @@ WebGPU 中的位置需要在*裁剪空间*(_clip space_)中返回，其中 X 从
 
 ```wgsl
         let pos = array(
-          vec2f( 0.0,  0.5),  // top center
-          vec2f(-0.5, -0.5),  // bottom left
-          vec2f( 0.5, -0.5)   // bottom right
+          vec2f( 0.0,  0.5),  // 上方中间的位置
+          vec2f(-0.5, -0.5),  // 下方靠左的位置
+          vec2f( 0.5, -0.5)   // 下方靠右的位置
         );
 ```
 
@@ -329,7 +329,7 @@ const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
     colorAttachments: [
         {
-            // view: <- to be filled out when we render
+            // view: <- 当我们渲染时再设置
             clearValue: [0.3, 0.3, 0.3, 1],
             loadOp: 'clear',
             storeOp: 'store',
@@ -344,19 +344,18 @@ const renderPassDescriptor = {
 
 ```js
 function render() {
-    // Get the current texture from the canvas context and
-    // set it as the texture to render to.
+    // 从当前画布上下文获取纹理并设置为目标纹理
     renderPassDescriptor.colorAttachments[0].view = context
         .getCurrentTexture()
         .createView();
 
-    // make a command encoder to start encoding commands
+    // 创建命令编码器以开始编码命令
     const encoder = device.createCommandEncoder({ label: 'our encoder' });
 
-    // make a render pass encoder to encode render specific commands
+    // 创建一个 render pass 编码器来编码特定的命令
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
-    pass.draw(3); // call our vertex shader 3 times
+    pass.draw(3); // 3次调用我们的顶点着色器
     pass.end();
 
     const commandBuffer = encoder.finish();
@@ -461,7 +460,7 @@ const module = device.createShaderModule({
 你可以把计算着色器*想象成*是下面这样运行的。虽然过于简化，但现在也可以这么做。
 
 ```js
-// pseudo code
+// 伪代码
 function dispatchWorkgroups(width, height, depth) {
     for (z = 0; z < depth; ++z) {
         for (y = 0; y < height; ++y) {
@@ -493,7 +492,7 @@ function dispatchWorkgroup(workgroup_id) {
 由于我们设置了 `@workgroup_size(1)`，上面的伪代码实际上就变成了
 
 ```js
-// pseudo code
+// 伪代码
 function dispatchWorkgroups(width, height, depth) {
     for (z = 0; z < depth; ++z) {
         for (y = 0; y < height; ++y) {
@@ -546,7 +545,7 @@ const input = new Float32Array([1, 3, 5]);
 这些数据只存在于 JavaScript 中。要使用 WebGPU，我们需要在 GPU 上创建一个缓冲区，并将数据复制到缓冲区中。
 
 ```js
-// create a buffer on the GPU to hold our computation
+// 在 GPU 上创建缓冲区来承载我们的计算
 // input and output
 const workBuffer = device.createBuffer({
     label: 'work buffer',
@@ -556,7 +555,7 @@ const workBuffer = device.createBuffer({
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
 });
-// Copy our input data to that buffer
+// 把数据复制到缓冲区
 device.queue.writeBuffer(workBuffer, 0, input);
 ```
 
@@ -571,7 +570,7 @@ device.queue.writeBuffer(workBuffer, 0, input);
 因此，为了查看计算结果，我们需要另一个缓冲区。运行计算后，我们将把上面的缓冲区复制到这个结果缓冲区，并设置其标志，以便进行映射。
 
 ```js
-// create a buffer on the GPU to get a copy of the results
+// 在 GPU 创建缓冲区来复制计算结果
 const resultBuffer = device.createBuffer({
     label: 'result buffer',
     size: input.byteLength,
@@ -584,8 +583,7 @@ const resultBuffer = device.createBuffer({
 为了告诉着色器我们希望它在哪个缓冲区上工作，我们需要创建一个 bindGroup
 
 ```js
-// Setup a bindGroup to tell the shader which
-// buffer to use for the computation
+// 创建一个 bindGroup 来告诉着色器我们将在哪一个缓冲区上计算
 const bindGroup = device.createBindGroup({
     label: 'bindGroup for work buffer',
     layout: pipeline.getBindGroupLayout(0),
@@ -598,7 +596,7 @@ const bindGroup = device.createBindGroup({
 现在我们可以开始对命令进行编码
 
 ```js
-// Encode commands to do the computation
+// 编码命令，执行计算
 const encoder = device.createCommandEncoder({
     label: 'doubling encoder',
 });
@@ -620,14 +618,14 @@ pass.end();
 计算完成后，我们要求 WebGPU 从 `workBuffer` 复制到 `resultBuffer`
 
 ```js
-// Encode a command to copy the results to a mappable buffer.
+// 编码命令以复制结果到一个可映射的缓冲区
 encoder.copyBufferToBuffer(workBuffer, 0, resultBuffer, 0, resultBuffer.size);
 ```
 
 现在，我们可以完成编码器以获取命令缓冲区，然后提交该命令缓冲区。
 
 ```js
-// Finish encoding and submit the commands
+// 结束编码，提交命令
 const commandBuffer = encoder.finish();
 device.queue.submit([commandBuffer]);
 ```
@@ -635,7 +633,7 @@ device.queue.submit([commandBuffer]);
 然后，我们映射结果缓冲区并获取数据副本
 
 ```js
-// Read the results
+// 读取结果
 await resultBuffer.mapAsync(GPUMapMode.READ);
 const result = new Float32Array(resultBuffer.getMappedRange());
 
@@ -665,12 +663,12 @@ WebGPU 编程的特别之处在于这些功能（顶点着色器、片段着色�
 <style>
     html,
     body {
-        margin: 0; /* remove the default margin          */
-        height: 100%; /* make the html,body fill the page   */
+        margin: 0; /* 移除默认的外边距          */
+        height: 100%; /* 使 html,body 元素填充页面  */
     }
     canvas {
-        display: block; /* make the canvas act like a block   */
-        width: 100%; /* make the canvas fill its container */
+        display: block; /* 把 canvas 元素变成块元素（block element） */
+        width: 100%; /* 让 canvas 填充容器 */
         height: 100%;
     }
 </style>
@@ -693,7 +691,7 @@ WebGPU 编程的特别之处在于这些功能（顶点着色器、片段着色�
 +        const height = entry.contentBoxSize[0].blockSize;
 +        canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
 +        canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
-+        // re-render
++        // 重新绘制
 +        render();
 +      }
 +    });
