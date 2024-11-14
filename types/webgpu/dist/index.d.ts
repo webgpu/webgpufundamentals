@@ -68,15 +68,7 @@ type GPUColor =
     | GPUColorDict;
 type GPUColorWriteFlags =
   number;
-type GPUDepthBias =
-  number;
-type GPUExtent3D =
-
-    | Iterable<GPUIntegerCoordinate>
-    | GPUExtent3DDict;
-type GPUFlagsConstant =
-  number;
-type GPUImageCopyExternalImageSource =
+type GPUCopyExternalImageSource =
 
     | ImageBitmap
     | ImageData
@@ -85,6 +77,14 @@ type GPUImageCopyExternalImageSource =
     | VideoFrame
     | HTMLCanvasElement
     | OffscreenCanvas;
+type GPUDepthBias =
+  number;
+type GPUExtent3D =
+
+    | Iterable<GPUIntegerCoordinate>
+    | GPUExtent3DDict;
+type GPUFlagsConstant =
+  number;
 type GPUIndex32 =
   number;
 type GPUIntegerCoordinate =
@@ -216,6 +216,7 @@ type GPUFeatureName =
     | "rg11b10ufloat-renderable"
     | "bgra8unorm-storage"
     | "float32-filterable"
+    | "float32-blendable"
     | "clip-distances"
     | "dual-source-blending";
 type GPUFilterMode =
@@ -405,22 +406,31 @@ type GPUTextureViewDimension =
     | "3d";
 type GPUVertexFormat =
 
+    | "uint8"
     | "uint8x2"
     | "uint8x4"
+    | "sint8"
     | "sint8x2"
     | "sint8x4"
+    | "unorm8"
     | "unorm8x2"
     | "unorm8x4"
+    | "snorm8"
     | "snorm8x2"
     | "snorm8x4"
+    | "uint16"
     | "uint16x2"
     | "uint16x4"
+    | "sint16"
     | "sint16x2"
     | "sint16x4"
+    | "unorm16"
     | "unorm16x2"
     | "unorm16x4"
+    | "snorm16"
     | "snorm16x2"
     | "snorm16x4"
+    | "float16"
     | "float16x2"
     | "float16x4"
     | "float32"
@@ -435,7 +445,8 @@ type GPUVertexFormat =
     | "sint32x2"
     | "sint32x3"
     | "sint32x4"
-    | "unorm10-10-10-2";
+    | "unorm10-10-10-2"
+    | "unorm8x4-bgra";
 type GPUVertexStepMode =
 
     | "vertex"
@@ -653,10 +664,20 @@ interface GPUCanvasConfiguration {
   alphaMode?: GPUCanvasAlphaMode;
 }
 
-type GPUCanvasConfigurationOut =
-  Required<GPUCanvasConfiguration> & {
-    viewFormats: GPUTextureFormat[];
-  };
+interface GPUCanvasConfigurationOut
+  extends Required<
+    Omit<
+      GPUCanvasConfiguration,
+      "toneMapping"
+    >
+  > {
+  /** {@inheritDoc GPUCanvasConfiguration.viewFormats} */
+  viewFormats: GPUTextureFormat[];
+  /**
+   * {@inheritDoc GPUCanvasConfiguration.toneMapping}
+   */
+  toneMapping?: GPUCanvasToneMapping;
+}
 
 interface GPUCanvasToneMapping {
   mode?: GPUCanvasToneMappingMode;
@@ -736,6 +757,53 @@ interface GPUComputePipelineDescriptor
    * Describes the compute shader entry point of the pipeline.
    */
   compute: GPUProgrammableStage;
+}
+
+interface GPUCopyExternalImageDestInfo
+  extends GPUTexelCopyTextureInfo {
+  /**
+   * Describes the color space and encoding used to encode data into the destination texture.
+   * This [[#color-space-conversions|may result]] in values outside of the range [0, 1]
+   * being written to the target texture, if its format can represent them.
+   * Otherwise, the results are clamped to the target texture format's range.
+   * Note:
+   * If {@link GPUCopyExternalImageDestInfo#colorSpace} matches the source image,
+   * conversion may not be necessary. See [[#color-space-conversion-elision]].
+   */
+  colorSpace?: PredefinedColorSpace;
+  /**
+   * Describes whether the data written into the texture should have its RGB channels
+   * premultiplied by the alpha channel, or not.
+   * If this option is set to `true` and the {@link GPUCopyExternalImageSourceInfo#source} is also
+   * premultiplied, the source RGB values must be preserved even if they exceed their
+   * corresponding alpha values.
+   * Note:
+   * If {@link GPUCopyExternalImageDestInfo#premultipliedAlpha} matches the source image,
+   * conversion may not be necessary. See [[#color-space-conversion-elision]].
+   */
+  premultipliedAlpha?: boolean;
+}
+
+interface GPUCopyExternalImageSourceInfo {
+  /**
+   * The source of the texel copy. The copy source data is captured at the moment that
+   * {@link GPUQueue#copyExternalImageToTexture} is issued. Source size is determined as described
+   * by the external source dimensions table.
+   */
+  source: GPUCopyExternalImageSource;
+  /**
+   * Defines the origin of the copy - the minimum (top-left) corner of the source sub-region to copy from.
+   * Together with `copySize`, defines the full copy sub-region.
+   */
+  origin?: GPUOrigin2D;
+  /**
+   * Describes whether the source image is vertically flipped, or not.
+   * If this option is set to `true`, the copy is flipped vertically: the bottom row of the source
+   * region is copied into the first row of the destination region, and so on.
+   * The {@link GPUCopyExternalImageSourceInfo#origin} option is still relative to the top-left corner
+   * of the source image, increasing downward.
+   */
+  flipY?: boolean;
 }
 
 interface GPUDepthStencilState {
@@ -862,106 +930,6 @@ interface GPUFragmentState
   targets: Iterable<GPUColorTargetState | null>;
 }
 
-interface GPUImageCopyBuffer
-  extends GPUImageDataLayout {
-  /**
-   * A buffer which either contains image data to be copied or will store the image data being
-   * copied, depending on the method it is being passed to.
-   */
-  buffer: GPUBuffer;
-}
-
-interface GPUImageCopyExternalImage {
-  /**
-   * The source of the image copy. The copy source data is captured at the moment that
-   * {@link GPUQueue#copyExternalImageToTexture} is issued. Source size is determined as described
-   * by the external source dimensions table.
-   */
-  source: GPUImageCopyExternalImageSource;
-  /**
-   * Defines the origin of the copy - the minimum (top-left) corner of the source sub-region to copy from.
-   * Together with `copySize`, defines the full copy sub-region.
-   */
-  origin?: GPUOrigin2DStrict;
-  /**
-   * Describes whether the source image is vertically flipped, or not.
-   * If this option is set to `true`, the copy is flipped vertically: the bottom row of the source
-   * region is copied into the first row of the destination region, and so on.
-   * The {@link GPUImageCopyExternalImage#origin} option is still relative to the top-left corner
-   * of the source image, increasing downward.
-   */
-  flipY?: boolean;
-}
-
-interface GPUImageCopyTexture {
-  /**
-   * Texture to copy to/from.
-   */
-  texture: GPUTexture;
-  /**
-   * Mip-map level of the {@link GPUImageCopyTexture#texture} to copy to/from.
-   */
-  mipLevel?: GPUIntegerCoordinate;
-  /**
-   * Defines the origin of the copy - the minimum corner of the texture sub-region to copy to/from.
-   * Together with `copySize`, defines the full copy sub-region.
-   */
-  origin?: GPUOrigin3D;
-  /**
-   * Defines which aspects of the {@link GPUImageCopyTexture#texture} to copy to/from.
-   */
-  aspect?: GPUTextureAspect;
-}
-
-interface GPUImageCopyTextureTagged
-  extends GPUImageCopyTexture {
-  /**
-   * Describes the color space and encoding used to encode data into the destination texture.
-   * This [[#color-space-conversions|may result]] in values outside of the range [0, 1]
-   * being written to the target texture, if its format can represent them.
-   * Otherwise, the results are clamped to the target texture format's range.
-   * Note:
-   * If {@link GPUImageCopyTextureTagged#colorSpace} matches the source image,
-   * conversion may not be necessary. See [[#color-space-conversion-elision]].
-   */
-  colorSpace?: PredefinedColorSpace;
-  /**
-   * Describes whether the data written into the texture should have its RGB channels
-   * premultiplied by the alpha channel, or not.
-   * If this option is set to `true` and the {@link GPUImageCopyExternalImage#source} is also
-   * premultiplied, the source RGB values must be preserved even if they exceed their
-   * corresponding alpha values.
-   * Note:
-   * If {@link GPUImageCopyTextureTagged#premultipliedAlpha} matches the source image,
-   * conversion may not be necessary. See [[#color-space-conversion-elision]].
-   */
-  premultipliedAlpha?: boolean;
-}
-
-interface GPUImageDataLayout {
-  /**
-   * The offset, in bytes, from the beginning of the image data source (such as a
-   * {@link GPUImageCopyBuffer#buffer|GPUImageCopyBuffer.buffer}) to the start of the image data
-   * within that source.
-   */
-  offset?: GPUSize64;
-  /**
-   * The stride, in bytes, between the beginning of each texel block row and the subsequent
-   * texel block row.
-   * Required if there are multiple texel block rows (i.e. the copy height or depth is more
-   * than one block).
-   */
-  bytesPerRow?: GPUSize32;
-  /**
-   * Number of texel block rows per single texel image of the texture.
-   * {@link GPUImageDataLayout#rowsPerImage} &times;
-   * {@link GPUImageDataLayout#bytesPerRow} is the stride, in bytes, between the beginning of each
-   * texel image of data and the subsequent texel image.
-   * Required if there are multiple texel images (i.e. the copy depth is more than one).
-   */
-  rowsPerImage?: GPUSize32;
-}
-
 interface GPUMultisampleState {
   /**
    * Number of samples per pixel. This {@link GPURenderPipeline} will be compatible only
@@ -1019,11 +987,11 @@ interface GPUPipelineErrorInit {
 interface GPUPipelineLayoutDescriptor
   extends GPUObjectDescriptorBase {
   /**
-   * A list of {@link GPUBindGroupLayout}s the pipeline will use. Each element corresponds to a
-   * @group attribute in the {@link GPUShaderModule}, with the `N`th element corresponding with
-   * `@group(N)`.
+   * A list of optional {@link GPUBindGroupLayout}s the pipeline will use. Each element corresponds
+   * to a @group attribute in the {@link GPUShaderModule}, with the `N`th element corresponding
+   * with `@group(N)`.
    */
-  bindGroupLayouts: Iterable<GPUBindGroupLayout>;
+  bindGroupLayouts: Iterable<GPUBindGroupLayout | null>;
 }
 
 interface GPUPrimitiveState {
@@ -1318,6 +1286,17 @@ interface GPURenderPipelineDescriptor
 }
 
 interface GPURequestAdapterOptions {
+  /**
+   * "Feature level" for the adapter request.
+   * The allowed feature level string values are:
+   * - `"core"`
+   * No effect.
+   * - `"compatibility"`
+   * No effect.
+   * Note:
+   * This value is reserved for future use as a way to opt into additional validation restrictions.
+   * Applications should not use this value at this time.
+   */
   featureLevel?: string;
   /**
    * Optionally provides a hint indicating what class of adapter should be selected from
@@ -1501,6 +1480,59 @@ interface GPUStorageTextureBindingLayout {
    * this binding.
    */
   viewDimension?: GPUTextureViewDimension;
+}
+
+interface GPUTexelCopyBufferInfo
+  extends GPUTexelCopyBufferLayout {
+  /**
+   * A buffer which either contains texel data to be copied or will store the texel data being
+   * copied, depending on the method it is being passed to.
+   */
+  buffer: GPUBuffer;
+}
+
+interface GPUTexelCopyBufferLayout {
+  /**
+   * The offset, in bytes, from the beginning of the texel data source (such as a
+   * {@link GPUTexelCopyBufferInfo#buffer|GPUTexelCopyBufferInfo.buffer}) to the start of the texel data
+   * within that source.
+   */
+  offset?: GPUSize64;
+  /**
+   * The stride, in bytes, between the beginning of each texel block row and the subsequent
+   * texel block row.
+   * Required if there are multiple texel block rows (i.e. the copy height or depth is more
+   * than one block).
+   */
+  bytesPerRow?: GPUSize32;
+  /**
+   * Number of texel block rows per single texel image of the texture.
+   * {@link GPUTexelCopyBufferLayout#rowsPerImage} &times;
+   * {@link GPUTexelCopyBufferLayout#bytesPerRow} is the stride, in bytes, between the beginning of each
+   * texel image of data and the subsequent texel image.
+   * Required if there are multiple texel images (i.e. the copy depth is more than one).
+   */
+  rowsPerImage?: GPUSize32;
+}
+
+interface GPUTexelCopyTextureInfo {
+  /**
+   * Texture to copy to/from.
+   */
+  texture: GPUTexture;
+  /**
+   * Mip-map level of the {@link GPUTexelCopyTextureInfo#texture} to copy to/from.
+   */
+  mipLevel?: GPUIntegerCoordinate;
+  /**
+   * Defines the origin of the copy - the minimum corner of the texture sub-region to copy to/from.
+   * Together with `copySize`, defines the full copy sub-region.
+   */
+  origin?: GPUOrigin3D;
+  /**
+   * Defines which aspects of the {@link GPUTexelCopyTextureInfo#texture} to copy to/from.
+   */
+  aspect?: GPUTextureAspect;
 }
 
 interface GPUTextureBindingLayout {
@@ -2153,8 +2185,8 @@ interface GPUCommandEncoder
    * 	`copySize`:
    */
   copyBufferToTexture(
-    source: GPUImageCopyBuffer,
-    destination: GPUImageCopyTexture,
+    source: GPUTexelCopyBufferInfo,
+    destination: GPUTexelCopyTextureInfo,
     copySize: GPUExtent3DStrict
   ): undefined;
   /**
@@ -2165,8 +2197,8 @@ interface GPUCommandEncoder
    * 	`copySize`:
    */
   copyTextureToBuffer(
-    source: GPUImageCopyTexture,
-    destination: GPUImageCopyBuffer,
+    source: GPUTexelCopyTextureInfo,
+    destination: GPUTexelCopyBufferInfo,
     copySize: GPUExtent3DStrict
   ): undefined;
   /**
@@ -2178,8 +2210,8 @@ interface GPUCommandEncoder
    * 	`copySize`:
    */
   copyTextureToTexture(
-    source: GPUImageCopyTexture,
-    destination: GPUImageCopyTexture,
+    source: GPUTexelCopyTextureInfo,
+    destination: GPUTexelCopyTextureInfo,
     copySize: GPUExtent3DStrict
   ): undefined;
   /**
@@ -2393,6 +2425,13 @@ interface GPUDevice
    */
   readonly limits: GPUSupportedLimits;
   /**
+   * Information about the physical adapter which created the device
+   * that this GPUDevice refers to.
+   * For a given GPUDevice, the GPUAdapterInfo values exposed are constant
+   * over time.
+   */
+  readonly adapterInfo: GPUAdapterInfo;
+  /**
    * The primary {@link GPUQueue} for this device.
    */
   readonly queue: GPUQueue;
@@ -2400,6 +2439,9 @@ interface GPUDevice
    * Destroys the device, preventing further operations on it.
    * Outstanding asynchronous operations will fail.
    * Note: It is valid to destroy a device multiple times.
+   * Note: Since no further operations can be enqueued on this device, implementations can abort
+   * outstanding asynchronous operations immediately and free resource allocations, including
+   * mapped memory that was just unmapped.
    */
   destroy(): undefined;
   /**
@@ -2765,18 +2807,18 @@ interface GPUQueue
    * @param size - Extents of the content to write from `data` to `destination`.
    */
   writeTexture(
-    destination: GPUImageCopyTexture,
+    destination: GPUTexelCopyTextureInfo,
     data:
       | BufferSource
       | SharedArrayBuffer,
-    dataLayout: GPUImageDataLayout,
+    dataLayout: GPUTexelCopyBufferLayout,
     size: GPUExtent3DStrict
   ): undefined;
   /**
    * Issues a copy operation of the contents of a platform image/canvas
    * into the destination texture.
    * This operation performs [[#color-space-conversions|color encoding]] into the destination
-   * encoding according to the parameters of {@link GPUImageCopyTextureTagged}.
+   * encoding according to the parameters of {@link GPUCopyExternalImageDestInfo}.
    * Copying into a `-srgb` texture results in the same texture bytes, not the same decoded
    * values, as copying into the corresponding non-`-srgb` format.
    * Thus, after a copy operation, sampling the destination texture has
@@ -2787,8 +2829,8 @@ interface GPUQueue
    * @param copySize - Extents of the content to write from `source` to `destination`.
    */
   copyExternalImageToTexture(
-    source: GPUImageCopyExternalImage,
-    destination: GPUImageCopyTextureTagged,
+    source: GPUCopyExternalImageSourceInfo,
+    destination: GPUCopyExternalImageDestInfo,
     copySize: GPUExtent3DStrict
   ): undefined;
 }
@@ -3194,3 +3236,22 @@ declare var GPUTextureUsage: {
   readonly STORAGE_BINDING: GPUFlagsConstant;
   readonly RENDER_ATTACHMENT: GPUFlagsConstant;
 };
+
+/** @deprecated Use {@link GPUTexelCopyBufferLayout} */
+type GPUImageDataLayout =
+  GPUTexelCopyBufferLayout;
+/** @deprecated Use {@link GPUTexelCopyBufferInfo} */
+type GPUImageCopyBuffer =
+  GPUTexelCopyBufferInfo;
+/** @deprecated Use {@link GPUTexelCopyTextureInfo} */
+type GPUImageCopyTexture =
+  GPUTexelCopyTextureInfo;
+/** @deprecated Use {@link GPUCopyExternalImageDestInfo} */
+type GPUImageCopyTextureTagged =
+  GPUCopyExternalImageDestInfo;
+/** @deprecated Use {@link GPUCopyExternalImageSourceInfo} */
+type GPUImageCopyExternalImage =
+  GPUCopyExternalImageSourceInfo;
+/** @deprecated Use {@link GPUCopyExternalImageSource} */
+type GPUImageCopyExternalImageSource =
+  GPUCopyExternalImageSource;
