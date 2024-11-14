@@ -6,7 +6,8 @@ For an in-depth overview of WGSL see [Tour of WGSL](https://google.github.io/tou
 There's also [the actual WGSL spec](https://www.w3.org/TR/WGSL/) though it can be hard
 to process since it's written for [language lawyers](http://catb.org/jargon/html/L/language-lawyer.html) 😂
 
-This article assumes you already know how to program. It's probably way too
+This article assumes you already know how to program so that that just
+by looking at examples of WGSL you should be likely be able to kind of *grok* what you see. It's probably way too
 terse but hopefully it can give you some help in understanding and writing WGSL
 shader programs.
 

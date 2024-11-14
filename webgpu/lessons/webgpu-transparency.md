@@ -215,7 +215,7 @@ you get will already be premultiplied.
 
 The point of this section was
 
-1. To explain `alphaMode: 'premultiplied' WebGPU canvas configuration option.
+1. To explain `alphaMode: 'premultiplied'` WebGPU canvas configuration option.
 
    This lets a WebGPU canvas have transparency
 
