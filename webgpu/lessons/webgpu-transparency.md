@@ -269,7 +269,7 @@ for one of the two cases.
 
 A few other changes, we'll add in the CSS above to make the
 canvas have a CSS checkerboard background. We'll also set
-`alphaMode: 'premultiplied`. And we'll set the `clearValue`
+`alphaMode: 'premultiplied'`. And we'll set the `clearValue`
 to `[0, 0, 0, 0]`
 
 ```js
@@ -508,7 +508,7 @@ And here it is running.
 Here's some code for making an image we'll use for our
 src texture.
 
-```
+```js
 const hsla = (h, s, l, a) => `hsla(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%, ${a})`;
 
 function createSourceImage(size) {
@@ -673,7 +673,7 @@ at init time and they'll be compatible with any pipeline that uses the same bind
 
 The details of creating a [bindGroupLayout](GPUBindGroupLayout) and [pipelineLayout](GPUPipelineLayout)
 are covered [in another article](webgpu-bind-group-layouts.html). For now, here's the code to create
-them that match our shader module
+them that matches our shader module
 
 ```js
   const bindGroupLayout = device.createBindGroupLayout({
@@ -739,7 +739,7 @@ With the bindGroupLayout created, we can use it to make bindGroups.
 ```
 
 Now that we have bindGroups and textures let's make an array of
-the premultiplied texture vs the un-premultiplied textures so we can
+the premultiplied textures vs the un-premultiplied textures so we can
 easily select one set or the other
 
 ```js
