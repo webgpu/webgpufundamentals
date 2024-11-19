@@ -59,7 +59,7 @@ const ourStructValuesAsU32 = new Uint32Array(ourStructData);
 ```
 
 Above, `ourStructData` is an `ArrayBuffer` which is a chunk of memory.
-To look at the contents of this memory we an create views of it.
+To look at the contents of this memory we can create views of it.
 `ourStructValuesAsF32` is a view of the memory as 32bit floating point
 values. `ourStructValuesAsU32` is a view of **the same memory** as
 32bit unsigned integer values.
