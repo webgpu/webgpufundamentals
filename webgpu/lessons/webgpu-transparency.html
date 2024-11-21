@@ -464,7 +464,7 @@ for one of the two cases.</p>
 </pre>
 <p>A few other changes, we’ll add in the CSS above to make the
 canvas have a CSS checkerboard background. We’ll also set
-<code class="notranslate" translate="no">alphaMode: 'premultiplied</code>. And we’ll set the <code class="notranslate" translate="no">clearValue</code>
+<code class="notranslate" translate="no">alphaMode: 'premultiplied'</code>. And we’ll set the <code class="notranslate" translate="no">clearValue</code>
 to <code class="notranslate" translate="no">[0, 0, 0, 0]</code></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  context.configure({
     device,
@@ -671,7 +671,7 @@ function createDestinationImage(size) {
 <p></p>
 <p>Here’s some code for making an image we’ll use for our
 src texture.</p>
-<pre class="prettyprint showlinemods notranslate notranslate" translate="no">const hsla = (h, s, l, a) =&gt; `hsla(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%, ${a})`;
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const hsla = (h, s, l, a) =&gt; `hsla(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%, ${a})`;
 
 function createSourceImage(size) {
   const canvas = document.createElement('canvas');
@@ -818,7 +818,7 @@ bindGroupLayout and tell the pipelines to use it. This way we can create the bin
 at init time and they’ll be compatible with any pipeline that uses the same bindGroupLayout.</p>
 <p>The details of creating a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUBindGroupLayout">bindGroupLayout</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUPipelineLayout">pipelineLayout</a>
 are covered <a href="webgpu-bind-group-layouts.html">in another article</a>. For now, here’s the code to create
-them that match our shader module</p>
+them that matches our shader module</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroupLayout = device.createBindGroupLayout({
     entries: [
       { binding: 0, visibility: GPUShaderStage.FRAGMENT, sampler: { }, },
@@ -878,7 +878,7 @@ them that match our shader module</p>
   });
 </pre>
 <p>Now that we have bindGroups and textures let’s make an array of
-the premultiplied texture vs the un-premultiplied textures so we can
+the premultiplied textures vs the un-premultiplied textures so we can
 easily select one set or the other</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const textureSets = [
     {
