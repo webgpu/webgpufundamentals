@@ -633,9 +633,12 @@ are between -1, 1 the Z coordinate (our depth) is between 0 and 1 so we have to
 project to it accordingly this is why we devide the depth we set by 0.5 
 (see 10th matrix element) and add 0.5 (see 14th matrix element). 
 
-For example lets try with depth of 400 unit pixels, simillarly to how we transformed pixels to clip space we will use the following formula `(0 >= Z coordinate of a vertex <= depth) * (0.5 / depth) + 0.5`:
+For example lets try with depth of 400 unit pixels, simillarly to how we 
+transformed pixels to clip space we will use the following formula 
+`(0 >= Z coordinate of a vertex <= depth) * (0.5 / depth) + 0.5`:
 
-So for a some vertex where Z coordinate is 150px and the maximum depth is 400px we will get `150 * (0.5 / 400) + 0.5 = 0.6875`.
+So for a some vertex where Z coordinate is 150px and the maximum depth 
+is 400px we will get `150 * (0.5 / 400) + 0.5 = 0.6875`.
 
 We need to provide a 4x4 matrix in our uniforms
 
