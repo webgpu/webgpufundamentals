@@ -696,7 +696,7 @@ channelMult and colors.
     //  matrix: mat4x4f;
     //  colors: array<vec4f, 16>;
     //  channelMult; vec4u,
-    const uniformValuesAsF32 = new Float32Array(16 + 64 + 4 + 4);
+    const uniformValuesAsF32 = new Float32Array(16 + 64 + 4);
     const uniformValuesAsU32 = new Uint32Array(uniformValuesAsF32.buffer);
     const uniformBuffer = device.createBuffer({
       label: 'draw histogram uniform buffer',
@@ -956,7 +956,7 @@ for each of the 2 histograms we want to draw
     //        matrix: mat4x4f;
     //        colors: array<vec4f, 16>;
     //        channelMult; vec4u,
-    const uniformValuesAsF32 = new Float32Array(16 + 64 + 4 + 4);
+    const uniformValuesAsF32 = new Float32Array(16 + 64 + 4);
     const uniformValuesAsU32 = new Uint32Array(uniformValuesAsF32.buffer);
     const uniformBuffer = device.createBuffer({
       label: 'draw histogram uniform buffer',
