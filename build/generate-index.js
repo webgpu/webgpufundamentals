@@ -18,7 +18,6 @@ const pad2 = v => v.toString().padStart(2, '0');
 
 // I get this is unsafe as a bad filename will generate bad HTML
 // but I don't care because I control the filenames.
-// TODO: dates should come from git
 module.exports = function generateIndex(folder) {
   const files = fs.readdirSync(folder, { withFileTypes: true });
   const html = `\
@@ -51,11 +50,17 @@ module.exports = function generateIndex(folder) {
     html, body {
       font-family: monospace;
     }
+    body {
+      display: flex;
+      justify-content: center;
+    }
     a {
       text-decoration: none;
+      width: 100%;
+      display: block;
     }
     table {
-      width: 100%;
+      max-width: 900px;
       border-collapse: collapse;
     }
     td {
@@ -92,9 +97,11 @@ ${files
   .map(({name}) => {
     const s = fs.statSync(path.join(folder, name));
     const size = shortSize(s.size);
+    // TODO: dates should come from git
     const d = new Date(s.ctimeMs);
-    const date = `${d.getFullYear()}-${pad2(d.getMonth())}-${pad2(d.getDay())}`;
-    return `<tr><td><a href="${name}">${name}</a></td><td>${size}</td><td>${date}</td></tr>`;
+    const date = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDay() + 1)}`;
+    const cells = [name, size, date].map(v => `<td><a href="${name}">${v}</a></td>`);
+    return `<tr>${cells.join('')}</tr>`;
   })
   .join('\n')
 }
