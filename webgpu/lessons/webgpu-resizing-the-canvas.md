@@ -105,7 +105,7 @@ const observer = new ResizeObserver(entries => {
     const height = entry.contentBoxSize[0].blockSize;
     const canvas = entry.target;
     canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-    canvas.height = Math.max(1, Math.min(height, device.limits.axTextureDimension2D));
+    canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
   }
 });
 observer.observe(canvas);
@@ -142,7 +142,7 @@ its drawing buffer size to match.
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
   canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-  canvas.height = Math.max(1, Math.min(height, device.limits.axTextureDimension2D));
+  canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 ```
 
 We'd use this code just before calling `context.getCurrentTexture()`.
@@ -160,7 +160,7 @@ Another way to do this is to call `getBoundingClientRect`.
   const width = rect.width; 
   const height = rect.height; 
   canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-  canvas.height = Math.max(1, Math.min(height, device.limits.axTextureDimension2D));
+  canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 ```
 
 The difference between `clientWidth`, `clientHeight` and `getBoundingClientRect`
