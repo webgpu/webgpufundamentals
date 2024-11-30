@@ -31,8 +31,8 @@ canvas.width = 400;
 canvas.height = 300;
 ```
 
-As for setting a canvas's display size if you don't have any CSS that affects the canvas's display size
-the display size will be the same size as its drawing buffer. So in the 2 examples above the canvas's drawingbuffer is 400x300
+As for setting a canvas's display size, if you don't have any CSS that affects the canvas's display size
+the display size will be the same size as its drawing buffer. So, in the 2 examples above, the canvas's drawingbuffer is 400x300
 and its display size is also 400x300.
 
 Here's an example of a canvas whose drawing buffer is 10x15 pixels that is displayed 400x300 pixels on the page
@@ -61,7 +61,7 @@ Why is it so blurry? Because the browser takes our 10x15 pixel canvas and stretc
 generally it *filters* it when it stretches it.
 
 So, what do we do if, for example, we want the canvas to fill the window? Well, first we can get
-the browser to stretch the canvas to fill the window with CSS. Example
+the browser to stretch the canvas to fill the window with CSS. Example:
 
 ```html
 <html>
@@ -85,7 +85,7 @@ the browser to stretch the canvas to fill the window with CSS. Example
 ```
 
 Now we just need to make the drawing buffer match whatever size the browser has stretched the canvas. 
-This is unfortunately a complicated topic. Let's go over some different methods
+This is unfortunately a more complicated topic than you might expect. Let's go over some different methods
 
 ## Use `ResizeObserver`
 
@@ -117,10 +117,11 @@ to the largest size our device supports otherwise WebGPU will start generating
 errors that we tried to make a texture that is too large. We also need to make
 sure it doesn't go to zero or again we'll get errors. 
 
-If we're only rendering on demand then we might put a call to our render function
-inside the code above. Otherwise, if we're animating by using a `requestAnimationFrame` loop (rAF loop), or other means, then the next time
-we render we'll get a texture the matches the size we set on the canvas
-when we call `context.getCurrentTexture()`.
+If we're only rendering on demand then we might put a call to our render
+function inside the code above. Otherwise, if we're animating by using a
+`requestAnimationFrame` loop (rAF loop), or other means, then the next time we
+render we'll get a texture that matches the size we set on the canvas when we
+call `context.getCurrentTexture()`.
 
 > Note that `inlineSize` and `blockSize` are not integers
 
@@ -175,10 +176,10 @@ I see this often and it really seems like an **anti-pattern**.
 The reason is it's inflexible. The 2 techniques above work in every situation
 whereas using `window.innerWidth` and `window.innerHeight` only work in one
 specific situation, when you want to fill the page. We've already shown
-the techniques above fill the page just find but they also work in every other
+the techniques above fill the page just fine but they also work in every other
 situation.
 
-Having the canvas *not* fill page. Like a diagram in an article
+Having the canvas *not* fill the page. Like a diagram in an article
 Or in an editor with a toolbar.
 
 It's not more work to use the first 2 techniques so it seems silly to use
@@ -195,17 +196,19 @@ pixels. Depending on if the user has an HD-DPI display, or is zoomed in or
 zoomed out, or has an OS zoom level set, how many actual pixels that becomes on
 the monitor will be different.
 
-`devicePixelRatio` will tell us in general, the ratio of actual pixels
+`devicePixelRatio` will tell us, in general, the ratio of actual pixels
 to CSS pixels on your monitor. For example here's your browser's current setting
 
 > <div>devicePixelRatio = <span data-diagram="dpr"></span></div>
 
-If you're on a desktop or laptop try pressing <kbd>ctrl</kbd>+<kbd>+</kbd> and <kbd>ctrl</kbd>+<kbd>-</kbd> to zoom in and out (<kbd>⌘</kbd>+<kbd>+</kbd> and <kbd>⌘</kbd>+<kbd>-</kbd> on Mac). You should see the number change in Firefox,
-Chrome, Edge (but not Safari)
+If you're on a desktop or laptop try pressing 
+<kbd>ctrl</kbd>+<kbd>+</kbd> and <kbd>ctrl</kbd>+<kbd>-</kbd> to zoom in and out
+(<kbd>⌘</kbd>+<kbd>+</kbd> and <kbd>⌘</kbd>+<kbd>-</kbd> on Mac). You should see
+the number change in Firefox, Chrome, Edge (but not Safari)
 
-So if we want the number of pixels in the canvas to match the number of pixels actually used to display it
-the seemingly obvious solution would be to multiply the values we looked
-up above like this
+So if we want the number of pixels in the canvas to match the number of pixels
+actually used to display it the seemingly obvious solution would be to multiply
+the values we looked up above like this
 
 ```js
 const observer = new ResizeObserver(entries => {
@@ -235,7 +238,7 @@ Or this
 +  const height = rect.height * devicePixelRatio; 
 ```
 
-> **THE EXAMPLES ABOVE WILL NOT ACTUALLY GIVE THE CORRECT VALUE!!!**
+> **THE EXAMPLES ABOVE WILL NOT ACTUALLY GIVE THE CORRECT RESULT!!!**
 
 That said, it's close and might be good enough for your needs. If you don't
 care you're not getting a perfect 1 to 1 pixel rendering on the screen
@@ -391,8 +394,8 @@ and therefore still the same number of device pixels.
 
 [^safari]: Except on Safari 🤬
 
-To tell `ResizeObserver` which size ot observe you pass it in when calling
-`observer`.
+To tell `ResizeObserver` which size to observe you pass it in when calling
+`observe`.
 
 ```
 resizeObserver.observe(someElement1, {box: 'device-pixel-content-box'});
@@ -450,7 +453,9 @@ the pattern to a magenta, green, white, black checkerboard.
   }
 ```
 
-Let's also make the triangle big enough to cover the canvas
+Let's also make the triangle big enough to cover the canvas [^large-triangle]
+
+[^large-triangle]: See [this article](webgpu-large-triangle-to-cover-clip-space.html] for why these vertex positions.
 
 ```js
     let pos = array(
@@ -469,9 +474,8 @@ Open it in new window and zoom in or out. You should see a monotone pattern that
 except on Safari where if you zoom you may see [moiré patterns](https://www.google.com/search?q=moire+pattern) showing
 that it was impossible to get pixel perfection on Safari.
 
-> Note: Because, as of November 2023, Safari has no support for WebGPU, [here
-is the equivalent WebGL example you can run on Safari](../webgpu-resize-pixel-perfect-webgl-for-safari.html). If you'd like to
-add your polite voice for Safari to support this feature you can
+> Note: If you'd like to
+add your polite voice for Safari to support `devicePixelContentBox` you can
 add to the bug report [here](https://bugs.webkit.org/show_bug.cgi?id=264158)
 as well as the bug about Safari not changing `devicePixelRatio` in response
 to zoom [here](https://bugs.webkit.org/show_bug.cgi?id=124862). Bugs are often
