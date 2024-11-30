@@ -309,7 +309,7 @@ observe.</p>
     const height = entry.contentBoxSize[0].blockSize;
     const canvas = entry.target;
     canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-    canvas.height = Math.max(1, Math.min(height, device.limits.axTextureDimension2D));
+    canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
   }
 });
 observer.observe(canvas);
@@ -341,7 +341,7 @@ its drawing buffer size to match.</p>
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
   canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-  canvas.height = Math.max(1, Math.min(height, device.limits.axTextureDimension2D));
+  canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 </pre>
 <p>We’d use this code just before calling <code class="notranslate" translate="no">context.getCurrentTexture()</code>.</p>
 <p>This way seems out of date personally but you’ll likely see it here and there
@@ -353,7 +353,7 @@ probably copy and pasted from old examples using other APIs.</p>
   const width = rect.width; 
   const height = rect.height; 
   canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-  canvas.height = Math.max(1, Math.min(height, device.limits.axTextureDimension2D));
+  canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
 </pre>
 <p>The difference between <code class="notranslate" translate="no">clientWidth</code>, <code class="notranslate" translate="no">clientHeight</code> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect"><code class="notranslate" translate="no">getBoundingClientRect</code></a>
 is that the width and height from <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect"><code class="notranslate" translate="no">getBoundingClientRect</code></a> is not required to
