@@ -395,6 +395,7 @@ That's because arrays and structs have their own own special alignment rules so
 even though the array is a single `vec3f` and the `Ex4a` struct is also a single
 `vec3f` they get aligned according to different rules.
 
+<a id="a-struct-array-size-alignment"></a>
 <div class="webgpu_center data-table">
   <div>
   <style>
