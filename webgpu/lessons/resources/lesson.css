@@ -119,6 +119,12 @@ table {
   position: relative;
 }
 
+.permalink>div {
+  position: absolute;
+  transform: translateX(-1em);
+  font-size: 19px;
+}
+
 .footnote {
   font-size: smaller;
   vertical-align: baseline;
