@@ -113,6 +113,12 @@ $(document).ready(function($) {
   });
 
   $('[data-table]').html();
+  $('a[id]:not([href])')
+    .addClass('permalink')
+    .each(function(i, e) {
+      $(e).attr('href', `#${$(e).attr('id')}`);
+    })
+    .append('<div class="permalink">#</div>');
 
 });
 }(jQuery));
