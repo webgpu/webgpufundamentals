@@ -1,4 +1,4 @@
-/* muigui@0.0.14, license MIT */
+/* muigui@0.0.18, license MIT */
 var css = {
   default: `
 .muigui {
@@ -288,7 +288,7 @@ var css = {
 }
 .muigui-closed>.muigui-open-container>* {
   transition: all 0.1s ease-out;
-  margin-top: -100%;
+  margin-top: -1000%;
 }
 
 /* ---- popdown ---- */
@@ -1208,11 +1208,13 @@ class Button extends Controller {
   }
   name(name) {
     this.#buttonElem.textContent = name;
+    return this;
   }
   setOptions(options) {
     copyExistingProperties(this.#options, options);
     const {name} = this.#options;
     this.#buttonElem.textContent = name;
+    return this;
   }
 }
 
@@ -2620,6 +2622,9 @@ class Canvas extends LabelController {
   get canvas() {
     return this.#canvasElem;
   }
+  listen() {
+    return this;
+  }
 }
 
 class ColorView extends EditView {
@@ -2759,6 +2764,12 @@ class Container extends Controller {
   }
   popContainer() {
     this.#childDestController = this.#childDestController.parent;
+    return this;
+  }
+  listen() {
+    this.#controllers.forEach(c => {
+      c.listen();
+    });
     return this;
   }
 }

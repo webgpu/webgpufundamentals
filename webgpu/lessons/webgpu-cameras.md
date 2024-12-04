@@ -16,7 +16,6 @@ them easiest to understand by reading them in order.
 8. [Matrix Stacks](webgpu-matrix-stacks.html)
 9. [Scene Graphs](webgpu-scene-graphs.html)
 
-
 In the last post we had to move the F in front of the frustum because the
 `mat4.perspective` function puts the eye at at the origin (0, 0, 0) and
 that objects in the frustum are between `-zNear` to `-zFar` in front of it.
