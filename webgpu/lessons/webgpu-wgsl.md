@@ -548,7 +548,7 @@ Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx`
       <td>input </td>
       <td>vec3&lt;u32&gt; </td>
       <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#workgroup-id" id="ref-for-workgroup-id">workgroup ID</a>,
-          i.e. the position of the workgroup in the <a data-link-type="dfn" href="#workgroup-grid" id="ref-for-workgroup-grid③">workgroup grid</a>. </td>
+          i.e. the position of the workgroup in the <a data-link-type="dfn" href="#compute-shader-grid" id="ref-for-compute-shader-grid">compute shader grid</a>. </td>
     </tr>
     <tr>
       <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-num_workgroups">num_workgroups</dfn> </td>
