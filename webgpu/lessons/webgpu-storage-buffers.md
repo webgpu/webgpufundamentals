@@ -63,7 +63,7 @@ The major differences between uniform buffers and storage buffers are:
    * By default, the maximum size of a uniform buffer is 64 kiB (65536 bytes).
    * By default, the maximum size of a storage buffer is 128 MiB (134217728 bytes).
 
-   All implementations are required to support at least these sizes. We'll cover limits in
+   All implementations are required to support at least these sizes. We'll cover how to check for and request larger limits in
    detail in [another article](webgpu-limits-and-features.html).
 
 3. Storage buffers can be read/write, Uniform buffers are read-only.
