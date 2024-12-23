@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>WebGPU Scene Graph</title>
+    <title>WebGPU Scene Graph - File Cabinets w/gui</title>
     <style>
       @import url(resources/webgpu-lesson.css);
 html, body {
@@ -33,20 +33,21 @@ canvas {
   </body>
   <script type="module">
 import GUI from '../3rdparty/muigui-0.x.module.js';
+import { addButtonLeftJustified } from './resources/js/gui-helpers.js';
 
 function createCubeVertices() {
   const positions = [
     // left
-     -0.5, 0,  0.5,
-     -0.5, 0, -0.5,
-     -0.5, 1,  0.5,
-     -0.5, 1, -0.5,
+    0, 0,  0,
+    0, 0, -1,
+    0, 1,  0,
+    0, 1, -1,
 
     // right
-      0.5, 0,  0.5,
-      0.5, 0, -0.5,
-      0.5, 1,  0.5,
-      0.5, 1, -0.5,
+    1, 0,  0,
+    1, 0, -1,
+    1, 1,  0,
+    1, 1, -1,
   ];
 
   const indices = [
@@ -78,55 +79,6 @@ function createCubeVertices() {
 
     const quadNdx = (i / 6 | 0) * 3;
     const color = quadColors.slice(quadNdx, quadNdx + 3);
-    colorData.set(color, i * 16 + 12);
-    colorData[i * 16 + 15] = 255;
-  }
-
-  return {
-    vertexData,
-    numVertices,
-  };
-}
-
-// tip is at origin, base is below
-function createConeVertices({radius = 1, height = 1, subdivisions = 6} = {}) {
-  const positions = [];
-  const colors = [];
-
-  function addVertex(angle, radius, height, color) {
-    const c = Math.cos(angle);
-    const s = Math.sin(angle);
-    positions.push(c * radius, height, s * radius);
-    colors.push(...color);
-  }
-
-  for (let i = 0; i < subdivisions; ++i) {
-    const angle0 = (i + 0) / subdivisions * Math.PI * 2;
-    const angle1 = (i + 1) / subdivisions * Math.PI * 2;
-
-    const u = (i + 1) / subdivisions;
-    const color = [u * 128 + 127, 0, 0];
-
-    // add side
-    addVertex(angle0, 0, 0, color);
-    addVertex(angle1, radius, -height, color);
-    addVertex(angle0, radius, -height, color);
-
-    // add bottom
-    addVertex(angle0, radius, -height, color);
-    addVertex(angle1, radius, -height, color);
-    addVertex(angle0, 0, -height, color);
-  }
-
-  const numVertices = positions.length / 3;
-  const vertexData = new Float32Array(numVertices * 4); // xyz + color
-  const colorData = new Uint8Array(vertexData.buffer);
-
-  for (let i = 0; i < numVertices; ++i) {
-    const position = positions.slice(i * 3, i * 3 + 3);
-    vertexData.set(position, i * 4);
-
-    const color = colors.slice(i * 3, i * 3 + 3);
     colorData.set(color, i * 16 + 12);
     colorData[i * 16 + 15] = 255;
   }
@@ -618,6 +570,7 @@ async function main() {
     code: `
       struct Uniforms {
         matrix: mat4x4f,
+        color: vec4f,
       };
 
       struct Vertex {
@@ -640,13 +593,13 @@ async function main() {
       }
 
       @fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
-        return vsOut.color;
+        return vsOut.color * uni.color;
       }
     `,
   });
 
   const pipeline = device.createRenderPipeline({
-    label: '2 attributes',
+    label: '2 attributes with color',
     layout: 'auto',
     vertex: {
       module,
@@ -674,7 +627,7 @@ async function main() {
     },
   });
 
-  function makeTRSSceneGraphNode(
+  function addTRSSceneGraphNode(
     name,
     parent,
     trs,
@@ -686,25 +639,15 @@ async function main() {
     return node;
   }
 
-  function addFinger(name, parent, segments, segmentHeight, trs) {
-    const baseName = name;
-    for (let i = 0; i < segments; ++i) {
-      const node = makeTRSSceneGraphNode(name, parent, trs);
-      const meshNode = makeTRSSceneGraphNode(`${name}-mesh`, node, { scale: [10, segmentHeight, 10] });
-      makeDrawObject(meshNode, cubeVertices);
-      parent = node;
-      name = `${baseName}-${i + 1}`;
-      trs = {
-        translation: [0, segmentHeight, 0],
-        rotation: [degToRad(15), 0, 0],
-      };
-    }
+  function addCubeNode(name, parent, trs, color) {
+    const node = addTRSSceneGraphNode(name, parent, trs);
+    return addMesh(node, cubeVertices, color);
   }
 
   const objectInfos = [];
-  function makeDrawObject(node, vertices) {
-    // matrix
-    const uniformBufferSize = (16) * 4;
+  function createObjectInfo() {
+    // matrix and color
+    const uniformBufferSize = (16 + 4) * 4;
     const uniformBuffer = device.createBuffer({
       label: 'uniforms',
       size: uniformBufferSize,
@@ -715,8 +658,10 @@ async function main() {
 
     // offsets to the various uniform values in float32 indices
     const kMatrixOffset = 0;
+    const kColorOffset = 16;
 
     const matrixValue = uniformValues.subarray(kMatrixOffset, kMatrixOffset + 16);
+    const colorValue = uniformValues.subarray(kColorOffset, kColorOffset + 4);
 
     const bindGroup = device.createBindGroup({
       label: 'bind group for object',
@@ -726,14 +671,24 @@ async function main() {
       ],
     });
 
-    objectInfos.push({
-      node,
-      vertices,
+    return {
       uniformBuffer,
       uniformValues,
+      colorValue,
       matrixValue,
       bindGroup,
-    });
+    };
+  }
+
+  const meshes = [];
+  function addMesh(node, vertices, color) {
+    const mesh = {
+      node,
+      vertices,
+      color,
+    };
+    meshes.push(mesh);
+    return mesh;
   }
 
   function createVertices({vertexData, numVertices}, name) {
@@ -749,31 +704,78 @@ async function main() {
     };
   }
   const cubeVertices = createVertices(createCubeVertices(), 'cube');
-  //const ornamentVertices = createVertices(createConeVertices({
-  //  radius: 20,
-  //  height: 60,
-  //}), 'ornament');
+  const kHandleColor = [0.5, 0.5, 0.5, 1];
+  const kDrawerColor = [1, 1, 1, 1];
+  const kCabinetColor = [0.75, 0.75, 0.75, 0.75];
+  const kNumDrawersPerCabinet = 4;
+  const kNumCabinets = 5;
 
-  /*
-    root
-     +-palm
-     +-palm-off
-       +-thumb
-       +-finger->finger->finger
-       +-finger->finger->finger
-       +-finger->finger->finger
-       +-finger->finger->finger
-  */
-  const root = makeTRSSceneGraphNode('root');
-  const palm = makeTRSSceneGraphNode('palm', root, { translation: [0, 100, 0] });
-  const palmMesh = makeTRSSceneGraphNode('palm-mesh', root, { scale: [100, 100, 10] });
-  makeDrawObject(palmMesh, cubeVertices);
-  const rotation = [degToRad(15), 0, 0];
-  addFinger('thumb',         palm, 2, 20, { translation: [-50, 0, 0], rotation });
-  addFinger('index finger',  palm, 3, 30, { translation: [-25, 0, 0], rotation });
-  addFinger('middle finger', palm, 3, 35, { translation: [ -0, 0, 0], rotation });
-  addFinger('ring finger',   palm, 3, 33, { translation: [ 25, 0, 0], rotation });
-  addFinger('pinky',         palm, 3, 25, { translation: [ 45, 0, 0], rotation });
+  const kDrawerSize = [40, 30, 50];
+  const kHandleSize = [10, 2, 2];
+
+  const [kWidth, kHeight, kDepth] = [0, 1, 2];
+
+  const kHandlePosition = [
+    (kDrawerSize[kWidth] - kHandleSize[kWidth]) / 2,
+    kDrawerSize[kHeight] * 2 / 3,
+    kHandleSize[kDepth],
+  ];
+
+  const kDrawerSpacing = kDrawerSize[kHeight] + 3;
+  const kCabinetSpacing = kDrawerSize[kWidth] + 10;
+
+  function addDrawer(parent, drawerNdx) {
+    const drawerName = `drawer${drawerNdx}`;
+
+    // add a node for the entire drawer
+    const drawer = addTRSSceneGraphNode(
+      drawerName, parent, {
+        translation: [3, drawerNdx * kDrawerSpacing + 5, 1],
+      });
+
+    // add a node with a cube for the drawer cube.
+    addCubeNode(`${drawerName}-drawer-mesh`, drawer, {
+      scale: kDrawerSize,
+    }, kDrawerColor);
+
+    // add a node with a cube for the handle
+    addCubeNode(`${drawerName}-handle-mesh`, drawer, {
+      translation: kHandlePosition,
+      scale: kHandleSize,
+    }, kHandleColor);
+  }
+
+  function addCabinet(parent, cabinetNdx) {
+    const cabinetName = `cabinet${cabinetNdx}`;
+
+    // add a node for the entire cabinet
+    const cabinet = addTRSSceneGraphNode(
+      cabinetName, parent, {
+         translation: [cabinetNdx * kCabinetSpacing, 0, 0],
+       });
+
+    // add a node with a cube for the cabinet
+    const kCabinetSize = [
+      kDrawerSize[kWidth] + 6,
+      kDrawerSpacing * kNumDrawersPerCabinet + 6,
+      kDrawerSize[kDepth] + 4,
+    ];
+    addCubeNode(
+      `${cabinetName}-mesh`, cabinet, {
+        scale: kCabinetSize,
+      }, kCabinetColor);
+
+    // Add the drawers
+    for (let drawerNdx = 0; drawerNdx < kNumDrawersPerCabinet; ++drawerNdx) {
+      addDrawer(cabinet, drawerNdx);
+    }
+  }
+
+  const root = addTRSSceneGraphNode('root');
+  // Add cabinets
+  for (let cabinetNdx = 0; cabinetNdx < kNumCabinets; ++cabinetNdx) {
+    addCabinet(root, cabinetNdx);
+  }
 
   const renderPassDescriptor = {
     label: 'our basic canvas renderPass',
@@ -792,18 +794,25 @@ async function main() {
     },
   };
 
-  let currentNode;
   const settings = {
-    animate: false,
+    cameraRotation: degToRad(-45),
     showMeshNodes: false,
+    showAllTRS: false,
     translation: new Float32Array([0, 0, 0]),
     rotation: new Float32Array([0, 0, 0]),
     scale: new Float32Array([1, 1, 1]),
-    cameraRotation: degToRad(-45),
   };
 
   const radToDegOptions = { min: -90, max: 90, step: 1, converters: GUI.converters.radToDeg };
   const cameraRadToDegOptions = { min: -180, max: 180, step: 1, converters: GUI.converters.radToDeg };
+
+  let currentNode;
+  function updateCurrentNodeFromSettings() {
+    const source = currentNode.source;
+    source.translation.set(settings.translation);
+    source.rotation.set(settings.rotation);
+    source.scale.set(settings.scale);
+  }
 
   function updateCurrentNodeGUI() {
     const source = currentNode.source;
@@ -819,40 +828,24 @@ async function main() {
     updateCurrentNodeGUI();
   }
 
-  function updateCurrentNodeFromSettings() {
-    const source = currentNode.source;
-    source.translation.set(settings.translation);
-    source.rotation.set(settings.rotation);
-    source.scale.set(settings.scale);
-  }
-
-  /*
-   root
-     +-child
-     +-child
-     | +-child
-     | +-child
-     | | +-child
-     | +-child
-     +-child
-       +-child
-       | +-child
-  */
+  // \u00a0 is non-breaking space.
   const threeSpaces = '\u00a0\u00a0\u00a0';
   const barTwoSpaces = '\u00a0|\u00a0';
   const plusDash = '\u00a0+-';
+  // add a scene graph node to the GUI and adds the appropriate
+  // prefix so it looks something like
+  //
+  // +-root
+  // | +-child
+  // | | +-child
+  // | +-child
+  // +-child
   function addSceneGraphNodeToGUI(gui, node, last, prefix) {
     const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
-    const button = gui.addButton(label, () => setCurrentSceneGraphNode(node));
-    Object.assign(
-      button.domElement.querySelector('button').style,
-      {
-        textAlign: 'left',
-        fontFamily: 'monospace',
-        whiteSpace: 'pre',
-      }
-    );
-    const childPrefix = prefix === undefined ? '' : `${prefix}${last ? threeSpaces : barTwoSpaces}`;
+    const button = addButtonLeftJustified(gui, label, () => setCurrentSceneGraphNode(node));
+    const childPrefix = prefix === undefined
+      ? ''
+      : `${prefix}${last ? threeSpaces : barTwoSpaces}`;
     return [
       button,
       ...node.children.map((child, i) => {
@@ -862,34 +855,26 @@ async function main() {
     ].flat();
   }
 
-  // request render if not already requested.
-  let renderRequestId;
-  function requestRender() {
-    if (!renderRequestId) {
-      renderRequestId = requestAnimationFrame(render);
-    }
-  }
-
   const gui = new GUI();
+  gui.onChange(render);
   gui.add(settings, 'cameraRotation', cameraRadToDegOptions);
-  gui.add(settings, 'animate').onChange(v => {
-    trsFolder.enable(!v);
-  });
   gui.add(settings, 'showMeshNodes').onChange(showMeshNodes);
+  gui.add(settings, 'showAllTRS').onChange(showTRS);
   const trsFolder = gui.addFolder('orientation');
-  trsFolder.add(settings.translation, '0', -50, 50, 1).name('translation x');
-  trsFolder.add(settings.translation, '1', -50, 50, 1).name('translation y');
-  trsFolder.add(settings.translation, '2', -50, 50, 1).name('translation z');
-  trsFolder.add(settings.rotation, '0', radToDegOptions).name('rotation x');
-  trsFolder.add(settings.rotation, '1', radToDegOptions).name('rotation y');
-  trsFolder.add(settings.rotation, '2', radToDegOptions).name('rotation z');
-  trsFolder.add(settings.scale, '0', 0.1, 100).name('scale x');
-  trsFolder.add(settings.scale, '1', 0.1, 100).name('scale y');
-  trsFolder.add(settings.scale, '2', 0.1, 100).name('scale z');
   trsFolder.onChange(updateCurrentNodeFromSettings);
+  const trsControls = [
+    trsFolder.add(settings.translation, '0', -50, 50, 1).name('translation x'),
+    trsFolder.add(settings.translation, '1', -50, 50, 1).name('translation y'),
+    trsFolder.add(settings.translation, '2', -50, 50, 1).name('translation z'),
+    trsFolder.add(settings.rotation, '0', radToDegOptions).name('rotation x'),
+    trsFolder.add(settings.rotation, '1', radToDegOptions).name('rotation y'),
+    trsFolder.add(settings.rotation, '2', radToDegOptions).name('rotation z'),
+    trsFolder.add(settings.scale, '0', 0.1, 100).name('scale x'),
+    trsFolder.add(settings.scale, '1', 0.1, 100).name('scale y'),
+    trsFolder.add(settings.scale, '2', 0.1, 100).name('scale z'),
+  ];
   const nodesFolder = gui.addFolder('nodes');
   const nodeButtons = addSceneGraphNodeToGUI(nodesFolder, root);
-  gui.onChange(requestRender);
 
   function showMeshNodes(show) {
     for (const child of nodeButtons) {
@@ -900,38 +885,50 @@ async function main() {
   }
   showMeshNodes(false);
 
+  const alwaysShow = new Set([0, 1, 2]);
+  function showTRS(show) {
+    trsControls.forEach((trs, i) => {
+      trs.show(show || alwaysShow.has(i));
+    });
+  }
+  showTRS(false);
+
   setCurrentSceneGraphNode(root);
 
   let depthTexture;
+  let objectNdx = 0;
 
-  function drawObject(pass, objectInfo, viewProjectionMatrix, modelMatrix) {
+  function drawObject(ctx, vertices, matrix, color) {
+    const { pass, viewProjectionMatrix } = ctx;
+    const { vertexBuffer, numVertices } = vertices;
+    if (objectNdx === objectInfos.length) {
+      objectInfos.push(createObjectInfo());
+    }
     const {
       matrixValue,
+      colorValue,
       uniformBuffer,
       uniformValues,
       bindGroup,
-      vertices,
-    } = objectInfo;
-    const {
-      vertexBuffer,
-      numVertices,
-    } = vertices;
+    } = objectInfos[objectNdx++];
 
-    mat4.multiply(viewProjectionMatrix, modelMatrix, matrixValue);
+    mat4.multiply(viewProjectionMatrix, matrix, matrixValue);
+    colorValue.set(color);
 
     // upload the uniform values to the uniform buffer
     device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
 
-    pass.setBindGroup(0, bindGroup);
     pass.setVertexBuffer(0, vertexBuffer);
+    pass.setBindGroup(0, bindGroup);
     pass.draw(numVertices);
   }
 
-  let then;
-  let time = 0;
-  let oldAnimate;
+  function drawMesh(ctx, mesh) {
+    const { node, vertices, color } = mesh;
+    drawObject(ctx, vertices, node.worldMatrix, color);
+  }
+
   function render() {
-    renderRequestId = undefined;
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
     const canvasTexture = context.getCurrentTexture();
@@ -967,7 +964,7 @@ async function main() {
 
     // Get the camera's position from the matrix we computed
     const cameraMatrix = mat4.identity();
-    mat4.translate(cameraMatrix, [40, 100, 0], cameraMatrix);
+    mat4.translate(cameraMatrix, [120, 100, 0], cameraMatrix);
     mat4.rotateY(cameraMatrix, settings.cameraRotation, cameraMatrix);
     mat4.translate(cameraMatrix, [0, 0, 300], cameraMatrix);
 
@@ -977,39 +974,16 @@ async function main() {
     // combine the view and projection matrixes
     const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
 
+    const ctx = { pass, viewProjectionMatrix };
     root.updateWorldMatrix();
-    for (const objectInfo of objectInfos) {
-      const { node } = objectInfo;
-      drawObject(pass, objectInfo, viewProjectionMatrix, node.worldMatrix);
+    for (const mesh of meshes) {
+      drawMesh(ctx, mesh);
     }
 
     pass.end();
 
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
-
-    const now = performance.now();
-    if (settings.animate) {
-      time += oldAnimate ? now - then : 0;
-      then = now;
-      animateTree(root, time);
-      updateCurrentNodeGUI();
-      requestRender();
-    }
-    oldAnimate = settings.animate;
-  }
-
-  const clamp = (v, min, max) => Math.max(Math.min(v, max), min);
-  const lerp = (a, b, t) => a + (b - a) * t;
-
-  function animateTree(node, time, depth = 0, childNdx = 0) {
-    const source = node.source;
-    const t = time * 0.001 * (1 + (childNdx) * 0.1) - childNdx;
-    if (!node.name.includes('mesh')) {
-      const l = Math.sin(t) * 0.5 + 0.5;
-      source.rotation[0] = lerp(0, Math.PI * 0.25, l);
-    }
-    node.children.forEach((child, i) => animateTree(child, time, depth + 1, i));
   }
 
   const observer = new ResizeObserver(entries => {
@@ -1020,7 +994,7 @@ async function main() {
       canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
       canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
       // re-render
-      requestRender();
+      render();
     }
   });
   observer.observe(canvas);
