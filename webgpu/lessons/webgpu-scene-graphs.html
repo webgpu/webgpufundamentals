@@ -1069,7 +1069,7 @@ are shown by default</p>
 <p></p>
 <p>Select a finger and just ‘rotation x’ and you’ll see the segments
 further down all rotate with it.</p>
-<h2 id="lets-shoot-a-projectile-from-the-index-finger"><a id="a-shoot"> Let’s shoot a projectile from the index finger.</a></h2><a id="a-shoot">
+<h2 id="lets-shoot-a-projectile-from-the-index-finger"><a id="a-shoot"></a> Let’s shoot a projectile from the index finger.</h2>
 <p>Another advantage of a scene graph is that you can easily ask for the
 position and orientation of any node in the graph.</p>
 <p>So, to shoot a from the index finger we need to know the node for the
@@ -1123,8 +1123,8 @@ the tip.</p>
   ];
 +  const fingerTip = addTRSSceneGraphNode('finger-tip', root.find('index finger-2'), { translation: [0, 30, 0] });
 </pre>
-</a><p><a id="a-shoot">Now we need a projectile. We’ll use the cone we created for ornaments
-in </a><a href="webgpu-matrix-stacks.html">the previous article</a>.</p>
+<p>Now we need a projectile. We’ll use the cone we created for ornaments
+in <a href="webgpu-matrix-stacks.html">the previous article</a>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const cubeVertices = createVertices(createCubeVertices(), 'cube');
 +  const shotVertices = createVertices(createConeVertices({
 +    radius: 10,
