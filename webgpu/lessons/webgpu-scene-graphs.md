@@ -937,7 +937,7 @@ Finally, ket's adjust the camera slightly.
 Select a finger and just 'rotation x' and you'll see the segments
 further down all rotate with it.
 
-## <a id="a-shoot"> Let's shoot a projectile from the index finger.
+## <a id="a-shoot"></a> Let's shoot a projectile from the index finger.
 
 Another advantage of a scene graph is that you can easily ask for the
 position and orientation of any node in the graph.
