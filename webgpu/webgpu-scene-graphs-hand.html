@@ -719,7 +719,7 @@ async function main() {
     return nodes;
   }
 
-  const root = addTRSSceneGraphNode('root');
+  const root = new SceneGraphNode('root');
   const wrist = addTRSSceneGraphNode('wrist', root);
   const palm = addTRSSceneGraphNode('palm', wrist, { translation: [0, 100, 0] });
   const palmMesh = addTRSSceneGraphNode('palm-mesh', wrist, { scale: [100, 100, 10] });
@@ -800,18 +800,20 @@ async function main() {
   // | +-child
   // +-child
   function addSceneGraphNodeToGUI(gui, node, last, prefix) {
-    const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
-    const button = addButtonLeftJustified(gui, label, () => setCurrentSceneGraphNode(node));
+    const nodes = [];
+    if (node.source instanceof TRS) {
+      const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
+      nodes.push(addButtonLeftJustified(
+          gui, label, () => setCurrentSceneGraphNode(node)));
+    }
     const childPrefix = prefix === undefined
       ? ''
       : `${prefix}${last ? threeSpaces : barTwoSpaces}`;
-    return [
-      button,
-      ...node.children.map((child, i) => {
-        const childLast = i === node.children.length - 1;
-        return addSceneGraphNodeToGUI(gui, child, childLast, childPrefix);
-      }),
-    ].flat();
+    nodes.push(...node.children.map((child, i) => {
+      const childLast = i === node.children.length - 1;
+      return addSceneGraphNodeToGUI(gui, child, childLast, childPrefix);
+    }));
+    return nodes.flat();
   }
 
   const gui = new GUI();
@@ -855,7 +857,7 @@ async function main() {
   }
   showTRS(false);
 
-  setCurrentSceneGraphNode(root);
+    setCurrentSceneGraphNode(root.children[0]);
 
   let depthTexture;
   let objectNdx = 0;

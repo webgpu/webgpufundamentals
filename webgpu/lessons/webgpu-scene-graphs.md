@@ -229,16 +229,16 @@ to the scene graph and adds a "mesh" to render the cube.
 ```
 
 With those in place, lets build the graph for the filing cabinets. First let's
-make a "root" node
+make a "root" node. The root doesn't need a "source".
 
 ```js
-  const root = addTRSSceneGraphNode('root');
+  const root = new SceneGraphNode('root');
 ```
 
 Then let's add cabinets
 
 ```js
-  const root = addTRSSceneGraphNode('root');
+  const root = new SceneGraphNode('root');
 +  // Add cabinets
 +  for (let cabinetNdx = 0; cabinetNdx < kNumCabinets; ++cabinetNdx) {
 +    addCabinet(root, cabinetNdx);
@@ -466,8 +466,11 @@ import GUI from '../3rdparty/muigui-0.x.module.js';
 +  // | +-child
 +  // +-child
 +  function addSceneGraphNodeToGUI(gui, node, last, prefix) {
-+    const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
-+    addButtonLeftJustified(gui, label, () => setCurrentSceneGraphNode(node));
++    if (node.source instanceof TRS) {
++      const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
++      addButtonLeftJustified(
++        gui, label, () => setCurrentSceneGraphNode(node));
++    }
 +    const childPrefix = prefix === undefined
 +      ? ''
 +      : `${prefix}${last ? threeSpaces : barTwoSpaces}`;
@@ -482,10 +485,11 @@ import GUI from '../3rdparty/muigui-0.x.module.js';
 +  const nodesFolder = gui.addFolder('nodes');
 +  addSceneGraphNodeToGUI(nodesFolder, root);
 +
-+  setCurrentSceneGraphNode(root);
++  setCurrentSceneGraphNode(root.children[0]);
 ```
 
-Above we made a button for each node. When a button is clicked it calls
+Above we made a button for each node that has a `TRS` source. 
+When a button is clicked it calls
 `setCurrentSceneGraphNode` and passes it the node for that button.
 `setCurrentSceneGraphNode` updates the folder name and then calls
 `updateCurrentNodeGUI` to update `settings` with the data from the newly
@@ -560,18 +564,22 @@ here's a few more tweaks.
      // | +-child
      // +-child
      function addSceneGraphNodeToGUI(gui, node, last, prefix) {
-       const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
-       const button = addButtonLeftJustified(gui, label, () => setCurrentSceneGraphNode(node));
-       const childPrefix = prefix === undefined ? '' : `${prefix}${last ? threeSpaces : barTwoSpaces}`;
++       const nodes = [];
+       if (node.source instanceof TRS) {
+         const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
+-         addButtonLeftJustified(gui, label, () => setCurrentSceneGraphNode(node));
++         nodes.push(addButtonLeftJustified(
++           gui, label, () => setCurrentSceneGraphNode(node)));
+       const childPrefix = prefix === undefined
+         ? ''
+         : `${prefix}${last ? threeSpaces : barTwoSpaces}`;
    -    node.children.forEach((child, i) => {
-   +    return [
-   +      button,
-   +      ...node.children.map((child, i) => {
-   *        const childLast = i === node.children.length - 1;
+   +    nodes.push(...node.children.map((child, i) => {
+   *      const childLast = i === node.children.length - 1;
    -      addSceneGraphNodeToGUI(gui, child, childLast, childPrefix);
    +        return addSceneGraphNodeToGUI(gui, child, childLast, childPrefix);
-   *      }),
-   +    ];
+   *    }));
+   +    return nodes.flat();
      }
    
      const settings = {
@@ -869,7 +877,7 @@ with this.
 +    return nodes;
 +  }
 
-  const root = addTRSSceneGraphNode('root');
+  const root = new SceneGraphNode('root');
 +  const wrist = addTRSSceneGraphNode('wrist', root);
 +  const palm = addTRSSceneGraphNode('palm', wrist, { translation: [0, 100, 0] });
 +  const palmMesh = addTRSSceneGraphNode('palm-mesh', wrist, { scale: [100, 100, 10] });
@@ -982,7 +990,7 @@ as a child of that last index finger segment that actually does represent
 the tip.
 
 ```js
-  const root = addTRSSceneGraphNode('root');
+  const root = new SceneGraphNode('root');
   const wrist = addTRSSceneGraphNode('wrist', root);
   const palm = addTRSSceneGraphNode('palm', wrist, { translation: [0, 100, 0] });
   const palmMesh = addTRSSceneGraphNode('palm-mesh', wrist, { scale: [100, 100, 10] });
