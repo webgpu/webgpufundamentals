@@ -427,11 +427,11 @@ to the scene graph and adds a “mesh” to render the cube.</p>
   }
 </pre>
 <p>With those in place, lets build the graph for the filing cabinets. First let’s
-make a “root” node</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const root = addTRSSceneGraphNode('root');
+make a “root” node. The root doesn’t need a “source”.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const root = new SceneGraphNode('root');
 </pre>
 <p>Then let’s add cabinets</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const root = addTRSSceneGraphNode('root');
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const root = new SceneGraphNode('root');
 +  // Add cabinets
 +  for (let cabinetNdx = 0; cabinetNdx &lt; kNumCabinets; ++cabinetNdx) {
 +    addCabinet(root, cabinetNdx);
@@ -636,8 +636,11 @@ button for each node.</p>
 +  // | +-child
 +  // +-child
 +  function addSceneGraphNodeToGUI(gui, node, last, prefix) {
-+    const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
-+    addButtonLeftJustified(gui, label, () =&gt; setCurrentSceneGraphNode(node));
++    if (node.source instanceof TRS) {
++      const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
++      addButtonLeftJustified(
++        gui, label, () =&gt; setCurrentSceneGraphNode(node));
++    }
 +    const childPrefix = prefix === undefined
 +      ? ''
 +      : `${prefix}${last ? threeSpaces : barTwoSpaces}`;
@@ -652,9 +655,10 @@ button for each node.</p>
 +  const nodesFolder = gui.addFolder('nodes');
 +  addSceneGraphNodeToGUI(nodesFolder, root);
 +
-+  setCurrentSceneGraphNode(root);
++  setCurrentSceneGraphNode(root.children[0]);
 </pre>
-<p>Above we made a button for each node. When a button is clicked it calls
+<p>Above we made a button for each node that has a <code class="notranslate" translate="no">TRS</code> source.
+When a button is clicked it calls
 <code class="notranslate" translate="no">setCurrentSceneGraphNode</code> and passes it the node for that button.
 <code class="notranslate" translate="no">setCurrentSceneGraphNode</code> updates the folder name and then calls
 <code class="notranslate" translate="no">updateCurrentNodeGUI</code> to update <code class="notranslate" translate="no">settings</code> with the data from the newly
@@ -723,52 +727,124 @@ to move the cabinets or the drawers so lets hide them by default.</p>
   // | +-child
   // +-child
   function addSceneGraphNodeToGUI(gui, node, last, prefix) {
-    const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
-    const button = addButtonLeftJustified(gui, label, () =&gt; setCurrentSceneGraphNode(node));
-    const childPrefix = prefix === undefined ? '' : `${prefix}${last ? threeSpaces : barTwoSpaces}`;
--    node.children.forEach((child, i) =&gt; {
-+    return [
-+      button,
-+      ...node.children.map((child, i) =&gt; {
-*        const childLast = i === node.children.length - 1;
--      addSceneGraphNodeToGUI(gui, child, childLast, childPrefix);
-+        return addSceneGraphNodeToGUI(gui, child, childLast, childPrefix);
-*      }),
-+    ];
-  }
-
-  const settings = {
-    cameraRotation: degToRad(-45),
-+    showMeshNodes: false,
-    showAllTRS: false,
-    translation: new Float32Array([0, 0, 0]),
-    rotation: new Float32Array([0, 0, 0]),
-    scale: new Float32Array([1, 1, 1]),
-  };
-
-  const gui = new GUI();
-  gui.onChange(render);
-  gui.add(settings, 'cameraRotation', cameraRadToDegOptions);
-+  gui.add(settings, 'showMeshNodes').onChange(showMeshNodes);
-  gui.add(settings, 'showAllTRS').onChange(showTRS);
-
-   ...
-
--  const nodesFolder = gui.addFolder('nodes');
-  addSceneGraphNodeToGUI(nodesFolder, root);
-+  const nodeButtons = addSceneGraphNodeToGUI(nodesFolder, root);
-
-+ function showMeshNodes(show) {
-+   for (const child of nodeButtons) {
-+     if (child.domElement.textContent.includes('mesh')) {
-+       child.show(show);
-+     }
-+   }
-+ }
-+ showMeshNodes(false);
 </pre>
 </li>
 </ol>
+<ul>
+<li>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">  const nodes = [];
+ if (node.source instanceof TRS) {
+   const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
+</pre>
+</li>
+</ul>
+<ul>
+<li>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">    addButtonLeftJustified(gui, label, () =&gt; setCurrentSceneGraphNode(node));
+</pre>
+</li>
+</ul>
+<ul>
+<li>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">    nodes.push(addButtonLeftJustified(
+</pre>
+</li>
+<li>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">      gui, label, () =&gt; setCurrentSceneGraphNode(node)));
+ const childPrefix = prefix === undefined
+   ? ''
+   : `${prefix}${last ? threeSpaces : barTwoSpaces}`;
+</pre>
+<ul>
+<li>node.children.forEach((child, i) =&gt; {</li>
+</ul>
+<ul>
+<li>nodes.push(…node.children.map((child, i) =&gt; {</li>
+</ul>
+<ul>
+<li>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no"> const childLast = i === node.children.length - 1;
+</pre>
+</li>
+</ul>
+<ul>
+<li>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no"> addSceneGraphNodeToGUI(gui, child, childLast, childPrefix);
+</pre>
+</li>
+</ul>
+<ul>
+<li>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">   return addSceneGraphNodeToGUI(gui, child, childLast, childPrefix);
+</pre>
+</li>
+</ul>
+<ul>
+<li>}));</li>
+</ul>
+<ul>
+<li>return nodes.flat();
+}</li>
+</ul>
+<p>const settings = {
+cameraRotation: degToRad(-45),</p>
+<ul>
+<li>showMeshNodes: false,
+showAllTRS: false,
+translation: new Float32Array([0, 0, 0]),
+rotation: new Float32Array([0, 0, 0]),
+scale: new Float32Array([1, 1, 1]),
+};</li>
+</ul>
+<p>const gui = new GUI();
+gui.onChange(render);
+gui.add(settings, ‘cameraRotation’, cameraRadToDegOptions);</p>
+<ul>
+<li>
+<p>gui.add(settings, ‘showMeshNodes’).onChange(showMeshNodes);
+gui.add(settings, ‘showAllTRS’).onChange(showTRS);</p>
+<p>…</p>
+</li>
+</ul>
+<ul>
+<li>const nodesFolder = gui.addFolder(‘nodes’);
+addSceneGraphNodeToGUI(nodesFolder, root);</li>
+</ul>
+<ul>
+<li>
+<p>const nodeButtons = addSceneGraphNodeToGUI(nodesFolder, root);</p>
+</li>
+<li>
+<p>function showMeshNodes(show) {</p>
+</li>
+<li>
+<p>for (const child of nodeButtons) {</p>
+</li>
+<li>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">if (child.domElement.textContent.includes('mesh')) {
+</pre>
+</li>
+<li>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">  child.show(show);
+</pre>
+</li>
+<li>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">}
+</pre>
+</li>
+<li>
+<p>}</p>
+</li>
+<li>
+<p>}</p>
+</li>
+<li>
+<p>showMeshNodes(false);</p>
+</li>
+</ul>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no"></pre>
+</li>
+</ul>
 <p>Try selecting a “drawer” and adjusting “translation z”.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-scene-graphs-file-cabinets-w-gui.html"></iframe></div>
@@ -1008,7 +1084,7 @@ with this.</p>
 +    return nodes;
 +  }
 
-  const root = addTRSSceneGraphNode('root');
+  const root = new SceneGraphNode('root');
 +  const wrist = addTRSSceneGraphNode('wrist', root);
 +  const palm = addTRSSceneGraphNode('palm', wrist, { translation: [0, 100, 0] });
 +  const palmMesh = addTRSSceneGraphNode('palm-mesh', wrist, { scale: [100, 100, 10] });
@@ -1106,7 +1182,7 @@ That node represents the base of the last segment of the index finger,
 the point at which it rotates, not the tip. So, lets add another node
 as a child of that last index finger segment that actually does represent
 the tip.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const root = addTRSSceneGraphNode('root');
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const root = new SceneGraphNode('root');
   const wrist = addTRSSceneGraphNode('wrist', root);
   const palm = addTRSSceneGraphNode('palm', wrist, { translation: [0, 100, 0] });
   const palmMesh = addTRSSceneGraphNode('palm-mesh', wrist, { scale: [100, 100, 10] });

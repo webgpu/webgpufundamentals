@@ -770,7 +770,7 @@ async function main() {
     }
   }
 
-  const root = addTRSSceneGraphNode('root');
+  const root = new SceneGraphNode('root');
   // Add cabinets
   for (let cabinetNdx = 0; cabinetNdx < kNumCabinets; ++cabinetNdx) {
     addCabinet(root, cabinetNdx);
