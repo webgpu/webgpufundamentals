@@ -16,7 +16,6 @@ them easiest to understand by reading them in order.
 8. [Matrix Stacks](webgpu-matrix-stacks.html)
 9. [Scene Graphs](webgpu-scene-graphs.html)
 
-
 In the last post we had to move the F in front of the frustum because the
 `mat4.perspective` function puts the eye at at the origin (0, 0, 0) and
 that objects in the frustum are between `-zNear` to `-zFar` in front of it.
@@ -832,7 +831,7 @@ const mat4 = {
   },
 ...
 
-Let's make a bunch of Fs point at another F (yea, too many Fs but I don't want to clutter
+<a id="a-aim-fs"></a> Let's make a bunch of Fs point at another F (yea, too many Fs but I don't want to clutter
 the example with more data). We'll make a grid of 5x5 Fs + 1 more
 for them to "aim" at
 
