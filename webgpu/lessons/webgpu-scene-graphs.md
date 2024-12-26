@@ -564,12 +564,12 @@ here's a few more tweaks.
      // | +-child
      // +-child
      function addSceneGraphNodeToGUI(gui, node, last, prefix) {
-+       const nodes = [];
+   +   const nodes = [];
        if (node.source instanceof TRS) {
          const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
--         addButtonLeftJustified(gui, label, () => setCurrentSceneGraphNode(node));
-+         nodes.push(addButtonLeftJustified(
-+           gui, label, () => setCurrentSceneGraphNode(node)));
+   -      addButtonLeftJustified(gui, label, () => setCurrentSceneGraphNode(node));
+   +      nodes.push(addButtonLeftJustified(
+   +        gui, label, () => setCurrentSceneGraphNode(node)));
        const childPrefix = prefix === undefined
          ? ''
          : `${prefix}${last ? threeSpaces : barTwoSpaces}`;
@@ -577,7 +577,7 @@ here's a few more tweaks.
    +    nodes.push(...node.children.map((child, i) => {
    *      const childLast = i === node.children.length - 1;
    -      addSceneGraphNodeToGUI(gui, child, childLast, childPrefix);
-   +        return addSceneGraphNodeToGUI(gui, child, childLast, childPrefix);
+   +      return addSceneGraphNodeToGUI(gui, child, childLast, childPrefix);
    *    }));
    +    return nodes.flat();
      }
