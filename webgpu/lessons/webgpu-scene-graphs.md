@@ -1174,6 +1174,9 @@ are finished.
 
 {{{example url="../webgpu-scene-graphs-hand-shoot.html"}}}
 
+Try selecting one of the index fingers, adjusting the rotation x, and then
+pressing 'Fire!'
+
 This article should have given you some idea of what a scene graph is and how to
 use one. Unity, Blender, Unreal, Maya, 3DSMax, Three.js, all have a scene graph.
 They can take different forms. Some put the meshes in the graph itself making it
