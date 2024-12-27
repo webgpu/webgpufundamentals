@@ -349,7 +349,7 @@ And let's tweak the camera code
 +    const cameraMatrix = mat4.identity();
 +    mat4.translate(cameraMatrix, [120, 100, 0], cameraMatrix);
 +    mat4.rotateY(cameraMatrix, settings.cameraRotation, cameraMatrix);
-+    mat4.translate(cameraMatrix, [0, 0, 300], cameraMatrix);
++    mat4.translate(cameraMatrix, [60, 0, 300], cameraMatrix);
 +
 +    // Compute a view matrix
 +    const viewMatrix = mat4.inverse(cameraMatrix);
@@ -935,9 +935,10 @@ Finally, ket's adjust the camera slightly.
     // Compute a camera matrix.
     const cameraMatrix = mat4.identity();
 -    mat4.translate(cameraMatrix, [120, 100, 0], cameraMatrix);
-+    mat4.translate(cameraMatrix, [40, 100, 0], cameraMatrix);
++    mat4.translate(cameraMatrix, [100, 100, 0], cameraMatrix);
     mat4.rotateY(cameraMatrix, settings.cameraRotation, cameraMatrix);
-    mat4.translate(cameraMatrix, [0, 0, 300], cameraMatrix);
+-    mat4.translate(cameraMatrix, [60, 0, 300], cameraMatrix);
++    mat4.translate(cameraMatrix, [100, 0, 300], cameraMatrix);
 ```
 
 {{{example url="../webgpu-scene-graphs-hand.html"}}}
