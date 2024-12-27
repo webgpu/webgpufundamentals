@@ -940,9 +940,9 @@ async function main() {
 
     // Compute a camera matrix.
     const cameraMatrix = mat4.identity();
-    mat4.translate(cameraMatrix, [40, 100, 0], cameraMatrix);
+    mat4.translate(cameraMatrix, [0, 100, 0], cameraMatrix);
     mat4.rotateY(cameraMatrix, settings.cameraRotation, cameraMatrix);
-    mat4.translate(cameraMatrix, [0, 0, 300], cameraMatrix);
+    mat4.translate(cameraMatrix, [100, 0, 300], cameraMatrix);
 
     // Compute a view matrix
     const viewMatrix = mat4.inverse(cameraMatrix);

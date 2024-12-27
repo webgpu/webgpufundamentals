@@ -530,7 +530,7 @@ function.</p>
 +    const cameraMatrix = mat4.identity();
 +    mat4.translate(cameraMatrix, [120, 100, 0], cameraMatrix);
 +    mat4.rotateY(cameraMatrix, settings.cameraRotation, cameraMatrix);
-+    mat4.translate(cameraMatrix, [0, 0, 300], cameraMatrix);
++    mat4.translate(cameraMatrix, [60, 0, 300], cameraMatrix);
 +
 +    // Compute a view matrix
 +    const viewMatrix = mat4.inverse(cameraMatrix);
@@ -1065,9 +1065,10 @@ are shown by default</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    // Compute a camera matrix.
     const cameraMatrix = mat4.identity();
 -    mat4.translate(cameraMatrix, [120, 100, 0], cameraMatrix);
-+    mat4.translate(cameraMatrix, [40, 100, 0], cameraMatrix);
++    mat4.translate(cameraMatrix, [100, 100, 0], cameraMatrix);
     mat4.rotateY(cameraMatrix, settings.cameraRotation, cameraMatrix);
-    mat4.translate(cameraMatrix, [0, 0, 300], cameraMatrix);
+-    mat4.translate(cameraMatrix, [60, 0, 300], cameraMatrix);
++    mat4.translate(cameraMatrix, [100, 0, 300], cameraMatrix);
 </pre>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-scene-graphs-hand.html"></iframe></div>
