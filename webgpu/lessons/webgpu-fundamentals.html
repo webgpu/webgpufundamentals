@@ -532,6 +532,13 @@ since <code class="notranslate" translate="no">pos</code> is an array of <code c
 the remaining 2 values.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        return vec4f(pos[vertexIndex], 0.0, 1.0);
 </pre>
+<p>Note that for drawing something in 2D we usually only need the x and y values
+for position. The z value is used for depth testing and will come up in
+<a href="webgpu-orthographic-projection.html">the article on orthographic projection</a>.
+The z value is used for perspective divide and will come up in
+<a href="webgpu-perspective-projection.html">the article on perspective projection</a>.
+For now, setting them to z to 0.0 and w to 1.0 is what we need to draw
+the triangle.</p>
 <p>The shader module also declares a function called <code class="notranslate" translate="no">fs</code> that is declared with
 <code class="notranslate" translate="no">@fragment</code> attribute making it a fragment shader function.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs() -&gt; @location(0) vec4f {
