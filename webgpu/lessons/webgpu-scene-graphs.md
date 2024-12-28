@@ -168,6 +168,10 @@ compute a local matrix in a scene graph. Often, some implementations use
 "position" instead of "translation". For this tutorial, I thought it might
 be better to use "translation" since it matches what we do in `getMatrix`.
 
+One thing that sticks out above is setting `this.translation`, `this.rotation`
+and `this.scale` to `new Float32Array(value)`. The advantage to `Float32Array`
+is it has `set` function so we can do `someTRS.translation.set(someNewValue)`.
+
 You can see `getMatrix` computes a matrix by using effectively
 
 ```
