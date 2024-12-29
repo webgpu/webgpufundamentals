@@ -381,6 +381,9 @@ to provide different ways to compute a local matrix for a particular node.</p>
 compute a local matrix in a scene graph. Often, some implementations use
 “position” instead of “translation”. For this tutorial, I thought it might
 be better to use “translation” since it matches what we do in <code class="notranslate" translate="no">getMatrix</code>.</p>
+<p>One thing that sticks out above is setting <code class="notranslate" translate="no">this.translation</code>, <code class="notranslate" translate="no">this.rotation</code>
+and <code class="notranslate" translate="no">this.scale</code> to <code class="notranslate" translate="no">new Float32Array(value)</code>. The advantage to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array"><code class="notranslate" translate="no">Float32Array</code></a>
+is it has <code class="notranslate" translate="no">set</code> function so we can do <code class="notranslate" translate="no">someTRS.translation.set(someNewValue)</code>.</p>
 <p>You can see <code class="notranslate" translate="no">getMatrix</code> computes a matrix by using effectively</p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">translation * rotationX * rotationY * rotationZ * scale
 </pre>
