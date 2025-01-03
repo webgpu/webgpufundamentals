@@ -725,7 +725,10 @@ js: ${jsTime.toFixed(1)}ms
 useful. One way to fix that is to compute a rolling
 average. Here’s a class to help compute a rolling
 average.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">class RollingAverage {
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// Note: We disallow negative values as this is used for timestamp queries
+// where it's possible for a query to return a beginning time greater than the
+// end time. See: https://gpuweb.github.io/gpuweb/#timestamp
+class NonNegativeRollingAverage {
   #total = 0;
   #samples = [];
   #cursor = 0;
@@ -734,9 +737,11 @@ average.</p>
     this.#numSamples = numSamples;
   }
   addSample(v) {
-    this.#total += v - (this.#samples[this.#cursor] || 0);
-    this.#samples[this.#cursor] = v;
-    this.#cursor = (this.#cursor + 1) % this.#numSamples;
+    if (!Number.isNaN(v) &amp;&amp; Number.isFinite(v) &amp;&amp; v &gt;= 0) {
+      this.#total += v - (this.#samples[this.#cursor] || 0);
+      this.#samples[this.#cursor] = v;
+      this.#cursor = (this.#cursor + 1) % this.#numSamples;
+    }
   }
   get() {
     return this.#total / this.#samples.length;
@@ -746,9 +751,9 @@ average.</p>
 <p>It keeps an array of values and a total. When a new value is added the
 oldest value is subtracted from the total as the new value is added.</p>
 <p>We can use it like this.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+const fpsAverage = new RollingAverage();
-+const jsAverage = new RollingAverage();
-+const gpuAverage = new RollingAverage();
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+const fpsAverage = new NonNegativeRollingAverage();
++const jsAverage = new NonNegativeRollingAverage();
++const gpuAverage = new NonNegativeRollingAverage();
 
 function render(now) {
   ...

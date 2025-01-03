@@ -849,17 +849,17 @@ the example even more. We needed something showing animation I threw something t
   +});
   +observer.observe(canvas);
 </pre>
-<p>Let’s also add in some timing. We’ll use the <code class="notranslate" translate="no">RollingAverage</code> and <code class="notranslate" translate="no">TimingHelper</code> classes
+<p>Let’s also add in some timing. We’ll use the <code class="notranslate" translate="no">NonNegativeRollingAverage</code> and <code class="notranslate" translate="no">TimingHelper</code> classes
 we made in <a href="webgpu-timing.html">the article on timing</a>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// see https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html
 import TimingHelper from './resources/js/timing-helper.js';
 // see https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html
-import RollingAverage from './resources/js/rolling-average.js';
+import NonNegativeRollingAverage from './resources/js/non-negative-rolling-average.js';
 
-const fpsAverage = new RollingAverage();
-const jsAverage = new RollingAverage();
-const gpuAverage = new RollingAverage();
-const mathAverage = new RollingAverage();
+const fpsAverage = new NonNegativeRollingAverage();
+const jsAverage = new NonNegativeRollingAverage();
+const gpuAverage = new NonNegativeRollingAverage();
+const mathAverage = new NonNegativeRollingAverage();
 </pre>
 <p>Then we’ll time our JavaScript from the beginning to the end of our rendering code</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render(time) {
