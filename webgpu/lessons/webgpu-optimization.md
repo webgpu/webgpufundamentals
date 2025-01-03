@@ -669,19 +669,19 @@ A few more things left to do. Let's add in resizing
   +observer.observe(canvas);
 ```
 
-Let's also add in some timing. We'll use the `RollingAverage` and `TimingHelper` classes
+Let's also add in some timing. We'll use the `NonNegativeRollingAverage` and `TimingHelper` classes
 we made in [the article on timing](webgpu-timing.html). 
 
 ```js
 // see https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html
 import TimingHelper from './resources/js/timing-helper.js';
 // see https://webgpufundamentals.org/webgpu/lessons/webgpu-timing.html
-import RollingAverage from './resources/js/rolling-average.js';
+import NonNegativeRollingAverage from './resources/js/non-negative-rolling-average.js';
 
-const fpsAverage = new RollingAverage();
-const jsAverage = new RollingAverage();
-const gpuAverage = new RollingAverage();
-const mathAverage = new RollingAverage();
+const fpsAverage = new NonNegativeRollingAverage();
+const jsAverage = new NonNegativeRollingAverage();
+const gpuAverage = new NonNegativeRollingAverage();
+const mathAverage = new NonNegativeRollingAverage();
 ```
 
 Then we'll time our JavaScript from the beginning to the end of our rendering code
