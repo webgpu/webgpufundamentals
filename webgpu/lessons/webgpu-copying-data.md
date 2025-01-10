@@ -91,11 +91,13 @@ You can think of the copy as working like this
 
 ```js
    // pseudo code
-   const [x, y, z] = origin || [0, 0, 0];
-   const [blockWidth, blockHeight] = getBlockSizeForTextureFormat(texture.format);
+   const [x, y, z] = origin ?? [0, 0, 0];
+   const [blockWidth, blockHeight, bytesPerBlock] = 
+      getBlockInfoForTextureFormat(texture.format);
 
    const blocksAcross = width / blockWidth;
    const blocksDown = height / blockHeight;
+   const bytesPerBlockRow = blocksAcross * bytesPerBlock;
 
    for (layer = 0; layer < depthOrArrayLayers; layer) {
       for (row = 0; row < blocksDown; ++row) {
@@ -104,7 +106,7 @@ You can think of the copy as working like this
             texture,               // texture to copy to
             x, y + row, z + layer, // where in texture to copy to
             srcDataAsBytes + start,
-            bytesPerRow);
+            bytesPerBlockRow);
       }
    }
 ```
@@ -113,9 +115,9 @@ You can think of the copy as working like this
 
 Textures are organized into blocks. For most *regular* textures the block width
 and block height are both 1. For compressed textures that changes. For example
-the format, `bc1-rgba-unorm` as a block width of 4 and a block height of 4.
+the format, `bc1-rgba-unorm` has a block width of 4 and a block height of 4.
 That means if you set the width to 8, and the height to 12, only 6 blocks will be copied.
-2 blocks for the first row, 2 for the 2nd row, 3 for the 3rd.
+2 blocks for the first row, 2 for the 2nd row, 2 for the 3rd.
 
 For compressed textures, size and origin must be aligned to blocks sizes.
 
@@ -144,6 +146,32 @@ For compressed textures, size and origin must be aligned to blocks sizes.
 * `aspect` really only comes into play when copying data to a depth-stencil format.
   You can only copy to one aspect at a time, either the `depth-only` or the `stencil-only`.
 
+> Trivia: A texture has `width`, `height`, and `depthOrArrayLayer` properties on it which
+> means it's a valid `GPUExtent3D`. In other words, given this texture
+>
+> ```js
+> const texture = device.createTexture({
+>   format: 'r8unorm',
+>   size: [2, 4],
+>   usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.TEXTURE_ATTACHMENT,
+> });
+> ```
+>
+> all of these work
+>
+> ```js
+> // copy 2x4 pixels of data to texture
+> const bytesPerRow = 2;
+> device.queue.writeTexture({ texture }, data, { bytesPerRow }, [2, 4]);
+> device.queue.writeTexture({ texture }, data, { bytesPerRow }, [texture.width, texture.height]);
+> device.queue.writeTexture({ texture }, data, { bytesPerRow }, {width: 2, height: 4});
+> device.queue.writeTexture({ texture }, data, { bytesPerRow }, {width: texture.width, height: texture.height});
+> device.queue.writeTexture({ texture }, data, { bytesPerRow }, texture); // !!!
+> ```
+>
+> That last one works because a texture has a `width`, `height`, and `depthOrArrayLayers`.
+> We haven't used that style because it's no so clear but, it is valid.
+
 ## `copyBufferToBuffer`
 
 `copyBufferToBuffer`, like the name suggests, copies data from one buffer to another.
@@ -171,7 +199,7 @@ encoder.copyBufferToBuffer(
 signature:
 
 ```js
-encode.copyBufferToTexture(
+encoder.copyBufferToTexture(
   // details of the source buffer
   { buffer, offset: 0, bytesPerRow, rowsPerImage },
 
@@ -197,7 +225,7 @@ a multiple of 256!!**
 signature:
 
 ```js
-encode.copyTextureToBuffer(
+encoder.copyTextureToBuffer(
   // details of the source texture
   { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
@@ -227,7 +255,7 @@ must only differ by the suffix `'-srgb'`.
 signature:
 
 ```js
-encode.copyTextureToBuffer(
+encoder.copyTextureToBuffer(
   // details of the source texture
   src: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
@@ -243,10 +271,10 @@ encode.copyTextureToBuffer(
 * dst.`texture` must have a usage of `GPUTextureUsage.COPY_DST`
 * `width` must be a multiple of block width
 * `height` must be a multiple of block height
-* src.`origin[0]` or `.x` must be a multiple block width
-* src.`origin[1]` or `.y` must be a multiple block height
-* dst.`origin[0]` or `.x` must be a multiple block width
-* dst.`origin[1]` or `.y` must be a multiple block height
+* src.`origin[0]` or `.x` must be a multiple of block width
+* src.`origin[1]` or `.y` must be a multiple of block height
+* dst.`origin[0]` or `.x` must be a multiple of block width
+* dst.`origin[1]` or `.y` must be a multiple of block height
 
 ## Shaders
 
@@ -262,8 +290,8 @@ available to read or write from JavaScript.
 At least in version 1 of WebGPU,
 mappable buffers have severe restrictions, namely, a
 mappable buffer can can only be used as a temporary place
-to copy from to. A mappable buffer can not be used as any
-other type of buffer (like a Uniform buffer, vertex buffer,
+to copy from or to. A mappable buffer can not be used as any
+other type of buffer (like a uniform buffer, vertex buffer,
 index buffer, storage buffer, etc...) [^mappedAtCreation]
 
 [^mappedAtCreation]: The exception is if you set `mappedAtCreation: true`
@@ -275,7 +303,7 @@ of usage flags.
 * `GPUBufferUsage.MAP_READ | GPU_BufferUsage.COPY_DST`
 
   This is a buffer you can use the copy commands above to copy
-  data to from another buffer or a texture, then map it to
+  data from another buffer or a texture, then map it to
   read the values in JavaScript
 
 * `GPUBufferUsage.MAP_WRITE | GPU_BufferUsage.COPY_SRC`
@@ -293,7 +321,7 @@ the size of the entire buffer. `mode` must be either
 match the `MAP_` usage flag you passed in when you created
 the buffer.
 
- `mapAsync` returns a Promise.
+`mapAsync` returns a `Promise`.
 When the promise resolves the buffer is mappable. You can then
 view some or all of the buffer by calling `buffer.getMappedRange(offset = 0, size?)`
 where `offset` a byte offset into the portion of the buffer you
@@ -311,7 +339,7 @@ const buffer = device.createBuffer({
 // map the entire buffer
 await buffer.mapAsync(GPUMapMode.READ);
 
-// get the entire buffer
+// get the entire buffer as an array of 32bit floats.
 const f32 = new Float32Array(buffer.getMappedRange())
 
 ...
@@ -334,14 +362,13 @@ buffer.unmap();
 console.log(f32[0]); // prints undefined
 ```
 
-We've already seen examples of mapping a buffer for read.
-Once in [the first article](webgpu-fundamentals.html#a-run-computations-on-the-gpu) where we doubled some numbers
+We've already seen examples of mapping a buffer for reading
+in [the first article](webgpu-fundamentals.html#a-run-computations-on-the-gpu) where we doubled some numbers
 in a storage buffer and the copied the results to a mappable buffer and mapped it to read out the results
 
-Another is the article on [compute shader basics](webgpu-compute-shaders.md)
+Another example is the article on [compute shader basics](webgpu-compute-shaders.md)
 where we output the various `@builtin` compute shader values to a storage buffer.
 We then copied those results to a mappable buffer and mapped it read out the results.
-
 
 ## <a id="a-mapped-at-creation"></a>mappedAtCreation
 
@@ -377,6 +404,11 @@ Or, more tersely
  buffer.unmap();
 ```
 
+Note that a buffer created with `mappedAtCreation: true` does not have
+to have `GPUBufferUsage.COPY_DST` usage. But, if `GPUBufferUsage.COPY_DST` is
+not set, you can not map the buffer again. It is only mapped once, at creation
+time.
+
 ## <a id="a-efficient"></a>Efficiently using mappable buffers
 
 Above we saw that mapping a buffer is asynchronous. This means there's
@@ -386,10 +418,7 @@ to be mapped by calling `mapAsync`, until the time it's mapped and we can call `
 A common way to workaround this is to keep a set of buffers always mapped.
 Since they are already mapped they are ready to use immediately. As soon
 as you use one and unmap it, and as soon as you've submitted whatever
-commands use the buffer, you ask for to to be mapped again. When it promise
-resolves you put it back in a pool of already mapped buffers. If you ever
+commands use the buffer, you ask for to to be mapped again. When its promise
+resolves, you put it back in a pool of already mapped buffers. If you ever
 need a mapped buffer and none are available you create a new one and add
 it to the pool.
-
-TBD: Example
-
