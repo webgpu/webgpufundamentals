@@ -278,10 +278,10 @@ encoder.copyTextureToTexture(
 
 ## Shaders
 
-Shaders can write to storage buffers, storage textures,
+Shaders can read and write to storage buffers, storage textures,
 and indirectly they can render to textures. Those are all ways
 of getting data into buffers and textures. In other words
-you can write shaders to generate data.
+you can write shaders to generate and/or copy and transfer data.
 
 ## Mapping Buffers
 
