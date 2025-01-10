@@ -239,7 +239,7 @@ encoder.copyTextureToBuffer(
 
 This has similar parameters to `copyBufferToTexture`
 just the texture (now the source) and the buffer (now the destination)
-are swapped. Like `copyTextureToBuffer`, `bytesPerRow` **must be
+are swapped. Like `copyBufferToTexture`, `bytesPerRow` **must be
 a multiple of 256!!**
 
 * `texture` must have a usage of `GPUTextureUsage.COPY_SRC`
@@ -255,7 +255,7 @@ must only differ by the suffix `'-srgb'`.
 signature:
 
 ```js
-encoder.copyTextureToBuffer(
+encoder.copyTextureToTexture(
   // details of the source texture
   src: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
