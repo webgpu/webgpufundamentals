@@ -430,6 +430,8 @@ bad results.
 
 Fortunately there are libraries to help with this.
 
+## webgpu-utils
+
 Here's one: [webgpu-utils](https://github.com/greggman/webgpu-utils)
 
 You give it your WGSL code and it gives an API do all of this for you.
@@ -481,7 +483,78 @@ myUniformValues.set({
 // now pass myUniformValues.arrayBuffer to WebGPU when needed.
 ```
 
-Whether you use this particular library or a different one or
+## TypeGPU
+
+If you prefer a strongly-typed approach, [TypeGPU](https://typegpu.com) allows you to define
+your data-types (e.g. structs) with well-typed schemas, then generates the equivalent WGSL for you.
+
+```ts
+import tgpu from 'typegpu';
+import { struct, arrayOf, vec3f, f32 } from 'typegpu/data';
+
+const Ex4a = struct({
+  velocity: vec3f,
+});
+
+const Ex4 = struct({
+  orientation: vec3f,
+  size: f32,
+  direction: arrayOf(vec3f, 1),
+  scale: f32,
+  info: Ex4a,
+  friction: f32,
+});
+
+const code = tgpu.resolve({
+  template: '@group(0) @binding(0) var<uniform> myUniforms: Ex4;',
+  // definitions for both `Ex4` and `Ex4a` will be
+  // generated, as `Ex4` depends on `Ex4a`
+  externals: { Ex4 },
+});
+
+const root = tgpu.initFromDevice({ device });
+
+// notice the fully inferred type!
+const uniformsBuffer = root.createBuffer(Ex4).$usage('uniform');
+//    ^? TgpuBuffer<WgslStruct<{ orientation: Vec3f; (...) }>> & Uniform
+
+// the IDE will tell you if you omit a property
+// or if its of the wrong type.
+uniformsBuffer.write({
+  orientation: vec3f(1, 0, -1),
+  size: 2,
+  direction: [vec3f(0, 1, 0)],
+  scale: 1.5,
+  info: {
+    velocity: vec3f(2, 3, 4),
+  },
+  friction: 0.1,
+});
+
+// now pass `rawUniformsBuffer` to WebGPU when needed.
+const rawUniformsBuffer = root.unwrap(uniformsBuffer); // => GPUBuffer
+```
+
+The generated code then looks like the following:
+
+```wgsl
+struct Ex4a_0 {
+  velocity: vec3f,
+};
+
+struct Ex4_1 {
+  orientation: vec3f,
+  size: f32,
+  direction: array<vec3f, 1>,
+  scale: f32,
+  info: Ex4a_0,
+  friction: f32,
+};
+
+@group(0) @binding(0) var<uniform> myUniforms: Ex4_1;
+```
+
+Whether you use these particular libraries or different ones or
 none at all is up to you. For me, I would often spent 20-30-60 minutes
 trying to figure out why something was not working only to find
 that I manually computed an offset or size wrong so for my own work
