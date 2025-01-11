@@ -450,7 +450,7 @@ when we're animating.
       requestId = undefined;
     } else {
       requestId = requestAnimationFrame(render);
-+      then = performance.now();
++      then = performance.now() * 0.001;
     }
   }
 ```
