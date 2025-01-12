@@ -488,7 +488,11 @@ that I manually computed an offset or size wrong so for my own work
 I'd rather use a library and avoid that pain.
 
 If you do want to do it manually though, 
-[here's a page that will compute the offsets for you](resources/wgsl-offset-computer.html)
+[here's a page that will compute the offsets for you](resources/wgsl-offset-computer.html).
+
+Otherwise, there are many libraries to help abstract webgpu
+and make things like this, and others, easier. You can find
+a list [here](webgpu-resources.html).
 
 <!-- keep this at the bottom of the article -->
 <link rel="stylesheet" href="webgpu-memory-layout.css">

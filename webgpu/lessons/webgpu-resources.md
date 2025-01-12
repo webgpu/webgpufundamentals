@@ -35,7 +35,7 @@ Here are some other webgpu resources
 
 ---
 
-# Libraries
+# <a id="a-libraries"></a>Libraries
 
 ## 3D Libraries
 
@@ -46,6 +46,7 @@ Here are some other webgpu resources
 
 * [webgpu-utils](https://github.com/greggman/webgpu-utils) - helps set uniform buffer data and more
 * [wgsl-struct-buffer](https://github.com/deepkolos/wgsl-struct-buffer) - wgsl's struct buffer view in ts with type check & infer
+* [TypeGPU](https://typegpu.com) - allows WebGPU resource management in a type-safe, declarative way. 
 
 ## Debugging / Profiling Libraries
 
