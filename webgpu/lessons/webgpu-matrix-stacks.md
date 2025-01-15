@@ -16,7 +16,7 @@ them easiest to understand by reading them in order.
 8. [Matrix Stacks](webgpu-matrix-stacks.html) ⬅ you are here
 9. [Scene Graphs](webgpu-scene-graphs.html)
 
-A matrix stack is exactly what it sounds like, a [stack] of matrices.
+A matrix stack is exactly what it sounds like, a [stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) of matrices.
 It is useful for positioning and orientating things relative to each other.
 To demonstrate, let's make a set of file cabinets. Using a matrix stack will make this easy.
 
