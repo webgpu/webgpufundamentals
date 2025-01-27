@@ -601,9 +601,10 @@ as an input and then process every single pixel in a separate invocation.
 Here's the needed changes to the shader
 
 ```wgsl
-@group(0) @binding(0) var<storage, read_write> histogram: array<vec4u>;
+@group(0) @binding(0) var<storage, read_write> bins: array<vec4u>;
 @group(0) @binding(1) var ourTexture: texture_2d<f32>;
 
+// from: https://www.w3.org/WAI/GL/wiki/Relative_luminance
 const kSRGBLuminanceFactors = vec3f(0.2126, 0.7152, 0.0722);
 fn srgbLuminance(color: vec3f) -> f32 {
   return saturate(dot(color, kSRGBLuminanceFactors));
@@ -613,7 +614,7 @@ fn srgbLuminance(color: vec3f) -> f32 {
 -fn cs() {
 +fn cs(@builtin(global_invocation_id) global_invocation_id: vec3u) {
 -  let size = textureDimensions(ourTexture, 0);
-  let numBins = f32(arrayLength(&histogram));
+  let numBins = f32(arrayLength(&bins));
   let lastBinIndex = u32(numBins - 1);
 -  for (var y = 0u; y < size.y; y++) {
 -    for (var x = 0u; x < size.x; x++) {
