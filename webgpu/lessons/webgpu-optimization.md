@@ -2075,7 +2075,7 @@ Other things that *might* help
 * **Double buffer the large uniform buffer**
 
   This comes up as a possible optimization because WebGPU can not update a
-  buffer that is is currently in use.
+  buffer that is currently in use.
 
   So, imagine you start rendering (you call `device.queue.submit`). The GPU
   starts rendering using our large uniform buffer. You immediately try to update
