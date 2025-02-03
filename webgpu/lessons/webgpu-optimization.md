@@ -25,11 +25,14 @@ done the following steps
       * create a bindGroup that references that buffer
 
 * At Render time:
+   * start an encoder and render pass
    * for each thing we want to draw
       * update a typed array with our uniform values for this object
       * copy the typed array to the uniform buffer for this object
-      * bind the bindGroup for this object
-      * draw
+      * set any pipeline, vertex and index buffers if needed
+      * encode a command(s) to bind the bindGroup(s) for this object
+      * encode a command to draw 
+   * end the render pass, finish the encoder, submit the command buffer
 
 Let's make an example we can optimize that follows the steps above so we can
 then optimize it.
@@ -171,7 +174,7 @@ This shader module is uses lighting similar to
 [the point light with specular highlights covered else where](webgpu-lighting-point.html#a-specular).
 It uses a texture because most 3d models use textures so I thought it best to include one.
 It multiplies the texture by a color so we can adjust the colors of each cube.
-And it has all of the uniforms we need to do the lighting and
+And it has all of the uniform values we need to do the lighting and
 [project the cube in 3d](webgpu-perspective-projection.html).
 
 We need data for a cube and to put that data in buffers.
@@ -557,7 +560,7 @@ Then we'll compute a viewProjection matrix like we covered in
 ```
 
 Now we can loop over all the objects and draw them, for each one we need
-to update all of is uniform values, copy the uniform values to its uniform buffer,
+to update all of its uniform values, copy the uniform values to its uniform buffer,
 bind the bind group for this object, and draw.
 
 ```js
@@ -883,7 +886,7 @@ One more thing, just to help with better comparisons. An issue we have now is,
 every visible cube has every pixel rendered or at least checked if it needs to
 be rendered. Since we're not optimizing the rendering of pixels but rather
 optimizing the usage of WebGPU itself, it can be useful to be able to draw to a
-1x1 pixel canvas. This effectively removes nearly all of the time spend
+1x1 pixel canvas. This effectively removes nearly all of the time spent
 rasterizing triangles and instead leaves only the part of our code that is doing
 math and communicating with WebGPU.
 
@@ -929,7 +932,7 @@ on my 75hz monitor on an M1 Mac I got ~8000 cubes before the framerate dropped.
 
 # <a id="a-mapped-on-creation"></a> Optimization: Mapped On Creation
 
-In the example above, and in most of the examples on this site we've used
+In the example above, and in most of the examples on this site, we've used
 `writeBuffer` to copy data into a vertex or index buffer. As a very minor
 optimization, for this particular case, when you create a buffer you can pass in
 `mappedAtCreation: true`. This has 2 benefits.
@@ -967,7 +970,7 @@ and one for texture coordinates. It's common to have 4 to 6 attributes where
 we'd have [tangents for normal mapping](webgpu-normal-mapping.html) and, if
 we had [a skinned model](webgpu-skinning.html), we'd add in weights and joints.
 
-In the example above each attribute is using its own buffer. This is slower both
+In the example above, each attribute is using its own buffer. This is slower both
 on the CPU and GPU. It's slower on the CPU in JavaScript because we need to call
 `setVertexBuffer` once for each buffer for each model we want to draw.
 
@@ -1265,7 +1268,7 @@ We need to create one global uniform buffer for the global uniforms.
       kViewWorldPositionOffset, kViewWorldPositionOffset + 3);
 ```
 
-Then we can removed these uniforms from our perObject uniform buffer and add the
+Then we can remove these uniforms from our perObject uniform buffer and add the
 global uniform buffer to each object's bind group.
 
 ```js
@@ -1951,14 +1954,20 @@ make new typedarray views after mapping.
   }
 ```
 
-At render time we have to loop through the objects twice. Once to update the
-mapped buffer and then again to draw each object. This is because, only after
-we've updated every object's values in the mapped buffer can we then unmap it
-and call `copyBufferToBuffer` to update the uniform buffer. `copyBufferToBuffer`
-only exists on the command encoder. It can not be called while we are encoding
-our render pass. At least not on the same command buffer, so we'll loop twice.
+At render time we encode a command to copy the transfer buffer
+to the uniform buffer *before* we start looping through the
+objects. This is because the `copyBufferToBuffer` command is
+a command on the `GPUCommandEncoder`. We need it to run before
+the objects are rendered but, as we loop over the object's we're
+encoding render pass commands to render them. Before, we called
+`device.queue.writeBuffer` after updating the typed arrays, which
+of course, executes first because we have no called `submit` yet
+on our commands. In this case though, our copy actually is a command
+so we have to encode it before the draw commands. This is fine because
+remember, it's just a command, it will not be executed until we
+submit the command buffer which means we can still update the transfer
+buffer as the copy has not yet happened.
 
-First we loop and update the mapped buffer
 
 ```js
     const encoder = device.createCommandEncoder();
@@ -1967,14 +1976,28 @@ First we loop and update the mapped buffer
 -    pass.setVertexBuffer(0, vertexBuffer);
 -    pass.setIndexBuffer(indicesBuffer, 'uint16');
 
+    ...
+
     let mathElapsedTimeMs = 0;
 
 +    const transferBuffer = getMappedTransferBuffer();
 +    const uniformValues = new Float32Array(transferBuffer.getMappedRange());
 
++    // copy the uniform values from the transfer buffer to the uniform buffer
++    if (settings.numObjects) {
++      // Remember, this is just encoding a command that will happen later.
++      const size = (settings.numObjects - 1) * uniformBufferSpace + uniformBufferSize;
++      encoder.copyBufferToBuffer(transferBuffer, 0, uniformBuffer, 0, size);
++    }
+
++    const pass = timingHelper.beginRenderPass(encoder, renderPassDescriptor);
++    pass.setPipeline(pipeline);
++    pass.setVertexBuffer(0, vertexBuffer);
++    pass.setIndexBuffer(indicesBuffer, 'uint16');
+
     for (let i = 0; i < settings.numObjects; ++i) {
       const {
--        bindGroup,
+        bindGroup,
 -        normalMatrixValue,
 -        worldValue,
         axis,
@@ -2005,32 +2028,22 @@ First we loop and update the mapped buffer
       mat3.fromMat4(mat4.transpose(mat4.inverse(worldValue)), normalMatrixValue);
 
       mathElapsedTimeMs += performance.now() - mathTimeStartMs;
+
+      pass.setBindGroup(0, bindGroup);
+      pass.drawIndexed(numVertices);
     }
 +    transferBuffer.unmap();
 
-    // copy the uniform values from the transfer buffer to the uniform buffer
-    if (settings.numObjects) {
-      const size = (settings.numObjects - 1) * uniformBufferSpace + uniformBufferSize;
+-    // upload all uniform values to the uniform buffer
+-    if (settings.numObjects) {
+-      const size = (settings.numObjects - 1) * uniformBufferSpace + uniformBufferSize;
 -      device.queue.writeBuffer( uniformBuffer, 0, uniformValues, 0, size / uniformValues.BYTES_PER_ELEMENT);
-+      encoder.copyBufferToBuffer(transferBuffer, 0, uniformBuffer, 0, size);
-    }
-```
-
-Then we loop and draw each object.
-
-```js
-+    const pass = timingHelper.beginRenderPass(encoder, renderPassDescriptor);
-+    pass.setPipeline(pipeline);
-+    pass.setVertexBuffer(0, vertexBuffer);
-+    pass.setIndexBuffer(indicesBuffer, 'uint16');
-+
-+    for (let i = 0; i < settings.numObjects; ++i) {
-+      const { bindGroup } = objectInfos[i];
-+      pass.setBindGroup(0, bindGroup);
-+      pass.drawIndexed(numVertices);
-+    }
+-    }
 
     pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
 ```
 
 Finally, as soon as we've submitted the command buffer we map the buffer again.
@@ -2048,8 +2061,8 @@ of already mapped buffers.
 +    });
 ```
 
-On my machine, this version draws around 13000 objects at 75fps. which is almost
-60% more than we started with.
+On my machine, this version draws around 15000 objects at 75fps. which is about
+87% more than we started with.
 
 {{{example url="../webgpu-optimization-step6-use-mapped-buffers.html"}}}
 
