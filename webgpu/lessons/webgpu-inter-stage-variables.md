@@ -168,7 +168,7 @@ function drawCircle({ ctx, position, radius }) {
 }
 
 // Return the index of an element in an array starting at position
-function findIndex{{ array, position, value }} {
+function findIndex({ array, position, value }) {
   return array.indexOf(value, position);
 }
 ```
@@ -176,7 +176,8 @@ function findIndex{{ array, position, value }} {
 Both of the functions above have a parameter called `position`. There is generally
 no confusion between the two. It's similar with vertex shaders and fragment shaders.
 They're builtins are different and unrelated, each of them just happen to have a
-`@builtin` named `position`.
+`@builtin` named `position` and when compiling each shader entry point, the WGSL
+code is read for that entry point alone.
 
 In a vertex shader `@builtin(position)` is the coordinate you provide as output that
 the GPU uses to draw triangles/lines/points.
