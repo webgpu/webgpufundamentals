@@ -907,7 +907,7 @@ might also take 200µs to 200 things but, another GPU might take 100µs to draw 
 had a relative difference of 0µs, the 2nd had a relative difference of 100µs
 even though both GPUs were asked to draw the same thing.
 
-<div class="webgpu_bottombar">By default the `'timestamp-query'` time values
+<div class="webgpu_bottombar">By default the <code>'timestamp-query'</code> time values
 are quantized to 100µ seconds. In Chrome, if you enable <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">"enable-webgpu-developer-features"</a> in <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">about:flags</a>, the time values may not be quantized. This would
 theoretically give you more accurate timings. That said, normally 100µ second quantized values should be enough for you to compare shaders techniques for performance.
 </div>

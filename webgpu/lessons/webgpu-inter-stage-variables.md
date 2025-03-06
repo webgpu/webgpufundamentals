@@ -152,14 +152,38 @@ it didn't have a location. Instead, it was declared as `@builtin(position)`.
 
 That field is **NOT** an inter-stage variable. Instead, it's a `builtin`. It
 happens that `@builtin(position)` has a different meaning in a vertex shader vs
-a fragment shader.
+a fragment shader. In fact a better way to think about is is vertex shaders
+and fragment shader are just 2 different functions that happen to have a parameter
+with the same name.
 
-In a vertex shader `@builtin(position)` is the output of a coordinate that the GPU uses to draw
-triangles/lines/points.
+Imagine we have 2 JavaScript functions
+
+```js
+// Draw a circle size radius, at position: [x, y]
+function drawCircle({ ctx, position, radius }) {
+  // from CanvasRenderingContext2D
+  ctx.beginPath();
+  ctx.arc(...position, radius, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// Return the index of an element in an array starting at position
+function findIndex{{ array, position, value }} {
+  return array.indexOf(value, position);
+}
+```
+
+Both of the functions above have a parameter called `position`. There is generally
+no confusion between the two. It's similar with vertex shaders and fragment shaders.
+They're builtins are different and unrelated, each of them just happen to have a
+`@builtin` named `position`.
+
+In a vertex shader `@builtin(position)` is the coordinate you provide as output that
+the GPU uses to draw triangles/lines/points.
 
 In a fragment shader, `@builtin(position)` is an input. It's the pixel coordinate
 of the pixel that the fragment shader is currently being asked to compute a color
-for.
+or value for.
 
 Pixel coordinates are specified by the edges of pixels. The values provided to
 the fragment shader are the coordinates of the center of the pixel.

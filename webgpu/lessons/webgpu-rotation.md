@@ -204,7 +204,7 @@ The position on the circle there is x = 0.87, y = 0.50
 
 That's exactly where we need it to be
 
-<img src="resources/rotation-drawing.svg" width="500" class="webgpu_center"/>
+<img src="resources/rotation-drawing.svg" width="500" class="webgpu_center" style="width: 1000px"/>
 
 The same for 60 degrees clockwise
 
