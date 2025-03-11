@@ -241,28 +241,29 @@ Here's the code
         label: 'mip gen encoder',
       });
 
-      let width = texture.width;
-      let height = texture.height;
-      let baseMipLevel = 0;
-      while (width > 1 || height > 1) {
-        width = Math.max(1, width / 2 | 0);
-        height = Math.max(1, height / 2 | 0);
-
+      for (let baseMipLevel = 1; baseMipLevel < texture.mipLevelCount; ++baseMipLevel) {
         const bindGroup = device.createBindGroup({
           layout: pipeline.getBindGroupLayout(0),
           entries: [
             { binding: 0, resource: sampler },
-            { binding: 1, resource: texture.createView({baseMipLevel, mipLevelCount: 1}) },
+            {
+              binding: 1,
+              resource: texture.createView({
+                baseMipLevel: baseMipLevel - 1,
+                mipLevelCount: 1,
+              }),
+            },
           ],
         });
-
-        ++baseMipLevel;
 
         const renderPassDescriptor = {
           label: 'our basic canvas renderPass',
           colorAttachments: [
             {
-              view: texture.createView({baseMipLevel, mipLevelCount: 1}),
+              view: texture.createView({
+                baseMipLevel,
+                mipLevelCount: 1,
+              }),
               loadOp: 'clear',
               storeOp: 'store',
             },
@@ -275,7 +276,6 @@ Here's the code
         pass.draw(6);  // call our vertex shader 6 times
         pass.end();
       }
-
       const commandBuffer = encoder.finish();
       device.queue.submit([commandBuffer]);
     };
@@ -333,28 +333,27 @@ What's changed
 
 * We finally use some parameters to `texture.createView`
 
-  We loop over each mip level. We create a bind group for the last mip with data in it
-  and we set the renderPassDescriptor to draw to the next mip level. Then we encode
+  We loop over each mip level that we need to generate. 
+  We create a bind group for the last mip with data in it
+  and we set the renderPassDescriptor to draw to the current mip level. Then we encode
   a renderPass for that specific mip level. When we're done. All the mips will have
   been filled out.
 
   ```js
-      let width = texture.width;
-      let height = texture.height;
-      let baseMipLevel = 0;
-      while (width > 1 || height > 1) {
-        width = Math.max(1, width / 2 | 0);
-        height = Math.max(1, height / 2 | 0);
-
+      for (let baseMipLevel = 1; baseMipLevel < texture.mipLevelCount; ++baseMipLevel) {
         const bindGroup = device.createBindGroup({
           layout: pipeline.getBindGroupLayout(0),
           entries: [
             { binding: 0, resource: sampler },
-  +          { binding: 1, resource: texture.createView({baseMipLevel, mipLevelCount: 1}) },
+  +          {
+  +            binding: 1,
+  +            resource: texture.createView({
+  +              baseMipLevel: baseMipLevel - 1,
+  +              mipLevelCount: 1,
+  +            }),
+  +          },
           ],
         });
-
-  +      ++baseMipLevel;
 
         const renderPassDescriptor = {
           label: 'our basic canvas renderPass',
@@ -377,6 +376,13 @@ What's changed
       const commandBuffer = encoder.finish();
       device.queue.submit([commandBuffer]);
   ```
+
+> Note: This function only handles 2d textures.
+> [The article on cubemaps](webgpu-cube-maps.html#a-texture-helpers)
+> covers how to expand this function to handle 2d-array textures and
+> cube maps.
+
+## <a id="a-texture-helpers"></a> Simple Image Loading Functions
 
 Let's create some support functions make it simple load an image
 into a texture and generate mips

@@ -236,28 +236,29 @@ WebGPU에서 우리는 노멀 맵이나 높이(height) 맵등 색상이 아닌 �
         label: 'mip gen encoder',
       });
 
-      let width = texture.width;
-      let height = texture.height;
-      let baseMipLevel = 0;
-      while (width > 1 || height > 1) {
-        width = Math.max(1, width / 2 | 0);
-        height = Math.max(1, height / 2 | 0);
-
+      for (let baseMipLevel = 1; baseMipLevel < texture.mipLevelCount; ++baseMipLevel) {
         const bindGroup = device.createBindGroup({
           layout: pipeline.getBindGroupLayout(0),
           entries: [
             { binding: 0, resource: sampler },
-            { binding: 1, resource: texture.createView({baseMipLevel, mipLevelCount: 1}) },
+            {
+              binding: 1,
+              resource: texture.createView({
+                baseMipLevel: baseMipLevel - 1,
+                mipLevelCount: 1,
+              }),
+            },
           ],
         });
-
-        ++baseMipLevel;
 
         const renderPassDescriptor = {
           label: 'our basic canvas renderPass',
           colorAttachments: [
             {
-              view: texture.createView({baseMipLevel, mipLevelCount: 1}),
+              view: texture.createView({
+                baseMipLevel,
+                mipLevelCount: 1,
+              }),
               loadOp: 'clear',
               storeOp: 'store',
             },
@@ -270,7 +271,6 @@ WebGPU에서 우리는 노멀 맵이나 높이(height) 맵등 색상이 아닌 �
         pass.draw(6);  // call our vertex shader 6 times
         pass.end();
       }
-
       const commandBuffer = encoder.finish();
       device.queue.submit([commandBuffer]);
     };
@@ -333,22 +333,20 @@ WebGPU에서 우리는 노멀 맵이나 높이(height) 맵등 색상이 아닌 �
   끝나면 모든 밉이 채워지게 됩니다.
 
   ```js
-      let width = texture.width;
-      let height = texture.height;
-      let baseMipLevel = 0;
-      while (width > 1 || height > 1) {
-        width = Math.max(1, width / 2 | 0);
-        height = Math.max(1, height / 2 | 0);
-
+      for (let baseMipLevel = 1; baseMipLevel < texture.mipLevelCount; ++baseMipLevel) {
         const bindGroup = device.createBindGroup({
           layout: pipeline.getBindGroupLayout(0),
           entries: [
             { binding: 0, resource: sampler },
-  +          { binding: 1, resource: texture.createView({baseMipLevel, mipLevelCount: 1}) },
+  +          {
+  +            binding: 1,
+  +            resource: texture.createView({
+  +              baseMipLevel: baseMipLevel - 1,
+  +              mipLevelCount: 1,
+  +            }),
+  +          },
           ],
         });
-
-  +      ++baseMipLevel;
 
         const renderPassDescriptor = {
           label: 'our basic canvas renderPass',

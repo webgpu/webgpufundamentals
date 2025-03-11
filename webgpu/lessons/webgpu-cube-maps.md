@@ -351,13 +351,7 @@ Now we need to update `generateMips` to handle multiple sources.
         label: 'mip gen encoder',
       });
 
-      let width = texture.width;
-      let height = texture.height;
-      let baseMipLevel = 0;
-      while (width > 1 || height > 1) {
-        width = Math.max(1, width / 2 | 0);
-        height = Math.max(1, height / 2 | 0);
-
+      for (let baseMipLevel = 1; baseMipLevel < texture.mipLevelCount; ++baseMipLevel) {
 +        for (let layer = 0; layer < texture.depthOrArrayLayers; ++layer) {
 *          const bindGroup = device.createBindGroup({
 *            layout: pipeline.getBindGroupLayout(0),
@@ -368,7 +362,7 @@ Now we need to update `generateMips` to handle multiple sources.
 +                binding: 1,
 +                resource: texture.createView({
 +                  dimension: '2d',
-+                  baseMipLevel,
++                  baseMipLevel: baseMipLevel - 1,
 +                  mipLevelCount: 1,
 +                  baseArrayLayer: layer,
 +                  arrayLayerCount: 1,
@@ -377,8 +371,6 @@ Now we need to update `generateMips` to handle multiple sources.
 *            ],
 *          });
 *
--        ++baseMipLevel;
-*
 *          const renderPassDescriptor = {
 *            label: 'our basic canvas renderPass',
 *            colorAttachments: [
@@ -386,7 +378,7 @@ Now we need to update `generateMips` to handle multiple sources.
 -                view: texture.createView({baseMipLevel, mipLevelCount: 1}),
 +                view: texture.createView({
 +                  dimension: '2d',
-+                  baseMipLevel: baseMipLevel + 1,
++                  baseMipLevel: baseMipLevel,
 +                  mipLevelCount: 1,
 +                  baseArrayLayer: layer,
 +                  arrayLayerCount: 1,
@@ -403,7 +395,6 @@ Now we need to update `generateMips` to handle multiple sources.
 *          pass.draw(6);  // call our vertex shader 6 times
 *          pass.end();
 +        }
-+        ++baseMipLevel;
 +      }
 
       const commandBuffer = encoder.finish();
@@ -417,6 +408,9 @@ We changed the views so they select a single layer. We also had to explicitly ch
 `dimension: '2d'` for our views because by default, a view of a 2d texture with more than
 1 layer gets the `dimension: '2d-array'` which for the purpose of generating
 mipmaps is not what we want.
+
+> Note: [The article on compatibility mode](webgpu-compatibility-mode.html) provides
+> a version of `generateMips` that works in compatibility mode.
 
 Although we won't use them here, our original `createTextureFromSource` and
 `copySourceToTexture` functions can easily be replaced with

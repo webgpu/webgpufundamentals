@@ -338,33 +338,24 @@ struct VSOutput {
         label: 'mip gen encoder',
       });
 
-      let width = texture.width;
-      let height = texture.height;
-      let baseMipLevel = 0;
-      while (width > 1 || height > 1) {
-        width = Math.max(1, width / 2 | 0);
-        height = Math.max(1, height / 2 | 0);
-
+      for (let baseMipLevel = 1; baseMipLevel < texture.mipLevelCount; ++baseMipLevel) {
 +        for (let layer = 0; layer < texture.depthOrArrayLayers; ++layer) {
 *          const bindGroup = device.createBindGroup({
 *            layout: pipeline.getBindGroupLayout(0),
 *            entries: [
 *              { binding: 0, resource: sampler },
--              { binding: 1, resource: texture.createView({baseMipLevel, mipLevelCount: 1}) },
-+              {
-+                binding: 1,
-+                resource: texture.createView({
+*              {
+*                binding: 1,
+*                resource: texture.createView({
 +                  dimension: '2d',
-+                  baseMipLevel,
-+                  mipLevelCount: 1,
+*                  baseMipLevel: baseMipLevel - 1,
+*                  mipLevelCount: 1,
 +                  baseArrayLayer: layer,
 +                  arrayLayerCount: 1,
-+                }),
+*                }),
 *              },
 *            ],
 *          });
-*
--        ++baseMipLevel;
 *
 *          const renderPassDescriptor = {
 *            label: 'our basic canvas renderPass',
@@ -373,7 +364,7 @@ struct VSOutput {
 -                view: texture.createView({baseMipLevel, mipLevelCount: 1}),
 +                view: texture.createView({
 +                  dimension: '2d',
-+                  baseMipLevel: baseMipLevel + 1,
++                  baseMipLevel: baseMipLevel,
 +                  mipLevelCount: 1,
 +                  baseArrayLayer: layer,
 +                  arrayLayerCount: 1,
@@ -390,7 +381,6 @@ struct VSOutput {
 *          pass.draw(6);  // call our vertex shader 6 times
 *          pass.end();
 +        }
-+        ++baseMipLevel;
 +      }
 
       const commandBuffer = encoder.finish();
