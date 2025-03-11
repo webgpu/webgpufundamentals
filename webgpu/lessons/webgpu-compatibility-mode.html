@@ -230,7 +230,927 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>TBD</p>
+      <p>WebGPU Compatibility mode is a version of WebGPU that,
+with some limits, can run on older devices. The idea is,
+if you can make your app run within some extra limits and
+restrictions then you can request a webgpu compatibility adapter
+and have your app run in more places.</p>
+<blockquote>
+<p>Note: Compatibility mode has not officially shipped. It may be available in
+your browser as an experiment. In, <a href="https://www.google.com/chrome/canary/">Chrome Canary</a>,
+as of version 136.0.7063.0
+(2025-03-11), you can allow compatibility mode by enabling the flag
+“enable-webgpu-developer-features” by going to
+<code class="notranslate" translate="no">chrome://flags/#enable-webgpu-developer-features</code>.</p>
+</blockquote>
+<p>To give some idea what what you can do in compatibility mode,
+effectively <em>nearly</em> all WebGL2 programs could be converted to
+run on compatibility mode.</p>
+<p>Here’s how you do it.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const adapter = await navigator.gpu.requestAdapter({
+  featureLevel: 'compatibility',
+});
+const device = await adapter.requestDevice();
+</pre>
+<p>Simple! Note that every app that follows all the
+limits of compatibility mode is a valid “core”
+webgpu app and will run anywhere WebGPU is already
+running.</p>
+<h1 id="major-limits-and-restrictions">Major limits and restrictions</h1>
+<h2 id="possibly-0-storage-buffers-in-vertex-shaders">Possibly 0 storage buffers in vertex shaders.</h2>
+<p>The major restriction that is most likely to affect WebGPU apps is that ~45%
+of these old devices do not support storage buffers in vertex shaders.</p>
+<p>We used this feature in <a href="webgpu-storage-buffers.html">the article on storage buffers</a>
+which is the 3nd article on this site. After that article we
+<a href="webgpu-vertex-buffers.html">switched to using vertex buffers</a>.
+Using vertex buffers is common and works everywhere but certain solutions are easier
+with storage buffers. One example is
+<a href="https://webgpu.github.io/webgpu-samples/?sample=wireframe">this example of drawing wireframes</a>. It uses storage buffers to generate triangles from vertex data.</p>
+<p>With vertex data stored in storage buffers we can randomly access the vertex
+data. With the vertex data in vertex buffer we can not. Of course there are
+always other solutions.</p>
+<h2 id="medium-limits-and-restrictions">Medium limits and restrictions</h2>
+<h2 id="only-a-single-viewdimension-is-allowed-for-a-texture">Only a single viewDimension is allowed for a texture.</h2>
+<p>In normal WebGPU you can make a 2d texture like this</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const myTexture = device.createTexture({
+  size: [width, height, 6],
+  usage: ...
+  format: ...
+});
+</pre>
+<p>You can then view it 3 different view dimensions</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// a view of myTexture as a 2d array with 6 layers
+const as2DArray = myTexture.createView();
+
+// view layer 3 of myTexture as a 2d texture
+const as2D = myTexture.createView({
+  viewDimension: '2d',
+  baseArrayLayer: 3,
+  arrayLayerCount: 1,
+});
+
+// view of myTexture as a cubemap
+const asCube = myTexture.createView({
+  viewDimension: 'cube',
+});
+</pre>
+<p>In compatibility mode you can only use one view dimension and you have to
+choose which viewDimension when you create the texture. A 2D texture with
+1 layer defaults to only being usable as a <code class="notranslate" translate="no">'2d'</code> view. A 2D texture with
+more than 1 layer defaults to only being usable as a <code class="notranslate" translate="no">'2d-array</code>’ view.
+If you want something other than the default you must tell WebGPU. For example,
+If you want a cube map then you must tell WebGPU when you create the texture.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const cubeTexture = device.createTexture({
+  size: [width, height, 6],
+  usage: ...
+  format: ...
+  textureBindingViewDimension: 'cube', 
+});
+</pre>
+<p>Note, this extra parameter is called <code class="notranslate" translate="no">textureBindingViewDimension</code> because
+it relates to using the texture with usage <code class="notranslate" translate="no">TEXTURE_BINDING</code>. You can still
+use a single layer of a cubemap or 2d-array as a 2d texture as a <code class="notranslate" translate="no">RENDER_ATTACHMENT</code>.</p>
+<p>In compatibility mode, using the the texture with another type of view will
+generate a validation error</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// a view of cubeTexture as a 2d array with 6 layers
+const bindGroup = device.createBindGroup({
+  ...
+  entries: [
+    {
+      binding,
+      // ERROR in compatibility mode: texture is a cubemap not a 2d-array
+      resource: cubeTexture.createView(),
+    },
+  ],
+})
+</pre>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// view layer 3 of cubeTexture as a 2d texture
+const bindGroup = device.createBindGroup({
+  ...
+  entries: [
+    {
+      binding,
+      // ERROR in compatibility mode: texture is a cubemap not 2d
+      resource: cubeTexture.createView({
+        viewDimension: '2d',
+        baseArrayLayer: 3,
+        arrayLayerCount: 1,
+      }),
+    },
+  ]
+});
+</pre>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">// view of cubeTexture as a cubemap
+const bindGroup = device.createBindGroup({
+  ...
+  entries: [
+    {
+      binding,
+      // GOOD!
+      resource: cubeTexture.createView({
+        viewDimension: 'cube',
+      }),
+    },
+  ],
+});
+</pre>
+<p>This restriction is not that big of a deal.
+Few programs want to use a texture with different kinds of views.</p>
+<h2 id="when-calling-texturecreateview-you-can-not-select-a-subset-of-layers-in-a-bindgroup">When calling <code class="notranslate" translate="no">texture.createView</code> you can not select a subset of layers in a bindGroup</h2>
+<p>In core WebGPU we can create a texture with some layers</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const texture = device.createTexture({
+  size: [64, 128, 8],   // 8 layers,
+  ...
+});
+</pre>
+<p>We can then select a subset of layers</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const bindGroup = device.createBindGroup({
+  ...
+  entries: [
+    {
+      binding,
+      // ERROR  in compatibility mode - select layers 3 and 4
+      resource: cubeTexture.createView({
+        baseArrayLayer: 3,
+        arrayLayerCount: 2,
+      }),
+    },
+  ],
+});
+</pre>
+<p>This restriction is also not that big of a deal. Few programs
+want to select a subset of layers from a texture.</p>
+<h2 id="generating-mipmaps-in-compatibility-mode"><a id="a-generating-mipmaps"></a> Generating Mipmaps in compatibility mode.</h2>
+<p>There is one place though both of these restrictions comes up and that is when generating
+mipmaps, which is a common use-case.</p>
+<p>Recall that we made a gpu based mipmap generator in
+<a href="webgpu-importing-textures.html#a-generating-mips-on-the-gpu">the article in importing images into textures</a>.
+We modified that function to generate mipmaps for 2d-array and cubemaps in
+<a href="webgpu-cube-maps.html#a-texture-helpers">the article on cube maps</a>. In that version
+we always view each layer of the texture with a <code class="notranslate" translate="no">'2d'</code> dimension to reference
+just one layer of the texture.
+This won’t work in compatibility mode for the reasons above. We can’t use a <code class="notranslate" translate="no">'2d'</code>
+view of <code class="notranslate" translate="no">'2d-array'</code> or <code class="notranslate" translate="no">'cube'</code> texture. We also can not select individual layers
+in a bind group to select which layer to read from.</p>
+<p>To make the the code work in compatibility mode we have to work with textures
+with the same view dimension they were created with and we need to pass in the texture
+with access to all layers and select the layer we want in the shader itself, rather
+than selecting the layer via <code class="notranslate" translate="no">createView</code> as we were doing.</p>
+<p>So let’s do that! We’ll start with the code for <code class="notranslate" translate="no">generateMips</code> from <a href="webgpu-cube-maps.html#a-texture-helpers">the article on cubemaps</a>.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const generateMips = (() =&gt; {
+    let sampler;
+    let module;
+    const pipelineByFormat = {};
+
+    return function generateMips(device, texture) {
+      if (!module) {
+        module = device.createShaderModule({
+          label: 'textured quad shaders for mip level generation',
+          code: `
+            struct VSOutput {
+              @builtin(position) position: vec4f,
+              @location(0) texcoord: vec2f,
+            };
+
+            @vertex fn vs(
+              @builtin(vertex_index) vertexIndex : u32
+            ) -&gt; VSOutput {
+              let pos = array(
+
+                vec2f( 0.0,  0.0),  // center
+                vec2f( 1.0,  0.0),  // right, center
+                vec2f( 0.0,  1.0),  // center, top
+
+                // 2st triangle
+                vec2f( 0.0,  1.0),  // center, top
+                vec2f( 1.0,  0.0),  // right, center
+                vec2f( 1.0,  1.0),  // right, top
+              );
+
+              var vsOutput: VSOutput;
+              let xy = pos[vertexIndex];
+              vsOutput.position = vec4f(xy * 2.0 - 1.0, 0.0, 1.0);
+              vsOutput.texcoord = vec2f(xy.x, 1.0 - xy.y);
+              return vsOutput;
+            }
+
+            @group(0) @binding(0) var ourSampler: sampler;
+            @group(0) @binding(1) var ourTexture: texture_2d&lt;f32&gt;;
+
+            @fragment fn fs(fsInput: VSOutput) -&gt; @location(0) vec4f {
+              return textureSample(ourTexture, ourSampler, fsInput.texcoord);
+            }
+          `,
+        });
+
+        sampler = device.createSampler({
+          minFilter: 'linear',
+          magFilter: 'linear',
+        });
+      }
+
+      if (!pipelineByFormat[texture.format]) {
+        pipelineByFormat[texture.format] = device.createRenderPipeline({
+          label: 'mip level generator pipeline',
+          layout: 'auto',
+          vertex: {
+            module,
+          },
+          fragment: {
+            module,
+            targets: [{ format: texture.format }],
+          },
+        });
+      }
+      const pipeline = pipelineByFormat[texture.format];
+
+      const encoder = device.createCommandEncoder({
+        label: 'mip gen encoder',
+      });
+
+      for (let baseMipLevel = 1; baseMipLevel &lt; texture.mipLevelCount; ++baseMipLevel) {
+        for (let layer = 0; layer &lt; texture.depthOrArrayLayers; ++layer) {
+          const bindGroup = device.createBindGroup({
+            layout: pipeline.getBindGroupLayout(0),
+            entries: [
+              { binding: 0, resource: sampler },
+              {
+                binding: 1,
+                resource: texture.createView({
+                  dimension: '2d',
+                  baseMipLevel: baseMipLevel - 1,
+                  mipLevelCount: 1,
+                  baseArrayLayer: layer,
+                  arrayLayerCount: 1,
+                }),
+              },
+            ],
+          });
+
+          const renderPassDescriptor = {
+            label: 'our basic canvas renderPass',
+            colorAttachments: [
+              {
+                view: texture.createView({
+                  dimension: '2d',
+                  baseMipLevel: baseMipLevel,
+                  mipLevelCount: 1,
+                  baseArrayLayer: layer,
+                  arrayLayerCount: 1,
+                }),
+                loadOp: 'clear',
+                storeOp: 'store',
+              },
+            ],
+          };
+
+          const pass = encoder.beginRenderPass(renderPassDescriptor);
+          pass.setPipeline(pipeline);
+          pass.setBindGroup(0, bindGroup);
+          pass.draw(6);  // call our vertex shader 6 times
+          pass.end();
+        }
+      }
+
+      const commandBuffer = encoder.finish();
+      device.queue.submit([commandBuffer]);
+    };
+  })();
+</pre>
+<p>We need to change the code so for each type of texture (2d, 2d-array, cube, etc…) we
+generate a different shader and we need to be able to pass in a layer to read from.
+So, let’s make a function that returns a shader for a given view dimension</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function getMipmapGenerationWGSL(textureBindingViewDimension) {
+    let textureSnippet;
+    let sampleSnippet;
+    switch (textureBindingViewDimension) {
+      case '2d':
+        textureSnippet = 'texture_2d&lt;f32&gt;';
+        sampleSnippet = 'textureSample(ourTexture, ourSampler, fsInput.texcoord)';
+        break;
+      case '2d-array':
+        textureSnippet = 'texture_2d_array&lt;f32&gt;';
+        sampleSnippet = `
+          textureSample(
+              ourTexture,
+              ourSampler,
+              fsInput.texcoord,
+              fsInput.baseArrayLayer)`;
+        break;
+      case 'cube':
+        textureSnippet = 'texture_cube&lt;f32&gt;';
+        sampleSnippet = `
+          textureSample(
+              ourTexture,
+              ourSampler,
+              faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1))`;
+        break;
+      case 'cube-array':
+        textureSnippet = 'texture_cube_array&lt;f32&gt;';
+        sampleSnippet = `
+          textureSample(
+              ourTexture,
+              ourSampler,
+              faceMat[uni.layer] * vec3f(fract(fsInput.texcoord), 1), fsInput.baseArrayLayer)`;
+        break;
+      default:
+        throw new Error(`unsupported view: ${textureBindingViewDimension}`);
+    }
+    return `
+        const faceMat = array(
+          mat3x3f( 0,  0,  -2,  0, -2,   0,  1,  1,   1),   // pos-x
+          mat3x3f( 0,  0,   2,  0, -2,   0, -1,  1,  -1),   // neg-x
+          mat3x3f( 2,  0,   0,  0,  0,   2, -1,  1,  -1),   // pos-y
+          mat3x3f( 2,  0,   0,  0,  0,  -2, -1, -1,   1),   // neg-y
+          mat3x3f( 2,  0,   0,  0, -2,   0, -1,  1,   1),   // pos-z
+          mat3x3f(-2,  0,   0,  0, -2,   0,  1,  1,  -1));  // neg-z
+
+        struct VSOutput {
+          @builtin(position) position: vec4f,
+          @location(0) texcoord: vec2f,
+          @location(1) @interpolate(flat, either) baseArrayLayer: u32,
+        };
+
+        @vertex fn vs(
+          @builtin(vertex_index) vertexIndex : u32,
+          @builtin(instance_index) baseArrayLayer: u32,
+        ) -&gt; VSOutput {
+          var pos = array&lt;vec2f, 3&gt;(
+            vec2f(-1.0, -1.0),
+            vec2f(-1.0,  3.0),
+            vec2f( 3.0, -1.0),
+          );
+
+          var vsOutput: VSOutput;
+          let xy = pos[vertexIndex];
+          vsOutput.position = vec4f(xy, 0.0, 1.0);
+          vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
+          vsOutput.baseArrayLayer = baseArrayLayer;
+          return vsOutput;
+        }
+
+        struct Uniforms {
+          layer: u32,
+        };
+
+        @group(0) @binding(0) var ourSampler: sampler;
+        @group(0) @binding(1) var ourTexture: ${textureSnippet};
+
+        @fragment fn fs(fsInput: VSOutput) -&gt; @location(0) vec4f {
+          return ${sampleSnippet};
+        }
+      `;
+  }
+</pre>
+<p>This function returns 1 of 4 possible shaders, one for each of <code class="notranslate" translate="no">'2d'</code>, <code class="notranslate" translate="no">'2d-array'</code>, <code class="notranslate" translate="no">'cube'</code>, and <code class="notranslate" translate="no">'cube-array'</code>.
+It uses the <a href="webgpu-large-triangle-to-cover-clip-space.html">large triangle to cover clip space</a> technique
+<a href="webgpu-large-triangle-to-cover-clip-space.html">covered elsewhere</a> to draw.
+It also uses <code class="notranslate" translate="no">@builtin(instance_index)</code> to select the layer. This is an interesting and quick way
+to pass in a single integer value to a shader without having to use a uniform buffer.
+When we call <code class="notranslate" translate="no">draw</code>, the 4th parameter is the first instance which will be passed
+to the shader as <code class="notranslate" translate="no">@builtin(instance_index)</code>. We pass that from the vertex shader to fragment
+shader via <code class="notranslate" translate="no">VSOutput.baseArrayLayer</code> which we can reference has <code class="notranslate" translate="no">fsInput.baseArrayLayer</code>
+in the fragment shader.</p>
+<p>The cubemap code converts a 2d-array layer and normalized UV coordinate into a
+cubemap 3d coordinate. We need this because again, in compatibility mode, a cubemap
+can only be viewed as a cubemap.</p>
+<p>We’ll need to let the user pass in the viewDimension they used when they created
+the texture so that we can select one of these shaders. If they don’t pass it
+in we’ll guess from the defaults.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  /**
+  * Given a texture, guess the textureBindingViewDimension
+  * Note: It's only a guess. The user needs to tell us to be
+  * correct in all cases because we can't distinguish between
+  * a 2d texture and a 2d-array texture with 1 layer, nor can
+  * we distinguish between a 2d-array texture with 6 layers and
+  * a cubemap.
+  * @param {GPUTexture} texture
+  */
+  function guessTextureBindingViewDimensionForTexture(texture) {
+   switch (texture.dimension) {
+      case '1d':
+        return '1d';
+      case '2d':
+        return texture.depthOrArrayLayers &gt; 1 ? '2d-array' : '2d';
+      case '3d':
+        return '3d';
+      default:
+        return '';
+    }
+  }
+
+  const generateMips = (() =&gt; {
+    let sampler;
+    let module;
+    const pipelineByFormat = {};
+
+-    return function generateMips(device, texture) {
++    return function generateMips(device, texture, textureBindingViewDimension) {
++      // If the user doesn't pass in a textureBindingViewDimension then guess
++      textureBindingViewDimension = textureBindingViewDimension ??
++        guessTextureBindingViewDimensionForTexture(texture);
+      ...
+</pre>
+<p>The old code had one shader module it kept track of. If the shader module didn’t exist
+it created it. With our change we’ll need to track a module per view dimension</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const generateMips = (() =&gt; {
+    let sampler;
+-    let module;
++    const moduleByViewDimension = {};
+    const pipelineByFormat = {};
+
+    return function generateMips(device, texture, textureBindingViewDimension) {
+      // If the user doesn't pass in a textureBindingViewDimension then guess
+      textureBindingViewDimension = textureBindingViewDimension ??
+        guessTextureBindingViewDimensionForTexture(texture);
+-      if (!module) {
+-        module = device.createShaderModule({
+-          label: 'textured quad shaders for mip level generation',
+-          code: `
+-            ...
+-          `,
+-        });
+-
+-        sampler = device.createSampler({
+-          minFilter: 'linear',
+-          magFilter: 'linear',
+-        });
+-      }
++      let module = moduleByViewDimension[textureBindingViewDimension];
++      if (!module) {
++        const code = getMipmapGenerationWGSL(textureBindingViewDimension);
++        module = device.createShaderModule({
++          label: `mip level generation for ${textureBindingViewDimension}`,
++          code,
++        });
++        moduleByViewDimension[textureBindingViewDimension] = module;
++      }
++
++      if (!sampler) {
++        sampler = device.createSampler({
++          minFilter: 'linear',
++          magFilter: 'linear',
++        });
++      }
+
+    ...
+</pre>
+<p>Before we also tracked a pipeline per format so we could reuse the pipeline for
+textures of the same format. We need to update that to be a pipeline per format
+per viewDimension.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const generateMips = (() =&gt; {
+    let sampler;
+    const moduleByViewDimension = {};
+-    const pipelineByFormat = {};
++    const pipelineByFormatAndView = {};
+
+    return function generateMips(device, texture, textureBindingViewDimension) {
+      // If the user doesn't pass in a textureBindingViewDimension then guess
+      textureBindingViewDimension = textureBindingViewDimension ??
+        guessTextureBindingViewDimensionForTexture(texture);
+      let module = moduleByViewDimension[textureBindingViewDimension];
+      if (!module) {
+        const code = getMipmapGenerationWGSL(textureBindingViewDimension);
+        module = device.createShaderModule({
+          label: `mip level generation for ${textureBindingViewDimension}`,
+          code,
+        });
+        moduleByViewDimension[textureBindingViewDimension] = module;
+      }
+
+      if (!sampler) {
+        sampler = device.createSampler({
+          minFilter: 'linear',
+          magFilter: 'linear',
+        });
+      }
+
++      const id = `${texture.format}.${textureBindingViewDimension}`;
+
+-      if (!pipelineByFormat[texture.format]) {
+-        pipelineByFormat[texture.format] = device.createRenderPipeline({
+-          label: 'mip level generator pipeline',
++      if (!pipelineByFormatAndView[id]) {
++        pipelineByFormatAndView[id] = device.createRenderPipeline({
++          label: `mip level generator pipeline for ${textureBindingViewDimension}, format: ${texture.format}`,
+          layout: 'auto',
+          vertex: {
+            module,
+          },
+          fragment: {
+            module,
+            targets: [{ format: texture.format }],
+          },
+        });
+      }
+-      const pipeline = pipelineByFormat[texture.format];
++      const pipeline = pipelineByFormatAndView[id];
+
+      ...
+}
+</pre>
+<p>Then our loop to generate the mipmap needs to change to use the full layers, since
+compatibility mode does not allow a sub-range of layers. We also need to use
+our ability to pass in the instance index via draw to select the layer we want to read from.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const generateMips = (() =&gt; {
+
+      ...
+
+      const pipeline = pipelineByFormatAndView[id];
+
+      for (let baseMipLevel = 1; baseMipLevel &lt; texture.mipLevelCount; ++baseMipLevel) {
+        for (let layer = 0; layer &lt; texture.depthOrArrayLayers; ++layer) {
+          const bindGroup = device.createBindGroup({
+            layout: pipeline.getBindGroupLayout(0),
+            entries: [
+              { binding: 0, resource: sampler },
+              {
+                binding: 1,
+                resource: texture.createView({
+-                  dimension: '2d',
++                  dimension: textureBindingViewDimension,
+                  baseMipLevel: baseMipLevel - 1,
+                  mipLevelCount: 1,
+-                  baseArrayLayer: layer,
+-                  arrayLayerCount: 1,
+                }),
+              },
+            ],
+          });
+
+          const renderPassDescriptor = {
+            label: 'our basic canvas renderPass',
+            colorAttachments: [
+              {
+                view: texture.createView({
+                  dimension: '2d',
+                  baseMipLevel,
+                  mipLevelCount: 1,
+                  baseArrayLayer: layer,
+                  arrayLayerCount: 1,
+                }),
+                loadOp: 'clear',
+                storeOp: 'store',
+              },
+            ],
+          };
+
+          const pass = encoder.beginRenderPass(renderPassDescriptor);
+          pass.setPipeline(pipeline);
+          pass.setBindGroup(0, bindGroup);
+-          pass.draw(6);
++          // draw 3 vertices, 1 instance, first instance (instance_index) = layer
++          pass.draw(3, 1, 0, layer);
+          pass.end();
+        }
+      }
+
+      const commandBuffer = encoder.finish();
+      device.queue.submit([commandBuffer]);
+    };
+  })();
+</pre>
+<p>With that our mipmap generation code works in compatibility mode, and it still
+works in core WebGPU just fine.</p>
+<p>We have a few other things we need to update to make the example work though.</p>
+<p>We have a function <code class="notranslate" translate="no">createTextureFromSources</code> that we pass sources
+to and it creates a texture. It was always creating a <code class="notranslate" translate="no">'2d'</code> texture
+since in core we can view a <code class="notranslate" translate="no">'2d'</code> texture with 6 layers as a cubemap.
+Instead, we need to make it so we can pass in a viewDimension and/or
+a dimension so that when we create the texture we can tell compatibility
+mode how we will view it.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  function textureViewDimensionToDimension(viewDimension) {
++   switch (viewDimension) {
++      case '1d':
++        return '1d';
++      case '3d':
++        return '3d';
++      case '2d':
++      case '2d-array':
++      case 'cube':
++      case 'cube-array':
++      default:
++        return '2d';
++    }
++  }
+
+  function createTextureFromSources(device, sources, options = {}) {
++    const viewDimension = options.viewDimension ??
++      guessTextureBindingViewDimensionForTexture(options.dimension, sources.length);
++    const dimension = options.dimension ?? textureViewDimensionToDimension(viewDimension);
+    // Assume are sources all the same size so just use the first one for width and height
+    const source = sources[0];
+    const texture = device.createTexture({
+      format: 'rgba8unorm',
+      mipLevelCount: options.mips ? numMipLevels(source.width, source.height) : 1,
+      size: [source.width, source.height, sources.length],
+      usage: GPUTextureUsage.TEXTURE_BINDING |
+             GPUTextureUsage.COPY_DST |
+             GPUTextureUsage.RENDER_ATTACHMENT,
++      dimension,
++      textureBindingViewDimension: viewDimension,
+    });
+    copySourcesToTexture(device, texture, sources, options);
+    return texture;
+  }
+</pre>
+<p>We also need to update <code class="notranslate" translate="no">copySourcesToTexture</code> to get the <code class="notranslate" translate="no">viewDimension</code> and
+pass it to <code class="notranslate" translate="no">generateMips</code>.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function copySourcesToTexture(device, texture, sources, {flipY, viewDimension, dimension} = {}) {
+    sources.forEach((source, layer) =&gt; {
+      device.queue.copyExternalImageToTexture(
+        { source, flipY, },
+        { texture, origin: [0, 0, layer] },
+        { width: source.width, height: source.height },
+      );
+    });
+    if (texture.mipLevelCount &gt; 1) {
++      viewDimension = viewDimension ??
++        guessTextureBindingViewDimensionForTexture(dimension, sources.length);
++      generateMips(device, texture, viewDimension);
+-      generateMips(device, texture);
+    }
+  }
+</pre>
+<p>And, we need to update our call to <code class="notranslate" translate="no">createTextureFromSources</code> to tell it in advance
+that we want a cubemap.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const texture = await createTextureFromSources(
+-      device, faceCanvases, {mips: true, flipY: false});
++      device, faceCanvases, {mips: true, flipY: false, viewDimension: 'cube'});
+</pre>
+<p>To make the example run in compatibility mode we need to request it like we covered
+at the top of this article.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
+-  const adapter = await navigator.gpu?.requestAdapter()
++  const adapter = await navigator.gpu?.requestAdapter({
++    featureLevel: 'compatibility',
++  });
+  const device = await adapter?.requestDevice();
+
+  ...
+</pre>
+<p>And with that, our cube map sample works in compatibility mode.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-compatibility-mode-generatemips.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-compatibility-mode-generatemips.html" target="_blank">click here to open in a separate window</a>
+</div>
+
+<p></p>
+<p>You now have a compatibility mode friendly <code class="notranslate" translate="no">generateMips</code> which you could
+use in any of the examples on this site. It works on both core and compatibility mode.</p>
+<h1 id="minor-limits-and-restrictions">Minor limits and restrictions</h1>
+<p>The following are limits and restrictions <em>most</em> programs are unlikely to
+run into</p>
+<ul>
+<li>
+<h2 id="color-blending-must-match-on-all-color-targets">Color blending must match on all color targets.</h2>
+<p>In core, when you create a render pipeline, each color target
+can specify blending settings. We used blending settings in
+<a href="webgpu-transparency.html">the article on blending and transparency</a>.
+In compatibility mode, all the settings across all color targets
+in a single pipeline must be the same.</p>
+</li>
+<li>
+<h2 id="copytexturetobuffer-and-copytexturetotexture-do-not-work-with-compressed-textures"><code class="notranslate" translate="no">copyTextureToBuffer</code> and <code class="notranslate" translate="no">copyTextureToTexture</code> do not work with compressed textures</h2>
+</li>
+<li>
+<h2 id="copytexturetotexture-does-not-work-with-multisampled-textures"><code class="notranslate" translate="no">copyTextureToTexture</code> does not work with multisampled textures</h2>
+</li>
+<li>
+<h2 id="cube-array-is-not-supported"><code class="notranslate" translate="no">cube-array</code> is not supported</h2>
+</li>
+<li>
+<h2 id="views-of-a-textures-may-not-differ-in-aspect-or-mip-levels-in-a-single-drawdispatch-call">views of a textures may not differ in aspect or mip levels in a single draw/dispatch call.</h2>
+<p>In core WebGPU you can make multiple texture views of a texture to different mip
+levels AND use them in the same draw call. This is uncommon. Note that this
+restriction is on <code class="notranslate" translate="no">TEXTURE_BINDING</code> usage, using a texture via a bindGroup. You
+can still use a different view as a <code class="notranslate" translate="no">RENDER_ATTACHMENT</code> as we did in the mipmap generation
+code above.</p>
+</li>
+<li>
+<h2 id="builtinsample_mask-and-builtinsample_index-are-not-supported"><code class="notranslate" translate="no">@builtin(sample_mask)</code> and <code class="notranslate" translate="no">@builtin(sample_index)</code> are not supported</h2>
+</li>
+<li>
+<h2 id="rg32uint-rg32sint-and-rg32float-texture-formats-can-not-be-used-as-storage-textures"><code class="notranslate" translate="no">rg32uint</code>, <code class="notranslate" translate="no">rg32sint</code> and <code class="notranslate" translate="no">rg32float</code> texture formats can not be used as storage textures.</h2>
+</li>
+<li>
+<h2 id="depthclampbias-must-be-0"><code class="notranslate" translate="no">depthClampBias</code> must be 0</h2>
+<p>This is a setting when creating a render pipeline.</p>
+</li>
+<li>
+<h2 id="interpolationlinear-and-interpolation-sample-are-not-supported"><code class="notranslate" translate="no">@interpolation(linear)</code> and <code class="notranslate" translate="no">@interpolation(..., sample)</code> are not supported</h2>
+<p>These were briefly mentioned in <a href="webgpu-inter-stage-variables.html#a-interpolate">the article on inter-stage variables</a>.</p>
+</li>
+<li>
+<h2 id="interpolateflat-and-interpolateflat-first-are-not-supported"><code class="notranslate" translate="no">@interpolate(flat)</code> and <code class="notranslate" translate="no">@interpolate(flat, first)</code> are not supported</h2>
+<p>In compatibility mode you must use <code class="notranslate" translate="no">@interpolate(flat, either)</code> when you want
+flat interpolation. <code class="notranslate" translate="no">either</code> means the value passed to the fragment shader
+could be the value from either the first or last vertex of the triangle or line
+being drawn.</p>
+<p>It is common for this not to matter. The most common use cases for passing something
+with flat interpolation from the vertex shader to the fragment shader are usually
+per model, per material, or per instance types of values. For example the mipmap
+generation code above used flat interpolation above to pass the <code class="notranslate" translate="no">instance_index</code>
+to the fragment shader. It will be the same for all vertices of a triangle and
+so works just fine with <code class="notranslate" translate="no">@interpolate(flat, either)</code></p>
+</li>
+<li>
+<h2 id="texture-formats-can-not-be-reinterpreted">Texture formats can not be reinterpreted</h2>
+<p>In core WebGPU you can create an <code class="notranslate" translate="no">'rgba8unorm'</code> texture and view it as an <code class="notranslate" translate="no">'rgba8unorm-srgb'</code>
+texture and visa-versa as well as other <code class="notranslate" translate="no">'-srgb'</code> formats and their corresponding non <code class="notranslate" translate="no">'-srgb'</code>
+formats. Compatibility mode does not allow this. Whatever format you create the texture
+is the only format it can be used as.</p>
+</li>
+<li>
+<h2 id="bgra8unorm-srgb-is-not-supported"><code class="notranslate" translate="no">bgra8unorm-srgb</code> is not supported.</h2>
+</li>
+<li>
+<h2 id="rgba16float-and-r32float-textures-can-not-be-multisampled"><code class="notranslate" translate="no">rgba16float</code> and <code class="notranslate" translate="no">r32float</code> textures can not be multisampled.</h2>
+</li>
+<li>
+<h2 id="all-integer-texture-formats-can-not-be-multisampled">All integer texture formats can not be multisampled.</h2>
+</li>
+<li>
+<h2 id="depthorarraylayers-must-be-compatible-with-texturebindingviewdimension"><code class="notranslate" translate="no">depthOrArrayLayers</code> must be compatible with <code class="notranslate" translate="no">textureBindingViewDimension</code></h2>
+<p>This means a texture marked with <code class="notranslate" translate="no">textureBindingViewDimension: '2d'</code> must
+have a <code class="notranslate" translate="no">depthOrArrayLayers: 1</code> (the default). A texture marked with <code class="notranslate" translate="no">textureBindingViewDimension: 'cube'</code>
+most have <code class="notranslate" translate="no">depthOrArrayLayers: 6</code>.</p>
+</li>
+<li>
+<h2 id="textureload-does-not-work-with-depth-textures"><code class="notranslate" translate="no">textureLoad</code> does not work with depth textures.</h2>
+<p>A “depth texture” is a texture referenced in WGSL with <code class="notranslate" translate="no">texture_depth</code>,
+<code class="notranslate" translate="no">texture_depth_2d_array</code>, or <code class="notranslate" translate="no">texture_depth_cube</code>. Those can not be used with
+<code class="notranslate" translate="no">textureLoad</code> in compatibility mode.ß</p>
+<p>On the other hand, <code class="notranslate" translate="no">textureLoad</code> can be used with <code class="notranslate" translate="no">texture_2d&lt;f32&gt;</code>, <code class="notranslate" translate="no">texture_2d_array&lt;f32&gt;</code> and
+<code class="notranslate" translate="no">texture_cube&lt;f32&gt;</code> and a texture that has a depth format can be bound to these bindings…</p>
+</li>
+<li>
+<h2 id="depth-textures-can-not-be-used-with-non-comparison-samplers">depth textures can not be used with non-comparison samplers.</h2>
+<p>Again, a “depth texture” is a texture referenced in WGSL with <code class="notranslate" translate="no">texture_depth</code>,
+<code class="notranslate" translate="no">texture_depth_2d_array</code>, or <code class="notranslate" translate="no">texture_depth_cube</code>. Those can not be used
+with a non-comparison sampler in compatibility mode.</p>
+<p>This effectively means <code class="notranslate" translate="no">texture_depth</code>, <code class="notranslate" translate="no">texture_depth_2d_array</code>, and <code class="notranslate" translate="no">texture_depth_cube</code>
+can only be used with <code class="notranslate" translate="no">textureSampleCompare</code>, <code class="notranslate" translate="no">textureSampleCompareLevel</code> and <code class="notranslate" translate="no">textureGatherCompare</code>
+in compatibility mode.</p>
+<p>On the other hand, you can bind a texture that uses a depth format to a <code class="notranslate" translate="no">texture_2d&lt;f32&gt;</code>, <code class="notranslate" translate="no">texture_2d_array&lt;f32&gt;</code> and <code class="notranslate" translate="no">texture_cube&lt;f32&gt;</code> binding,
+subject to the normal restriction that it must use a non-filtering sampler.</p>
+</li>
+<li>
+<h2 id="the-combinations-of-texture--sampler-are-more-limited">The combinations of texture + sampler are more limited</h2>
+<p>In core you can bind 16+ textures and 16+ samplers and then in your shader
+you can use all 256+ combinations.</p>
+<p>In compatibility mode you can only use 16 total combinations in a single stage.</p>
+<p>The actual rule is a little more complicated. Here it is spelled out in pseudo code.</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">maxCombinationsPerStage =
+   min(device.limits.maxSampledTexturesPerShaderStage, device.limits.maxSamplersPerShaderStage)
+for each stage of the pipeline:
+  sum = 0
+  for each texture binding in the pipeline layout which is visible to that stage:
+    sum += max(1, number of texture sampler combos for that texture binding)
+  for each external texture binding in the pipeline layout which is visible to that stage:
+    sum += 1 // for LUT texture + LUT sampler
+    sum += 3 * max(1, number of external_texture sampler combos) // for Y+U+V
+  if sum &gt; maxCombinationsPerStage
+    generate a validation error.
+</pre>
+</li>
+<li>
+<h2 id="some-of-the-default-limits-are-lower-in-compatibility-mode">Some of the default limits are lower in compatibility mode</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">limit</th>
+<th style="text-align:right">compat</th>
+<th style="text-align:right">core</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code class="notranslate" translate="no">maxColorAttachments</code></td>
+<td style="text-align:right">4</td>
+<td style="text-align:right">8</td>
+</tr>
+<tr>
+<td style="text-align:left"><code class="notranslate" translate="no">maxComputeInvocationsPerWorkgroup</code></td>
+<td style="text-align:right">128</td>
+<td style="text-align:right">256</td>
+</tr>
+<tr>
+<td style="text-align:left"><code class="notranslate" translate="no">maxComputeWorkgroupSizeX</code></td>
+<td style="text-align:right">128</td>
+<td style="text-align:right">256</td>
+</tr>
+<tr>
+<td style="text-align:left"><code class="notranslate" translate="no">maxComputeWorkgroupSizeY</code></td>
+<td style="text-align:right">128</td>
+<td style="text-align:right">256</td>
+</tr>
+<tr>
+<td style="text-align:left"><code class="notranslate" translate="no">maxInterStageShaderVariables</code></td>
+<td style="text-align:right">15</td>
+<td style="text-align:right">16</td>
+</tr>
+<tr>
+<td style="text-align:left"><code class="notranslate" translate="no">maxStorageBuffersPerShaderStage</code></td>
+<td style="text-align:right">4</td>
+<td style="text-align:right">8</td>
+</tr>
+<tr>
+<td style="text-align:left"><code class="notranslate" translate="no">maxTextureDimension1D</code></td>
+<td style="text-align:right">4096</td>
+<td style="text-align:right">8192</td>
+</tr>
+<tr>
+<td style="text-align:left"><code class="notranslate" translate="no">maxTextureDimension2D</code></td>
+<td style="text-align:right">4096</td>
+<td style="text-align:right">8192</td>
+</tr>
+<tr>
+<td style="text-align:left"><code class="notranslate" translate="no">maxUniformBufferBindingSize</code></td>
+<td style="text-align:right">16384</td>
+<td style="text-align:right">65536</td>
+</tr>
+<tr>
+<td style="text-align:left"><code class="notranslate" translate="no">maxVertexAttributes</code></td>
+<td style="text-align:right">16<sup>a</sup></td>
+<td style="text-align:right">16</td>
+</tr>
+</tbody>
+</table>
+<p>(a) In compatibility mode, using <code class="notranslate" translate="no">@builtin(vertex_index)</code>
+and/or <code class="notranslate" translate="no">@builtin(instance_index)</code> each count as an
+attribute.</p>
+<p>Of course the adapter may support higher limits for any of these.</p>
+</li>
+<li>
+<h2 id="there-are-4-new-limits-they-default-to-0">There are 4 new limits. They default to 0</h2>
+<ul>
+<li><code class="notranslate" translate="no">maxStorageBuffersInVertexStage</code></li>
+<li><code class="notranslate" translate="no">maxStorageTexturesInVertexStage</code></li>
+<li><code class="notranslate" translate="no">maxStorageBuffersInFragmentStage</code></li>
+<li><code class="notranslate" translate="no">maxStorageTexturesInFragmentStage</code></li>
+</ul>
+<p>Like other limits, you can check when you request an adapter
+what the adapter supports.</p>
+<p>As mentioned above, about 45% of devices support <code class="notranslate" translate="no">0</code>
+storage buffers in vertex shaders.</p>
+</li>
+</ul>
+<h1 id="upgrading-from-compatibility-mode-to-core">Upgrading from compatibility mode to core</h1>
+<p>Compatibility mode was designed for you to opt-in. If you
+can design your application to live with the restrictions above
+then you ask for compatibility mode. If not, ask for core, the
+default, if the device can’t handle core it will not return
+an adapter.</p>
+<p>On the the other hand, you can also to design your app to function
+in compatibility mode but take advantage of all the core features
+if the user has a device that supports core WebGPU.</p>
+<p>To do this, ask for a compatibility mode adapter, then check
+for and enable the <code class="notranslate" translate="no">core-features-and-limits</code> feature. If it
+exists on the adapter AND you require it on the device the
+device will be a core device and none of the restrictions above
+will apply.</p>
+<p>Example:</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const adapter = await navigator.gpu.requestAdapter({
+  featureLevel: 'compatibility',
+});
+const hasCore = adapter.features.has('core-features-and-limits');
+const device = await adapter.requestDevice({
+  requiredFeatures: [
+    ...(hasCore ? ['core-features-and-limits'] : []),
+  ],
+});
+</pre>
+<p>If <code class="notranslate" translate="no">hasCore</code> is true then none of the above restrictions and limits apply.</p>
+<p>Note that other code that wants to check if the device is a core or
+compatibility device should check the device’s features.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const isCore = device.features.has('core-features-and-limits');
+</pre>
+<p>This will always be true on a core device.</p>
+<blockquote>
+<p>Note: As of 2025-03-11, some browsers have not yet fully shipped WebGPU and
+have not added <code class="notranslate" translate="no">'core'features-and'limits'</code> to their implementations.
+They should be updated soon.</p>
+</blockquote>
+<h1 id="testing-compatibility-mode">Testing compatibility mode</h1>
+<p>On a browser that supports compatibility mode you can test your
+application follows the restrictions by NOT requesting <code class="notranslate" translate="no">'core-features-and-limits'</code> (as we did at the top).
+You may want to check that you actually have a compatibility
+device so you can know that the restrictions and limits are
+being enforced.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">const adapter = await navigator.gpu.requestAdapter({
+  featureLevel: 'compatibility',
+});
+const device = await adapter.requestDevice();
+
+const isCompatibilityMode = !device.features.has('core-features-and-limits');
+</pre>
+<p>This is a good way to test if your app will run on these older devices.</p>
+<blockquote>
+<p>Note: As of 2025-03-11, some browsers have not yet fully shipped WebGPU and
+have not added <code class="notranslate" translate="no">'core'features-and'limits'</code> to their implementations.
+They should be updated soon.</p>
+</blockquote>
 
     </div>
     <div class="lesson-sidebar">
@@ -271,6 +1191,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/webgpu-timing.html">Timing Performance</a></li>
 <li><a href="/webgpu/lessons/webgpu-wgsl.html">WGSL</a></li>
 <li><a href="/webgpu/lessons/webgpu-how-it-works.html">How It Works</a></li>
+<li><a href="/webgpu/lessons/webgpu-compatibility-mode.html">Compatibility Mode</a></li>
         </ul>
   <li>3D Math</li>
         <ul>
