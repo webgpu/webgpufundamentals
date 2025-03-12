@@ -662,16 +662,9 @@ mode how we will view it.
 ```js
 +  function textureViewDimensionToDimension(viewDimension) {
 +   switch (viewDimension) {
-+      case '1d':
-+        return '1d';
-+      case '3d':
-+        return '3d';
-+      case '2d':
-+      case '2d-array':
-+      case 'cube':
-+      case 'cube-array':
-+      default:
-+        return '2d';
++      case '1d': return '1d';
++      case '3d': return '3d';
++      default: return '2d';
 +    }
 +  }
 
