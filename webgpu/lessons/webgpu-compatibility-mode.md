@@ -12,8 +12,8 @@ and have your app run in more places.
 > your browser as an experiment. In, [Chrome Canary](https://www.google.com/chrome/canary/),
 > as of version 136.0.7063.0
 > (2025-03-11), you can allow compatibility mode by enabling the flag
-> "enable-webgpu-developer-features" by going to
-> `chrome://flags/#enable-webgpu-developer-features`.
+> "enable-unsafe-webgpu" by going to
+> `chrome://flags/#enable-unsafe-webgpu`.
 
 To give some idea what what you can do in compatibility mode,
 effectively *nearly* all WebGL2 programs could be converted to
