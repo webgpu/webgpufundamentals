@@ -334,95 +334,78 @@ So let's do that! We'll start with the code for `generateMips` from [the article
   })();
 ```
 
-We need to change the code so for each type of texture (2d, 2d-array, cube, etc...) we
-generate a different shader and we need to be able to pass in a layer to read from.
-So, let's make a function that returns a shader for a given view dimension
+We need to change the WGSL so for each type of texture (2d, 2d-array, cube, etc...) we
+use a different fragment shader and we need to be able to pass in a layer to read from.
 
-```js
-  function getMipmapGenerationWGSL(textureBindingViewDimension) {
-    let textureSnippet;
-    let sampleSnippet;
-    switch (textureBindingViewDimension) {
-      case '2d':
-        textureSnippet = 'texture_2d<f32>';
-        sampleSnippet = 'textureSample(ourTexture, ourSampler, fsInput.texcoord)';
-        break;
-      case '2d-array':
-        textureSnippet = 'texture_2d_array<f32>';
-        sampleSnippet = `
-          textureSample(
-              ourTexture,
-              ourSampler,
-              fsInput.texcoord,
-              fsInput.baseArrayLayer)`;
-        break;
-      case 'cube':
-        textureSnippet = 'texture_cube<f32>';
-        sampleSnippet = `
-          textureSample(
-              ourTexture,
-              ourSampler,
-              faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1))`;
-        break;
-      case 'cube-array':
-        textureSnippet = 'texture_cube_array<f32>';
-        sampleSnippet = `
-          textureSample(
-              ourTexture,
-              ourSampler,
-              faceMat[uni.layer] * vec3f(fract(fsInput.texcoord), 1), fsInput.baseArrayLayer)`;
-        break;
-      default:
-        throw new Error(`unsupported view: ${textureBindingViewDimension}`);
-    }
-    return `
-        const faceMat = array(
-          mat3x3f( 0,  0,  -2,  0, -2,   0,  1,  1,   1),   // pos-x
-          mat3x3f( 0,  0,   2,  0, -2,   0, -1,  1,  -1),   // neg-x
-          mat3x3f( 2,  0,   0,  0,  0,   2, -1,  1,  -1),   // pos-y
-          mat3x3f( 2,  0,   0,  0,  0,  -2, -1, -1,   1),   // neg-y
-          mat3x3f( 2,  0,   0,  0, -2,   0, -1,  1,   1),   // pos-z
-          mat3x3f(-2,  0,   0,  0, -2,   0,  1,  1,  -1));  // neg-z
+```wgsl
++const faceMat = array(
++  mat3x3f( 0,  0,  -2,  0, -2,   0,  1,  1,   1),   // pos-x
++  mat3x3f( 0,  0,   2,  0, -2,   0, -1,  1,  -1),   // neg-x
++  mat3x3f( 2,  0,   0,  0,  0,   2, -1,  1,  -1),   // pos-y
++  mat3x3f( 2,  0,   0,  0,  0,  -2, -1, -1,   1),   // neg-y
++  mat3x3f( 2,  0,   0,  0, -2,   0, -1,  1,   1),   // pos-z
++  mat3x3f(-2,  0,   0,  0, -2,   0,  1,  1,  -1));  // neg-z
 
-        struct VSOutput {
-          @builtin(position) position: vec4f,
-          @location(0) texcoord: vec2f,
-          @location(1) @interpolate(flat, either) baseArrayLayer: u32,
-        };
+struct VSOutput {
+  @builtin(position) position: vec4f,
+  @location(0) texcoord: vec2f,
++  @location(1) @interpolate(flat, either) baseArrayLayer: u32,
+};
 
-        @vertex fn vs(
-          @builtin(vertex_index) vertexIndex : u32,
-          @builtin(instance_index) baseArrayLayer: u32,
-        ) -> VSOutput {
-          var pos = array<vec2f, 3>(
-            vec2f(-1.0, -1.0),
-            vec2f(-1.0,  3.0),
-            vec2f( 3.0, -1.0),
-          );
+@vertex fn vs(
+  @builtin(vertex_index) vertexIndex : u32,
++  @builtin(instance_index) baseArrayLayer: u32,
+) -> VSOutput {
+  var pos = array<vec2f, 3>(
+    vec2f(-1.0, -1.0),
+    vec2f(-1.0,  3.0),
+    vec2f( 3.0, -1.0),
+  );
 
-          var vsOutput: VSOutput;
-          let xy = pos[vertexIndex];
-          vsOutput.position = vec4f(xy, 0.0, 1.0);
-          vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
-          vsOutput.baseArrayLayer = baseArrayLayer;
-          return vsOutput;
-        }
+  var vsOutput: VSOutput;
+  let xy = pos[vertexIndex];
+  vsOutput.position = vec4f(xy, 0.0, 1.0);
+  vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
++  vsOutput.baseArrayLayer = baseArrayLayer;
+  return vsOutput;
+}
 
-        struct Uniforms {
-          layer: u32,
-        };
+@group(0) @binding(0) var ourSampler: sampler;
+-@group(0) @binding(1) var ourTexture: texture_2d<f32>;
 
-        @group(0) @binding(0) var ourSampler: sampler;
-        @group(0) @binding(1) var ourTexture: ${textureSnippet};
++@group(0) @binding(1) var ourTexture2d: texture_2d<f32>;
+@fragment fn fs2d(fsInput: VSOutput) -> @location(0) vec4f {
+-  return textureSample(ourTexture, ourSampler, fsInput.texcoord);
++  return textureSample(ourTexture2d, ourSampler, fsInput.texcoord);
+}
 
-        @fragment fn fs(fsInput: VSOutput) -> @location(0) vec4f {
-          return ${sampleSnippet};
-        }
-      `;
-  }
++@group(0) @binding(1) var ourTexture2dArray: texture_2d_array<f32>;
++@fragment fn fs2darray(fsInput: VSOutput) -> @location(0) vec4f {
++  return textureSample(
++    ourTexture2dArray,
++    ourSampler,
++    fsInput.texcoord,
++    fsInput.baseArrayLayer);
++}
++
++@group(0) @binding(1) var ourTextureCube: texture_cube<f32>;
++@fragment fn fscube(fsInput: VSOutput) -> @location(0) vec4f {
++  return textureSample(
++    ourTextureCube,
++    ourSampler,
++    faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1));
++}
++
++@group(0) @binding(1) var ourTextureCubeArray: texture_cube_array<f32>;
++@fragment fn fscubearray(fsInput: VSOutput) -> @location(0) vec4f {
++  return textureSample(
++    ourTextureCubeArray,
++    ourSampler,
++    faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1), fsInput.baseArrayLayer);
++}
 ```
 
-This function returns 1 of 4 possible shaders, one for each of `'2d'`, `'2d-array'`, `'cube'`, and `'cube-array'`.
+This code has 4 fragment shaders, one for each of `'2d'`, `'2d-array'`, `'cube'`, and `'cube-array'`.
 It uses the [large triangle to cover clip space](webgpu-large-triangle-to-cover-clip-space.html) technique
 [covered elsewhere](webgpu-large-triangle-to-cover-clip-space.html) to draw.
 It also uses `@builtin(instance_index)` to select the layer. This is an interesting and quick way
@@ -436,32 +419,32 @@ The cubemap code converts a 2d-array layer and normalized UV coordinate into a
 cubemap 3d coordinate. We need this because again, in compatibility mode, a cubemap
 can only be viewed as a cubemap.
 
-We'll need to let the user pass in the viewDimension they used when they created
+Back to our JavaScript, We need to let the user pass in the viewDimension they used when they created
 the texture so that we can select one of these shaders. If they don't pass it
 in we'll guess from the defaults.
 
 ```js
-  /**
-  * Given a texture, guess the textureBindingViewDimension
-  * Note: It's only a guess. The user needs to tell us to be
-  * correct in all cases because we can't distinguish between
-  * a 2d texture and a 2d-array texture with 1 layer, nor can
-  * we distinguish between a 2d-array texture with 6 layers and
-  * a cubemap.
-  * @param {GPUTexture} texture
-  */
-  function guessTextureBindingViewDimensionForTexture(texture) {
-   switch (texture.dimension) {
-      case '1d':
-        return '1d';
-      case '2d':
-        return texture.depthOrArrayLayers > 1 ? '2d-array' : '2d';
-      case '3d':
-        return '3d';
-      default:
-        return '';
-    }
-  }
++  /**
++  * Given a texture, guess the textureBindingViewDimension
++  * Note: It's only a guess. The user needs to tell us to be
++  * correct in all cases because we can't distinguish between
++  * a 2d texture and a 2d-array texture with 1 layer, nor can
++  * we distinguish between a 2d-array texture with 6 layers and
++  * a cubemap.
++  * @param {GPUTexture} texture
++  */
++  function guessTextureBindingViewDimensionForTexture(texture) {
++   switch (texture.dimension) {
++      case '1d':
++        return '1d';
++      case '2d':
++        return texture.depthOrArrayLayers > 1 ? '2d-array' : '2d';
++      case '3d':
++        return '3d';
++      default:
++        return '';
++    }
++  }
 
   const generateMips = (() => {
     let sampler;
@@ -472,65 +455,94 @@ in we'll guess from the defaults.
 +    return function generateMips(device, texture, textureBindingViewDimension) {
 +      // If the user doesn't pass in a textureBindingViewDimension then guess
 +      textureBindingViewDimension = textureBindingViewDimension ??
-+        guessTextureBindingViewDimensionForTexture(texture);
-      ...
-```
++        guessTextureBindingViewDimensionForTexture(texture.dimension, texture.depthOrArrayLayers);
+      if (!module) {
+        module = device.createShaderModule({
+          label: 'textured quad shaders for mip level generation',
+          code: `
+            const faceMat = array(
+              mat3x3f( 0,  0,  -2,  0, -2,   0,  1,  1,   1),   // pos-x
+              mat3x3f( 0,  0,   2,  0, -2,   0, -1,  1,  -1),   // neg-x
+              mat3x3f( 2,  0,   0,  0,  0,   2, -1,  1,  -1),   // pos-y
+              mat3x3f( 2,  0,   0,  0,  0,  -2, -1, -1,   1),   // neg-y
+              mat3x3f( 2,  0,   0,  0, -2,   0, -1,  1,   1),   // pos-z
+              mat3x3f(-2,  0,   0,  0, -2,   0,  1,  1,  -1));  // neg-z
 
-The old code had one shader module it kept track of. If the shader module didn't exist
-it created it. With our change we'll need to track a module per view dimension
+            struct VSOutput {
+              @builtin(position) position: vec4f,
+              @location(0) texcoord: vec2f,
+              @location(1) @interpolate(flat, either) baseArrayLayer: u32,
+            };
 
-```js
-  const generateMips = (() => {
-    let sampler;
--    let module;
-+    const moduleByViewDimension = {};
-    const pipelineByFormat = {};
+            @vertex fn vs(
+              @builtin(vertex_index) vertexIndex : u32,
+              @builtin(instance_index) baseArrayLayer: u32,
+            ) -> VSOutput {
+              var pos = array<vec2f, 3>(
+                vec2f(-1.0, -1.0),
+                vec2f(-1.0,  3.0),
+                vec2f( 3.0, -1.0),
+              );
 
-    return function generateMips(device, texture, textureBindingViewDimension) {
-      // If the user doesn't pass in a textureBindingViewDimension then guess
-      textureBindingViewDimension = textureBindingViewDimension ??
-        guessTextureBindingViewDimensionForTexture(texture);
--      if (!module) {
--        module = device.createShaderModule({
--          label: 'textured quad shaders for mip level generation',
--          code: `
--            ...
--          `,
--        });
--
--        sampler = device.createSampler({
--          minFilter: 'linear',
--          magFilter: 'linear',
--        });
--      }
-+      let module = moduleByViewDimension[textureBindingViewDimension];
-+      if (!module) {
-+        const code = getMipmapGenerationWGSL(textureBindingViewDimension);
-+        module = device.createShaderModule({
-+          label: `mip level generation for ${textureBindingViewDimension}`,
-+          code,
-+        });
-+        moduleByViewDimension[textureBindingViewDimension] = module;
-+      }
-+
-+      if (!sampler) {
-+        sampler = device.createSampler({
-+          minFilter: 'linear',
-+          magFilter: 'linear',
-+        });
-+      }
+              var vsOutput: VSOutput;
+              let xy = pos[vertexIndex];
+              vsOutput.position = vec4f(xy, 0.0, 1.0);
+              vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
+              vsOutput.baseArrayLayer = baseArrayLayer;
+              return vsOutput;
+            }
+
+            @group(0) @binding(0) var ourSampler: sampler;
+
+            @group(0) @binding(1) var ourTexture2d: texture_2d<f32>;
+            @fragment fn fs2d(fsInput: VSOutput) -> @location(0) vec4f {
+              return textureSample(ourTexture2d, ourSampler, fsInput.texcoord);
+            }
+
+            @group(0) @binding(1) var ourTexture2dArray: texture_2d_array<f32>;
+            @fragment fn fs2darray(fsInput: VSOutput) -> @location(0) vec4f {
+              return textureSample(
+                ourTexture2dArray,
+                ourSampler,
+                fsInput.texcoord,
+                fsInput.baseArrayLayer);
+            }
+
+            @group(0) @binding(1) var ourTextureCube: texture_cube<f32>;
+            @fragment fn fscube(fsInput: VSOutput) -> @location(0) vec4f {
+              return textureSample(
+                ourTextureCube,
+                ourSampler,
+                faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1));
+            }
+
+            @group(0) @binding(1) var ourTextureCubeArray: texture_cube_array<f32>;
+            @fragment fn fscubearray(fsInput: VSOutput) -> @location(0) vec4f {
+              return textureSample(
+                ourTextureCubeArray,
+                ourSampler,
+                faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1), fsInput.baseArrayLayer);
+            }
+          `,
+        });
+
+        sampler = device.createSampler({
+          minFilter: 'linear',
+          magFilter: 'linear',
+        });
+      }
 
     ...
 ```
 
-Before we also tracked a pipeline per format so we could reuse the pipeline for
+Before we tracked a pipeline per format so we could reuse the pipeline for
 textures of the same format. We need to update that to be a pipeline per format
 per viewDimension.
 
 ```js
   const generateMips = (() => {
     let sampler;
-    const moduleByViewDimension = {};
+    let module;
 -    const pipelineByFormat = {};
 +    const pipelineByFormatAndView = {};
 
@@ -540,19 +552,7 @@ per viewDimension.
         guessTextureBindingViewDimensionForTexture(texture);
       let module = moduleByViewDimension[textureBindingViewDimension];
       if (!module) {
-        const code = getMipmapGenerationWGSL(textureBindingViewDimension);
-        module = device.createShaderModule({
-          label: `mip level generation for ${textureBindingViewDimension}`,
-          code,
-        });
-        moduleByViewDimension[textureBindingViewDimension] = module;
-      }
-
-      if (!sampler) {
-        sampler = device.createSampler({
-          minFilter: 'linear',
-          magFilter: 'linear',
-        });
+        ...
       }
 
 +      const id = `${texture.format}.${textureBindingViewDimension}`;
@@ -561,6 +561,8 @@ per viewDimension.
 -        pipelineByFormat[texture.format] = device.createRenderPipeline({
 -          label: 'mip level generator pipeline',
 +      if (!pipelineByFormatAndView[id]) {
++        // chose an fragment shader based on the viewDimension
++        const entryPoint = `fs${textureBindingViewDimension.replace(/[\W]/, '')}`;
 +        pipelineByFormatAndView[id] = device.createRenderPipeline({
 +          label: `mip level generator pipeline for ${textureBindingViewDimension}, format: ${texture.format}`,
           layout: 'auto',
@@ -569,6 +571,7 @@ per viewDimension.
           },
           fragment: {
             module,
+            entryPoint,
             targets: [{ format: texture.format }],
           },
         });
