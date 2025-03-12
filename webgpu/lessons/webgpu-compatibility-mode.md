@@ -561,7 +561,7 @@ per viewDimension.
 -        pipelineByFormat[texture.format] = device.createRenderPipeline({
 -          label: 'mip level generator pipeline',
 +      if (!pipelineByFormatAndView[id]) {
-+        // chose an fragment shader based on the viewDimension
++        // chose an fragment shader based on the viewDimension (removes the '-' from 2d-array and cube-array)
 +        const entryPoint = `fs${textureBindingViewDimension.replace(/[\W]/, '')}`;
 +        pipelineByFormatAndView[id] = device.createRenderPipeline({
 +          label: `mip level generator pipeline for ${textureBindingViewDimension}, format: ${texture.format}`,

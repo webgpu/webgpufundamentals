@@ -264,7 +264,7 @@ async function main() {
     return function generateMips(device, texture, textureBindingViewDimension) {
       if (!module) {
         module = device.createShaderModule({
-          label: `mip level generation for ${textureBindingViewDimension}`,
+          label: 'textured quad shaders for mip level generation',
           code: `
             const faceMat = array(
               mat3x3f( 0,  0,  -2,  0, -2,   0,  1,  1,   1),   // pos-x
