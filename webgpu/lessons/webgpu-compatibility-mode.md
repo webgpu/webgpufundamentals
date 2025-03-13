@@ -425,24 +425,22 @@ in we'll guess from the defaults.
 
 ```js
 +  /**
-+  * Given a texture, guess the textureBindingViewDimension
++  * Get the default viewDimension
 +  * Note: It's only a guess. The user needs to tell us to be
 +  * correct in all cases because we can't distinguish between
 +  * a 2d texture and a 2d-array texture with 1 layer, nor can
 +  * we distinguish between a 2d-array texture with 6 layers and
 +  * a cubemap.
-+  * @param {GPUTexture} texture
 +  */
-+  function guessTextureBindingViewDimensionForTexture(texture) {
-+   switch (texture.dimension) {
++  function getDefaultViewDimensionForTexture(dimension, depthOrArrayLayers) {
++   switch (dimension) {
 +      case '1d':
 +        return '1d';
++      default:
 +      case '2d':
-+        return texture.depthOrArrayLayers > 1 ? '2d-array' : '2d';
++        return depthOrArrayLayers > 1 ? '2d-array' : '2d';
 +      case '3d':
 +        return '3d';
-+      default:
-+        return '';
 +    }
 +  }
 
@@ -455,7 +453,7 @@ in we'll guess from the defaults.
 +    return function generateMips(device, texture, textureBindingViewDimension) {
 +      // If the user doesn't pass in a textureBindingViewDimension then guess
 +      textureBindingViewDimension = textureBindingViewDimension ??
-+        guessTextureBindingViewDimensionForTexture(texture.dimension, texture.depthOrArrayLayers);
++        getDefaultViewDimensionForTexture(texture.dimension, texture.depthOrArrayLayers);
       if (!module) {
         module = device.createShaderModule({
           label: 'textured quad shaders for mip level generation',
@@ -549,7 +547,7 @@ per viewDimension.
     return function generateMips(device, texture, textureBindingViewDimension) {
       // If the user doesn't pass in a textureBindingViewDimension then guess
       textureBindingViewDimension = textureBindingViewDimension ??
-        guessTextureBindingViewDimensionForTexture(texture);
+        getDefaultViewDimensionForTexture(texture);
       let module = moduleByViewDimension[textureBindingViewDimension];
       if (!module) {
         ...
@@ -648,7 +646,7 @@ our ability to pass in the instance index via draw to select the layer we want t
 ```
 
 With that our mipmap generation code works in compatibility mode, and it still
-works in core WebGPU just fine.
+works in core WebGPU.
 
 We have a few other things we need to update to make the example work though.
 
@@ -670,7 +668,7 @@ mode how we will view it.
 
   function createTextureFromSources(device, sources, options = {}) {
 +    const viewDimension = options.viewDimension ??
-+      guessTextureBindingViewDimensionForTexture(options.dimension, sources.length);
++      getDefaultViewDimensionForTexture(options.dimension, sources.length);
 +    const dimension = options.dimension ?? textureViewDimensionToDimension(viewDimension);
     // Assume are sources all the same size so just use the first one for width and height
     const source = sources[0];
@@ -693,7 +691,7 @@ We also need to update `copySourcesToTexture` to get the `viewDimension` and
 pass it to `generateMips`.
 
 ```js
-  function copySourcesToTexture(device, texture, sources, {flipY, viewDimension, dimension} = {}) {
+  function copySourcesToTexture(device, texture, sources, {flipY, viewDimension} = {}) {
     sources.forEach((source, layer) => {
       device.queue.copyExternalImageToTexture(
         { source, flipY, },
@@ -703,7 +701,7 @@ pass it to `generateMips`.
     });
     if (texture.mipLevelCount > 1) {
 +      viewDimension = viewDimension ??
-+        guessTextureBindingViewDimensionForTexture(dimension, sources.length);
++        getDefaultViewDimensionForTexture(texture.dimension, sources.length);
 +      generateMips(device, texture, viewDimension);
 -      generateMips(device, texture);
     }
@@ -739,6 +737,9 @@ And with that, our cube map sample works in compatibility mode.
 
 You now have a compatibility mode friendly `generateMips` which you could
 use in any of the examples on this site. It works on both core and compatibility mode.
+In compatibility mode you must pass in a `viewDimension`. In core WebGPU you can pass one
+in or not. It doesn't matter.
+
 
 # Minor limits and restrictions
 

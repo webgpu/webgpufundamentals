@@ -185,7 +185,7 @@ async function main() {
     return 1 + Math.log2(maxSize) | 0;
   };
 
-  function copySourcesToTexture(device, texture, sources, {flipY, viewDimension, dimension} = {}) {
+  function copySourcesToTexture(device, texture, sources, {flipY, viewDimension} = {}) {
     sources.forEach((source, layer) => {
       device.queue.copyExternalImageToTexture(
         { source, flipY, },
@@ -195,14 +195,14 @@ async function main() {
     });
     if (texture.mipLevelCount > 1) {
       viewDimension = viewDimension ??
-        guessTextureBindingViewDimensionForTexture(dimension, sources.length);
+        getDefaultViewDimensionForTexture(texture.dimension, sources.length);
       generateMips(device, texture, viewDimension);
     }
   }
 
   function createTextureFromSources(device, sources, options = {}) {
     const viewDimension = options.viewDimension ??
-      guessTextureBindingViewDimensionForTexture(options.dimension, sources.length);
+      getDefaultViewDimensionForTexture(options.dimension, sources.length);
     const dimension = options.dimension ?? textureViewDimensionToDimension(viewDimension);
     // Assume are sources all the same size so just use the first one for width and height
     const source = sources[0];
@@ -229,7 +229,7 @@ async function main() {
   * a cubemap.
   * @param {GPUTexture} texture
   */
-  function guessTextureBindingViewDimensionForTexture(dimension, depthOrArrayLayers) {
+  function getDefaultViewDimensionForTexture(dimension, depthOrArrayLayers) {
    switch (dimension) {
       case '1d':
         return '1d';
