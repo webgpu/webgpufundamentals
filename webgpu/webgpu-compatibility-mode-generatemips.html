@@ -221,13 +221,12 @@ async function main() {
   }
 
   /**
-  * Given a texture, guess the textureBindingViewDimension
+  * Get the default viewDimension
   * Note: It's only a guess. The user needs to tell us to be
   * correct in all cases because we can't distinguish between
   * a 2d texture and a 2d-array texture with 1 layer, nor can
   * we distinguish between a 2d-array texture with 6 layers and
   * a cubemap.
-  * @param {GPUTexture} texture
   */
   function getDefaultViewDimensionForTexture(dimension, depthOrArrayLayers) {
    switch (dimension) {
