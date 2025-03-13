@@ -601,24 +601,22 @@ can only be viewed as a cubemap.</p>
 the texture so that we can select one of these shaders. If they don’t pass it
 in we’ll guess from the defaults.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  /**
-+  * Given a texture, guess the textureBindingViewDimension
++  * Get the default viewDimension
 +  * Note: It's only a guess. The user needs to tell us to be
 +  * correct in all cases because we can't distinguish between
 +  * a 2d texture and a 2d-array texture with 1 layer, nor can
 +  * we distinguish between a 2d-array texture with 6 layers and
 +  * a cubemap.
-+  * @param {GPUTexture} texture
 +  */
-+  function guessTextureBindingViewDimensionForTexture(texture) {
-+   switch (texture.dimension) {
++  function getDefaultViewDimensionForTexture(dimension, depthOrArrayLayers) {
++   switch (dimension) {
 +      case '1d':
 +        return '1d';
++      default:
 +      case '2d':
-+        return texture.depthOrArrayLayers &gt; 1 ? '2d-array' : '2d';
++        return depthOrArrayLayers &gt; 1 ? '2d-array' : '2d';
 +      case '3d':
 +        return '3d';
-+      default:
-+        return '';
 +    }
 +  }
 
@@ -631,7 +629,7 @@ in we’ll guess from the defaults.</p>
 +    return function generateMips(device, texture, textureBindingViewDimension) {
 +      // If the user doesn't pass in a textureBindingViewDimension then guess
 +      textureBindingViewDimension = textureBindingViewDimension ??
-+        guessTextureBindingViewDimensionForTexture(texture.dimension, texture.depthOrArrayLayers);
++        getDefaultViewDimensionForTexture(texture.dimension, texture.depthOrArrayLayers);
       if (!module) {
         module = device.createShaderModule({
           label: 'textured quad shaders for mip level generation',
@@ -722,7 +720,7 @@ per viewDimension.</p>
     return function generateMips(device, texture, textureBindingViewDimension) {
       // If the user doesn't pass in a textureBindingViewDimension then guess
       textureBindingViewDimension = textureBindingViewDimension ??
-        guessTextureBindingViewDimensionForTexture(texture);
+        getDefaultViewDimensionForTexture(texture);
       let module = moduleByViewDimension[textureBindingViewDimension];
       if (!module) {
         ...
@@ -817,7 +815,7 @@ our ability to pass in the instance index via draw to select the layer we want t
   })();
 </pre>
 <p>With that our mipmap generation code works in compatibility mode, and it still
-works in core WebGPU just fine.</p>
+works in core WebGPU.</p>
 <p>We have a few other things we need to update to make the example work though.</p>
 <p>We have a function <code class="notranslate" translate="no">createTextureFromSources</code> that we pass sources
 to and it creates a texture. It was always creating a <code class="notranslate" translate="no">'2d'</code> texture
@@ -835,7 +833,7 @@ mode how we will view it.</p>
 
   function createTextureFromSources(device, sources, options = {}) {
 +    const viewDimension = options.viewDimension ??
-+      guessTextureBindingViewDimensionForTexture(options.dimension, sources.length);
++      getDefaultViewDimensionForTexture(options.dimension, sources.length);
 +    const dimension = options.dimension ?? textureViewDimensionToDimension(viewDimension);
     // Assume are sources all the same size so just use the first one for width and height
     const source = sources[0];
@@ -855,7 +853,7 @@ mode how we will view it.</p>
 </pre>
 <p>We also need to update <code class="notranslate" translate="no">copySourcesToTexture</code> to get the <code class="notranslate" translate="no">viewDimension</code> and
 pass it to <code class="notranslate" translate="no">generateMips</code>.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function copySourcesToTexture(device, texture, sources, {flipY, viewDimension, dimension} = {}) {
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function copySourcesToTexture(device, texture, sources, {flipY, viewDimension} = {}) {
     sources.forEach((source, layer) =&gt; {
       device.queue.copyExternalImageToTexture(
         { source, flipY, },
@@ -865,7 +863,7 @@ pass it to <code class="notranslate" translate="no">generateMips</code>.</p>
     });
     if (texture.mipLevelCount &gt; 1) {
 +      viewDimension = viewDimension ??
-+        guessTextureBindingViewDimensionForTexture(dimension, sources.length);
++        getDefaultViewDimensionForTexture(texture.dimension, sources.length);
 +      generateMips(device, texture, viewDimension);
 -      generateMips(device, texture);
     }
@@ -896,7 +894,9 @@ at the top of this article.</p>
 
 <p></p>
 <p>You now have a compatibility mode friendly <code class="notranslate" translate="no">generateMips</code> which you could
-use in any of the examples on this site. It works on both core and compatibility mode.</p>
+use in any of the examples on this site. It works on both core and compatibility mode.
+In compatibility mode you must pass in a <code class="notranslate" translate="no">viewDimension</code>. In core WebGPU you can pass one
+in or not. It doesn’t matter.</p>
 <h1 id="minor-limits-and-restrictions">Minor limits and restrictions</h1>
 <p>The following are limits and restrictions <em>most</em> programs are unlikely to
 run into</p>
