@@ -1062,7 +1062,7 @@ way would be something like
     return;
   }
 
-  const device = await adapter?.requestDevice();
+  const device = await adapter.requestDevice();
   device.lost.then((info) =&gt; {
     console.error(`WebGPU device was lost: ${info.message}`);
 
