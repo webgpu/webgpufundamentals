@@ -317,8 +317,8 @@ const rand = (min, max) => {
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
 
-    // 자바스크립트의 Float32Array에 uniform 값을 설정함
-    const aspect = canvas.width / canvas.height;
++    // 자바스크립트의 Float32Array에 uniform 값을 설정함
++    const aspect = canvas.width / canvas.height;
 
 +    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
 +      uniformValues.set([scale / aspect, scale], kScaleOffset); // set the scale

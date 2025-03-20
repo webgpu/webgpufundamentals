@@ -344,8 +344,8 @@ scale.
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
 
-    // Set the uniform values in our JavaScript side Float32Array
-    const aspect = canvas.width / canvas.height;
++    // Set the uniform values in our JavaScript side Float32Array
++    const aspect = canvas.width / canvas.height;
 
 +    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
 +      uniformValues.set([scale / aspect, scale], kScaleOffset); // set the scale

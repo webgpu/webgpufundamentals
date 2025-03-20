@@ -309,8 +309,8 @@ const rand = (min, max) => {
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
 
-    // Устанавливаем uniform значения в JavaScript как Float32Array
-    const aspect = canvas.width / canvas.height;
++    // Устанавливаем uniform значения в JavaScript как Float32Array
++    const aspect = canvas.width / canvas.height;
 
 +    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
 +      uniformValues.set([scale / aspect, scale], kScaleOffset); // Устанавливаем размер
