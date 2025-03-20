@@ -1004,7 +1004,7 @@ async function start() {
     return;
   }
 
-  const device = await adapter?.requestDevice();
+  const device = await adapter.requestDevice();
   device.lost.then((info) => {
     console.error(`WebGPU device was lost: ${info.message}`);
 
