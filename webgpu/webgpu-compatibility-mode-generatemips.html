@@ -254,6 +254,9 @@ async function main() {
     const pipelineByFormatAndView = {};
 
     return function generateMips(device, texture, textureBindingViewDimension) {
+      textureBindingViewDimension = textureBindingViewDimension ??
+        getDefaultViewDimensionForTexture(texture.dimension, texture.depthOrArrayLayers);
+
       if (!module) {
         module = device.createShaderModule({
           label: 'textured quad shaders for mip level generation',
