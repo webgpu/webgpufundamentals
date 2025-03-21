@@ -104,7 +104,7 @@ Note, this extra parameter is called `textureBindingViewDimension` because
 it relates to using the texture with usage `TEXTURE_BINDING`. You can still
 use a single layer of a cubemap or 2d-array as a 2d texture as a `RENDER_ATTACHMENT`.
 
-In compatibility mode, using the the texture with another type of view will
+In compatibility mode, using the texture with another type of view will
 generate a validation error
 
 ```js
@@ -205,7 +205,7 @@ This won't work in compatibility mode for the reasons above. We can't use a `'2d
 view of `'2d-array'` or `'cube'` texture. We also can not select individual layers
 in a bind group to select which layer to read from.
 
-To make the the code work in compatibility mode we have to work with textures
+To make the code work in compatibility mode we have to work with textures
 with the same view dimension they were created with and we need to pass in the texture
 with access to all layers and select the layer we want in the shader itself, rather
 than selecting the layer via `createView` as we were doing.
@@ -737,9 +737,8 @@ And with that, our cube map sample works in compatibility mode.
 
 You now have a compatibility mode friendly `generateMips` which you could
 use in any of the examples on this site. It works on both core and compatibility mode.
-In compatibility mode you must pass in a `viewDimension`. In core WebGPU you can pass one
-in or not. It doesn't matter.
-
+In compatibility mode you must pass in a `viewDimension` if you want a cube map or if
+you want a 1 layer 2d-array. In core WebGPU you can pass one in or not. It doesn't matter.
 
 # Minor limits and restrictions
 
@@ -811,7 +810,7 @@ run into
 
   This means a texture marked with `textureBindingViewDimension: '2d'` must
   have a `depthOrArrayLayers: 1` (the default). A texture marked with `textureBindingViewDimension: 'cube'`
-  most have `depthOrArrayLayers: 6`.
+  must have `depthOrArrayLayers: 6`.
 
 * ## `textureLoad` does not work with depth textures.
 
