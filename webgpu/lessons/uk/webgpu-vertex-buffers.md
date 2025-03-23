@@ -522,7 +522,7 @@ function createCircleVertices({
 +  const vertexData = new Float32Array(numVertices * (2 + 3));
 
   let offset = 0;
--  const addVertex = (x, y, r, g, b) => {
+-  const addVertex = (x, y) => {
 +  const addVertex = (x, y, r, g, b) => {
     vertexData[offset++] = x;
     vertexData[offset++] = y;
