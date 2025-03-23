@@ -713,7 +713,8 @@ We also need to update the per instance data.
 
   // offsets to the various uniform values in float32 indices
   const kColorOffset = 0;
-  const kOffsetOffset = 1;
+-  const kOffsetOffset = 4;
++  const kOffsetOffset = 1;
 
   const kScaleOffset = 0;
 
