@@ -767,7 +767,8 @@ function createCircleVertices({
         scale: rand(0.2, 0.5),
       });
     }
-    device.queue.writeBuffer(staticVertexBuffer, 0, staticVertexValuesF32);
+-    device.queue.writeBuffer(staticVertexBuffer, 0, staticVertexValues);
++    device.queue.writeBuffer(staticVertexBuffer, 0, staticVertexValuesF32);
   }
 ```
 
