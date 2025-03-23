@@ -476,7 +476,7 @@ function createCircleVertices({
 +  const vertexData = new Float32Array(numVertices * (2 + 3));
 
   let offset = 0;
--  const addVertex = (x, y, r, g, b) => {
+-  const addVertex = (x, y) => {
 +  const addVertex = (x, y, r, g, b) => {
     vertexData[offset++] = x;
     vertexData[offset++] = y;
@@ -685,7 +685,8 @@ function createCircleVertices({
 
   // offsets to the various uniform values in float32 indices
   const kColorOffset = 0;
-  const kOffsetOffset = 1;
+-  const kOffsetOffset = 4;
++  const kOffsetOffset = 1;
 
   const kScaleOffset = 0;
 
@@ -713,7 +714,8 @@ function createCircleVertices({
         scale: rand(0.2, 0.5),
       });
     }
-    device.queue.writeBuffer(staticVertexBuffer, 0, staticVertexValuesF32);
+-    device.queue.writeBuffer(staticVertexBuffer, 0, staticVertexValues);
++    device.queue.writeBuffer(staticVertexBuffer, 0, staticVertexValuesF32);
   }
 ```
 
