@@ -740,6 +740,7 @@ use in any of the examples on this site. It works on both core and compatibility
 In compatibility mode you must pass in a `viewDimension` if you want a cube map or if
 you want a 1 layer 2d-array. In core WebGPU you can pass one in or not. It doesn't matter.
 
+
 # Minor limits and restrictions
 
 The following are limits and restrictions *most* programs are unlikely to
@@ -866,7 +867,6 @@ run into
   | `maxComputeWorkgroupSizeX`          |     128 |       256 |
   | `maxComputeWorkgroupSizeY`          |     128 |       256 |
   | `maxInterStageShaderVariables`      |      15 |        16 |
-  | `maxStorageBuffersPerShaderStage`   |       4 |         8 |
   | `maxTextureDimension1D`             |    4096 |      8192 |
   | `maxTextureDimension2D`             |    4096 |      8192 |
   | `maxUniformBufferBindingSize`       |   16384 |     65536 |
@@ -878,18 +878,18 @@ attribute.
 
   Of course the adapter may support higher limits for any of these.
 
-* ## There are 4 new limits. They default to 0
+* ## There are 4 new limits.
 
-  * `maxStorageBuffersInVertexStage`
-  * `maxStorageTexturesInVertexStage`
-  * `maxStorageBuffersInFragmentStage`
-  * `maxStorageTexturesInFragmentStage`
+  * `maxStorageBuffersInVertexStage` (default 0)
+  * `maxStorageTexturesInVertexStage` (default 0)
+  * `maxStorageBuffersInFragmentStage` (default 4)
+  * `maxStorageTexturesInFragmentStage` (default 4)
 
   Like other limits, you can check when you request an adapter
   what the adapter supports.
 
   As mentioned above, about 45% of devices support `0`
-  storage buffers in vertex shaders.
+  storage buffers and storage textures in vertex shaders.
 
 # Upgrading from compatibility mode to core
 
