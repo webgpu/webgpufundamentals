@@ -1050,11 +1050,6 @@ for each stage of the pipeline:
 <td style="text-align:right">16</td>
 </tr>
 <tr>
-<td style="text-align:left"><code class="notranslate" translate="no">maxStorageBuffersPerShaderStage</code></td>
-<td style="text-align:right">4</td>
-<td style="text-align:right">8</td>
-</tr>
-<tr>
 <td style="text-align:left"><code class="notranslate" translate="no">maxTextureDimension1D</code></td>
 <td style="text-align:right">4096</td>
 <td style="text-align:right">8192</td>
@@ -1082,17 +1077,18 @@ attribute.</p>
 <p>Of course the adapter may support higher limits for any of these.</p>
 </li>
 <li>
-<h2 id="there-are-4-new-limits-they-default-to-0">There are 4 new limits. They default to 0</h2>
+<h2 id="there-are-4-new-limits">There are 4 new limits.</h2>
 <ul>
-<li><code class="notranslate" translate="no">maxStorageBuffersInVertexStage</code></li>
-<li><code class="notranslate" translate="no">maxStorageTexturesInVertexStage</code></li>
-<li><code class="notranslate" translate="no">maxStorageBuffersInFragmentStage</code></li>
-<li><code class="notranslate" translate="no">maxStorageTexturesInFragmentStage</code></li>
+<li><code class="notranslate" translate="no">maxStorageBuffersInVertexStage</code> (default 0)</li>
+<li><code class="notranslate" translate="no">maxStorageTexturesInVertexStage</code> (default 0)</li>
+<li><code class="notranslate" translate="no">maxStorageBuffersInFragmentStage</code> (default 4)</li>
+<li><code class="notranslate" translate="no">maxStorageTexturesInFragmentStage</code> (default 4)</li>
 </ul>
 <p>Like other limits, you can check when you request an adapter
-what the adapter supports.</p>
+what the adapter supports and require higher than the defaults
+if you need more.</p>
 <p>As mentioned above, about 45% of devices support <code class="notranslate" translate="no">0</code>
-storage buffers in vertex shaders.</p>
+storage buffers and storage textures in vertex shaders.</p>
 </li>
 </ul>
 <h1 id="upgrading-from-compatibility-mode-to-core">Upgrading from compatibility mode to core</h1>
