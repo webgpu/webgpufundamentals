@@ -886,7 +886,8 @@ attribute.
   * `maxStorageTexturesInFragmentStage` (default 4)
 
   Like other limits, you can check when you request an adapter
-  what the adapter supports.
+  what the adapter supports and require higher than the defaults
+  if you need more.
 
   As mentioned above, about 45% of devices support `0`
   storage buffers and storage textures in vertex shaders.
