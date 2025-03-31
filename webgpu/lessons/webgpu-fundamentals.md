@@ -969,6 +969,11 @@ inside `render` so there's nothing left to do.
 
 {{{example url="../webgpu-simple-triangle-with-canvas-resize.html"}}}
 
+> Note: The code above does not handle responding to zoom which may change
+the resolution of the canvas. It also doesn't deal with higher resolutions
+for high-res displays. For those issues, see
+[the article on resizing the canvas](webgpu-reszing-the-canvas.html).
+
 In the following articles, we'll cover various ways to pass data into shaders.
 
 * [inter-stage variables](webgpu-inter-stage-variables.html)
