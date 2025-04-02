@@ -104,7 +104,7 @@ export default class TimingHelper {
     if (!this.#canTimestamp) {
       return;
     }
-    assert(this.#state === 'need resolve', 'must call addTimestampToPass');
+    assert(this.#state === 'need resolve', 'must use timerHelper.beginComputePass or timerHelper.beginRenderPass');
     this.#state = 'need finish';
 
     this.#resultBuffer = this.#resultBuffers.pop() || this.#device.createBuffer({
@@ -120,7 +120,7 @@ export default class TimingHelper {
     if (!this.#canTimestamp) {
       return 0;
     }
-    assert(this.#state === 'wait for result', 'must call resolveTiming');
+    assert(this.#state === 'wait for result', 'must call encoder.finish');
     assert(!!this.#commandBuffer); // internal check
     assert(!s_unsubmittedCommandBuffer.has(this.#commandBuffer), 'you must submit the command buffer before you can read the result');
     this.#commandBuffer = undefined;
