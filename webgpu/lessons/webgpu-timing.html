@@ -809,12 +809,25 @@ timing. Here’s one example of a helper that might help with some of these issu
   }
 }
 
+// We can't use a WeakSet because the command buffer might have been GCed
+// between the time we submit and the time we call getResult.
+const s_unsubmittedCommandBuffer = new Set();
+
+/* global GPUQueue */
+GPUQueue.prototype.submit = (function(origFn) {
+  return function(commandBuffers) {
+    origFn.call(this, commandBuffers);
+    commandBuffers.forEach(cb =&gt; s_unsubmittedCommandBuffer.delete(cb));
+  };
+})(GPUQueue.prototype.submit);
+
 class TimingHelper {
   #canTimestamp;
   #device;
   #querySet;
   #resolveBuffer;
   #resultBuffer;
+  #commandBuffer;
   #resultBuffers = [];
   // state can be 'free', 'need resolve', 'wait for result'
   #state = 'free';
@@ -851,12 +864,21 @@ class TimingHelper {
       });
 
       const resolve = () =&gt; this.#resolveTiming(encoder);
+      const trackCommandBuffer = (cb) =&gt; this.#trackCommandBuffer(cb);
       pass.end = (function(origFn) {
         return function() {
           origFn.call(this);
           resolve();
         };
       })(pass.end);
+
+      encoder.finish = (function(origFn) {
+        return function() {
+          const cb = origFn.call(this);
+          trackCommandBuffer(cb);
+          return cb;
+        };
+      })(encoder.finish);
 
       return pass;
     } else {
@@ -872,12 +894,22 @@ class TimingHelper {
     return this.#beginTimestampPass(encoder, 'beginComputePass', descriptor);
   }
 
+  #trackCommandBuffer(cb) {
+    if (!this.#canTimestamp) {
+      return;
+    }
+    assert(this.#state === 'need finish', 'must call encoder.finish');
+    this.#commandBuffer = cb;
+    s_unsubmittedCommandBuffer.add(cb);
+    this.#state = 'wait for result';
+  }
+
   #resolveTiming(encoder) {
     if (!this.#canTimestamp) {
       return;
     }
     assert(this.#state === 'need resolve', 'must call addTimestampToPass');
-    this.#state = 'wait for result';
+    this.#state = 'need finish';
 
     this.#resultBuffer = this.#resultBuffers.pop() || this.#device.createBuffer({
       size: this.#resolveBuffer.size,
@@ -893,6 +925,9 @@ class TimingHelper {
       return 0;
     }
     assert(this.#state === 'wait for result', 'must call resolveTiming');
+    assert(!!this.#commandBuffer); // internal check
+    assert(!s_unsubmittedCommandBuffer.has(this.#commandBuffer), 'you must submit the command buffer before you can read the result');
+    this.#commandBuffer = undefined;
     this.#state = 'free';
 
     const resultBuffer = this.#resultBuffer;
@@ -906,7 +941,8 @@ class TimingHelper {
 }
 </pre>
 <p>The asserts are there to helps us not use this class wrong. For example if we
-end a pass but don’t resolve it or, if we resolve it but don’t read the result.</p>
+end a pass but don’t resolve it or, if we resolve it and try to read the result
+but we haven’t submitted.</p>
 <p>With this class, we can remove much of the code we had before.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">async function main() {
   const adapter = await navigator.gpu?.requestAdapter();
