@@ -4,8 +4,8 @@ function assert(cond, msg = '') {
   }
 }
 
-// We can't use a WeakSet because the command buffer might have been GCed
-// between the time we submit and the time we call getResult.
+// We track command buffers so we can generate an error if
+// we try to read the result before the command buffer has been executed.
 const s_unsubmittedCommandBuffer = new Set();
 
 /* global GPUQueue */
@@ -94,7 +94,7 @@ export default class TimingHelper {
     if (!this.#canTimestamp) {
       return;
     }
-    assert(this.#state === 'need finish', 'must call encoder.finish');
+    assert(this.#state === 'need finish', 'you must call encoder.finish');
     this.#commandBuffer = cb;
     s_unsubmittedCommandBuffer.add(cb);
     this.#state = 'wait for result';
@@ -104,7 +104,10 @@ export default class TimingHelper {
     if (!this.#canTimestamp) {
       return;
     }
-    assert(this.#state === 'need resolve', 'must use timerHelper.beginComputePass or timerHelper.beginRenderPass');
+    assert(
+      this.#state === 'need resolve',
+      'you must use timerHelper.beginComputePass or timerHelper.beginRenderPass',
+    );
     this.#state = 'need finish';
 
     this.#resultBuffer = this.#resultBuffers.pop() || this.#device.createBuffer({
@@ -120,9 +123,15 @@ export default class TimingHelper {
     if (!this.#canTimestamp) {
       return 0;
     }
-    assert(this.#state === 'wait for result', 'must call encoder.finish');
+    assert(
+      this.#state === 'wait for result',
+      'you must call encoder.finish and submit the command buffer before you can read the result',
+    );
     assert(!!this.#commandBuffer); // internal check
-    assert(!s_unsubmittedCommandBuffer.has(this.#commandBuffer), 'you must submit the command buffer before you can read the result');
+    assert(
+      !s_unsubmittedCommandBuffer.has(this.#commandBuffer),
+      'you must submit the command buffer before you can read the result',
+    );
     this.#commandBuffer = undefined;
     this.#state = 'free';
 
