@@ -405,9 +405,12 @@ Or, more tersely
 ```
 
 Note that a buffer created with `mappedAtCreation: true` does not have
-to have `GPUBufferUsage.COPY_DST` usage. But, if `GPUBufferUsage.COPY_DST` is
-not set, you can not map the buffer again. It is only mapped once, at creation
-time.
+any flags set automatically. It is just a convenience for putting data
+in the buffer when you first create it. It's mapped at creation, and
+after you unmap it once, it behaves like any other buffer and will only
+work for the usages you specified. In other words, if you to want to copy
+to it later you need `GPUBufferUsage.COPY_DST` or if you want to map it
+later you need ``GPUBufferData.MAP_READ` or `GPUBufferData.MAP_WRITE`.
 
 ## <a id="a-efficient"></a>Efficiently using mappable buffers
 
