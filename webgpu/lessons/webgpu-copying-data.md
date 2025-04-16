@@ -64,7 +64,7 @@ device.writeTexture(
   { offset: 0, bytesPerRow, rowsPerImage },
 
   // size:
-  [ width, height, depthOrArrayLayers ]
+  [ width, height, depthOrArrayLayers ] or { width, height, depthOrArrayLayers }
 )
 ```
 
@@ -207,7 +207,7 @@ encoder.copyBufferToTexture(
   { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
   // size:
-  [ width, height, depthOrArrayLayers ]
+  [ width, height, depthOrArrayLayers ] or { width, height, depthOrArrayLayers }
 )
 ```
 
@@ -263,7 +263,7 @@ encoder.copyTextureToTexture(
   dst: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
   // size:
-  [ width, height, depthOrArrayLayers ]
+  [ width, height, depthOrArrayLayers ] or { width, height, depthOrArrayLayers }
 );
 ```
 
@@ -410,7 +410,7 @@ in the buffer when you first create it. It's mapped at creation, and
 after you unmap it once, it behaves like any other buffer and will only
 work for the usages you specified. In other words, if you to want to copy
 to it later you need `GPUBufferUsage.COPY_DST` or if you want to map it
-later you need ``GPUBufferData.MAP_READ` or `GPUBufferData.MAP_WRITE`.
+later you need `GPUBufferData.MAP_READ` or `GPUBufferData.MAP_WRITE`.
 
 ## <a id="a-efficient"></a>Efficiently using mappable buffers
 
