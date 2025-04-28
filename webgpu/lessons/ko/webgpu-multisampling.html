@@ -236,17 +236,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="webgpu_center side-by-side flex-gap" style="max-width: 850px">
   <div class="multisample-example">
     <div data-diagram="clip-space-to-texels"></div>
-    <div>drag the vertices</div>
+    <div>버텍스 끌기</div>
   </div>
   <div class="multisample-example">
     <div data-diagram="clip-space-to-texels-result"></div>
-    <div>result</div>
+    <div>결과</div>
   </div>
 </div>
-<p>이 삼각형은 매우 블록처럼 보입니다. 해상도를 높여볼 수 도 있겠지만, 최대로 높일 수 있는 해상도는 디스플레이에 한계까지고 이마자도 충분하지 않을 수 있습니다.</p>
-<p>한 가지 해결법은 더 높은 해상도를 랜더링하는 것입니다. 예를 들어 해상도는 4배(가로 2배, 세로 2배)로 높인 뒤에 "이중 선형 필터(bilinear filer)"룰 이용해 캔버스의 결과를 보여줄 수 있습니다.
-"이중 선형 필터(bilinear filtering)"에 대해서는
-<a href="webgpu-textures.html">the article on textures</a>를 참고하세요.</p>
+<p>이 삼각형은 계단 현상이 심하게 나타납니다. 해상도를 높여 볼 수도 있겠지만, 최대 해상도는 디스플레이의 한계에 불과하며, 그마저도 충분하지 않을 수 있습니다.</p>
+<p>한 가지 해결법은 더 높은 해상도로 렌더링하는 것입니다. 예를 들어 해상도를 4배(가로 2배, 세로 2배)로 높인 뒤, “이중 선형 필터링(bilinear filtering)을 이용해 캔버스에 결과를 표시할 수 있습니다.”
+"이중 선형 필터링(bilinear filtering)"에 대해서는
+<a href="webgpu-textures.html">텍스쳐 설명 글</a>을 참고하세요.</p>
 <div class="webgpu_center side-by-side flex-gap" style="max-width: 850px">
   <div class="multisample-example">
     <div data-diagram="clip-space-to-texels-4x"></div>
@@ -254,36 +254,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
   <div class="multisample-example">
     <div data-diagram="clip-space-to-texels-4x-result"></div>
-    <div>이중 선형 필터 결과</div>
+    <div>이중 선형 필터링 결과</div>
   </div>
 </div>
 <p>이 해결책이 유효하긴 하지만 비효율적입니다. 왼쪽 이미지의 2x2 픽셀은 오른쪽 이미지에서 1픽셀로 변환되는데, 많은 경우 이 4개의 픽셀이 모두 삼각형 안에 있어서 안티 앨리어싱이 필요 없습니다. 4개의 픽셀 모두 빨간색이기 때문입니다.</p>
 <div class="webgpu_center side-by-side flex-gap">
   <div class="multisample-example">
     <div data-diagram="clip-space-to-texels-4x-waste"></div>
-    <div>3 of every 4 <span style="color: cyan;">cyan</span> pixels are wasted</div>
+    <div>4개중 3개의<span style="color: cyan;">청록색</span>픽셀들이 낭비됩니다.</div>
   </div>
 </div>
 <p>1픽셀만 그리면 될 것을 4개의 빨간색 픽셀을 그리는 건 비효율적입니다. GPU는 프래그먼트 셰이더(fragment shader)를 4번 호출했습니다. 프래그먼트 셰이더는 상당히 크고 많은 연산을 수행할 수 있으므로 가능한 한 적게 호출하는 게 좋습니다. 심지어 삼각형이 3개의 픽셀만을 지나갈 때에도 이런 문제가 발생합니다.</p>
 <div class="webgpu_center">
   <img src="../resources/antialias-4x.svg" width="600">
 </div>
-<p>위 예시에서는 4배 렌더링(4x rendering)을 사용할 때, 삼각형이 3개 픽셀의 중심을 덮으면 프래그먼트 셰이더가 3번 호출됩니다. 이후 결과에 이중 선형 필터링(bilinear filtering)을 적용하게 됩니다.</p>
+<p>위 예시에서는 4배 렌더링(4x rendering)을 사용할 때, 삼각형이 3개 픽셀의 중심을 덮으면 프래그먼트 셰이더가 3번 호출됩니다. 이후 결과에 이중선형 필터링(bilinear filtering)을 적용하게 됩니다.</p>
 <p>바로 이 부분에서 멀티샘플링(multisampling)의 효율성이 더 뛰어납니다. 멀티샘플링을 사용하면 특수한 '멀티샘플 텍스처(multisample texture)'를 생성합니다. 이 멀티샘플 텍스처에 삼각형을 그릴 때, 4개의 ‘샘플(samples)’ 중 하나라도 삼각형 내부에 있으면 GPU는 프래그먼트 셰이더를 단 한 번 호출합니다. 그 후 삼각형 내부에 위치한 샘플에만 결과를 기록하게 됩니다.</p>
 <div class="webgpu_center">
   <img src="../resources/antialias-multisample-4.svg" width="600">
 </div>
-<p>위의 예시에서 멀티샘플링 렌더링을 사용할 경우, 삼각형이 3개의 *샘플(samples)*을 덮더라도 프래그먼트 셰이더는 단 한 번만 호출됩니다. 그런 다음, 이 결과를 하나의 픽셀로 병합하는 <em>리졸브(resolve)</em> 과정을 거칩니다. 삼각형이 만약 4개의 샘플 모두를 덮는 경우에도 과정은 비슷합니다. 프래그먼트 셰이더는 한 번만 호출되며, 그 결과는 4개의 샘플 모두에 기록됩니다.</p>
-<p>여기서 주목할 점은, 기존의 4x 렌더링 방식에서는 CPU가 픽셀 4개의 중심이 삼각형 안에 있는지 확인한 반면, 멀티샘플링(multisampled) 렌더링에서는 GPU가 격자(grid)에 정렬되지 않은 '샘플 위치(sample positions)'를 검사한다는 점입니다. 비슷하게 샘플 값(sample values) 또한 정형화된 격자를 이루지 않기 때문에, 이 값들을 하나의 픽셀로 “병합(resolving)” 하는 과정 역시 이중 선형 필터링(bilinear filtering)이 아니라 GPU에 의해 처리됩니다. 이렇게 픽셀 중심에서 벗어난 비정형 샘플 위치는 대부분의 상황에서 더 나은 안티 앨리어싱 효과를 제공하게 됩니다.</p>
-<h2 id="how-to-use-multisampling"><a id="a-multisampling"></a> How to use multisampling.</h2>
+<p>위의 예시에서 멀티샘플링 렌더링을 사용할 경우, 삼각형이 3개의 *샘플(samples)*을 덮더라도 프래그먼트 셰이더는 단 한 번만 호출됩니다. 그런 다음, 이 결과를 하나의 픽셀로 병합하는 <em>병합(resolve)</em> 과정을 거칩니다. 삼각형이 만약 4개의 샘플 모두를 덮는 경우에도 과정은 비슷합니다. 프래그먼트 셰이더는 한 번만 호출되며, 그 결과는 4개의 샘플 모두에 기록됩니다.</p>
+<p>여기서 주목할 점은, 기존의 4배 렌더링 방식에서는 CPU가 픽셀 4개의 중심이 삼각형 안에 있는지 확인한 반면, 멀티샘플링(multisampled) 렌더링에서는 GPU가 격자(grid)에 정렬되지 않은 '샘플 위치(sample positions)'를 검사한다는 점입니다. 비슷하게 샘플 값(sample values) 또한 정형화된 격자를 이루지 않기 때문에, 이 값들을 하나의 픽셀로 “병합(resolving)” 하는 과정 역시 이중선형 필터링(bilinear filtering)이 아니라 GPU에 의해 처리됩니다. 이렇게 픽셀 중심에서 벗어난 비정형 샘플 위치는 대부분의 상황에서 더 나은 안티 앨리어싱 효과를 제공하게 됩니다.</p>
+<h2 id="멀티샘플링-사용-방법"><a id="a-multisampling"></a> 멀티샘플링 사용 방법</h2>
 <p>그래서 어떻게 멀티샘플링을 할 수 있을까요? 3개 단계를 따르면 됩니다.</p>
 <ol>
-<li>파이프라인에서 멀티 샘플 텍스쳐를 랜더링하게 설정하세요.</li>
-<li>멀티 샘플 텍스쳐를 최종 텍스쳐와 같은 크기로 만드세요.</li>
-<li>렌더 패스(render pass)를 설정할 때, 멀티샘플 텍스처로 렌더링한 후 그 결과를 최종 텍스처(canvas)에 병합합(resolve) 하도록 합니다.</li>
+<li>파이프라인에서 멀티 샘플 텍스처로 렌더링하도록 설정하세요.</li>
+<li>멀티 샘플 텍스처를 최종 텍스처와 같은 크기로 만드세요.</li>
+<li>렌더 패스(render pass)를 설정할 때, 멀티샘플 텍스처로 렌더링한 후 그 결과를 최종 텍스처(canvas)에 병합(resolve)하도록 합니다.</li>
 </ol>
 <p>간단히 하기 위해, <a href="../webgpu-fundamentals.html#a-resizing">기본 개념 문서</a> 끝부분에 있는 반응형(responsive) 삼각형 예제를 가져와서, 여기에 멀티샘플링(multisampling)을 추가해 봅시다.</p>
-<h3 id="파이프라인에서-멀티-샘플-텍스쳐를-랜더링하게-설정하세요">파이프라인에서 멀티 샘플 텍스쳐를 랜더링하게 설정하세요.</h3>
+<h3 id="파이프라인에서-멀티-샘플-텍스처로-렌더링하도록-설정하세요">파이프라인에서 멀티 샘플 텍스처로 렌더링하도록 설정하세요.</h3>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
     label: 'our hardcoded red triangle pipeline',
     layout: 'auto',
@@ -300,9 +300,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   });
 </pre>
 <p>위에 <code class="notranslate" translate="no">multisample</code> 설정을 추가하면, 이 파이프라인은 멀티샘플 텍스처로 렌더링할 수 있게 됩니다.</p>
-<h3 id="멀티-샘플-텍스쳐를-최종-텍스쳐와-같은-크기로-만드세요">멀티 샘플 텍스쳐를 최종 텍스쳐와 같은 크기로 만드세요.</h3>
+<h3 id="멀티-샘플-텍스처를-최종-텍스처와-같은-크기로-만드세요">멀티 샘플 텍스처를 최종 텍스처와 같은 크기로 만드세요.</h3>
 <p>최종 텍스처는 캔버스(canvas)의 텍스처입니다. 사용자가 창 크기를 조절하는 등의 이유로 캔버스 크기가 바뀔 수 있으므로, 이 텍스처는 렌더링할 때마다 생성해주어야 합니다.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  let multisampleTexture;
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  let multisampleTexture;
 
   function render() {
 +    // Get the current texture from the canvas context
@@ -335,23 +335,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (a) 아직 멀티샘플 텍스처가 없는 경우
 (b) 기존 텍스처의 크기가 캔버스와 일치하지 않는 경우</p>
 <p>캔버스와 동일한 크기의 텍스처를 생성하되, sampleCount: 4를 추가하여 이 텍스처가 멀티샘플 텍스처가 되도록 합니다.</p>
-<h3 id="렌더-패스render-pass를-설정할-때-멀티샘플-텍스처로-렌더링한-후-그-결과를-최종-텍스처canvas에-병합resolve-하도록-합니다">렌더 패스(render pass)를 설정할 때, 멀티샘플 텍스처로 렌더링한 후 그 결과를 최종 텍스처(canvas)에 병합(resolve) 하도록 합니다.</h3>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-    // Get the current texture from the canvas context and
--    // set it as the texture to render to.
+<h3 id="렌더-패스render-pass를-설정할-때-멀티샘플-텍스처로-렌더링한-후-그-결과를-최종-텍스처canvas에-병합resolve하도록-합니다">렌더 패스(render pass)를 설정할 때, 멀티샘플 텍스처로 렌더링한 후 그 결과를 최종 텍스처(canvas)에 병합(resolve)하도록 합니다.</h3>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-    // 캔버스 컨텍스트에서 현재 텍스처를 가져와서
+-    // 렌더링할 텍스처로 설정합니다.
 -    renderPassDescriptor.colorAttachments[0].view =
 -        context.getCurrentTexture().createView();
 
-+    // Set the multisample texture as the texture to render to
++    // 멀티샘플 텍스처를 렌더링할 텍스처로 설정합니다
 +    renderPassDescriptor.colorAttachments[0].view =
 +        multisampleTexture.createView();
-+    // Set the canvas texture as the texture to "resolve"
-+    // the multisample texture to.
++    // 캔버스 텍스처를 멀티샘플 텍스처를 "병합"할
++    // 대상 텍스처로 설정합니다.
 +    renderPassDescriptor.colorAttachments[0].resolveTarget =
 +        canvasTexture.createView();
 </pre>
 <p>*병합(resolve)*이란 멀티샘플 텍스처의 데이터를 우리가 실제로 원하는 크기의 텍스처로 변환하는 과정입니다. 이 예제에서는 그 대상이 바로 캔버스입니다.</p>
-<p>앞서 4배(4x) 렌더링 예제에서는 4배 크기의 텍스처를 생성한 후, 그것을 1배 크기의 텍스처로 양선형 필터링(bilinear filtering)을 통해 직접접 축소(resize)했었습니다.</p>
-<p>멀티샘플링에서도 이와 유사한 방식으로 처리되긴 하지만, 멀티샘플 텍스처는 실제로는 양선형 필터링을 사용하지 않습니다.</p>
+<p>앞서 4배(4x) 렌더링 예제에서는 4배 크기의 텍스처를 생성한 후, 그것을 1배 크기의 텍스처로 이중선형 필터링(bilinear filtering)을 통해 직접접 축소(resize)했었습니다.</p>
+<p>멀티샘플링에서도 이와 유사한 방식으로 처리되긴 하지만, 멀티샘플 텍스처는 실제로는 이중선형 필터링을 사용하지 않습니다.</p>
 <p>자세한 내용은 아래의  <a href="#a-not-a-grid">격자가 아닌 구조</a>를 참고하세요.</p>
 <p>그리고 아래는 예제입니다:</p>
 <p></p><div class="webgpu_example_container">
@@ -366,20 +366,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="webgpu_center side-by-side flex-gap" style="max-width: 850px">
   <div class="multisample-example">
     <div data-diagram="simple-triangle"></div>
-    <div>original</div>
+    <div>원본</div>
   </div>
   <div class="multisample-example">
     <div data-diagram="simple-triangle-multisample"></div>
-    <div>with multisampling</div>
+    <div>멀티샘플링이 적용된 버전</div>
   </div>
 </div>
 <p>다음을 기억하세요.</p>
-<h2 id="count는-꼭-4-여야-합니다"><code class="notranslate" translate="no">count</code>는 꼭 <code class="notranslate" translate="no">4</code> 여야 합니다.</h2>
+<h2 id="count는-반드시-4여야-합니다"><code class="notranslate" translate="no">count</code>는 반드시 <code class="notranslate" translate="no">4</code>여야 합니다.</h2>
 <p>WebGPU 버전 1에서는 렌더 파이프라인의 <code class="notranslate" translate="no">multisample: { count }</code> 설정 값으로 1 또는 4만 사용할 수 있습니다.
 마찬가지로 텍스처를 생성할 때 설정하는 <code class="notranslate" translate="no">sampleCount</code> 역시 1 또는 4만 허용됩니다.</p>
 <p>1은 기본값이며, 텍스처가 멀티샘플링되지 않은(non-multisampled) 상태임을 의미합니다.
 4를 설정하면 4x 멀티샘플링이 적용되어 안티 앨리어싱 품질이 향상됩니다.</p>
-<h2 id="multisampling-does-not-use-a-grid"><a id="a-not-a-grid"></a> Multisampling does not use a grid</h2>
+<h2 id="멀티샘플링은-격자grid를-사용하지-않습니다"><a id="a-not-a-grid"></a> 멀티샘플링은 격자(grid)를 사용하지 않습니다</h2>
 <p>앞서 언급했듯이, 멀티샘플링은 일반적인 격자(grid) 형태로 이루어지지 않습니다.
 sampleCount = 4일 때, 샘플 위치는 다음과 같은 방식으로 배치됩니다:</p>
 <div class="webgpu_center">
@@ -399,14 +399,14 @@ sampleCount = 4일 때, 샘플 위치는 다음과 같은 방식으로 배치됩
   <div class="center">count: 16</div>
 </div>
 <p><strong>WebGPU 는 현재 count 4만 지원합니다.</strong></p>
-<h2 id="모든-렌더-패스에서-resolve-target을-설정할-필요는-없습니다">모든 렌더 패스에서 resolve target을 설정할 필요는 없습니다.</h2>
-<p><code class="notranslate" translate="no">colorAttachment[0].resolveTarget</code>을 설정하면 WebGPU에게 “이 렌더 패스의 모든 그리기가 완료되면, 멀티샘플 텍스처를 <code class="notranslate" translate="no">resolveTarget</code>에 설정된 텍스처로 다운스케일하라”고 지시하는 것입니다. 여러 개의 렌더 패스가 있는 경우, 마지막 패스까지 resolve하지 않는 것이 좋습니다. 마지막 패스에서 resolve하는 것이 가장 빠르지만, resolve만을 위한 빈 마지막 렌더 패스를 만드는 것도 완전히 허용됩니다.
+<h2 id="모든-렌더-패스에서-resolvetarget을-설정할-필요는-없습니다">모든 렌더 패스에서 <code class="notranslate" translate="no">resolveTarget</code>을 설정할 필요는 없습니다.</h2>
+<p><code class="notranslate" translate="no">colorAttachment[0].resolveTarget</code>을 설정하면 WebGPU에게 다음과 같이 지시하는 것입니다. “이 렌더 패스의 모든 그리기가 완료되면, 멀티샘플 텍스처를 <code class="notranslate" translate="no">resolveTarget</code>에 설정된 텍스처로 다운스케일하라” 여러 개의 렌더 패스가 있는 경우, 마지막 패스까지 resolve하지 않는 것이 좋습니다. 마지막 패스에서 resolve하는 것이 가장 빠르지만, resolve만을 위한 빈 마지막 렌더 패스를 만드는 것도 완전히 허용됩니다.
 단, 첫 번째 패스를 제외한 모든 패스에서 <code class="notranslate" translate="no">loadOp</code>를 <code class="notranslate" translate="no">'clear'</code>가 아닌 <code class="notranslate" translate="no">'load'</code>로 설정해야 합니다. 그렇지 않으면 텍스처가 지워질 것입니다.</p>
 <h2 id="선택적으로-각-샘플-포인트에서-프래그먼트-셰이더를-실행할-수-있습니다">선택적으로 각 샘플 포인트에서 프래그먼트 셰이더를 실행할 수 있습니다.</h2>
 <p>앞서 우리는 프래그먼트 셰이더가 멀티샘플 텍스처의 4개 샘플마다 한 번만 실행된다고 설명했습니다. 셰이더는 한 번 실행되고 그 결과를 실제로 삼각형 내부에 있는 샘플들에 저장합니다. 이것이 4배 해상도로 렌더링하는 것보다 더 빠른 이유입니다.</p>
 <p><a href="../webgpu-inter-stage-variables.html#a-interpolate">WebGPU에서 인터스테이지 변수에 관한 글</a>에서 우리는 <code class="notranslate" translate="no">@interpolate(...)</code> 속성을 사용하여 인터스테이지 변수의 보간 방법을 지정할 수 있다고 언급했습니다. 여러 옵션 중 하나인 <code class="notranslate" translate="no">sample</code>을 사용하면 프래그먼트 셰이더가 각 샘플마다 한 번씩 실행됩니다.
 WebGPU에는 몇 가지 유용한 내장 변수들이 있습니다. <code class="notranslate" translate="no">@builtin(sample_index)</code>는 현재 작업 중인 샘플이 어떤 것인지 알려주며, <code class="notranslate" translate="no">@builtin(sample_mask)</code>는 입력으로 사용될 때 삼각형 내부에 있는 어떤 샘플들이 있는지 알려주고, 출력으로 사용될 때는 샘플 포인트가 업데이트되는 것을 방지할 수 있게 해줍니다.</p>
-<h2 id="center-vs-centroid"><code class="notranslate" translate="no">center</code> vs <code class="notranslate" translate="no">centroid</code></h2>
+<h2 id="center-대-centroid"><code class="notranslate" translate="no">center</code> 대 <code class="notranslate" translate="no">centroid</code></h2>
 <p>3가지 <em>샘플링</em> 보간 모드가 있습니다. 위에서 우리는 각 샘플마다 프래그먼트 셰이더가 한 번씩 호출되는 <code class="notranslate" translate="no">'sample'</code> 모드에 대해 언급했습니다. 다른 두 가지 모드는 기본값인 <code class="notranslate" translate="no">'center'</code>와 <code class="notranslate" translate="no">'centroid'</code>입니다.</p>
 <ul>
 <li><code class="notranslate" translate="no">'center'</code> 는 픽셀의 중심을 기준으로 값을 보간합니다.</li>
@@ -475,12 +475,12 @@ WebGPU에는 몇 가지 유용한 내장 변수들이 있습니다. <code class=
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">canvas {
 +  image-rendering: pixelated;
 +  image-rendering: crisp-edges;
-  display: block;  /* make the canvas act like a block   */
-  width: 100%;     /* make the canvas fill its container */
+  display: block;  /* canvas block 설정   */
+  width: 100%;     /* 캔버스가 화면에 꽉차게 설정 */
   height: 100%;
 }
 </pre>
-<p>결과는 다음과 같습니다ㅣ.</p>
+<p>결과는 다음과 같습니다.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-multisample-center-issue.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-multisample-center-issue.html" target="_blank">새 창으로 보려면 여기를 클릭하세요</a>
@@ -507,7 +507,7 @@ WebGPU에는 몇 가지 유용한 내장 변수들이 있습니다. <code class=
 
 <p></p>
 <blockquote>
-<p>참고: GPU가 실제로 픽셀 내 삼각형 영역의 중심점을 계산하는지는 확실하지 않습니다. 보장되는 것은 단계 간 변수들이 픽셀과 교차하는 삼각형 부분 내의 어떤 영역을 기준으로 보간된다는 점뿐입니다.</p>
+<p>참고: GPU가 실제로 픽셀 내 삼각형 영역의 중심점을 계산하는지는 확실하지 않습니다. 보장되는 것은 인터스테이지 변수들이 픽셀과 교차하는 삼각형 영역 내의 어떤 위치를 기준으로 보간된다는 점뿐입니다.</p>
 </blockquote>
 <h2 id="삼각형-내부의-안티앨리어싱은-어떻게-될까요">삼각형 내부의 안티앨리어싱은 어떻게 될까요?</h2>
 <p>멀티샘플링은 일반적으로 삼각형의 가장자리에만 효과가 있습니다. 프래그먼트 셰이더를 한 번만 호출하기 때문에, 모든 샘플 위치가 삼각형 내부에 있을 때는 프래그먼트 셰이더의 결과가 모든 샘플에 동일하게 적용됩니다. 이는 멀티샘플링을 사용하지 않은 경우와 결과가 다르지 않다는 것을 의미합니다.</p>
