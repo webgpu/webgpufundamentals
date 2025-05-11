@@ -878,7 +878,7 @@ Because our chunk size is hardcoded into the shader we don't want to work on
 pixels outside of our texture. So for example if our image was 300 pixels
 wide, the first workgroup would work on pixels 0 to 255. The second workgroup
 would work on pixels 256 to 511. But we only need work up to pixel 299.
-This is what the `if(all(position < size))` does. both `position` and `size` are
+This is what the `if(all(position < size))` does. Both `position` and `size` are
 `vec2u` and so `position < size` will produce 2 boolean values which is a`vec2<bool>`.
 the `all` function returns `true` if all of its inputs are true. So, the code
 will only go inside the `if` if `position.x < size.x` and `position.y < size.y`.
