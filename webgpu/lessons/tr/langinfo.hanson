@@ -32,7 +32,7 @@
     '2d': '2B',
     'reference': 'Referans',
     '3d-math': '3B Matematik',
-    'lighting': 'Lighting',
+    'lighting': 'Işıklandırma',
     'compute-shaders': 'Hesap Gölgelendiricileri',
   },
 }
