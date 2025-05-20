@@ -2,8 +2,8 @@
   language: 'Türkçe',
   langCode: 'tr',
   defaultExampleCaption: "ayrı bir pencerede açmak için buraya tıklayın",
-  title: 'WebGPU'nun Temelleri',
-  description: 'WebGPU’yu öğrenin',
+  title: "WebGPU'nun Temelleri",
+  description: "WebGPU'yu öğrenin",
   link: 'https://webgpufundamentals.org/webgpu/lessons/tr',
   commentSectionHeader: `
 <div>Sorular? <a href="http://stackoverflow.com/questions/tagged/webgpu">Stack Overflow'da sorun</a>.</div>
