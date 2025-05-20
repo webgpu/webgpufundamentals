@@ -21,7 +21,7 @@
 
 [Burada İngilizcesi var]({{{origLink}}}).
   `,
-  contribTemplate: '<a href="${html_url}"><img src="${avatar_url}">${login}</a>,<br> <a href="https://github.com/${owner}/${repo}/commits?author=${login}">${contributions} katkıların</a> için sağ ol.',
+  contribTemplate: '<a href="${html_url}"><img src="${avatar_url}">${login}</a>,<br><a href="https://github.com/${owner}/${repo}/commits?author=${login}">${contributions} katkıların</a> için sağ ol.',
   toc: 'İçindekiler',
   categoryMapping: {
     'basics': 'Temel Bilgiler',
