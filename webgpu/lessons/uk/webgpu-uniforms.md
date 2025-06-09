@@ -155,7 +155,7 @@ TOC: Юніформи
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer},
     ],
   });
 ```
@@ -314,7 +314,7 @@ const rand = (min, max) => {
 +      label: `bind group for obj: ${i}`,
 +      layout: pipeline.getBindGroupLayout(0),
 +      entries: [
-+        { binding: 0, resource: { buffer: uniformBuffer }},
++        { binding: 0, resource: uniformBuffer},
 +      ],
 +    });
 +
@@ -490,8 +490,8 @@ device.queue.submit([commandBuffer]);
       label: `bind group for obj: ${i}`,
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: staticUniformBuffer }},
-+        { binding: 1, resource: { buffer: uniformBuffer }},
+        { binding: 0, resource: staticUniformBuffer},
++        { binding: 1, resource: uniformBuffer},
       ],
     });
 
