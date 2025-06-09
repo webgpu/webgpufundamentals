@@ -610,7 +610,7 @@ the scale buffer, and the texture
           size: chunkSize * 4 * 4,
         },
       },
-      { binding: 1, resource: { buffer: scaleBuffer }},
+      { binding: 1, resource: scaleBuffer},
       { binding: 2, resource: texture.createView() },
     ],
   });
@@ -754,8 +754,8 @@ We need a bindGroup for all of this
       layout: drawHistogramPipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: uniformBuffer } },
-        { binding: 2, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: uniformBuffer },
+        { binding: 2, resource: scaleBuffer},
       ],
     });
 ```
@@ -991,8 +991,8 @@ for each of the 2 histograms we want to draw
       layout: drawHistogramPipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: uniformBuffer } },
-        { binding: 2, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: uniformBuffer },
+        { binding: 2, resource: scaleBuffer},
       ],
     });
 
@@ -1016,7 +1016,7 @@ the bind groups that reference the texture every frame
     const histogramBindGroup = device.createBindGroup({
       layout: histogramChunkPipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: chunksBuffer }},
+        { binding: 0, resource: chunksBuffer},
         { binding: 1, resource: texture },
       ],
     });
@@ -1025,7 +1025,7 @@ the bind groups that reference the texture every frame
       layout: scalePipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: scaleBuffer},
         { binding: 2, resource: texture },
       ],
     });
@@ -1053,7 +1053,7 @@ get a [cover effect](https://developer.mozilla.org/en-US/docs/Web/CSS/background
         entries: [
           { binding: 0, resource: videoSampler },
           { binding: 1, resource: texture },
-          { binding: 2, resource: { buffer: videoUniformBuffer }},
+          { binding: 2, resource: videoUniformBuffer},
         ],
       });
 
