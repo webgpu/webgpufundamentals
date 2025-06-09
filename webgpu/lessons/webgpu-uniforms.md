@@ -150,7 +150,7 @@ We need to pass the same `@group(?)` and `@binding(?)` we set in our shader.
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer},
     ],
   });
 ```
@@ -306,7 +306,7 @@ we can draw a bunch of individual things.
 +      label: `bind group for obj: ${i}`,
 +      layout: pipeline.getBindGroupLayout(0),
 +      entries: [
-+        { binding: 0, resource: { buffer: uniformBuffer }},
++        { binding: 0, resource: uniformBuffer},
 +      ],
 +    });
 +
@@ -483,8 +483,8 @@ When we need 2 uniform buffers per thing we want to draw
       label: `bind group for obj: ${i}`,
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: staticUniformBuffer }},
-+        { binding: 1, resource: { buffer: uniformBuffer }},
+        { binding: 0, resource: staticUniformBuffer},
++        { binding: 1, resource: uniformBuffer},
       ],
     });
 
