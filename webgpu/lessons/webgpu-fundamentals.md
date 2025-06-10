@@ -807,7 +807,7 @@ create a bindGroup.
     label: 'bindGroup for work buffer',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: workBuffer } },
+      { binding: 0, resource: workBuffer },
     ],
   });
 ```

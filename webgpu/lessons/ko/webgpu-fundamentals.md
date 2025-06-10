@@ -684,7 +684,7 @@ WebGPU 버퍼로부터 데이터를 직접 읽을 수는 없다는 점을 유념
     label: 'bindGroup for work buffer',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: workBuffer } },
+      { binding: 0, resource: workBuffer },
     ],
   });
 ```
