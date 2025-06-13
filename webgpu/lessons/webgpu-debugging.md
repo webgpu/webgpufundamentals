@@ -352,7 +352,8 @@ happening in your WebGPU code.
 
 ### Simplify:
 
-Get your shader to a working state. Once it's working, add stuff back in little by little
+Get your shader to a working state by cutting out as much as possible.
+Once it's working, add stuff back in little by little
 
 ### Show a solid color
 
