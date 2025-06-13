@@ -175,7 +175,7 @@ function findIndex({ array, position, value }) {
 
 Both of the functions above have a parameter called `position`. There is generally
 no confusion between the two. It's similar with vertex shaders and fragment shaders.
-They're builtins are different and unrelated, each of them just happen to have a
+Their builtins are different and unrelated, each of them just happen to have a
 `@builtin` named `position` and when compiling each shader entry point, the WGSL
 code is read for that entry point alone.
 
