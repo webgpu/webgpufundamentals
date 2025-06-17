@@ -719,6 +719,23 @@ This works
 {{{example url="../webgpu-post-processing-step-03-compute-workgroups.html"}}}
 
 This is much faster! But, unfortunately, on some GPUs it is still slower than using a render pass.
+
+
+<div class="webgpu_center data-table">
+  <table>
+    <thead>
+      <tr><th>GPU</th><th>Compute pass time vs<br>Render pass time<br>(higher is worse)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>M1 Mac                 </td><td>1x</td></tr>
+      <tr><td>AMD Radeon Pro 5300M   </td><td>1x</td></tr>
+      <tr><td>AMD Radeon Pro WX 32000</td><td>1.3x</td></tr>
+      <tr><td>Intel UHD Graphics 630 </td><td>1.7x</td></tr>
+      <tr><td>NVidia 2070 Super      </td><td>2x</td></tr>
+    </tbody>
+  </table>
+</div>
+
 Going into how to make it faster is too big of a topic for this particular article.
 Referencing [the article on optimizing compute shaders](webgpu-compute-shaders-historgram.html),
 the same rules apply. Unfortunately none of them are really relevant to this example.
