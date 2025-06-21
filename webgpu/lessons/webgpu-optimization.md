@@ -411,7 +411,7 @@ to position and animate each object.
       entries: [
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
-        { binding: 2, resource: { buffer: uniformBuffer }},
+        { binding: 2, resource: uniformBuffer},
       ],
     });
 
@@ -1325,8 +1325,8 @@ global uniform buffer to each object's bind group.
       entries: [
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
-        { binding: 2, resource: { buffer: uniformBuffer }},
-+        { binding: 3, resource: { buffer: globalUniformBuffer }},
+        { binding: 2, resource: uniformBuffer},
++        { binding: 3, resource: globalUniformBuffer},
       ],
     });
 
@@ -1633,9 +1633,9 @@ object's bind group.
       entries: [
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
-        { binding: 2, resource: { buffer: uniformBuffer }},
-        { binding: 3, resource: { buffer: globalUniformBuffer }},
-+        { binding: 4, resource: { buffer: material.materialUniformBuffer }},
+        { binding: 2, resource: uniformBuffer},
+        { binding: 3, resource: globalUniformBuffer},
++        { binding: 4, resource: material.materialUniformBuffer},
       ],
     });
 
@@ -1778,7 +1778,7 @@ buffer.
       entries: [
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
--        { binding: 2, resource: { buffer: uniformBuffer }},
+-        { binding: 2, resource: uniformBuffer},
 +        {
 +          binding: 2,
 +          resource: {
@@ -1787,8 +1787,8 @@ buffer.
 +            size: uniformBufferSize,
 +          },
 +        },
-        { binding: 3, resource: { buffer: globalUniformBuffer }},
-        { binding: 4, resource: { buffer: material.materialUniformBuffer }},
+        { binding: 3, resource: globalUniformBuffer},
+        { binding: 4, resource: material.materialUniformBuffer},
       ],
     });
 
@@ -1933,8 +1933,8 @@ make new typedarray views after mapping.
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
         { binding: 2, resource: { buffer: uniformBuffer, offset: uniformBufferOffset, size: uniformBufferSize }},
-        { binding: 3, resource: { buffer: globalUniformBuffer }},
-        { binding: 4, resource: { buffer: material.materialUniformBuffer }},
+        { binding: 3, resource: globalUniformBuffer},
+        { binding: 4, resource: material.materialUniformBuffer},
       ],
     });
 
