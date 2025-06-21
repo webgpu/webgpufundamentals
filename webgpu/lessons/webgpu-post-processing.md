@@ -1,6 +1,6 @@
-Title: WebGPU Post Processing
+Title: WebGPU Post Processing - Basic CRT Effect
 Description: Post Processing
-TOC: Post Processing
+TOC: Basic CRT Effect
 
 Post Processing just means to do some processing after you've created the "original" image.
 Post processing can apply to a photo, a video, a 2d scene, a 3d scene. It just generally
