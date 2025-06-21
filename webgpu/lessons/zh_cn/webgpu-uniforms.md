@@ -411,8 +411,7 @@ const module = device.createShaderModule({
       uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // set the color
       uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset);      // set the offset
 
-      // copy these values to the GPU
--      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
++      // copy these values to the GPU
 +      device.queue.writeBuffer(staticUniformBuffer, 0, uniformValues);
     }
 
