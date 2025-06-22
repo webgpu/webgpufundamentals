@@ -354,7 +354,7 @@ we'll just bind the same buffer 3 times.
     label: 'bindGroup for work buffer',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
--      { binding: 0, resource: { buffer: workBuffer } },
+-      { binding: 0, resource: workBuffer },
 +      { binding: 0, resource: { buffer: workBuffer, size: 256 } },
 +      { binding: 1, resource: { buffer: workBuffer, size: 256 } },
 +      { binding: 2, resource: { buffer: workBuffer, size: 256 } },
@@ -519,7 +519,7 @@ directly
 -    layout: pipeline.getBindGroupLayout(0),
 +    layout: bindGroupLayout,
     entries: [
-      { binding: 0, resource: { buffer: workBuffer } },
+      { binding: 0, resource: workBuffer },
     ],
   });
 ```

@@ -173,9 +173,9 @@ We make a bindgroup to bind all our storage buffers
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: workgroupBuffer }},
-      { binding: 1, resource: { buffer: localBuffer }},
-      { binding: 2, resource: { buffer: globalBuffer }},
+      { binding: 0, resource: workgroupBuffer},
+      { binding: 1, resource: localBuffer},
+      { binding: 2, resource: globalBuffer},
     ],
   });
 ```
