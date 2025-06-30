@@ -53,8 +53,6 @@ const module = device.createShaderModule({
 ```
 
 然后，我们声明了一个类型为该结构体的 uniform 变量。变量名为 `ourStruct`，类型为 `OurStruct`。
-Then we declared a uniform variable with a type of that struct.
-The variable is `ourStruct` and its type is `OurStruct`.
 
 ```wsgl
       @group(0) @binding(0) var<uniform> ourStruct: OurStruct;
