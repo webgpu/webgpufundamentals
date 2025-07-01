@@ -279,14 +279,7 @@ struct VSOutput {
 
 上面我们在 pipeline 描述的缓冲区数组中新添加了 2 项，因此现在有 3 个缓冲区，这意味着我们告诉 WebGPU 我们将在 3 个缓冲区中提供数据。
 
-对于 2 个新条目，我们将 `stepMode` 设置为 `instance`。这意味着该属性在每个实例中只会前进一次到下一个值。默认值为 `stepMode: 'vertex'` 即每个顶点递进一次（每个实例重新开始）。
-
-Above we added 2 entries to the `buffers` array on our pipeline description so now there are 3 buffer entries, meaning
-we're telling WebGPU we'll supply the data in 3 buffers.
-
-For our 2 new entires we set the `stepMode` to `instance`. This means this attribute
-will only advance to next value once per instance. The default is `stepMode: 'vertex'`
-which advances once per vertex (and starts over for each instance).
+对于 2 个新条目，我们将 `stepMode` 设置为 `instance`。这意味着该属性在每个实例中只会前进一次到下一个值。默认值为 `stepMode: 'vertex'`， 即每个顶点递进一次（并且在每个实例重新开始）。
 
 我们有两个缓冲区。其中一个只保存`scale`，为其设置`attribute`非常简单。就像第一个缓冲区保存`position`一样，每个顶点有 2 个 32 位浮点数。
 
@@ -703,9 +696,6 @@ function createCircleVertices({
 <div class="webgpu_center"><img src="resources/vertex-buffer-u8x4-f32x2.svg" style="width: 1024px;"></div>
 
 然后，我们需要更改管道，将数据提取为 8 位无符号值，并将其归一化为 0 ↔ 1，更新偏移量，并将步长更新为新大小。
-We then need to change the pipeline to pull out the data as 8bit unsigned
-values and to normalize them back to 0 ↔ 1, update the offsets, and update the stride to its
-new size.
 
 ```js
   const pipeline = device.createRenderPipeline({
