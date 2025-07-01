@@ -274,9 +274,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         offset: vec2f,
       };
 </pre>
-<p>然后，我们声明了一个类型为该结构体的 uniform 变量。变量名为 <code class="notranslate" translate="no">ourStruct</code>，类型为 <code class="notranslate" translate="no">OurStruct</code>。
-Then we declared a uniform variable with a type of that struct.
-The variable is <code class="notranslate" translate="no">ourStruct</code> and its type is <code class="notranslate" translate="no">OurStruct</code>.</p>
+<p>然后，我们声明了一个类型为该结构体的 uniform 变量。变量名为 <code class="notranslate" translate="no">ourStruct</code>，类型为 <code class="notranslate" translate="no">OurStruct</code>。</p>
 <pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">      @group(0) @binding(0) var&lt;uniform&gt; ourStruct: OurStruct;
 </pre>
 <p>接下来，我们更改顶点着色器返回的内容，以使用 uniforms。</p>
@@ -688,7 +686,7 @@ device.queue.submit([commandBuffer]);
           <li><a href="/webgpu/lessons/zh_cn/webgpu-environment-maps.html">Environment maps</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-skybox.html">Skyboxes</a></li>
         </ul>
-  <li>Post Processing</li>
+  <li>后处理</li>
         <ul>
           <li><a href="/webgpu/lessons/zh_cn/webgpu-post-processing.html">Basic CRT Effect</a></li>
         </ul>
