@@ -780,12 +780,12 @@ run into
 
   These were briefly mentioned in [the article on inter-stage variables](webgpu-inter-stage-variables.html#a-interpolate).
 
-* ## `@interpolate(flat)` and `@interpolate(flat, first)` are not supported
+* ## <a id="flat"></a> `@interpolate(flat)` and `@interpolate(flat, first)` are not supported
 
   In compatibility mode you must use `@interpolate(flat, either)` when you want
   flat interpolation. `either` means the value passed to the fragment shader
   could be the value from either the first or last vertex of the triangle or line
-  being drawn.
+  being drawn. It's up to the implementation.
 
   It is common for this not to matter. The most common use cases for passing something
   with flat interpolation from the vertex shader to the fragment shader are usually
