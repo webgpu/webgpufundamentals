@@ -189,7 +189,7 @@ we create at render time. Whether that's worth it is up to your particular needs
 -        entries: [
 -          { binding: 0, resource: sampler },
 -          { binding: 1, resource: texture.createView() },
--          { binding: 2, resource: { buffer: uniformBuffer }},
+-          { binding: 2, resource: uniformBuffer},
 -        ],
 -      }));
 
@@ -225,7 +225,7 @@ the bindgroups
 +        entries: [
 +          { binding: 0, resource: sampler },
 +          { binding: 1, resource: texture },
-+          { binding: 2, resource: { buffer: uniformBuffer }},
++          { binding: 2, resource: uniformBuffer},
 +        ],
 +      });
 
