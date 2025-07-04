@@ -375,9 +375,9 @@ the remaining 2 values.
 Note that for drawing something in 2D we usually only need the x and y values
 for position. The z value is used for depth testing and will come up in
 [the article on orthographic projection](webgpu-orthographic-projection.html).
-The z value is used for perspective divide and will come up in
+The w value is used for perspective divide and will come up in
 [the article on perspective projection](webgpu-perspective-projection.html).
-For now, setting them to z to 0.0 and w to 1.0 is what we need to draw
+For now, setting z to 0.0 and w to 1.0 is what we need to draw
 the triangle.
 
 The shader module also declares a function called `fs` that is declared with
