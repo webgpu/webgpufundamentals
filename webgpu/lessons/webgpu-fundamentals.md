@@ -34,10 +34,12 @@ you to creatively use those basics to solve your problem.
 WebGPU is an extremely low-level API. While you can make some small examples,
 for many apps it will likely require a large amount of code and some serious
 organization of data. As an example, [three.js](https://threejs.org) which
-supports WebGPU consists of ~600k minified JavaScript, and that's just its
+supports WebGPU consists of [~550k bytes of minified JavaScript](https://cdnjs.cloudflare.com/ajax/libs/three.js/0.178.0/three.webgpu.js), and that's just its
 base library. That does not include loaders, controls, post-processing, and
-many other features. Similarly, [TensorFlow with WebGPU backend](https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-webgpu)
-is ~500k of minified JavaScript.
+many other features. Similarly, there's [TensorFlow](https://www.tensorflow.org/),
+which [core](https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.22.0/dist/tf-core.min.js)
+plus [the WebGPU backend]( https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgpu@4.22.0/dist/tf-backend-webgpu.min.js)
+is ~600k bytes of minified JavaScript and also does not include support for all of the various tensorflow optional features.
 
 The point being, if you just want to get something on the screen you're far
 better off choosing a library that provides the large amount of code you're
@@ -375,9 +377,9 @@ the remaining 2 values.
 Note that for drawing something in 2D we usually only need the x and y values
 for position. The z value is used for depth testing and will come up in
 [the article on orthographic projection](webgpu-orthographic-projection.html).
-The z value is used for perspective divide and will come up in
+The w value is used for perspective divide and will come up in
 [the article on perspective projection](webgpu-perspective-projection.html).
-For now, setting them to z to 0.0 and w to 1.0 is what we need to draw
+For now, setting z to 0.0 and w to 1.0 is what we need to draw
 the triangle.
 
 The shader module also declares a function called `fs` that is declared with
