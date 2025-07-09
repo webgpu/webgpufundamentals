@@ -1,15 +1,11 @@
-Title: WebGPUの基本
+Title: WebGPUの基礎
 
-WebGPUを基本から学ぶ授業.
+WebGPU学をぶための記事集
 
 {{{include "webgpu/lessons/ja/toc.html"}}}
-
 
 <!--
 
 {{{table_of_contents}}}
 
 -->
-
-
-
