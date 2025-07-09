@@ -2,6 +2,8 @@ Title: WebGPU WGSL
 Description: WebGPUシェーディング言語の紹介
 TOC: WGSL
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 WGSLの詳細な概要については、[WGSLツアー](https://google.github.io/tour-of-wgsl/)を参照してください。また、[実際のWGSL仕様](https://www.w3.org/TR/WGSL/)もありますが、[言語弁護士](http://catb.org/jargon/html/L/language-lawyer.html)向けに書かれているため、処理が難しい場合があります😂
 
 この記事は、すでにプログラミングの方法を知っていることを前提としているため、WGSLの例を見るだけで、何が表示されているかを*理解*できる可能性が高いです。おそらく簡潔すぎますが、WGSLシェーダープログラムの理解と作成に役立つことを願っています。

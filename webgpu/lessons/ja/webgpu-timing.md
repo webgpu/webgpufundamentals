@@ -2,6 +2,8 @@ Title: WebGPU タイミングパフォーマンス
 Description: WebGPUでのタイミング操作
 TOC: タイミングパフォーマンス
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 パフォーマンスのために時間を計りたいと思うかもしれないさまざまなことについて説明します。3つのことを計時します。
 
 * 1秒あたりのフレーム数（fps）でのフレームレート

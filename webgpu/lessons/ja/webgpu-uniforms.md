@@ -2,6 +2,8 @@ Title: WebGPU ユニフォーム
 Description: シェーダーへの定数データの受け渡し
 TOC: ユニフォーム
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 前の記事は[ステージ間変数](webgpu-inter-stage-variables.html)に関するものでした。この記事はユニフォームに関するものです。
 
 ユニフォームは、シェーダーのグローバル変数のようなものです。シェーダーを実行する前に値を設定でき、シェーダーの各反復でそれらの値を持ちます。次にGPUにシェーダーを実行するように依頼するときに、別の値に設定できます。

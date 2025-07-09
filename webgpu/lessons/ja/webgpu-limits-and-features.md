@@ -2,6 +2,8 @@ Title: WebGPUのオプション機能と制限
 Description: オプション機能
 TOC: オプション機能と制限
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 WebGPUには、多数のオプション機能と制限があります。それらを確認し、要求する方法について説明します。
 
 アダプターを要求する場合

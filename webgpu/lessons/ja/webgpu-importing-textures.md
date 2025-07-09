@@ -2,6 +2,8 @@ Title: WebGPU テクスチャへの画像の読み込み
 Description: 画像/キャンバス/ビデオをテクスチャに読み込む方法
 TOC: 画像の読み込み
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 [前の記事](webgpu-textures.html)でテクスチャの使用に関するいくつかの基本を説明しました。この記事では、画像をテクスチャに読み込むことと、GPUでミップマップを生成することについて説明します。
 
 前の記事では、`device.createTexture`を呼び出してテクスチャを作成し、`device.queue.writeTexture`を呼び出してテクスチャにデータを入れました。`device.queue`には、画像をテクスチャにコピーできる`device.queue.copyExternalImageToTexture`という別の関数があります。

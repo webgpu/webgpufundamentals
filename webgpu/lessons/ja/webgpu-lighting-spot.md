@@ -2,6 +2,8 @@ Title: WebGPU - スポットライト
 Description: WebGPUでスポットライトを実装する方法
 TOC: スポットライト
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 
 この記事は、[点光源に関する記事](webgpu-lighting-point.html)の続きです。まだ読んでいない場合は、[そこから始める](webgpu-lighting-point.html)ことをお勧めします。
 

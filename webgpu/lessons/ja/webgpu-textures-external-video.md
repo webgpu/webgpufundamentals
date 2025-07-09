@@ -2,6 +2,8 @@ Title: WebGPU ビデオの効率的な使用
 Description: WebGPUでビデオを使用する方法
 TOC: ビデオの使用
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 [前の記事](webgpu-importing-textures.html)では、画像、キャンバス、ビデオをテクスチャに読み込む方法について説明しました。この記事では、WebGPUでビデオをより効率的に使用する方法について説明します。
 
 前の記事では、`copyExternalImageToTexture`を呼び出すことによって、ビデオデータをWebGPUテクスチャに読み込みました。この関数は、ビデオ自体の現在のフレームを、作成した既存のテクスチャにコピーします。

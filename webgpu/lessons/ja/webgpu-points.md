@@ -2,6 +2,8 @@ Title: WebGPU ポイント
 Description: WebGPUでのポイントの描画
 TOC: ポイント
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 WebGPUはポイントへの描画をサポートしています。これを行うには、レンダーパイプラインでプリミティブトポロジを`'point-list'`に設定します。
 
 [頂点バッファに関する記事](webgpu-vertex-buffers.html)で紹介したアイデアから始めて、ランダムなポイントを持つ簡単な例を作成しましょう。
