@@ -2,6 +2,8 @@ Title: WebGPUの仕組み
 Description: WebGPUの仕組み
 TOC: 仕組み
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 GPUが頂点シェーダーとフラグメントシェーダーで行うことと似たものをJavaScriptで実装することで、WebGPUを説明しようとします。これにより、実際に何が起こっているのか直感的に理解できることを願っています。
 
 [Array.map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)に精通している場合は、目を凝らすと、これら2種類のシェーダー関数がどのように機能するかについてある程度のアイデアを得ることができます。`Array.map`では、値を変換する関数を提供します。

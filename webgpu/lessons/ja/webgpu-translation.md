@@ -2,6 +2,8 @@ Title: WebGPU 平行移動
 Description: オブジェクトの移動
 TOC: 平行移動
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 この記事は、[基礎に関する記事](webgpu-fundamentals.html)、[ユニフォームに関する記事](webgpu-uniforms.html)、[頂点バッファに関する記事](webgpu-vertex-buffers.html)を読んでいることを前提としています。まだ読んでいない場合は、最初に読んでから戻ってくることをお勧めします。
 
 この記事は、3D数学について学ぶことを目的とした一連の記事の最初の記事です。各記事は前のレッスンを基にしているので、順番に読むと最も理解しやすいかもしれません。

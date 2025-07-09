@@ -2,6 +2,8 @@ Title: WGSL 関数リファレンス
 Description: バッファの使用方法
 TOC: WGSL 関数リファレンス
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 <div id="func-toc"></div>
 
 <div class="webgpu_center data-table">

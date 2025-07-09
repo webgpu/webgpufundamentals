@@ -2,6 +2,8 @@ Title: WebGPU シーングラフ
 Description: シーングラフ
 TOC: シーングラフ
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 この記事は、3D数学について学ぶことを目的とした一連の記事の9番目です。各記事は前のレッスンを基にしているので、順番に読むと最も理解しやすいかもしれません。
 
 1. [平行移動](webgpu-translation.html)

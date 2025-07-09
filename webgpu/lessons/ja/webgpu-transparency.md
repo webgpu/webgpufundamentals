@@ -2,6 +2,8 @@ Title: WebGPUの透明度とブレンディング
 Description: WebGPUでのピクセルのブレンディング
 TOC: 透明度とブレンディング
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 透明度とブレンディングについて説明するのは難しいです。なぜなら、ある状況で必要なことは、別の状況で必要なこととは異なることが多いからです。したがって、この記事は主にWebGPUの機能のツアーになり、特定のテクニックについて説明するときにここを参照できるようにします。
 
 ## <a href="a-alphamode"></a>キャンバスの`alphaMode`

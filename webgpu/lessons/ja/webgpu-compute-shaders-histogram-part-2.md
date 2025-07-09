@@ -2,6 +2,8 @@ Title: WebGPU コンピュートシェーダー - 画像ヒストグラム パ�
 Description: 画像ヒストグラムを使用してリアルタイムでビデオを調整する。
 TOC: 画像ヒストグラム パート2
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 [前の記事](webgpu-compute-shaders-histogram.html)では、JavaScriptで画像ヒストグラムを作成する方法を説明し、それをWebGPUを使用するように変換し、最適化のいくつかのステップを経験しました。
 
 それを使って、もう少しやってみましょう。

@@ -2,6 +2,8 @@ Title: WebGPU コンピュートシェーダーの基本
 Description: WebGPUでコンピュートシェーダーを使用する方法
 TOC: コンピュートシェーダーの基本
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 この記事は、[基礎に関する記事](webgpu-fundamentals.html)の続きです。コンピュートシェーダーのいくつかの基本から始めて、うまくいけば、現実世界の問題を解決する例に進みます。
 
 [前の記事](webgpu-fundamentals.html)では、数値をその場で2倍にする非常に単純なコンピュートシェーダーを作成しました。

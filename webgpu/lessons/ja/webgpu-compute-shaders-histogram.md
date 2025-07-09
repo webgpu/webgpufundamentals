@@ -2,6 +2,8 @@ Title: WebGPU コンピュートシェーダー - 画像ヒストグラム
 Description: 画像ヒストグラムを効率的に計算する。
 TOC: 画像ヒストグラム
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 この記事は、[コンピュートシェーダーの基本に関する記事](webgpu-compute-shaders.html)の続きです。
 
 これは2部構成の長い記事になり、物事を最適化するために多くのステップを踏みます。この最適化により物事は高速になりますが、残念ながら出力は結果を変更しないため、各ステップは前のステップと同じように見えます。

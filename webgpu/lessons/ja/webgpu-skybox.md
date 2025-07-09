@@ -2,6 +2,8 @@ Title: WebGPU スカイボックス
 Description: スカイボックスで空を表示しよう！
 TOC: スカイボックス
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 
 この記事は、[環境マップに関する記事](webgpu-environment-maps.html)の続きです。
 

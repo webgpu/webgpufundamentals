@@ -2,6 +2,8 @@ Title: WebGPU 互換モード
 Description: 古いマシンでの実行
 TOC: 互換モード
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 WebGPU互換モードは、いくつかの制限付きで、古いデバイスでも実行できるWebGPUのバージョンです。アイデアとしては、いくつかの追加の制限と制約内でアプリを実行できるようにすれば、WebGPU互換アダプターを要求して、より多くの場所でアプリを実行できるようになります。
 
 > 注：互換モードはまだ正式に出荷されていません。お使いのブラウザでは実験的に利用できる場合があります。[Chrome Canary](https://www.google.com/chrome/canary/)では、バージョン136.0.7063.0（2025-03-11）以降、`chrome://flags/#enable-unsafe-webgpu`にアクセスして「enable-unsafe-webgpu」フラグを有効にすることで互換モードを許可できます。

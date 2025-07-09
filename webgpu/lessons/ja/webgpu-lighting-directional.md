@@ -2,6 +2,8 @@ Title: WebGPU - 指向性ライティング
 Description: WebGPUで指向性ライティングを実装する方法
 TOC: 指向性ライティング
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 
 この記事は、[カメラに関する記事](webgpu-cameras.html)を読んでいることを前提としています。
 
