@@ -2,6 +2,8 @@ Title: WebGPUのバインドグループレイアウト
 Description: 明示的なバインドグループレイアウト
 TOC: バインドグループレイアウト
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 バインドグループレイアウトは、WebGPUがバインドグループをコンピュートパイプラインやレンダーパイプラインに簡単かつ効率的に一致させるために使用されます。
 
 ## 仕組み：

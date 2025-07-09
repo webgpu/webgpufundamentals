@@ -2,6 +2,8 @@ Title: WebGPU ストレージバッファ
 Description: シェーダーへの大きなデータの受け渡し
 TOC: ストレージバッファ
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 この記事はストレージバッファに関するもので、[前の記事](webgpu-uniforms.html)の続きです。
 
 ストレージバッファは、多くの点でユニフォームバッファに似ています。JavaScriptで`UNIFORM`を`STORAGE`に変更し、WGSLで`var<uniform>`を`var<storage, read>`に変更するだけで、前のページの例はそのまま機能します。

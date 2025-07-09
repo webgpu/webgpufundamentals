@@ -2,6 +2,8 @@ Title: WebGPU シェーダー定数
 Description: WebGPUの基礎
 TOC: 定数
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 このトピックがシェーダーへの入力と見なされるに値するかどうかはわかりません。しかし、ある観点からはそうなので、説明しましょう。
 
 定数、より正式には*パイプラインオーバーライド可能な定数*は、シェーダーで宣言する定数の一種ですが、そのシェーダーを使用してパイプラインを作成するときに変更できます。

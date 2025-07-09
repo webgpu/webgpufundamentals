@@ -2,6 +2,8 @@ Title: WebGPU データのコピー
 Description: バッファとテクスチャとの間でデータをコピーする
 TOC: データのコピー
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 これまでのほとんどの記事では、バッファにデータを入れるために`writeBuffer`関数を使用し、テクスチャにデータを入れるために`writeTexture`関数を使用してきました。バッファやテクスチャにデータを入れる方法はいくつかあります。
 
 ## `writeBuffer`

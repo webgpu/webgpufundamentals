@@ -2,6 +2,8 @@ Title: WebGPU 複数のキャンバス
 Description: 複数のキャンバス
 TOC: 複数のキャンバス
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 WebGPUで複数のキャンバスに描画するのは非常に簡単です。[基礎に関する記事](webgpu-fundamentals.html)では、キャンバスを検索し、`getContext`を呼び出してコンテキストを構成しました。
 
 ```js

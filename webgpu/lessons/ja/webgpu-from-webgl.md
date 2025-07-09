@@ -2,6 +2,8 @@ Title: WebGLからWebGPUへ
 Description: WebGLとWebGPUの使用の比較
 TOC: WebGLからWebGPUへ
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 この記事は、すでにWebGLを知っていて、WebGPUを使い始めたい人を対象としています。
 
 WebGLからWebGPUに来た場合、多くの概念が同じであることに注意する価値があります。WebGLとWebGPUの両方で、GPUで小さな関数を実行できます。WebGLには頂点シェーダーとフラグメントシェーダーがあります。WebGPUには同じものに加えてコンピュートシェーダーがあります。WebGLはシェーディング言語として[GLSL](https://www.khronos.org/registry/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf)を使用します。WebGPUは[WGSL](webgpu-wgsl.html)を使用します。それらは異なる言語ですが、概念はほとんど同じです。

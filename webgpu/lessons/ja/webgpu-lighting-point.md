@@ -2,6 +2,8 @@ Title: WebGPU - 点光源
 Description: WebGPUで点光源を実装する方法
 TOC: 点光源
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 この記事は、[WebGPU指向性ライティング](webgpu-lighting-directional.html)の続きです。まだ読んでいない場合は、[そこから始める](webgpu-lighting-directional.html)ことをお勧めします。
 
 前の記事では、光が普遍的に同じ方向から来る指向性ライティングについて説明しました。レンダリングする前にその方向を設定しました。

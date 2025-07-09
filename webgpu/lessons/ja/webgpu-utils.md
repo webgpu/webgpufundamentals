@@ -2,6 +2,8 @@ Title: WebGPU Utilsとwgpu-matrix
 Description: WebGPU用のユーティリティと数学
 TOC: WebGPU Utilsと数学
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 > ## この記事から得られるべきこと
 >
 > WebGPUの使用は非常に冗長です。非常に冗長なので、いくつかのヘルパーを使用すると、より高いレベルの概念に集中できるため、理解しやすくなります。

@@ -2,6 +2,8 @@ Title: WebGPU 頂点バッファ
 Description: シェーダーへの頂点データの受け渡し
 TOC: 頂点バッファ
 
+<div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
+
 [前の記事](webgpu-storage-buffers.html)では、頂点データをストレージバッファに入れ、組み込みの`vertex_index`を使用してインデックス付けしました。その手法は人気が高まっていますが、頂点シェーダーに頂点データを提供するための従来の方法は、頂点バッファと属性を使用することです。
 
 頂点バッファは、他のWebGPUバッファと同様に、データを保持します。違いは、頂点シェーダーから直接アクセスしないことです。代わりに、WebGPUにバッファ内のデータの種類と編成方法を伝え、データをバッファから取り出して提供してもらいます。
