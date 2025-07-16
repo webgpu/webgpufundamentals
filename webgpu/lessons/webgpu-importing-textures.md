@@ -1119,7 +1119,7 @@ and add them our bindGroup
     label: 'bind group for object',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: uniformBuffer},
+      { binding: 0, resource: { buffer: uniformBuffer }},
 +      { binding: 1, resource: sampler },
 +      { binding: 2, resource: texture.createView() },
     ],

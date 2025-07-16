@@ -522,7 +522,7 @@ struct Uniforms {
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: uniformBuffer },
+        { binding: 0, resource: { buffer: uniformBuffer }},
       ],
     });
 

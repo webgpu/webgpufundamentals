@@ -247,7 +247,7 @@ WebGPUで複数のキャンバスに描画するのは非常に簡単です。[�
 +    const bindGroup = device.createBindGroup({
 +      layout: pipeline.getBindGroupLayout(0),
 +      entries: [
-+        { binding: 0, resource: uniformBuffer },
++        { binding: 0, resource: { buffer: uniformBuffer }},
 +      ],
 +    });
 

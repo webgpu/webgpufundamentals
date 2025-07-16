@@ -125,7 +125,7 @@ uniformValues.set([-0.5, -0.25], kOffsetOffset); // set the offset
 ```js
 const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
-    entries: [{ binding: 0, resource: uniformBuffer }],
+    entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
 });
 ```
 
@@ -258,7 +258,7 @@ const rand = (min, max) => {
 +      label: `bind group for obj: ${i}`,
 +      layout: pipeline.getBindGroupLayout(0),
 +      entries: [
-+        { binding: 0, resource: uniformBuffer},
++        { binding: 0, resource: { buffer: uniformBuffer }},
 +      ],
 +    });
 +
@@ -425,8 +425,8 @@ const module = device.createShaderModule({
       label: `bind group for obj: ${i}`,
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: staticUniformBuffer},
-+        { binding: 1, resource: uniformBuffer},
+        { binding: 0, resource: { buffer: staticUniformBuffer }},
++        { binding: 1, resource: { buffer: uniformBuffer }},
       ],
     });
 

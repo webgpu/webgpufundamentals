@@ -136,9 +136,9 @@ we added a `buffers` array which is used to describe how to pull data out of 1 o
     label: 'bind group for objects',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: staticStorageBuffer},
-      { binding: 1, resource: changingStorageBuffer},
--      { binding: 2, resource: vertexStorageBuffer},
+      { binding: 0, resource: { buffer: staticStorageBuffer }},
+      { binding: 1, resource: { buffer: changingStorageBuffer }},
+-      { binding: 2, resource: { buffer: vertexStorageBuffer }},
     ],
   });
 ```
@@ -390,8 +390,8 @@ struct VSOutput {
 -    label: 'bind group for objects',
 -    layout: pipeline.getBindGroupLayout(0),
 -    entries: [
--      { binding: 0, resource: staticStorageBuffer},
--      { binding: 1, resource: changingStorageBuffer},
+-      { binding: 0, resource: { buffer: staticStorageBuffer }},
+-      { binding: 1, resource: { buffer: changingStorageBuffer }},
 -    ],
 -  });
 ```

@@ -208,7 +208,7 @@ And we need a bind group to bind the uniform buffer
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: uniformBuffer},
+      { binding: 0, resource: { buffer: uniformBuffer }},
     ],
   });
 ```
@@ -332,7 +332,7 @@ And we need a sampler and we need to add them to our bind group
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: uniformBuffer},
+      { binding: 0, resource: { buffer: uniformBuffer }},
 +      { binding: 1, resource: sampler },
 +      { binding: 2, resource: texture.createView() },
     ],
@@ -604,7 +604,7 @@ as a bindGroup to pass the uniform buffer our shader.
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: uniformBuffer},
+      { binding: 0, resource: { buffer: uniformBuffer }},
     ],
   });
 ```

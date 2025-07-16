@@ -322,7 +322,7 @@ We need to add it to our bind group
       entries: [
         { binding: 0, resource: renderTargetView },
         { binding: 1, resource: postProcessSampler },
-+        { binding: 2, resource: postProcessUniformBuffer },
++        { binding: 2, resource: { buffer: postProcessUniformBuffer }},
       ],
     });
 ```

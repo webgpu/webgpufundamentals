@@ -368,7 +368,7 @@ const randomArrayElement = arr => arr[Math.random() * arr.length | 0];
       entries: [
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
-        { binding: 2, resource: uniformBuffer },
+        { binding: 2, resource: { buffer: uniformBuffer }},
       ],
     });
 
@@ -1237,8 +1237,8 @@ struct PerObjectUniforms {
       entries: [
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
-        { binding: 2, resource: uniformBuffer },
-+        { binding: 3, resource: globalUniformBuffer },
+        { binding: 2, resource: { buffer: uniformBuffer }},
++        { binding: 3, resource: { buffer: globalUniformBuffer }},
       ],
     });
 
@@ -1536,8 +1536,8 @@ struct PerObjectUniforms {
       entries: [
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
-        { binding: 2, resource: uniformBuffer },
-        { binding: 3, resource: globalUniformBuffer },
+        { binding: 2, resource: { buffer: uniformBuffer }},
+        { binding: 3, resource: { buffer: globalUniformBuffer }},
 +        { binding: 4, resource: { buffer: material.materialUniformBuffer }},
       ],
     });
@@ -1670,7 +1670,7 @@ struct PerObjectUniforms {
       entries: [
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
--        { binding: 2, resource: uniformBuffer },
+-        { binding: 2, resource: { buffer: uniformBuffer }},
 +        {
 +          binding: 2,
 +          resource: {
@@ -1679,7 +1679,7 @@ struct PerObjectUniforms {
 +            size: uniformBufferSize,
 +          },
 +        },
-        { binding: 3, resource: globalUniformBuffer },
+        { binding: 3, resource: { buffer: globalUniformBuffer }},
         { binding: 4, resource: { buffer: material.materialUniformBuffer }},
       ],
     });
@@ -1810,7 +1810,7 @@ WebGPUのマッピングは非同期に行われるため、バッファをマ�
         { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
         { binding: 2, resource: { buffer: uniformBuffer, offset: uniformBufferOffset, size: uniformBufferSize }},
-        { binding: 3, resource: globalUniformBuffer },
+        { binding: 3, resource: { buffer: globalUniformBuffer }},
         { binding: 4, resource: { buffer: material.materialUniformBuffer }},
       ],
     });

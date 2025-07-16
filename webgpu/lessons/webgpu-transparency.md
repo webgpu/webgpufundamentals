@@ -706,7 +706,7 @@ With the bindGroupLayout created, we can use it to make bindGroups.
     entries: [
       { binding: 0, resource: sampler },
       { binding: 1, resource: srcTextureUnpremultipliedAlpha.createView() },
-      { binding: 2, resource: srcUniform.buffer},
+      { binding: 2, resource: { buffer: srcUniform.buffer }},
     ],
   });
 
@@ -715,7 +715,7 @@ With the bindGroupLayout created, we can use it to make bindGroups.
     entries: [
       { binding: 0, resource: sampler },
       { binding: 1, resource: dstTextureUnpremultipliedAlpha.createView() },
-      { binding: 2, resource: dstUniform.buffer},
+      { binding: 2, resource: { buffer: dstUniform.buffer }},
     ],
   });
 
@@ -724,7 +724,7 @@ With the bindGroupLayout created, we can use it to make bindGroups.
     entries: [
       { binding: 0, resource: sampler },
       { binding: 1, resource: srcTexturePremultipliedAlpha.createView() },
-      { binding: 2, resource: srcUniform.buffer},
+      { binding: 2, resource: { buffer: srcUniform.buffer }},
     ],
   });
 
@@ -733,7 +733,7 @@ With the bindGroupLayout created, we can use it to make bindGroups.
     entries: [
       { binding: 0, resource: sampler },
       { binding: 1, resource: dstTexturePremultipliedAlpha.createView() },
-      { binding: 2, resource: dstUniform.buffer},
+      { binding: 2, resource: { buffer: dstUniform.buffer }},
     ],
   });
 ```

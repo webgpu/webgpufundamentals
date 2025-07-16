@@ -448,7 +448,7 @@ struct OurVertexShaderOutput {
       entries: [
         { binding: 0, resource: sampler },
         { binding: 1, resource: texture.createView() },
-+        { binding: 2, resource: uniformBuffer },
++        { binding: 2, resource: { buffer: uniformBuffer }},
       ],
     });
     bindGroups.push(bindGroup);
@@ -893,7 +893,7 @@ struct Uniforms {
         entries: [
           { binding: 0, resource: sampler },
           { binding: 1, resource: texture.createView() },
-          { binding: 2, resource: uniformBuffer },
+          { binding: 2, resource: { buffer: uniformBuffer }},
         ],
       }));
 

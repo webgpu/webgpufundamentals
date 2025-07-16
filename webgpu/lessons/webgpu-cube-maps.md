@@ -444,7 +444,7 @@ All that's left to do is change our texture's view in the bindGroup
     label: 'bind group for object',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: uniformBuffer},
+      { binding: 0, resource: { buffer: uniformBuffer }},
       { binding: 1, resource: sampler },
 -      { binding: 2, resource: texture.createView() },
 +      { binding: 2, resource: texture.createView({dimension: 'cube'}) },
