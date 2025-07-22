@@ -16,6 +16,10 @@ const shortSize = (function() {
 
 const pad2 = v => v.toString().padStart(2, '0');
 
+const imageExtSet = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp']);
+const videoExtSet = new Set(['.mp4', '.webm', '.ogg']);
+const audioExtSet = new Set(['.mp3', '.wav', '.ogg']);
+
 // I get this is unsafe as a bad filename will generate bad HTML
 // but I don't care because I control the filenames.
 module.exports = function generateIndex(folder) {
@@ -68,11 +72,11 @@ module.exports = function generateIndex(folder) {
       padding-left: 0.5em;
       padding-right: 0.5em;
     }
-    tbody td:nth-child(2) {
+    tbody td:nth-child(3) {
       text-align: right;
       width: 1%;
     }
-    tbody td:nth-child(3) {
+    tbody td:nth-child(4) {
       text-align: center;
       white-space: pre;
       width: 1%;
@@ -89,18 +93,27 @@ module.exports = function generateIndex(folder) {
   <body>
     <table>
       <thead>
-        <tr><th>filename</th><th>size</th><th>date</th></tr>
+        <tr><th></th><th>filename</th><th>size</th><th>date</th></tr>
       </thead>
       <tbody>
 ${files
-  .filter(f => f.isFile())
   .map(({name}) => {
     const s = fs.statSync(path.join(folder, name));
-    const size = shortSize(s.size);
+    const size = s.isDirectory() ? '' : shortSize(s.size);
     // TODO: dates should come from git
     const d = new Date(s.ctimeMs);
     const date = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDay() + 1)}`;
-    const cells = [name, size, date].map(v => `<td><a href="${name}">${v}</a></td>`);
+    const ext = path.extname(name)
+    const filetype = s.isDirectory()
+      ? '📁'
+      : imageExtSet.has(ext)
+      ? '🖼️'
+      : videoExtSet.has(ext)
+      ? '🎥'
+      : audioExtSet.has(ext)
+      ? '🎵'
+      : '📄';
+    const cells = [filetype, name, size, date].map(v => `<td><a href="${name}">${v}</a></td>`);
     return `<tr>${cells.join('')}</tr>`;
   })
   .join('\n')
