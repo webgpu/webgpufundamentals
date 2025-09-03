@@ -129,7 +129,7 @@ That said, there are limits on storage textures.
   we can only call `textureLoad` and/or `textureStore` which load
   and store a single texel at a time.
 
-## Canvas as a Storage Texture
+## <a id="canvas-as-storage-texture"></a> Canvas as a Storage Texture
 
 You can use a canvas texture as a storage texture. To do so, you configure
 the context to give you a texture that can be used as a storage texture.
