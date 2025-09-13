@@ -36,7 +36,7 @@ TOC: 基本的なCRTエフェクト
         var vsOutput: VSOutput;
         let xy = pos[vertexIndex];
         vsOutput.position = vec4f(xy, 0.0, 1.0);
-        vsOutput.texcoord = xy * vec2f(0.5) + vec2f(0.5);
+        vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
         return vsOutput;
       }
 
@@ -248,7 +248,7 @@ TOC: 基本的なCRTエフェクト
         var vsOutput: VSOutput;
         let xy = pos[vertexIndex];
         vsOutput.position = vec4f(xy, 0.0, 1.0);
-        vsOutput.texcoord = xy * vec2f(0.5) + vec2f(0.5);
+        vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
         return vsOutput;
       }
 
@@ -361,7 +361,7 @@ CRTは、LCDと同様に、画像を赤、緑、青の領域に分割します�
         var vsOutput: VSOutput;
         let xy = pos[vertexIndex];
         vsOutput.position = vec4f(xy, 0.0, 1.0);
-        vsOutput.texcoord = xy * vec2f(0.5) + vec2f(0.5);
+        vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
         return vsOutput;
       }
 
@@ -516,7 +516,7 @@ async function main() {
 -        var vsOutput: VSOutput;
 -        let xy = pos[vertexIndex];
 -        vsOutput.position = vec4f(xy, 0.0, 1.0);
--        vsOutput.texcoord = xy * vec2f(0.5) + vec2f(0.5);
+-        vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
 -        return vsOutput;
 -      }
 

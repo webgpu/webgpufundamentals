@@ -44,7 +44,7 @@ that fits in clip space.
         var vsOutput: VSOutput;
         let xy = pos[vertexIndex];
         vsOutput.position = vec4f(xy, 0.0, 1.0);
-        vsOutput.texcoord = xy * vec2f(0.5) + vec2f(0.5);
+        vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
         return vsOutput;
       }
 
@@ -275,7 +275,7 @@ Let's add that to the code. First let's edit the shader to apply this sine wave.
         var vsOutput: VSOutput;
         let xy = pos[vertexIndex];
         vsOutput.position = vec4f(xy, 0.0, 1.0);
-        vsOutput.texcoord = xy * vec2f(0.5) + vec2f(0.5);
+        vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
         return vsOutput;
       }
 
@@ -393,7 +393,7 @@ First let's change the shader
         var vsOutput: VSOutput;
         let xy = pos[vertexIndex];
         vsOutput.position = vec4f(xy, 0.0, 1.0);
-        vsOutput.texcoord = xy * vec2f(0.5) + vec2f(0.5);
+        vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
         return vsOutput;
       }
 
@@ -560,7 +560,7 @@ We need to switch our shader to write to a storage texture
 -        var vsOutput: VSOutput;
 -        let xy = pos[vertexIndex];
 -        vsOutput.position = vec4f(xy, 0.0, 1.0);
--        vsOutput.texcoord = xy * vec2f(0.5) + vec2f(0.5);
+-        vsOutput.texcoord = xy * vec2f(0.5, -0.5) + vec2f(0.5);
 -        return vsOutput;
 -      }
 
