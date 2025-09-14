@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/webgpu-storage-textures.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,73 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="ko"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Storage Textures">
+
+<meta name="description" content="스토리지 텍스처 사용법">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-storage-textures_ko.jpg">
+
+<meta property="og:title" content="WebGPU 스토리지 텍스처">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="How to use Storage Textures">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-storage-textures_ko.jpg">
+<meta property="og:description" content="스토리지 텍스처 사용법">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-storage-textures.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Storage Textures">
+<meta name="twitter:title" content="WebGPU 스토리지 텍스처">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-storage-textures.html">
-<meta name="twitter:description" content="How to use Storage Textures">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="스토리지 텍스처 사용법">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-storage-textures_ko.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-storage-textures.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-storage-textures_ko.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-storage-textures.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-storage-textures.html",
+      "inLanguage":"ko",
+      "name":"WebGPU 스토리지 텍스처",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-storage-textures.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Storage Textures</title>
+<title>WebGPU 스토리지 텍스처</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
+<link rel="stylesheet" href="/webgpu/lessons/ko/lang.css">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -182,13 +228,281 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Storage Textures</h1>
+    <h1>WebGPU 스토리지 텍스처</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>죄송합니다. 이 글은 아직 번역이 되지 않았습니다.</p>
-<p><a href="https://github.com/webgpu/webgpufundamentals">번역을 도와주세요</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-storage-textures.html">여기서 원문을 볼 수 있습니다</a>.</p>
+      <p>스토리지 텍스처(Storage textures)는 직접 쓰기나 "저장"을 할 수 있는 <a href="webgpu-textures.html">텍스처</a>입니다.
+일반적으로는 버텍스 셰이더에서 삼각형을 지정하고 GPU가 간접적으로 텍스처를
+업데이트해 주지만, 스토리지 텍스처를 사용하면 원하는 곳에 직접 텍스처에
+쓸 수 있습니다.</p>
+<p>스토리지 텍스처는 특별한 종류의 텍스처가 아니라, <code class="notranslate" translate="no">createTexture</code>로 생성하는
+다른 텍스처와 마찬가지의 텍스처입니다. 필요에 의해 사용하던 다른 ‘사용 플래그’ 위에
+<code class="notranslate" translate="no">STORAGE_BINDING</code> 사용 플래그를 추가하면 됩니다. 그러면 그 텍스처를 스토리지 텍스처로도 사용할 수 있습니다.</p>
+<p>어떤 면에서 스토리지 텍스처는 2D 배열로 사용하는 스토리지 버퍼와 같습니다. 예를 들어
+스토리지 버퍼를 만들고 다음과 같이 코드에서 참조할 수 있습니다:</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0)
+  var&lt;storage&gt; buf: array&lt;f32&gt;;
+
+...
+fn loadValueFromBuffer(pos: vec2u) -&gt; f32 {
+  return buffer[pos.y * width + pos.x];
+}
+
+fn storeValueToBuffer(pos: vec2u, v: f32) {
+  buffer[pos.y * width + pos.x] = v;
+}
+
+...
+  let pos = vec2u(2, 3);
+  var v = loadValueFromBuffer(pos);
+  storeValueToBuffer(pos, v * 2.0);
+
+</pre>
+<p>스토리지 텍스처와 비교하면:</p>
+<pre class="prettyprint showlinemods notranslate notranslate" translate="no">@group(0) @binding(0)
+  var tex: texture_storage_2d&lt;r32float, read_write&gt;;
+
+...
+
+   let pos = vec2u(2, 3);
+   let mipLevel = 0;
+   var v = textureLoad(tex, pos, mipLevel);
+   textureStore(tex, pos, mipLevel, v * 2);
+
+</pre>
+<p>이 둘이 동등해 보인다면, 수동으로 스토리지 버퍼를 사용하는 것과
+스토리지 텍스처를 사용하는 것 사이에는 어떤 차이가 있을까요?</p>
+<ul>
+<li>
+<p>스토리지 텍스처는 여전히 텍스처입니다.</p>
+<p>하나의 셰이더에서는 스토리지 텍스처로 사용하고 다른 셰이더에서는
+일반 텍스처(샘플러와 밉매핑 등과 함께)로 사용할 수 있습니다.</p>
+</li>
+<li>
+<p>스토리지 텍스처에는 포맷 해석이 있지만, 스토리지 버퍼에는 없습니다.</p>
+<p>예시:</p>
+<pre class="prettyprint showlinemods notranslate lang-wsgl" translate="no">@group(0) @binding(0) var tex: texture_storage_2d&lt;rgba8unorm, read&gt;;
+@group(0) @binding(1) var buf: array&lt;f32&gt;;
+
+   ...
+    let t = textureLoad(tex, pos, 0);
+    let b = buffer[pos.y * bufferWidth + pos.x];
+</pre>
+<p>위에서 <code class="notranslate" translate="no">textureLoad</code>를 호출할 때, 텍스처는 <code class="notranslate" translate="no">rgba8unorm</code> 텍스처이므로
+4바이트가 로드되고 자동으로 0과 1 사이의 4개의 부동소수점 값으로 변환되어
+<code class="notranslate" translate="no">vec4f</code>로 반환됩니다.</p>
+<p>버퍼의 경우, 4바이트가 하나의 <code class="notranslate" translate="no">f32</code> 값으로 로드됩니다. 물론 버퍼를
+<code class="notranslate" translate="no">array&lt;u32&gt;</code>로 변경한 후 값을 로드하여 수동으로 4바이트 값으로 분할하고
+직접 float으로 변환할 수도 있지만, 이런 변환이 필요하다면 스토리지 텍스처를
+사용하면 자동으로 처리됩니다.</p>
+</li>
+<li>
+<p>스토리지 텍스처에는 차원이 있습니다.</p>
+<p>버퍼의 경우, 그 길이, 더 정확히는 바인딩<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>의 길이가 유일한 차원입니다.
+위에서 버퍼를 2D 배열로 사용할 때, 2D 좌표를 1D 버퍼 인덱스로 변환하기 위해
+<code class="notranslate" translate="no">width</code>가 필요했습니다. <code class="notranslate" translate="no">width</code> 값을 하드코딩하거나 어떤 방법으로든
+전달해야 합니다<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. 텍스처의 경우 <code class="notranslate" translate="no">textureDimensions</code>를
+호출해서 텍스처의 차원을 얻을 수 있습니다.</p>
+</li>
+</ul>
+<p>하지만 스토리지 텍스처에는 제한이 있습니다.</p>
+<ul>
+<li>
+<p>특정 포맷만 <code class="notranslate" translate="no">read_write</code>가 가능합니다.</p>
+<p><code class="notranslate" translate="no">r32float</code>, <code class="notranslate" translate="no">r32sint</code>, <code class="notranslate" translate="no">r32uint</code>입니다.</p>
+<p>다른 포맷들은 단일 셰이더 내에서 <code class="notranslate" translate="no">read</code> 또는 <code class="notranslate" translate="no">write</code>만 가능합니다.</p>
+</li>
+<li>
+<p>특정 포맷만 스토리지 텍스처로 사용할 수 있습니다.</p>
+<p>텍스처 포맷은 매우 많지만 그중 일부 포맷만 스토리지 텍스처로
+사용할 수 있습니다.</p>
+<ul>
+<li><code class="notranslate" translate="no">rgba8(unorm/snorm/sint/uint)</code></li>
+<li><code class="notranslate" translate="no">rgba16(float/sint/uint)</code></li>
+<li><code class="notranslate" translate="no">rg32(float/sint/uint)</code></li>
+<li><code class="notranslate" translate="no">rgba32(float/sint/uint)</code></li>
+</ul>
+<p>주목할 것은 <code class="notranslate" translate="no">bgra8unorm</code>이 사용 불가능한 점인데, 이는 아래에서 다룰 것입니다.</p>
+</li>
+<li>
+<p>스토리지 텍스처는 샘플러를 사용할 수 없습니다.</p>
+<p>텍스처를 일반 <code class="notranslate" translate="no">TEXTURE_BINDING</code>으로 사용하면 여러 밉(mip) 레벨에 걸쳐 최대 16개의
+텍셀을 로드하고 함께 블렌딩하는 <code class="notranslate" translate="no">textureSample</code> 같은 함수를 호출할 수
+있습니다. 텍스처를 <code class="notranslate" translate="no">STORAGE_BINDING</code>으로 사용할 때는 한 번에 단일 텍셀을
+로드하고 저장하는 <code class="notranslate" translate="no">textureLoad</code> 또는 <code class="notranslate" translate="no">textureStore</code>만 호출할 수 있습니다.</p>
+</li>
+</ul>
+<h2 id="캔버스를-스토리지-텍스처로"><a id="canvas-as-storage-texture"></a> 캔버스를 스토리지 텍스처로</h2>
+<p>캔버스 텍스처를 스토리지 텍스처로 사용할 수 있습니다. 그렇게 하려면,
+스토리지 텍스처로 사용할 수 있는 텍스처를 제공하도록 컨텍스트를 구성합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const presentationFormat = navigator.gpu.getPreferredCanvasFormat()
+  context.configure({
+    device,
+    format: presentationFormat,
++    usage: GPUTextureUsage.TEXTURE_BINDING |
++           GPUTextureUsage.STORAGE_BINDING,
+  });
+</pre>
+<p><code class="notranslate" translate="no">TEXTURE_BINDING</code>은 브라우저 자체가 텍스처를 페이지에 렌더링할 수 있도록
+필요합니다. <code class="notranslate" translate="no">STORAGE_BINDING</code>은 캔버스의 텍스처를 스토리지 텍스처로
+사용할 수 있게 해줍니다. 이 사이트의 대부분 예제처럼 렌더 패스를 통해
+텍스처에 렌더링하려면 <code class="notranslate" translate="no">RENDER_ATTACHMENT</code> 사용 플래그도 추가해야 합니다.</p>
+<p>하지만 여기서 문제가 있습니다. <a href="webgpu-fundamentals.html">첫 번째 글</a>에서
+다룬 것처럼, 일반적으로 <code class="notranslate" translate="no">navigator.gpu.getPreferredCanvasFormat</code>을 호출해서
+선호하는 캔버스 포맷을 얻습니다. <code class="notranslate" translate="no">getPreferredCanvasFormat</code>은 사용자
+시스템에서 더 성능이 좋은 포맷에 따라 <code class="notranslate" translate="no">rgba8unorm</code> 또는 <code class="notranslate" translate="no">bgra8unorm</code>을
+반환합니다.</p>
+<p>하지만 위에서 언급한 것처럼, 기본적으로는 <code class="notranslate" translate="no">bgra8unorm</code> 텍스처를
+스토리지 텍스처로 사용할 수 없습니다.</p>
+<p>다행히 <code class="notranslate" translate="no">'bgra8unorm-storage'</code>라는 <a href="webgpu-limits-and-features.html">기능</a>이
+있습니다. 이 기능을 활성화하면 <code class="notranslate" translate="no">bgra8unorm</code> 텍스처를 스토리지 텍스처로
+사용할 수 있습니다. 일반적으로 <code class="notranslate" translate="no">bgra8unorm</code>을 선호하는 캔버스 포맷으로
+보고하는 모든 플랫폼에서 사용 <em>가능해야</em> 하지만, 사용할 수 없을 가능성도
+있습니다. 따라서 <code class="notranslate" translate="no">'bgra8unorm-storage'</code> <em>기능</em>이 존재하는지 확인해야 합니다.
+존재한다면 device 를 얻을 때 그 기능을 요구하고, 선호하는 캔버스 포맷으로 사용할 것입니다.
+그렇지 않다면 캔버스 포맷으로 <code class="notranslate" translate="no">rgba8unorm</code>을 선택할 것입니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const adapter = await navigator.gpu?.requestAdapter();
+-  const device = await adapter?.requestDevice();
++  const hasBGRA8unormStorage = adapter.features.has('bgra8unorm-storage');
++  const device = await adapter?.requestDevice({
++    requiredFeatures: hasBGRA8unormStorage
++      ? ['bgra8unorm-storage']
++      : [],
++  });
+  if (!device) {
+    fail('need a browser that supports WebGPU');
+    return;
+  }
+
+  // Get a WebGPU context from the canvas and configure it
+  const canvas = document.querySelector('canvas');
+  const context = canvas.getContext('webgpu');
+-  const presentationFormat = navigator.gpu.getPreferredCanvasFormat()
++  const presentationFormat = hasBGRA8unormStorage
++     ? navigator.gpu.getPreferredCanvasFormat()
++     : 'rgba8unorm';
+  context.configure({
+    device,
+    format: presentationFormat,
+    usage: GPUTextureUsage.TEXTURE_BINDING |
+           GPUTextureUsage.STORAGE_BINDING,
+  });
+</pre>
+<p>이제 캔버스 텍스처를 스토리지 텍스처로 사용할 수 있습니다. 텍스처에
+동심원을 그리는 간단한 컴퓨트 셰이더를 만들어 보겠습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
+    label: 'circles in storage texture',
+    code: `
+      @group(0) @binding(0)
+      var tex: texture_storage_2d&lt;${presentationFormat}, write&gt;;
+
+      @compute @workgroup_size(1) fn cs(
+        @builtin(global_invocation_id) id : vec3u
+      )  {
+        let size = textureDimensions(tex);
+        let center = vec2f(size) / 2.0;
+
+        // the pixel we're going to write to
+        let pos = id.xy;
+
+        // The distance from the center of the texture
+        let dist = distance(vec2f(pos), center);
+
+        // Compute stripes based on the distance
+        let stripe = dist / 32.0 % 2.0;
+        let red = vec4f(1, 0, 0, 1);
+        let cyan = vec4f(0, 1, 1, 1);
+        let color = select(red, cyan, stripe &lt; 1.0);
+
+        // Write the color to the texture
+        textureStore(tex, pos, color);
+      }
+    `,
+  });
+</pre>
+<p>스토리지 텍스처를 <code class="notranslate" translate="no">write</code>로 표시했고 셰이더 자체에서 특정 텍스처 포맷을
+지정해야 했다는 점을 주목하세요. <code class="notranslate" translate="no">TEXTURE_BINDING</code>과 달리, <code class="notranslate" translate="no">STORAGE_BINDING</code>은
+텍스처의 정확한 포맷을 알아야 합니다.</p>
+<p>설정은 <a href="../webgpu-fundamentals.html#a-run-computations-on-the-gpu">첫 번째 글에서 작성한 컴퓨트 셰이더</a>와
+비슷합니다. 셰이더 모듈을 만든 후 이를 사용할 컴퓨트 파이프라인을 설정합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createComputePipeline({
+    label: 'circles in storage texture',
+    layout: 'auto',
+    compute: {
+      module,
+    },
+  });
+</pre>
+<p>렌더링하기 위해 캔버스의 현재 텍스처를 가져오고, 텍스처를 셰이더에
+전달할 수 있도록 바인드 그룹을 만들고, 파이프라인 설정, 바인드 그룹 바인딩,
+워크그룹 디스패치의 일반적인 작업을 수행합니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
+    const texture = context.getCurrentTexture();
+
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: texture.createView() },
+      ],
+    });
+
+    const encoder = device.createCommandEncoder({ label: 'our encoder' });
+    const pass = encoder.beginComputePass();
+    pass.setPipeline(pipeline);
+    pass.setBindGroup(0, bindGroup);
+    pass.dispatchWorkgroups(texture.width, texture.height);
+    pass.end();
+
+    const commandBuffer = encoder.finish();
+    device.queue.submit([commandBuffer]);
+  }
+</pre>
+<p>결과는 다음과 같습니다:</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-storage-texture-canvas.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-storage-texture-canvas.html" target="_blank">새 창으로 보려면 여기를 클릭하세요</a>
+</div>
+
+<p></p>
+<p>일반 텍스처를 사용하는 것도 동일하며, <code class="notranslate" translate="no">getCurrentTexture</code> 대신
+<code class="notranslate" translate="no">createTexture</code>를 호출해서 텍스처를 만들고 필요한 다른 사용 플래그와
+함께 <code class="notranslate" translate="no">STORAGE_BINDING</code>을 전달하는 것만 다릅니다.</p>
+<h2 id="속도와-데이터-경합data-race">속도와 데이터 경합(data race)</h2>
+<p>위에서는 픽셀당 1개의 워크그룹을 디스패치했습니다. 이는 비효율적이고,
+GPU는 훨씬 빠르게 실행할 수 있습니다. 최적의 작업량에 맞게 셰이더를
+최적화하면 예제가 복잡해졌을 것입니다. 요점은 가장 빠른 셰이더가 아닌
+스토리지 텍스처 사용을 보여주는 것이었습니다.
+컴퓨트 셰이더 최적화 방법에 대해서는
+<a href="webgpu-compute-shaders-histogram.html">이미지 히스토그램 계산에 관한 글</a>에서
+읽어볼 수 있습니다.</p>
+<p>마찬가지로, 스토리지 텍스처의 어디든 쓸 수 있으므로
+<a href="webgpu-compute-shaders.html">다른 컴퓨트 셰이더 글</a>에서 다룬 것처럼
+경쟁 조건(race condition)을 알아야 합니다. 호출 실행 순서는 보장되지 않습니다.
+레이스를 피하거나 <code class="notranslate" translate="no">textureBarriers</code> 또는 다른 방법을 삽입해서
+둘 이상의 호출이 서로 방해하지 않도록 하는 것은 여러분의 몫입니다.</p>
+<h2 id="예제">예제</h2>
+<p><a href="https://compute.toys">compute.toys</a> 웹사이트에는 스토리지 텍스처에 직접 쓰는
+예제가 많이 있습니다. <strong>경고</strong>: <a href="https://compute.toys">compute.toys</a>의
+예제에서 배울 수 있는 것이 많지만 반드시 모범 사례는 아닙니다.
+Compute toys는 컴퓨트 셰이더만으로 흥미로운 것을 만드는 것에 주안점을 둡니다.
+컴퓨트 셰이더만으로 창의적인 무언가를 만드는 방법을 알아내는 것은
+재미있는 퍼즐이지만, 다른 방법이 <em>10배, 100배, 또는 1000배</em> 더 빠를
+수도 있다는 점을 알아두세요.</p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>바인드 그룹을 생성하고 버퍼를 지정할 때 선택적으로 오프셋과
+길이를 지정할 수 있습니다. 셰이더에서 배열의 길이는 버퍼의 길이가 아닌
+바인딩의 길이로 결정됩니다. 오프셋을 지정하지 않으면 기본값은 0이고
+길이는 전체 버퍼 크기로 기본 설정됩니다. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p><a href="webgpu-uniforms.html">유니폼</a>,
+다른 <a href="webgpu-storage-buffers.html">스토리지 버퍼</a> 또는 심지어 같은
+버퍼의 첫 번째 값으로도 버퍼 너비를 전달할 수 있습니다. <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
@@ -204,20 +518,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>기초</li>
+        <div id="toc">
+          <ul>  <li>기초</li>
         <ul>
           <li><a href="/webgpu/lessons/ko/webgpu-fundamentals.html">기초</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-inter-stage-variables.html">스테이지간 변수(Inter-stage Variables)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-uniforms.html">Uniforms</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-storage-buffers.html">스토리지 버퍼(Storage Buffers)</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-vertex-buffers.html">정점 버퍼</a></li>
-  <li>Textures</li>
+  <li>텍스처</li>
         <ul>
           <li><a href="/webgpu/lessons/ko/webgpu-textures.html">텍스처</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-importing-textures.html">이미지 로딩</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-textures-external-video.html">비디오 사용하기</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-cube-maps.html">큐브맵(Cube Maps)</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-storage-textures.html">Storage Textures</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-storage-textures.html">스토리지 텍스처</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-multisampling.html">멀티 샘플링 / MSAA</a></li>
         </ul>
 <li><a href="/webgpu/lessons/ko/webgpu-constants.html">상수(Constants)</a></li>
@@ -243,13 +558,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <li><a href="/webgpu/lessons/ko/webgpu-matrix-stacks.html">Matrix Stacks</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-scene-graphs.html">Scene Graphs</a></li>
         </ul>
-  <li>Lighting</li>
+  <li>조명</li>
         <ul>
           <li><a href="/webgpu/lessons/ko/webgpu-lighting-directional.html">Directional Lighting</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-lighting-point.html">Point Lighting</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-lighting-spot.html">Spot Lighting</a></li>
         </ul>
-  <li>Techniques</li>
+  <li>기법</li>
         <ul>
             <li>2D</li>
         <ul>
@@ -260,7 +575,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           <li><a href="/webgpu/lessons/ko/webgpu-environment-maps.html">Environment maps</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-skybox.html">Skyboxes</a></li>
         </ul>
-  <li>Post Processing</li>
+  <li>후처리</li>
         <ul>
           <li><a href="/webgpu/lessons/ko/webgpu-post-processing.html">Basic CRT Effect</a></li>
         </ul>
@@ -294,13 +609,53 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
 
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>질문이 있나요? <a href="http://stackoverflow.com/questions/tagged/webgpu">Stack Overflow</a>에 물어보세요.</div>
+<div>
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">제안</a> /
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">요청 사항</a> /
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">이슈</a> /
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">버그</a>
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU 스토리지 텍스처`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "<a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a>님<br> 당신의 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 기여에 감사드립니다.</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/prettify.js"></script>
-<script src="/webgpu/lessons/resources/lesson.js"></script>
+<script src="/webgpu/lessons/resources/lesson.js" type="module"></script>
 <!-- Google tag (gtag.js) -->
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-92BFT5PE4H"></script>
 <script>
