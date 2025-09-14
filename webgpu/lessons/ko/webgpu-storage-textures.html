@@ -424,7 +424,7 @@ fn storeValueToBuffer(pos: vec2u, v: f32) {
 <p>스토리지 텍스처를 <code class="notranslate" translate="no">write</code>로 표시했고 셰이더 자체에서 특정 텍스처 포맷을
 지정해야 했다는 점을 주목하세요. <code class="notranslate" translate="no">TEXTURE_BINDING</code>과 달리, <code class="notranslate" translate="no">STORAGE_BINDING</code>은
 텍스처의 정확한 포맷을 알아야 합니다.</p>
-<p>설정은 <a href="../webgpu-fundamentals.html#a-run-computations-on-the-gpu">첫 번째 글에서 작성한 컴퓨트 셰이더</a>와
+<p>설정은 <a href="webgpu-fundamentals.html#a-run-computations-on-the-gpu">첫 번째 글에서 작성한 컴퓨트 셰이더</a>와
 비슷합니다. 셰이더 모듈을 만든 후 이를 사용할 컴퓨트 파이프라인을 설정합니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createComputePipeline({
     label: 'circles in storage texture',
