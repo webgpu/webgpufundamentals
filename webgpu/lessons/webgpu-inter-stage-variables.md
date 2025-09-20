@@ -152,7 +152,7 @@ it didn't have a location. Instead, it was declared as `@builtin(position)`.
 
 That field is **NOT** an inter-stage variable. Instead, it's a `builtin`. It
 happens that `@builtin(position)` has a different meaning in a vertex shader vs
-a fragment shader. In fact a better way to think about is is vertex shaders
+a fragment shader. In fact a better way to think about it is vertex shaders
 and fragment shader are just 2 different functions that happen to have a parameter
 with the same name.
 
