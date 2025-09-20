@@ -305,8 +305,8 @@ const rand = (min, max) => {
 +
 +    // створюємо типізований масив для зберігання даних для юніформ змінної в JavaScript
 +    const uniformValues = new Float32Array(uniformBufferSize / 4);
--  uniformValues.set([0, 1, 0, 1], kColorOffset);        // задаємо колір
--  uniformValues.set([-0.5, -0.25], kOffsetOffset);      // задаємо відступ
+-    uniformValues.set([0, 1, 0, 1], kColorOffset);        // задаємо колір
+-    uniformValues.set([-0.5, -0.25], kOffsetOffset);      // задаємо відступ
 +    uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // задаємо колір
 +    uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset); // задаємо відступ
 +
@@ -354,8 +354,8 @@ const rand = (min, max) => {
 +    const aspect = canvas.width / canvas.height;
 
 +    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
-+      uniformValues.set([scale / aspect, scale], kScaleOffset);
-+      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
++       uniformValues.set([scale / aspect, scale], kScaleOffset);
++       device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
        pass.setBindGroup(0, bindGroup);
        pass.draw(3);  // викликаємо наш шейдер три рази
 +    }

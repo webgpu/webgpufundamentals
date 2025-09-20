@@ -33,8 +33,10 @@ TOC: 스토리지 버퍼(Storage Buffers)
 WSGL에서는 아래와 같습니다.
 
 ```wsgl
-      @group(0) @binding(0) var<storage, read> ourStruct: OurStruct;
-      @group(0) @binding(1) var<storage, read> otherStruct: OtherStruct;
+-@group(0) @binding(0) var<uniform> ourStruct: OurStruct;
+-@group(0) @binding(1) var<uniform> otherStruct: OtherStruct;
++@group(0) @binding(0) var<storage, read> ourStruct: OurStruct;
++@group(0) @binding(1) var<storage, read> otherStruct: OtherStruct;
 ```
 
 더이상 다른 수정 없이도, 이전과 같이 동작합니다.
@@ -45,21 +47,19 @@ WSGL에서는 아래와 같습니다.
 
 uniform 버퍼와 스토리지 버퍼의 주요한 차이점은 아래와 같습니다:
 
-1. 일반적인 uniform 버퍼의 사용 예에서는 uniform 버퍼가 더 빠를 수 있음
+1. 일반적인 uniform 버퍼의 용례에서는 uniform 버퍼가 더 빠를 수 있음
 
   사용 법에 따라 다를 수 있습니다. 일반적인 앱에서는 여러가지 다른 것들을 그려야 합니다.
-  3D 게임의 예를 들어보죠. 앱에서 자동차, 건물, 바위, 덤불, 사람 등등을 그려야 합니다.
+  3D 게임의 예를 들어보죠. 자동차, 건물, 바위, 덤불, 사람 등등을 그려야 합니다.
   이들 각각에 대한 방향(orientation)과 머티리얼(material) 속성 등을 위 예제와 같이 넘겨주어야 합니다.
   이러한 경우 uniform 버퍼를 사용하는 것이 좋은 방법입니다.
    
 2. 스토리지 버퍼는 uniform 버퍼보다 훨씬 클 수 있음
 
-   * uniform 버퍼의 최대 크기의 하한은 64k 이상
-   * 스토리지 버퍼의 최대 크기의 하한은 128M 이상
+   * uniform 버퍼의 최대 크기는 64 kiB (65536 bytes).
+   * 스토리지 버퍼의 최대 크기는 128 MiB (134217728 bytes).
 
-   버퍼의 종류에 따라 보장되는 최대 크기의 하한이 다를 수 있습니다.
-   uniform 버퍼의 경우 최대 크기는 하한이 64k 입니다.
-   스토리지 버퍼는 128M입니다. 이러한 제약에 대해서는 
+   모든 webgpu 구현체는 최소 이런 크기들을 보장합니다. 이러한 제약에 대해서는 
    [다른 글](webgpu-limits-and-features.html)에서 설명합니다.
 
 3. 스토리지 버퍼는 읽기/쓰기가 가능하지만 uniform 버퍼는 읽기 전용
@@ -457,7 +457,11 @@ struct Vertex {
 구조체를 사용하지 않고 바로 `vec2f`를 사용하여 좀 더 쉽게 구현할 수도 있습니다.
 
 ```wgsl
-@group(0) @binding(2) var<storage, read> pos: vec2f;
+-@group(0) @binding(2) var<storage, read> pos: array<Vertex>;
++@group(0) @binding(2) var<storage, read> pos: array<vec2f>;
+...
+-pos[vertexIndex].position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
++pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
 ```
 
 하지만 구조체를 만들면 나중에 정점별(per-vertex)데이터를 추가하는 것이 훨씬 쉬워지겠죠?

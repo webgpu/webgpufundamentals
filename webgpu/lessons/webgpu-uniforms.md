@@ -297,8 +297,8 @@ we can draw a bunch of individual things.
 +
 +    // create a typedarray to hold the values for the uniforms in JavaScript
 +    const uniformValues = new Float32Array(uniformBufferSize / 4);
--  uniformValues.set([0, 1, 0, 1], kColorOffset);        // set the color
--  uniformValues.set([-0.5, -0.25], kOffsetOffset);      // set the offset
+-    uniformValues.set([0, 1, 0, 1], kColorOffset);        // set the color
+-    uniformValues.set([-0.5, -0.25], kOffsetOffset);      // set the offset
 +    uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // set the color
 +    uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset);      // set the offset
 +
@@ -348,8 +348,8 @@ scale.
 +    const aspect = canvas.width / canvas.height;
 
 +    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
-+      uniformValues.set([scale / aspect, scale], kScaleOffset); // set the scale
-+      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
++       uniformValues.set([scale / aspect, scale], kScaleOffset); // set the scale
++       device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
        pass.setBindGroup(0, bindGroup);
        pass.draw(3);  // call our vertex shader 3 times
 +    }

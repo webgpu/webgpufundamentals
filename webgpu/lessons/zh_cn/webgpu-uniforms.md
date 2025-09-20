@@ -297,8 +297,8 @@ const rand = (min, max) => {
 +    const aspect = canvas.width / canvas.height;
 
 +    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
-+      uniformValues.set([scale / aspect, scale], kScaleOffset); // set the scale
-+      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
++       uniformValues.set([scale / aspect, scale], kScaleOffset); // set the scale
++       device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
        pass.setBindGroup(0, bindGroup);
        pass.draw(3);  // call our vertex shader 3 times
 +    }

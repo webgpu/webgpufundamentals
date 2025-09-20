@@ -81,7 +81,7 @@ struct OurVertexShaderOutput {
 +    vec2f( 1.0,  0.0),  // right, center
 +    vec2f( 0.0,  1.0),  // center, top
 +
-+    // 2st triangle
++    // 2nd triangle
 +    vec2f( 0.0,  1.0),  // center, top
 +    vec2f( 1.0,  0.0),  // right, center
 +    vec2f( 1.0,  1.0),  // right, top
@@ -385,10 +385,11 @@ import GUI from '../3rdparty/muigui-0.x.module.js';
   const filterOptions = ['nearest', 'linear'];
 
   const gui = new GUI();
+  gui.onChange(render);
   Object.assign(gui.domElement.style, {right: '', left: '15px'});
-  gui.add(settings, 'addressModeU', addressOptions).onChange(render);
-  gui.add(settings, 'addressModeV', addressOptions).onChange(render);
-  gui.add(settings, 'magFilter', filterOptions).onChange(render);
+  gui.add(settings, 'addressModeU', addressOptions);
+  gui.add(settings, 'addressModeV', addressOptions);
+  gui.add(settings, 'magFilter', filterOptions);
 ```
 
 위 코드는 `settings`를 선언하고 이들을 설정하는 UI를 만든 후, 
@@ -468,7 +469,7 @@ struct OurVertexShaderOutput {
     vec2f( 1.0,  0.0),  // right, center
     vec2f( 0.0,  1.0),  // center, top
 
-    // 2st triangle
+    // 2nd triangle
     vec2f( 0.0,  1.0),  // center, top
     vec2f( 1.0,  0.0),  // right, center
     vec2f( 1.0,  1.0),  // right, top
@@ -602,13 +603,11 @@ uniform의 값을 설정하고 GPU에 업로드하는 코드도 추가해야 합
   const filterOptions = ['nearest', 'linear'];
 
   const gui = new GUI();
+-  gui.onChange(render);
   Object.assign(gui.domElement.style, {right: '', left: '15px'});
-  -gui.add(settings, 'addressModeU', addressOptions).onChange(render);
-  -gui.add(settings, 'addressModeV', addressOptions).onChange(render);
-  -gui.add(settings, 'magFilter', filterOptions).onChange(render);
-+  gui.add(settings, 'addressModeU', addressOptions);
-+  gui.add(settings, 'addressModeV', addressOptions);
-+  gui.add(settings, 'magFilter', filterOptions);
+  gui.add(settings, 'addressModeU', addressOptions);
+  gui.add(settings, 'addressModeV', addressOptions);
+  gui.add(settings, 'magFilter', filterOptions);
 +  gui.add(settings, 'minFilter', filterOptions);
 
   function render(time) {
@@ -954,12 +953,12 @@ struct Uniforms {
   @builtin(vertex_index) vertexIndex : u32
 ) -> OurVertexShaderOutput {
   let pos = array(
-
+    // 1st triangle
     vec2f( 0.0,  0.0),  // center
     vec2f( 1.0,  0.0),  // right, center
     vec2f( 0.0,  1.0),  // center, top
 
-    // 2st triangle
+    // 2nd triangle
     vec2f( 0.0,  1.0),  // center, top
     vec2f( 1.0,  0.0),  // right, center
     vec2f( 1.0,  1.0),  // right, top

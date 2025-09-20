@@ -254,8 +254,8 @@ const rand = (min, max) => {
 +
 +    // JavaScript側でユニフォームの値を保持するための型付き配列を作成します
 +    const uniformValues = new Float32Array(uniformBufferSize / 4);
--  uniformValues.set([0, 1, 0, 1], kColorOffset);        // 色を設定します
--  uniformValues.set([-0.5, -0.25], kOffsetOffset);      // オフセットを設定します
+-    uniformValues.set([0, 1, 0, 1], kColorOffset);        // 色を設定します
+-    uniformValues.set([-0.5, -0.25], kOffsetOffset);      // オフセットを設定します
 +    uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // 色を設定します
 +    uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset);      // オフセットを設定します
 +
@@ -302,8 +302,8 @@ const rand = (min, max) => {
 +    const aspect = canvas.width / canvas.height;
 
 +    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
-+      uniformValues.set([scale / aspect, scale], kScaleOffset); // スケールを設定します
-+      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
++       uniformValues.set([scale / aspect, scale], kScaleOffset); // スケールを設定します
++       device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
        pass.setBindGroup(0, bindGroup);
        pass.draw(3);  // 頂点シェーダーを3回呼び出します
 +    }

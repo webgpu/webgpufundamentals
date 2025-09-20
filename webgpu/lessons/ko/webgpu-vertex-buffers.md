@@ -27,9 +27,10 @@ struct OtherStruct {
   scale: vec2f,
 };
 
-+struct Vertex {
+struct Vertex {
+-  position: vec2f,
 +  @location(0) position: vec2f,
-+};
+};
 
 struct VSOutput {
   @builtin(position) position: vec4f,
@@ -470,7 +471,7 @@ function createCircleVertices({
   startAngle = 0,
   endAngle = Math.PI * 2,
 } = {}) {
-  // subdivision마다 두 개의 삼각형, 삼각형마다 세 개의 정점, 각 정점은 (xyrgb) 세 개의 값
+  // subdivision마다 두 개의 삼각형, 삼각형마다 세 개의 정점, 각 정점은 (xyrgb) 다섯 개의 값
   const numVertices = numSubdivisions * 3 * 2;
 -  const vertexData = new Float32Array(numVertices * 2);
 +  const vertexData = new Float32Array(numVertices * (2 + 3));
@@ -510,8 +511,8 @@ function createCircleVertices({
 +    addVertex(c1 * radius, s1 * radius, ...outerColor);
 +    addVertex(c2 * radius, s2 * radius, ...outerColor);
 +    addVertex(c1 * innerRadius, s1 * innerRadius, ...innerColor);
--
--    // second triangle
+
+    // second triangle
 -    addVertex(c1 * innerRadius, s1 * innerRadius);
 -    addVertex(c2 * radius, s2 * radius);
 -    addVertex(c2 * innerRadius, s2 * innerRadius);
@@ -920,9 +921,9 @@ function createCircleVertices({
 
   return {
     vertexData,
-    colorData,
 +    indexData,
-    numVertices: indexData.length,
+-    numVertices,
++    numVertices: indexData.length,
   };
 }
 ```

@@ -196,7 +196,7 @@ const f32c = f32a.map(v => `${v} doubled = ${v *2}`); // BAD!
                     //  you can't put a string in a Float32Array
 ```
 
-typedarray를 다른 타입으로 맵핑해야 한다면 직접 배열을 순회하거나 `Array.from`를 사용할 수 있도록 자바스크립트 바열로 변환해야 합니다.
+typedarray를 다른 타입으로 맵핑해야 한다면 직접 배열을 순회하거나 `Array.from`를 사용할 수 있도록 자바스크립트 배열로 변환해야 합니다.
 위 예제의 경우에는 아래와 같습니다.
 
 ```js
@@ -413,6 +413,8 @@ myUniformValues.set({
 결국 차라리 라이브러리를 사용하여 이러한 수고를 피하고 싶었습니다.
 
 만약, 수동으로 계산하고자 한다면, [여기에 오프셋을 계산해주는 페이지](resources/wgsl-offset-computer.html)가 있습니다.
+
+그 외에, WebGPU를 추상화하고 이런 것들과 다른 것들을 더 쉽게 만들어주는 많은 라이브러리들이 있습니다. 목록은 [여기](webgpu-resources.html)에서 찾을 수 있습니다.
 
 <!-- keep this at the bottom of the article -->
 <script type="module" src="webgpu-memory-layout.js"></script>
