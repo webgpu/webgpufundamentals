@@ -265,8 +265,8 @@ const rand = (min, max) => {
 +
 +    // Создаем typedarray, чтобы взять значение из uniforms в JavaScript
 +    const uniformValues = new Float32Array(uniformBufferSize / 4);
--  uniformValues.set([0, 1, 0, 1], kColorOffset);        // Устанавливаем цвет
--  uniformValues.set([-0.5, -0.25], kOffsetOffset);      // Устанавливаем смещение
+-    uniformValues.set([0, 1, 0, 1], kColorOffset);        // Устанавливаем цвет
+-    uniformValues.set([-0.5, -0.25], kOffsetOffset);      // Устанавливаем смещение
 +    uniformValues.set([rand(), rand(), rand(), 1], kColorOffset);        // Устанавливаем цвет
 +    uniformValues.set([rand(-0.9, 0.9), rand(-0.9, 0.9)], kOffsetOffset);      // Устанавливаем смещение
 +
@@ -313,8 +313,8 @@ const rand = (min, max) => {
 +    const aspect = canvas.width / canvas.height;
 
 +    for (const {scale, bindGroup, uniformBuffer, uniformValues} of objectInfos) {
-+      uniformValues.set([scale / aspect, scale], kScaleOffset); // Устанавливаем размер
-+      device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
++       uniformValues.set([scale / aspect, scale], kScaleOffset); // Устанавливаем размер
++       device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
        pass.setBindGroup(0, bindGroup);
        pass.draw(3);  // Вызываем наш vertex shader 3 раза
 +    }
