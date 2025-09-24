@@ -234,48 +234,30 @@ const f32d = Array.from(f32a).map(v => `${v} doubled = ${v *2}`); // Ok
       <tr><td><code>vec4&lt;f16&gt;</code></td><td>4개의 <code>f16</code>를 갖는 타입</td><td><code>vec4h</code></td></tr>
       <tr></tr>
       <tr><td><code>mat2x2&lt;f32&gt;</code></td><td>2개의 <code>vec2&lt;f32&gt;</code>를 갖는 행렬</td><td><code>mat2x2f</code></td></tr>
-      <tr><td><code>mat2x2&lt;u32&gt;</code></td><td>2개의 <code>vec2&lt;u32&gt;</code>를 갖는 행렬</td><td><code>mat2x2u</code></td></tr>
-      <tr><td><code>mat2x2&lt;i32&gt;</code></td><td>2개의 <code>vec2&lt;i32&gt;</code>를 갖는 행렬</td><td><code>mat2x2i</code></td></tr>
       <tr><td><code>mat2x2&lt;f16&gt;</code></td><td>2개의 <code>vec2&lt;f16&gt;</code>를 갖는 행렬</td><td><code>mat2x2h</code></td></tr>
       <tr></tr>
       <tr><td><code>mat2x3&lt;f32&gt;</code></td><td>2개의 <code>vec3&lt;f32&gt;</code>를 갖는 행렬</td><td><code>mat2x3f</code></td></tr>
-      <tr><td><code>mat2x3&lt;u32&gt;</code></td><td>2개의 <code>vec3&lt;u32&gt;</code>를 갖는 행렬</td><td><code>mat2x3u</code></td></tr>
-      <tr><td><code>mat2x3&lt;i32&gt;</code></td><td>2개의 <code>vec3&lt;i32&gt;</code>를 갖는 행렬</td><td><code>mat2x3i</code></td></tr>
       <tr><td><code>mat2x3&lt;f16&gt;</code></td><td>2개의 <code>vec3&lt;f16&gt;</code>를 갖는 행렬</td><td><code>mat2x3h</code></td></tr>
       <tr></tr>
       <tr><td><code>mat2x4&lt;f32&gt;</code></td><td>2개의 <code>vec4&lt;f32&gt;</code>를 갖는 행렬</td><td><code>mat2x4f</code></td></tr>
-      <tr><td><code>mat2x4&lt;u32&gt;</code></td><td>2개의 <code>vec4&lt;u32&gt;</code>를 갖는 행렬</td><td><code>mat2x4u</code></td></tr>
-      <tr><td><code>mat2x4&lt;i32&gt;</code></td><td>2개의 <code>vec4&lt;i32&gt;</code>를 갖는 행렬</td><td><code>mat2x4i</code></td></tr>
       <tr><td><code>mat2x4&lt;f16&gt;</code></td><td>2개의 <code>vec4&lt;f16&gt;</code>를 갖는 행렬</td><td><code>mat2x4h</code></td></tr>
       <tr></tr>
       <tr><td><code>mat3x2&lt;f32&gt;</code></td><td>3개의 <code>vec2&lt;f32&gt;</code>를 갖는 행렬</td><td><code>mat3x2f</code></td></tr>
-      <tr><td><code>mat3x2&lt;u32&gt;</code></td><td>3개의 <code>vec2&lt;u32&gt;</code>를 갖는 행렬</td><td><code>mat3x2u</code></td></tr>
-      <tr><td><code>mat3x2&lt;i32&gt;</code></td><td>3개의 <code>vec2&lt;i32&gt;</code>를 갖는 행렬</td><td><code>mat3x2i</code></td></tr>
       <tr><td><code>mat3x2&lt;f16&gt;</code></td><td>3개의 <code>vec2&lt;f16&gt;</code>를 갖는 행렬</td><td><code>mat3x2h</code></td></tr>
       <tr></tr>
       <tr><td><code>mat3x3&lt;f32&gt;</code></td><td>3개의 <code>vec3&lt;f32&gt;</code>를 갖는 행렬</td><td><code>mat3x3f</code></td></tr>
-      <tr><td><code>mat3x3&lt;u32&gt;</code></td><td>3개의 <code>vec3&lt;u32&gt;</code>를 갖는 행렬</td><td><code>mat3x3u</code></td></tr>
-      <tr><td><code>mat3x3&lt;i32&gt;</code></td><td>3개의 <code>vec3&lt;i32&gt;</code>를 갖는 행렬</td><td><code>mat3x3i</code></td></tr>
       <tr><td><code>mat3x3&lt;f16&gt;</code></td><td>3개의 <code>vec3&lt;f16&gt;</code>를 갖는 행렬</td><td><code>mat3x3h</code></td></tr>
       <tr></tr>
       <tr><td><code>mat3x4&lt;f32&gt;</code></td><td>3개의 <code>vec4&lt;f32&gt;</code>를 갖는 행렬</td><td><code>mat3x4f</code></td></tr>
-      <tr><td><code>mat3x4&lt;u32&gt;</code></td><td>3개의 <code>vec4&lt;u32&gt;</code>를 갖는 행렬</td><td><code>mat3x4u</code></td></tr>
-      <tr><td><code>mat3x4&lt;i32&gt;</code></td><td>3개의 <code>vec4&lt;i32&gt;</code>를 갖는 행렬</td><td><code>mat3x4i</code></td></tr>
       <tr><td><code>mat3x4&lt;f16&gt;</code></td><td>3개의 <code>vec4&lt;f16&gt;</code>를 갖는 행렬</td><td><code>mat3x4h</code></td></tr>
       <tr></tr>
       <tr><td><code>mat4x2&lt;f32&gt;</code></td><td>4개의 <code>vec2&lt;f32&gt;</code>를 갖는 행렬</td><td><code>mat4x2f</code></td></tr>
-      <tr><td><code>mat4x2&lt;u32&gt;</code></td><td>4개의 <code>vec2&lt;u32&gt;</code>를 갖는 행렬</td><td><code>mat4x2u</code></td></tr>
-      <tr><td><code>mat4x2&lt;i32&gt;</code></td><td>4개의 <code>vec2&lt;i32&gt;</code>를 갖는 행렬</td><td><code>mat4x2i</code></td></tr>
       <tr><td><code>mat4x2&lt;f16&gt;</code></td><td>4개의 <code>vec2&lt;f16&gt;</code>를 갖는 행렬</td><td><code>mat4x2h</code></td></tr>
       <tr></tr>
       <tr><td><code>mat4x3&lt;f32&gt;</code></td><td>4개의 <code>vec3&lt;f32&gt;</code>를 갖는 행렬</td><td><code>mat4x3f</code></td></tr>
-      <tr><td><code>mat4x3&lt;u32&gt;</code></td><td>4개의 <code>vec3&lt;u32&gt;</code>를 갖는 행렬</td><td><code>mat4x3u</code></td></tr>
-      <tr><td><code>mat4x3&lt;i32&gt;</code></td><td>4개의 <code>vec3&lt;i32&gt;</code>를 갖는 행렬</td><td><code>mat4x3i</code></td></tr>
       <tr><td><code>mat4x3&lt;f16&gt;</code></td><td>4개의 <code>vec3&lt;f16&gt;</code>를 갖는 행렬</td><td><code>mat4x3h</code></td></tr>
       <tr></tr>
       <tr><td><code>mat4x4&lt;f32&gt;</code></td><td>4개의 <code>vec4&lt;f32&gt;</code>를 갖는 행렬</td><td><code>mat4x4f</code></td></tr>
-      <tr><td><code>mat4x4&lt;u32&gt;</code></td><td>4개의 <code>vec4&lt;u32&gt;</code>를 갖는 행렬</td><td><code>mat4x4u</code></td></tr>
-      <tr><td><code>mat4x4&lt;i32&gt;</code></td><td>4개의 <code>vec4&lt;i32&gt;</code>를 갖는 행렬</td><td><code>mat4x4i</code></td></tr>
       <tr><td><code>mat4x4&lt;f16&gt;</code></td><td>4개의 <code>vec4&lt;f16&gt;</code>를 갖는 행렬</td><td><code>mat4x4h</code></td></tr>
     </tbody>
   </table>
