@@ -147,6 +147,31 @@ TOC: 스테이지간 변수(Inter-stage Variables)
 
 이 필드는 스테이지간 변수가 **아닙니다**. 대신 이것은 `builtin`이라고 합니다.
 `@builtin(position)`이 정점 셰이더와 프래그먼트 셰이더에서 서로 다른 의미를 가지고 있었습니다.
+사실 더 나은 이해 방법은 정점 셰이더와 프래그먼트 셰이더를
+같은 이름의 매개변수를 가진 서로 다른 2개의 함수로 생각하는 것입니다.
+
+2개의 JavaScript 함수가 있다고 상상해봅시다
+
+```js
+// Draw a circle size radius, at position: [x, y]
+function drawCircle({ ctx, position, radius }) {
+  // from CanvasRenderingContext2D
+  ctx.beginPath();
+  ctx.arc(...position, radius, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// Return the index of an element in an array starting at position
+function findIndex({ array, position, value }) {
+  return array.indexOf(value, position);
+}
+```
+
+위의 두 함수 모두 `position`이라는 매개변수를 가지고 있습니다. 일반적으로
+둘 사이에 혼동은 없습니다. 정점 셰이더와 프래그먼트 셰이더도 비슷합니다.
+그들의 builtin들은 서로 다르고 관련이 없으며, 각각 우연히 `position`이라는
+이름의 `@builtin`을 가지고 있을 뿐입니다. 각 셰이더 진입점을 컴파일할 때는
+해당 진입점에 대한 WGSL 코드만 읽습니다.
 
 정점 셰이더에서 `@builtin(position)`은 GPU가 삼각형/선/점을 그리는 그 출력값을 의미합니다.
 
@@ -327,8 +352,8 @@ select = (a, b, condition) => condition ? b : a;
 * `center`: 보간이 픽셀의 중앙에서 수행됨 (**기본값**)
 * `centroid`: 현재 프리미티브(primitive)가 차지하는 모든 프래그먼트의 모든 샘플 내에 존재하는 점에 대해 보간이 수행됨. 값은 프래그먼트 내의 모든 샘플에 대해 같은 값임
 * `sample`:  샘플 별로 보간이 수행됨. 이 값이 적용되는 경우 프래그먼트 셰이더는 모든 샘플별로 한 번씩 실행됨
-* `first`: Used only with type = `flat`. (default) The value comes from the first vertex of the primitive being drawn
-* `either`: Used only with type = `flat`. The value comes from either the first or the last vertex of the primitive being drawn.
+* `first`: 타입이 `flat` 일때만 사용됨. (**기본값**) 그려지는 프리미티브의 첫 번째 정점에서 값을 가져옴
+* `either`: 타입이 `flat` 일때만 사용됨. 그려지는 프리미티브의 첫 번째 또는 마지막 정점에서 값을 가져옴. webgpu 구현체에 따라 달라질수 있음.
 
 이러한 속성은 다음과 같이 명시됩니다.
 
@@ -339,6 +364,6 @@ select = (a, b, condition) => condition ? b : a;
 
 스테이지별 변수가 정수형이라면 보간 타입은 `flat`으로 설정해야 합니다.
 
-보간 타입을 `flat`으로 설정했으면 프래그먼트 셰이더에 전달되는 값은 삼각형의 첫 번째 정점에 대한 스테이지별 변수 값입니다.
+보간 타입을 `flat`으로 설정했으면 프래그먼트 셰이더에 전달되는 값은 삼각형의 첫 번째 정점에 대한 스테이지별 변수 값입니다. `flat` 을 사용하는 대부분의 경우 `either` 를 사용하세요. 그 이유는 [다른 글](webgpu-compatibility-mode.html#flat) 에서 다룹니다.
 
 다음 글에서는 셰이더에 데이터를 전달하는 또 다른 방법인 [uniform](webgpu-uniforms.html)에 대해 알아보겠습니다.
