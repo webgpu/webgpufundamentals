@@ -380,7 +380,7 @@ const f32b = f32a.map(v =&gt; v * 2);                    // Ok
 const f32c = f32a.map(v =&gt; `${v} doubled = ${v *2}`); // BAD!
                     //  you can't put a string in a Float32Array
 </pre>
-<p>typedarray를 다른 타입으로 맵핑해야 한다면 직접 배열을 순회하거나 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array.from"><code class="notranslate" translate="no">Array.from</code></a>를 사용할 수 있도록 자바스크립트 바열로 변환해야 합니다.
+<p>typedarray를 다른 타입으로 맵핑해야 한다면 직접 배열을 순회하거나 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array.from"><code class="notranslate" translate="no">Array.from</code></a>를 사용할 수 있도록 자바스크립트 배열로 변환해야 합니다.
 위 예제의 경우에는 아래와 같습니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const f32d = Array.from(f32a).map(v =&gt; `${v} doubled = ${v *2}`); // Ok
 </pre>
@@ -560,6 +560,7 @@ myUniformValues.set({
 제 경우, 무엇인가 작동하지 않는 이유를 알기 위해 20분, 30분, 60분 동안 고민하다가 결국 수동으로 계산한 오프셋이나 크기가 잘못된 것이 문제였던 일이 많았습니다.
 결국 차라리 라이브러리를 사용하여 이러한 수고를 피하고 싶었습니다.</p>
 <p>만약, 수동으로 계산하고자 한다면, <a href="../resources/wgsl-offset-computer.html">여기에 오프셋을 계산해주는 페이지</a>가 있습니다.</p>
+<p>그 외에, WebGPU를 추상화하고 이런 것들과 다른 것들을 더 쉽게 만들어주는 많은 라이브러리들이 있습니다. 목록은 <a href="webgpu-resources.html">여기</a>에서 찾을 수 있습니다.</p>
 <!-- keep this at the bottom of the article -->
 <script type="module" src="../webgpu-memory-layout.js"></script>
 <hr class="footnotes-sep">
