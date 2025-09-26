@@ -258,7 +258,7 @@ That seems like a lot of work just to do the same thing we were already doing.
 
 This is where the magic comes in. It turns out we can multiply matrices
 together and apply all the transformations at once. Let's assume we have
-a function, `m3.multiply`, that takes two matrices, multiplies them and
+a function, `mat3.multiply`, that takes two matrices, multiplies them and
 returns the result.
 
 ```js
@@ -856,15 +856,15 @@ const mat3 = {
   ...
 
   translate: function(m, translation) {
-    return m3.multiply(m, m3.translation(translation));
+    return mat3.multiply(m, mat3.translation(translation));
   },
 
   rotate: function(m, angleInRadians) {
-    return m3.multiply(m, m3.rotation(angleInRadians));
+    return mat3.multiply(m, mat3.rotation(angleInRadians));
   },
 
   scale: function(m, scale) {
-    return m3.multiply(m, m3.scaling(scale));
+    return mat3.multiply(m, mat3.scaling(scale));
   },
 
   ...

@@ -236,7 +236,7 @@ newY = y * sy;
 
 さて、あなたはまだ「それで何？何の意味があるの？」と思っているかもしれません。それは、すでにやっていたのと同じことをするために多くの作業のように思えます。
 
-ここで魔法が登場します。行列を乗算して、すべての変換を一度に適用できることがわかります。2つの行列を受け取り、それらを乗算して結果を返す関数`m3.multiply`があると仮定しましょう。
+ここで魔法が登場します。行列を乗算して、すべての変換を一度に適用できることがわかります。2つの行列を受け取り、それらを乗算して結果を返す関数`mat3.multiply`があると仮定しましょう。
 
 ```js
 const mat3 = {
@@ -790,15 +790,15 @@ const mat3 = {
   ...
 
   translate: function(m, translation) {
-    return m3.multiply(m, m3.translation(translation));
+    return mat3.multiply(m, mat3.translation(translation));
   },
 
   rotate: function(m, angleInRadians) {
-    return m3.multiply(m, m3.rotation(angleInRadians));
+    return mat3.multiply(m, mat3.rotation(angleInRadians));
   },
 
   scale: function(m, scale) {
-    return m3.multiply(m, m3.scaling(scale));
+    return mat3.multiply(m, mat3.scaling(scale));
   },
 
   ...
