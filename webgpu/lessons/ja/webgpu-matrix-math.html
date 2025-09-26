@@ -414,7 +414,7 @@ newY = y * sy;
 </div>
 <p>これは、<a href="webgpu-scale.html">スケーリングの例</a>と同じです。</p>
 <p>さて、あなたはまだ「それで何？何の意味があるの？」と思っているかもしれません。それは、すでにやっていたのと同じことをするために多くの作業のように思えます。</p>
-<p>ここで魔法が登場します。行列を乗算して、すべての変換を一度に適用できることがわかります。2つの行列を受け取り、それらを乗算して結果を返す関数<code class="notranslate" translate="no">m3.multiply</code>があると仮定しましょう。</p>
+<p>ここで魔法が登場します。行列を乗算して、すべての変換を一度に適用できることがわかります。2つの行列を受け取り、それらを乗算して結果を返す関数<code class="notranslate" translate="no">mat3.multiply</code>があると仮定しましょう。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const mat3 = {
   multiply: function(a, b) {
     const a00 = a[0 * 3 + 0];
@@ -901,15 +901,15 @@ struct VSOutput {
   ...
 
   translate: function(m, translation) {
-    return m3.multiply(m, m3.translation(translation));
+    return mat3.multiply(m, mat3.translation(translation));
   },
 
   rotate: function(m, angleInRadians) {
-    return m3.multiply(m, m3.rotation(angleInRadians));
+    return mat3.multiply(m, mat3.rotation(angleInRadians));
   },
 
   scale: function(m, scale) {
-    return m3.multiply(m, m3.scaling(scale));
+    return mat3.multiply(m, mat3.scaling(scale));
   },
 
   ...
