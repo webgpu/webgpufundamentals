@@ -90,7 +90,7 @@ struct VSOutput {
 [`pipeline` 기술자(descriptor)](GPURenderPipelineDescriptor)의 [`vertex`](GPUVertexState)에 `buffers` 배열을 추가하였습니다. 
 이는 하나 이상의 정점 버퍼로부터 데이터를 어떻게 가져올지를 명시합니다.
 우리의 유일한 버퍼에 대해 `arrayStride`를 바이트 단위로 명시하였습니다.
-이 경우 *stride*는 버퍼에서 하나의 정점 데이터를 얻기 위해 얼마만큼의 바이트를 읽어야 하는지를 의미합니다.
+이 경우 *stride*는 버퍼에서 하나의 정점 데이터의 offset 위치부터 다음 정점 데이터의 위치까지의 바이트 단위의 거리입니다.
 
 <div class="webgpu_center"><img src="resources/vertex-buffer-one.svg" style="width: 1024px;"></div>
 
@@ -344,7 +344,7 @@ struct VSOutput {
 ```
 
 정점 어트리뷰트는 스토리지 버퍼의 구조체와 동일한 패딩(padding) 제약을 갖지는 않으니 여기서는 패딩은 필요 없습니다.
-이 외에는 `STORAGE`를 `VERTEX`로 수정한 것 밖에는 없습니다 (변수 이름도 
+이 외에는 usage 플래그를 `STORAGE`를 `VERTEX`로 수정한 것 밖에는 없습니다 (변수 이름들도 storage 에서 vertex 로 변경함)
 
 이제 스토리지 버퍼는 사용하지 않으니 바인드그룹도 사용할 필요가 없습니다.
 
@@ -471,7 +471,7 @@ function createCircleVertices({
   startAngle = 0,
   endAngle = Math.PI * 2,
 } = {}) {
-  // subdivision마다 두 개의 삼각형, 삼각형마다 세 개의 정점, 각 정점은 (xyrgb) 다섯 개의 값
+  // 각 subdivision은 두 개의 삼각형, 각 삼각형은 3개의 정점, 각 정점은 다섯 개의 값 (xyrgb)를 가짐
   const numVertices = numSubdivisions * 3 * 2;
 -  const vertexData = new Float32Array(numVertices * 2);
 +  const vertexData = new Float32Array(numVertices * (2 + 3));
@@ -489,7 +489,7 @@ function createCircleVertices({
 +  const innerColor = [1, 1, 1];
 +  const outerColor = [0.1, 0.1, 0.1];
 
-  // 2 triangles per subdivision
+  // 각 subdivision은 두 개의 삼각형
   //
   // 0--1 4
   // | / /|

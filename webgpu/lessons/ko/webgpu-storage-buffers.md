@@ -78,7 +78,7 @@ uniform 버퍼와 스토리지 버퍼의 주요한 차이점은 아래와 같습
 각자는 각자의 용도가 있고, WebGPU도 마찬가지 입니다.
 우리가 하는 모든 것들의 달성하는 방법은 여러가지 입니다.
 삼각형을 그리는 경우에 대해선, WebGPU는 오직 정점 셰이더에서 `builtin(position)`를 반환하는 것과 
-프래그먼트 셰이더에서 `location(0)`에 색상/값을 반환하는 것 뿐입니다.[^colorAttachments] 
+프래그먼트 셰이더에서 `location(0)`에 색상/값을 반환하는 것만 제대로 되면 됩니다.[^colorAttachments] 
 
 [^colorAttachments]: 색상 어태치먼트는 여러 개일 수 있고, 이 경우 `location(1)`, `location(2)` 등등을 사용하여 색상/값을 반환해야 합니다.
 
@@ -291,9 +291,9 @@ uniform 버퍼와 스토리지 버퍼의 주요한 차이점은 아래와 같습
 ## 정점 데이터를 위한 스토리지 버퍼의 사용
 
 여기까지는 셰이더에서 하드 코딩을 통해 직접 삼각형을 명시해 주었습니다.
-스토리지 버퍼의 사용 예시 중 하나는 정점 데이터를 저장하는 것입니다.
+정점 데이터를 저장하는 용도로 스토리지 버퍼를 쓰는 것이 가능합니다.
 위 예제에서 현재 스토리지 버퍼를 `instance_index`로 인덱싱했던 것처럼, 
-다른 스토리지 버퍼를 `vertex_index`로 인덱싱하여 정점 데이터를 얻어올 수 있습니다.
+스토리지 버퍼를 `vertex_index`로 인덱싱하여 정점 데이터를 얻어올 수 있습니다.
 
 한번 해 보죠!
 
@@ -358,7 +358,7 @@ function createCircleVertices({
   startAngle = 0,
   endAngle = Math.PI * 2,
 } = {}) {
-  // subdivision하나마다 두 개의 삼각형, 삼각형 하나마다 3개의 정점이 각각 두 개의 값 (xy)를 가짐
+  // 각 subdivision은 두 개의 삼각형, 각 삼각형은 3개의 정점, 각 정점은 두 개의 값 (xy)를 가짐
   const numVertices = numSubdivisions * 3 * 2;
   const vertexData = new Float32Array(numSubdivisions * 2 * 3 * 2);
 
@@ -368,7 +368,7 @@ function createCircleVertices({
     vertexData[offset++] = y;
   };
 
-  // subdivision하나마다 두 개의 삼각형
+  // 각 subdivision은 두 개의 삼각형
   //
   // 0--1 4
   // | / /|
