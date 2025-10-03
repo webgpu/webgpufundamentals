@@ -223,7 +223,7 @@ asynchronously.
 ## WGSL errors
 
 If you get an error compiling a shader module you can ask for more
-detailed info by calling `getComplicationInfo`. 
+detailed info by calling `getCompilationInfo`. 
 
 Example:
 
