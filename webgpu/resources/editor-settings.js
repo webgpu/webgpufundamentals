@@ -47,20 +47,20 @@ async function initEditor() {
   /* global monaco */
   if (typeof monaco !== 'undefined') {
     const allLangs = monaco.languages.getLanguages();
-    const { language: jsHighligher } = await allLangs.find(({ id }) => id ==='javascript').loader();
+    const { language: jsHighlighter } = await allLangs.find(({ id }) => id === 'javascript').loader();
     // wgsl marker comment
-    jsHighligher.tokenizer.common.splice(2, 0, [
-      /(\/\*\s*[wW][gG][sS][lL]\s*\*\/)(\s*`)/, 
+    jsHighlighter.tokenizer.common.splice(2, 0, [
+      /(\/\*\s*[wW][gG][sS][lL]\s*\*\/)(\s*`)/,
       [
         'type.identifier',
         {
           token: 'string',
           next: '@wgsl_string',
-          nextEmbedded: 'wgsl'
-        }
-      ]
+          nextEmbedded: 'wgsl',
+        },
+      ],
     ]);
-    jsHighligher.tokenizer.wgsl_string = [
+    jsHighlighter.tokenizer.wgsl_string = [
 			[/`/, { token: 'string', next: '@pop', nextEmbedded: '@pop' }],
 			[/[^\\`]+/, ''],
 		];
