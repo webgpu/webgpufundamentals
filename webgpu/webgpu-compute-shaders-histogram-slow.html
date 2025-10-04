@@ -33,7 +33,7 @@ async function main() {
 
   const module = device.createShaderModule({
     label: 'histogram shader',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var<storage, read_write> bins: array<u32>;
       @group(0) @binding(1) var ourTexture: texture_2d<f32>;
 

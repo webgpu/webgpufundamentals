@@ -366,7 +366,7 @@ async function main() {
 ```js
   const module = device.createShaderModule({
     label: 'histogram shader',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var<storage, read_write> bins: array<u32>;
       @group(0) @binding(1) var ourTexture: texture_2d<f32>;
 
@@ -892,7 +892,7 @@ fn cs(
 
   const histogramChunkModule = device.createShaderModule({
     label: 'histogram chunk shader',
-    code: `
+    code: /* wgsl */ `
 -      const chunkWidth = 256;
 -      const chunkHeight = 1;
 +      ${sharedConstants}
@@ -940,7 +940,7 @@ fn cs(@builtin(local_invocation_id) local_invocation_id: vec3u) {
 ```js
 const chunkSumModule = device.createShaderModule({
   label: 'chunk sum shader',
-  code: `
+  code: /* wgsl */ `
 *    ${sharedConstants}
     const chunkSize = chunkWidth * chunkHeight;
     @group(0) @binding(0) var<storage, read_write> chunks: array<array<u32, chunkSize>>;
@@ -1090,7 +1090,7 @@ const chunkSumModule = device.createShaderModule({
 ```js
 const chunkSumModule = device.createShaderModule({
   label: 'chunk sum shader',
-  code: `
+  code: /* wgsl */ `
     ${sharedConstants}
     const chunkSize = chunkWidth * chunkHeight;
 

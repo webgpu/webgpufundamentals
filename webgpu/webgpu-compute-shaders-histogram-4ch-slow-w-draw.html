@@ -51,7 +51,7 @@ async function main() {
 
   const module = device.createShaderModule({
     label: 'histogram shader',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var<storage, read_write> histogram: array<vec4u>;
       @group(0) @binding(1) var ourTexture: texture_2d<f32>;
 
@@ -91,7 +91,7 @@ async function main() {
 
   const rangeModule = device.createShaderModule({
     label: 'compute histogram range shader',
-    code: `
+    code: /* wgsl */ `
       struct HistogramInfo {
         min: vec4u,
         max: vec4u,
@@ -125,7 +125,7 @@ async function main() {
 
   const renderModule = device.createShaderModule({
     label: 'draw histogram shader',
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,

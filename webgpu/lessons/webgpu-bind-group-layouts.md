@@ -437,7 +437,7 @@ First let's add another shader module that adds 3
 -  const module = device.createShaderModule({
 +  const moduleTimes2 = device.createShaderModule({
     label: 'doubling compute module',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var<storage, read_write> data: array<f32>;
 
       @compute @workgroup_size(1) fn computeSomething(
@@ -451,7 +451,7 @@ First let's add another shader module that adds 3
 
 +  const modulePlus3 = device.createShaderModule({
 +    label: 'adding 3 compute module',
-+    code: `
++    code: /* wgsl */ `
 +      @group(0) @binding(0) var<storage, read_write> data: array<f32>;
 +
 +      @compute @workgroup_size(1) fn computeSomething(

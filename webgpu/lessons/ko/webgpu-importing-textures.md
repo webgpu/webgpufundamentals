@@ -175,7 +175,7 @@ WebGPU에서 우리는 노멀 맵이나 높이(height) 맵등 색상이 아닌 �
       if (!module) {
         module = device.createShaderModule({
           label: 'textured quad shaders for mip level generation',
-          code: `
+          code: /* wgsl */ `
             struct VSOutput {
               @builtin(position) position: vec4f,
               @location(0) texcoord: vec2f,

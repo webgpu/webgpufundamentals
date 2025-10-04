@@ -18,7 +18,7 @@ TOC: 基本的なCRTエフェクト
 
 ```js
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -230,7 +230,7 @@ TOC: 基本的なCRTエフェクト
 
 ```js
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -343,7 +343,7 @@ CRTは、LCDと同様に、画像を赤、緑、青の領域に分割します�
 
 ```
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -498,7 +498,7 @@ async function main() {
 
 ```js
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
 -      struct VSOutput {
 -        @builtin(position) position: vec4f,
 -        @location(0) texcoord: vec2f,
@@ -612,7 +612,7 @@ async function main() {
 ```js
 +  const workgroupSize = [16, 16];
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         effectAmount: f32,
         bandMult: f32,

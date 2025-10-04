@@ -26,7 +26,7 @@ that fits in clip space.
 
 ```js
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -257,7 +257,7 @@ Let's add that to the code. First let's edit the shader to apply this sine wave.
 
 ```js
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -375,7 +375,7 @@ First let's change the shader
 
 ```
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -542,7 +542,7 @@ We need to switch our shader to write to a storage texture
 
 ```js
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
 -      struct VSOutput {
 -        @builtin(position) position: vec4f,
 -        @location(0) texcoord: vec2f,
@@ -664,7 +664,7 @@ to the texture when we're out of bounds.
 ```js
 +  const workgroupSize = [16, 16];
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         effectAmount: f32,
         bandMult: f32,

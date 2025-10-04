@@ -199,7 +199,7 @@ override blue = 0.0;
 
 ```js
   const vertexModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VOut {
         @builtin(position) pos: vec4f,
         @location(0) color: vec4f,
@@ -227,7 +227,7 @@ override blue = 0.0;
   });
 
   const fragmentModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VOut {
         @builtin(position) pos: vec4f,
         @location(0) color: vec4f,

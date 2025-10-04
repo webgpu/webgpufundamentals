@@ -220,7 +220,7 @@ is just a convenience. The code above is functionally equivalent to
 
 ```js
   const vertexModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VOut {
         @builtin(position) pos: vec4f,
         @location(0) color: vec4f,
@@ -248,7 +248,7 @@ is just a convenience. The code above is functionally equivalent to
   });
 
   const fragmentModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VOut {
         @builtin(position) pos: vec4f,
         @location(0) color: vec4f,

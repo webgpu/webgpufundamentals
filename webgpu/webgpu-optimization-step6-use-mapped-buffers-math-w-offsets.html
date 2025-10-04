@@ -690,7 +690,7 @@ async function main() {
   });
 
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct GlobalUniforms {
         viewProjection: mat4x4f,
         lightWorldPosition: vec3f,
