@@ -53,7 +53,7 @@ async function main() {
 
   const histogramChunkModule = device.createShaderModule({
     label: 'histogram chunk shader',
-    code: `
+    code: /* wgsl */ `
       ${sharedConstants}
       const chunkSize = chunkWidth * chunkHeight;
       var<workgroup> bins: array<array<atomic<u32>, 4>, chunkSize>;
@@ -103,7 +103,7 @@ async function main() {
 
   const chunkSumModule = device.createShaderModule({
     label: 'chunk sum shader',
-    code: `
+    code: /* wgsl */ `
       ${sharedConstants}
       const chunkSize = chunkWidth * chunkHeight;
 
@@ -130,7 +130,7 @@ async function main() {
 
   const maxModule = device.createShaderModule({
     label: 'max shader',
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         numEntries: f32,
       };
@@ -152,7 +152,7 @@ async function main() {
 
   const drawHistogramModule = device.createShaderModule({
     label: 'draw histogram shader',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,

@@ -53,7 +53,7 @@ async function main() {
   });
 
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct OurStruct {
         color: vec4f,
         scale: vec2f,

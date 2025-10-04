@@ -14,7 +14,7 @@ Inter-stage 变量在顶点着色器和片段着色器之间发挥作用。
   const module = device.createShaderModule({
 -    label: 'our hardcoded red triangle shaders',
 +    label: 'our hardcoded rgb triangle shaders',
-    code: `
+    code: /* wgsl */ `
 +      struct OurVertexShaderOutput {
 +        @builtin(position) position: vec4f,
 +        @location(0) color: vec4f,
@@ -149,7 +149,7 @@ Inter-stage 变量最常用于在三角形内进行纹理坐标插值，我们�
 ```js
 const module = device.createShaderModule({
     label: 'our hardcoded checkerboard triangle shaders',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
 -        @location(0) color: vec4f,
@@ -209,7 +209,7 @@ select = (a, b, condition) => (condition ? b : a);
 -    label: 'hardcoded checkerboard triangle shaders',
 +  const vsModule = device.createShaderModule({
 +    label: 'hardcoded triangle',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
       };
@@ -232,7 +232,7 @@ select = (a, b, condition) => (condition ? b : a);
 +
 +  const fsModule = device.createShaderModule({
 +    label: 'checkerboard',
-+    code: `
++    code: /* wgsl */ `
 -      @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
 +      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -> @location(0) vec4f {
         let red = vec4f(1, 0, 0, 1);

@@ -14,7 +14,7 @@ Uniforms - это что-то вроде глобальных переменны
 ```js
   const module = device.createShaderModule({
     label: 'triangle shaders with uniforms',
-    code: `
+    code: /* wgsl */ `
 +      struct OurStruct {
 +        color: vec4f,
 +        scale: vec2f,
@@ -350,7 +350,7 @@ device.queue.submit([commandBuffer]);
 
 ```js
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct OurStruct {
         color: vec4f,
 -        scale: vec2f,

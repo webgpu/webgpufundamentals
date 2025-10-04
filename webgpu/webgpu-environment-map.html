@@ -95,7 +95,7 @@ async function main() {
   });
 
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         projection: mat4x4f,
         view: mat4x4f,
@@ -207,7 +207,7 @@ async function main() {
       if (!module) {
         module = device.createShaderModule({
           label: 'textured quad shaders for mip level generation',
-          code: `
+          code: /* wgsl */ `
             struct VSOutput {
               @builtin(position) position: vec4f,
               @location(0) texcoord: vec2f,

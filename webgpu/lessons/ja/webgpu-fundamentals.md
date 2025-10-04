@@ -256,7 +256,7 @@ WebGPUコンテキストに対して、`configure`を使ってこの`format`を�
 ```js
   const module = device.createShaderModule({
     label: 'our hardcoded red triangle shaders',
-    code: `
+    code: /* wgsl */ `
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -> @builtin(position) vec4f {
@@ -519,7 +519,7 @@ async function main() {
 ```js
   const module = device.createShaderModule({
     label: 'doubling compute module',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var<storage, read_write> data: array<f32>;
 
       @compute @workgroup_size(1) fn computeSomething(

@@ -86,7 +86,7 @@ Then let's make a shader module.
 
 ```js
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         normalMatrix: mat3x3f,
         viewProjection: mat4x4f,
@@ -1144,7 +1144,7 @@ Here's the new shader
 
 ```js
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
 -      struct Uniforms {
 -        normalMatrix: mat3x3f,
 -        viewProjection: mat4x4f,
@@ -1466,7 +1466,7 @@ First let's change the shaders to use another uniform buffer.
 
 ```js
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct GlobalUniforms {
         viewProjection: mat4x4f,
         lightWorldPosition: vec3f,

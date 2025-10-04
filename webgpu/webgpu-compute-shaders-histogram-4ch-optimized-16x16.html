@@ -52,7 +52,7 @@ async function main() {
 
   const histogramChunkModule = device.createShaderModule({
     label: 'histogram chunk shader',
-    code: `
+    code: /* wgsl */ `
       var<workgroup> histogram: array<array<atomic<u32>, 4>, 256>;
       @group(0) @binding(0) var<storage, read_write> histogramChunks: array<array<vec4u, 256>>;
       @group(0) @binding(1) var ourTexture: texture_2d<f32>;
@@ -99,7 +99,7 @@ async function main() {
 
   const chunkSumModule = device.createShaderModule({
     label: 'chunk sum shader',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var<storage, read> histogramChunks: array<array<vec4u, 256>>;
       @group(0) @binding(1) var<storage, read_write> histogram: array<vec4u, 256>;
 

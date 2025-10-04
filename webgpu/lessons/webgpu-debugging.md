@@ -46,7 +46,7 @@ async function main() {
   });
 
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -74,7 +74,7 @@ async function main() {
   });
 
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -122,7 +122,7 @@ Example:
 
 +  device.pushErrorScope('validation');
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -132,7 +132,7 @@ Example:
 +  }
 
 +  device.createShaderModule({
-+    code: `
++    code: /* wgsl */ `
 +      also, this shader won't compile
 +    `,
 +  });
@@ -166,7 +166,7 @@ probably more common to use `then` as in:
 ```js
   device.pushErrorScope('validation');
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });

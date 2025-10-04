@@ -439,7 +439,7 @@ GPUでキャンバスに描画するので、優先キャンバス形式を取�
 ```js
   const scaleModule = device.createShaderModule({
     label: 'histogram scale shader',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var<storage, read> bins: array<vec4u>;
       @group(0) @binding(1) var<storage, read_write> scale: vec4f;
       @group(0) @binding(2) var ourTexture: texture_2d<f32>;
@@ -459,7 +459,7 @@ GPUでキャンバスに描画するので、優先キャンバス形式を取�
 
   const drawHistogramModule = device.createShaderModule({
     label: 'draw histogram shader',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,

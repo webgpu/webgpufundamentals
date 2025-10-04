@@ -19,7 +19,7 @@ TOC: Міжетапні змінні
   const module = device.createShaderModule({
 -    label: 'our hardcoded red triangle shaders',
 +    label: 'our hardcoded rgb triangle shaders',
-    code: `
+    code: /* wgsl */ `
 +      struct OurVertexShaderOutput {
 +        @builtin(position) position: vec4f,
 +        @location(0) color: vec4f,
@@ -175,7 +175,7 @@ TOC: Міжетапні змінні
 ```js
   const module = device.createShaderModule({
     label: 'our hardcoded checkerboard triangle shaders',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
 -        @location(0) color: vec4f,
@@ -250,7 +250,7 @@ select = (a, b, condition) => condition ? b : a;
 -    label: 'hardcoded checkerboard triangle shaders',
 +  const vsModule = device.createShaderModule({
 +    label: 'hardcoded triangle',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
       };
@@ -273,7 +273,7 @@ select = (a, b, condition) => condition ? b : a;
 +
 +  const fsModule = device.createShaderModule({
 +    label: 'checkerboard',
-+    code: `
++    code: /* wgsl */ `
 -      @fragment fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
 +      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -> @location(0) vec4f {
         let red = vec4f(1, 0, 0, 1);

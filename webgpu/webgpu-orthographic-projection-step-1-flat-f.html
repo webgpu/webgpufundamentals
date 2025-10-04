@@ -250,7 +250,7 @@ async function main() {
   });
 
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         color: vec4f,
         matrix: mat4x4f,

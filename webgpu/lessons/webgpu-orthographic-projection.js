@@ -176,7 +176,7 @@ async function main() {
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         vec4f: color,
         matrix: mat4x4f,

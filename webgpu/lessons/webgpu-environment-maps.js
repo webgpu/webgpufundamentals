@@ -108,7 +108,7 @@ async function showCube(canvas, uiDiv) {
   });
 
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         matrix: mat4x4f,
       };

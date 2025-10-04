@@ -39,7 +39,7 @@ async function main() {
   });
 
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -64,7 +64,7 @@ async function main() {
   });
 
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -102,7 +102,7 @@ async function main() {
 
 +  device.pushErrorScope('validation');
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -112,7 +112,7 @@ async function main() {
 +  }
 
 +  device.createShaderModule({
-+    code: `
++    code: /* wgsl */ `
 +      also, this shader won't compile
 +    `,
 +  });
@@ -143,7 +143,7 @@ async function main() {
 ```js
   device.pushErrorScope('validation');
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });

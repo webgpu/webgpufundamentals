@@ -67,7 +67,7 @@ async function main() {
     sampleCount: 4,  // can be 1 or 4
   };
 
-  const shaderSrc = `
+  const shaderSrc = /* wgsl */ `
   struct Uniforms {
     viewProjection: mat4x4f,
     viewPosition: vec3f,

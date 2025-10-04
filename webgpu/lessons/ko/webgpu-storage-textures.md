@@ -195,7 +195,7 @@ fn storeValueToBuffer(pos: vec2u, v: f32) {
 ```js
   const module = device.createShaderModule({
     label: 'circles in storage texture',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0)
       var tex: texture_storage_2d<${presentationFormat}, write>;
 

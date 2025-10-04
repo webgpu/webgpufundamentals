@@ -15,7 +15,7 @@ We'll start again with the triangle example from [the first article](webgpu-fund
 ```js
   const module = device.createShaderModule({
     label: 'triangle shaders with uniforms',
-    code: `
+    code: /* wgsl */ `
 +      struct OurStruct {
 +        color: vec4f,
 +        scale: vec2f,
@@ -389,7 +389,7 @@ that are updated each time we draw.
 
 ```js
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct OurStruct {
         color: vec4f,
 -        scale: vec2f,

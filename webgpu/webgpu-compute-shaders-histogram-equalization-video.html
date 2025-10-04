@@ -77,7 +77,7 @@ async function main() {
 
   const histogramChunkModule = device.createShaderModule({
     label: 'histogram chunk shader',
-    code: `
+    code: /* wgsl */ `
       ${sharedConstants}
       const chunkSize = chunkWidth * chunkHeight;
       var<workgroup> bins: array<array<atomic<u32>, 4>, chunkSize>;
@@ -164,7 +164,7 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
 
   const chunkSumModule = device.createShaderModule({
     label: 'chunk sum shader',
-    code: `
+    code: /* wgsl */ `
       ${sharedConstants}
       const chunkSize = chunkWidth * chunkHeight;
 
@@ -191,7 +191,7 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
 
   const maxModule = device.createShaderModule({
     label: 'max shader',
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         numEntries: f32,
       };
@@ -218,7 +218,7 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
 
   const drawHistogramModule = device.createShaderModule({
     label: 'draw histogram shader',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -273,7 +273,7 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
 
   const drawNewLightnessModule = device.createShaderModule({
     label: 'new lightness',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
       };
@@ -306,7 +306,7 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
 
   const videoModule = device.createShaderModule({
     label: 'our hardcoded external textured quad shaders',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -355,7 +355,7 @@ fn rgb2hsl(rgb: vec3f) -> vec3f {
 
   const videoAdjustedModule = device.createShaderModule({
     label: 'our hardcoded external textured quad shaders',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,

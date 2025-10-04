@@ -180,7 +180,7 @@ const bindGroup = device.createBindGroup({
       if (!module) {
         module = device.createShaderModule({
           label: 'textured quad shaders for mip level generation',
-          code: `
+          code: /* wgsl */ `
             struct VSOutput {
               @builtin(position) position: vec4f,
               @location(0) texcoord: vec2f,
@@ -401,7 +401,7 @@ JavaScriptに戻り、ユーザーがテクスチャを作成したときに使�
       if (!module) {
         module = device.createShaderModule({
           label: 'textured quad shaders for mip level generation',
-          code: `
+          code: /* wgsl */ `
             const faceMat = array(
               mat3x3f( 0,  0,  -2,  0, -2,   0,  1,  1,   1),   // pos-x
               mat3x3f( 0,  0,   2,  0, -2,   0, -1,  1,  -1),   // neg-x
