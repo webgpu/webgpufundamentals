@@ -321,6 +321,10 @@ often pronounced wig-sil. WGSL is a strongly typed language
 which we'll try to go over in more detail in [another article](webgpu-wgsl.html).
 For now, I'm hoping with a little explanation you can infer some basics.
 
+> Note: throughout this site, strings that store WGSL have `/* wgsl */` as a
+> comment in front of them. This is a convention to help text editors try to
+> syntax highlight and/or provide intellisense for WGSL.
+
 Above we see a function called `vs` is declared with the `@vertex` attribute.
 This designates it as a vertex shader function.
 
