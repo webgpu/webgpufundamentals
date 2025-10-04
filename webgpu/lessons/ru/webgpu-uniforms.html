@@ -238,7 +238,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>Мы снова начнем с треугольника из <a href="webgpu-fundamentals.html">первой статьи</a> и изменим код, добавив uniforms.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'triangle shaders with uniforms',
-    code: `
+    code: /* wgsl */ `
 +      struct OurStruct {
 +        color: vec4f,
 +        scale: vec2f,
@@ -515,7 +515,7 @@ device.queue.submit([commandBuffer]);
 Но, только размер будет обновляться, цвет и смещение не будут, таким образом мы тратим время на выгрузку цвета и смещения.</p>
 <p>Нам нужно разделить uniforms в uniforms которым нужно установить один раз для uniforms, которые будут обновляться каждый кадр отрисовки.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct OurStruct {
         color: vec4f,
 -        scale: vec2f,

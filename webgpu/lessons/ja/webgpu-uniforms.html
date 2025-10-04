@@ -237,7 +237,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p><a href="webgpu-fundamentals.html">最初の記事</a>の三角形の例から始めて、いくつかのユニフォームを使用するように変更します。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'triangle shaders with uniforms',
-    code: `
+    code: /* wgsl */ `
 +      struct OurStruct {
 +        color: vec4f,
 +        scale: vec2f,
@@ -501,7 +501,7 @@ device.queue.submit([commandBuffer]);
 <p>ここで、もう1つ説明します。シェーダーで複数のユニフォームバッファを参照できます。上記の例では、描画するたびにスケールを更新し、<code class="notranslate" translate="no">writeBuffer</code>を呼び出してそのオブジェクトの<code class="notranslate" translate="no">uniformValues</code>を対応するユニフォームバッファにアップロードします。しかし、スケールのみが更新され、色とオフセットは更新されないため、色とオフセットをアップロードする時間を無駄にしています。</p>
 <p>ユニフォームを、一度設定する必要があるユニフォームと、描画するたびに更新されるユニフォームに分割できます。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct OurStruct {
         color: vec4f,
 -        scale: vec2f,

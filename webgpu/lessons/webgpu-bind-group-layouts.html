@@ -599,7 +599,7 @@ uses shared bind groups we’ll take the simple compute example from <a href="we
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const module = device.createShaderModule({
 +  const moduleTimes2 = device.createShaderModule({
     label: 'doubling compute module',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
 
       @compute @workgroup_size(1) fn computeSomething(
@@ -613,7 +613,7 @@ uses shared bind groups we’ll take the simple compute example from <a href="we
 
 +  const modulePlus3 = device.createShaderModule({
 +    label: 'adding 3 compute module',
-+    code: `
++    code: /* wgsl */ `
 +      @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
 +
 +      @compute @workgroup_size(1) fn computeSomething(

@@ -84,7 +84,7 @@ async function initWebGPUPixelRender(webgpuCanvas) {
 
   const module = device.createShaderModule({
     label: 'our hardcoded "a" triangle',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,

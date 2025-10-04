@@ -243,7 +243,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
 -    label: 'our hardcoded red triangle shaders',
 +    label: 'our hardcoded rgb triangle shaders',
-    code: `
+    code: /* wgsl */ `
 +      struct OurVertexShaderOutput {
 +        @builtin(position) position: vec4f,
 +        @location(0) color: vec4f,
@@ -383,7 +383,7 @@ function findIndex({ array, position, value }) {
 예를들어, 체커보드(checkerboard)를 그려 봅시다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'our hardcoded checkerboard triangle shaders',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
 -        @location(0) color: vec4f,
@@ -449,7 +449,7 @@ select = (a, b, condition) =&gt; condition ? b : a;
 -    label: 'hardcoded checkerboard triangle shaders',
 +  const vsModule = device.createShaderModule({
 +    label: 'hardcoded triangle',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
       };
@@ -472,7 +472,7 @@ select = (a, b, condition) =&gt; condition ? b : a;
 +
 +  const fsModule = device.createShaderModule({
 +    label: 'checkerboard',
-+    code: `
++    code: /* wgsl */ `
 -      @fragment fn fs(fsInput: OurVertexShaderOutput) -&gt; @location(0) vec4f {
 +      @fragment fn fs(@builtin(position) pixelPosition: vec4f) -&gt; @location(0) vec4f {
         let red = vec4f(1, 0, 0, 1);

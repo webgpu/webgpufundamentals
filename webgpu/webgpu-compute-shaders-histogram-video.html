@@ -69,7 +69,7 @@ async function main() {
 
   const histogramChunkModule = device.createShaderModule({
     label: 'histogram chunk shader',
-    code: `
+    code: /* wgsl */ `
       ${sharedConstants}
       const chunkSize = chunkWidth * chunkHeight;
       var<workgroup> bins: array<array<atomic<u32>, 4>, chunkSize>;
@@ -119,7 +119,7 @@ async function main() {
 
   const chunkSumModule = device.createShaderModule({
     label: 'chunk sum shader',
-    code: `
+    code: /* wgsl */ `
       ${sharedConstants}
       const chunkSize = chunkWidth * chunkHeight;
 
@@ -146,7 +146,7 @@ async function main() {
 
   const scaleModule = device.createShaderModule({
     label: 'histogram scale shader',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var<storage, read> bins: array<vec4u>;
       @group(0) @binding(1) var<storage, read_write> scale: vec4f;
       @group(0) @binding(2) var ourTexture: texture_external;
@@ -166,7 +166,7 @@ async function main() {
 
   const drawHistogramModule = device.createShaderModule({
     label: 'draw histogram shader',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -221,7 +221,7 @@ async function main() {
 
   const videoModule = device.createShaderModule({
     label: 'our hardcoded external textured quad shaders',
-    code: `
+    code: /* wgsl */ `
       struct OurVertexShaderOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,

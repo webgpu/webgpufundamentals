@@ -41,7 +41,7 @@ async function main() {
 
   const module = device.createShaderModule({
     label: 'histogram shader',
-    code: `
+    code: /* wgsl */ `
       @vertex
       fn vs(@builtin(vertex_index) i: u32) -> @builtin(position) vec4f {
         let pos = array(

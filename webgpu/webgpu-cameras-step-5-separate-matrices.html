@@ -504,7 +504,7 @@ async function main() {
   });
 
   const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct SharedViewUniforms {
         projection: mat4x4f,
         view: mat4x4f,

@@ -543,7 +543,7 @@ It takes a texture, an <code class="notranslate" translate="no">vec2u</code> tex
 <p>then we create our shader</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'histogram shader',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var&lt;storage, read_write&gt; bins: array&lt;u32&gt;;
       @group(0) @binding(1) var ourTexture: texture_2d&lt;f32&gt;;
 
@@ -1050,7 +1050,7 @@ we could pass them in from JavaScript like this</p>
 
   const histogramChunkModule = device.createShaderModule({
     label: 'histogram chunk shader',
-    code: `
+    code: /* wgsl */ `
 -      const chunkWidth = 256;
 -      const chunkHeight = 1;
 +      ${sharedConstants}
@@ -1094,7 +1094,7 @@ fn cs(@builtin(local_invocation_id) local_invocation_id: vec3u) {
 <p>And, like before, we can inject the <code class="notranslate" translate="no">chunkWidth</code> and <code class="notranslate" translate="no">chunkHeight</code>.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const chunkSumModule = device.createShaderModule({
   label: 'chunk sum shader',
-  code: `
+  code: /* wgsl */ `
 *    ${sharedConstants}
     const chunkSize = chunkWidth * chunkHeight;
     @group(0) @binding(0) var&lt;storage, read_write&gt; chunks: array&lt;array&lt;u32, chunkSize&gt;&gt;;
@@ -1232,7 +1232,7 @@ chunks. If we pass in a stride of 2 then we sum every other chunk. etc…</p>
 <p>Here are the changes to our shader</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const chunkSumModule = device.createShaderModule({
   label: 'chunk sum shader',
-  code: `
+  code: /* wgsl */ `
     ${sharedConstants}
     const chunkSize = chunkWidth * chunkHeight;
 

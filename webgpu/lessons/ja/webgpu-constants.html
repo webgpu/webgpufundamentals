@@ -401,7 +401,7 @@ override blue = 0.0;
 <p></p>
 <p>繰り返しになりますが、機能的には、1つのWGSL <code class="notranslate" translate="no">code</code>を持つ1つのシェーダーモジュールを使用したという事実は、単なる便宜上のものです。上記のコードは、機能的には次のものと同じです。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const vertexModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VOut {
         @builtin(position) pos: vec4f,
         @location(0) color: vec4f,
@@ -429,7 +429,7 @@ override blue = 0.0;
   });
 
   const fragmentModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VOut {
         @builtin(position) pos: vec4f,
         @location(0) color: vec4f,

@@ -262,7 +262,7 @@ should get an error.</p>
   });
 
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -290,7 +290,7 @@ errors until you call certain functions. One such function is
   });
 
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -333,7 +333,7 @@ time you popped.</p>
 
 +  device.pushErrorScope('validation');
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -343,7 +343,7 @@ time you popped.</p>
 +  }
 
 +  device.createShaderModule({
-+    code: `
++    code: /* wgsl */ `
 +      also, this shader won't compile
 +    `,
 +  });
@@ -379,7 +379,7 @@ Above we use <code class="notranslate" translate="no">await</code> to wait for t
 probably more common to use <code class="notranslate" translate="no">then</code> as in:</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  device.pushErrorScope('validation');
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });

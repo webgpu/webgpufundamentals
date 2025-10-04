@@ -254,7 +254,7 @@ device.addEventListener('uncapturederror', event =&gt; alert(event.error.message
   });
 
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -279,7 +279,7 @@ device.addEventListener('uncapturederror', event =&gt; alert(event.error.message
   });
 
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -312,7 +312,7 @@ device.addEventListener('uncapturederror', event =&gt; alert(event.error.message
 
 +  device.pushErrorScope('validation');
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });
@@ -322,7 +322,7 @@ device.addEventListener('uncapturederror', event =&gt; alert(event.error.message
 +  }
 
 +  device.createShaderModule({
-+    code: `
++    code: /* wgsl */ `
 +      also, this shader won't compile
 +    `,
 +  });
@@ -355,7 +355,7 @@ device.addEventListener('uncapturederror', event =&gt; alert(event.error.message
 <p><code class="notranslate" translate="no">popErrorScope</code>は、エラーがあった場合はエラーまたはnullを含むプロミスを返します。上記では<code class="notranslate" translate="no">await</code>を使用してプロミスを待機しましたが、これによりプログラムが停止します。次のように<code class="notranslate" translate="no">then</code>を使用する方が一般的です。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  device.pushErrorScope('validation');
   device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       this shader won't compile
     `,
   });

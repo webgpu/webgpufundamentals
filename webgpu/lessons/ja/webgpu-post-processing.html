@@ -239,7 +239,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>そのためには、<a href="webgpu-timing.html">タイミングに関する記事</a>の冒頭のアニメーションの例を取り上げましょう。最初に行うことは、別のテクスチャにレンダリングし、そのテクスチャをキャンバスにレンダリングすることです。</p>
 <p>これは、<a href="webgpu-large-triangle-to-cover-clip-space.html">大きなクリップ空間の三角形</a>を描画し、クリップ空間に収まる三角形の部分をカバーするテクスチャを描画できるように正しいUV座標を渡すシェーダーです。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -423,7 +423,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </div>
 <p>これをコードに追加しましょう。まず、この正弦波を適用するようにシェーダーを編集しましょう。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -522,7 +522,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>CRTは、LCDと同様に、画像を赤、緑、青の領域に分割します。CRTでは、これらの領域は今日のほとんどのLCDよりも一般的に大きかったため、これが目立つことがありました。その効果を近似するために何かを追加しましょう。</p>
 <p>まず、シェーダーを変更しましょう。</p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">  const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -659,7 +659,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </pre>
 <p>シェーダーをストレージテクスチャに書き込むように切り替える必要があります。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
 -      struct VSOutput {
 -        @builtin(position) position: vec4f,
 -        @location(0) texcoord: vec2f,
@@ -768,7 +768,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>より大きなワークグループサイズを使用するように更新できます。これには、範囲外の場合はテクスチャへの書き込みをスキップする必要があります。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const workgroupSize = [16, 16];
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         effectAmount: f32,
         bandMult: f32,

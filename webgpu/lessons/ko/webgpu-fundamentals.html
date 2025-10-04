@@ -437,7 +437,7 @@ main();
 우리의 경우 하나의 정점 셰이더와 하나의 프래그먼트 셰이더 함수를 만들 겁니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'our hardcoded red triangle shaders',
-    code: `
+    code: /* wgsl */ `
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -&gt; @builtin(position) vec4f {
@@ -630,7 +630,7 @@ WebGPU는 정점 셰이더에서 우리가 반환하는 세 개의 정점을 받
 <p>그리고 셰이더 모듈을 만듭니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'doubling compute module',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
 
       @compute @workgroup_size(1) fn computeSomething(

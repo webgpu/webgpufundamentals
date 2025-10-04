@@ -356,7 +356,7 @@ fn storeValueToBuffer(pos: vec2u, v: f32) {
 <p>これで、キャンバステクスチャをストレージテクスチャとして使用できます。テクスチャに同心円を描画する簡単なコンピュートシェーダーを作成しましょう。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'circles in storage texture',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0)
       var tex: texture_storage_2d&lt;${presentationFormat}, write&gt;;
 

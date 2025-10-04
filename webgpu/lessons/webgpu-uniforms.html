@@ -240,7 +240,7 @@ you ask the GPU to execute the shader.</p>
 <p>We’ll start again with the triangle example from <a href="webgpu-fundamentals.html">the first article</a> and modify it to use some uniforms.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'triangle shaders with uniforms',
-    code: `
+    code: /* wgsl */ `
 +      struct OurStruct {
 +        color: vec4f,
 +        scale: vec2f,
@@ -555,7 +555,7 @@ color and offset are not, so we’re wasting time uploading color and offset.</p
 <p>We could split the uniforms into uniforms that need to be set once and uniforms
 that are updated each time we draw.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct OurStruct {
         color: vec4f,
 -        scale: vec2f,

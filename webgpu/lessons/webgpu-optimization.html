@@ -316,7 +316,7 @@ in general.</p>
 </pre>
 <p>Then let’s make a shader module.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         normalMatrix: mat3x3f,
         viewProjection: mat4x4f,
@@ -1280,7 +1280,7 @@ to every uniform buffer. We’ll also copy less data per object
 with <code class="notranslate" translate="no">device.queue.writeBuffer</code></p>
 <p>Here’s the new shader</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
 -      struct Uniforms {
 -        normalMatrix: mat3x3f,
 -        viewProjection: mat4x4f,
@@ -1589,7 +1589,7 @@ them to the uniform buffer every frame.</p>
 them at init time and then just add them to our bind group.</p>
 <p>First let’s change the shaders to use another uniform buffer.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct GlobalUniforms {
         viewProjection: mat4x4f,
         lightWorldPosition: vec3f,

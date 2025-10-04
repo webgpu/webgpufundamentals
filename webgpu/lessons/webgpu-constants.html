@@ -423,7 +423,7 @@ override blue = 0.0;
 <p>Again, functionally, the fact that we used one shader module with one WGSL <code class="notranslate" translate="no">code</code>
 is just a convenience. The code above is functionally equivalent to</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const vertexModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VOut {
         @builtin(position) pos: vec4f,
         @location(0) color: vec4f,
@@ -451,7 +451,7 @@ is just a convenience. The code above is functionally equivalent to</p>
   });
 
   const fragmentModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VOut {
         @builtin(position) pos: vec4f,
         @location(0) color: vec4f,

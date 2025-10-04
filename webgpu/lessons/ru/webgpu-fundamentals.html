@@ -465,7 +465,7 @@ undefined, то и устройство тоже будет undefined.</p>
 В нашем случае, мы создадим одну функцию вершинного шейдера и одну функцию в фрагментного шейдера.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'our hardcoded red triangle shaders',
-    code: `
+    code: /* wgsl */ `
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -&gt; @builtin(position) vec4f {
@@ -640,7 +640,7 @@ JavaScript-овом <a href="https://developer.mozilla.org/en-US/docs/Web/JavaSc
 <p>Далее создаем модуль шейдера</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'doubling compute module',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
 
       @compute @workgroup_size(1) fn computeSomething(

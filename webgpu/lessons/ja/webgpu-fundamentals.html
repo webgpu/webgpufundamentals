@@ -433,7 +433,7 @@ WebGPUコンテキストに対して、<code class="notranslate" translate="no">
 今回は、頂点シェーダを１つ、フラグメントシェーダを１つ、都合２つのシェーダをシェーダモジュールに持たせることにします。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'our hardcoded red triangle shaders',
-    code: `
+    code: /* wgsl */ `
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -&gt; @builtin(position) vec4f {
@@ -641,7 +641,7 @@ WebGPUはこの際、「各ピクセルの中心点が三角形の内側にあ�
 <p>違ってくるのはシェーダモジュールの部分からです。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'doubling compute module',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
 
       @compute @workgroup_size(1) fn computeSomething(

@@ -248,7 +248,7 @@ to the canvas.</p>
 and passes the correct UV coordinates to let as draw a texture that covers the portion of the triangle
 that fits in clip space.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -451,7 +451,7 @@ and dark using a sine wave and taking the absolute value.</p>
 </div>
 <p>Let’s add that to the code. First let’s edit the shader to apply this sine wave.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -555,7 +555,7 @@ On CRTs those areas were generally larger than most LCDs today so
 sometimes this stuck out. Let’s add something to approximate that effect.</p>
 <p>First let’s change the shader</p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">  const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct VSOutput {
         @builtin(position) position: vec4f,
         @location(0) texcoord: vec2f,
@@ -704,7 +704,7 @@ checking we can and choosing a texture format that supports it.</p>
 </pre>
 <p>We need to switch our shader to write to a storage texture</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
 -      struct VSOutput {
 -        @builtin(position) position: vec4f,
 -        @location(0) texcoord: vec2f,
@@ -821,7 +821,7 @@ Using a workgroup size of 1 makes things easy but it’s slow.</p>
 to the texture when we’re out of bounds.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const workgroupSize = [16, 16];
   const postProcessModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         effectAmount: f32,
         bandMult: f32,

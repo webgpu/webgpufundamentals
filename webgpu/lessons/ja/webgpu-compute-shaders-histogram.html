@@ -507,7 +507,7 @@ fn srgbLuminance(color: vec3f) -&gt; f32 {
 <p>次に、シェーダーを作成します。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'histogram shader',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var&lt;storage, read_write&gt; bins: array&lt;u32&gt;;
       @group(0) @binding(1) var ourTexture: texture_2d&lt;f32&gt;;
 
@@ -936,7 +936,7 @@ fn cs(
 
   const histogramChunkModule = device.createShaderModule({
     label: 'histogram chunk shader',
-    code: `
+    code: /* wgsl */ `
 -      const chunkWidth = 256;
 -      const chunkHeight = 1;
 +      ${sharedConstants}
@@ -973,7 +973,7 @@ fn cs(@builtin(local_invocation_id) local_invocation_id: vec3u) {
 <p>そして、以前と同様に、<code class="notranslate" translate="no">chunkWidth</code>と<code class="notranslate" translate="no">chunkHeight</code>を挿入できます。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const chunkSumModule = device.createShaderModule({
   label: 'chunk sum shader',
-  code: `
+  code: /* wgsl */ `
 *    ${sharedConstants}
     const chunkSize = chunkWidth * chunkHeight;
     @group(0) @binding(0) var&lt;storage, read_write&gt; chunks: array&lt;array&lt;u32, chunkSize&gt;&gt;;
@@ -1094,7 +1094,7 @@ fn cs(@builtin(local_invocation_id) local_invocation_id: vec3u) {
 <p>シェーダーへの変更は次のとおりです。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const chunkSumModule = device.createShaderModule({
   label: 'chunk sum shader',
-  code: `
+  code: /* wgsl */ `
     ${sharedConstants}
     const chunkSize = chunkWidth * chunkHeight;
 

@@ -474,7 +474,7 @@ functions. In our case, we’ll make 1 vertex shader function and 1 fragment sha
 function.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'our hardcoded red triangle shaders',
-    code: `
+    code: /* wgsl */ `
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -&gt; @builtin(position) vec4f {
@@ -498,6 +498,11 @@ function.</p>
 often pronounced wig-sil. WGSL is a strongly typed language
 which we’ll try to go over in more detail in <a href="webgpu-wgsl.html">another article</a>.
 For now, I’m hoping with a little explanation you can infer some basics.</p>
+<blockquote>
+<p>Note: throughout this site, strings that store WGSL have <code class="notranslate" translate="no">/* wgsl */</code> as a
+comment in front of them. This is a convention to help text editors try to
+syntax highlight and/or provide intellisense for WGSL.</p>
+</blockquote>
 <p>Above we see a function called <code class="notranslate" translate="no">vs</code> is declared with the <code class="notranslate" translate="no">@vertex</code> attribute.
 This designates it as a vertex shader function.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @vertex fn vs(
@@ -730,7 +735,7 @@ points to take away from the code above,</p>
 <p>Then we create a shader module.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'doubling compute module',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
 
       @compute @workgroup_size(1) fn computeSomething(

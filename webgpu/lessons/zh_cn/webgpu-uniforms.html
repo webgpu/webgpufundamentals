@@ -237,7 +237,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>我们从<a href="webgpu-fundamentals.html">第一篇文章</a>中的三角形示例开始，对其进行修改以使用 uniforms 值。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const module = device.createShaderModule({
     label: 'triangle shaders with uniforms',
-    code: `
+    code: /* wgsl */ `
 +      struct OurStruct {
 +        color: vec4f,
 +        scale: vec2f,
@@ -498,7 +498,7 @@ device.queue.submit([commandBuffer]);
 <p>说到这里，还有一件事需要说明。你可以在着色器中自由引用多个 uniform 缓冲区。在上面的示例中，每次绘制时我们都会更新<code class="notranslate" translate="no">scale</code>，然后通过 <code class="notranslate" translate="no">writeBuffer</code> 将对象的 <code class="notranslate" translate="no">uniformValues</code> 上传到相应的 uniform 缓冲区。但是，只有<code class="notranslate" translate="no">scale</code>在更新，颜色和偏移量没有更新，因此我们在上传颜色和偏移量上浪费了时间。</p>
 <p>我们可以将<code class="notranslate" translate="no">uniforms</code>分为需要设置一次的<code class="notranslate" translate="no">uniforms</code>和每次绘制时都要更新的<code class="notranslate" translate="no">uniforms</code>。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct OurStruct {
         color: vec4f,
 -        scale: vec2f,

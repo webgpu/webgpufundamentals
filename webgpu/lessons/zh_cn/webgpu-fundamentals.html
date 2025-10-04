@@ -402,7 +402,7 @@ context.configure({
 <p>接下来，我们创建一个着色器模块。着色器模块包含一个或多个着色器函数。在本例中，我们将创建一个顶点着色器函数和一个片段着色器函数。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const module = device.createShaderModule({
     label: 'our hardcoded red triangle shaders',
-    code: `
+    code: /* wgsl */ `
       @vertex fn vs(
         @builtin(vertex_index) vertexIndex : u32
       ) -&gt; @builtin(position) vec4f {
@@ -553,7 +553,7 @@ render();
 <p>当我们创建着色器模块时</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">const module = device.createShaderModule({
     label: 'doubling compute module',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
 
       @compute @workgroup_size(1) fn computeSomething(

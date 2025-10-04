@@ -393,7 +393,7 @@ fn storeValueToBuffer(pos: vec2u, v: f32) {
 동심원을 그리는 간단한 컴퓨트 셰이더를 만들어 보겠습니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
     label: 'circles in storage texture',
-    code: `
+    code: /* wgsl */ `
       @group(0) @binding(0)
       var tex: texture_storage_2d&lt;${presentationFormat}, write&gt;;
 

@@ -291,7 +291,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </pre>
 <p>次に、シェーダーモジュールを作成しましょう。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Uniforms {
         normalMatrix: mat3x3f,
         viewProjection: mat4x4f,
@@ -1192,7 +1192,7 @@ struct PerObjectUniforms {
 <p>この変更により、<code class="notranslate" translate="no">viewProjection</code>、<code class="notranslate" translate="no">lightWorldPosition</code>、<code class="notranslate" translate="no">viewWorldPosition</code>をすべてのユニフォームバッファにコピーする必要がなくなります。また、<code class="notranslate" translate="no">device.queue.writeBuffer</code>でオブジェクトごとにコピーするデータも少なくなります。</p>
 <p>新しいシェーダーは次のとおりです。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
 -      struct Uniforms {
 -        normalMatrix: mat3x3f,
 -        viewProjection: mat4x4f,
@@ -1493,7 +1493,7 @@ struct PerObjectUniforms {
 <p>マテリアルごとにユニフォームバッファを作成しましょう。初期化時にマテリアル設定をそれらにコピーし、バインドグループに追加します。</p>
 <p>まず、別のユニフォームバッファを使用するようにシェーダーを変更しましょう。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const module = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct GlobalUniforms {
         viewProjection: mat4x4f,
         lightWorldPosition: vec3f,
