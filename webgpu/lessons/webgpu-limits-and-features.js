@@ -47,7 +47,6 @@ const kLimitInfo = makeObjectFromTable(
   'maxBufferSize':                             [           , 268435456, kMaxUnsignedLongLongValue],
   'maxVertexAttributes':                       [           ,        16,                          ],
   'maxVertexBufferArrayStride':                [           ,      2048,                          ],
-  'maxInterStageShaderComponents':             [           ,        60,                          ],
   'maxInterStageShaderVariables':              [           ,        16,                          ],
 
   'maxColorAttachments':                       [           ,         8,                          ],
