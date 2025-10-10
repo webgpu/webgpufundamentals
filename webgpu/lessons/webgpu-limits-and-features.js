@@ -18,6 +18,7 @@ function makeObjectFromTable(propertyNames, defaults, values) {
   ]));
 }
 
+// TODO: Once Compat is in the spec, this should be updated to include Compat limits
 /* eslint-disable no-sparse-arrays */
 const kLimitInfo = makeObjectFromTable(
                                                [    'class', 'default',            'maximumValue'],
@@ -75,6 +76,7 @@ const kFeatures = new Set([
 ]);
 window.k = kFeatures;
 
+// TODO: Once Compat is in the spec, this should be updated to request featureLevel: "compatibility"
 const adapter = await navigator.gpu?.requestAdapter();
 
 function withShortSize(v) {
