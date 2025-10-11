@@ -18,6 +18,7 @@ function makeObjectFromTable(propertyNames, defaults, values) {
   ]));
 }
 
+// TODO: Once Compat is in the spec, this should be updated to include Compat limits
 /* eslint-disable no-sparse-arrays */
 const kLimitInfo = makeObjectFromTable(
                                                [    'class', 'default',            'maximumValue'],
@@ -47,7 +48,6 @@ const kLimitInfo = makeObjectFromTable(
   'maxBufferSize':                             [           , 268435456, kMaxUnsignedLongLongValue],
   'maxVertexAttributes':                       [           ,        16,                          ],
   'maxVertexBufferArrayStride':                [           ,      2048,                          ],
-  'maxInterStageShaderComponents':             [           ,        60,                          ],
   'maxInterStageShaderVariables':              [           ,        16,                          ],
 
   'maxColorAttachments':                       [           ,         8,                          ],
@@ -76,6 +76,7 @@ const kFeatures = new Set([
 ]);
 window.k = kFeatures;
 
+// TODO: Once Compat is in the spec, this should be updated to request featureLevel: "compatibility"
 const adapter = await navigator.gpu?.requestAdapter();
 
 function withShortSize(v) {
@@ -92,19 +93,37 @@ function getObjLikeKeys(objLike) {
   return keys;
 }
 
+// Find all limit names known in the browser OR in the table above.
+const limitNames = Object.keys(kLimitInfo);
+if (adapter) {
+  limitNames.push(...getObjLikeKeys(adapter.limits));
+}
+limitNames.sort(sortAlphabetically);
+
 renderDiagrams({
   limits(elem) {
     const addRow = makeTable(elem, ['limit name', 'your device', 'min']);
-    for (const key of getObjLikeKeys(adapter.limits).sort(sortAlphabetically)) {
-      addRow([key, [adapter.limits[key] > kLimitInfo[key]?.default ? 'exceeds-limit' : '', withShortSize(adapter.limits[key])], withShortSize(kLimitInfo[key]?.default)]);
+    for (const key of limitNames) {
+      let tagName = 'not-present';
+      let adapterLimitValue = adapter ? 'webgpu not supported' : 'limit not present';
+      if (adapter && key in adapter.limits) {
+        tagName = '';
+        if (adapter.limits[key] > kLimitInfo[key]?.default) {
+          tagName = 'exceeds-limit';
+        }
+        adapterLimitValue = withShortSize(adapter.limits[key]);
+      }
+      addRow([key, [tagName, adapterLimitValue], withShortSize(kLimitInfo[key]?.default)]);
     }
   },
 
   features(elem) {
     const addRow = makeTable(elem, ['feature', 'your device']);
-    const allKeys = new Set([...kFeatures, ...adapter.features]);
-    for (const key of [...allKeys.keys()].sort(sortAlphabetically)) {
-      addRow([key, adapter.features.has(key) ? '✅' : kFeatures.has(key) ? '🚫' : '🤷‍♂️']);
+    if (adapter) {
+      const allKeys = new Set([...kFeatures, ...adapter.features]);
+      for (const key of [...allKeys.keys()].sort(sortAlphabetically)) {
+        addRow([key, adapter.features.has(key) ? '✅' : kFeatures.has(key) ? '🚫' : '🤷‍♂️']);
+      }
     }
   },
 });
