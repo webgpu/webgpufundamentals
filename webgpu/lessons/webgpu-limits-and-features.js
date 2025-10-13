@@ -100,20 +100,34 @@ if (adapter) {
 }
 limitNames.sort(sortAlphabetically);
 
+function renderAdapterLimit(key) {
+  let tagName = 'not-present';
+  let text = adapter ? 'limit not present' : 'webgpu not supported';
+  if (adapter && key in adapter.limits) {
+    tagName = '';
+    if (adapter.limits[key] > kLimitInfo[key]?.default) {
+      tagName = 'exceeds-limit';
+    }
+    text = withShortSize(adapter.limits[key]);
+  }
+  return [tagName, text];
+}
+
+function renderSpecLimit(key) {
+  let tagName = 'not-present';
+  let text = 'unknown';
+  if (key in kLimitInfo) {
+    tagName = '';
+    text = withShortSize(kLimitInfo[key]?.default);
+  }
+  return [tagName, text];
+}
+
 renderDiagrams({
   limits(elem) {
     const addRow = makeTable(elem, ['limit name', 'your device', 'min']);
     for (const key of limitNames) {
-      let tagName = 'not-present';
-      let adapterLimitValue = adapter ? 'webgpu not supported' : 'limit not present';
-      if (adapter && key in adapter.limits) {
-        tagName = '';
-        if (adapter.limits[key] > kLimitInfo[key]?.default) {
-          tagName = 'exceeds-limit';
-        }
-        adapterLimitValue = withShortSize(adapter.limits[key]);
-      }
-      addRow([key, [tagName, adapterLimitValue], withShortSize(kLimitInfo[key]?.default)]);
+      addRow([key, renderAdapterLimit(key), renderSpecLimit(key)]);
     }
   },
 
