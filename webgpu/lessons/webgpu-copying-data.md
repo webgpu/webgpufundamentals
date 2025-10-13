@@ -289,7 +289,7 @@ You can map a buffer. Mapping a buffer means making it
 available to read or write from JavaScript. 
 At least in version 1 of WebGPU,
 mappable buffers have severe restrictions, namely, a
-mappable buffer can can only be used as a temporary place
+mappable buffer can only be used as a temporary place
 to copy from or to. A mappable buffer can not be used as any
 other type of buffer (like a uniform buffer, vertex buffer,
 index buffer, storage buffer, etc...) [^mappedAtCreation]
