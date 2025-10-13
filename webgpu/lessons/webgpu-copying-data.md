@@ -53,7 +53,7 @@ it's the size of `srcData`.
 `writeTexture` has this signature
 
 ```js
-device.writeTexture(
+device.queue.writeTexture(
   // details of the destination
   { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
