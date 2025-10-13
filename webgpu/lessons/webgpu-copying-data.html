@@ -268,7 +268,7 @@ a view of.</p>
 <h2 id="writetexture"><code class="notranslate" translate="no">writeTexture</code></h2>
 <p><code class="notranslate" translate="no">writeTexture</code> copies data from a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code class="notranslate" translate="no">TypedArray</code></a> or <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code class="notranslate" translate="no">ArrayBuffer</code></a> in JavaScript to a texture.</p>
 <p><code class="notranslate" translate="no">writeTexture</code> has this signature</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.writeTexture(
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">device.queue.writeTexture(
   // details of the destination
   { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
