@@ -1318,16 +1318,15 @@ canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D
   </table>
 </div>
 <p>몇몇 경우에 대해서는 사용 예를 설명할 예정이지만,
-텍스처를 생성할 때 (<code class="notranslate" translate="no">device.createTexture</code>를 호출할 때)에는 1차원, 2차원,
-3차원 선택지만이 존재하고 기본값은 2차원이라는 점이 좀 혼동의 여지가 있습니다.
-그래서 지금까지는 차원을 설정할 필요가 없었던 겁니다.</p>
+텍스처를 생성할 때 (<code class="notranslate" translate="no">device.createTexture</code>를 호출할 때)에는 ‘dimension’ 인자 값으로 “1d”, “2d”, “3d” 의 세 가지 선택지만이 존재하는 점에서 혼동의 여지가 있습니다.
+기본값이 “2d” 여서 지금까지 차원(dimension)을 설정할 필요가 없었던 겁니다.</p>
 <h2 id="텍스처-포맷">텍스처 포맷</h2>
 <p>지금까지는 텍스처에 대한 기본 내용이었습니다.
 텍스처는 큰 토픽이고 다룰 내용들이 많습니다.</p>
 <p>이 글에서는 <code class="notranslate" translate="no">rgba8unorm</code>를 사용했는데 다른 텍스처 포맷도 매우 많습니다.</p>
 <p>아래는 “color” 포맷들인데 물론 색상값만 저장할 필요는 없긴 합니다.</p>
 <div class="webgpu_center data-table"><div data-diagram="color-texture-formats"></div></div>
-<p>포맷을 이해나는 법은, 예를들어 "rg16float"의 경우 첫 부분은 텍스처에서
+<p>포맷을 이해하는 법은, 예를들어 "rg16float"의 경우 첫 부분은 텍스처에서
 지원하는 채널을 의미합니다. 따라서 "rg16float"는 “rg”, 즉 빨간색과
 초록색 채널(2개 채널)을 지원합니다. 숫자인 16은 각 채널이 16비트라는 의미입니다.
 마지막 단어는 채널의 데이터 타입으로 "float"이므로 부동소수점입니다.</p>
@@ -1380,7 +1379,7 @@ WGSL에서 사용해야 합니다.</p>
 이러한 텍스처 포맷이 별도의 수정 없이 잘 동작합니다.</p>
 </li>
 </ul>
-<p><a id="a-depth-stencil-formats"></a>아래는 깊이(depth)와 스텐실(stemcil) 포맷입니다.</p>
+<p><a id="a-depth-stencil-formats"></a>아래는 깊이(depth)와 스텐실(stencil) 포맷입니다.</p>
 <div class="webgpu_center data-table"><div data-diagram="depth-stencil-texture-formats"></div></div>
 <ul>
 <li>
