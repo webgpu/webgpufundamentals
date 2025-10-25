@@ -1095,7 +1095,7 @@ To keep the data smaller we're going to use indices like we covered in [the arti
 
 +  const indexBuffer = device.createBuffer({
 +    label: 'index buffer',
-+    size: vertexData.byteLength,
++    size: indexData.byteLength,
 +    usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
 +  });
 +  device.queue.writeBuffer(indexBuffer, 0, indexData);
