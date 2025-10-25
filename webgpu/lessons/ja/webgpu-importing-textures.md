@@ -981,7 +981,7 @@ JavaScriptでは、その例のパイプラインを、色を受け取るもの�
 
 +  const indexBuffer = device.createBuffer({
 +    label: 'index buffer',
-+    size: vertexData.byteLength,
++    size: indexData.byteLength,
 +    usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
 +  });
 +  device.queue.writeBuffer(indexBuffer, 0, indexData);
