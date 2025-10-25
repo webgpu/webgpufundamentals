@@ -639,8 +639,8 @@ requestAnimationFrame(render);
 최근 브라우저에서는 `video.requestVideoFrameCallback`를 호출하여 할 수 있습니다. 
 새로운 프레임이 사용 가능해지면 호출되므로 이를 사용해 최소한 하나의 프레임이 사용 가능한지 확인할 수 있습니다.
 
-단점으로, 계속 재생이 될지는 기도하기에🙏 달려 있다는 점입니다. 
-안타깝게도 오래된 브라우저에서는 언제 비디오가 안전하게 재생될 수 있을지 알기 어렵습니다.😅
+그렇게 확인하는 것의 대안으로, 잠시 시간을 보내면서 (프레임이 사용가능해지기를) 기도하는 것입니다🙏.
+안타깝게도 오래된 브라우저에서는 언제 비디오 데이터가 사용할 준비가 되었는지 알기 어렵습니다.😅
 
 ```js
 +  function startPlayingAndWaitForVideo(video) {
@@ -672,7 +672,7 @@ requestAnimationFrame(render);
   const texture = createTextureFromSource(device, video, {mips: true});
 ```
 
-또다른 까다로운점은 사용자 인터랙션을 통해 비디오 재생이 가능해질때까지 기다려야 한다는 점입니다 [^autoplay].
+또다른 까다로운점은 비디오 재생을 시작하기전에 사용자가 웹페이지와 인터랙션 하기를 기다려야 한다는 점입니다 [^autoplay].
 재생 버튼을 HTML에 추가합시다.
 
 [^autoplay]: 비디오를 얻는 방법도 여러 방법이 있는데 대개는 오디오를 끄고, 사용자가 플레이 버튼을 누르기까지 기다리지 않고 자동재생하는 방법입니다. 
