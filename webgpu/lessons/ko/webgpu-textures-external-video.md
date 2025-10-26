@@ -385,7 +385,7 @@ WebGPU가 이를 처리해주지만, YUV에서 RGB로 변환하는 셰이더를 
   }
 ```
 
-됬습니다!
+됐습니다!
 
 {{{example url="../webgpu-simple-textured-quad-external-video-camera.html"}}}
 
