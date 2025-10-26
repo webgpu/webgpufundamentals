@@ -842,7 +842,7 @@ are made of wood but the cushion is made of cloth.
 <div class="webgpu_center">
   <div class="center">
     <model-viewer 
-      src="../resources/models/gltf/cc0_chair.glb"
+      src="/webgpu/resources/models/gltf/cc0_chair.glb"
       camera-controls
       touch-action="pan-y"
       camera-orbit="45deg 70deg 2.5m"
@@ -862,7 +862,7 @@ are chrome.
 <div class="webgpu_center">
   <div class="center">
     <model-viewer 
-      src="../resources/models/gltf/classic_muscle_car.glb"
+      src="/webgpu/resources/models/gltf/classic_muscle_car.glb"
       camera-controls
       touch-action="pan-y"
       camera-orbit="45deg 70deg 20m"
