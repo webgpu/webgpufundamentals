@@ -274,7 +274,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="webgpu_center">
   <img src="../resources/antialias-multisample-4.svg" width="600">
 </div>
-<p>위의 예시에서 멀티샘플링 렌더링을 사용할 경우, 삼각형이 3개의 *샘플(samples)*을 덮더라도 프래그먼트 셰이더는 단 한 번만 호출됩니다. 그런 다음, 이 결과를 하나의 픽셀로 병합하는 <em>병합(resolve)</em> 과정을 거칩니다. 삼각형이 만약 4개의 샘플 모두를 덮는 경우에도 과정은 비슷합니다. 프래그먼트 셰이더는 한 번만 호출되며, 그 결과는 4개의 샘플 모두에 기록됩니다.</p>
+<p>위의 예시에서 멀티샘플링 렌더링을 사용할 경우, 삼각형이 3개의 <em>샘플(samples)</em> 을 덮더라도 프래그먼트 셰이더는 단 한 번만 호출됩니다. 그런 다음, 이 결과를 하나의 픽셀로 <em>병합(resolve)</em> 하는 과정을 거칩니다. 삼각형이 만약 4개의 샘플 모두를 덮는 경우에도 과정은 비슷합니다. 프래그먼트 셰이더는 한 번만 호출되며, 그 결과는 4개의 샘플 모두에 기록됩니다.</p>
 <p>여기서 주목할 점은, 기존의 4배 렌더링 방식에서는 CPU가 픽셀 4개의 중심이 삼각형 안에 있는지 확인한 반면, 멀티샘플링(multisampled) 렌더링에서는 GPU가 격자(grid)에 정렬되지 않은 '샘플 위치(sample positions)'를 검사한다는 점입니다. 비슷하게 샘플 값(sample values) 또한 정형화된 격자를 이루지 않기 때문에, 이 값들을 하나의 픽셀로 “병합(resolving)” 하는 과정 역시 이중선형 필터링(bilinear filtering)이 아니라 GPU에 의해 처리됩니다. 이렇게 픽셀 중심에서 벗어난 비정형 샘플 위치는 대부분의 상황에서 더 나은 안티 앨리어싱 효과를 제공하게 됩니다.</p>
 <h2 id="멀티샘플링-사용-방법"><a id="a-multisampling"></a> 멀티샘플링 사용 방법</h2>
 <p>그래서 어떻게 멀티샘플링을 할 수 있을까요? 3개 단계를 따르면 됩니다.</p>
@@ -350,8 +350,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 +    renderPassDescriptor.colorAttachments[0].resolveTarget =
 +        canvasTexture.createView();
 </pre>
-<p>*병합(resolve)*이란 멀티샘플 텍스처의 데이터를 우리가 실제로 원하는 크기의 텍스처로 변환하는 과정입니다. 이 예제에서는 그 대상이 바로 캔버스입니다.</p>
-<p>앞서 4배(4x) 렌더링 예제에서는 4배 크기의 텍스처를 생성한 후, 그것을 1배 크기의 텍스처로 이중선형 필터링(bilinear filtering)을 통해 직접접 축소(resize)했었습니다.</p>
+<p><em>병합(resolve)</em> 이란 멀티샘플 텍스처의 데이터를 우리가 실제로 원하는 크기의 텍스처로 변환하는 과정입니다. 이 예제에서는 그 대상이 바로 캔버스입니다.</p>
+<p>앞서 4배(4x) 렌더링 예제에서는 4배 크기의 텍스처를 생성한 후, 그것을 1배 크기의 텍스처로 이중선형 필터링(bilinear filtering)을 통해 직접 축소(resize)했었습니다.</p>
 <p>멀티샘플링에서도 이와 유사한 방식으로 처리되긴 하지만, 멀티샘플 텍스처는 실제로는 이중선형 필터링을 사용하지 않습니다.</p>
 <p>자세한 내용은 아래의  <a href="#a-not-a-grid">격자가 아닌 구조</a>를 참고하세요.</p>
 <p>그리고 아래는 예제입니다:</p>
