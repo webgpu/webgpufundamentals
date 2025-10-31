@@ -537,7 +537,7 @@ above, only want to map it if it's `'unmapped'`.
 Query set results are in nanoseconds and are stored in 64bit integers. To read
 them in JavaScript we can use a `BigUint64Array` typedarray view. Using
 `BigUint64Array` requires special care. When you read an element from a
-`BitInt64Array` the type is a `bigint`, not a `number` so you can't use with
+`BigUint64Array` the type is a `bigint`, not a `number` so you can't use it with
 with lots of math functions. Also, when you convert them to numbers they may
 lose precision because a `number` can only hold integers of 53 bits in size.
 So, first we subtract the 2 `bigint`s which stays a `bigint`. Then we convert
@@ -952,6 +952,20 @@ on one machine a first pass might take 200µs to draw 100 things and the 2nd pas
 might also take 200µs to 200 things but, another GPU might take 100µs to draw the first 100 things and 200µs to draw the 2nd 100 things so where as the first GPU
 had a relative difference of 0µs, the 2nd had a relative difference of 100µs
 even though both GPUs were asked to draw the same thing.
+
+# <a id="a-implementation-defined"></a> Important: `timestamp-query` results are not a good measure of performance
+
+Timestamp queries are not a good measure of performance as there are many other factors that determine
+overall performance. To give a concrete example. We wrote a render pass based mipmap generator in
+[the article on loading images into textures](webgpu-importing-textures.html#a-generating-mips-on-the-gpu).
+I wrote a compute pass based mipmap generator as well. When I used timestamp-query to time both it
+told me the compute pass method was 5x faster than the render pass based method. Yay! But, then I switched to a throughput test. Instead of using timestamp-query, I wrote a test that let me increase
+the number of 2048x2048 textures to generate mipmaps for at 60 frames a second. I'd increase the
+number until the frame rate dropped below 60fps. Using this method showed the render pass method
+was 20% faster than the compute pass method on one machine, and 8% faster on another.
+
+The point is, you can't just use timestamp-query in isolation to tell you how fast something
+will run.
 
 <div class="webgpu_bottombar">By default the <code>'timestamp-query'</code> time values
 are quantized to 100µ seconds. In Chrome, if you enable <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">"enable-webgpu-developer-features"</a> in <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">about:flags</a>, the time values may not be quantized. This would
