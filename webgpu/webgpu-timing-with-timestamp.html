@@ -367,7 +367,7 @@ async function main() {
 
     if (canTimestamp && resultBuffer.mapState === 'unmapped') {
       resultBuffer.mapAsync(GPUMapMode.READ).then(() => {
-        const times = new BigInt64Array(resultBuffer.getMappedRange());
+        const times = new BigUint64Array(resultBuffer.getMappedRange());
         gpuTime = Number(times[1] - times[0]);
         resultBuffer.unmap();
       });

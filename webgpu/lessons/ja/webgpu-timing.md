@@ -461,14 +461,14 @@ async function main() {
 
 +    if (canTimestamp && resultBuffer.mapState === 'unmapped') {
 +      resultBuffer.mapAsync(GPUMapMode.READ).then(() => {
-+        const times = new BigInt64Array(resultBuffer.getMappedRange());
++        const times = new BigUint64Array(resultBuffer.getMappedRange());
 +        gpuTime = Number(times[1] - times[0]);
 +        resultBuffer.unmap();
 +      });
 +    }
 ```
 
-クエリセットの結果はナノ秒単位であり、64ビット整数で格納されます。JavaScriptでそれらを読み取るには、`BigInt64Array`型付き配列ビューを使用できます。`BigInt64Array`を使用するには、特別な注意が必要です。`BitInt64Array`から要素を読み取ると、型は`number`ではなく`bigint`になるため、多くの数学関数では使用できません。また、数値に変換すると、`number`は53ビットのサイズの整数しか保持できないため、精度が失われる可能性があります。したがって、まず2つの`bigint`を減算します。これは`bigint`のままです。次に、結果を数値に変換して、通常どおり使用できるようにします。
+クエリセットの結果はナノ秒単位であり、64ビット整数で格納されます。JavaScriptでそれらを読み取るには、`BigUint64Array`型付き配列ビューを使用できます。`BigUint64Array`を使用するには、特別な注意が必要です。`BitInt64Array`から要素を読み取ると、型は`number`ではなく`bigint`になるため、多くの数学関数では使用できません。また、数値に変換すると、`number`は53ビットのサイズの整数しか保持できないため、精度が失われる可能性があります。したがって、まず2つの`bigint`を減算します。これは`bigint`のままです。次に、結果を数値に変換して、通常どおり使用できるようにします。
 
 上記のコードでは、マップされていない場合にのみ、結果を`resultBuffer`にコピーしています。つまり、一部のフレームでのみ時間を読み取ることになります。おそらく他のすべてのフレームですが、`mapAsync`が解決されるまでにかかる時間については厳密な保証はありません。そのため、いつでも最後に記録された時間を取得するために使用できる`gpuTime`を更新します。
 
@@ -527,7 +527,7 @@ function render(now) {
 
     if (canTimestamp && resultBuffer.mapState === 'unmapped') {
       resultBuffer.mapAsync(GPUMapMode.READ).then(() => {
-        const times = new BigInt64Array(resultBuffer.getMappedRange());
+        const times = new BigUint64Array(resultBuffer.getMappedRange());
         gpuTime = Number(times[1] - times[0]);
 +        gpuAverage.addSample(gpuTime / 1000);
         resultBuffer.unmap();
@@ -704,7 +704,7 @@ export default class TimingHelper {
 
     const resultBuffer = this.#resultBuffer;
     await resultBuffer.mapAsync(GPUMapMode.READ);
-    const times = new BigInt64Array(resultBuffer.getMappedRange());
+    const times = new BigUint64Array(resultBuffer.getMappedRange());
     const duration = Number(times[1] - times[0]);
     resultBuffer.unmap();
     this.#resultBuffers.push(resultBuffer);

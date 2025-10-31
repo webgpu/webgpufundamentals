@@ -527,7 +527,7 @@ above, only want to map it if it's `'unmapped'`.
 
 +    if (canTimestamp && resultBuffer.mapState === 'unmapped') {
 +      resultBuffer.mapAsync(GPUMapMode.READ).then(() => {
-+        const times = new BigInt64Array(resultBuffer.getMappedRange());
++        const times = new BigUint64Array(resultBuffer.getMappedRange());
 +        gpuTime = Number(times[1] - times[0]);
 +        resultBuffer.unmap();
 +      });
@@ -535,8 +535,8 @@ above, only want to map it if it's `'unmapped'`.
 ```
 
 Query set results are in nanoseconds and are stored in 64bit integers. To read
-them in JavaScript we can use a `BigInt64Array` typedarray view. Using
-`BigInt64Array` requires special care. When you read an element from a
+them in JavaScript we can use a `BigUint64Array` typedarray view. Using
+`BigUint64Array` requires special care. When you read an element from a
 `BitInt64Array` the type is a `bigint`, not a `number` so you can't use with
 with lots of math functions. Also, when you convert them to numbers they may
 lose precision because a `number` can only hold integers of 53 bits in size.
@@ -609,7 +609,7 @@ function render(now) {
 
     if (canTimestamp && resultBuffer.mapState === 'unmapped') {
       resultBuffer.mapAsync(GPUMapMode.READ).then(() => {
-        const times = new BigInt64Array(resultBuffer.getMappedRange());
+        const times = new BigUint64Array(resultBuffer.getMappedRange());
         gpuTime = Number(times[1] - times[0]);
 +        gpuAverage.addSample(gpuTime / 1000);
         resultBuffer.unmap();
@@ -790,7 +790,7 @@ export default class TimingHelper {
 
     const resultBuffer = this.#resultBuffer;
     await resultBuffer.mapAsync(GPUMapMode.READ);
-    const times = new BigInt64Array(resultBuffer.getMappedRange());
+    const times = new BigUint64Array(resultBuffer.getMappedRange());
     const duration = Number(times[1] - times[0]);
     resultBuffer.unmap();
     this.#resultBuffers.push(resultBuffer);
