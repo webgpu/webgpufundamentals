@@ -690,16 +690,16 @@ above, only want to map it if it’s <code class="notranslate" translate="no">'u
 
 +    if (canTimestamp &amp;&amp; resultBuffer.mapState === 'unmapped') {
 +      resultBuffer.mapAsync(GPUMapMode.READ).then(() =&gt; {
-+        const times = new BigInt64Array(resultBuffer.getMappedRange());
++        const times = new BigUint64Array(resultBuffer.getMappedRange());
 +        gpuTime = Number(times[1] - times[0]);
 +        resultBuffer.unmap();
 +      });
 +    }
 </pre>
 <p>Query set results are in nanoseconds and are stored in 64bit integers. To read
-them in JavaScript we can use a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt64Array"><code class="notranslate" translate="no">BigInt64Array</code></a> typedarray view. Using
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt64Array"><code class="notranslate" translate="no">BigInt64Array</code></a> requires special care. When you read an element from a
-<code class="notranslate" translate="no">BitInt64Array</code> the type is a <code class="notranslate" translate="no">bigint</code>, not a <code class="notranslate" translate="no">number</code> so you can’t use with
+them in JavaScript we can use a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigUint64Array"><code class="notranslate" translate="no">BigUint64Array</code></a> typedarray view. Using
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigUint64Array"><code class="notranslate" translate="no">BigUint64Array</code></a> requires special care. When you read an element from a
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigUint64Array"><code class="notranslate" translate="no">BigUint64Array</code></a> the type is a <code class="notranslate" translate="no">bigint</code>, not a <code class="notranslate" translate="no">number</code> so you can’t use it with
 with lots of math functions. Also, when you convert them to numbers they may
 lose precision because a <code class="notranslate" translate="no">number</code> can only hold integers of 53 bits in size.
 So, first we subtract the 2 <code class="notranslate" translate="no">bigint</code>s which stays a <code class="notranslate" translate="no">bigint</code>. Then we convert
@@ -764,7 +764,7 @@ function render(now) {
 
     if (canTimestamp &amp;&amp; resultBuffer.mapState === 'unmapped') {
       resultBuffer.mapAsync(GPUMapMode.READ).then(() =&gt; {
-        const times = new BigInt64Array(resultBuffer.getMappedRange());
+        const times = new BigUint64Array(resultBuffer.getMappedRange());
         gpuTime = Number(times[1] - times[0]);
 +        gpuAverage.addSample(gpuTime / 1000);
         resultBuffer.unmap();
@@ -943,7 +943,7 @@ export default class TimingHelper {
 
     const resultBuffer = this.#resultBuffer;
     await resultBuffer.mapAsync(GPUMapMode.READ);
-    const times = new BigInt64Array(resultBuffer.getMappedRange());
+    const times = new BigUint64Array(resultBuffer.getMappedRange());
     const duration = Number(times[1] - times[0]);
     resultBuffer.unmap();
     this.#resultBuffers.push(resultBuffer);
@@ -1100,6 +1100,17 @@ on one machine a first pass might take 200µs to draw 100 things and the 2nd pas
 might also take 200µs to 200 things but, another GPU might take 100µs to draw the first 100 things and 200µs to draw the 2nd 100 things so where as the first GPU
 had a relative difference of 0µs, the 2nd had a relative difference of 100µs
 even though both GPUs were asked to draw the same thing.</p>
+<h1 id="important-timestamp-query-results-are-not-a-good-measure-of-performance"><a id="a-implementation-defined"></a> Important: <code class="notranslate" translate="no">timestamp-query</code> results are not a good measure of performance</h1>
+<p>Timestamp queries are not a good measure of performance as there are many other factors that determine
+overall performance. To give a concrete example. We wrote a render pass based mipmap generator in
+<a href="webgpu-importing-textures.html#a-generating-mips-on-the-gpu">the article on loading images into textures</a>.
+I wrote a compute pass based mipmap generator as well. When I used timestamp-query to time both it
+told me the compute pass method was 5x faster than the render pass based method. Yay! But, then I switched to a throughput test. Instead of using timestamp-query, I wrote a test that let me increase
+the number of 2048x2048 textures to generate mipmaps for at 60 frames a second. I’d increase the
+number until the frame rate dropped below 60fps. Using this method showed the render pass method
+was 20% faster than the compute pass method on one machine, and 8% faster on another.</p>
+<p>The point is, you can’t just use timestamp-query in isolation to tell you how fast something
+will run.</p>
 <div class="webgpu_bottombar">By default the <code class="notranslate" translate="no">'timestamp-query'</code> time values
 are quantized to 100µ seconds. In Chrome, if you enable <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">"enable-webgpu-developer-features"</a> in <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">about:flags</a>, the time values may not be quantized. This would
 theoretically give you more accurate timings. That said, normally 100µ second quantized values should be enough for you to compare shaders techniques for performance.
