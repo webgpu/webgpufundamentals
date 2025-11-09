@@ -79,7 +79,7 @@ ourStructValuesAsU32[kFrameCountOffset] = 56;    // an integer value
 ## <a id="a-typed-arrays"></a> `TypedArrays`
 
 Like many things in programming there are multiple ways we could
-set the data for `OutStruct`. `TypedArray`s have a constructor that takes various forms. For example
+set the data for `OurStruct`. `TypedArray`s have a constructor that takes various forms. For example
 
 * `new Float32Array(12)`
 
