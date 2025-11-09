@@ -3,7 +3,7 @@ Description: WebGPU를 위한 데이터 메모리 레이아웃과 준비 방법
 TOC: 데이터 메모리 레이아웃
 
 WebGPU에서는 거의 모든 데이터가 셰이더에서 정의한 것과 일치하도록 메모리에 배치되어야 합니다. 
-이는 JavaScript와 TypeScript에서는 메모리 레이아웃 문제가 거의 발생하지 않는다는 점에서 큰 차이점입니다.
+이는 메모리 레이아웃 문제가 거의 발생하지 않는 JavaScript 및 TypeScript와 크게 대비됩니다.
 
 WGSL에서는 여러분이 셰이더를 작성할 때, `struct`(구조체)를 정의하는 것이 일반적입니다.
 구조체는 JavaScript의 객체와 유사하며, JavaScript 객체의 프로퍼티를 선언하는 것과 유사하게 구조체의 멤버를 선언합니다.
@@ -70,10 +70,8 @@ ourStructValuesAsU32[kFrameCountOffset] = 56;    // 정수값
 
 ## <a id="a-typed-arrays"></a> `TypedArrays`
 
-유의할 것은, 이를 수행하기 위한 방법에는 수많은 방법이 존재한다는 겁니다.
-`TypedArray`의 생성자는 다양한 형태를 가질 수 있습니다.
-
-예를 들어 아래와 같습니다.
+프로그래밍에서 보통 그러하듯이 `OurStruct` 에 데이터를 채워 넣는 데는 여러 방법이 있습니다.
+`TypedArray`의 생성자는 다양한 형태를 가질 수 있습니다. 예를 들어 아래와 같습니다.
 
 * `new Float32Array(12)`
 
@@ -99,7 +97,7 @@ ourStructValuesAsU32[kFrameCountOffset] = 56;    // 정수값
    console.log(u32s);   // produces 0, 0, 1, 1, 1
    ```
 
-   이렇게 되는 이유는 0.8이나 1.2같은 값을 `Uint32Array`에 넣을 수 없기 때문입니다.
+   이렇게 되는 이유는 0.8이나 1.2같은 값을 `Uint32Array`에 넣을 수 없기 때문입니다. 값들이 부호없는 정수로 변환되었습니다.
 
 * `new Float32Array(someArrayBuffer)`
 
@@ -167,10 +165,10 @@ frameCountView[0] = 56;
 
 ```js
 const v1 = new Float32Array(5);
-const v2 = v1.subarray(3, 5);  // view the last 2 floats of v1
+const v2 = v1.subarray(3, 5);  // v1 의 마지막 2개 값에 대한 뷰
 v2[0] = 123;
 v2[1] = 456;
-console.log(v1);  // shows 0, 0, 0, 123, 456
+console.log(v1);  // 출력은 0, 0, 0, 123, 456
 ```
 
 비슷하게, 만일 다른 타입의 뷰를 만든다면 아래와 같습니다.
@@ -180,10 +178,34 @@ const f32 = new Float32Array([1, 1000, -1000])
 const u32 = new Uint32Array(f32.buffer);
 
 console.log(Array.from(u32).map(v => v.toString(16).padStart(8, '0')));
-// shows '3f800000', '447a0000', 'c47a0000' 
+// 출력은 '3f800000', '447a0000', 'c47a0000' 
 ```
 
 위 값은 1, 1000, -1000에 대한 부동소수점의 32비트 hex(*역주: 16진수*) 표현입니다.
+
+예를 들어: 16바이트의 `ArrayBuffer`를 만들어봅시다. 그러고 나서 동일한 메모리에 대해 다양한 `TypedArray` 뷰를 만들어 봅시다.
+
+```js
+const arrayBuffer = new ArrayBuffer(16);
+const asInt8      = new Int8Array(arrayBuffer);
+const asUint8     = new Uint8Array(arrayBuffer);
+const asInt16     = new Int16Array(arrayBuffer);
+const asUint16    = new Uint16Array(arrayBuffer);
+const asInt32     = new Int32Array(arrayBuffer);
+const asUint32    = new Uint32Array(arrayBuffer);
+const asFloat32   = new Float32Array(arrayBuffer);
+const asFloat64   = new Float64Array(arrayBuffer);
+const asBigInt64  = new BigInt64Array(arrayBuffer);
+const asBigUint64 = new BigInt64Array(arrayBuffer);
+
+// 초기 값들을 설정합니다.
+asFloat32.set([123, -456, 7.8, -0.123]);
+```
+
+다음은 이 모든 뷰들의 표현으로, 모두 동일한 메모리를 보고 있습니다.
+아래에서, 어떤 숫자든 편집하면 동일한 메모리를 사용하는 해당 값들이 변경됩니다.
+
+<div data-diagram="typedArrays" data-caption="show integers as hex"></div>
 
 ## `map` 이슈
 
@@ -330,6 +352,28 @@ struct Ex4 {
 이는 배열과 구조체가 자신만의 특별한 정렬 규칙을 갖기 때문입니다.
 따라서 오직 하나의 `vec3f`만 가진 배열과 오직 하나의 `vec3f`만 가진 `Ex4a` 구조체는 별도의 룰에 따라 정렬됩니다.
 
+<a id="a-struct-array-size-alignment"></a>
+<div class="webgpu_center data-table">
+  <div>
+  <style>
+    .wgsl-types tr:nth-child(5n) { height: 1em };
+  </style>
+  <table class="wgsl-types">
+    <thead>
+      <tr><th>type</th><th>align</th><th>size</th><tr>
+    </thead>
+    <tbody>
+      <tr><td><code>struct</code> S with members M<sub>1</sub>...M<sub>N</sub></td><td>max(AlignOfMember(S,1), ... , AlignOfMember(S,N))</td><td>roundUp(AlignOf(S), justPastLastMember)
+
+where justPastLastMember = OffsetOfMember(S,N) + SizeOfMember(S,N)</td></tr>
+      <tr><td><code>array&lt;E, N&gt;</code></td><td>AlignOf(E)</td><td>N × roundUp(AlignOf(E), SizeOf(E))</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+더 자세한 규칙은 [WGSL 스펙](https://www.w3.org/TR/WGSL/#alignment-and-size)에서 확인할 수 있습니다.
+
 # 오프셋과 크기를 계산하는 것은 아주 번거로운 일입니다!
 
 WGSL에서의 데이터 크기와 오프셋을 계산하는 것은 아마도 WebGPU의 가장 큰 고통일 것입니다.
@@ -399,4 +443,5 @@ myUniformValues.set({
 그 외에, WebGPU를 추상화하고 이런 것들과 다른 것들을 더 쉽게 만들어주는 많은 라이브러리들이 있습니다. 목록은 [여기](webgpu-resources.html)에서 찾을 수 있습니다.
 
 <!-- keep this at the bottom of the article -->
+<link rel="stylesheet" href="webgpu-memory-layout.css">
 <script type="module" src="webgpu-memory-layout.js"></script>
