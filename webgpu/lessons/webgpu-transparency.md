@@ -605,8 +605,7 @@ it and it will pass it on to `copyExternalTextureToImage`.
   }
 ```
 
-Then, let's use that to create two versions of each texture, one premultiplied, one "un-premultiplied" or
-or "not premultiplied"
+Then, let's use that to create two versions of each texture, one premultiplied, one "un-premultiplied" or "not premultiplied"
 
 ```js
   const srcTextureUnpremultipliedAlpha =
