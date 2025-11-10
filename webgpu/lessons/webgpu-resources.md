@@ -57,4 +57,6 @@ Here are some other webgpu resources
 * [webgpu-avoid-redundant-state-setting](https://github.com/greggman/webgpu-avoid-redundant-state-setting) - checks your code for redundant WebGPU calls
 * [webgpu_recorder](https://github.com/brendan-duncan/webgpu_recorder) - records WebGPU to an .HTML fil. Helpful for making a standalone repo of a bug/issue.
 
+## Game Dev
 
+[Web Game Dev](https://www.webgamedev.com/)
