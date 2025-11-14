@@ -996,6 +996,11 @@ in compatibility mode.</p>
 subject to the normal restriction that it must use a non-filtering sampler.</p>
 </li>
 <li>
+<h2 id="fine-derivatives-are-not-supported">fine derivatives are not supported</h2>
+<p>The WGSL functions <code class="notranslate" translate="no">dpdxFine</code>, <code class="notranslate" translate="no">dpdyFine</code> and <code class="notranslate" translate="no">fwidthFine</code> are not supported in compatibility mode.
+You can still use <code class="notranslate" translate="no">dpdx</code> <code class="notranslate" translate="no">dpdxCoarse</code>, <code class="notranslate" translate="no">dpdy</code>, <code class="notranslate" translate="no">dpdyCoarse</code>, <code class="notranslate" translate="no">fwidth</code>, and <code class="notranslate" translate="no">fwidthCoarse</code></p>
+</li>
+<li>
 <h2 id="the-combinations-of-texture--sampler-are-more-limited">The combinations of texture + sampler are more limited</h2>
 <p>In core you can bind 16+ textures and 16+ samplers and then in your shader
 you can use all 256+ combinations.</p>
