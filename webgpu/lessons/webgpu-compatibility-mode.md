@@ -835,6 +835,11 @@ run into
   On the other hand, you can bind a texture that uses a depth format to a `texture_2d<f32>`, `texture_2d_array<f32>` and `texture_cube<f32>` binding,
   subject to the normal restriction that it must use a non-filtering sampler.
 
+* ## fine derivatives are not supported
+
+  The WGSL functions `dpdxFine`, `dpdyFine` and `fwidthFine` are not supported in compatibility mode.
+  You can still use `dpdx` `dpdxCoarse`, `dpdy`, `dpdyCoarse`, `fwidth`, and `fwidthCoarse`
+
 * ## The combinations of texture + sampler are more limited
 
   In core you can bind 16+ textures and 16+ samplers and then in your shader
