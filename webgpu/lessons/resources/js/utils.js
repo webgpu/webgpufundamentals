@@ -102,6 +102,38 @@ export const rgbaFloatFromCSS = (cssColor) => {
   return rgba8unormFromCSS(cssColor).map(v => v / 255);
 };
 
+
+export function rgbToHsl(rgb) {
+  const min = Math.min(...rgb);
+  const max = Math.max(...rgb);
+  const delta = max - min;
+
+  const l = (max + min) / 2;
+
+  if (delta === 0) {
+    return [0, 0, l];
+  }
+
+  const s = delta / (1 - Math.abs(2 * l - 1));
+
+  const maxChannel = rgb.indexOf(max);
+  const otherCh1 = rgb[(maxChannel + 1) % 3];
+  const otherCh2 = rgb[(maxChannel + 2) % 3];
+  const h = (maxChannel * 2 + (otherCh1 - otherCh2) / delta) / 6;
+  return [euclideanModulo(h, 1), s, l];
+}
+
+export function hslToRgb(hsl) {
+  const h = euclideanModulo(hsl[0], 1);
+  const s = clamp01(hsl[1]);
+  const l = clamp01(hsl[2]);
+
+  return [0, 2, 4].map(v => {
+    const t = clamp01(Math.abs((h * 6 + v) % 6 - 3) - 1);
+    return l + s * (t - 0.5) * (1 - Math.abs(2 * l - 1));
+  });
+}
+
 export const shortSize = (function() {
   const suffixes = ['b', 'k', 'mb', 'gb', 'tb', 'pb'];
   return function(size) {
