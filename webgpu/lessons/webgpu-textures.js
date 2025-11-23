@@ -255,7 +255,7 @@ renderDiagrams({
     const size = [tw, th];
     const clampOrRepeat = (ndx, v) => {
       const s = size[ndx];
-      return repeat[ndx] ? v : clamp(v, 0.5 / s, 1 - 0.5 / s);
+      return repeat[ndx] ? v : clamp(v, 0.5 / s, (s - 0.501) / s);  // cheating with the 0.501 :P (0.5 would give the same final results but would show the box off the right/bottom)
     };
 
     uiDiv.appendChild(el('div', {}, [
