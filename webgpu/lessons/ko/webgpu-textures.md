@@ -582,7 +582,8 @@ uniform의 값을 설정하고 GPU에 업로드하는 코드도 추가해야 합
 
 ```js
   const bindGroups = [];
-  for (let i = 0; i < 16; ++i) {
+-  for (let i = 0; i < 8; ++i) {
++  for (let i = 0; i < 16; ++i) {
     const sampler = device.createSampler({
       addressModeU: (i & 1) ? 'repeat' : 'clamp-to-edge',
       addressModeV: (i & 2) ? 'repeat' : 'clamp-to-edge',
