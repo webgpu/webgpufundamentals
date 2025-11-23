@@ -616,7 +616,8 @@ Finally let's add `minFilter` to our settings and combinations
 
 ```js
   const bindGroups = [];
-  for (let i = 0; i < 16; ++i) {
+-  for (let i = 0; i < 8; ++i) {
++  for (let i = 0; i < 16; ++i) {
     const sampler = device.createSampler({
       addressModeU: (i & 1) ? 'repeat' : 'clamp-to-edge',
       addressModeV: (i & 2) ? 'repeat' : 'clamp-to-edge',
