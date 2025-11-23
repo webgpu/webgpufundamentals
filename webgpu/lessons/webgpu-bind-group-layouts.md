@@ -50,7 +50,7 @@ The rules for how a bind group layout is automatically created are
 [detailed in the spec](https://www.w3.org/TR/webgpu/#abstract-opdef-default-pipeline-layout), but, as one example...
 
 Let's say we want to use an `rgba32float` texture. Let's take
-[our first example of using a texture from the article on textures](http://localhost:8080/webgpu/lessons/webgpu-textures.html) which drew an upside down 5x7 texel 'F'.  Let's update it to use an `rgba32float` texture.
+[our first example of using a texture from the article on textures](webgpu-textures.html) which drew an upside down 5x7 texel 'F'.  Let's update it to use an `rgba32float` texture.
 
 Here are the changes.
 
