@@ -714,7 +714,8 @@ WGSL의 텍스처 관련한 흥미로운 함수들은 여러 픽셀들을 필터
 또한 <code class="notranslate" translate="no">Math.sin</code>를 사용하여 offset을 -0.8에서 +0.8로 설정해서 사각형이 캔버스에서 천천히 앞뒤로 이동하도록 하였습니다.</p>
 <p>마지막으로 <code class="notranslate" translate="no">minFilter</code> 설정의 조합들을 추가합니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroups = [];
-  for (let i = 0; i &lt; 16; ++i) {
+-  for (let i = 0; i &lt; 8; ++i) {
++  for (let i = 0; i &lt; 16; ++i) {
     const sampler = device.createSampler({
       addressModeU: (i &amp; 1) ? 'repeat' : 'clamp-to-edge',
       addressModeV: (i &amp; 2) ? 'repeat' : 'clamp-to-edge',

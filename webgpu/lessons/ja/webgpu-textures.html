@@ -638,7 +638,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>上記のコードは、キャンバスの2x2ピクセルのサイズのクワッドを描画するようにスケールを設定します。また、<code class="notranslate" translate="no">Math.sin</code>を使用してオフセットを-0.8から+0.8に設定し、クワッドがキャンバスをゆっくりと往復するようにします。</p>
 <p>最後に、設定と組み合わせに<code class="notranslate" translate="no">minFilter</code>を追加しましょう。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroups = [];
-  for (let i = 0; i &lt; 16; ++i) {
+-  for (let i = 0; i &lt; 8; ++i) {
++  for (let i = 0; i &lt; 16; ++i) {
     const sampler = device.createSampler({
       addressModeU: (i &amp; 1) ? 'repeat' : 'clamp-to-edge',
       addressModeV: (i &amp; 2) ? 'repeat' : 'clamp-to-edge',

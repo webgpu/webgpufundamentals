@@ -640,7 +640,8 @@ const textureData = new Uint8Array([
 <p>上面的代码设置了缩放比例，因此我们将在画布上绘制 2x2 像素大小的四边形。它还使用 <code class="notranslate" translate="no">Math.sin</code> 将偏移量设置为 -0.8 到 +0.8，这样四边形就会在画布上缓慢地来回移动。</p>
 <p>最后，让我们将 <code class="notranslate" translate="no">minFilter</code> 添加到设置和组合中</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroups = [];
-  for (let i = 0; i &lt; 16; ++i) {
+-  for (let i = 0; i &lt; 8; ++i) {
++  for (let i = 0; i &lt; 16; ++i) {
     const sampler = device.createSampler({
       addressModeU: (i &amp; 1) ? 'repeat' : 'clamp-to-edge',
       addressModeV: (i &amp; 2) ? 'repeat' : 'clamp-to-edge',

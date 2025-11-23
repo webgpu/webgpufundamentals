@@ -743,7 +743,8 @@ It also sets the offset from -0.8 to +0.8 using <code class="notranslate" transl
 slowly go back and forth across the canvas.</p>
 <p>Finally let’s add <code class="notranslate" translate="no">minFilter</code> to our settings and combinations</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroups = [];
-  for (let i = 0; i &lt; 16; ++i) {
+-  for (let i = 0; i &lt; 8; ++i) {
++  for (let i = 0; i &lt; 16; ++i) {
     const sampler = device.createSampler({
       addressModeU: (i &amp; 1) ? 'repeat' : 'clamp-to-edge',
       addressModeV: (i &amp; 2) ? 'repeat' : 'clamp-to-edge',
