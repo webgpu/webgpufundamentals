@@ -32,7 +32,7 @@ TOC: バインドグループレイアウト
 
 バインドグループレイアウトが自動的に作成される方法のルールは[仕様書に詳述されています](https://www.w3.org/TR/webgpu/#abstract-opdef-default-pipeline-layout)が、一例として...
 
-`rgba32float`テクスチャを使用したいとしましょう。[テクスチャに関する記事の最初のテクスチャ使用例](http://localhost:8080/webgpu/lessons/webgpu-textures.html)を取り上げ、逆さまの5x7テクセルの「F」を描画しました。これを`rgba32float`テクスチャを使用するように更新しましょう。
+`rgba32float`テクスチャを使用したいとしましょう。[テクスチャに関する記事の最初のテクスチャ使用例](webgpu-textures.html)を取り上げ、逆さまの5x7テクセルの「F」を描画しました。これを`rgba32float`テクスチャを使用するように更新しましょう。
 
 変更点は以下の通りです。
 
