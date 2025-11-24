@@ -18,7 +18,7 @@ device.queue.writeBuffer(
   destOffset,  // 대상의 어디에서부터 데이터를 쓰기 시작할 것인지
   srcData,     // typedArray 또는 arrayBuffer
   srcOffset?,  // srcData의 어떤 **요소(element)**부터 복사할 것인지 오프셋
-  size?,       // 복사항 srcData의 **요소**단위 크기
+  size?,       // 복사할 srcData의 **요소**단위 크기
 )
 ```
 
@@ -30,11 +30,17 @@ device.queue.writeBuffer(
 > 다시 말해,
 >
 > ```js
-> device.queue.writeBuffer(someBuffer, someOffset, someFloat32Array, 6, 7);
+> device.queue.writeBuffer(
+>   someBuffer,
+>   someOffset,
+>   someFloat32Array,
+>   6,
+>   7,
+> )
 > ```
 >
 > 위 코드는 float32의 6번째부터 7개의 데이터를 복사합니다. 
-> 다른 방식으로 말하자면 `someFloat32Array`의 뷰(view)로 arrayBuffer의 24바이트 위치부터 시작해서 28 바이트를 복사합니다.
+> 다른 방식으로 말하자면 `someFloat32Array`의 뷰(view)가 가리키고 있는 arrayBuffer의 24바이트 위치부터 시작해서 28 바이트를 복사합니다.
 
 ## `writeTexture`
 
@@ -43,7 +49,7 @@ device.queue.writeBuffer(
 `writeTexture`는 아래와 같은 시그니처(signature)를 갖습니다.
 
 ```js
-device.writeTexture(
+device.queue.writeTexture(
   // 복사 대상의 세부사항
   { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
@@ -54,8 +60,8 @@ device.writeTexture(
   { offset: 0, bytesPerRow, rowsPerImage },
 
   // 크기:
-  [width, height, depthOrArrayLayers]
-);
+  [width, height, depthOrArrayLayers] or { width, height, depthOrArrayLayers }
+)
 ```
 
 주의 사항으로:
@@ -64,38 +70,37 @@ device.writeTexture(
 
 - `mipLevel`, `origin`, `aspect` 는 모두 기본값이 있어서 생략하는 경우가 많습니다.
 
-- `bytesPerRow`: 이 값은 다음 *블럭 행(block row)*의 데이터를 얻기 위해 알마나 많은 바이트를 건너가야 하는지에 대한 값입니다.
+- `bytesPerRow`: 이 값은 다음 *블럭 행(block row)* 의 데이터를 얻기 위해 알마나 많은 바이트를 건너가야 하는지에 대한 값입니다.
 
-  이는 하나 이상의 *블럭 행*을 복사할 떄 필요합니다. 
-  거의 대분 하나 이상의 *블럭 행*을 복사하기 때문에 거의 대부분의 경우에 값을 명시해야 합니다.
+  이는 2개 이상의 *블럭 행*을 복사할 떄 필요합니다. 
+  보통 2개 이상의 *블럭 행*을 복사하기 때문에 거의 대부분의 경우에 값을 명시해야 합니다.
 
 - `rowsPerImage`: 이 값은 하나의 이미지에서부터 다음 이미지까지 얼마나 많은 *블럭 행*을 건너가야 하는지에 대한 값입니다.
 
   이는 하나 이상의 레이어를 복사할 때 필요합니다. 
-  다시 말해, 크기 인자의 `depthOrArrayLayers`가 1 이상이라면 이 값을 명시해야 합니다.
+  다시 말해, 크기 인자의 `depthOrArrayLayers`가 1 보다 크면 이 값을 명시해야 합니다.
   
 복사는 아래와 같은 방식으로 동작한다고 생각할 수 있습니다.
 
 ```js
 // pseudo code
-const [x, y, z] = origin || [0, 0, 0];
-const [blockWidth, blockHeight] = getBlockSizeForTextureFormat(texture.format);
+const [x, y, z] = origin ?? [0, 0, 0];
+const [blockWidth, blockHeight] = 
+   getBlockSizeForTextureFormat(texture.format);
 
 const blocksAcross = width / blockWidth;
 const blocksDown = height / blockHeight;
+const bytesPerBlockRow = blocksAcross * bytesPerBlock;
 
 for (layer = 0; layer < depthOrArrayLayers; layer) {
-  for (row = 0; row < blocksDown; ++row) {
-    const start = offset + (layer * rowsPerImage + row) * bytesPerRow;
-    copyRowToTexture(
-      texture, // texture to copy to
-      x,
-      y + row,
-      z + layer, // where in texture to copy to
-      srcDataAsBytes + start,
-      bytesPerRow
-    );
-  }
+   for (row = 0; row < blocksDown; ++row) {
+     const start = offset + (layer * rowsPerImage + row) * bytesPerRow;
+     copyRowToTexture(
+         texture,               // 복사 대상 텍스쳐
+         x, y + row, z + layer, // 텍스쳐 내부 어디에 복사할것인가
+         srcDataAsBytes + start,
+         bytesPerBlockRow);
+   }
 }
 ```
 
@@ -133,6 +138,32 @@ for (layer = 0; layer < depthOrArrayLayers; layer) {
 - `aspect`는 깊이-스텐실(stencil) 포맷으로 데이터를 복사할 때만 관여합니다. 
   각 aspect마다 한 번씩 데이터를 복사해야 하며 `depth-only` 또는 `stencil-only`를 사용해야 합니다.
 
+> 여담: 텍스쳐 객체는 `width`, `height`, `depthOrArrayLayer` 프로퍼티를 가지고 있습니다. `GPUExtent3D` 도 마찬가지죠.
+> 그런 측면에서 아래와 같이 텍스쳐를 생성하면
+>
+> ```js
+> const texture = device.createTexture({
+>   format: 'r8unorm',
+>   size: [2, 4],
+>   usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.TEXTURE_ATTACHMENT,
+> });
+> ```
+>
+> 아래의 모든 코드가 제대로 동작합니다.
+>
+> ```js
+> // copy 2x4 pixels of data to texture
+> const bytesPerRow = 2;
+> device.queue.writeTexture({ texture }, data, { bytesPerRow }, [2, 4]);
+> device.queue.writeTexture({ texture }, data, { bytesPerRow }, [texture.width, texture.height]);
+> device.queue.writeTexture({ texture }, data, { bytesPerRow }, {width: 2, height: 4});
+> device.queue.writeTexture({ texture }, data, { bytesPerRow }, {width: texture.width, height: texture.height});
+> device.queue.writeTexture({ texture }, data, { bytesPerRow }, texture); // !!!
+> ```
+>
+> 마지막 줄도 역시 제대로 동작합니다. 왜냐하면 텍스쳐 객체는 `width`, `height`, `depthOrArrayLayers` 프로퍼티를 가지고 있기 때문입니다.
+> 코드가 다소 불명확하게 보일수 있어서, 지금까지 이런 스타일의 코드는 사용하지 않았지만, 틀린 코드는 아닙니다.
+
 ## `copyBufferToBuffer`
 
 `copyBufferToBuffer`는 이름 그대로 하나의 버퍼에서 다른 버퍼로 데이터를 복사합니다.
@@ -160,7 +191,7 @@ encoder.copyBufferToBuffer(
 시그니처는:
 
 ```js
-encode.copyBufferToTexture(
+encoder.copyBufferToTexture(
   // 소스 버퍼 세부사항
   { buffer, offset: 0, bytesPerRow, rowsPerImage },
 
@@ -168,8 +199,8 @@ encode.copyBufferToTexture(
   { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
   // 크기:
-  [width, height, depthOrArrayLayers]
-);
+  [width, height, depthOrArrayLayers] or { width, height, depthOrArrayLayers }
+)
 ```
 
 `writeTexture`와 거의 동일한 매개변수를 갖습니다. 
@@ -185,7 +216,7 @@ encode.copyBufferToTexture(
 시그니처는:
 
 ```js
-encode.copyTextureToBuffer(
+encoder.copyTextureToBuffer(
   // 소스 텍스처 세부사항
   { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
@@ -193,12 +224,12 @@ encode.copyTextureToBuffer(
   { buffer, offset: 0, bytesPerRow, rowsPerImage },
 
   // 크기:
-  [width, height, depthOrArrayLayers]
-);
+  [width, height, depthOrArrayLayers] or { width, height, depthOrArrayLayers }
+)
 ```
 
-이는 `copyBufferToTexture`와 비슷한 매개변수를 가지며, 텍스처(여기서는 소스)와 버퍼(여기서는 대상)가 바뀐 형태입니다. 
-`copyTextureToBuffer`에서처럼 `bytesPerRow`는 **256의 배수여야 합니다!!**
+이는 `copyBufferToTexture`와 비슷한 매개변수를 가지며, 텍스처(여기서는 소스)와 버퍼(여기서는 대상)가 뒤바뀐 형태입니다. 
+`copyBufferToTexture`에서처럼 `bytesPerRow`는 **256의 배수여야 합니다!!**
 
 - `texture`는 `GPUTextureUsage.COPY_SRC`여야 합니다.
 - `buffer`는`GPUBufferUsage.COPY_DST`여야 합니다.
@@ -212,7 +243,7 @@ encode.copyTextureToBuffer(
 시그니처는:
 
 ```js
-encode.copyTextureToBuffer(
+encoder.copyTextureToTexture(
   // 소스 텍스처 세부사항
   src: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
@@ -220,8 +251,8 @@ encode.copyTextureToBuffer(
   dst: { texture, mipLevel: 0, origin: [0, 0, 0], aspect: "all" },
 
   // 크기:
-  [ width, height, depthOrArrayLayers ]
-);
+  [ width, height, depthOrArrayLayers ] or { width, height, depthOrArrayLayers }
+)
 ```
 
 - src.`texture`는 `GPUTextureUsage.COPY_SRC`여야 합니다.
@@ -237,14 +268,14 @@ encode.copyTextureToBuffer(
 
 셰이더는 스토리지 버퍼, 스토리지 텍스처에 값을 쓸 수 있으며 간접적으로 텍스처에 렌더링을 할 수 있습니다. 
 이러한 방법들이 버퍼나 텍스처에 값을 쓰는 방법입니다. 
-즉 데이터를 생성하는 셰이더를 만들 수 있습니다.
+즉 데이터를 생성/복사하는 셰이더를 만들 수 있습니다.
 
 ## 버퍼 맵핑(mapping)
 
 버퍼를 맵핑할 수 있습니다. 
 버퍼를 맵핑한다는 뜻은 자바스크립트에서 값을 읽거나 쓸 수 있도록 한다는 뜻입니다. 
 최소한 WebGPU의 버전 1에서 맵핑 가능한(mappable) 버퍼에는 심각한 제약사항이 있습니다. 
-이는 맵핑 가능한 버퍼가 데이터를 복사항 임시 공간으로만 사용 가능한 점입니다. 
+이는 맵핑 가능한 버퍼가 데이터를 읽기 혹은 쓰기 목적으로 복사할 임시 공간으로만 사용 가능한 점입니다.
 맵핑 가능한 버퍼는 다른 종류의 버퍼(Uniform 버퍼, 정점 버퍼, 인덱스 버퍼, 스토리지 버퍼 등)로 사용할 수 없습니다. [^mappedAtCreation]
 
 [^mappedAtCreation]:
@@ -266,10 +297,10 @@ encode.copyTextureToBuffer(
 `size`가 명시되어 있지 않으면 전체 버퍼 크기를 의미합니다. 
 `mode`는 `GPUMapMode.READ` 또는 `GPUMapMode.WRITE`여야 하며 당연히 버퍼를 생성할 때 사용한 `MAP_` 사용법 플래그와 일치해야 합니다.
 
-`mapAsync`는 프라미스(Promise)를 반환합니다. 
-프라미스가 해소(resolve)되면 버퍼는 맵핑 가능한 상태가 됩니다. 
+`mapAsync`는 `Promise`를 반환합니다. 
+프라미스(Promise)가 해소(resolve)되면 버퍼는 맵핑 가능한 상태가 됩니다. 
 이후에 `buffer.getMappedRange(offset = 0, size?)`를 호출해서 버퍼의 일부 또는 전체를 볼 수 있으며, 여기서 `offset`은 맵핑한 버퍼의 일부분에 대한 바이트 오프셋입니다. 
-`getMappedRange`는 `ArrayBuffer`를 반환하니 이 값을 사용하기 위해서는 일반적으로 이 값을 가지고 TypedArray를 만들게 됩니다.
+`getMappedRange`는 `ArrayBuffer`를 반환하므로 이 걸로 TypedArray를 만들어 쓰는 것이 일반적입니다.
 
 아래는 버퍼 맵핑의 한 예입니다.
 
@@ -279,10 +310,10 @@ const buffer = device.createBuffer({
   usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
 });
 
-// map the entire buffer
+// 전체 버퍼를 매핑
 await buffer.mapAsync(GPUMapMode.READ);
 
-// get the entire buffer
+// 전체 버퍼 내용을 32bit float 의 배열로 가져옴
 const f32 = new Float32Array(buffer.getMappedRange())
 
 ...
@@ -292,21 +323,21 @@ buffer.unmap();
 
 Note: 한 번 맵핑이 되면, 버퍼는 `unmap`을 호출하기 전까지는 WebGPU에서 사용 불가능한 상태가 됩니다. 
 `unmap`을 호출한 순간 버퍼는 자바스크립트에서 사라집니다. 
-다시 말해 위 예제를 기반으로 설명하자면 아래와 같습니다.
+위 예제를 기반으로, 코드로 설명하자면 아래와 같습니다.
 
 ```js
 const f32 = new Float32Array(buffer.getMappedRange());
 
 f32[0] = 123;
-console.log(f32[0]); // prints 123
+console.log(f32[0]); // 123 출력됨
 
 buffer.unmap();
 
-console.log(f32[0]); // prints undefined
+console.log(f32[0]); // undefined 출력됨
 ```
 
 데이터를 읽기 위해 버퍼를 맵핑하는 예제는 이미 본 적이 있습니다.
-[첫 번째 글](webgpu-fundamentals.html#a-run-computations-on-the-gpu)에서 스토리지 버퍼의 숫자를 두 배로 늘리고 이를 맵핑 가능한 버퍼에 복사하고 그 결과를 읽기 위해서 맵핑하였습니다.
+[첫 번째 글](webgpu-fundamentals.html#a-run-computations-on-the-gpu)에서 스토리지 버퍼의 숫자에 2를 곱하고 이를 맵핑 가능한 버퍼에 복사한 후 그 결과를 읽기 위해서 맵핑하였습니다.
 
 다른 예시는 [컴퓨트 셰이더 기본](webgpu-compute-shaders.md)에 있는데, 컴퓨트 셰이더의 여러 `@builtin` 값을 스토리지 버퍼에 맵핑하였습니다. 
 그리고 그 결과를 맵핑 가능한 버퍼에 복사하고 맵핑하여 값을 읽어옵니다.
@@ -314,7 +345,7 @@ console.log(f32[0]); // prints undefined
 ## <a id="a-mapped-at-creation"></a>mappedAtCreation
 
 `mappedAtCreation: true`은 버퍼를 생성할 때 추가할 수 있는 플래그입니다. 
-이 경우 버퍼는 `GPUBufferUsage.COPY_DST`와 `GPUBufferUsage.MAP_WRITE` 사용법 플래스를 명시할 필요가 없어집니다.
+이 경우 버퍼는 `GPUBufferUsage.COPY_DST`와 `GPUBufferUsage.MAP_WRITE` 사용법 플래그를 명시할 필요가 없어집니다.
 
 이는 버퍼 생성시에 데이터를 넣을 수 있도록 하는 특별한 플래그입니다. 
 버퍼를 생성할 때 `mappedAtCreation: true`를 추가할 수 있습니다. 
@@ -345,6 +376,12 @@ new Float32Array(buffer.getMappedRange(0, buffer.size)).set([1, 2, 3, 4]);
 buffer.unmap();
 ```
 
+`mappedAtCreation: true`로 생성된 버퍼에는 자동으로 설정된 플래그가 없습니다.
+이는 버퍼 생성 시 데이터를 넣기 위한 편의 기능일 뿐입니다. 생성 시 매핑되며,
+한 번 언맵(unmap)하면 다른 버퍼와 동일하게 동작하며 지정된 용도에서만 작동합니다. 
+다시 말해, 나중에 데이터를 복사하려면 `GPUBufferUsage.COPY_DST`를,
+나중에 매핑하려면 `GPUBufferData.MAP_READ` 또는 `GPUBufferData.MAP_WRITE`가 필요합니다.
+
 ## <a id="a-efficient"></a>맵핑가능한 버퍼의 효율적인 사용
 
 위에서 우리는 버퍼 맵핑이 비동기적이라고 했습니다. 
@@ -355,5 +392,3 @@ buffer.unmap();
 사용한 후에 언맵핑을 하고, 어떤 커맨드든 해당 버퍼를 사용하는 커맨드를 제출하고 나면 다시 맵핑하도록 요청합니다. 
 프라미스가 해소되면 이를 다시 이미 맵핑된 버퍼 풀(pool)로 되돌립니다. 
 맵핑 가능한 버퍼가 필요한데 사용할 수 있는게 없으면 새로운 버퍼를 만들어 풀에 넣으면 됩니다.
-
-TBD: Example
