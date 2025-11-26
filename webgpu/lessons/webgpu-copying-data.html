@@ -346,7 +346,7 @@ can either be an array of 1 to 3 numbers, or it can be an object with 1 to
 </ul>
 </blockquote>
 <blockquote>
-<p>In the same way, Anywhere an origin appears (default aa a <code class="notranslate" translate="no">GPUOrigin3D</code>), you can either have an array
+<p>In the same way, Anywhere an origin appears (default as a <code class="notranslate" translate="no">GPUOrigin3D</code>), you can either have an array
 of 3 numbers, or a object with <code class="notranslate" translate="no">x</code>, <code class="notranslate" translate="no">y</code>, <code class="notranslate" translate="no">z</code> properties. All of them default to
 0 so</p>
 <ul>
@@ -431,7 +431,7 @@ a multiple of 256!!</strong></p>
   { buffer, offset: 0, bytesPerRow, rowsPerImage },
 
   // size:
-  [ width, height, depthOrArrayLayers ]
+  [ width, height, depthOrArrayLayers ] or { width, height, depthOrArrayLayers }
 )
 </pre>
 <p>This has similar parameters to <code class="notranslate" translate="no">copyBufferToTexture</code>
@@ -456,7 +456,7 @@ must only differ by the suffix <code class="notranslate" translate="no">'-srgb'<
 
   // size:
   [ width, height, depthOrArrayLayers ] or { width, height, depthOrArrayLayers }
-);
+)
 </pre>
 <ul>
 <li>src.<code class="notranslate" translate="no">texture</code> must have a usage of <code class="notranslate" translate="no">GPUTextureUsage.COPY_SRC</code></li>
@@ -486,13 +486,13 @@ index buffer, storage buffer, etc…) <sup class="footnote-ref"><a href="#fn1" i
 of usage flags.</p>
 <ul>
 <li>
-<p><code class="notranslate" translate="no">GPUBufferUsage.MAP_READ | GPU_BufferUsage.COPY_DST</code></p>
+<p><code class="notranslate" translate="no">GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST</code></p>
 <p>This is a buffer you can use the copy commands above to copy
 data from another buffer or a texture, then map it to
 read the values in JavaScript</p>
 </li>
 <li>
-<p><code class="notranslate" translate="no">GPUBufferUsage.MAP_WRITE | GPU_BufferUsage.COPY_SRC</code></p>
+<p><code class="notranslate" translate="no">GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC</code></p>
 <p>This is a buffer you can map in JavaScript, you can then put
 data in it from JavaScript, and finally unmap it and use the
 and the copy commands above to copy its contents to another
@@ -578,7 +578,7 @@ in the buffer when you first create it. It’s mapped at creation, and
 after you unmap it once, it behaves like any other buffer and will only
 work for the usages you specified. In other words, if you to want to copy
 to it later you need <code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code> or if you want to map it
-later you need <code class="notranslate" translate="no">GPUBufferData.MAP_READ</code> or <code class="notranslate" translate="no">GPUBufferData.MAP_WRITE</code>.</p>
+later you need <code class="notranslate" translate="no">GPUBufferUsage.MAP_READ</code> or <code class="notranslate" translate="no">GPUBufferUsage.MAP_WRITE</code>.</p>
 <h2 id="efficiently-using-mappable-buffers"><a id="a-efficient"></a>Efficiently using mappable buffers</h2>
 <p>Above we saw that mapping a buffer is asynchronous. This means there’s
 an indeterminate amount of time from the point we ask for the buffer

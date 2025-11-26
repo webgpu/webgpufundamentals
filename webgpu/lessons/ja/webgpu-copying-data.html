@@ -446,11 +446,11 @@ device.queue.writeTexture({ texture }, data, { bytesPerRow }, texture); // !!!
 <p>2つの使用法フラグの組み合わせでマップ可能なバッファを作成できます。</p>
 <ul>
 <li>
-<p><code class="notranslate" translate="no">GPUBufferUsage.MAP_READ | GPU_BufferUsage.COPY_DST</code></p>
+<p><code class="notranslate" translate="no">GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST</code></p>
 <p>これは、上記のコピーコマンドを使用して別のバッファまたはテクスチャからデータをコピーし、それをマップしてJavaScriptで値を読み取ることができるバッファです。</p>
 </li>
 <li>
-<p><code class="notranslate" translate="no">GPUBufferUsage.MAP_WRITE | GPU_BufferUsage.COPY_SRC</code></p>
+<p><code class="notranslate" translate="no">GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC</code></p>
 <p>これは、JavaScriptでマップできるバッファです。JavaScriptからデータを入れ、最後にマップを解除して、上記のコピーコマンドを使用してその内容を別のバッファまたはテクスチャにコピーできます。</p>
 </li>
 </ul>
@@ -506,7 +506,7 @@ console.log(f32[0]); // undefinedを出力します
  new Float32Array(buffer.getMappedRange(0, buffer.size)).set([1, 2, 3, 4]);
  buffer.unmap();
 </pre>
-<p><code class="notranslate" translate="no">mappedAtCreation: true</code>で作成されたバッファには、自動的にフラグが設定されないことに注意してください。これは、最初に作成するときにバッファにデータを入れるための便宜上のものです。作成時にマップされ、一度マップを解除すると、他のバッファと同様に動作し、指定した使用法に対してのみ機能します。つまり、後でコピーしたい場合は<code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code>が必要であり、後でマップしたい場合は<code class="notranslate" translate="no">GPUBufferData.MAP_READ</code>または<code class="notranslate" translate="no">GPUBufferData.MAP_WRITE</code>が必要です。</p>
+<p><code class="notranslate" translate="no">mappedAtCreation: true</code>で作成されたバッファには、自動的にフラグが設定されないことに注意してください。これは、最初に作成するときにバッファにデータを入れるための便宜上のものです。作成時にマップされ、一度マップを解除すると、他のバッファと同様に動作し、指定した使用法に対してのみ機能します。つまり、後でコピーしたい場合は<code class="notranslate" translate="no">GPUBufferUsage.COPY_DST</code>が必要であり、後でマップしたい場合は<code class="notranslate" translate="no">GPUBufferUsage.MAP_READ</code>または<code class="notranslate" translate="no">GPUBufferUsage.MAP_WRITE</code>が必要です。</p>
 <h2 id="マップ可能なバッファを効率的に使用する"><a id="a-efficient"></a>マップ可能なバッファを効率的に使用する</h2>
 <p>上記で、バッファのマッピングが非同期であることがわかりました。つまり、<code class="notranslate" translate="no">mapAsync</code>を呼び出してバッファのマッピングを要求してから、マップされて<code class="notranslate" translate="no">getMappedRange</code>を呼び出すことができるようになるまで、不確定な時間がかかります。</p>
 <p>これを回避する一般的な方法は、常にマップされたバッファのセットを保持することです。すでにマップされているため、すぐに使用できます。1つ使用してマップを解除し、バッファを使用するコマンドを送信したらすぐに、再度マップするように要求します。プロミスが解決されると、すでにマップされたバッファのプールに戻します。マップされたバッファが必要で、利用可能なものがない場合は、新しいものを作成してプールに追加します。</p>
