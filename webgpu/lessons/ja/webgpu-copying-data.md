@@ -260,11 +260,11 @@ encoder.copyTextureToTexture(
 
 2つの使用法フラグの組み合わせでマップ可能なバッファを作成できます。
 
-* `GPUBufferUsage.MAP_READ | GPU_BufferUsage.COPY_DST`
+* `GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST`
 
   これは、上記のコピーコマンドを使用して別のバッファまたはテクスチャからデータをコピーし、それをマップしてJavaScriptで値を読み取ることができるバッファです。
 
-* `GPUBufferUsage.MAP_WRITE | GPU_BufferUsage.COPY_SRC`
+* `GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC`
 
   これは、JavaScriptでマップできるバッファです。JavaScriptからデータを入れ、最後にマップを解除して、上記のコピーコマンドを使用してその内容を別のバッファまたはテクスチャにコピーできます。
 
@@ -338,7 +338,7 @@ console.log(f32[0]); // undefinedを出力します
  buffer.unmap();
 ```
 
-`mappedAtCreation: true`で作成されたバッファには、自動的にフラグが設定されないことに注意してください。これは、最初に作成するときにバッファにデータを入れるための便宜上のものです。作成時にマップされ、一度マップを解除すると、他のバッファと同様に動作し、指定した使用法に対してのみ機能します。つまり、後でコピーしたい場合は`GPUBufferUsage.COPY_DST`が必要であり、後でマップしたい場合は`GPUBufferData.MAP_READ`または`GPUBufferData.MAP_WRITE`が必要です。
+`mappedAtCreation: true`で作成されたバッファには、自動的にフラグが設定されないことに注意してください。これは、最初に作成するときにバッファにデータを入れるための便宜上のものです。作成時にマップされ、一度マップを解除すると、他のバッファと同様に動作し、指定した使用法に対してのみ機能します。つまり、後でコピーしたい場合は`GPUBufferUsage.COPY_DST`が必要であり、後でマップしたい場合は`GPUBufferUsage.MAP_READ`または`GPUBufferUsage.MAP_WRITE`が必要です。
 
 ## <a id="a-efficient"></a>マップ可能なバッファを効率的に使用する
 
