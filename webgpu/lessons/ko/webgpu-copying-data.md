@@ -283,11 +283,11 @@ encoder.copyTextureToTexture(
     
 맵핑가능한 버퍼는 두 종류의 사용법 플래그의 조합으로 만들 수 있습니다.
 
-- `GPUBufferUsage.MAP_READ | GPU_BufferUsage.COPY_DST`
+- `GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST`
 
   다른 버퍼나 텍스처로부터 데이터를 복사하는 커맨드를 사용할 수 있는 버퍼로, 맵핑하여 자바스크립트로부터 데이터를 읽을 수 있습니다.
   
-- `GPUBufferUsage.MAP_WRITE | GPU_BufferUsage.COPY_SRC`
+- `GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC`
 
   자바스크립트에서 맵핑하여 데이터를 넣을 수 있는 버퍼입니다. 
   그리고 언맵핑(unmap)하여 위에서 설명한 복사 커맨드로 그 내용을 다른 버퍼나 텍스처에 복사할 수 있습니다.
@@ -380,7 +380,7 @@ buffer.unmap();
 이는 버퍼 생성 시 데이터를 넣기 위한 편의 기능일 뿐입니다. 생성 시 매핑되며,
 한 번 언맵(unmap)하면 다른 버퍼와 동일하게 동작하며 지정된 용도에서만 작동합니다. 
 다시 말해, 나중에 데이터를 복사하려면 `GPUBufferUsage.COPY_DST`를,
-나중에 매핑하려면 `GPUBufferData.MAP_READ` 또는 `GPUBufferData.MAP_WRITE`가 필요합니다.
+나중에 매핑하려면 `GPUBufferUsage.MAP_READ` 또는 `GPUBufferUsage.MAP_WRITE`가 필요합니다.
 
 ## <a id="a-efficient"></a>맵핑가능한 버퍼의 효율적인 사용
 
