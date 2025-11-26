@@ -132,7 +132,7 @@ For compressed textures, size and origin must be aligned to blocks sizes.
 > * `{ width: 2, height: 3 }` a size where width = 2, height = 3, depthOrArrayLayers = 1
 > * `{ width: 2, height: 3, depthOrArrayLayers: 4 }` a size where width = 2, height = 3, depthOrArrayLayers = 4
 
-> In the same way, Anywhere an origin appears (default aa a `GPUOrigin3D`), you can either have an array
+> In the same way, Anywhere an origin appears (default as a `GPUOrigin3D`), you can either have an array
 > of 3 numbers, or a object with `x`, `y`, `z` properties. All of them default to
 > 0 so
 >
@@ -233,7 +233,7 @@ encoder.copyTextureToBuffer(
   { buffer, offset: 0, bytesPerRow, rowsPerImage },
 
   // size:
-  [ width, height, depthOrArrayLayers ]
+  [ width, height, depthOrArrayLayers ] or { width, height, depthOrArrayLayers }
 )
 ```
 
@@ -264,7 +264,7 @@ encoder.copyTextureToTexture(
 
   // size:
   [ width, height, depthOrArrayLayers ] or { width, height, depthOrArrayLayers }
-);
+)
 ```
 
 * src.`texture` must have a usage of `GPUTextureUsage.COPY_SRC`
@@ -300,13 +300,13 @@ See [mappedAtCreation](#a-mapped-at-creation).
 You can create a mappable buffer with 2 combinations
 of usage flags.
 
-* `GPUBufferUsage.MAP_READ | GPU_BufferUsage.COPY_DST`
+* `GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST`
 
   This is a buffer you can use the copy commands above to copy
   data from another buffer or a texture, then map it to
   read the values in JavaScript
 
-* `GPUBufferUsage.MAP_WRITE | GPU_BufferUsage.COPY_SRC`
+* `GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC`
 
   This is a buffer you can map in JavaScript, you can then put
   data in it from JavaScript, and finally unmap it and use the 
@@ -410,7 +410,7 @@ in the buffer when you first create it. It's mapped at creation, and
 after you unmap it once, it behaves like any other buffer and will only
 work for the usages you specified. In other words, if you to want to copy
 to it later you need `GPUBufferUsage.COPY_DST` or if you want to map it
-later you need `GPUBufferData.MAP_READ` or `GPUBufferData.MAP_WRITE`.
+later you need `GPUBufferUsage.MAP_READ` or `GPUBufferUsage.MAP_WRITE`.
 
 ## <a id="a-efficient"></a>Efficiently using mappable buffers
 
