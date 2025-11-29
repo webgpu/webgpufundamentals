@@ -768,12 +768,12 @@ async function main() {
 
     pass.end();
 
-    -if (canTimestamp) {
-    -  encoder.resolveQuerySet(querySet, 0, querySet.count, resolveBuffer, 0);
-    -  if (resultBuffer.mapState === 'unmapped') {
-    -    encoder.copyBufferToBuffer(resolveBuffer, 0, resultBuffer, 0, resultBuffer.size);
-    -  }
-    -}
+-    if (canTimestamp) {
+-      encoder.resolveQuerySet(querySet, 0, querySet.count, resolveBuffer, 0);
+-      if (resultBuffer.mapState === 'unmapped') {
+-        encoder.copyBufferToBuffer(resolveBuffer, 0, resultBuffer, 0, resultBuffer.size);
+-      }
+-    }
 
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
