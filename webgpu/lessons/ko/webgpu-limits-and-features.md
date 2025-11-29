@@ -82,7 +82,7 @@ function objLikeToObj(src) {
 }
 
 //
-// BAD!!! ?
+// 나쁨!!! ?
 //
 async function main() {
   const adapter = await navigator?.gpu.requestAdapter();
@@ -102,9 +102,9 @@ async function main() {
 ```
 
 이는 제한과 기능을 확인하는 간단하고 명료한 방법처럼 보입니다[^objliketoobj].
-이러한 패턴의 문제는, 우연히 이제한 제한을 만족했는데 모를 수도 있다는 것입니다. 
+이러한 패턴의 문제는, 의도치 않게 기본 제한을 초과해도 이를 인지하지 못할 수 있다는 점입니다. 
 예를 들어 `'rgba32float'` 텍스처를 만들고 `'linear'`로 필터링했다고 해봅시다. 
-여러분의 데스크탑에서는 이를 활성화했기 때문에 잘 동작할겁니다.
+여러분의 데스크탑에서는 이 기능이 활성화되어 있었기 때문에 마법처럼 작동할겁니다.
 
 [^objliketoobj]: `objLikeToObj`는 뭐고 왜 사용한 것일까요? 
 그 이유는 난해한 Web 명세 때문입니다. 
@@ -115,11 +115,10 @@ Web IDL 명세에서는 객체를 `record<DOMString, GPUSize64>`로 변환할 �
 따라서 이들은 실제로는 객체가 소유한 속성이 아닙니다. 
 따라서 `record<DOMString, GPUSize64>`로 변환할 때 복사되지 않고 우리가 직접 복사해 주어야 합니다.
 
-유저의 핸드폰에서는 `'float32-filterable'` 기능이 없기 때문에 프로그램이 제대로 동작하지 않지만 여전히 여러분은 이를 깨닫지 못한채 사용이 가능할 수도 있습니다. 
-선택적인 기능이니까요.
+유저의 핸드폰에서는 `'float32-filterable'` 기능이 존재하지 않는데도 이를 사용했기 때문에 프로그램이 원인 불명의 오류로 실패합니다.
+이 기능이 선택 사항이라는 사실을 인지하지 못한 채 사용한 것입니다.
 
-또는 최소한의 `maxBufferSize`보다 더 큰 버퍼를 할당해 사용한다면, 역시나 제한을 넘어 사용하고 있는다는 것을 모를 수 있습니다. 
-여러분의 웹페이지는 유저들에게서는 제대로 실행되지 않을 것입니다.
+또는 최소 maxBufferSize보다 큰 버퍼를 할당했을 때도 한계를 초과했다는 사실을 인지하지 못할 수 있습니다. 출시 후 수많은 사용자가 페이지를 실행하지 못하게 됩니다.
 
 ## 기능과 제한 요청에 대한 추천하는 방법
 
@@ -134,14 +133,13 @@ Web IDL 명세에서는 객체를 `record<DOMString, GPUSize64>`로 변환할 �
   const canStoreToBGRA8Unorm = adapter?.features.has('bgra8unorm-storage');
   const canIndirectFirstInstance = adapter?.features.has('indirect-first-instance');
 
-  // if we absolutely need these one or more of these features then fail now if they are not
-  // available
+  // 이러한 기능 중 하나 이상이 반드시 필요하다면, 해당 기능이 제공되지 않을 경우 즉시 실패 처리합니다.
   if (!canUse128kUniformBuffers) {
     alert('Sorry, your device is probably too old or underpowered');
     return;
   }
 
-  // Request the available features and limits we need
+  // 필요한 사용 가능한 기능 및 제한을 요청합니다
   const device = adapter?.requestDevice({
     requiredFeatures: [
       ...(canStorageBGRA8Unorm ? ['bgra8unorm'] : []),
@@ -154,7 +152,7 @@ Web IDL 명세에서는 객체를 `record<DOMString, GPUSize64>`로 변환할 �
 ```
 
 이렇게 하면, 128k보다 큰 uniform 버퍼를 요청하면 오류가 발생합니다. 
-유사하게 요청하지 않은 기능을 사용하려 할 경우에도 오류가 발생하게 됩니다. 
+마찬가지로 요청하지 않은 기능을 사용하려 할 경우에도 오류가 발생하게 됩니다. 
 이렇게 하면 확실하게 제한 요구사항을 올릴지 (그래서 더 다양한 장치에서 사용은 못하더라도), 아니면 제한을 유지할 지, 아니면 기능이나 제한이 만족되지 않는 경우에 대해 다른 방식으로 동작하도록 할 지를 의식적으로 결정할 수 있게 됩니다.
 
 <!-- keep this at the bottom of the article -->
