@@ -176,7 +176,7 @@ TOC: 타이밍 성능
 [^rAF]: `rAF`는 `requestAnimationFrame`의 약자입니다.
 
 <a id="a-euclidianModulo"></a>위의 코드는 오프셋을 업데이트하기 위해 `euclideanModulo`를 사용합니다.
-`euclideanModulo`는 나머지가 항상 양수이고 같은 방향인 나눗셈의 나머지를 반환합니다.
+`euclideanModulo`는 나머지로 항상 양수를 반환합니다. 한편, `%` 연산자는 입력값과 같은 부호의 나머지를 반환합니다.
 예를 들어
 
 <div class="webgpu_center">
@@ -208,7 +208,7 @@ TOC: 타이밍 성능
   <div>v % 2</div>
 </div>
 
-따라서 위의 코드는 클립 공간에 있는 오프셋을 가져와 1.5를 더합니다. 그런 다음 3으로 euclideanModulo를 취하면 0.0에서 3.0 사이의 숫자가 나오고, 여기서 1.5를 뺍니다. 이렇게 하면 -1.5에서 +1.5 사이의 숫자가 유지되고 반대쪽으로 래핑됩니다. 원들이 화면을 벗어날 때까지 래핑되지 않도록 -1.5에서 +1.5를 사용합니다. [^offscreen]
+따라서 위의 코드는 클립 공간에 있는 오프셋을 가져와 1.5를 더합니다. 그런 다음 3으로 `euclideanModulo`를 취하면 0.0에서 3.0 사이의 숫자가 나오고, 여기서 1.5를 뺍니다. 이렇게 하면 -1.5에서 +1.5 사이의 숫자가 유지되고 반대쪽으로 래핑됩니다. 원들이 화면을 벗어날 때까지 래핑되지 않도록 -1.5에서 +1.5를 사용합니다. [^offscreen]
 
 [^offscreen]: 이것은 원의 반지름이 0.5보다 작은 경우에만 작동합니다. 크기 체크를 복잡하게 하느라 코드를 크게 부풀리고 싶지는 않습니다.
 
@@ -480,7 +480,7 @@ querySet, 해결을 시작할 쿼리 세트의 첫 번째 인덱스, 해결할 �
 쿼리 세트 결과는 나노초 단위이며 64비트 정수로 저장됩니다. JavaScript에서 읽으려면 
 `BigUint64Array` 타입 배열 뷰를 사용할 수 있습니다. `BigUint64Array`를 사용하려면
 특별한 주의가 필요합니다. `BigUint64Array`에서 요소를 읽을 때 타입은 `number`가 아니라 `bigint`이므로
-많은 수학 함수와 함께 사용할 수 없습니다. 또한 숫자로 변환할 때 `number`는 53비트 크기의 정수만 정확히
+많은 수학 함수를 사용할 수 없습니다. 또한 숫자로 변환할 때 `number`는 53비트 크기의 정수만 정확히
 저장할 수 있므로 정밀도가 손실될 수 있습니다. 따라서 먼저 2개의 `bigint`를 뺄셈하여 `bigint` 값을 얻습니다.
 그런 다음 그 값을 `number`로 변환하면 정상적으로 사용할 수 있습니다.
 
@@ -529,7 +529,7 @@ class NonNegativeRollingAverage {
 }
 ```
 
-값의 배열과 합계를 유지합니다. 새 값이 추가되면 새 값이 추가될 때 가장 오래된 값이 합계에서 뺍니다.
+값의 배열과 합계를 유지합니다. 새 값이 추가되면 새 값을 배열에 추가하고 가장 오래된 값을 합계에서 뺍니다.
 
 다음과 같이 사용할 수 있습니다.
 
@@ -809,7 +809,7 @@ async function main() {
 
 `TimingHelper` 클래스에 대한 몇 가지 사항:
 
-* 장치를 생성할 때 여전히 `'timestamp-query'` 기능을 수동으로 요청해야 하지만, 클래스는 장치에 해당 기능이 있는지 여부를 처리합니다.
+* 장치를 생성할 때 여전히 `'timestamp-query'` 기능을 수동으로 요청해야 하지만, 기능 존재 여부에 따르는 처리는 클래스가 수행행합니다.
 
 * `timerHelper.beginRenderPass` 또는 `timerHelper.beginComputePass`를 호출하면 패스 디스크립터에 적절한 속성이 자동으로 추가됩니다. 또한 `end` 함수가 쿼리를 자동으로 resolve 하는 패스 인코더를 반환합니다.
 
@@ -862,7 +862,7 @@ class NoTimingHelper {
 
 # <a id="a-implementation-defined"></a> 중요: `timestamp-query` 결과는 WebGPU 구현체에 따라 다를 수 있음
 
-위 내용들을 디버깅 및 기술 비교에 사용할 수 있지만 모든 사용자에게 유사한 결과를 반환한다고 신뢰할 수 없음을 사실상 의미합니다.
+위 내용들을 디버깅 및 기술 비교에 사용할 수는 있지만 사실상 모든 사용자에게서 유사한 결과를 반환한다고는 신뢰할 수 없음을 의미합니다.
 상대적인 결과조차 가정할 수 없습니다. 서로 다른 GPU는 서로 다른 방식으로 작동하며 패스 전체에서 렌더링 및 컴퓨팅을 최적화할 수 있습니다.
 즉, 한 머신에서는 첫 번째 패스가 100개를 그리는 데 200µs가 걸리고 두 번째 패스도 200개를 그리는 데 200µs가 걸릴 수 있지만,
 다른 GPU는 처음 100개를 그리는 데 100µs가 걸리고 두 번째 100개를 그리는 데 200µs가 걸릴 수 있으므로
@@ -875,5 +875,5 @@ class NoTimingHelper {
 
 요점은 timestamp-query만 단독으로 사용하여 무언가가 얼마나 빨리 실행될지 알 수 없다는 것입니다.
 
-<div class="webgpu_bottombar">기본적으로 <code>'timestamp-query'</code> 시간 값은 100µ초로 양자화됩니다. Chrome에서 <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">about:flags</a>의 <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">"enable-webgpu-developer-features"</a>를 활성화하면 시간 값이 양자화되지 않을 수 있습니다. 이렇게 하면 이론적으로 더 정확한 타이밍을 얻을 수 있습니다. 그렇긴 하지만 일반적으로 100µ초 양자화된 값은 성능을 위해 쉐이더 기술을 비교하기에 충분해야 합니다.
+<div class="webgpu_bottombar">기본적으로 <code>'timestamp-query'</code> 시간 값은 100µ초로 양자화됩니다. Chrome에서 <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">about:flags</a>의 <a href="chrome://flags/#enable-webgpu-developer-features" target="_blank">"enable-webgpu-developer-features"</a>를 활성화하면 시간 값이 양자화되지 않을 수 있습니다. 이렇게 하면 이론적으로 더 정확한 타이밍을 얻을 수 있습니다. 즉, 일반적인 상황에서 100µ초로 양자화된 값 정도면 쉐이더 성능 비교에 충분하다는 뜻입니다.
 </div>
