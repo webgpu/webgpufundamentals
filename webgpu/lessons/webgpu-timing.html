@@ -402,7 +402,7 @@ to move the offsets together with the scales.</p>
 <p>We also switched to a rAF loop<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.</p>
 <p><a id="a-euclidianModulo"></a>The code above uses <code class="notranslate" translate="no">euclideanModulo</code> to update the offset.
 <code class="notranslate" translate="no">euclideanModulo</code> returns the remainder of a division where
-the remainder always is always positive and in the same direction.
+the remainder is always positive, whereas the <code class="notranslate" translate="no">%</code> operator returns the remainder in the same direction as the value.
 For example</p>
 <div class="webgpu_center">
   <div class="center">
@@ -430,7 +430,7 @@ For example</p>
   <img style="width: 700px" src="resources/modulo.svg">
   <div>v % 2</div>
 </div>
-<p>So, the code above takes the offset, which is in clip space, and adds 1.5. It then takes the euclideanModulo
+<p>So, the code above takes the offset, which is in clip space, and adds 1.5. It then takes the <code class="notranslate" translate="no">euclideanModulo</code>
 by 3 which will give us a number that is wrapped between 0.0 and 3.0
 and then subtracts 1.5.  This gives us numbers
 that stay between -1.5 and +1.5 and lets them wrap
