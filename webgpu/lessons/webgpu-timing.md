@@ -187,7 +187,7 @@ We also switched to a rAF loop[^rAF].
 
 <a id="a-euclidianModulo"></a>The code above uses `euclideanModulo` to update the offset.
 `euclideanModulo` returns the remainder of a division where
-the remainder always is always positive and in the same direction.
+the remainder is always positive, whereas the `%` operator returns the remainder in the same direction as the value.
 For example
 
 <div class="webgpu_center">
@@ -219,7 +219,7 @@ To put it another way, here's a graph of the `%` operator vs `euclideanModulo`
   <div>v % 2</div>
 </div>
 
-So, the code above takes the offset, which is in clip space, and adds 1.5. It then takes the euclideanModulo
+So, the code above takes the offset, which is in clip space, and adds 1.5. It then takes the `euclideanModulo`
 by 3 which will give us a number that is wrapped between 0.0 and 3.0
 and then subtracts 1.5.  This gives us numbers
 that stay between -1.5 and +1.5 and lets them wrap
