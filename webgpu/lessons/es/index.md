@@ -1,10 +1,8 @@
-Title: Fundamentos de WebGPU
+Title: Fundamentos sobre WebGPU
 
-Aprende WebGPU a través de los siguientes artículos!
-
+Artículos de ayuda para aprender WebGPU
 
 {{{include "webgpu/lessons/es/toc.html"}}}
-
 
 <!--
 
