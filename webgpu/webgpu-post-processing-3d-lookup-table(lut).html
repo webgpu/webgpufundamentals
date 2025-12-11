@@ -29,6 +29,8 @@ import {mat4} from '../3rdparty/wgpu-matrix.module.js';
 
 import * as lutParser from './resources/js/lut-reader.js';
 import * as dragAndDrop from './resources/js/drag-and-drop.js';
+import pickImage from './resources/js/pick-image.js';
+import onPasteImage from './resources/js/on-paste-image.js';
 
 const lutTextures = [
   { name: 'identity',           size: 2, filter: true , },
@@ -502,17 +504,15 @@ async function main() {
     reader.readAsText(file);
   }
 
-  document.addEventListener('paste', (e) => {
-    e.preventDefault();
-    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].kind === 'file' && items[i].type.startsWith('image/')) {
-        const blob = items[i].getAsFile(); // Get the image as a Blob (File object)
-        readImageFile(blob);
-        break;
-      }
+  const button = document.querySelector('#pick');
+  button.addEventListener('click', async() => {
+    const file = await pickImage();
+    if (file) {
+      readImageFile(file);
     }
   });
+
+  onPasteImage(readImageFile);
 }
 
 function fail(msg) {
