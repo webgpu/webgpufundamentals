@@ -1,5 +1,5 @@
 WebGPU Fundamentals
-=====================
+===================
 
 This is [a series of lessons or tutorials about webgpu](http://webgpufundamentals.org/).
 
