@@ -1,0 +1,23 @@
+name: Build and Deploy
+on:
+  push:
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🍔🍟🥤
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 😂
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install and Build 🏭
+        run: |
+          npm ci
+          npm run pre-push
+        env:
+          LESSON_BUILDER_ENV: production
