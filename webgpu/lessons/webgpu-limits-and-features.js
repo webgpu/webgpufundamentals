@@ -62,22 +62,33 @@ const kLimitInfo = makeObjectFromTable(
 });
 
 const kFeatures = new Set([
-  'bgra8unorm-storage',
+  'core-features-and-limits',
   'depth-clip-control',
   'depth32float-stencil8',
   'texture-compression-bc',
+  'texture-compression-bc-sliced-3d',
   'texture-compression-etc2',
   'texture-compression-astc',
+  'texture-compression-astc-sliced-3d',
   'timestamp-query',
   'indirect-first-instance',
   'shader-f16',
   'rg11b10ufloat-renderable',
+  'bgra8unorm-storage',
   'float32-filterable',
+  'float32-blendable',
+  'clip-distances',
+  'dual-source-blending',
+  'subgroups',
+  'texture-formats-tier1',
+  'texture-formats-tier2',
+  'primitive-index',
+  'texture-component-swizzle',
 ]);
-window.k = kFeatures;
 
 // TODO: Once Compat is in the spec, this should be updated to request featureLevel: "compatibility"
-const adapter = await navigator.gpu?.requestAdapter();
+const coreAdapter = await navigator.gpu?.requestAdapter();
+const defaultDevice = await coreAdapter.requestDevice();
 
 function withShortSize(v) {
   return v >= 1024 ? `${v} (${shortSize(v)})` : `${v}`;
@@ -94,21 +105,28 @@ function getObjLikeKeys(objLike) {
 }
 
 // Find all limit names known in the browser OR in the table above.
-const limitNames = Object.keys(kLimitInfo);
-if (adapter) {
-  limitNames.push(...getObjLikeKeys(adapter.limits));
-}
-limitNames.sort(sortAlphabetically);
+const limitNames = (() => {
+  const names = Object.keys(kLimitInfo);
+  if (coreAdapter) {
+    names.push(...getObjLikeKeys(coreAdapter.limits));
+  }
+  return [...new Set(names)].sort(sortAlphabetically);
+})();
 
 function renderAdapterLimit(key) {
   let tagName = 'not-present';
-  let text = adapter ? 'limit not present' : 'webgpu not supported';
-  if (adapter && key in adapter.limits) {
+  let text = coreAdapter ? 'limit not present' : 'webgpu not supported';
+  if (coreAdapter && key in coreAdapter.limits) {
+    const defaultLimit = defaultDevice?.limits[key] ?? kLimitInfo[key]?.default;
+    const adapterLimit = coreAdapter.limits[key];
     tagName = '';
-    if (adapter.limits[key] > kLimitInfo[key]?.default) {
+    const compare = key.startsWith('min')
+      ? (a, b) => a < b
+      : (a, b) => a > b;
+    if (compare(adapterLimit, defaultLimit)) {
       tagName = 'exceeds-limit';
     }
-    text = withShortSize(adapter.limits[key]);
+    text = withShortSize(coreAdapter.limits[key]);
   }
   return [tagName, text];
 }
@@ -133,10 +151,10 @@ renderDiagrams({
 
   features(elem) {
     const addRow = makeTable(elem, ['feature', 'your device']);
-    if (adapter) {
-      const allKeys = new Set([...kFeatures, ...adapter.features]);
+    if (coreAdapter) {
+      const allKeys = new Set([...kFeatures, ...coreAdapter.features]);
       for (const key of [...allKeys.keys()].sort(sortAlphabetically)) {
-        addRow([key, adapter.features.has(key) ? '✅' : kFeatures.has(key) ? '🚫' : '🤷‍♂️']);
+        addRow([key, coreAdapter.features.has(key) ? '✅' : kFeatures.has(key) ? '🚫' : '🤷‍♂️']);
       }
     }
   },
