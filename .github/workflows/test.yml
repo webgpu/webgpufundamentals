@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Test
 on:
   pull_request:
 jobs:
@@ -19,5 +19,6 @@ jobs:
         run: |
           npm ci
           npm run pre-push
+          npm run build-ci
         env:
           LESSON_BUILDER_ENV: production
