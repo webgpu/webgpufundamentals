@@ -1,6 +1,6 @@
 import {
   createElem as el,
-} from './resources/elem.js';
+} from './resources/js/elem.js';
 
 if (window.prettyPrint) {
   document.querySelectorAll('.tableprettyprint').forEach(elem => {

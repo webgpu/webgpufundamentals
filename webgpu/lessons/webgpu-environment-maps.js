@@ -1,9 +1,9 @@
 import {
   renderDiagrams
-} from './resources/diagrams.js';
+} from './resources/js/diagrams.js';
 import {
   createElem as el,
-} from './resources/elem.js';
+} from './resources/js/elem.js';
 import {
   createTextureFromSources,
 } from '../../3rdparty/webgpu-utils.module.js';

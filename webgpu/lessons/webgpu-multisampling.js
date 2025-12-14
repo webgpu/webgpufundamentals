@@ -1,11 +1,11 @@
 import {
   renderDiagrams
-} from './resources/diagrams.js';
+} from './resources/js/diagrams.js';
 import {
   createElem as el,
-} from './resources/elem.js';
+} from './resources/js/elem.js';
 import { SVG as svg } from '../../3rdparty/svg.esm.js';
-import { clamp } from './resources/utils.js';
+import { clamp } from './resources/js/utils.js';
 
 const darkColors = {
   main: '#fff',
