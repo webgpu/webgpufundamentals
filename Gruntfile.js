@@ -57,7 +57,7 @@ module.exports = function(grunt) {
         src: [
           'webgpu/*.html',
           'webgpu/lessons/resources/*.js',
-          '!webgpu/lessons/resources/prettify.js',
+          '!webgpu/lessons/resources/js/prettify.js',
           'webgpu/lessons/resources/*.html',
         ],
       },

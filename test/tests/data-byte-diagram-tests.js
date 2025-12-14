@@ -1,13 +1,13 @@
 import { describe, it } from '../mocha-support.js';
 import {
     makeShaderDataDefinitions,
-} from '../../3rdparty/webgpu-utils-1.x.module.js';
+} from '/3rdparty/webgpu-utils-1.x.module.js';
 import { assertEqual } from '../assert.js';
 import {
     createByteDiagramForType,
     getCodeForUniform,
     makeBindGroupLayoutDescriptorsJS,
-} from '../../webgpu/lessons/resources/data-byte-diagram.js';
+} from '/webgpu/lessons/resources/js/data-byte-diagram.js';
 
 // normalize whitespace. Keep lines except for first and last so it's easier to read
 function trimCode(s) {

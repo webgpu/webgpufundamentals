@@ -1,10 +1,10 @@
 import {
   renderDiagrams
-} from './resources/diagrams.js';
+} from './resources/js/diagrams.js';
 import {
   makeTable,
-} from './resources/elem.js';
-import { shortSize } from './resources/utils.js';
+} from './resources/js/elem.js';
+import { shortSize } from './resources/js/utils.js';
 
 export const kMaxUnsignedLongValue = 4294967295;
 export const kMaxUnsignedLongLongValue = Number.MAX_SAFE_INTEGER;
