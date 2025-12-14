@@ -5,7 +5,7 @@ TOC: Basic CRT Effect
 Post Processing just means to do some processing after you've created the "original" image.
 Post processing can apply to a photo, a video, a 2d scene, a 3d scene. It just generally
 means you have an image and you apply some effects to that image, like choosing a filter
-in Instagram.
+on Instagram.
 
 In almost every example on this site we render to the canvas texture. To do post processing
 we instead render to a different texture. Then render that texture to the canvas while
@@ -720,7 +720,6 @@ This works
 
 This is much faster! But, unfortunately, on some GPUs it is still slower than using a render pass.
 
-
 <div class="webgpu_center data-table">
   <table>
     <thead>
@@ -749,6 +748,12 @@ Or, stick with render passes unless the algorithm you're implementing could trul
 benefit from the shared data of workgroups and or subgroups. GPUs have been rendering
 to textures for much longer than they've been running compute shaders so many things
 about that process are highly optimized.
+
+---
+
+This article introduced the concept of *post processing*.
+In the next article we'll cover some
+[common post processing image adjustments](webgpu-image-adjustments.html).
 
 <!-- keep this at the bottom of the article -->
 <link href="webgpu-post-processing.css" rel="stylesheet">
