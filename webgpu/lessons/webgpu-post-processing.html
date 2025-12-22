@@ -234,7 +234,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <p>Post Processing just means to do some processing after you’ve created the “original” image.
 Post processing can apply to a photo, a video, a 2d scene, a 3d scene. It just generally
 means you have an image and you apply some effects to that image, like choosing a filter
-in Instagram.</p>
+on Instagram.</p>
 <p>In almost every example on this site we render to the canvas texture. To do post processing
 we instead render to a different texture. Then render that texture to the canvas while
 applying some image processing effects.</p>
@@ -901,6 +901,10 @@ Or, stick with render passes unless the algorithm you’re implementing could tr
 benefit from the shared data of workgroups and or subgroups. GPUs have been rendering
 to textures for much longer than they’ve been running compute shaders so many things
 about that process are highly optimized.</p>
+<hr>
+<p>This article introduced the concept of <em>post processing</em>.
+In the next article we’ll cover some
+<a href="webgpu-image-adjustments.html">common post processing image adjustments</a>.</p>
 <!-- keep this at the bottom of the article -->
 <link href="webgpu-post-processing.css" rel="stylesheet">
 <script type="module" src="webgpu-post-processing.js"></script>
@@ -979,6 +983,9 @@ about that process are highly optimized.</p>
   <li>Post Processing</li>
         <ul>
           <li><a href="/webgpu/lessons/webgpu-post-processing.html">Basic CRT Effect</a></li>
+<li><a href="/webgpu/lessons/webgpu-image-adjustments.html">Image Adjustments</a></li>
+<li><a href="/webgpu/lessons/webgpu-1dlut.html">1D Lookup Table (LUT)</a></li>
+<li><a href="/webgpu/lessons/webgpu-3dlut.html">3D Lookup Table (LUT)</a></li>
         </ul>
         </ul>
   <li>Compute Shaders</li>

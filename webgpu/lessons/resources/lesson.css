@@ -458,13 +458,13 @@ div[data-diagram] {
   text-align: center;
   max-width: 95%;
 }
-.webgpu_center div,
-.webgpu_center img,
-.webgpu_center video,
+.webgpu_center>div,
+.webgpu_center>img,
+.webgpu_center>video,
 .webgpu_center>object {
   max-width: 100%;
 }
-.webgpu_center table {
+.webgpu_center>table {
   display: inline-table;
 }
 .webgpu_image>img {
