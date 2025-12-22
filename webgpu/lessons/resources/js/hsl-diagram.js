@@ -78,7 +78,7 @@ export async function hslDiagram() {
   scene.add(clippingGroup);
 
   const camera = new THREE.PerspectiveCamera(40, 1, 1, 10);
-  camera.position.set(2.5, 2.5, 2.5);
+  camera.position.set(-2.5, 2.5, -2.5);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enablePan = false;
