@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="100%" height="100%" viewBox="0 0 900 400" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <style>
+    .arrow { stroke: black; }
+    .tip { fill: black; }
+    .outline { stroke: white; }
+    @media (prefers-color-scheme: dark) {
+      .arrow { stroke: white; }
+      .tip { fill: white; }
+      .outline { stroke: black; }
+    }
+    </style>
     <g id="Input">
         <g transform="matrix(1,0,0,1,9.47928,-6.33325)">
             <rect x="33.377" y="171.057" width="178.1" height="113.999" style="fill:rgb(144,244,255);"/>
         </g>
         <g transform="matrix(1,0,0,1,9.47928,-6.33325)">
-            <rect x="33.377" y="171.057" width="178.1" height="113.999" style="fill:rgb(144,244,255);stroke:black;stroke-width:1px;"/>
+            <rect class="arrow" x="33.377" y="171.057" width="178.1" height="113.999" style="fill:rgb(144,244,255);stroke-width:1px;"/>
         </g>
         <g transform="matrix(1,0,0,0.734872,0,179.303)">
             <rect x="42.856" y="92.197" width="178.1" height="43.091" style="fill:rgb(145,109,0);"/>
@@ -34,7 +44,7 @@
                     <rect x="33.377" y="171.057" width="178.1" height="113.999" style="fill:rgb(144,244,255);"/>
                 </g>
                 <g transform="matrix(1,0,0,1,9.47928,-6.33325)">
-                    <rect x="33.377" y="171.057" width="178.1" height="113.999" style="fill:rgb(144,244,255);stroke:black;stroke-width:1px;"/>
+                    <rect class="arrow" x="33.377" y="171.057" width="178.1" height="113.999" style="fill:rgb(144,244,255);stroke-width:1px;"/>
                 </g>
             </g>
             <g id="Effect06-Hue">
@@ -100,25 +110,25 @@
         </g>
         <g transform="matrix(1,0,0,1,9.47928,-6.33325)">
             <g id="Result-Outline">
-                <rect x="33.377" y="171.057" width="178.1" height="113.999" style="fill:none;stroke:black;stroke-width:1px;"/>
+                <rect class="arrow" x="33.377" y="171.057" width="178.1" height="113.999" style="fill:none;stroke-width:1px;"/>
             </g>
         </g>
     </g>
     <g id="Back-Arrows">
         <g id="Arrow06-Output" transform="matrix(0.0599313,-0.987016,0.987016,0.0599313,-53.7464,365.633)">
             <g transform="matrix(1,0,0,1.0209,0,-5.49553)">
-                <path d="M133.373,543.235L192.513,758.881" style="fill:none;stroke:black;stroke-width:1px;"/>
+                    <path class="arrow" d="M133.373,543.235L192.513,758.881" style="fill:none;stroke-width:1px;"/>
             </g>
             <g transform="matrix(-0.960349,0.2788,-0.2788,-0.960349,320.16,918.802)">
-                <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
+                    <path class="tip" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
             </g>
         </g>
         <g id="Arrow06-Input" transform="matrix(0.446757,-0.882157,0.882157,0.446757,-283.977,94.0662)">
             <g transform="matrix(1,0,0,1.0209,0,-5.49553)">
-                <path d="M124.812,479.05L192.513,758.881" style="fill:none;stroke:black;stroke-width:1px;"/>
+                    <path class="arrow" d="M124.812,479.05L192.513,758.881" style="fill:none;stroke-width:1px;"/>
             </g>
             <g transform="matrix(-0.960349,0.2788,-0.2788,-0.960349,320.16,918.802)">
-                <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
+                    <path class="tip" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
             </g>
         </g>
     </g>
@@ -705,67 +715,67 @@
         <g>
             <g id="Arrow01-Input" transform="matrix(-0.00725653,-0.999974,0.999974,-0.00725653,-129.6,385.888)">
                 <g transform="matrix(1,0,0,1.0209,0,-5.49553)">
-                    <path d="M156.668,262.889L144.955,402.713" style="fill:none;stroke:black;stroke-width:0.99px;"/>
+                        <path class="arrow" d="M156.668,262.889L144.955,402.713" style="fill:none;stroke-width:0.99px;"/>
                 </g>
                 <g transform="matrix(-0.993977,-0.109589,0.109589,-0.993977,204.051,594.659)">
-                    <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
+                        <path class="tip" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
                 </g>
             </g>
             <g id="Arrow01-Output" transform="matrix(0.0870807,-0.984992,0.984992,0.0870807,-57.429,349.296)">
                 <g transform="matrix(1,0,0,1.0209,0,-5.49553)">
-                    <path d="M141.452,344.114L211.962,814.451" style="fill:none;stroke:black;stroke-width:1px;"/>
+                        <path class="arrow" d="M141.452,344.114L211.962,814.451" style="fill:none;stroke-width:1px;"/>
                 </g>
                 <g transform="matrix(-0.991923,0.126838,-0.126838,-0.991923,313.621,989.726)">
-                    <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
+                        <path class="tip" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
                 </g>
             </g>
             <g id="Arrow02-Input" transform="matrix(-0.394342,-0.918964,0.918964,-0.394342,-20.7391,483.782)">
                 <g transform="matrix(1,0,0,1.0209,0,-5.49553)">
-                    <path d="M162.241,236.283L143.059,415.107" style="fill:none;stroke:black;stroke-width:0.99px;"/>
+                        <path class="arrow" d="M162.241,236.283L143.059,415.107" style="fill:none;stroke-width:0.99px;"/>
                 </g>
                 <g transform="matrix(-0.993977,-0.109589,0.109589,-0.993977,204.018,599.15)">
-                    <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
+                        <path class="tip" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
                 </g>
             </g>
             <g id="Arrow02-Output" transform="matrix(0.257817,-0.954632,0.954632,0.257817,-51.8064,233.413)">
                 <g transform="matrix(1,0,0,1.0209,0,-5.49553)">
-                    <path d="M142.892,347.83L207.757,796.402" style="fill:none;stroke:black;stroke-width:1px;"/>
+                        <path class="arrow" d="M142.892,347.83L207.757,796.402" style="fill:none;stroke-width:1px;"/>
                 </g>
                 <g transform="matrix(-0.991523,0.129928,-0.129928,-0.991523,310.206,970.847)">
-                    <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
+                        <path class="tip" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
                 </g>
             </g>
             <g id="Arrow03-Input" transform="matrix(-0.00725653,-0.999974,0.999974,-0.00725653,-180.334,350.514)">
                 <g transform="matrix(1,0,0,1.0209,0,-5.49553)">
-                    <path d="M156.668,262.889L39.944,690.63" style="fill:none;stroke:black;stroke-width:0.99px;"/>
+                        <path class="arrow" d="M156.668,262.889L39.944,690.63" style="fill:none;stroke-width:0.99px;"/>
                 </g>
                 <g transform="matrix(-0.974209,-0.225649,0.225649,-0.974209,78.8227,890.255)">
-                    <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
+                        <path class="tip" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
                 </g>
             </g>
             <g id="Arrow03-Output" transform="matrix(-0.406151,-0.901573,0.901573,-0.406151,276.05,570.518)">
                 <g transform="matrix(1,0,0,1.0209,0,-5.49553)">
-                    <path d="M142.034,343.466L164.18,564.489" style="fill:none;stroke:black;stroke-width:1px;"/>
+                        <path class="arrow" d="M142.034,343.466L164.18,564.489" style="fill:none;stroke-width:1px;"/>
                 </g>
                 <g transform="matrix(-0.991523,0.129928,-0.129928,-0.991523,266.695,733.716)">
-                    <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
+                        <path class="tip" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
                 </g>
             </g>
             <g id="Arrow04-Input" transform="matrix(-0.185534,-0.971272,0.971272,-0.185534,-126.766,464.83)">
                 <g transform="matrix(1,0,0,1.0209,0,-5.49553)">
-                    <path d="M141.551,340.405L159.904,522.89" style="fill:none;stroke:black;stroke-width:1px;"/>
+                        <path class="arrow" d="M141.551,340.405L159.904,522.89" style="fill:none;stroke-width:1px;"/>
                 </g>
                 <g transform="matrix(-0.991523,0.129928,-0.129928,-0.991523,262.914,693.466)">
-                    <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
+                        <path class="tip" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
                 </g>
             </g>
             <g id="Arrow04-Output" transform="matrix(0.257817,-0.954632,0.954632,0.257817,1.31472,260.221)">
                 <g>
                     <g transform="matrix(1,0,0,1.0209,-3.55271e-15,-5.49553)">
-                        <path d="M147.166,344.75L179.991,672.129" style="fill:none;stroke:black;stroke-width:1px;"/>
+                            <path class="arrow" d="M147.166,344.75L179.991,672.129" style="fill:none;stroke-width:1px;"/>
                     </g>
                     <g transform="matrix(-0.991523,0.129928,-0.129928,-0.991523,283.185,845.353)">
-                        <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
+                            <path class="tip" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z"/>
                     </g>
                 </g>
             </g>
