@@ -644,13 +644,13 @@
                 <path class="outline" d="M74.974,153.919L74.974,93.741" style="fill:none;stroke-width:3.75px;"/>
             </g>
             <g transform="matrix(6.12323e-17,-1,1,6.12323e-17,-96.1034,234.938)">
-                <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z" style="fill:rgb(242,13,13);stroke:white;stroke-width:3.75px;"/>
+                <path class="outline" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z" style="fill:rgb(242,13,13);stroke-width:3.75px;"/>
             </g>
             <g transform="matrix(6.12323e-17,1,-1,6.12323e-17,448.715,74.0599)">
-                <path d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z" style="fill:rgb(242,13,13);stroke:white;stroke-width:3.75px;"/>
+                <path class="outline" d="M80.439,171.077L85.905,190.975L74.974,190.975L80.439,171.077Z" style="fill:rgb(242,13,13);;stroke-width:3.75px;"/>
             </g>
             <g transform="matrix(1,0,0,1,0,30.6692)">
-                <path d="M94.871,123.83L257.74,123.83" style="fill:none;stroke:white;stroke-width:3.75px;"/>
+                <path class="outline" d="M94.871,123.83L257.74,123.83" style="fill:none;stroke-width:3.75px;"/>
             </g>
         </g>
         <g transform="matrix(1,0,0,1,33.0393,0)">
