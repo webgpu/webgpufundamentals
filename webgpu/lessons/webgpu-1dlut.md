@@ -174,7 +174,7 @@ And we need to update our JavaScript to set the duotone parameters.
 +  gui.addColor(settings, 'duotoneColor2');
 ```
 
-And with that we get our duotone affect.
+And with that we get a duotone affect.
 
 {{{example url="../webgpu-post-processing-image-adjustments-duotone.html"}}}
 
@@ -192,10 +192,10 @@ In the code above we are `mix`ing between 2 colors.
   return mix(color1, color2, l);
 ```
 
-Another way to mix between colors is to use a 2x1 pixel texture with linear filtering
+Another way to mix between colors is to use a 2ˣ1 pixel texture with linear filtering
 as we covered in [the article on textures](webgpu-textures.html#a-linear-interpolation).
 
-Let's do that. Here some code to use a texture to mix its colors
+Let's do that. Here is some WGSL code to use a texture to mix its colors
 across the texture.
 
 ```wgsl
@@ -231,7 +231,7 @@ Recall how linear texture sampling work.
   <div>2x1 pixel texture and the color from each coordinate</div>
 </div></div>
 
-If we look at a 2x1 pixel texture, sampling from 0.0 to the center of the left most
+If we look at a 2ˣ1 pixel texture, sampling from 0.0 to the center of the left most
 pixel just returns the color of the first pixel. Similarly the center of the
 right most to 1.0 we get just the color of the 2nd pixel. We only want the part
 between the 2 pixels so we to map the luminance value to the range in coordinate
@@ -267,9 +267,9 @@ struct Uniforms {
 }
 ```
 
-We put the gradient texture and sampler in their own bindGroup.
+In the shader we put the gradient texture and sampler in their own group.
 
-We then need to create a texture and a sampler
+We then need to create a texture, a sampler, and a bindGroup
 
 ```js
   const lutSampler = device.createSampler({
@@ -304,7 +304,7 @@ We then need to create a texture and a sampler
 ```
 
 Here we're making 2 rgba8unorm values from our previous duotone colors.
-and uploading them to a 2x1 texture.
+and uploading them to a 2ˣ1 texture.
 
 ```js
   function postProcess(encoder, srcTexture, dstTexture) {
@@ -373,7 +373,7 @@ couple of examples where the texture has solid colors, not gradients.
 <div class="webgpu_center center"><div data-diagram="luts" class="fill-container"></div></div>
 
 Let's make some code to make these gradient textures. Given a set of colors
-and stops between 0 an 1, we could write code to create the textures. But,
+and stops between 0 an 1, we could write code to interpolate between them and create the textures. But,
 the browser already has gradient making code in its 2d library so let's use
 that.
 
