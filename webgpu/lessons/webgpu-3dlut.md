@@ -313,7 +313,9 @@ document.querySelector('button').addEventListener('click', () => {
 });
 ```
 
-Now we can generate a identity 3d lookup table for any size.
+Now we can generate a identity 3d lookup table for any size. [^size]
+
+[^size]: Adobe .cube files are generally 33ˣ33ˣ33
 
 {{{example url="../3dlut-base-cube-maker.html" }}}
 
@@ -330,11 +332,11 @@ We then go it into an image editor, in my case Photoshop, load up a sample image
 > I'm guessing it was trying to match DPI or something. Loading the cube file
 > separately and then copying and pasting it into the screen capture worked.
 
-<div class="webgpu_center"><img class="nobg" src="resources/images/3d-lut-photoshop-before.png" style="max-width: 1100px"></div>
+<div class="webgpu_center"><img class="nobg" src="resources/images/3d-lut-photoshop-before.png" style="width: 1100px"></div>
 
 We then use any of the color based full image adjustments to adjust the image. For Photoshop most of the adjustments we can use are available on the Adjustments tab.
 
-<div class="webgpu_center"><img class="nobg" src="resources/images/3d-lut-photoshop-after.png" style="max-width: 1100px"></div>
+<div class="webgpu_center"><img class="nobg" src="resources/images/3d-lut-photoshop-after.png" style="width: 1100px"></div>
 
 After we've adjusted the image to our liking you can see the cube slices we placed in the top left corner have the same adjustments applied.
 
@@ -564,10 +566,10 @@ so you should be able to [download an Adobe LUT](https://www.google.com/search?q
 
 {{{example url="../webgpu-post-processing-image-adjustments-3d-luts-w-loader.html"}}}
 
-Here's some luts I found online applied to an image
+Here's some luts I found online and applied them to an image
 
 <div class="webgpu_center">
-   <div data-diagram="cubeLuts" class="fill-container"></div>
+   <div data-diagram="cubeLuts" class="fill-container" style="max-width: 1200px"></div>
 </div>
 
 Note that Adobe LUTs are not designed for online usage. They are large files.

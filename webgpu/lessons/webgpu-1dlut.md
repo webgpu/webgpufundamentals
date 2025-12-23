@@ -370,7 +370,7 @@ into the same code above. This is often called a [gradient map](https://google.c
 a "gradient". The texture does not have to be gradients though. You can see a
 couple of examples where the texture has solid colors, not gradients.
 
-<div class="webgpu_center center"><div data-diagram="luts" class="fill-container"></div></div>
+<div class="webgpu_center center"><div data-diagram="luts" class="fill-container" style="max-width: 1200px"></div></div>
 
 Let's make some code to make these gradient textures. Given a set of colors
 and stops between 0 an 1, we could write code to interpolate between them and create the textures. But,
