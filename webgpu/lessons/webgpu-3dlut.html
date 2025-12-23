@@ -502,7 +502,7 @@ document.querySelector('button').addEventListener('click', () =&gt; {
   });
 });
 </pre>
-<p>Now we can generate a identity 3d lookup table for any size.</p>
+<p>Now we can generate a identity 3d lookup table for any size. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2F3dlut-base-cube-maker.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../3dlut-base-cube-maker.html" target="_blank">click here to open in a separate window</a>
@@ -519,9 +519,9 @@ in Photoshop but that didn’t work. Photoshop made the image twice as large.
 I’m guessing it was trying to match DPI or something. Loading the cube file
 separately and then copying and pasting it into the screen capture worked.</p>
 </blockquote>
-<div class="webgpu_center"><img class="nobg" src="resources/images/3d-lut-photoshop-before.png" style="max-width: 1100px"></div>
+<div class="webgpu_center"><img class="nobg" src="resources/images/3d-lut-photoshop-before.png" style="width: 1100px"></div>
 <p>We then use any of the color based full image adjustments to adjust the image. For Photoshop most of the adjustments we can use are available on the Adjustments tab.</p>
-<div class="webgpu_center"><img class="nobg" src="resources/images/3d-lut-photoshop-after.png" style="max-width: 1100px"></div>
+<div class="webgpu_center"><img class="nobg" src="resources/images/3d-lut-photoshop-after.png" style="width: 1100px"></div>
 <p>After we’ve adjusted the image to our liking you can see the cube slices we placed in the top left corner have the same adjustments applied.</p>
 <p>Okay but how do we use it?</p>
 <p>First I saved it as a png <code class="notranslate" translate="no">3d-lut-orange-to-green-s16.png</code>. To save memory we could have cropped it to just the 256ˣ16 top left corner of the LUT table but just for fun we’ll crop it after loading. The good thing about using this method is we can get some idea of the effective of the LUT just by looking at the .png file. The bad thing is of course wasted bandwidth.</p>
@@ -729,9 +729,9 @@ lots of luts.</p>
 </div>
 
 <p></p>
-<p>Here’s some luts I found online applied to an image</p>
+<p>Here’s some luts I found online and applied them to an image</p>
 <div class="webgpu_center">
-   <div data-diagram="cubeLuts" class="fill-container"></div>
+   <div data-diagram="cubeLuts" class="fill-container" style="max-width: 1200px"></div>
 </div>
 <p>Note that Adobe LUTs are not designed for online usage. They are large files.
 (~1meg). You can convert them to smaller files and save as our PNG format by dragging and dropping on the sample below and clicking “Save…”. The PNG files are typically ~20x smaller, around 50k.</p>
@@ -744,6 +744,13 @@ lots of luts.</p>
 <!-- keep this at the bottom of the article -->
 <link href="webgpu-3dlut.css" rel="stylesheet">
 <script type="module" src="webgpu-3dlut.js"></script>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>Adobe .cube files are generally 33ˣ33ˣ33 <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">

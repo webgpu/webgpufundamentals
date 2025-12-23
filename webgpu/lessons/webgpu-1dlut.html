@@ -553,7 +553,7 @@ You do not have to update the shader.</p>
 into the same code above. This is often called a <a href="https://google.com/search?q=gradient%20map">gradient map</a> as it maps the luminance of the image through
 a “gradient”. The texture does not have to be gradients though. You can see a
 couple of examples where the texture has solid colors, not gradients.</p>
-<div class="webgpu_center center"><div data-diagram="luts" class="fill-container"></div></div>
+<div class="webgpu_center center"><div data-diagram="luts" class="fill-container" style="max-width: 1200px"></div></div>
 <p>Let’s make some code to make these gradient textures. Given a set of colors
 and stops between 0 an 1, we could write code to interpolate between them and create the textures. But,
 the browser already has gradient making code in its 2d library so let’s use
