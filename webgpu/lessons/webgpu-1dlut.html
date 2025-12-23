@@ -380,7 +380,7 @@ much to use this duotone mix.</p>
 +  gui.addColor(settings, 'duotoneColor1');
 +  gui.addColor(settings, 'duotoneColor2');
 </pre>
-<p>And with that we get our duotone affect.</p>
+<p>And with that we get a duotone affect.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-post-processing-image-adjustments-duotone.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-post-processing-image-adjustments-duotone.html" target="_blank">click here to open in a separate window</a>
@@ -395,9 +395,9 @@ is basically just a matter of choosing sepia tones</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  let l = luminance(color);
   return mix(color1, color2, l);
 </pre>
-<p>Another way to mix between colors is to use a 2x1 pixel texture with linear filtering
+<p>Another way to mix between colors is to use a 2ˣ1 pixel texture with linear filtering
 as we covered in <a href="webgpu-textures.html#a-linear-interpolation">the article on textures</a>.</p>
-<p>Let’s do that. Here some code to use a texture to mix its colors
+<p>Let’s do that. Here is some WGSL code to use a texture to mix its colors
 across the texture.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">fn apply1DLUT(
     color: vec3f,
@@ -425,7 +425,7 @@ fn apply1DLUT(
   <img src="resources/images/linear-texture-interpolation.svg" class="noinvertdark" style="width: 600px;">
   <div>2x1 pixel texture and the color from each coordinate</div>
 </div></div>
-<p>If we look at a 2x1 pixel texture, sampling from 0.0 to the center of the left most
+<p>If we look at a 2ˣ1 pixel texture, sampling from 0.0 to the center of the left most
 pixel just returns the color of the first pixel. Similarly the center of the
 right most to 1.0 we get just the color of the 2nd pixel. We only want the part
 between the 2 pixels so we to map the luminance value to the range in coordinate
@@ -457,8 +457,8 @@ space between the 2 pixels and then add 0.5 a pixel.</p>
   return vec4f(rgb, color.a);
 }
 </pre>
-<p>We put the gradient texture and sampler in their own bindGroup.</p>
-<p>We then need to create a texture and a sampler</p>
+<p>In the shader we put the gradient texture and sampler in their own group.</p>
+<p>We then need to create a texture, a sampler, and a bindGroup</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const lutSampler = device.createSampler({
     magFilter: 'linear',
     minFilter: 'linear',
@@ -490,7 +490,7 @@ space between the 2 pixels and then add 0.5 a pixel.</p>
   });
 </pre>
 <p>Here we’re making 2 rgba8unorm values from our previous duotone colors.
-and uploading them to a 2x1 texture.</p>
+and uploading them to a 2ˣ1 texture.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function postProcess(encoder, srcTexture, dstTexture) {
     device.queue.writeBuffer(
       postProcessUniformBuffer,
@@ -555,7 +555,7 @@ a “gradient”. The texture does not have to be gradients though. You can see 
 couple of examples where the texture has solid colors, not gradients.</p>
 <div class="webgpu_center center"><div data-diagram="luts" class="fill-container"></div></div>
 <p>Let’s make some code to make these gradient textures. Given a set of colors
-and stops between 0 an 1, we could write code to create the textures. But,
+and stops between 0 an 1, we could write code to interpolate between them and create the textures. But,
 the browser already has gradient making code in its 2d library so let’s use
 that.</p>
 <p>Here’s some gradient data where each entry is r, g, b in unorm8 format (0-255)
