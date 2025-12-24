@@ -33,10 +33,10 @@ luminance = red * 0.2126 + green * 0.7152 + blue * 0.07222
 Looking at that formula, green is ~2.5x brighter than red and ~10x brighter
 than blue
 
-<div class="webgpu_center center"><div>
+<div class="webgpu_center center">
   <img src="resources/images/rba-luminance.svg" class="noinvertdark" style="width: 600px;">
   <div>red, green, blue and their equivalent luminance</div>
-</div></div>
+</div>
 
 Converting that to wgsl we can write it like this
 
@@ -226,10 +226,10 @@ fn apply1DLUT(
 
 Recall how linear texture sampling work.
 
-<div class="webgpu_center center"><div>
+<div class="webgpu_center center">
   <img src="resources/images/linear-texture-interpolation.svg" class="noinvertdark" style="width: 600px;">
   <div>2x1 pixel texture and the color from each coordinate</div>
-</div></div>
+</div>
 
 If we look at a 2ˣ1 pixel texture, sampling from 0.0 to the center of the left most
 pixel just returns the color of the first pixel. Similarly the center of the
