@@ -254,10 +254,10 @@ is brighter than blue.</p>
 </pre>
 <p>Looking at that formula, green is ~2.5x brighter than red and ~10x brighter
 than blue</p>
-<div class="webgpu_center center"><div>
+<div class="webgpu_center center">
   <img src="resources/images/rba-luminance.svg" class="noinvertdark" style="width: 600px;">
   <div>red, green, blue and their equivalent luminance</div>
-</div></div>
+</div>
 <p>Converting that to wgsl we can write it like this</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">fn luminance(color: vec3f) -&gt; f32 {
   return dot(color, vec3f(0.2126, 0.7152, 0.0722));
@@ -421,10 +421,10 @@ fn apply1DLUT(
 }
 </pre>
 <p>Recall how linear texture sampling work.</p>
-<div class="webgpu_center center"><div>
+<div class="webgpu_center center">
   <img src="resources/images/linear-texture-interpolation.svg" class="noinvertdark" style="width: 600px;">
   <div>2x1 pixel texture and the color from each coordinate</div>
-</div></div>
+</div>
 <p>If we look at a 2ˣ1 pixel texture, sampling from 0.0 to the center of the left most
 pixel just returns the color of the first pixel. Similarly the center of the
 right most to 1.0 we get just the color of the 2nd pixel. We only want the part

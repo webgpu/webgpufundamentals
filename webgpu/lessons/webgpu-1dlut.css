@@ -80,3 +80,11 @@
     background-repeat: no-repeat;
   }
 }
+
+@media (width < 840px) {
+
+  .img-grid {
+    grid-template-columns: repeat(auto-fit, 150px);
+  }
+
+}
