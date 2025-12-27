@@ -4,6 +4,8 @@ TOC: Visualizing the Camera
 
 TBD
 
-* Make it handle 2 camera controllers
+* Airplane
+* FPS
+* 3rd Person Fixed
+* 3rd Person Follow
 
-{{{example url="../webgpu-camera-visualization.html"}}}
