@@ -810,23 +810,23 @@ the colors will be pushed away from 0.5.</p>
   gui.add(settings, 'brightness', -1, 1);
 +  gui.add(settings, 'contrast', -1, 10);
 </pre>
-<p>Note that our setting of 10 as the maximum is a little arbitrary.
-Since we’re moving the values away from 0.5 buy multiplying
-by our contrast value, if the color is 0.51 and the contrast
-is 10 then we’ll end up making the new color 0.60 (0.5 + 10 * 0.01). That’s not all the way to 1. In practice though,
-if you try it below, you’ll see that even above 6 not much changes. Maybe you’d have to pick a very dim image to need
-higher contrast values.</p>
+<p>Note that our setting of 10 as the maximum is a little arbitrary. Since we’re
+moving the values away from 0.5 by multiplying with our contrast value, if the
+color is 0.51 and the contrast is 10 then we’ll end up making the new color 0.60
+(0.5 + 10 * 0.01). That’s not all the way to 1. In practice though, if you try
+it below, you’ll see that even above 6 not much changes. Maybe you’d have to
+pick a very low contrast image to need higher contrast values.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-post-processing-image-adjustments-contrast.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-post-processing-image-adjustments-contrast.html" target="_blank">click here to open in a separate window</a>
 </div>
 
 <p></p>
-<p>It’s important to know these operations are order dependent.
-We apply brightness and then contrast. Since contrast pushes
-colors away from 0.5 and brightness adds to the overall color then, as it is, for a given brightness setting we’re
-effectively choosing where the 0.5 level is in the image
-before the contrast is applied.</p>
+<p>It’s important to note these operations are order dependent. We apply brightness
+and then contrast. Since contrast pushes colors away from 0.5 and brightness
+adds to the overall color then, as it is, for a given brightness setting we’re
+effectively choosing where the 0.5 level is in the image before the contrast is
+applied.</p>
 <h1 id="hue-saturation-lightness-hsl"><a id="a-hue-saturation-lightness"></a> Hue Saturation Lightness (HSL)</h1>
 <p>It’s common to allow a hue, saturation, and lightness adjustment.</p>
 <div class="webgpu_center center"><div data-diagram="hsl" data-labels="{&quot;h&quot;: &quot;hue&quot;, &quot;s&quot;: &quot;saturation&quot;, &quot;l&quot;: &quot;lightness&quot;}"></div></div>
@@ -895,7 +895,7 @@ so the members can be referred to as <code class="notranslate" translate="no">h<
 It also uses <code class="notranslate" translate="no">fract(hsl.h)</code> which means it’s safe to pass in any values
 [~precision]. For example you could set the saturation to 50, it will
 just get clamped to 1. You could set the hue to 75.3, it will be the same as 0.3.</p>
-<p>Given those 2 functions we can change our shaders to include and HSL adjustment</p>
+<p>Given those 2 functions we can change our shaders to include an HSL adjustment</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">...
 
 +fn adjustHSL(color: vec3f, adjust: HSL) -&gt; vec3f {
@@ -926,13 +926,14 @@ struct Uniforms {
 }
 </pre>
 <p>One thing that might stick out here is the <code class="notranslate" translate="no">@align(16)</code> we needed when adding
-<code class="notranslate" translate="no">HSL</code> to the <code class="notranslate" translate="no">Uniforms</code> struct. The reason we need this is because structs
-used in uniforms, by default, must be aligned to 16 byte boundaries.
-Further, it means the
-structure is usable for both uniform and storage buffers. If you remove
-the <code class="notranslate" translate="no">@align(16)</code> then it’s only useable for storage buffers.
-WGSL doesn’t add this alignment automatically so that in the future the alignment requirements can be lifted, and so the structures only need one
-layout. If it didn’t require this the <code class="notranslate" translate="no">@align(16)</code> now, auto aligned, then later when restriction was removed, lots of code would break. <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup></p>
+<code class="notranslate" translate="no">HSL</code> to the <code class="notranslate" translate="no">Uniforms</code> struct. The reason we need this is because
+<a href="webgpu-memory-layout.html#a-struct-array-size-alignment">structs used in uniforms, by default, must be aligned to 16 byte boundaries</a>.
+Further, it means the structure is usable for both uniform and storage buffers.
+If you remove the <code class="notranslate" translate="no">@align(16)</code> then it’s only useable for storage buffers. WGSL
+doesn’t add this alignment automatically so that in the future the alignment
+requirements can be lifted, and so the structures only need one layout. If it
+didn’t require the <code class="notranslate" translate="no">@align(16)</code> now, and instead it auto aligned, then later
+when restriction was removed, lots of code would break. <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup></p>
 <p>To use this we still need to update the JavaScript to set the new uniform values.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const postProcessUniformBuffer = device.createBuffer({
 -    size: 16,
