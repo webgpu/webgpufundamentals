@@ -6,7 +6,26 @@ import {
 } from './utils.js';
 export async function rgbDiagram() {
   const div = el('div', {className: 'rgb-diagram'});
-  const THREE = await import('three');
+  const {
+    ArrowHelper,
+    BoxGeometry,
+    BufferGeometry,
+    ClippingGroup,
+    CylinderGeometry,
+    DoubleSide,
+    LineSegments,
+    Mesh,
+    MeshBasicMaterial,
+    MeshBasicNodeMaterial,
+    PerspectiveCamera,
+    Object3D,
+    Plane,
+    PlaneGeometry,
+    Scene,
+    SphereGeometry,
+    Vector3,
+    WebGPURenderer,
+  } = await import('three');
   const {
     CSS2DRenderer,
     CSS2DObject,
@@ -34,53 +53,53 @@ export async function rgbDiagram() {
     },
   });
 
-  const renderer = new THREE.WebGPURenderer({ device, canvas });
+  const renderer = new WebGPURenderer({ device, canvas });
   div.append(canvas);
   const labelRenderer = new CSS2DRenderer();
   labelRenderer.domElement.id = 'labels';
   div.append(labelRenderer.domElement);
 
-  const clipPlane1 = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
-  const clipPlane2 = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
-  const clipPlane3 = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
+  const clipPlane1 = new Plane(new Vector3(-1, 0, 0), 0);
+  const clipPlane2 = new Plane(new Vector3(0, -1, 0), 0);
+  const clipPlane3 = new Plane(new Vector3(0, 0, -1), 0);
 
-  const scene = new THREE.Scene();
+  const scene = new Scene();
 
-  const clippingGroup = new THREE.ClippingGroup();
+  const clippingGroup = new ClippingGroup();
   clippingGroup.clippingPlanes = [ clipPlane1, clipPlane2, clipPlane3 ];
   clippingGroup.enabled = true;
   clippingGroup.clipIntersection = true;
 
   scene.add(clippingGroup);
 
-  const camera = new THREE.PerspectiveCamera(40, 1, 1, 10);
+  const camera = new PerspectiveCamera(40, 1, 1, 10);
   camera.position.set(3.5, 3.5, 3.5);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enablePan = false;
   controls.enableZoom = false;
 
-  const lineMaterial = new THREE.MeshBasicNodeMaterial();
+  const lineMaterial = new MeshBasicNodeMaterial();
   lineMaterial.colorNode = vec3(0.5, 0.5, 0.5);
 
-  const cubeGeo = new THREE.BoxGeometry(2, 2, 2);
-  const plane = new THREE.PlaneGeometry(2, 2);
+  const cubeGeo = new BoxGeometry(2, 2, 2);
+  const plane = new PlaneGeometry(2, 2);
 
-  const rgbMaterial = new THREE.MeshBasicNodeMaterial({
-    side: THREE.DoubleSide,
+  const rgbMaterial = new MeshBasicNodeMaterial({
+    side: DoubleSide,
   });
   rgbMaterial.colorNode = rgbCube();
 
-  const cubeMesh = new THREE.Mesh(cubeGeo, rgbMaterial);
-  const p1Mesh = new THREE.Mesh(plane, rgbMaterial);
-  const p2Mesh = new THREE.Mesh(plane, rgbMaterial);
+  const cubeMesh = new Mesh(cubeGeo, rgbMaterial);
+  const p1Mesh = new Mesh(plane, rgbMaterial);
+  const p2Mesh = new Mesh(plane, rgbMaterial);
   p2Mesh.rotation.y = Math.PI * 0.5;
-  const p3Mesh = new THREE.Mesh(plane, rgbMaterial);
+  const p3Mesh = new Mesh(plane, rgbMaterial);
   p3Mesh.rotation.x = Math.PI * 0.5;
-  const p1 = new THREE.Object3D();
-  const p2 = new THREE.Object3D();
-  const p3 = new THREE.Object3D();
-  const cube = new THREE.Object3D();
+  const p1 = new Object3D();
+  const p2 = new Object3D();
+  const p3 = new Object3D();
+  const cube = new Object3D();
   p1.add(p1Mesh);
   p2.add(p2Mesh);
   p3.add(p3Mesh);
@@ -89,23 +108,23 @@ export async function rgbDiagram() {
   scene.add(p2);
   scene.add(p3);
 
-const cylMat = new THREE.MeshBasicMaterial({color: 0xFFFFFF});
-const cylGeo = new THREE.CylinderGeometry(0.01, 0.01, 2.1, 32);
+const cylMat = new MeshBasicMaterial({color: 0xFFFFFF});
+const cylGeo = new CylinderGeometry(0.01, 0.01, 2.1, 32);
 
 function makeAxis() {
   const elem = document.createElement('div');
   elem.className = 'label';
   const obj = new CSS2DObject(elem);
   obj.center.set(0, 1);
-  const mesh = new THREE.Mesh(cylGeo, cylMat);
+  const mesh = new Mesh(cylGeo, cylMat);
   mesh.position.x = 1.1;
   mesh.rotation.z = Math.PI * -0.5;
-  const labelParent = new THREE.Object3D();
-  const root = new THREE.Object3D();
-  const dir = new THREE.Vector3( 1, 0, 0 );
-  const origin = new THREE.Vector3( 0, 0, 0 );
+  const labelParent = new Object3D();
+  const root = new Object3D();
+  const dir = new Vector3( 1, 0, 0 );
+  const origin = new Vector3( 0, 0, 0 );
   const length = 2.2;
-  const arrow = new THREE.ArrowHelper(dir, origin, length, 0xFFFFFF, 0.05, 0.05);
+  const arrow = new ArrowHelper(dir, origin, length, 0xFFFFFF, 0.05, 0.05);
   root.add(mesh);
   root.add(arrow);
   root.add(labelParent);
@@ -130,20 +149,20 @@ scene.add(rAxis.root);
 scene.add(gAxis.root);
 scene.add(bAxis.root);
 
-  const stuff = new THREE.Object3D();
+  const stuff = new Object3D();
   stuff.add(cube);
 
   clippingGroup.add(stuff);
 
-  const midDisc = new THREE.Object3D();
+  const midDisc = new Object3D();
   scene.add(midDisc);
 
-  const markerMaterial = new THREE.MeshBasicMaterial({
+  const markerMaterial = new MeshBasicMaterial({
     color: 0x0FF0000,
   });
   const marker = (() => {
-    const sphere = new THREE.SphereGeometry(0.05);
-    return new THREE.Mesh(sphere, markerMaterial);
+    const sphere = new SphereGeometry(0.05);
+    return new Mesh(sphere, markerMaterial);
   })();
   scene.add(marker);
 
@@ -152,16 +171,16 @@ scene.add(bAxis.root);
     const points = [];
     for (let i = 0; i <= gridSegments; ++i) {
       const x = i / gridSegments * 2 - 1;
-      points.push(new THREE.Vector3(x, -1, 0));
-      points.push(new THREE.Vector3(x,  1, 0));
+      points.push(new Vector3(x, -1, 0));
+      points.push(new Vector3(x,  1, 0));
     }
 
-    const gridGeo = new THREE.BufferGeometry().setFromPoints(points);
+    const gridGeo = new BufferGeometry().setFromPoints(points);
     const grids = [];
     for (let i = 0; i < 9; ++i) {
-      const grid = new THREE.Object3D();
-      const l1 = new THREE.LineSegments(gridGeo, lineMaterial);
-      const l2 = new THREE.LineSegments(gridGeo, lineMaterial);
+      const grid = new Object3D();
+      const l1 = new LineSegments(gridGeo, lineMaterial);
+      const l2 = new LineSegments(gridGeo, lineMaterial);
       l2.rotation.z = Math.PI * 0.5;
       grid.add(l1);
       grid.add(l2);
@@ -214,9 +233,9 @@ scene.add(bAxis.root);
 
     renderer.setSize(w, h, false);
     labelRenderer.setSize(labelRenderer.domElement.clientWidth, labelRenderer.domElement.clientHeight);
-    // three.js messes up here. They refuse to learn how HTML and CSS work and keep fighting it (T_T)
+    // js messes up here. They refuse to learn how HTML and CSS work and keep fighting it (T_T)
     // Setting the width and height of the element means the browser can no longer make it larger or
-    // smaller when the user sizes the window. So, we have to remove the damage from three.js so the
+    // smaller when the user sizes the window. So, we have to remove the damage from js so the
     // browser can do the correct thing.
     labelRenderer.domElement.style.width = '';
     labelRenderer.domElement.style.height = '';

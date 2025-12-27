@@ -3,7 +3,25 @@ import {
 } from './elem.js';
 export async function hslDiagram() {
   const div = el('div');
-  const THREE = await import('three');
+  const {
+    BufferGeometry,
+    ClippingGroup,
+    CylinderGeometry,
+    DoubleSide,
+    Line,
+    LineSegments,
+    Mesh,
+    MeshBasicMaterial,
+    MeshBasicNodeMaterial,
+    PerspectiveCamera,
+    Object3D,
+    Plane,
+    PlaneGeometry,
+    PolarGridHelper,
+    Scene,
+    SphereGeometry,
+    Vector3,
+    WebGPURenderer,  } = await import('three');
   const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
   const {
     Fn: tslFn,
@@ -62,33 +80,33 @@ export async function hslDiagram() {
     },
   });
 
-  const renderer = new THREE.WebGPURenderer({ device, canvas });
+  const renderer = new WebGPURenderer({ device, canvas });
   div.append(canvas);
 
-  const scene = new THREE.Scene();
+  const scene = new Scene();
 
-  const clipPlane1 = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
-  const clipPlane2 = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-  const clipPlane3 = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
+  const clipPlane1 = new Plane(new Vector3(1, 0, 0), 0);
+  const clipPlane2 = new Plane(new Vector3(0, 1, 0), 0);
+  const clipPlane3 = new Plane(new Vector3(0, -1, 0), 0);
 
-  const clippingGroup = new THREE.ClippingGroup();
+  const clippingGroup = new ClippingGroup();
   clippingGroup.clippingPlanes = [ clipPlane1, clipPlane2, clipPlane3 ];
   clippingGroup.enabled = true;
   clippingGroup.clipIntersection = true;
   scene.add(clippingGroup);
 
-  const camera = new THREE.PerspectiveCamera(40, 1, 1, 10);
+  const camera = new PerspectiveCamera(40, 1, 1, 10);
   camera.position.set(-2.5, 2.5, -2.5);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enablePan = false;
   controls.enableZoom = false;
 
-  const lineMaterial = new THREE.MeshBasicNodeMaterial();
+  const lineMaterial = new MeshBasicNodeMaterial();
   lineMaterial.colorNode = vec3(0.5, 0.5, 0.5);
 
   const radialSegments = 16;
-  const bigCylinderGeo = new THREE.CylinderGeometry(
+  const bigCylinderGeo = new CylinderGeometry(
     1, // radius top,
     1, // radius bottom,
     2, // height,
@@ -98,7 +116,7 @@ export async function hslDiagram() {
     0, // start
     Math.PI * 2, // end
   );
-  const smallCylinderGeo = new THREE.CylinderGeometry(
+  const smallCylinderGeo = new CylinderGeometry(
     1, // radius top,
     1, // radius bottom,
     2, // height,
@@ -108,36 +126,36 @@ export async function hslDiagram() {
     Math.PI * 2 * 1 / 3 * 0, // start
     Math.PI * 2 * 2 / 3, // end
   );
-  const plane = new THREE.PlaneGeometry(1, 2);
+  const plane = new PlaneGeometry(1, 2);
 
   const planeLine = (() => {
     const points = [];
-    points.push(new THREE.Vector3(-0.5, -1, 0));
-    points.push(new THREE.Vector3( 0.5, -1, 0));
-    points.push(new THREE.Vector3( 0.5,  1, 0));
-    points.push(new THREE.Vector3(-0.5,  1, 0));
-    points.push(new THREE.Vector3(-0.5, -1, 0));
-    return new THREE.BufferGeometry().setFromPoints(points);
+    points.push(new Vector3(-0.5, -1, 0));
+    points.push(new Vector3( 0.5, -1, 0));
+    points.push(new Vector3( 0.5,  1, 0));
+    points.push(new Vector3(-0.5,  1, 0));
+    points.push(new Vector3(-0.5, -1, 0));
+    return new BufferGeometry().setFromPoints(points);
   })();
 
-  const hslMaterial = new THREE.MeshBasicNodeMaterial({
-    side: THREE.DoubleSide,
+  const hslMaterial = new MeshBasicNodeMaterial({
+    side: DoubleSide,
   });
   hslMaterial.colorNode = cylinderHSL();
 
-  const bigCylinder = new THREE.Mesh(bigCylinderGeo, hslMaterial);
-  const smallCylinder = new THREE.Mesh(smallCylinderGeo, hslMaterial);
-  const p1Mesh = new THREE.Mesh(plane, hslMaterial);
-  const p2Mesh = new THREE.Mesh(plane, hslMaterial);
-  const p1Line = new THREE.Line(planeLine, lineMaterial);
-  const p2Line = new THREE.Line(planeLine, lineMaterial);
+  const bigCylinder = new Mesh(bigCylinderGeo, hslMaterial);
+  const smallCylinder = new Mesh(smallCylinderGeo, hslMaterial);
+  const p1Mesh = new Mesh(plane, hslMaterial);
+  const p2Mesh = new Mesh(plane, hslMaterial);
+  const p1Line = new Line(planeLine, lineMaterial);
+  const p2Line = new Line(planeLine, lineMaterial);
   p1Mesh.position.x = 0.5;
   p2Mesh.position.x = 0.5;
   p1Line.position.x = 0.5;
   p2Line.position.x = 0.5;
-  const p1 = new THREE.Object3D();
-  const p2 = new THREE.Object3D();
-  const cyl = new THREE.Object3D();
+  const p1 = new Object3D();
+  const p2 = new Object3D();
+  const cyl = new Object3D();
   p1.add(p1Mesh);
   p2.add(p2Mesh);
   p1.add(p1Line);
@@ -150,19 +168,19 @@ export async function hslDiagram() {
   p2.rotation.y = Math.PI * -0.5;
   scene.add(cyl);
 
-  const stuff = new THREE.Object3D();
+  const stuff = new Object3D();
   //scene.add(stuff);
   clippingGroup.add(stuff);
 
-  const midDisc = new THREE.Object3D();
+  const midDisc = new Object3D();
   scene.add(midDisc);
 
-  const markerMaterial = new THREE.MeshBasicMaterial({
+  const markerMaterial = new MeshBasicMaterial({
     color: 0x0FF0000,
   });
   const marker = (() => {
-    const sphere = new THREE.SphereGeometry(0.05);
-    return new THREE.Mesh(sphere, markerMaterial);
+    const sphere = new SphereGeometry(0.05);
+    return new Mesh(sphere, markerMaterial);
   })();
   scene.add(marker);
 
@@ -171,12 +189,12 @@ export async function hslDiagram() {
     for (let i = 0; i <= radialSegments; ++i) {
       const a = i / radialSegments * Math.PI * 2;
       const r = 1.01;
-      points.push(new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r));
+      points.push(new Vector3(Math.cos(a) * r, 0, Math.sin(a) * r));
     }
 
-    const circle = new THREE.BufferGeometry().setFromPoints(points);
+    const circle = new BufferGeometry().setFromPoints(points);
     for (let y = -1; y <= 1; y += 0.25) {
-      const line = new THREE.Line(circle, lineMaterial);
+      const line = new Line(circle, lineMaterial);
       line.position.y = y;
       line.scale.x = 1.01;
       line.scale.z = 1.01;
@@ -188,26 +206,26 @@ export async function hslDiagram() {
       const hParts = 5;
       for (let i = 1; i < hParts; ++i) {
         const x = i / hParts;
-        points.push(new THREE.Vector3(x, -1, 0));
-        points.push(new THREE.Vector3(x,  1, 0));
+        points.push(new Vector3(x, -1, 0));
+        points.push(new Vector3(x,  1, 0));
       }
       const vParts = 8;
       for (let i = 1; i < vParts; ++i) {
         const y = i / vParts * 2 - 1;
-        points.push(new THREE.Vector3(0, y, 0));
-        points.push(new THREE.Vector3(1, y, 0));
+        points.push(new Vector3(0, y, 0));
+        points.push(new Vector3(1, y, 0));
       }
-      return new THREE.BufferGeometry().setFromPoints(points);
+      return new BufferGeometry().setFromPoints(points);
     })();
 
-    const pg1 = new THREE.LineSegments(gridGeo, lineMaterial);
-    const pg2 = new THREE.LineSegments(gridGeo, lineMaterial);
+    const pg1 = new LineSegments(gridGeo, lineMaterial);
+    const pg2 = new LineSegments(gridGeo, lineMaterial);
     pg1.position.z = -0.01;
     pg2.position.z =  0.01;
     p1.add(pg1);
     p2.add(pg2);
 
-    const helper = new THREE.PolarGridHelper(
+    const helper = new PolarGridHelper(
       1, // radius,
       radialSegments, // sectors,
       5, // rings,
@@ -219,7 +237,7 @@ export async function hslDiagram() {
 
     for (let r = 0; r < 1; r += 0.2) {
       for (let y = -1; y <= 1; y += 2) {
-        const line = new THREE.Line(circle, lineMaterial);
+        const line = new Line(circle, lineMaterial);
         line.position.y = y * 1.01;
         line.scale.x = r;
         line.scale.z = r;
@@ -227,11 +245,11 @@ export async function hslDiagram() {
       }
     }
     for (let i = 0; i <= radialSegments; ++i) {
-      const line = new THREE.Line(planeLine, lineMaterial);
+      const line = new Line(planeLine, lineMaterial);
       line.position.x = 0.5;
       line.scale.x = 1.01;
       line.scale.y = 1.01;
-      const o = new THREE.Object3D();
+      const o = new Object3D();
       o.add(line);
       o.rotation.y = i / radialSegments * Math.PI * 2;
       stuff.add(o);
