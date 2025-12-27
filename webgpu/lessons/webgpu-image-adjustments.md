@@ -538,9 +538,8 @@ Another relatively easy one is "contrast"
 
 <div class="webgpu_center center"><div data-diagram="contrast" data-labels='{"type": "contrast"}'></div></div>
 
-For contrast, have a value from -1 to 10 [^contrast] and for each
-color channel, if the value is < 0.5 we push it toward 0. If it's > 0.5 we push it toward one. This pushes the colors
-apart.
+For contrast, have a value from -1 to 10 and for each
+color channel, if the value is < 0.5 we push it toward 0. If it's > 0.5 we push it toward one. This pushes the colors apart.
 
 Here's the changes to the shader
 
