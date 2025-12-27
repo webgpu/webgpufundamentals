@@ -721,9 +721,8 @@ struct Uniforms {
 <h1 id="contrast"><a id="a-contrast"></a> Contrast</h1>
 <p>Another relatively easy one is “contrast”</p>
 <div class="webgpu_center center"><div data-diagram="contrast" data-labels="{&quot;type&quot;: &quot;contrast&quot;}"></div></div>
-<p>For contrast, have a value from -1 to 10 [^contrast] and for each
-color channel, if the value is &lt; 0.5 we push it toward 0. If it’s &gt; 0.5 we push it toward one. This pushes the colors
-apart.</p>
+<p>For contrast, have a value from -1 to 10 and for each
+color channel, if the value is &lt; 0.5 we push it toward 0. If it’s &gt; 0.5 we push it toward one. This pushes the colors apart.</p>
 <p>Here’s the changes to the shader</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct VSOutput {
   @builtin(position) position: vec4f,
