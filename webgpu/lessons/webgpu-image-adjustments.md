@@ -635,20 +635,20 @@ Again we need to make a way to set the new adjustment.
 +  gui.add(settings, 'contrast', -1, 10);
 ```
 
-Note that our setting of 10 as the maximum is a little arbitrary.
-Since we're moving the values away from 0.5 buy multiplying
-by our contrast value, if the color is 0.51 and the contrast
-is 10 then we'll end up making the new color 0.60 (0.5 + 10 * 0.01). That's not all the way to 1. In practice though,
-if you try it below, you'll see that even above 6 not much changes. Maybe you'd have to pick a very dim image to need
-higher contrast values.
+Note that our setting of 10 as the maximum is a little arbitrary. Since we're
+moving the values away from 0.5 by multiplying with our contrast value, if the
+color is 0.51 and the contrast is 10 then we'll end up making the new color 0.60
+(0.5 + 10 * 0.01). That's not all the way to 1. In practice though, if you try
+it below, you'll see that even above 6 not much changes. Maybe you'd have to
+pick a very low contrast image to need higher contrast values.
 
 {{{example url="../webgpu-post-processing-image-adjustments-contrast.html"}}}
 
-It's important to know these operations are order dependent.
-We apply brightness and then contrast. Since contrast pushes
-colors away from 0.5 and brightness adds to the overall color then, as it is, for a given brightness setting we're
-effectively choosing where the 0.5 level is in the image
-before the contrast is applied.
+It's important to note these operations are order dependent. We apply brightness
+and then contrast. Since contrast pushes colors away from 0.5 and brightness
+adds to the overall color then, as it is, for a given brightness setting we're
+effectively choosing where the 0.5 level is in the image before the contrast is
+applied.
 
 # <a id="a-hue-saturation-lightness"></a> Hue Saturation Lightness (HSL)
 
@@ -734,7 +734,7 @@ It also uses `fract(hsl.h)` which means it's safe to pass in any values
 [~precision]. For example you could set the saturation to 50, it will
 just get clamped to 1. You could set the hue to 75.3, it will be the same as 0.3.
 
-Given those 2 functions we can change our shaders to include and HSL adjustment
+Given those 2 functions we can change our shaders to include an HSL adjustment
 
 ```wgsl
 ...
@@ -768,13 +768,14 @@ struct Uniforms {
 ```
 
 One thing that might stick out here is the `@align(16)` we needed when adding
-`HSL` to the `Uniforms` struct. The reason we need this is because structs
-used in uniforms, by default, must be aligned to 16 byte boundaries.
-Further, it means the
-structure is usable for both uniform and storage buffers. If you remove
-the `@align(16)` then it's only useable for storage buffers.
-WGSL doesn't add this alignment automatically so that in the future the alignment requirements can be lifted, and so the structures only need one
-layout. If it didn't require this the `@align(16)` now, auto aligned, then later when restriction was removed, lots of code would break. [^alignment]
+`HSL` to the `Uniforms` struct. The reason we need this is because
+[structs used in uniforms, by default, must be aligned to 16 byte boundaries](webgpu-memory-layout.html#a-struct-array-size-alignment).
+Further, it means the structure is usable for both uniform and storage buffers.
+If you remove the `@align(16)` then it's only useable for storage buffers. WGSL
+doesn't add this alignment automatically so that in the future the alignment
+requirements can be lifted, and so the structures only need one layout. If it
+didn't require the `@align(16)` now, and instead it auto aligned, then later
+when restriction was removed, lots of code would break. [^alignment]
 
 [^alignment]: removing this restriction is [already in progress](https://github.com/gpuweb/gpuweb/issues/4973), at least for newer devices.
 
