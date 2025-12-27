@@ -34,7 +34,7 @@ We can multiply our color by that dot product value and boom! Light!
 
 One problem, how do we know which direction the surfaces of our 3d object are facing.
 
-## Introducing Normals
+## <a id="a-normals"> Introducing Normals
 
 I have no idea why they are called *normals* but at least in 3D graphics a normal
 is the word for a unit vector that describes the direction a surface is facing.

@@ -35,6 +35,7 @@ Sorry this article has not been translated yet.
     'lighting': 'Lighting',
     'compute-shaders': 'Compute Shaders',
     'post-processing': 'Post Processing',
+    'editor': 'Editor',
   },
 }
 
