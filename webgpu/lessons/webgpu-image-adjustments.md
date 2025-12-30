@@ -674,9 +674,9 @@ maximum lightness (white)
 Every color in the RGB space has a corresponding HSL value.
 
 <div class="webgpu_center center">
-  <div class="rgb-hsl">
-    <div data-diagram="rgbDiagram" style="max-width: 500px;" data-labels='{"r": "r", "g": "g", "b": "b"}'></div>
-    <div data-diagram="hslDiagram" style="max-width: 500px;" data-labels='{"h": "hue", "s": "saturation", "l": "lightness"}'></div>
+  <div class="rgb-hsl" style="max-width: 1100px;">
+    <div data-diagram="rgbDiagram" style="width: 50%;" data-labels='{"r": "r", "g": "g", "b": "b"}'></div>
+    <div data-diagram="hslDiagram" style="width: 50%;" data-labels='{"h": "hue", "s": "saturation", "l": "lightness"}'></div>
   </div>
 </div>
 

@@ -55,6 +55,7 @@
 
   > div {
     flex: 1 1 50%;
+    width: 50%;
   }
 }
 
@@ -68,6 +69,8 @@
     pointer-events: none;
     width: 100%;
     height: 100%;
+    font-family: monospace;
+    font-size: small;
 
     div {
       color: white;
