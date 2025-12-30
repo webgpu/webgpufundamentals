@@ -149,14 +149,15 @@ Steps
     git clone https://github.com/webgpu/webgpufundamentals.git
     npm ci
     npm run build
-    npm start
+    npm run serve
 
 now open your browser to `http://localhost:8080`
 
 ### Continuous build
 
-You can run `npm run watch` to get continuous building.
-Only the article .md files and files that are normally copied are supported.
+You can run `npm run start` to get continuous building.
+Only the article .md files that exist at the time you run the command
+and files that are normally copied are supported.
 The table of contents, templates, and index pages are not watched.
 
 ### Development
