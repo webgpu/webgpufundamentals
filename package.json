@@ -25,15 +25,15 @@
     "grunt-contrib-watch": "^1.1.0",
     "grunt-eslint": "^24.3.0",
     "jquery": "^3.7.1",
-    "jsdom": "^27.0.0",
+    "jsdom": "^27.4.0",
     "ld-check-dependencies": "^1.2.1",
     "load-grunt-tasks": "^5.1.0",
     "minami": "^1.2.3",
-    "puppeteer": "^24.23.0",
-    "semver": "^7.7.2",
+    "puppeteer": "^24.34.0",
+    "semver": "^7.7.3",
     "servez": "^2.3.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   },
   "scripts": {
     "build": "ld-check-dependencies && grunt",
