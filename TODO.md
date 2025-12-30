@@ -1,8 +1,24 @@
 # To Do
 
+## I'd really like to build up (or down) to a GLTF viewer. It would need at a minimum
+
+ - [ ] PBR materials
+ - [ ] Shadows
+ - [ ] Skinning
+ - [ ] Animation
+
+## I'd also like to do an editor. It would need
+
+ - [ ] Picking
+ - [ ] Highlighting?
+ - [ ] Manipulators (translate, rotate, scale)
+ - [ ] Camera Controls
+ - [ ] Multiple Views
+
 - [X] Use external refs in build
   - [ ] Figure out how to check for device.fn, encoder.fn, pass.fn
 - [X] Fix code gen double output for non-struct
+
 
 - [X] Get webgpu types in live-editor
 - [ ] Get eslint to run correctly
@@ -11,20 +27,20 @@
   - [ ] `<code>stuff</code>`
   - [ ] type table
 
-- [ ] explain opaque/premultiplied canvas
+- [X] explain opaque/premultiplied canvas
 - [X] explain typedarrays
 - [ ] make table of valid buffer usage combinations for every situation
 - [ ] make table of valid texture usage combinations for every situation
 - [X] asking for higher limits
 - [ ] asking for the fallback
-- [ ] asking for compat?
-- [ ] multisample
+- [X] asking for compat?
+- [X] multisample
   - [ ] can we display it at the seam of a quad?
 
-- [ ] resizing for the canvas
-  - [ ] dpr
-  - [ ] exact match
-- [ ] points, lines, triangles
+- [X] resizing for the canvas
+  - [X] dpr
+  - [X] exact match
+- [X] points, lines, triangles
 - [ ] 
 
 - [X] convert matrix articles
@@ -36,24 +52,25 @@
   - [X] perspective
   - [X] camera
 
-- [ ] lights
-  - [ ] directional light
-  - [ ] point light
-  - [ ] spot light
+- [X] lights
+  - [X] directional light
+  - [X] point light
+  - [X] spot light
 
-- [ ] render targets (this is basic and probably belongs under fundamentals)
+- [X] render targets (this is basic and probably belongs under fundamentals)
 - [X] textures
   - [X] mip generation
 - [X] loading images
-  - [ ] cross origin images
+  - [X] cross origin images
+- [ ] Camera rendering (showing the camera frustum)
 - [ ] planar and perspective projection mapping
 - [ ] shadows
 
-- [ ] cubemaps
-- [ ] environment maps
+- [X] cubemaps
+- [X] environment maps
 - [ ] 2d array textures
 - [ ] terrain renderer
-- [ ] skyboxes
+- [X] skyboxes
 - [ ] skinning
 - [ ] picking via GPU
 - [ ] fog
@@ -74,8 +91,8 @@
 - [X] indexed drawing
 
 
-- [ ] scene graphs
-- [ ] matrix stack
+- [X] scene graphs
+- [X] matrix stack
 - [ ] drawimage
 
 - [ ] compute 
