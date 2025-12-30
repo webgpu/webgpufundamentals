@@ -21,7 +21,8 @@ export async function hslDiagram() {
     Scene,
     SphereGeometry,
     Vector3,
-    WebGPURenderer,  } = await import('three');
+    WebGPURenderer,
+  } = await import('three');
   const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
   const {
     Fn: tslFn,
@@ -69,6 +70,8 @@ export async function hslDiagram() {
     return hsl2rgb(h, s, l);
   });
 
+  const lerp = (a, b, t) => a + (b - a) * t;
+
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
 
@@ -79,6 +82,8 @@ export async function hslDiagram() {
       aspectRatio: '1 / 1',
     },
   });
+
+  let hTarget = 0;
 
   const renderer = new WebGPURenderer({ device, canvas });
   div.append(canvas);
@@ -95,8 +100,11 @@ export async function hslDiagram() {
   clippingGroup.clipIntersection = true;
   scene.add(clippingGroup);
 
+  const cameraRoot = new Object3D();
+  scene.add(cameraRoot);
   const camera = new PerspectiveCamera(40, 1, 1, 10);
-  camera.position.set(-2.5, 2.5, -2.5);
+  camera.position.set(-2.8, 2.8, -2.8);
+  cameraRoot.add(camera);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enablePan = false;
@@ -259,10 +267,28 @@ export async function hslDiagram() {
   await renderer.init();
 
   function render() {
+    requestId = undefined;
+
+    const angleDiff = hTarget - cameraRoot.rotation.y;
+    cameraRoot.rotation.y = lerp(cameraRoot.rotation.y, hTarget, 1);
+
     renderer.render(scene, camera);
+
+    if (Math.abs(angleDiff) > 0.001) {
+      requestRender();
+    }
+
   }
 
-  controls.addEventListener('change', render);
+  let requestId;
+  function requestRender() {
+    if (requestId) {
+      return;
+    }
+    requestId = requestAnimationFrame(render);
+  }
+
+  controls.addEventListener('change', requestRender);
 
   function setHSL(hsl) {
     const [h, s, l] = hsl;
@@ -283,7 +309,9 @@ export async function hslDiagram() {
     clipPlane1.normal.set(Math.cos(a2), 0, Math.sin(a2));
     clipPlane3.constant = l * 2 - 1;
     markerMaterial.color.setHSL(0, 0, (l + 0.5) % 1);
-    render();
+
+    hTarget = -h * Math.PI * 2;
+    requestRender();
   }
 
   const observer = new ResizeObserver(entries => {
@@ -297,7 +325,7 @@ export async function hslDiagram() {
       Math.max(1, Math.min(height, device.limits.maxTextureDimension2D)),
       false,
     );
-    render();
+    requestRender();
   });
   observer.observe(renderer.domElement);
 
