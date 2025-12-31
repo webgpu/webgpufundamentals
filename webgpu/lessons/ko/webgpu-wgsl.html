@@ -233,7 +233,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="lesson">
     <div class="lesson-main">
       <p>WGSL에 대한 보다 상세한 개요는 <a href="https://google.github.io/tour-of-wgsl/">Tour of WGSL</a>을 참고하세요.
-<a href="https://www.w3.org/TR/WGSL/">실제 WGSL 명세</a>도 있는데, <a href="http://catb.org/jargon/html/L/language-lawyer.html">언어 대법관들</a>이 작성한 것이라 이해기 좀 어려울 수 있습니다 😂</p>
+<a href="https://www.w3.org/TR/WGSL/">실제 WGSL 명세</a>도 있는데, <a href="http://catb.org/jargon/html/L/language-lawyer.html">언어 대법관들</a>이 작성한 것이라 이해하기 좀 어려울 수 있습니다 😂</p>
 <p>이 글은 여러분이 프로그래밍을 할 줄 안다고 가정합니다.
 내용이 좀 간결하게 작성되어 있지만 그래도 WGSL 셰이더 프로그래밍에 약간이나마 도움을 줄 것입니다.</p>
 <h2 id="wgsl은-강타입strictly-typed">WGSL은 강타입(strictly typed)</h2>
@@ -303,7 +303,7 @@ let d = 1 + 2.0;      // d is a f32
 <h2 id="wgsl과-자바스크립트에서-let-var-const의-의미가-다름">WGSL과 자바스크립트에서 <code class="notranslate" translate="no">let</code> <code class="notranslate" translate="no">var</code> <code class="notranslate" translate="no">const</code>의 의미가 다름</h2>
 <p>자바스크립트에서 <code class="notranslate" translate="no">var</code>은 함수 범위(scope)내의 변수를 의미합니다.
 <code class="notranslate" translate="no">let</code>은 블럭 범위 내의 변수를 의미합니다.
-<code class="notranslate" translate="no">const</code>는 블럿 범위의 상수 (값이 변할 수 없음)<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>를 의미합니다.</p>
+<code class="notranslate" translate="no">const</code>는 블럭 범위의 상수 (값이 변할 수 없음)<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>를 의미합니다.</p>
 <p>WGSL에서 모든 변수는 블럭 범위 안에 있습니다.
 <code class="notranslate" translate="no">var</code>은 저장 공간이 있는 뮤터블(mutable) 변수입니다.
 <code class="notranslate" translate="no">let</code>은 상수입니다.</p>
@@ -315,7 +315,7 @@ let d = 1 + 2.0;      // d is a f32
 }
 </pre>
 <p><code class="notranslate" translate="no">const</code>는 변수가 아니고 컴파일 시점의 상수입니다. (<em>역주: C++의 constexpr</em>)
-런타임에 변할 수 있는 것에 대해 <code class="notranslate" translate="no">const</code>를 선언할 수는 없습니다.</p>
+런타임에 정해지는 값에 대해 <code class="notranslate" translate="no">const</code>를 선언할 수는 없습니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">const one = 1;              // ok
 const two = one * 2;        // ok
 const PI = radians(180.0);  // ok
@@ -366,7 +366,7 @@ let b = vec4f(1, 2, 3, 4);
 </pre>
 <p><code class="notranslate" translate="no">a</code> and <code class="notranslate" translate="no">b</code>는 동일한 타입입니다.</p>
 <h3 id="벡터-생성construction">벡터 생성(construction)</h3>
-<p>벡터는 보자 작은 타입을 기반으로 생성될 수 있습니다.</p>
+<p>벡터는 보다 작은 타입을 기반으로 생성될 수 있습니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">let a = vec4f(1, 2, 3, 4);
 let b = vec2f(2, 3);
 let c = vec4f(1, b, 4);
@@ -420,17 +420,23 @@ let arrOf3Vec3fsB = array&lt;vec3f, 3&gt;(vec3f(1,2,3), vec3f(4,5,6), vec3f(7,8,
 </pre>
 <p>위에서 <code class="notranslate" translate="no">arrOf3Vec3fsA</code>와 <code class="notranslate" translate="no">arrOf3Vec3fsB</code>는 같습니다.</p>
 <p>안타깝게도, WGSL 버전 1에서는 배열의 크기를 얻는 방법은 없습니다.</p>
-<h3 id="runtime-sized-arrays">runtime sized arrays</h3>
-<p>Arrays that are at the root scope storage declarations
-are the only arrays that can be specified with no size</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage&gt; foo: array&lt;mat4x4f&gt;;
+<h3 id="런타임에-크기가-정해지는-배열">런타임에 크기가 정해지는 배열</h3>
+<p>루트 범위 스토리지 선언이나 루트 범위 구조체의 마지막 필드에 있는 배열만 크기를 지정하지 않아도 됩니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Stuff {
+  color: vec4f,
+  size: f32,
+  verts: array&lt;vec3f&gt;,
+};
+@group(0) @binding(0) var&lt;storage&gt; foo: array&lt;mat4x4f&gt;;
+@group(0) @binding(1) var&lt;storage&gt; bar: Stuff;
 </pre>
-<p>The number of elements in <code class="notranslate" translate="no">foo</code> is defined by the settings of the bind group
-used at runtime. You can query this size in your WGSL with <code class="notranslate" translate="no">arrayLength</code>.</p>
+<p><code class="notranslate" translate="no">foo</code>와 <code class="notranslate" translate="no">bar.verts</code>의 요소 갯수는 런타임에 사용된 바인드 그룹의 설정에 따라 정해집니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage&gt; foo: array&lt;mat4x4f&gt;;
+@group(0) @binding(1) var&lt;storage&gt; bar: Stuff;
 
 ...
   let numMatrices = arrayLength(&amp;foo);
+  let numVerts = arrayLength(&amp;bar.verts);
 </pre>
 <h2 id="함수">함수</h2>
 <p>WGSL의 함수는 <code class="notranslate" translate="no">fn name(parameters) -&gt; returnType { ..body... }</code>와 같은 패턴을 따릅니다.</p>
@@ -626,7 +632,7 @@ struct FSIn {
       <td>fragment </td>
       <td>input </td>
       <td>u32 </td>
-      <td style="width:50%">현재 프래그먼트의 샘플 인덱스
+      <td style="width:50%">현재 프래그먼트의 샘플 인덱스.
         이 값은 최소 0이고 최대 <code class="notranslate" translate="no">sampleCount</code>-1. <code class="notranslate" translate="no">sampleCount</code>는 GPU 렌더링 파이프라인에 명시된 MSAA 샘플의 <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/webgpu/#dom-gpumultisamplestate-count" id="ref-for-dom-gpumultisamplestate-count">개수</a>
         <br><a href="https://www.w3.org/TR/webgpu/#gpurenderpipeline"><cite>WebGPU</cite> § 10.3 GPURenderPipeline</a> 참고. </code></td>
     </tr>
@@ -727,16 +733,16 @@ struct FSIn {
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">var a : i32;
 let x : i32 = generateValue();
 switch x {
-  case 0: {      // The colon is optional
+  case 0: {      // 콜론은 선택적입니다.
     a = 1;
   }
-  default {      // The default need not appear last
+  default {      // default는 꼭 마지막에 나타날 필요 없음.
     a = 2;
   }
-  case 1, 2, {   // Multiple selector values can be used
+  case 1, 2, {   // 여러 selector 값을 사용 가능합니다.
     a = 3;
   }
-  case 3, {      // The trailing comma is optional
+  case 3, {      // 마지막 콤마는 선택적입니다.
     a = 4;
   }
   case 4 {
@@ -846,7 +852,7 @@ WGSL에는 없습니다. 대신 <code class="notranslate" translate="no">select<
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">  let a = select(falseExpression, trueExpression, condition);
 </pre>
 <h3 id="와---는-표현식이-아닌-명령문입니다"><code class="notranslate" translate="no">++</code>와 <code class="notranslate" translate="no">--</code>는 표현식이 아닌 명령문입니다.</h3>
-<p>많은 언어들에 *전위 증가(pre-increment)*와 *후위 증가(post-increment)*가 있습니다.</p>
+<p>많은 언어들에 <em>전위 증가(pre-increment)</em> 와 <em>후위 증가(post-increment)</em> 가 있습니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// JavaScript
 let a = 5;
 let b = a++;  // b = 5, a = 6  (post-increment)
@@ -857,8 +863,8 @@ let c = ++a;  // c = 7, a = 7  (pre-increment)
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">// WGSL
 var a = 5;
 a++;          // is now 6
-*++a;          // ERROR: no such thing has pre-increment
-*let b = a++;  // ERROR: a++ is not an expression, it's a statement
+*++a;          // ERROR: 전위 증가가 없습니다.
+*let b = a++;  // ERROR: a++는 표현식이 아닙니다. 명령문입니다.
 </pre>
 <h2 id="--는-표현식이-아닌-대입-연산자입니다"><code class="notranslate" translate="no">+=</code>, <code class="notranslate" translate="no">-=</code>는 표현식이 아닌 대입 연산자입니다.</h2>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">// JavaScript
@@ -869,7 +875,7 @@ let b = a += 2;  // a = 9, b = 9
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">// WGSL
 let a = 5;
 a += 2;           // a is 7
-*let b = a += 2;  // ERROR: a += 2 is not an expression
+*let b = a += 2;   // ERROR: a += 2 는 표현식이 아닙니다.
 </pre>
 <h2 id="swizzles은-왼쪽에-올-수-없습니다">Swizzles은 왼쪽에 올 수 없습니다.</h2>
 <p>몇몇 언어들에서는 가능하지만 WGSL에서는 안됩니다.</p>
@@ -877,6 +883,7 @@ a += 2;           // a is 7
 *color.rgb = color.bgr; // ERROR
 color = vec4(color.bgr, color.a);  // Ok
 </pre>
+<p>노트: 이 기능을 추가하자는 제안은 있습니다.</p>
 <h2 id="_로의-가짜-할당phony-assignment"><code class="notranslate" translate="no">_</code>로의 가짜 할당(Phony assignment)</h2>
 <p><code class="notranslate" translate="no">_</code>는 어떤 것이 사용되는 것처럼 보이지만 실제로는 그렇지 않은 경우에 대해, 대입을 위해 사용할 수 있는 특수한 변수입니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;uniforms&gt; uni1: vec4f;
