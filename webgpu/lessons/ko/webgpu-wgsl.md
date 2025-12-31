@@ -3,7 +3,7 @@ Description: WebGPU 셰이딩 언어 개요
 TOC: WGSL
 
 WGSL에 대한 보다 상세한 개요는 [Tour of WGSL](https://google.github.io/tour-of-wgsl/)을 참고하세요.
-[실제 WGSL 명세](https://www.w3.org/TR/WGSL/)도 있는데, [언어 대법관들](http://catb.org/jargon/html/L/language-lawyer.html)이 작성한 것이라 이해기 좀 어려울 수 있습니다 😂
+[실제 WGSL 명세](https://www.w3.org/TR/WGSL/)도 있는데, [언어 대법관들](http://catb.org/jargon/html/L/language-lawyer.html)이 작성한 것이라 이해하기 좀 어려울 수 있습니다 😂
 
 이 글은 여러분이 프로그래밍을 할 줄 안다고 가정합니다. 
 내용이 좀 간결하게 작성되어 있지만 그래도 WGSL 셰이더 프로그래밍에 약간이나마 도움을 줄 것입니다.
@@ -104,7 +104,7 @@ let d = 1 + 2.0;      // d is a f32
 
 자바스크립트에서 `var`은 함수 범위(scope)내의 변수를 의미합니다. 
 `let`은 블럭 범위 내의 변수를 의미합니다. 
-`const`는 블럿 범위의 상수 (값이 변할 수 없음)[^references]를 의미합니다.
+`const`는 블럭 범위의 상수 (값이 변할 수 없음)[^references]를 의미합니다.
 
 [^references]: 자바스크립트의 변수는 `undefined`, `null`, `boolean`, `number`, `string`, `reference-to-object`의 기본 타입을 갖습니다. 
 프로그래밍을 처음 하시는 분은 `o`가 상수로 선언되었는데 `const o = {name: 'foo'}; o.name = 'bar';`가 동작한다는 사실 때문에 헷갈리실 수 있습니다. 
@@ -125,7 +125,7 @@ fn foo() {
 ```
 
 `const`는 변수가 아니고 컴파일 시점의 상수입니다. (*역주: C++의 constexpr*) 
-런타임에 변할 수 있는 것에 대해 `const`를 선언할 수는 없습니다.
+런타임에 정해지는 값에 대해 `const`를 선언할 수는 없습니다.
 
 ```wgsl
 const one = 1;              // ok
@@ -204,7 +204,7 @@ let b = vec4f(1, 2, 3, 4);
 
 ### 벡터 생성(construction)
 
-벡터는 보자 작은 타입을 기반으로 생성될 수 있습니다.
+벡터는 보다 작은 타입을 기반으로 생성될 수 있습니다.
 
 ```wgsl
 let a = vec4f(1, 2, 3, 4);
@@ -290,23 +290,29 @@ let arrOf3Vec3fsB = array<vec3f, 3>(vec3f(1,2,3), vec3f(4,5,6), vec3f(7,8,9));
 
 안타깝게도, WGSL 버전 1에서는 배열의 크기를 얻는 방법은 없습니다.
 
-### runtime sized arrays
+### 런타임에 크기가 정해지는 배열
 
-Arrays that are at the root scope storage declarations
-are the only arrays that can be specified with no size
+루트 범위 스토리지 선언이나 루트 범위 구조체의 마지막 필드에 있는 배열만 크기를 지정하지 않아도 됩니다.
 
 ```wgsl
+struct Stuff {
+  color: vec4f,
+  size: f32,
+  verts: array<vec3f>,
+};
 @group(0) @binding(0) var<storage> foo: array<mat4x4f>;
+@group(0) @binding(1) var<storage> bar: Stuff;
 ```
 
-The number of elements in `foo` is defined by the settings of the bind group
-used at runtime. You can query this size in your WGSL with `arrayLength`.
+`foo`와 `bar.verts`의 요소 갯수는 런타임에 사용된 바인드 그룹의 설정에 따라 정해집니다. 
 
 ```wgsl
 @group(0) @binding(0) var<storage> foo: array<mat4x4f>;
+@group(0) @binding(1) var<storage> bar: Stuff;
 
 ...
   let numMatrices = arrayLength(&foo);
+  let numVerts = arrayLength(&bar.verts);
 ```
 
 ## 함수
@@ -541,7 +547,7 @@ struct Foo {
       <td>fragment </td>
       <td>input </td>
       <td>u32 </td>
-      <td style="width:50%">현재 프래그먼트의 샘플 인덱스
+      <td style="width:50%">현재 프래그먼트의 샘플 인덱스.
         이 값은 최소 0이고 최대 <code>sampleCount</code>-1. <code>sampleCount</code>는 GPU 렌더링 파이프라인에 명시된 MSAA 샘플의 <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/webgpu/#dom-gpumultisamplestate-count" id="ref-for-dom-gpumultisamplestate-count">개수</a>
         <br><a href="https://www.w3.org/TR/webgpu/#gpurenderpipeline"><cite>WebGPU</cite> § 10.3 GPURenderPipeline</a> 참고. </td>
     </tr>
@@ -676,16 +682,16 @@ struct Foo {
 var a : i32;
 let x : i32 = generateValue();
 switch x {
-  case 0: {      // The colon is optional
+  case 0: {      // 콜론은 선택적입니다.
     a = 1;
   }
-  default {      // The default need not appear last
+  default {      // default는 꼭 마지막에 나타날 필요 없음.
     a = 2;
   }
-  case 1, 2, {   // Multiple selector values can be used
+  case 1, 2, {   // 여러 selector 값을 사용 가능합니다.
     a = 3;
   }
-  case 3, {      // The trailing comma is optional
+  case 3, {      // 마지막 콤마는 선택적입니다.
     a = 4;
   }
   case 4 {
@@ -810,7 +816,7 @@ WGSL에는 없습니다. 대신 `select`가 있습니다.
 
 ### `++`와 `--`는 표현식이 아닌 명령문입니다.
 
-많은 언어들에 *전위 증가(pre-increment)*와 *후위 증가(post-increment)*가 있습니다.
+많은 언어들에 *전위 증가(pre-increment)* 와 *후위 증가(post-increment)* 가 있습니다.
 
 ```js
 // JavaScript
@@ -826,8 +832,8 @@ WGSL에는 둘 다 없습니다.
 // WGSL
 var a = 5;
 a++;          // is now 6
-*++a;          // ERROR: no such thing has pre-increment
-*let b = a++;  // ERROR: a++ is not an expression, it's a statement
+*++a;          // ERROR: 전위 증가가 없습니다.
+*let b = a++;  // ERROR: a++는 표현식이 아닙니다. 명령문입니다.
 ```
 
 ## `+=`, `-=`는 표현식이 아닌 대입 연산자입니다.
@@ -843,7 +849,7 @@ let b = a += 2;  // a = 9, b = 9
 // WGSL
 let a = 5;
 a += 2;           // a is 7
-*let b = a += 2;  // ERROR: a += 2 is not an expression
+*let b = a += 2;   // ERROR: a += 2 는 표현식이 아닙니다.
 ```
 
 ## Swizzles은 왼쪽에 올 수 없습니다.
@@ -855,6 +861,8 @@ var color = vec4f(0.25, 0.5, 0.75, 1);
 *color.rgb = color.bgr; // ERROR
 color = vec4(color.bgr, color.a);  // Ok
 ```
+
+노트: 이 기능을 추가하자는 제안은 있습니다.
 
 ## `_`로의 가짜 할당(Phony assignment)
 
