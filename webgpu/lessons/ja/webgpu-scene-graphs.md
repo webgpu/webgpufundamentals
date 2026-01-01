@@ -413,10 +413,20 @@ import GUI from '../3rdparty/muigui-0.x.module.js';
 
 ...
 
++  const kUnelected = '\u3000'; // full-width space
++  const kSelected = '➡️';
++  const prefixRE = new RegExp(`^(?:${kUnelected}|${kSelected})`);
++
 +  function setCurrentSceneGraphNode(node) {
 +    trsUIHelper.setTRS(node.source);
 +    trsFolder.name(`orientation: ${node.name}`);
 +    trsFolder.updateDisplay();
++
++    // Mark which node is selected.
++    for (const b of nodeButtons) {
++      const name = b.button.getName().replace(prefixRE, '');
++      b.button.name(`${b.node === node ? kSelected : kUnelected}${name}`);
++    }
 +  }
 +
 +  // \u00a0は改行しないスペースです。

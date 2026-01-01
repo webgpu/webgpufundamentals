@@ -797,10 +797,20 @@ async function main() {
   const radToDegOptions = { min: -90, max: 90, step: 1, converters: GUI.converters.radToDeg };
   const cameraRadToDegOptions = { min: -180, max: 180, step: 1, converters: GUI.converters.radToDeg };
 
+  const kUnelected = '\u3000'; // full-width space
+  const kSelected = '➡️';
+  const prefixRE = new RegExp(`^(?:${kUnelected}|${kSelected})`);
+
   function setCurrentSceneGraphNode(node) {
     trsUIHelper.setTRS(node.source);
     trsFolder.name(`orientation: ${node.name}`);
     trsFolder.updateDisplay();
+
+    // Mark which node is selected.
+    for (const b of nodeButtons) {
+      const name = b.button.getName().replace(prefixRE, '');
+      b.button.name(`${b.node === node ? kSelected : kUnelected}${name}`);
+    }
   }
 
   // \u00a0 is non-breaking space.
@@ -819,8 +829,11 @@ async function main() {
     const nodes = [];
     if (node.source instanceof TRS) {
       const label = `${prefix === undefined ? '' : `${prefix}${plusDash}`}${node.name}`;
-      nodes.push(addButtonLeftJustified(
-          gui, label, () => setCurrentSceneGraphNode(node)));
+      nodes.push({
+        button: addButtonLeftJustified(
+          gui, label, () => setCurrentSceneGraphNode(node)),
+        node,
+      });
     }
     const childPrefix = prefix === undefined
       ? ''
@@ -856,9 +869,9 @@ async function main() {
   const nodeButtons = addSceneGraphNodeToGUI(nodesFolder, root);
 
   function showMeshNodes(show) {
-    for (const child of nodeButtons) {
-      if (child.domElement.textContent.includes('mesh')) {
-        child.show(show);
+    for (const {node, button} of nodeButtons) {
+      if (node.name.includes('mesh')) {
+        button.show(show);
       }
     }
   }
