@@ -191,6 +191,8 @@ struct VSOutput {
 +  }
 
   function render() {
+    objectNdx = 0;
+
     ...
 
     const encoder = device.createCommandEncoder();
