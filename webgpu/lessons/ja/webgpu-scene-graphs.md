@@ -343,12 +343,46 @@ class TRS {
 まず、平行移動、回転、スケールのコントロールを追加しましょう。
 
 ```js
+  // Presents a TRS to the UI. Letting set which TRS
+  // is being edited.
+  class TRSUIHelper {
+    #trs = new TRS();
+
+    constructor() {}
+
+    setTRS(trs) {
+      this.#trs = trs;
+    }
+
+    get translationX() { return this.#trs.translation[0]; }
+    set translationX(x) { this.#trs.translation[0] = x; }
+    get translationY() { return this.#trs.translation[1]; }
+    set translationY(x) { this.#trs.translation[1] = x; }
+    get translationZ() { return this.#trs.translation[2]; }
+    set translationZ(x) { this.#trs.translation[2] = x; }
+
+    get rotationX() { return this.#trs.rotation[0]; }
+    set rotationX(x) { this.#trs.rotation[0] = x; }
+    get rotationY() { return this.#trs.rotation[1]; }
+    set rotationY(x) { this.#trs.rotation[1] = x; }
+    get rotationZ() { return this.#trs.rotation[2]; }
+    set rotationZ(x) { this.#trs.rotation[2] = x; }
+
+    get scaleX() { return this.#trs.scale[0]; }
+    set scaleX(x) { this.#trs.scale[0] = x; }
+    get scaleY() { return this.#trs.scale[1]; }
+    set scaleY(x) { this.#trs.scale[1] = x; }
+    get scaleZ() { return this.#trs.scale[2]; }
+    set scaleZ(x) { this.#trs.scale[2] = x; }
+  }
+```
+
+```js
++ const trsUIHelper = new TRSUIHelper();
+
   const settings = {
 -    cameraRotation: 0,
 +    cameraRotation: degToRad(-45),
-+    translation: new Float32Array([0, 0, 0]),
-+    rotation: new Float32Array([0, 0, 0]),
-+    scale: new Float32Array([1, 1, 1]),
   };
 
 -  const radToDegOptions = { min: -180, max: 180, step: 1, converters: GUI.converters.radToDeg };
@@ -360,38 +394,15 @@ class TRS {
 -  gui.add(settings, 'cameraRotation', radToDegOptions);
 +  gui.add(settings, 'cameraRotation', cameraRadToDegOptions);
 +  const trsFolder = gui.addFolder('orientation');
-+  trsFolder.add(settings.translation, '0', -200, 200, 1).name('translation x');
-+  trsFolder.add(settings.translation, '1', -200, 200, 1).name('translation y');
-+  trsFolder.add(settings.translation, '2', -200, 200, 1).name('translation z');
-+  trsFolder.add(settings.rotation, '0', radToDegOptions).name('rotation x');
-+  trsFolder.add(settings.rotation, '1', radToDegOptions).name('rotation y');
-+  trsFolder.add(settings.rotation, '2', radToDegOptions).name('rotation z');
-+  trsFolder.add(settings.scale, '0', 0.1, 100).name('scale x');
-+  trsFolder.add(settings.scale, '1', 0.1, 100).name('scale y');
-+  trsFolder.add(settings.scale, '2', 0.1, 100).name('scale z');
-```
-
-次に、現在選択されているシーングラフのノードを更新するコードを追加しましょう。
-
-```js
-+  let currentNode;
-+  function updateCurrentNodeFromSettings() {
-+    const source = currentNode.source;
-+    source.translation.set(settings.translation);
-+    source.rotation.set(settings.rotation);
-+    source.scale.set(settings.scale);
-+  }
-```
-
-そして、平行移動、回転、またはスケールのウィジェットのいずれかが変更されるたびにこれを呼び出しましょう。
-
-```js
-  const gui = new GUI();
-  gui.onChange(render);
-  gui.add(settings, 'cameraRotation', cameraRadToDegOptions);
-  const trsFolder = gui.addFolder('orientation');
-+  trsFolder.onChange(updateCurrentNodeFromSettings);
-  ...
++  trsFolder.add(trsUIHelper, 'translationX', -200, 200, 1),
++  trsFolder.add(trsUIHelper, 'translationY', -200, 200, 1),
++  trsFolder.add(trsUIHelper, 'translationZ', -200, 200, 1),
++  trsFolder.add(trsUIHelper, 'rotationX', radToDegOptions),
++  trsFolder.add(trsUIHelper, 'rotationY', radToDegOptions),
++  trsFolder.add(trsUIHelper, 'rotationZ', radToDegOptions),
++  trsFolder.add(trsUIHelper, 'scaleX', 0.1, 100),
++  trsFolder.add(trsUIHelper, 'scaleY', 0.1, 100),
++  trsFolder.add(trsUIHelper, 'scaleZ', 0.1, 100),
 ```
 
 次に、ノードを選択する方法が必要なので、シーングラフをウォークし、各ノードにボタンを作成しましょう。
@@ -401,26 +412,11 @@ import GUI from '../3rdparty/muigui-0.x.module.js';
 +import { addButtonLeftJustified } from './resources/js/gui-helpers.js';
 
 ...
-  let currentNode;
-  function updateCurrentNodeFromSettings() {
-    const source = currentNode.source;
-    source.translation.set(settings.translation);
-    source.rotation.set(settings.rotation);
-    source.scale.set(settings.scale);
-  }
 
-+  function updateCurrentNodeGUI() {
-+    const source = currentNode.source;
-+    settings.translation.set(source.translation);
-+    settings.rotation.set(source.rotation);
-+    settings.scale.set(source.scale);
-+    trsFolder.updateDisplay();
-+  }
-+
 +  function setCurrentSceneGraphNode(node) {
-+    currentNode = node;
++    trsUIHelper.setTRS(node.source);
 +    trsFolder.name(`orientation: ${node.name}`);
-+    updateCurrentNodeGUI();
++    trsFolder.updateDisplay();
 +  }
 +
 +  // \u00a0は改行しないスペースです。
@@ -458,7 +454,7 @@ import GUI from '../3rdparty/muigui-0.x.module.js';
 +  setCurrentSceneGraphNode(root.children[0]);
 ```
 
-上記では、`TRS`ソースを持つ各ノードにボタンを作成しました。ボタンがクリックされると、`setCurrentSceneGraphNode`が呼び出され、そのボタンのノードが渡されます。`setCurrentSceneGraphNode`はフォルダ名を更新し、次に`updateCurrentNodeGUI`を呼び出して、新しく選択されたノードのデータで`settings`を更新します。
+上記では、`TRS`ソースを持つ各ノードにボタンを作成しました。ボタンがクリックされると、`setCurrentSceneGraphNode`が呼び出され、そのボタンのノードが渡されます。`setCurrentSceneGraphNode`はフォルダ名を更新し、次に`trsFolder.updateDisplay`を呼び出して、新しく選択された`TRS`のデータでUIを更新します。
 
 これは機能しますが、UIが小さなウィンドウには少し乱雑であることがわかったので、いくつかの調整を次に示します。
 
@@ -470,9 +466,6 @@ import GUI from '../3rdparty/muigui-0.x.module.js';
     const settings = {
       cameraRotation: degToRad(-45),
    +   showAllTRS: false,
-      translation: new Float32Array([0, 0, 0]),
-      rotation: new Float32Array([0, 0, 0]),
-      scale: new Float32Array([1, 1, 1]),
     };
 
     const gui = new GUI();
@@ -480,17 +473,16 @@ import GUI from '../3rdparty/muigui-0.x.module.js';
     gui.add(settings, 'cameraRotation', cameraRadToDegOptions);
    + gui.add(settings, 'showAllTRS').onChange(showTRS);
     const trsFolder = gui.addFolder('orientation');
-    trsFolder.onChange(updateCurrentNodeFromSettings);
    + const trsControls = [
-   *   trsFolder.add(settings.translation, '0', -200, 200, 1).name('translation x'),
-   *   trsFolder.add(settings.translation, '1', -200, 200, 1).name('translation y'),
-   *   trsFolder.add(settings.translation, '2', -200, 200, 1).name('translation z'),
-   *   trsFolder.add(settings.rotation, '0', radToDegOptions).name('rotation x'),
-   *   trsFolder.add(settings.rotation, '1', radToDegOptions).name('rotation y'),
-   *   trsFolder.add(settings.rotation, '2', radToDegOptions).name('rotation z'),
-   *   trsFolder.add(settings.scale, '0', 0.1, 100).name('scale x'),
-   *   trsFolder.add(settings.scale, '1', 0.1, 100).name('scale y'),
-   *   trsFolder.add(settings.scale, '2', 0.1, 100).name('scale z'),
+   *   trsFolder.add(trsUIHelper, 'translationX', -200, 200, 1),
+   *   trsFolder.add(trsUIHelper, 'translationY', -200, 200, 1),
+   *   trsFolder.add(trsUIHelper, 'translationZ', -200, 200, 1),
+   *   trsFolder.add(trsUIHelper, 'rotationX', radToDegOptions),
+   *   trsFolder.add(trsUIHelper, 'rotationY', radToDegOptions),
+   *   trsFolder.add(trsUIHelper, 'rotationZ', radToDegOptions),
+   *   trsFolder.add(trsUIHelper, 'scaleX', 0.1, 100),
+   *   trsFolder.add(trsUIHelper, 'scaleY', 0.1, 100),
+   *   trsFolder.add(trsUIHelper, 'scaleZ', 0.1, 100),
    + ];
    const nodesFolder = gui.addFolder('nodes');
    addSceneGraphNodeToGUI(nodesFolder, root);
@@ -546,9 +538,6 @@ import GUI from '../3rdparty/muigui-0.x.module.js';
        cameraRotation: degToRad(-45),
    +    showMeshNodes: false,
        showAllTRS: false,
-       translation: new Float32Array([0, 0, 0]),
-       rotation: new Float32Array([0, 0, 0]),
-       scale: new Float32Array([1, 1, 1]),
      };
    
      const gui = new GUI();
@@ -673,13 +662,10 @@ import GUI from '../3rdparty/muigui-0.x.module.js';
 
 ```js
   const settings = {
+    cameraRotation: degToRad(-45),
 +    animate: false,
     showMeshNodes: false,
     showAllTRS: false,
-    translation: new Float32Array([0, 0, 0]),
-    rotation: new Float32Array([0, 0, 0]),
-    scale: new Float32Array([1, 1, 1]),
-    cameraRotation: degToRad(-45),
   };
 
   const gui = new GUI();
@@ -701,24 +687,21 @@ import GUI from '../3rdparty/muigui-0.x.module.js';
 
   ...
 
--      const isRunning = settings.animate;
-+      const isRunning = settings.animate || shots.length;
-      const now = performance.now() * 0.001;
-+      const deltaTime = wasRunning ? now - then : 0;
-+      then = now;
-
-      if (isRunning) {
-        time += deltaTime;
-      }
-+      wasRunning = isRunning;
-
-      if (settings.animate) {
-        animate(time);
-        updateCurrentNodeGUI();
-        requestRender();
-      }
-
-+      processShots(now, deltaTime);
++    const isRunning = settings.animate;
++    const now = performance.now() * 0.001;
++    const deltaTime = wasRunning ? now - then : 0;
++    then = now;
++
++    if (isRunning) {
++      time += deltaTime;
++    }
++    wasRunning = isRunning;
++
++    if (settings.animate) {
++      animate(time);
++      trs.updateDisplay();
++      requestRender();
++    }
   }
 ```
 
