@@ -931,6 +931,8 @@ async function main() {
   }
 
   function render() {
+    objectNdx = 0;
+
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
     const canvasTexture = context.getCurrentTexture();
