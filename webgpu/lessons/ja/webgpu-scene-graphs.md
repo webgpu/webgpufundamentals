@@ -100,15 +100,15 @@ class SceneGraphNode {
     this.parent = parent;
   }
 
-  updateWorldMatrix(parentWorldMatrix) {
+  updateWorldMatrix() {
     // ソースがある場合は、そのソースからローカル行列を更新します。
     this.source?.getMatrix(this.localMatrix);
 
-    if (parentWorldMatrix) {
-      // 行列が渡されたので、計算を行います
-      mat4.multiply(parentWorldMatrix, this.localMatrix, this.worldMatrix);
+    if (this.parent) {
+      // 親があるので、計算を行います
+      mat4.multiply(his.parent.worldMatrix, this.localMatrix, this.worldMatrix);
     } else {
-      // 行列が渡されなかったので、ローカルをワールドにコピーするだけです
+      // 親がないので、ローカルをワールドにコピーするだけです
       mat4.copy(this.localMatrix, this.worldMatrix);
     }
 
