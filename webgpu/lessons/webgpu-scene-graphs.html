@@ -326,22 +326,21 @@ having to recurse in code.</p>
     this.parent = parent;
   }
 
-  updateWorldMatrix(parentWorldMatrix) {
+  updateWorldMatrix() {
     // update the local matrix from its source if it has one.
     this.source?.getMatrix(this.localMatrix);
 
-    if (parentWorldMatrix) {
-      // a matrix was passed in so do the math
-      mat4.multiply(parentWorldMatrix, this.localMatrix, this.worldMatrix);
+    if (this.parent) {
+      // we have a parent do the math
+      mat4.multiply(this.parent.worldMatrix, this.localMatrix, this.worldMatrix);
     } else {
-      // no matrix was passed in so just copy local to world
+      // we have no parent so just copy local to world
       mat4.copy(this.localMatrix, this.worldMatrix);
     }
 
     // now process all the children
-    const worldMatrix = this.worldMatrix;
-    this.children.forEach(function(child) {
-      child.updateWorldMatrix(worldMatrix);
+      this.children.forEach(function(child) {
+      child.updateWorldMatrix();
     });
   }
 }
