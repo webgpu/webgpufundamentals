@@ -1,9 +1,10 @@
-WebGPU Fundamentals
-=====================
+# WebGPU Fundamentals
 
 This is [a series of lessons or tutorials about webgpu](http://webgpufundamentals.org/).
 
 This is work in progress. Feel free to contribute, especially localizations
+
+- [简体中文](README.zh-CN.md)
 
 ## Contributing
 
@@ -81,7 +82,7 @@ This is template for the table of contents for the language.
 It is included on both the index and on each article. The only
 parts not auto-generated are the ending links which
 you can translate if you want to.
-The build system will create a placeholder for every English article for which there is no corresponding article in that language. 
+The build system will create a placeholder for every English article for which there is no corresponding article in that language.
 It will be filled with the `missing` message from above.
 
 #### `lang.css`
@@ -178,4 +179,3 @@ worked (build and look at the page). Of particular note, check that angle bracke
 `textureGather` are correctly formatted.
 
 For other languages you'll likely need to copy the English file and translate.
-
