@@ -1431,7 +1431,7 @@ And it works
 {{{example url="../webgpu-camera-controls-raw.html"}}}
 
 Now that we have a camera, let's make it so you can
-[click on objects directly](webgpu-picking.html).
+[click on objects directly to select them](webgpu-picking.html).
 
 <!-- keep this at the bottom of the article -->
 <link href="webgpu-camera-controls.css" rel="stylesheet">

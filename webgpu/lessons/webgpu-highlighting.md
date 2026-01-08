@@ -466,7 +466,7 @@ And with that the selected objects are highlighted.
 {{{example url="../webgpu-highlighting.html"}}}
 
 Now that we can highlight a selection, let's make it possible
-to [pick objects by directly clicking on them](webgpu-picking.html)
+to [move the camera by dragging](webgpu-camera-controls.html)
 instead of having to use the buttons in the UI.
 
 <!-- keep this at the bottom of the article -->
