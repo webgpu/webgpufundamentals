@@ -4,674 +4,229 @@ import {
 import {
   createElem as el
 } from './resources/js/elem.js';
-import {
-  hslToRgb,
-  rgbToHsl,
-} from './resources/js/utils.js';
-import {createTextureFromImage} from '/3rdparty/webgpu-utils-1.x.module.js';
-import {mat4} from '/3rdparty/wgpu-matrix.module.js';
+import GUI from '../../3rdparty/muigui-0.x.module.js';
 
 import { importThreeJS } from './resources/js/import-three.js.js';
 const threeP = importThreeJS('r182');
 
-const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
-const src = '/webgpu/resources/images/alvan-nee-RQFMEBJcolY-unsplash-sm.jpg';
+async function cameraRig() {
+  const {
+    ArrowHelper,
+    BoxGeometry,
+    BufferGeometry,
+    CameraHelper,
+    ClippingGroup,
+    CylinderGeometry,
+    DoubleSide,
+    LineSegments,
+    Mesh,
+    MeshStandardMaterial,
+    PerspectiveCamera,
+    Object3D,
+    PointLight,
+    Plane,
+    PlaneGeometry,
+    Scene,
+    SphereGeometry,
+    Vector3,
+    WebGPURenderer,
+  } = await import('three');
+  const {
+    CSS2DRenderer,
+    CSS2DObject,
+  } = await import('three/addons/renderers/CSS2DRenderer.js');
+  const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
 
-let device;
-let render;
-const canvasToSettings = new Map();
-
-/*
-function makeCircle(size) {
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-
-  const ctx = canvas.getContext('2d');
-
-  const hsl = (h, s, l) => `hsl(${h * 360 | 0}, ${s * 100}%, ${l * 100 | 0}%)`;
-  const lerp = (a, b, l) => a + (b - a) * l;
-
-  const half = size / 2;
-  for (let y = 0; y < size; ++y) {
-    for (let x = 0; x < size; ++x) {
-      const dx = half - x;
-      const dy = half - y;
-      const a = Math.atan2(dy, dx) / Math.PI * 0.5 + 0.5;
-      const r = Math.sqrt(dx * dx + dy * dy);
-      if (r < half) {
-        ctx.fillStyle = hsl(a, 1, lerp(0, 0.9, Math.pow(r / half, 0.75)));
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
-  }
-  return canvas;
-}
-*/
-
-function makeRange(initialValue, start, end, fn) {
-  const range = end - start;
-  const onInput = function() {
-    const v = this.value / 100;
-    fn(start + v * range);
-  };
-  const set = v => {
-    input.value = (v - start) / range * 100;
-  };
-  const input = el('input', {type: 'range', min: 0, max: 100, onInput});
-  set(initialValue);
-  return {
-    elem: input,
-    set,
-  };
-}
-
-function makeLabeledRange(label, array, index, start, end, fn) {
-  const range = makeRange(array[index], start, end, (v) => {
-    array[index] = v;
-    fn(index, array);
-  });
-  const elem = el('div', {className: 'labeled-range'}, [
-    el('div', {textContent: label}),
-    range.elem,
-  ]);
-  return {
-    elem,
-    set: range.set,
-  };
-}
-
-function makeSliders(array, labels, start, end, fn) {
-  const ranges = array.map((v, i) => makeLabeledRange(labels[i], array, i, start, end, fn));
-  const update = () => array.forEach((v, i) => {
-    ranges[i].set(v);
-  });
-  const elem = el('div', {className: 'sliders'}, [
-    el('div', {}, ranges.map(r => r.elem)),
-  ]);
-  return {
-    elem,
-    update,
-  };
-}
-
-async function setup() {
   const adapter = await navigator.gpu?.requestAdapter();
-  device = await adapter?.requestDevice();
-  if (!device) {
-    return;
-  }
+  const device = await adapter?.requestDevice();
 
-  const module = device.createShaderModule({
-    code: `
-      struct VSOutput {
-        @builtin(position) position: vec4f,
-        @location(0) texcoord: vec2f,
-      };
-
-      struct Uniforms {
-        matrix: mat4x4f,
-      };
-
-      @group(0) @binding(0) var<uniform> uni: Uniforms;
-      @group(0) @binding(1) var tex: texture_2d<f32>;
-      @group(0) @binding(2) var smp: sampler;
-
-      @vertex fn vs(@builtin(vertex_index) vNdx: u32) -> VSOutput {
-        let positions = array(
-          vec2f( 0,  0),
-          vec2f( 1,  0),
-          vec2f( 0,  1),
-          vec2f( 0,  1),
-          vec2f( 1,  0),
-          vec2f( 1,  1),
-        );
-        let pos = positions[vNdx];
-        return VSOutput(
-          uni.matrix * vec4f(pos, 0, 1),
-          pos,
-        );
-      }
-
-      @fragment fn fs(fsInput: VSOutput) -> @location(0) vec4f {
-        return textureSample(tex, smp, fsInput.texcoord);
-      }
-    `,
-  });
-
-  const pipeline = device.createRenderPipeline({
-    label: 'textured unit quad',
-    layout: 'auto',
-    vertex: {
-      module,
-    },
-    fragment: {
-      module,
-      targets: [{ format: 'rgba8unorm' }],
+  const canvas = el('canvas', {
+    style: {
+      width: '100%',
+      height: '100%',
+      aspectRatio: '1.5 / 1',
     },
   });
 
-  const renderPassDescriptor = {
-    label: 'our basic canvas renderPass',
-    colorAttachments: [
-      {
-        // view: <- to be filled out when we render
-        clearValue: [0.3, 0.3, 0.3, 1],
-        loadOp: 'clear',
-        storeOp: 'store',
-      },
-    ],
-  };
+  const renderer = new WebGPURenderer({ device, canvas });
+  const labelRenderer = new CSS2DRenderer();
+  labelRenderer.domElement.id = 'labels';
 
-  const imageUniformBuffer = device.createBuffer({
-    size: 4 * 16,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
+  const clipPlane1 = new Plane(new Vector3(-1, 0, 0), 0);
+  const clipPlane2 = new Plane(new Vector3(0, -1, 0), 0);
+  const clipPlane3 = new Plane(new Vector3(0, 0, -1), 0);
 
-  const imageTexture = await createTextureFromImage(
-    device, src,
-  );
+  const scene = new Scene();
 
-  const imageSampler = device.createSampler({
-    minFilter: 'linear',
-    magFilter: 'linear',
-  });
+  const clippingGroup = new ClippingGroup();
+  clippingGroup.clippingPlanes = [ clipPlane1, clipPlane2, clipPlane3 ];
+  clippingGroup.enabled = true;
+  clippingGroup.clipIntersection = true;
 
-  let imageBindGroup;
-  function updateBindGroup() {
-    imageBindGroup = device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: imageUniformBuffer } },
-        { binding: 1, resource: imageTexture.createView() },
-        { binding: 2, resource: imageSampler },
-      ],
+  scene.add(clippingGroup);
+
+  const degToRad = d => d * Math.PI / 180;
+
+  const camera = new PerspectiveCamera(40, 1, 1, 100);
+  const a = degToRad(33);
+  camera.position.set(Math.cos(a) * 25, 25, Math.sin(a) * 25);
+
+  const light1 = new PointLight(0xffffff, 10000, 1000);
+  light1.position.set(50, 50, 50);
+  scene.add(light1);
+  const light2 = new PointLight(0xffffff, 10000, 1000);
+  light2.position.set(-50, 40, -10);
+  scene.add(light2);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enablePan = false;
+  controls.enableZoom = false;
+  controls.target.y = 7.5;
+  controls.update();
+
+  const camTarget = new Object3D();
+  const camPitch = new Object3D();
+  const camTilt = new Object3D();
+  const camExtend = new Object3D();
+  const cam = new Object3D();
+  scene.add(camTarget);
+  camTarget.add(camPitch);
+  camPitch.add(camTilt);
+  camTilt.add(camExtend);
+  camExtend.add(cam);
+
+  camTarget.position.z = -4;
+  camPitch.rotation.y = degToRad(-15);
+  camTilt.rotation.x = degToRad(-20);
+
+  const tankMaterial = new MeshStandardMaterial({ color: 0x80A0FF });
+  const tankGeo = new BoxGeometry(10, 3, 10);
+  const tankMesh = new Mesh(tankGeo, tankMaterial);
+  camTarget.add(tankMesh);
+
+  const tankHeadMaterial = new MeshStandardMaterial({ color: 0x80FFA0, flatShading: true });
+  const tankHeadGeo = new CylinderGeometry( 4.5, 4.5, 3, 6 );
+  const tankHead = new Mesh(tankHeadGeo, tankHeadMaterial);
+  camPitch.position.y = 3;
+  camPitch.add(tankHead);
+
+  const tankTiltMaterial = new MeshStandardMaterial({ color: 0xFF80A0 });
+  const tankTiltGeo = new BoxGeometry(6, 3, 3);
+  const tankTilt = new Mesh(tankTiltGeo, tankTiltMaterial);
+  camTilt.position.y = 3;
+  camTilt.add(tankTilt);
+
+  const tankBarrelMaterial = new MeshStandardMaterial({ color: 0xFFA0FF });
+  const tankBarrelGeo = new BoxGeometry(3, 3, 1);
+  const tankBarrel = new Object3D();
+  const tankBarrelH = new Object3D();
+  const tankBarrelMesh = new Mesh(tankBarrelGeo, tankBarrelMaterial);
+  tankBarrelMesh.position.z = 0.5;
+  tankBarrelH.add(tankBarrelMesh);
+  tankBarrelH.scale.z = 15;
+  tankBarrel.add(tankBarrelH);
+  tankBarrel.position.z = 1.5;
+  camTilt.add(tankBarrel);
+  camExtend.position.z = tankBarrelH.scale.z;
+
+  const camera2 = new PerspectiveCamera(45, 1.5, 3, 10);
+  const camHelper = new CameraHelper(camera2);
+  cam.add(camHelper);
+  cam.position.y = 3;
+
+  const cameraRadToDegOptions = { min: -180, max: 180, step: 1, converters: GUI.converters.radToDeg };
+
+  const uiElem = el('div', { className: 'ui' });
+  const gui = new GUI(uiElem);
+  gui.onChange(render);
+  GUI.setTheme('float');
+  gui.add(camTarget.position, 'x', -10, 10).name('camTarget x');
+  gui.add(camTarget.position, 'z', -10, 10).name('camTarget z');
+  gui.add(camPitch.rotation, 'y', cameraRadToDegOptions).name('camPitch rotY');
+  gui.add(camTilt.rotation, 'x', cameraRadToDegOptions).name('camTilt rotX');
+  gui.add(tankBarrelH.scale, 'z', 0.1, 20).name('camExtend z')
+    .onChange(v => {
+      camExtend.position.z = v;
     });
-  }
-  updateBindGroup();
-
-  const postProcessModule = device.createShaderModule({
-    code: `
-      struct VSOutput {
-        @builtin(position) position: vec4f,
-        @location(0) texcoord: vec2f,
-      };
-
-      struct HSL {
-        h: f32,
-        s: f32,
-        l: f32,
-      };
-
-      const Epsilon = 1e-10;
-
-      fn rgbToHsl(rgb: vec3f) -> HSL {
-        let cMin = min(min(rgb.r, rgb.b), rgb.g);
-        let cMax = max(max(rgb.r, rgb.b), rgb.g);
-        let delta = cMax - cMin;
-        var h = 0.0;
-        if (rgb.r == cMax) {
-          h = (rgb.g - rgb.b) / delta;
-        } else if (rgb.g == cMax) {
-          h = 2.0 + (rgb.b - rgb.r) / delta;
-        } else {
-          h = 4.0 + (rgb.r - rgb.g) / delta;
-        }
-        h = h / 6.0;
-        let l = (cMax + cMin) / 2.0;
-        let s = delta / (1.0 - abs(2.0 * l - 1.0) + Epsilon);
-        return HSL(h, s, l);
-      }
-
-      fn hslToRgb(hsl: HSL) -> vec3f {
-        let c = vec3f(fract(hsl.h), clamp(vec2f(hsl.s, hsl.l), vec2f(0), vec2f(1)));
-        let rgb = clamp(abs((c.x * 6.0 + vec3f(0.0, 4.0, 2.0)) % 6.0 - 3.0) - 1.0, vec3f(0), vec3f(1));
-        return c.z + c.y * (rgb - 0.5) * (1.0 - abs(2.0 * c.z - 1.0));
-      }
-
-      fn adjustBrightness(color: vec3f, brightness: f32) -> vec3f {
-        return color + brightness;
-      }
-
-      fn adjustContrast(color: vec3f, contrast: f32) -> vec3f {
-        let c = contrast + 1.0;
-        return clamp(0.5 + c * (color - 0.5), vec3f(0), vec3f(1));
-      }
-
-      fn adjustHSL(color: vec3f, adjust: HSL) -> vec3f {
-        let hsl = rgbToHsl(color);
-        let newHSL = HSL(hsl.h + adjust.h, hsl.s + adjust.s, hsl.l + adjust.l);
-        return hslToRgb(newHSL);
-      }
-
-      fn luminance(color: vec3f) -> f32 {
-        return dot(color, vec3f(0.2126, 0.7152, 0.0722));
-      }
-
-      fn applyDuotone(color: vec3f, color1: vec3f, color2: vec3f, amount: f32) -> vec3f {
-        let l = luminance(color);
-        let duotone = mix(color1, color2, l);
-        return mix(color, duotone, amount);
-      }
-
-      @vertex fn vs(
-        @builtin(vertex_index) vertexIndex : u32,
-      ) -> VSOutput {
-        var pos = array(
-          vec2f(-1.0, -1.0),
-          vec2f(-1.0,  3.0),
-          vec2f( 3.0, -1.0),
-        );
-
-        var vsOutput: VSOutput;
-        let xy = pos[vertexIndex];
-        vsOutput.position = vec4f(xy, 0.0, 1.0);
-        vsOutput.texcoord = xy * vec2f(0.5) + vec2f(0.5);
-        return vsOutput;
-      }
-
-      struct Uniforms {
-        brightness: f32,
-        contrast: f32,
-        @align(16) hsl: HSL,
-        @align(16) duotone: f32,
-        @align(16) duotoneColor1: vec3f,
-        @align(16) duotoneColor2: vec3f,
-      };
-
-      @group(0) @binding(0) var postTexture2d: texture_2d<f32>;
-      @group(0) @binding(1) var postSampler: sampler;
-      @group(0) @binding(2) var<uniform> uni: Uniforms;
-
-      @fragment fn fs2d(fsInput: VSOutput) -> @location(0) vec4f {
-        let color = textureSample(postTexture2d, postSampler, fsInput.texcoord);
-        var rgb = color.rgb;
-        rgb = adjustHSL(rgb, uni.hsl);
-        rgb = applyDuotone(rgb, uni.duotoneColor1, uni.duotoneColor2, uni.duotone);
-        rgb = adjustBrightness(rgb, uni.brightness);
-        rgb = adjustContrast(rgb, uni.contrast);
-        return vec4f(rgb, color.a);
-      }
-    `,
-  });
-
-  const postProcessPipeline = device.createRenderPipeline({
-    layout: 'auto',
-    vertex: { module: postProcessModule },
-    fragment: {
-      module: postProcessModule,
-      targets: [ { format: presentationFormat }],
-    },
-  });
-
-  const postProcessSampler = device.createSampler({
-    minFilter: 'linear',
-    magFilter: 'linear',
-  });
-
-  const postProcessRenderPassDescriptor = {
-    label: 'post process render pass',
-    colorAttachments: [
-      { loadOp: 'clear', storeOp: 'store' },
-    ],
-  };
-
-  const postProcessUniformBuffer = device.createBuffer({
-    size: 80,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
-
-  let renderTarget;
-  let postProcessBindGroup;
-
-  function setupPostProcess(canvasTexture) {
-    if (renderTarget?.width === canvasTexture.width &&
-        renderTarget?.height === canvasTexture.height) {
-      return;
+  const settings = { collapse: false };
+  gui.add(settings, 'collapse').onChange(function(v) {
+    if (!v) {
+      camPitch.position.y = 3;
+      camTilt.position.y = 3;
+      cam.position.y = 3;
+      tankBarrelMesh.scale.x = 1;
+      tankBarrelMesh.scale.y = 1;
+      tankMesh.scale.y = 1;
+      tankHead.scale.y = 1;
+      tankTilt.scale.y = 1;
+      tankTilt.scale.z = 1;
+      tankBarrel.position.z = 1.5;
+    } else {
+      camPitch.position.y = 0;
+      camTilt.position.y = 0;
+      cam.position.y = 0;
+      tankBarrelMesh.scale.x = 0.12;
+      tankBarrelMesh.scale.y = 0.12;
+      tankMesh.scale.y = 0.1;
+      tankHead.scale.y = 0.11;
+      tankTilt.scale.y = 0.3;
+      tankTilt.scale.z = 0.3;
+      tankBarrel.position.z = 1.5 * 0.3;
     }
-
-    renderTarget?.destroy();
-    renderTarget = device.createTexture({
-      size: canvasTexture,
-      format: 'rgba8unorm',
-      usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
-    });
-    const renderTargetView = renderTarget.createView();
-    renderPassDescriptor.colorAttachments[0].view = renderTargetView;
-
-    postProcessBindGroup = device.createBindGroup({
-      layout: postProcessPipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: renderTargetView },
-        { binding: 1, resource: postProcessSampler },
-        { binding: 2, resource: { buffer: postProcessUniformBuffer } },
-      ],
-    });
-  }
-
-  function postProcess(settings, encoder, srcTexture, dstTexture) {
-    device.queue.writeBuffer(
-      postProcessUniformBuffer,
-      0,
-      new Float32Array([
-        settings.brightness,
-        settings.contrast,
-        0,
-        0,
-        settings.hue,
-        settings.saturation,
-        settings.lightness,
-        0,
-        settings.duotone,
-        0,
-        0,
-        0,
-        ...settings.duotoneColor1, 0,
-        ...settings.duotoneColor2, 0,
-      ]),
-    );
-
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
-    const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
-    pass.setPipeline(postProcessPipeline);
-    pass.setBindGroup(0, postProcessBindGroup);
-    pass.draw(3);
-    pass.end();
-  }
-
-  const baseSettings = {
-    brightness: 0,
-    contrast: 0,
-    hue: 0,
-    saturation: 0,
-    lightness: 0,
-    duotone: 0,
-    duotoneColor1: [0, 0, 0],
-    duotoneColor2: [1, 0.69, 0.4],
-    splitTone: 0,
-    stShadowStart: 0.4,
-    stShadowEnd: 0.5,
-    stShadowColor: [1, 0, 0],
-    stHighlightStart: 0.50,
-    stHighlightEnd: 0.6,
-    stHighlightColor: [0.2, 0.4, 1],
-  };
-
-
-  render = function render(canvas) {
-    const context = canvas.getContext('webgpu');
-    const canvasTexture = context.getCurrentTexture();
-    setupPostProcess(canvasTexture);
-
-    // css 'cover'
-    const canvasAspect = canvas.clientWidth / canvas.clientHeight;
-    const imageAspect = imageTexture.width / imageTexture.height;
-    const aspect = canvasAspect / imageAspect;
-    const aspectScale = aspect > 1 ? [1, aspect, 1] : [1 / aspect, 1, 1];
-
-    const matrix = mat4.identity();
-    mat4.scale(matrix, aspectScale, matrix);
-    mat4.scale(matrix, [2, 2, 1], matrix);
-    mat4.translate(matrix, [-0.5, -0.5, 1], matrix);
-
-    // Set the uniform values in our JavaScript side Float32Array
-    device.queue.writeBuffer(imageUniformBuffer, 0, matrix);
-
-    const encoder = device.createCommandEncoder();
-    const pass = encoder.beginRenderPass(renderPassDescriptor);
-    pass.setPipeline(pipeline);
-    pass.setBindGroup(0, imageBindGroup);
-    pass.draw(6);
-    pass.end();
-
-    const settings = JSON.parse(JSON.stringify(baseSettings));
-    Object.assign(settings, canvasToSettings.get(canvas));
-    postProcess(settings, encoder, renderTarget, canvasTexture);
-
-    const commandBuffer = encoder.finish();
-    device.queue.submit([commandBuffer]);
-  };
-}
-
-const readyP = setup();
-
-const observer = new ResizeObserver(entries => {
-  for (const entry of entries) {
-    const canvas = entry.target;
-    const width = entry.contentBoxSize[0].inlineSize;
-    const height = entry.contentBoxSize[0].blockSize;
-    canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
-    canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
-    render(canvas);
-  }
-});
-
-async function waitForSetupAndStart(canvas) {
-  await readyP;
-
-  const context = canvas.getContext('webgpu');
-  context.configure({
-    format: presentationFormat,
-    device,
+    render();
   });
 
-  observer.observe(canvas);
-}
+  const div = el('div', {className: 'camera-rig'}, [
+    canvas,
+    labelRenderer.domElement,
+    uiElem,
+  ]);
 
-const messageHandlers = {};
-window.onmessage = (e) => {
-  const {cmd, data} = e.data;
-  const handler = messageHandlers[cmd];
-  if (!handler) {
-    throw new Error(`no handler for cmd: ${cmd}`);
+  await renderer.init();
+
+  function render() {
+    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
   }
-  handler(data);
-};
 
-function postMessage(cmd, data) {
-  window.postMessage({
-    cmd,
-    data,
+  controls.addEventListener('change', render);
+
+  const observer = new ResizeObserver(entries => {
+    const entry = entries[0];
+    const width = entry.devicePixelContentBoxSize?.[0].inlineSize ||
+                    entry.contentBoxSize[0].inlineSize * devicePixelRatio;
+    const height = entry.devicePixelContentBoxSize?.[0].blockSize ||
+                     entry.contentBoxSize[0].blockSize * devicePixelRatio;
+    const w = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+    const h = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
+
+    renderer.setSize(w, h, false);
+    labelRenderer.setSize(labelRenderer.domElement.clientWidth, labelRenderer.domElement.clientHeight);
+    // js messes up here. They refuse to learn how HTML and CSS work and keep fighting it (T_T)
+    // Setting the width and height of the element means the browser can no longer make it larger or
+    // smaller when the user sizes the window. So, we have to remove the damage from js so the
+    // browser can do the correct thing.
+    labelRenderer.domElement.style.width = '';
+    labelRenderer.domElement.style.height = '';
+    render();
   });
+  observer.observe(renderer.domElement);
+
+  return { elem: div };
 }
 
 async function main() {
   renderDiagrams({
-    rgbDiagram: async(elem) => {
-      const labels = JSON.parse(elem.dataset.labels);
+    'camera-rig': async(elem) => {
       await threeP;
-      const { rgbDiagram } = await import('./resources/js/rgb-diagram.js');
-      const { elem: diagramElem, setRGB } = await rgbDiagram();
-
-      const rgb = [0.8, 0.7, 0.6];
-      setRGB(rgb);
-
-      const sliders = makeSliders(rgb, [labels.r, labels.g, labels.b], 0, 1, () => {
-        setRGB(rgb);
-        postMessage('setHSL', rgbToHsl(rgb));
-      });
+      const { elem: diagramElem } = await cameraRig();
 
       elem.append(el('div', {}, [
         diagramElem,
-        sliders.elem,
       ]));
 
-      messageHandlers.setRGB = (newRGB) => {
-        rgb.length = 0;
-        rgb.push(...newRGB);
-        setRGB(rgb);
-        sliders.update();
-      };
-    },
-    hslDiagram: async(elem) => {
-      const labels = JSON.parse(elem.dataset.labels);
-      await threeP;
-      const { hslDiagram } = await import('./resources/js/hsl-diagram.js');
-      const { elem: diagramElem, setHSL } = await hslDiagram();
-
-      const hsl = [0, 1, 0.5];
-      setHSL(hsl);
-
-      const sliders = makeSliders(hsl, [labels.h, labels.s, labels.l], 0, 1, () => {
-        setHSL(hsl);
-        postMessage('setRGB', hslToRgb(hsl));
-      });
-
-      elem.append(el('div', {}, [
-        diagramElem,
-        sliders.elem,
-      ]));
-
-      messageHandlers.setHSL = (newHSL) => {
-        hsl.length = 0;
-        hsl.push(...newHSL);
-        setHSL(hsl);
-        sliders.update();
-      };
-    },
-    original: async(elem) => {
-      const labels = JSON.parse(elem.dataset.labels);
-      const settings = {};
-      const canvas = el('canvas');
-      canvasToSettings.set(canvas, settings);
-      const label = el('label', {textContent: labels.type});
-      elem.append(el('div', {className: 'adjustment'}, [
-        el('div', {className: 'widget'}, [
-          label,
-        ]),
-        canvas,
-      ]));
-      await waitForSetupAndStart(canvas);
-    },
-    brightness: async(elem) => {
-      const labels = JSON.parse(elem.dataset.labels);
-      const settings = {
-        brightness: 0.3,
-      };
-      const canvas = el('canvas');
-      canvasToSettings.set(canvas, settings);
-      const label = el('label', {textContent: labels.type});
-      elem.append(el('div', {className: 'adjustment'}, [
-        //el('div', {className: 'image', style: { backgroundImage: `url(${src})` } }),
-        el('div', {className: 'widget'}, [
-          //el('div', {className: 'arrow'}),
-          makeRange(settings.brightness, -1, 1, (v) => {
-            settings.brightness = v;
-            if (render) {
-              render(canvas);
-            }
-          }).elem,
-          label,
-        ]),
-        canvas,
-      ]));
-
-      await waitForSetupAndStart(canvas);
-    },
-    contrast: async(elem) => {
-      const labels = JSON.parse(elem.dataset.labels);
-      const settings = {
-        contrast: 4,
-      };
-      const canvas = el('canvas');
-      canvasToSettings.set(canvas, settings);
-      const label = el('label', {textContent: labels.type});
-      elem.append(el('div', {className: 'adjustment'}, [
-        //el('div', {className: 'image', style: { backgroundImage: `url(${src})` } }),
-        el('div', {className: 'widget'}, [
-          //el('div', {className: 'arrow'}),
-          makeRange(settings.contrast, -1, 10, (v) => {
-            settings.contrast = v;
-            if (render) {
-              render(canvas);
-            }
-          }).elem,
-          label,
-        ]),
-        canvas,
-      ]));
-
-      await waitForSetupAndStart(canvas);
-    },
-    hsl: async(elem) => {
-      const labels = JSON.parse(elem.dataset.labels);
-      const hsl = [0.5, 0.9, 0];
-      const settings = {};
-
-      const setSettings = () => {
-        settings.hue = hsl[0];
-        settings.saturation = hsl[1];
-        settings.lightness = hsl[2];
-      };
-      setSettings(hsl);
-
-      const canvas = el('canvas');
-      canvasToSettings.set(canvas, settings);
-      elem.append(el('div', {className: 'adjustment'}, [
-        makeSliders(hsl, [labels.h, labels.s, labels.l], -1, 1, () => {
-          setSettings();
-          if (render) {
-            render(canvas);
-          }
-        }).elem,
-        canvas,
-      ]));
-
-      await waitForSetupAndStart(canvas);
-    },
-    duotone: async(elem) => {
-      const labels = JSON.parse(elem.dataset.labels);
-      const settings = {
-        duotoneColor1: [0, 0, 0.5],
-        duotoneColor2: [1, 0.7, 0],
-        duotone: 1,
-      };
-
-      const canvas = el('canvas');
-      canvasToSettings.set(canvas, settings);
-
-      const re = /#(..)(..)(..)/;
-      const makeColorRange = function(prop) {
-        // You can't customize the color input 🤬
-        const onInput = function() {
-          const m = re.exec(this.value);
-          color.style.backgroundColor = this.value;
-          m.slice(1, 4).forEach((v, i) => {
-            settings[prop][i] = parseInt(v, 16) / 0xFF;
-          });
-          render(canvas);
-        };
-        const value = `#${settings[prop].map(v => (v * 255 | 0).toString(16).padStart(2, '0')).join('')}`;
-        const input = el('input', {type: 'color', value, onInput});
-        const color = el('div', {className: 'colorRange', style: { backgroundColor: value }}, [
-          input,
-        ]);
-        return color;
-      };
-
-      const label = el('label', {textContent: labels.type});
-      elem.append(el('div', {className: 'adjustment'}, [
-        //el('div', {className: 'image', style: { backgroundImage: `url(${src})` } }),
-        el('div', {className: 'widget'}, [
-          //el('div', {className: 'arrow'}),
-          el('div', {style: {display: 'flex'}}, [
-            el('div', {style: {display: 'flex', flexDirection: 'row'}}, [
-              makeColorRange('duotoneColor1'),
-              makeColorRange('duotoneColor2'),
-            ]),
-            makeRange(settings.duotone, 0, 1, (v) => {
-              settings.duotone = v;
-              if (render) {
-                render(canvas);
-              }
-            }).elem,
-          ]),
-          label,
-        ]),
-        canvas,
-      ]));
-
-      await waitForSetupAndStart(canvas);
     },
   });
 }

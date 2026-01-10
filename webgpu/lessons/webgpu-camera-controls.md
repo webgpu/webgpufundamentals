@@ -56,7 +56,29 @@ We could build a hierarchy like this
         +-cam (gives us a camera matrix)
 ```
 
-So let's make that.
+You can almost picture this as a actual mechanical rig made of physical parts.
+I don't know if this is a good analogy but if you had a military tank, the tank itself would be the `camTarget`. The head that rotates on top of the
+tank would be the `camPitch`. The part that lets the barrel rotate up and down
+is the `camTilt`. The barrel itself is the `camExtend`. Ideally imagine a telescoping
+barrel that can change length. You then attach the camera to the end of the barrel
+**aimed back toward the tank**.
+
+<div class="webgpu_center">
+  <div data-diagram="camera-rig" style="width: 600px;"></div>
+</div>
+
+In the diagram above:
+
+* the blue base is the `camTarget`
+* the green head is the `camPitch`
+* the red hinge is the `camTilt`
+* the pink/purple barrel is the `camExtend`
+* the white frame frustum represents a camera at `cam` looking back toward the `camTarget`
+
+By default the pieces in the diagram are stacked up to make them easy to see but in our
+actual rig they'd all sit on top of each other. Check "collapse" to put them where they should be.
+
+In any case, let's make that camera rig.
 
 First some minor UI tweaks. Since eventually
 we want the user to be able to drag on the
