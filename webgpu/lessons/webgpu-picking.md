@@ -748,7 +748,10 @@ To do that we need a way to render the objects with ids. We have a few options.
 
 2. ## We could render twice, once for color, once for ids
 
-   I'm going to choose method for now for reasons that will  hopefully become clear.
+   I'm going to choose this method for now for reasons that will hopefully become clear after this step. [^render-twice]
+
+   [^render-twice]: Method 2 was chosen because we needed a way to selectively render for picking in order to implement cycling
+   through all objects under the pointer.
 
 So, first let's add the id to our uniforms and create a fragment shader
 that outputs ids.
@@ -946,7 +949,7 @@ and we need to update the rendering code to include the id
 
     mat4.multiply(viewProjectionMatrix, matrix, matrixValue);
     colorValue.set(color);
- +   idValue[0] = objectNdx;
++    idValue[0] = objectNdx;
 
     // upload the uniform values to the uniform buffer
     device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
@@ -1216,7 +1219,7 @@ we mentioned above.
     // pick from the available meshes
 -    const id = await pick(clipX, clipY, viewProjectionMatrix);
 -    if (id > 0) {
-+     let id = await pick(clipX, clipY, viewProjectionMatrix, pickableMeshes);
++    let id = await pick(clipX, clipY, viewProjectionMatrix, pickableMeshes);
 +    if (id === 0) {
 +      // if we didn't find one, try all of them again
 +      pickableMeshes = meshes.slice();
@@ -1295,7 +1298,7 @@ the reader 😛
    pixels since in the end we're only reading a single pixel
    anyway.
 
-2. Use frustum culling or other "potential visible set"
+2. Use frustum culling or other "potential visible set" culling
 
    If you can easily determine if an object is definitely not in front of the
    camera then you can skip asking the GPU to look at all of that object's triangles.
