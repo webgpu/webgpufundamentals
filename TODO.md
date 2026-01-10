@@ -9,10 +9,10 @@
 
 ## I'd also like to do an editor. It would need
 
- - [ ] Picking
- - [ ] Highlighting?
+ - [X] Picking
+ - [X] Highlighting?
  - [ ] Manipulators (translate, rotate, scale)
- - [ ] Camera Controls
+ - [X] Camera Controls
  - [ ] Multiple Views
 
 - [X] Use external refs in build
