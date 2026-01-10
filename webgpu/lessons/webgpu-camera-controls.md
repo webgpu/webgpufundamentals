@@ -188,11 +188,11 @@ const vec3 = {
 then we need to use the `OrbitCamera`
 
 ```js
-  const orbitCamera = new OrbitCamera();
-  orbitCamera.setParent(root);
-  orbitCamera.target = [120, 80, 0];
-  orbitCamera.tilt = Math.PI * -0.2;
-  orbitCamera.radius = 300;
++  const orbitCamera = new OrbitCamera();
++  orbitCamera.setParent(root);
++  orbitCamera.target = [120, 80, 0];
++  orbitCamera.tilt = Math.PI * -0.2;
++  orbitCamera.radius = 300;
 
   ...
 
@@ -805,7 +805,7 @@ maybe you can give it a try.
 
 {{{example url="../webgpu-camera-controls-scene-graph-step-05.html"}}}
 
-## <a id="a-dolly-by-double-tab-drag"></a> Dolly by Double Tab Drag
+## <a id="a-dolly-by-double-tab-drag"></a> Dolly by Double Tap Drag
 
 Let's do one more. It's common on some apps that if you double tap the screen
 and then drag your finger it zooms. Google Maps does this for example. Let's add
