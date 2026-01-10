@@ -1315,7 +1315,7 @@ And while we're at it lets remove the extra rotation and translation
 -  const extraMov = addTRSSceneGraphNode('extra-mov', extraRot, { translation: [-30, -90, 40] });
 +  const extraRot = addTRSSceneGraphNode('extra-rot', root);
 +  const extraMov = addTRSSceneGraphNode('extra-mov', extraRot);
-
+```
 
 Try selecting an object and the picking "Frame selected".
 
