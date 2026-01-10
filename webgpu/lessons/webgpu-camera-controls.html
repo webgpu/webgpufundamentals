@@ -1418,88 +1418,84 @@ select that we can frame the entire thing.</p>
 -    addCabinet(root, cabinetNdx);
 +    addCabinet(cabinets, cabinetNdx);
   }
+
+  ...
+
+-  setCurrentSceneGraphNode(root.children[2]);
++  setCurrentSceneGraphNode(cabinets.children[1]);
 </pre>
 <p>And while we’re at it lets remove the extra rotation and translation</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  const extraRot = addTRSSceneGraphNode('extra-rot', root, { rotation: [0, 0, Math.PI * 0.35] });
 -  const extraMov = addTRSSceneGraphNode('extra-mov', extraRot, { translation: [-30, -90, 40] });
 +  const extraRot = addTRSSceneGraphNode('extra-rot', root);
 +  const extraMov = addTRSSceneGraphNode('extra-mov', extraRot);
-
-
-Try selecting an object and the picking "Frame selected".
-
-<div class="webgpu_example_container">
+</pre>
+<p>Try selecting an object and the picking “Frame selected”.</p>
+<p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-camera-controls-scene-graph-step-08.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-camera-controls-scene-graph-step-08.html" target="_blank">click here to open in a separate window</a>
 </div>
 
-
-
-## &lt;a id="a-ux"&gt;&lt;/a&gt; UX decisions
-
-There are TONs of UX decisions related to an orbit camera that you'll need to make.
-Some off of them include:
-
-* Should it allow roll?
-
-  Roll is like when you tilt your head left / right.
-
-  Adding roll would just be a matter of adding one more node at the end
-  with a z rotation of our current rig between `#camExtend` and `#cam`.
-
-* Should it be like we have it, just letting you drag, or should you it require some other way to adjust
-  the camera.
-
-  In Unity, you have to hold a key or switch to camera controlling mode by
-  clicking an icon. In Blender you click and drag on certain icons or using the
-  middle mouse button and modifier keys. Dragging on the "track camera" icon
-  tracks the camera. Dragging the "orbit camera" icon orbits the camera.
-  Dragging on the zoom icon zooms (dollies) the camera.
-
-  For a viewer it's nice to be able to just drag with no keys or icons. For an
-  editor where most activity is editing 3d content it's probably better to use
-  an icon, add a mode, or have the user hold a key.
-
-* What should happen on mobile?
-
-  We didn't provide a solution for tracking the camera on mobile. Our only current method requires holding shift. Using an icon to drag on would
-  work. I think some viewers use 2 fingers to track.
-
-* Should it allow tilting past 90 degrees?
-
-  We allowed going past 90 degrees which means the camera can go upside down.
-  Some apps prevent that.
-
-* Should "frame" keep the same orientation?
-
-  Most 3D editors let you select an object and pick "Frame" which centers that object
-  in the camera AND makes the camera orbit that object. The question is, does
-  the orientation of the camera reset, like say, view from the front of the object. Or maybe it always switches to looking along positive Z.
-  Or, does it keep whatever orientation it was before picking "frame". For example, if
-  you were looking down on object A and the selected B, should it still be looking down?
-
-* Which way does the camera move relative to the pointer?
-
-  In other words, if you drag the pointer from left to right should the camera
-  rotate clockwise or counterclockwise. counterclockwise makes it seem like
-  your orbiting the camera. clockwise makes it seem like your turing the world
-  under the camera. This is similar to dragging two fingers on a trackpad to
-  scroll. If you drag down, should the content go up, because you're dragging
-  the view over the content. Or should the content down, as though you're dragging
-  the content itself.
-
-  With touch screens you generally want it to look like your dragging the content
-  but scrollbars existed before touch screens. Dragging the handle on the scroll bar
-  drags the view, not the content. Scroll wheels moved that handle. Two fingers
-  on a trackpad was a shortcut for that scroll wheel.
-
-## &lt;a id="a-no-scene-graph"&gt;&lt;/a&gt; Implementing an OrbitCamera without a scene graph.
-
-If you understood how a scene graph works from [the article on scene graphs](webgpu-scene-graphs.html)
-then it should be pretty clear. We just need code like
-
-```js
-   class OrbitCamera {
+<p></p>
+<h2 id="ux-decisions"><a id="a-ux"></a> UX decisions</h2>
+<p>There are TONs of UX decisions related to an orbit camera that you’ll need to make.
+Some off of them include:</p>
+<ul>
+<li>
+<p>Should it allow roll?</p>
+<p>Roll is like when you tilt your head left / right.</p>
+<p>Adding roll would just be a matter of adding one more node at the end
+with a z rotation of our current rig between <code class="notranslate" translate="no">#camExtend</code> and <code class="notranslate" translate="no">#cam</code>.</p>
+</li>
+<li>
+<p>Should it be like we have it, just letting you drag, or should you it require some other way to adjust
+the camera.</p>
+<p>In Unity, you have to hold a key or switch to camera controlling mode by
+clicking an icon. In Blender you click and drag on certain icons or using the
+middle mouse button and modifier keys. Dragging on the “track camera” icon
+tracks the camera. Dragging the “orbit camera” icon orbits the camera.
+Dragging on the zoom icon zooms (dollies) the camera.</p>
+<p>For a viewer it’s nice to be able to just drag with no keys or icons. For an
+editor where most activity is editing 3d content it’s probably better to use
+an icon, add a mode, or have the user hold a key.</p>
+</li>
+<li>
+<p>What should happen on mobile?</p>
+<p>We didn’t provide a solution for tracking the camera on mobile. Our only current method requires holding shift. Using an icon to drag on would
+work. I think some viewers use 2 fingers to track.</p>
+</li>
+<li>
+<p>Should it allow tilting past 90 degrees?</p>
+<p>We allowed going past 90 degrees which means the camera can go upside down.
+Some apps prevent that.</p>
+</li>
+<li>
+<p>Should “frame” keep the same orientation?</p>
+<p>Most 3D editors let you select an object and pick “Frame” which centers that object
+in the camera AND makes the camera orbit that object. The question is, does
+the orientation of the camera reset, like say, view from the front of the object. Or maybe it always switches to looking along positive Z.
+Or, does it keep whatever orientation it was before picking “frame”. For example, if
+you were looking down on object A and the selected B, should it still be looking down?</p>
+</li>
+<li>
+<p>Which way does the camera move relative to the pointer?</p>
+<p>In other words, if you drag the pointer from left to right should the camera
+rotate clockwise or counterclockwise. counterclockwise makes it seem like
+your orbiting the camera. clockwise makes it seem like your turing the world
+under the camera. This is similar to dragging two fingers on a trackpad to
+scroll. If you drag down, should the content go up, because you’re dragging
+the view over the content. Or should the content down, as though you’re dragging
+the content itself.</p>
+<p>With touch screens you generally want it to look like your dragging the content
+but scrollbars existed before touch screens. Dragging the handle on the scroll bar
+drags the view, not the content. Scroll wheels moved that handle. Two fingers
+on a trackpad was a shortcut for that scroll wheel.</p>
+</li>
+</ul>
+<h2 id="implementing-an-orbitcamera-without-a-scene-graph"><a id="a-no-scene-graph"></a> Implementing an OrbitCamera without a scene graph.</h2>
+<p>If you understood how a scene graph works from <a href="webgpu-scene-graphs.html">the article on scene graphs</a>
+then it should be pretty clear. We just need code like</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">   class OrbitCamera {
     #target = vec3.create();
     #pan = 0;
     #tilt = 0;

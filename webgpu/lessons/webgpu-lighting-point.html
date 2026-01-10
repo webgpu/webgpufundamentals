@@ -485,7 +485,7 @@ struct VSOutput {
   // and pass it to the fragment shader
   vsOut.surfaceToLight = uni.lightPosition - surfaceWorldPosition;
 
-+  // Compute the vector of the surface to the light
++  // Compute the vector of the surface to the view
 +  // and pass it to the fragment shader
 +  vsOut.surfaceToView = uni.viewWorldPosition - surfaceWorldPosition;
 

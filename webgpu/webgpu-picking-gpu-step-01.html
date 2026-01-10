@@ -1594,6 +1594,8 @@ async function main() {
   let postTexture;
   let objectNdx = 0;
 
+  setCurrentSceneGraphNode(undefined);
+
   function drawObject(ctx, vertices, matrix, color) {
     const { pass, viewProjectionMatrix } = ctx;
     const { vertexBuffer, numVertices } = vertices;

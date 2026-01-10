@@ -669,6 +669,11 @@ whatever is currently selected. Let’s do that</p>
 
     render();
   }
+
+...
+
+-  setCurrentSceneGraphNode(cabinets.children[1]);
++  setCurrentSceneGraphNode(undefined);
 </pre>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-picking-cpu-step-02.html"></iframe></div>
@@ -916,7 +921,7 @@ both the image and ids.</p>
 </li>
 <li>
 <h2 id="we-could-render-twice-once-for-color-once-for-ids">We could render twice, once for color, once for ids</h2>
-<p>I’m going to choose method for now for reasons that will  hopefully become clear.</p>
+<p>I’m going to choose this method for now for reasons that will hopefully become clear after this step. <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
 </li>
 </ol>
 <p>So, first let’s add the id to our uniforms and create a fragment shader
@@ -1101,7 +1106,7 @@ room for the id and a way to set them.</p>
 
     mat4.multiply(viewProjectionMatrix, matrix, matrixValue);
     colorValue.set(color);
- +   idValue[0] = objectNdx;
++    idValue[0] = objectNdx;
 
     // upload the uniform values to the uniform buffer
     device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
@@ -1351,7 +1356,7 @@ we mentioned above.</p>
     // pick from the available meshes
 -    const id = await pick(clipX, clipY, viewProjectionMatrix);
 -    if (id &gt; 0) {
-+     let id = await pick(clipX, clipY, viewProjectionMatrix, pickableMeshes);
++    let id = await pick(clipX, clipY, viewProjectionMatrix, pickableMeshes);
 +    if (id === 0) {
 +      // if we didn't find one, try all of them again
 +      pickableMeshes = meshes.slice();
@@ -1430,7 +1435,7 @@ pixels since in the end we’re only reading a single pixel
 anyway.</p>
 </li>
 <li>
-<p>Use frustum culling or other “potential visible set”</p>
+<p>Use frustum culling or other “potential visible set” culling</p>
 <p>If you can easily determine if an object is definitely not in front of the
 camera then you can skip asking the GPU to look at all of that object’s triangles.</p>
 <p>This isn’t special to picking,
@@ -1451,6 +1456,14 @@ and so reject even more objects.</p>
 <!-- keep this at the bottom of the article -->
 <link href="webgpu-picking.css" rel="stylesheet">
 <script type="module" src="webgpu-picking.js"></script>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>Method 2 was chosen because we needed a way to selectively render for picking in order to implement cycling
+through all objects under the pointer. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
 
     </div>
     <div class="lesson-sidebar">
