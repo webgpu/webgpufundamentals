@@ -280,7 +280,26 @@ potentially with some constraints added.</p>
       +-camExtend (lets us "dolly" the camera closer or further from the target)
         +-cam (gives us a camera matrix)
 </pre>
-<p>So let’s make that.</p>
+<p>You can almost picture this as a actual mechanical rig made of physical parts.
+I don’t know if this is a good analogy but if you had a military tank, the tank itself would be the <code class="notranslate" translate="no">camTarget</code>. The head that rotates on top of the
+tank would be the <code class="notranslate" translate="no">camPitch</code>. The part that lets the barrel rotate up and down
+is the <code class="notranslate" translate="no">camTilt</code>. The barrel itself is the <code class="notranslate" translate="no">camExtend</code>. Ideally imagine a telescoping
+barrel that can change length. You then attach the camera to the end of the barrel
+<strong>aimed back toward the tank</strong>.</p>
+<div class="webgpu_center">
+  <div data-diagram="camera-rig" style="width: 600px;"></div>
+</div>
+<p>In the diagram above:</p>
+<ul>
+<li>the blue base is the <code class="notranslate" translate="no">camTarget</code></li>
+<li>the green head is the <code class="notranslate" translate="no">camPitch</code></li>
+<li>the red hinge is the <code class="notranslate" translate="no">camTilt</code></li>
+<li>the pink/purple barrel is the <code class="notranslate" translate="no">camExtend</code></li>
+<li>the white frame frustum represents a camera at <code class="notranslate" translate="no">cam</code> looking back toward the <code class="notranslate" translate="no">camTarget</code></li>
+</ul>
+<p>By default the pieces in the diagram are stacked up to make them easy to see but in our
+actual rig they’d all sit on top of each other. Check “collapse” to put them where they should be.</p>
+<p>In any case, let’s make that camera rig.</p>
 <p>First some minor UI tweaks. Since eventually
 we want the user to be able to drag on the
 scene to update the camera, lets make the controls
@@ -370,11 +389,11 @@ the div’s css classes based on the UI state.</p>
    ...
 </pre>
 <p>then we need to use the <code class="notranslate" translate="no">OrbitCamera</code></p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const orbitCamera = new OrbitCamera();
-  orbitCamera.setParent(root);
-  orbitCamera.target = [120, 80, 0];
-  orbitCamera.tilt = Math.PI * -0.2;
-  orbitCamera.radius = 300;
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const orbitCamera = new OrbitCamera();
++  orbitCamera.setParent(root);
++  orbitCamera.target = [120, 80, 0];
++  orbitCamera.tilt = Math.PI * -0.2;
++  orbitCamera.radius = 300;
 
   ...
 
@@ -951,7 +970,7 @@ maybe you can give it a try.</p>
 </div>
 
 <p></p>
-<h2 id="dolly-by-double-tab-drag"><a id="a-dolly-by-double-tab-drag"></a> Dolly by Double Tab Drag</h2>
+<h2 id="dolly-by-double-tap-drag"><a id="a-dolly-by-double-tab-drag"></a> Dolly by Double Tap Drag</h2>
 <p>Let’s do one more. It’s common on some apps that if you double tap the screen
 and then drag your finger it zooms. Google Maps does this for example. Let’s add
 that.</p>
