@@ -210,9 +210,9 @@ let b = vec4f(1, 2, 3, 4);
 let a = vec4f(1, 2, 3, 4);
 let b = vec2f(2, 3);
 let c = vec4f(1, b, 4);
-let d = vec2f(1, a.yz, 4);
-let e = vec2f(a.xyz, 4);
-let f = vec2f(1, a.yzw);
+let d = vec4f(1, a.yz, 4);
+let e = vec4f(a.xyz, 4);
+let f = vec4f(1, a.yzw);
 ```
 
 `a`, `c`, `d`, `e`, `f`는 모두 같습니다.
