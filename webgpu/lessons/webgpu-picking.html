@@ -400,8 +400,9 @@ the current view project matrix code.</p>
 </pre>
 <p>Now we can use that to start making <code class="notranslate" translate="no">pickMeshes</code></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  function pickMeshes(e, cam) {
-+    const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-+    const clipY = e.clientY / e.target.clientHeight * -2 + 1;
++    const rect = e.target.getBoundingClientRect();
++    const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
++    const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 +
 +    const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
 +    const intersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);
@@ -495,8 +496,9 @@ to the camera.</p>
 mesh onto our results.</p>
 <p>With that in place we can go back and finish <code class="notranslate" translate="no">pickMeshes</code></p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function pickMeshes(e, cam) {
-    const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-    const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+    const rect = e.target.getBoundingClientRect();
+    const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
+    const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 
     const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
     const intersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);
@@ -605,8 +607,9 @@ of 2 vec3s and adds the results.</p>
 <p>It would be nice if we click no where we unselect
 whatever is currently selected. Let’s do that</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function pickMeshes(e, cam) {
-    const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-    const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+    const rect = e.target.getBoundingClientRect();
+    const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
+    const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 
     const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
     const intersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);
@@ -698,8 +701,9 @@ the objects under the pointer. Let’s do that.</p>
 +      lastPickNdx = 0;
 +      lastPickX = e.clientX;
 +      lastPickY = e.clientY;
-       const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-       const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+       const rect = e.target.getBoundingClientRect();
+       const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
+       const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
  
        const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
 -      const intersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);
@@ -1238,8 +1242,9 @@ Then map it and read the value.</p>
 -      lastPickX = e.clientX;
 -      lastPickY = e.clientY;
 
-*    const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-*    const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+*    const rect = e.target.getBoundingClientRect();
+*    const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
+*    const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 
 -      const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
 -      lastIntersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);
@@ -1349,8 +1354,9 @@ we mentioned above.</p>
 +      pickableMeshes = meshes.slice();
 +    }
 
-    const clipX = e.clientX / e.target.clientWidth * 2 - 1;
-    const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+    const rect = e.target.getBoundingClientRect();
+    const clipX = (e.clientX - rect.left) / e.target.clientWidth * 2 - 1;
+    const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 
     const viewProjectionMatrix = getViewProjectionMatrix(cam, canvas);
     // pick from the available meshes
