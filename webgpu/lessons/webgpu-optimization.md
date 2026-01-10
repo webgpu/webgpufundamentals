@@ -129,7 +129,7 @@ Then let's make a shader module.
         // and pass it to the fragment shader
         vsOut.surfaceToLight = uni.lightWorldPosition - surfaceWorldPosition;
 
-        // Compute the vector of the surface to the light
+        // Compute the vector of the surface to the view
         // and pass it to the fragment shader
         vsOut.surfaceToView = uni.viewWorldPosition - surfaceWorldPosition;
 
@@ -666,15 +666,15 @@ A few more things left to do. Let's add in resizing
   }
   requestAnimationFrame(render);
 
-  +const observer = new ResizeObserver(entries => {
-  +  entries.forEach(entry => {
-  +    canvasToSizeMap.set(entry.target, {
-  +      width: Math.max(1, Math.min(entry.contentBoxSize[0].inlineSize, device.limits.maxTextureDimension2D)),
-  +      height: Math.max(1, Math.min(entry.contentBoxSize[0].blockSize, device.limits.maxTextureDimension2D)),
-  +    });
-  +  });
-  +});
-  +observer.observe(canvas);
++  const observer = new ResizeObserver(entries => {
++    entries.forEach(entry => {
++      canvasToSizeMap.set(entry.target, {
++        width: Math.max(1, Math.min(entry.contentBoxSize[0].inlineSize, device.limits.maxTextureDimension2D)),
++        height: Math.max(1, Math.min(entry.contentBoxSize[0].blockSize, device.limits.maxTextureDimension2D)),
++      });
++    });
++  });
++  observer.observe(canvas);
 ```
 
 Let's also add in some timing. We'll use the `NonNegativeRollingAverage` and `TimingHelper` classes
@@ -1205,7 +1205,7 @@ Here's the new shader
 -        vsOut.surfaceToLight = uni.lightWorldPosition - surfaceWorldPosition;
 +        vsOut.surfaceToLight = glb.lightWorldPosition - surfaceWorldPosition;
 
-        // Compute the vector of the surface to the light
+        // Compute the vector of the surface to the view
         // and pass it to the fragment shader
 -        vsOut.surfaceToView = uni.viewWorldPosition - surfaceWorldPosition;
 +        vsOut.surfaceToView = glb.viewWorldPosition - surfaceWorldPosition;
@@ -1519,7 +1519,7 @@ First let's change the shaders to use another uniform buffer.
         // and pass it to the fragment shader
         vsOut.surfaceToLight = glb.lightWorldPosition - surfaceWorldPosition;
 
-        // Compute the vector of the surface to the light
+        // Compute the vector of the surface to the view
         // and pass it to the fragment shader
         vsOut.surfaceToView = glb.viewWorldPosition - surfaceWorldPosition;
 
