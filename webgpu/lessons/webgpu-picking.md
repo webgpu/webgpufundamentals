@@ -183,8 +183,9 @@ Now we can use that to start making `pickMeshes`
 
 ```js
 +  function pickMeshes(e, cam) {
-+    const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-+    const clipY = e.clientY / e.target.clientHeight * -2 + 1;
++    const rect = e.target.getBoundingClientRect();
++    const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
++    const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 +
 +    const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
 +    const intersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);
@@ -290,8 +291,9 @@ With that in place we can go back and finish `pickMeshes`
 
 ```js
   function pickMeshes(e, cam) {
-    const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-    const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+    const rect = e.target.getBoundingClientRect();
+    const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
+    const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 
     const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
     const intersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);
@@ -410,8 +412,9 @@ whatever is currently selected. Let's do that
 
 ```js
   function pickMeshes(e, cam) {
-    const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-    const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+    const rect = e.target.getBoundingClientRect();
+    const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
+    const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 
     const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
     const intersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);
@@ -502,8 +505,9 @@ the objects under the pointer. Let's do that.
 +      lastPickNdx = 0;
 +      lastPickX = e.clientX;
 +      lastPickY = e.clientY;
-       const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-       const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+       const rect = e.target.getBoundingClientRect();
+       const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
+       const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
  
        const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
 -      const intersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);
@@ -1091,8 +1095,9 @@ To use it we can replace our old `pickMeshes` with this
 -      lastPickX = e.clientX;
 -      lastPickY = e.clientY;
 
-*    const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-*    const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+*    const rect = e.target.getBoundingClientRect();
+*    const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
+*    const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 
 -      const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
 -      lastIntersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);
@@ -1212,8 +1217,9 @@ we mentioned above.
 +      pickableMeshes = meshes.slice();
 +    }
 
-    const clipX = e.clientX / e.target.clientWidth * 2 - 1;
-    const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+    const rect = e.target.getBoundingClientRect();
+    const clipX = (e.clientX - rect.left) / e.target.clientWidth * 2 - 1;
+    const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 
     const viewProjectionMatrix = getViewProjectionMatrix(cam, canvas);
     // pick from the available meshes

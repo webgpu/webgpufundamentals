@@ -1356,8 +1356,9 @@ async function main() {
       lastPickX = e.clientX;
       lastPickY = e.clientY;
 
-      const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-      const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+      const rect = e.target.getBoundingClientRect();
+      const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
+      const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 
       const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
       lastIntersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);

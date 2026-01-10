@@ -1182,8 +1182,9 @@ async function main() {
   orbitCamera.radius = 300;
 
   function pickMeshes(e, cam) {
-    const clipX = e.clientX / e.target.clientWidth  *  2 - 1;
-    const clipY = e.clientY / e.target.clientHeight * -2 + 1;
+    const rect = e.target.getBoundingClientRect();
+    const clipX = (e.clientX - rect.left) / e.target.clientWidth  *  2 - 1;
+    const clipY = (e.clientY - rect.top ) / e.target.clientHeight * -2 + 1;
 
     const viewProjectionValue = getViewProjectionMatrix(cam, canvas);
     const intersectingMeshes = getIntersectingMeshes(clipX, clipY, viewProjectionValue);
