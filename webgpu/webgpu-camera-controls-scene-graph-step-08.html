@@ -1295,7 +1295,7 @@ async function main() {
 
     render();
   }
-
+ 
   // \u00a0 is non-breaking space.
   const threeSpaces = '\u00a0\u00a0\u00a0';
   const barTwoSpaces = '\u00a0|\u00a0';
@@ -1377,6 +1377,8 @@ async function main() {
   let depthTexture;
   let postTexture;
   let objectNdx = 0;
+
+  setCurrentSceneGraphNode(cabinets.children[1]);
 
   function drawObject(ctx, vertices, matrix, color) {
     const { pass, viewProjectionMatrix } = ctx;

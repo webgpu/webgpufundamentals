@@ -474,6 +474,11 @@ whatever is currently selected. Let's do that
 
     render();
   }
+
+...
+
+-  setCurrentSceneGraphNode(cabinets.children[1]);
++  setCurrentSceneGraphNode(undefined);
 ```
 
 {{{example url="../webgpu-picking-cpu-step-02.html"}}}

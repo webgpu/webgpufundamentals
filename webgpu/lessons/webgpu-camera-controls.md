@@ -1306,6 +1306,11 @@ select that we can frame the entire thing.
 -    addCabinet(root, cabinetNdx);
 +    addCabinet(cabinets, cabinetNdx);
   }
+
+  ...
+
+-  setCurrentSceneGraphNode(root.children[2]);
++  setCurrentSceneGraphNode(cabinets.children[1]);
 ```
 
 And while we're at it lets remove the extra rotation and translation
