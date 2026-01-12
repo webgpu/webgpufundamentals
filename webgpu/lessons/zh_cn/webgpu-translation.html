@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/zh_cn/webgpu-translation.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,73 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="zh-cn"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="WebGPU Translation">
+
+<meta name="description" content="移动一个物体">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-translation_zh-cn.jpg">
+
+<meta property="og:title" content="WebGPU 平移">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="Moving an object">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-translation_zh-cn.jpg">
+<meta property="og:description" content="移动一个物体">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-translation.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="WebGPU Translation">
+<meta name="twitter:title" content="WebGPU 平移">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-translation.html">
-<meta name="twitter:description" content="Moving an object">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="移动一个物体">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-translation_zh-cn.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-translation.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-translation_zh-cn.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-translation.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-translation.html",
+      "inLanguage":"zh-cn",
+      "name":"WebGPU 平移",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/zh_cn/webgpu-translation.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>WebGPU Translation</title>
+<title>WebGPU 平移</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
+<link rel="stylesheet" href="/webgpu/lessons/zh_cn/lang.css">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -182,13 +228,318 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>WebGPU Translation</h1>
+    <h1>WebGPU 平移</h1>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>本课程还没有简体中文版翻译哦  (~￣△￣)~</p>
-<p><a href="https://github.com/webgpu/webgpufundamentals">欢迎参加翻译</a>! 😄
-<a href="/webgpu/lessons/webgpu-translation.html">英文原版地址</a></p>
+      <!-- 基于2024年5月27日 -->
+<!-- e4e2249b12b65aa20891d64bdedeeac60070d0fe -->
+<p>本文假设你已经阅读了<a href="webgpu-fundamentals.html">基础概念</a>，<a href="webgpu-uniforms.html">统一变量(Uniforms)</a>以及<a href="webgpu-vertex-buffers.html">顶点缓冲区</a>的相关文章。若尚未阅读，建议你先阅读这些内容后再返回继续。</p>
+<p>本文是系列文章中的第一篇，旨在帮助你学习 3D 数学知识。每篇文章都建立在前文基础之上，因此按顺序阅读可能更易于理解。</p>
+<ol>
+<li><a href="webgpu-translation.html">平移</a> ⬅ 你在此处</li>
+<li><a href="webgpu-rotation.html">旋转</a></li>
+<li><a href="webgpu-scale.html">缩放</a></li>
+<li><a href="webgpu-matrix-math.html">矩阵运算</a></li>
+<li><a href="webgpu-orthographic-projection.html">正交投影</a></li>
+<li><a href="webgpu-perspective-projection.html">透视投影</a></li>
+<li><a href="webgpu-cameras.html">相机</a></li>
+<li><a href="webgpu-matrix-stacks.html">矩阵堆栈</a></li>
+<li><a href="webgpu-scene-graphs.html">场景图</a></li>
+</ol>
+<p>我们将从类似于<a href="webgpu-vertex-buffers.html">顶点缓冲区文章</a>中的示例代码开始，但不再绘制多个圆形，而是改为绘制单个字母 F，并通过<a href="webgpu-vertex-buffers.html#a-index-buffers">索引缓冲区</a>来减少数据量。</p>
+<p>让我们在像素空间而非裁剪空间中进行操作，就像<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D">Canvas 2D API</a>那样。我们将构建一个由 6 个三角形组成的字母 F，具体结构如下所示</p>
+<div class="webgpu_center"><img src="../resources/f-polygons.svg" style="width: 600px;"></div>
+<p>以下是字母 F 的构造数据：</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">function createFVertices() {
+  const vertexData = new Float32Array([
+    // left column
+    0, 0,
+    30, 0,
+    0, 150,
+    30, 150,
+
+    // top rung
+    30, 0,
+    100, 0,
+    30, 30,
+    100, 30,
+
+    // middle rung
+    30, 60,
+    70, 60,
+    30, 90,
+    70, 90,
+  ]);
+
+  const indexData = new Uint32Array([
+    0,  1,  2,    2,  1,  3,  // left column
+    4,  5,  6,    6,  5,  7,  // top run
+    8,  9, 10,   10,  9, 11,  // middle run
+  ]);
+
+  return {
+    vertexData,
+    indexData,
+    numVertices: indexData.length,
+  };
+}
+</pre>
+<p>上述顶点数据处于像素空间，因此我们需要将其转换到裁剪空间。这可以通过将分辨率传入着色器并进行数学运算来实现。以下是逐步详细说明。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Uniforms {
+  color: vec4f,
+  resolution: vec2f,
+};
+
+struct Vertex {
+  @location(0) position: vec2f,
+};
+
+struct VSOutput {
+  @builtin(position) position: vec4f,
+};
+
+@group(0) @binding(0) var&lt;uniform&gt; uni: Uniforms;
+
+@vertex fn vs(vert: Vertex) -&gt; VSOutput {
+  var vsOut: VSOutput;
+  
+  let position = vert.position;
+
+  // convert the position from pixels to a 0.0 to 1.0 value
+  let zeroToOne = position / uni.resolution;
+
+  // convert from 0 &lt;-&gt; 1 to 0 &lt;-&gt; 2
+  let zeroToTwo = zeroToOne * 2.0;
+
+  // covert from 0 &lt;-&gt; 2 to -1 &lt;-&gt; +1 (clip space)
+  let flippedClipSpace = zeroToTwo - 1.0;
+
+  // flip Y
+  let clipSpace = flippedClipSpace * vec2f(1, -1);
+
+  vsOut.position = vec4f(clipSpace, 0.0, 1.0);
+  return vsOut;
+}
+
+@fragment fn fs(vsOut: VSOutput) -&gt; @location(0) vec4f {
+  return uni.color;
+}
+</pre>
+<p>可以看到，我们获取顶点位置并将其除以分辨率。这样就能在画布上得到 0 到 1 范围内的值。接着乘以 2，使数值范围变为 0 到 2。再减去 1 后，数值就进入了裁剪空间，但此时是翻转的——因为裁剪空间是 Y 轴向上为正，而 Canvas 2D 是 Y 轴向下为正。因此我们将 Y 乘以-1 进行翻转。现在得到了所需的裁剪空间值，即可从着色器输出。</p>
+<p>我们仅有一个属性，因此管线配置如下所示：</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const pipeline = device.createRenderPipeline({
+    label: 'just 2d position',
+    layout: 'auto',
+    vertex: {
+      module,
+      buffers: [
+        {
+*          arrayStride: (2) * 4, // (2) floats, 4 bytes each
+*          attributes: [
+*            {shaderLocation: 0, offset: 0, format: 'float32x2'},  // position
+*          ],
+        },
+      ],
+    },
+    fragment: {
+      module,
+      targets: [{ format: presentationFormat }],
+    },
+  });
+</pre>
+<p>我们需要为统一变量(Uniforms)设置一个缓冲区：</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // color, resolution, padding
+*  const uniformBufferSize = (4 + 2) * 4 + 8;
+  const uniformBuffer = device.createBuffer({
+    label: 'uniforms',
+    size: uniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const uniformValues = new Float32Array(uniformBufferSize / 4);
+
+  // offsets to the various uniform values in float32 indices
+*  const kColorOffset = 0;
+*  const kResolutionOffset = 4;
+*
+*  const colorValue = uniformValues.subarray(kColorOffset, kColorOffset + 4);
+*  const resolutionValue = uniformValues.subarray(kResolutionOffset, kResolutionOffset + 2);
+*
+*  // The color will not change so let's set it once at init time
+*  colorValue.set([Math.random(), Math.random(), Math.random(), 1]);
+</pre>
+<p>在渲染时我们需要设置分辨率：</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
+    ...
+
+    // Set the uniform values in our JavaScript side Float32Array
+    resolutionValue.set([canvas.width, canvas.height]);
+
+    // upload the uniform values to the uniform buffer
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+</pre>
+<p>在运行之前，让我们将画布背景设置为网格纸样式。我们将调整其缩放比例，使网格纸的每个单元格为 10x10 像素，并每隔 100x100 像素绘制一条加粗的线条。</p>
+<pre class="prettyprint showlinemods notranslate lang-css" translate="no">:root {
+  --bg-color: #fff;
+  --line-color-1: #AAA;
+  --line-color-2: #DDD;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #000;
+    --line-color-1: #666;
+    --line-color-2: #333;
+  }
+}
+canvas {
+  display: block;  /* make the canvas act like a block   */
+  width: 100%;     /* make the canvas fill its container */
+  height: 100%;
+  background-color: var(--bg-color);
+  background-image: linear-gradient(var(--line-color-1) 1.5px, transparent 1.5px),
+      linear-gradient(90deg, var(--line-color-1) 1.5px, transparent 1.5px),
+      linear-gradient(var(--line-color-2) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-color-2) 1px, transparent 1px);
+  background-position: -1.5px -1.5px, -1.5px -1.5px, -1px -1px, -1px -1px;
+  background-size: 100px 100px, 100px 100px, 10px 10px, 10px 10px;  
+}
+</pre>
+<p>上述 CSS 代码应能同时处理浅色和深色模式的情况。</p>
+<p>截至目前，我们所有的示例都使用了不透明的画布。若需实现透明效果以显示刚设置的背景，我们需要进行几项调整。</p>
+<p>首先，在配置画布时我们需要将<code class="notranslate" translate="no">alphaMode</code>设置为<code class="notranslate" translate="no">'premultiplied'</code>，其默认值为<code class="notranslate" translate="no">'opaque'</code>。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  context.configure({
+    device,
+    format: presentationFormat,
++    alphaMode: 'premultiplied',
+  });
+</pre>
+<p>接着我们需要在<a href="https://www.w3.org/TR/webgpu/#dictdef-gpurenderpassdescriptor"><code class="notranslate" translate="no">GPURenderPassDescriptor</code></a>中将画布清除为 0, 0, 0, 0。由于默认的<code class="notranslate" translate="no">clearValue</code>已经是 0, 0, 0, 0，只需删除之前设置其他值的代码行即可。</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const renderPassDescriptor = {
+    label: 'our basic canvas renderPass',
+    colorAttachments: [
+      {
+        // view: &lt;- to be filled out when we render
+-        clearValue: [0.3, 0.3, 0.3, 1],
+        loadOp: 'clear',
+        storeOp: 'store',
+      },
+    ],
+  };
+</pre>
+<p>至此，我们的字母 F 绘制完成：</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-translation-prep.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-translation-prep.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>请注意字母 F 相对于背后网格的尺寸比例。F 的顶点数据构建出的图形宽 100 像素、高 150 像素，这与实际显示效果一致。F 从坐标原点(0,0)开始，向右延伸至(100,0)，向下延伸至(0,150)。</p>
+<p>现在基础设置已完成，让我们开始添加 <em><code class="notranslate" translate="no">平移(translation)</code></em> 功能。</p>
+<p>平移本质上就是移动物体的过程，我们只需将平移量添加到统一变量(Uniforms)中，再将其与位置坐标相加即可实现。</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct Uniforms {
+  color: vec4f,
+  resolution: vec2f,
++  translation: vec2f,
+};
+
+struct Vertex {
+  @location(0) position: vec2f,
+};
+
+struct VSOutput {
+  @builtin(position) position: vec4f,
+};
+
+@group(0) @binding(0) var&lt;uniform&gt; uni: Uniforms;
+
+@vertex fn vs(vert: Vertex) -&gt; VSOutput {
+  var vsOut: VSOutput;
+  
++  // Add in the translation
+-  let position = vert.position;
++  let position = vert.position + uni.translation;
+
+  // convert the position from pixels to a 0.0 to 1.0 value
+  let zeroToOne = position / uni.resolution;
+
+  // convert from 0 &lt;-&gt; 1 to 0 &lt;-&gt; 2
+  let zeroToTwo = zeroToOne * 2.0;
+
+  // covert from 0 &lt;-&gt; 2 to -1 &lt;-&gt; +1 (clip space)
+  let flippedClipSpace = zeroToTwo - 1.0;
+
+  // flip Y
+  let clipSpace = flippedClipSpace * vec2f(1, -1);
+
+  vsOut.position = vec4f(clipSpace, 0.0, 1.0);
+  return vsOut;
+}
+
+@fragment fn fs(vsOut: VSOutput) -&gt; @location(0) vec4f {
+  return uni.color;
+}
+</pre>
+<p>我们需要为统一缓冲区增加空间：</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  // color, resolution, padding
+-  const uniformBufferSize = (4 + 2) * 4 + 8;
++  // color, resolution, translation
++  const uniformBufferSize = (4 + 2 + 2) * 4;
+  const uniformBuffer = device.createBuffer({
+    label: 'uniforms',
+    size: uniformBufferSize,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const uniformValues = new Float32Array(uniformBufferSize / 4);
+
+  // offsets to the various uniform values in float32 indices
+  const kColorOffset = 0;
+  const kResolutionOffset = 4;
++  const kTranslationOffset = 6;
+
+  const colorValue = uniformValues.subarray(kColorOffset, kColorOffset + 4);
+  const resolutionValue = uniformValues.subarray(kResolutionOffset, kResolutionOffset + 2);
++  const translationValue = uniformValues.subarray(kTranslationOffset, kTranslationOffset + 2);
+</pre>
+<p>接着我们需要在渲染时设置平移量：</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+  const settings = {
++    translation: [0, 0],
++  };
+
+  function render() {
+    ...
+
+    // Set the uniform values in our JavaScript side Float32Array
+    resolutionValue.set([canvas.width, canvas.height]);
++    translationValue.set(settings.translation);
+
+    // upload the uniform values to the uniform buffer
+    device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+</pre>
+<p>最后让我们添加一个用户界面，以便调整平移参数：</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">+import GUI from '../3rdparty/muigui-0.x.module.js';
+
+...
+  const settings = {
+    translation: [0, 0],
+  };
+
++  const gui = new GUI();
++  gui.onChange(render);
++  gui.add(settings.translation, '0', 0, 1000).name('translation.x');
++  gui.add(settings.translation, '1', 0, 1000).name('translation.y');
+</pre>
+<p>现在我们已经成功添加了平移功能：</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-translation.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-translation.html" target="_blank">点此在新窗口中浏览</a>
+</div>
+
+<p></p>
+<p>请注意它与我们的像素网格完全对应。若将平移量设置为(200,300)，字母 F 的左上角顶点(0,0)就会被绘制在(200,300)的位置。</p>
+<p>这篇文章可能看起来过于简单。实际上我们在之前的多个示例中已经使用了 <em><code class="notranslate" translate="no">平移(translation)</code></em> 功能（尽管当时命名为“偏移量(offset)”）。本文是系列教程的一部分，虽然内容基础，但随着系列内容的推进，其核心概念将在上下文中逐渐显现意义。</p>
+<p>接下来我们将探讨<a href="webgpu-rotation.html">旋转</a>。</p>
 
     </div>
     <div class="lesson-sidebar">
@@ -204,7 +555,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>基础概念</li>
+        <div id="toc">
+          <ul>  <li>基础概念</li>
         <ul>
           <li><a href="/webgpu/lessons/zh_cn/webgpu-fundamentals.html">基础知识</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-inter-stage-variables.html">Inter-stage 变量</a></li>
@@ -233,7 +585,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         </ul>
   <li>3D数学</li>
         <ul>
-          <li><a href="/webgpu/lessons/zh_cn/webgpu-translation.html">Translation</a></li>
+          <li><a href="/webgpu/lessons/zh_cn/webgpu-translation.html">平移(Translation)</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-rotation.html">Rotation</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-scale.html">Scale</a></li>
 <li><a href="/webgpu/lessons/zh_cn/webgpu-matrix-math.html">Matrix Math</a></li>
@@ -301,13 +653,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://webgpureport.org">WebGPUReport.org</a></li>
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>有疑问? <a href="https://stackoverflow.com/questions/tagged/webgpu">在stackoverflow上提问</a>.</div>
+<div>Issue/Bug? <a href="https://github.com/webgpu/webgpufundamentals/issues">在GitHub上提issue</a>.</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `WebGPU 平移`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "感谢 <a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a><br>的 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 次贡献</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/js/prettify.js"></script>
-<script src="/webgpu/lessons/resources/js/lesson.js"></script>
+<script src="/webgpu/lessons/resources/js/lesson.js" type="module"></script>
 <!-- Google tag (gtag.js) -->
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-92BFT5PE4H"></script>
 <script>
