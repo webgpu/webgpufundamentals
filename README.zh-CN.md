@@ -1,5 +1,8 @@
 # WebGPU 基础原理
 
+<!-- 基于2026年1月10日 -->
+<!-- 64c1b61313d375343b9e4e3f587afd2881cc877d -->
+
 这是[一系列关于 WebGPU 的课程或教程](https://webgpufundamentals.org/webgpu/lessons/zh_cn/)。
 
 这项工作仍在进行中。欢迎贡献，特别是本地化翻译。
