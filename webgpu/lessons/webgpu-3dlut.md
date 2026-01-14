@@ -323,7 +323,7 @@ The larger the resolution the more fine adjustments we can make but being a cube
 
 Let's set the size to 16 and then click save the file which gives us this file.
 
-<div class="webgpu_center"><img src="resources/images/identity-lut-s16.png"></div>
+<div class="webgpu_center"><img src="resources/images/identity-lut-s16.png" style="image-rendering: pixelated; width: 256px;"></div>
 
 We then go it into an image editor, in my case Photoshop, load up a sample image, and paste the 3D-LUT in the top left corner
 
