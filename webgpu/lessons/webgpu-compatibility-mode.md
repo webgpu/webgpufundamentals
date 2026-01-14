@@ -419,41 +419,20 @@ The cubemap code converts a 2d-array layer and normalized UV coordinate into a
 cubemap 3d coordinate. We need this because again, in compatibility mode, a cubemap
 can only be viewed as a cubemap.
 
-Back to our JavaScript, We need to let the user pass in the viewDimension they used when they created
-the texture so that we can select one of these shaders. If they don't pass it
-in we'll guess from the defaults.
+Back to our JavaScript, we need to read the `textureBindingViewDimension` property
+from the texture. Note that this value is undefined if we are **not** in compatibility
+mode. But, we can just assumed `'2d-array'` in that case since in norm "core" webgpu,
+`'2d-array'` should always work
 
 ```js
-+  /**
-+  * Get the default viewDimension
-+  * Note: It's only a guess. The user needs to tell us to be
-+  * correct in all cases because we can't distinguish between
-+  * a 2d texture and a 2d-array texture with 1 layer, nor can
-+  * we distinguish between a 2d-array texture with 6 layers and
-+  * a cubemap.
-+  */
-+  function getDefaultViewDimensionForTexture(dimension, depthOrArrayLayers) {
-+   switch (dimension) {
-+      case '1d':
-+        return '1d';
-+      default:
-+      case '2d':
-+        return depthOrArrayLayers > 1 ? '2d-array' : '2d';
-+      case '3d':
-+        return '3d';
-+    }
-+  }
-
   const generateMips = (() => {
     let sampler;
     let module;
     const pipelineByFormat = {};
 
--    return function generateMips(device, texture) {
-+    return function generateMips(device, texture, textureBindingViewDimension) {
-+      // If the user doesn't pass in a textureBindingViewDimension then guess
-+      textureBindingViewDimension = textureBindingViewDimension ??
-+        getDefaultViewDimensionForTexture(texture.dimension, texture.depthOrArrayLayers);
+    return function generateMips(device, texture) {
++      // If the texture doesn't have a textureBindingViewDimension then use '2d-array'
++      const textureBindingViewDimension = texture.textureBindingViewDimension ?? '2d-array';
       if (!module) {
         module = device.createShaderModule({
           label: 'textured quad shaders for mip level generation',
@@ -545,9 +524,8 @@ per viewDimension.
 +    const pipelineByFormatAndView = {};
 
     return function generateMips(device, texture, textureBindingViewDimension) {
-      // If the user doesn't pass in a textureBindingViewDimension then guess
-      textureBindingViewDimension = textureBindingViewDimension ??
-        getDefaultViewDimensionForTexture(texture);
+      // If the texture doesn't have a textureBindingViewDimension then use '2d-array'
+      const textureBindingViewDimension = texture.textureBindingViewDimension ?? '2d-array';
       let module = moduleByViewDimension[textureBindingViewDimension];
       if (!module) {
         ...
@@ -653,7 +631,7 @@ We have a few other things we need to update to make the example work though.
 We have a function `createTextureFromSources` that we pass sources
 to and it creates a texture. It was always creating a `'2d'` texture
 since in core we can view a `'2d'` texture with 6 layers as a cubemap.
-Instead, we need to make it so we can pass in a viewDimension and/or
+Instead, we need to make it so we can pass in a textureBindingViewDimension and/or
 a dimension so that when we create the texture we can tell compatibility
 mode how we will view it.
 
@@ -667,8 +645,8 @@ mode how we will view it.
 +  }
 
   function createTextureFromSources(device, sources, options = {}) {
-+    const viewDimension = options.viewDimension ??
-+      getDefaultViewDimensionForTexture(options.dimension, sources.length);
++    const viewDimension = options.dimension ??
++      getDefaultViewDimensionForTexture(options.textureBindingViewDimension);
 +    const dimension = options.dimension ?? textureViewDimensionToDimension(viewDimension);
     // Assume are sources all the same size so just use the first one for width and height
     const source = sources[0];
@@ -680,31 +658,10 @@ mode how we will view it.
              GPUTextureUsage.COPY_DST |
              GPUTextureUsage.RENDER_ATTACHMENT,
 +      dimension,
-+      textureBindingViewDimension: viewDimension,
++      textureBindingViewDimension: options.textureBindingViewDimension,
     });
     copySourcesToTexture(device, texture, sources, options);
     return texture;
-  }
-```
-
-We also need to update `copySourcesToTexture` to get the `viewDimension` and
-pass it to `generateMips`.
-
-```js
-  function copySourcesToTexture(device, texture, sources, {flipY, viewDimension} = {}) {
-    sources.forEach((source, layer) => {
-      device.queue.copyExternalImageToTexture(
-        { source, flipY, },
-        { texture, origin: [0, 0, layer] },
-        { width: source.width, height: source.height },
-      );
-    });
-    if (texture.mipLevelCount > 1) {
-+      viewDimension = viewDimension ??
-+        getDefaultViewDimensionForTexture(texture.dimension, sources.length);
-+      generateMips(device, texture, viewDimension);
--      generateMips(device, texture);
-    }
   }
 ```
 
@@ -714,7 +671,7 @@ that we want a cubemap.
 ```js
   const texture = await createTextureFromSources(
 -      device, faceCanvases, {mips: true, flipY: false});
-+      device, faceCanvases, {mips: true, flipY: false, viewDimension: 'cube'});
++      device, faceCanvases, {mips: true, flipY: false, textureBindingViewDimension: 'cube'});
 ```
 
 To make the example run in compatibility mode we need to request it like we covered
@@ -737,9 +694,8 @@ And with that, our cube map sample works in compatibility mode.
 
 You now have a compatibility mode friendly `generateMips` which you could
 use in any of the examples on this site. It works on both core and compatibility mode.
-In compatibility mode you must pass in a `viewDimension` if you want a cube map or if
+In compatibility mode you must pass in a `textureBindingViewDimension` if you want a cube map or if
 you want a 1 layer 2d-array. In core WebGPU you can pass one in or not. It doesn't matter.
-
 
 # Minor limits and restrictions
 

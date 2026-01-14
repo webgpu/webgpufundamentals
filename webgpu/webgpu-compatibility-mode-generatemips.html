@@ -190,7 +190,7 @@ async function main() {
     return 1 + Math.log2(maxSize) | 0;
   };
 
-  function copySourcesToTexture(device, texture, sources, {flipY, viewDimension} = {}) {
+  function copySourcesToTexture(device, texture, sources, {flipY} = {}) {
     sources.forEach((source, layer) => {
       device.queue.copyExternalImageToTexture(
         { source, flipY, },
@@ -199,16 +199,13 @@ async function main() {
       );
     });
     if (texture.mipLevelCount > 1) {
-      viewDimension = viewDimension ??
-        getDefaultViewDimensionForTexture(texture.dimension, sources.length);
-      generateMips(device, texture, viewDimension);
+      generateMips(device, texture);
     }
   }
 
   function createTextureFromSources(device, sources, options = {}) {
-    const viewDimension = options.viewDimension ??
-      getDefaultViewDimensionForTexture(options.dimension, sources.length);
-    const dimension = options.dimension ?? textureViewDimensionToDimension(viewDimension);
+    const dimension = options.dimension ??
+        textureViewDimensionToDimension(options.textureBindingViewDimension);
     // Assume are sources all the same size so just use the first one for width and height
     const source = sources[0];
     const texture = device.createTexture({
@@ -219,30 +216,10 @@ async function main() {
              GPUTextureUsage.COPY_DST |
              GPUTextureUsage.RENDER_ATTACHMENT,
       dimension,
-      textureBindingViewDimension: viewDimension,
+      textureBindingViewDimension: options.textureBindingViewDimension,
     });
     copySourcesToTexture(device, texture, sources, options);
     return texture;
-  }
-
-  /**
-  * Get the default viewDimension
-  * Note: It's only a guess. The user needs to tell us to be
-  * correct in all cases because we can't distinguish between
-  * a 2d texture and a 2d-array texture with 1 layer, nor can
-  * we distinguish between a 2d-array texture with 6 layers and
-  * a cubemap.
-  */
-  function getDefaultViewDimensionForTexture(dimension, depthOrArrayLayers) {
-   switch (dimension) {
-      case '1d':
-        return '1d';
-      default:
-      case '2d':
-        return depthOrArrayLayers > 1 ? '2d-array' : '2d';
-      case '3d':
-        return '3d';
-    }
   }
 
   function textureViewDimensionToDimension(viewDimension) {
@@ -258,10 +235,9 @@ async function main() {
     let module;
     const pipelineByFormatAndView = {};
 
-    return function generateMips(device, texture, textureBindingViewDimension) {
-      textureBindingViewDimension = textureBindingViewDimension ??
-        getDefaultViewDimensionForTexture(texture.dimension, texture.depthOrArrayLayers);
-
+    return function generateMips(device, texture) {
+      // If the texture doesn't have a textureBindingViewDimension then use '2d-array'
+      const textureBindingViewDimension = texture.textureBindingViewDimension ?? '2d-array';
       if (!module) {
         module = device.createShaderModule({
           label: 'textured quad shaders for mip level generation',
@@ -411,7 +387,7 @@ async function main() {
   })();
 
   const texture = await createTextureFromSources(
-      device, faceCanvases, {mips: true, flipY: false, viewDimension: 'cube'});
+      device, faceCanvases, {mips: true, flipY: false, textureBindingViewDimension: 'cube'});
 
   const sampler = device.createSampler({
     magFilter: 'linear',
