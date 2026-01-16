@@ -3,7 +3,7 @@ Description: WebGPU에서 컴퓨트 셰이더를 사용하는 방법에 대해 �
 TOC: 컴퓨트 셰이더 기초
 
 이 문서는 [WebGPU 기초](webgpu-fundamentals.html) 문서에서부터 이어집니다.
-저희는 컴퓨트 셰이더의 기초를 배우고, 실제 문제를 해결하는 예제를 살펴볼 것입니다.
+컴퓨트 셰이더의 기초를 배우고, 실제 문제를 해결하는 예제를 살펴보겠습니다.
 
 이전 문서에서 숫자를 두배로 늘려주는 아주 간단한 컴퓨트 셰이더를 만들어봤습니다.
 
@@ -42,14 +42,14 @@ TOC: 컴퓨트 셰이더 기초
   <div>작업 그룹 내 각 스레드의 <code>local_invocation_id</code></div>
 </div>
 
-<a id="a-workgroup-id"></a>만약 저희가 `pass.dispatchWorkgroups(4, 3, 2)`를 호출한다면, 24개의 스레드를 가진 한 작업 그룹을 총 4 * 3 * 2번 (24번), 총 576개의 스레드로 실행합니다.
+<a id="a-workgroup-id"></a>만약 `pass.dispatchWorkgroups(4, 3, 2)`를 호출한다면, 24개의 스레드를 가진 한 작업 그룹을 총 4 * 3 * 2번 (24번), 총 576개의 스레드로 실행합니다.
 
 <div class="webgpu_center">
   <img src="resources/gpu-workgroup-dispatch.svg" style="width: 500px;">
   <div>디스패치된 작업 그룹의 <code>workgroup_id</code></div>
 </div>
 
-저희가 만든 컴퓨트 셰이더의 각 "실행(invocation)"에서는 다음과 같은 빌트인 변수들을 사용할 수 있습니다.
+컴퓨트 셰이더의 각 "실행(invocation)"에서는 다음과 같은 빌트인 변수들을 사용할 수 있습니다.
 
 * `local_invocation_id`: 작업 그룹 내 스레드의 고유한 ID입니다.
 
@@ -134,7 +134,7 @@ const code = `
 `;
 ```
 
-여기서는 JavaScript의 템플릿 리터럴을 사용하여 `workgroupSize` 변수를 통해 작업 그룹의 크기를 설정했습니다.
+JavaScript 변수 `workgroupSize` 와 JavaScript 템플릿 리터럴을 이용해서 워크그룹의 크기를 지정했습니다.
 이는 결국 셰이더에 하드코딩됩니다.
 
 이제 셰이더가 생겼으니, 그 결과를 저장할 3개의 버퍼를 만들 수 있습니다.
@@ -252,7 +252,7 @@ function log(...args) {
 {{{example url="../webgpu-compute-shaders-builtins.html"}}}
 
 이 빌트인 변수들은 일반적으로 `pass.dispatchWorkgroups`의 호출마다 컴퓨트 셰이더의 각 스레드에 대해 변경되는 유일한 입력값입니다.
-따라서 주어지는 `...id` 빌트인들을 입력값으로 사용하여 원하는 작업을 수행하는 컴퓨트 셰이더 함수를 설계하는 방법을 파악해야 합니다.
+따라서 주어지는 `..._id` 빌트인들을 입력값으로 사용하여 원하는 작업을 수행하는 컴퓨트 셰이더 함수를 설계하는 방법을 파악해야 합니다.
 
 ## 작업 그룹의 크기
 
@@ -278,7 +278,7 @@ WebGPU의 기본 제한은 다음과 같습니다.
    @workgroup_size(256, 1, 1)   // ok
    @workgroup_size(128, 2, 1)   // ok
    @workgroup_size(16, 16, 1)   // ok
-   @workgroup_size(16, 16, 2)   // bad 16 * 16 * 2 = 512
+   @workgroup_size(16, 16, 2)   // 안됨. 16 * 16 * 2 = 512
 ```
 
 안타깝게도, "완벽한 크기"는 GPU에 따라 다르며, WebGPU는 이를 제공할 수 없습니다.
@@ -335,4 +335,4 @@ JavaScript의 경우, 코드가 전부 실행되면 `result[0]`은 분명히 31�
 추후 예제를 통해 이 문제를 처리하는 몇 가지 방법을 살펴보겠습니다. 
 지금까지의 두 예제들은 모두 각 컴퓨트 셰이더의 반복이 다른 반복에 영향을 받지 않는 작업을 수행하기 때문에 경쟁 상태가 발생하지 않습니다.
 
-추가 예제: TBD
+다음 글: [컴퓨트 셰이더 - 이미지 히스토그램](webgpu-compute-shaders-histogram.html)
