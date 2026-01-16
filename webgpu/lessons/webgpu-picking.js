@@ -391,7 +391,7 @@ async function idRender(elem) {
         ? 'undefined'
         : doubleTapMode
         ? 'doubleTapZoom'
-        : e.shiftKey
+        : e.shiftKey || (e.buttons & 4) !== 0
         ? 'track'
         : 'panAndTilt';
 

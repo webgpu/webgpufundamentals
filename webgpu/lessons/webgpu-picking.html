@@ -280,7 +280,7 @@ pointerup, if the user hasn’t moved the pointer.</p>
         ? 'undefined'
         : doubleTapMode
         ? 'doubleTapZoom'
-        : e.shiftKey
+        : e.shiftKey || (e.buttons &amp; 4) !== 0
         ? 'track'
         : 'panAndTilt';
 

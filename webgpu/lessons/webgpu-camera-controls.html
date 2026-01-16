@@ -792,6 +792,13 @@ values. It then switches on the mode.</p>
 <p>Our <code class="notranslate" translate="no">'track'</code> mode passes the pointer delta to the helper’s <code class="notranslate" translate="no">track</code>
 function. We scale the delta by the radius (our distance from the
 target), that way we’ll move in smaller steps if we’re really close up.</p>
+<p>We can also make it track if the user is using the middle mouse button.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-      const mode = e.shiftKey
++      const mode = e.shiftKey || (e.buttons &amp; 4) !== 0
+        ? 'track'
+        : 'panAndTilt';
+</pre>
+<p>Now you can also hold the mouse wheel down and move your mouse to track.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-camera-controls-scene-graph-step-03.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-camera-controls-scene-graph-step-03.html" target="_blank">click here to open in a separate window</a>
@@ -905,12 +912,12 @@ move the same speed if we’re too close.</p>
       }
 +      pointerToLastPosition.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
--      const mode = e.shiftKey
+-      const mode = e.shiftKey || (e.buttons &amp; 4) !== 0
 +      const mode = pointerToLastPosition.size === 2
 +        ? 'pinch'
 +        : pointerToLastPosition.size &gt; 2
 +        ? 'undefined'
-+        : e.shiftKey
++        : e.shiftKey || (e.buttons &amp; 4) !== 0
         ? 'track'
         : 'panAndTilt';
 
@@ -999,7 +1006,7 @@ that.</p>
         ? 'undefined'
 +        : doubleTapMode
 +        ? 'doubleTapZoom'
-        : e.shiftKey
+        : e.shiftKey || (e.buttons &amp; 4) !== 0
         ? 'track'
         : 'panAndTilt';
 

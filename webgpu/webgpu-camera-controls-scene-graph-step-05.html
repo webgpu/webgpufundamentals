@@ -1033,7 +1033,7 @@ async function main() {
         ? 'pinch'
         : pointerToLastPosition.size > 2
         ? 'undefined'
-        : e.shiftKey
+        : e.shiftKey || (e.buttons & 4) !== 0
         ? 'track'
         : 'panAndTilt';
 
