@@ -1011,7 +1011,7 @@ async function main() {
         return;
       }
 
-      const mode = e.shiftKey
+      const mode = e.shiftKey || (e.buttons & 4) !== 0
         ? 'track'
         : 'panAndTilt';
 

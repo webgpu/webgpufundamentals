@@ -622,6 +622,17 @@ Our `'track'` mode passes the pointer delta to the helper's `track`
 function. We scale the delta by the radius (our distance from the
 target), that way we'll move in smaller steps if we're really close up.
 
+We can also make it track if the user is using the middle mouse button.
+
+```js
+-      const mode = e.shiftKey
++      const mode = e.shiftKey || (e.buttons & 4) !== 0
+        ? 'track'
+        : 'panAndTilt';
+```
+
+Now you can also hold the mouse wheel down and move your mouse to track.
+
 {{{example url="../webgpu-camera-controls-scene-graph-step-03.html"}}}
 
 ## <a id="a-dolly-by-wheel"></a> Dolly by Wheel
@@ -740,12 +751,12 @@ On mobile it's common to pinch to zoom. Let's add that.
       }
 +      pointerToLastPosition.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
--      const mode = e.shiftKey
+-      const mode = e.shiftKey || (e.buttons & 4) !== 0
 +      const mode = pointerToLastPosition.size === 2
 +        ? 'pinch'
 +        : pointerToLastPosition.size > 2
 +        ? 'undefined'
-+        : e.shiftKey
++        : e.shiftKey || (e.buttons & 4) !== 0
         ? 'track'
         : 'panAndTilt';
 
@@ -837,7 +848,7 @@ that.
         ? 'undefined'
 +        : doubleTapMode
 +        ? 'doubleTapZoom'
-        : e.shiftKey
+        : e.shiftKey || (e.buttons & 4) !== 0
         ? 'track'
         : 'panAndTilt';
 

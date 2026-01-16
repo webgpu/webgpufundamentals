@@ -57,7 +57,7 @@ pointerup, if the user hasn't moved the pointer.
         ? 'undefined'
         : doubleTapMode
         ? 'doubleTapZoom'
-        : e.shiftKey
+        : e.shiftKey || (e.buttons & 4) !== 0
         ? 'track'
         : 'panAndTilt';
 
