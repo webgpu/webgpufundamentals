@@ -127,7 +127,7 @@ color histograms and once for the luminance histogram
 +  // draw the red, green, and blue channels
   const numEntries = imgData.width * imgData.height;
 -  drawHistogram(histogram, numEntries);
-+ drawHistogram(histogram, numEntries, [0, 1, 2]);
++  drawHistogram(histogram, numEntries, [0, 1, 2]);
 +
 +  // draw the luminosity channel
 +  drawHistogram(histogram, numEntries, [3]);

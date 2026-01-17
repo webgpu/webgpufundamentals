@@ -115,7 +115,7 @@ function computeHistogram(numBins, imgData) {
       ++bins[bin];
     }
   }
-  return histogram;
+  return bins;
 }
 ```
 
