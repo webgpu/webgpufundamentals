@@ -285,7 +285,7 @@ WebGPUの一部のエラーは、関数を呼び出すときにチェックさ�
 
 [WebGPU-Inspector](https://github.com/brendan-duncan/webgpu_inspector)は、すべてのWebGPUコマンドをキャプチャしようとし、バッファ、テクスチャ、呼び出しを検査し、一般的にWebGPUコードで何が起こっているかを確認できるようにします。
 
-<div class="webgpu_center"><img src="https://github.com/brendan-duncan/webgpu_inspector/raw/main/docs/images/frame_capture_commands.png"></div>
+<div class="webgpu_center"><img src="resources/images/frame_capture_commands.jpg"style="width: 1200px;"></div>
 
 ## シェーダーのデバッグのヒント
 

@@ -346,7 +346,7 @@ will attempt to capture all of your WebGPU commands and can let you
 inspect buffers, textures, calls, and generally try to see what's
 happening in your WebGPU code.
 
-<div class="webgpu_center"><img src="https://github.com/brendan-duncan/webgpu_inspector/raw/main/docs/images/frame_capture_commands.png"></div>
+<div class="webgpu_center"><img src="resources/images/frame_capture_commands.jpg"style="width: 1200px;"></div>
 
 ## Tips for debugging shaders
 
