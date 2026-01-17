@@ -465,12 +465,14 @@ div[data-diagram] {
 .webgpu_center>object {
   max-width: 100%;
 }
+/* note: DO NOT ENABLE THIS!
 .webgpu_center>img,
 .webgpu_center>svg,
 .webgpu_center>video,
 .webgpu_center>object {
   width: 100%;
 }
+*/
 .webgpu_center>table {
   display: inline-table;
 }
