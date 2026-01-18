@@ -233,7 +233,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="lesson">
     <div class="lesson-main">
       <p>이 문서는 <a href="webgpu-fundamentals.html">WebGPU 기초</a> 문서에서부터 이어집니다.
-저희는 컴퓨트 셰이더의 기초를 배우고, 실제 문제를 해결하는 예제를 살펴볼 것입니다.</p>
+컴퓨트 셰이더의 기초를 배우고, 실제 문제를 해결하는 예제를 살펴보겠습니다.</p>
 <p>이전 문서에서 숫자를 두배로 늘려주는 아주 간단한 컴퓨트 셰이더를 만들어봤습니다.</p>
 <p>아래가 바로 그 내용이었죠.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(0) var&lt;storage, read_write&gt; data: array&lt;f32&gt;;
@@ -259,12 +259,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <img src="../resources/gpu-workgroup.svg" style="width: 500px;">
   <div>작업 그룹 내 각 스레드의 <code class="notranslate" translate="no">local_invocation_id</code></div>
 </div>
-<p><a id="a-workgroup-id"></a>만약 저희가 <code class="notranslate" translate="no">pass.dispatchWorkgroups(4, 3, 2)</code>를 호출한다면, 24개의 스레드를 가진 한 작업 그룹을 총 4 * 3 * 2번 (24번), 총 576개의 스레드로 실행합니다.</p>
+<p><a id="a-workgroup-id"></a>만약 <code class="notranslate" translate="no">pass.dispatchWorkgroups(4, 3, 2)</code>를 호출한다면, 24개의 스레드를 가진 한 작업 그룹을 총 4 * 3 * 2번 (24번), 총 576개의 스레드로 실행합니다.</p>
 <div class="webgpu_center">
   <img src="../resources/gpu-workgroup-dispatch.svg" style="width: 500px;">
   <div>디스패치된 작업 그룹의 <code class="notranslate" translate="no">workgroup_id</code></div>
 </div>
-<p>저희가 만든 컴퓨트 셰이더의 각 "실행(invocation)"에서는 다음과 같은 빌트인 변수들을 사용할 수 있습니다.</p>
+<p>컴퓨트 셰이더의 각 "실행(invocation)"에서는 다음과 같은 빌트인 변수들을 사용할 수 있습니다.</p>
 <ul>
 <li>
 <p><code class="notranslate" translate="no">local_invocation_id</code>: 작업 그룹 내 스레드의 고유한 ID입니다.</p>
@@ -342,7 +342,7 @@ const code = `
   globalResult[global_invocation_index] = global_invocation_id;
 `;
 </pre>
-<p>여기서는 JavaScript의 템플릿 리터럴을 사용하여 <code class="notranslate" translate="no">workgroupSize</code> 변수를 통해 작업 그룹의 크기를 설정했습니다.
+<p>JavaScript 변수 <code class="notranslate" translate="no">workgroupSize</code> 와 JavaScript 템플릿 리터럴을 이용해서 워크그룹의 크기를 지정했습니다.
 이는 결국 셰이더에 하드코딩됩니다.</p>
 <p>이제 셰이더가 생겼으니, 그 결과를 저장할 3개의 버퍼를 만들 수 있습니다.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const numWorkgroups = arrayProd(dispatchCount);
@@ -440,7 +440,7 @@ function log(...args) {
 
 <p></p>
 <p>이 빌트인 변수들은 일반적으로 <code class="notranslate" translate="no">pass.dispatchWorkgroups</code>의 호출마다 컴퓨트 셰이더의 각 스레드에 대해 변경되는 유일한 입력값입니다.
-따라서 주어지는 <code class="notranslate" translate="no">...id</code> 빌트인들을 입력값으로 사용하여 원하는 작업을 수행하는 컴퓨트 셰이더 함수를 설계하는 방법을 파악해야 합니다.</p>
+따라서 주어지는 <code class="notranslate" translate="no">..._id</code> 빌트인들을 입력값으로 사용하여 원하는 작업을 수행하는 컴퓨트 셰이더 함수를 설계하는 방법을 파악해야 합니다.</p>
 <h2 id="작업-그룹의-크기">작업 그룹의 크기</h2>
 <p>작업 그룹의 크기는 어떻게 정해야 할까요? 이는 종종 나오는 질문입니다.
 그냥 항상 <code class="notranslate" translate="no">@workgroup_size(1, 1, 1)</code>을 사용하고, <code class="notranslate" translate="no">pass.dispatchWorkgroups</code>의 매개변수들만으로 실행할 반복 횟수를 결정하면 더 쉽지 않을까요?</p>
@@ -458,7 +458,7 @@ function log(...args) {
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">   @workgroup_size(256, 1, 1)   // ok
    @workgroup_size(128, 2, 1)   // ok
    @workgroup_size(16, 16, 1)   // ok
-   @workgroup_size(16, 16, 2)   // bad 16 * 16 * 2 = 512
+   @workgroup_size(16, 16, 2)   // 안됨. 16 * 16 * 2 = 512
 </pre>
 <p>안타깝게도, "완벽한 크기"는 GPU에 따라 다르며, WebGPU는 이를 제공할 수 없습니다.
 다른 크기를 선택해야 하는 특별한 이유가 없는 한, <strong>WebGPU는 일반적으로 작업 그룹 크기를 64로 선택할 것을 권장</strong>합니다.
@@ -508,7 +508,7 @@ for (let i = 0; i &lt; 32; ++i) {
 </blockquote>
 <p>추후 예제를 통해 이 문제를 처리하는 몇 가지 방법을 살펴보겠습니다.
 지금까지의 두 예제들은 모두 각 컴퓨트 셰이더의 반복이 다른 반복에 영향을 받지 않는 작업을 수행하기 때문에 경쟁 상태가 발생하지 않습니다.</p>
-<p>추가 예제: TBD</p>
+<p>다음 글: <a href="webgpu-compute-shaders-histogram.html">컴퓨트 셰이더 - 이미지 히스토그램</a></p>
 
     </div>
     <div class="lesson-sidebar">
@@ -598,8 +598,8 @@ for (let i = 0; i &lt; 32; ++i) {
   <li>컴퓨트 셰이더</li>
         <ul>
           <li><a href="/webgpu/lessons/ko/webgpu-compute-shaders.html">컴퓨트 셰이더 기초</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-compute-shaders-histogram.html">Image Histogram</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-compute-shaders-histogram-part-2.html">Image Histogram Part 2</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-compute-shaders-histogram.html">이미지 히스토그램</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-compute-shaders-histogram-part-2.html">이미지 히스토그램 Part 2</a></li>
         </ul>
   <li>기타</li>
         <ul>
