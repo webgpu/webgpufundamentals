@@ -201,7 +201,7 @@ JavaScriptでは、ポイントごとにサイズ属性を追加し、`stepMode:
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer },
     ],
   });
 ```
@@ -322,7 +322,7 @@ struct VSOutput {
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer },
 +      { binding: 1, resource: sampler },
 +      { binding: 2, resource: texture.createView() },
     ],
@@ -589,7 +589,7 @@ struct VSOutput {
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer },
     ],
   });
 ```

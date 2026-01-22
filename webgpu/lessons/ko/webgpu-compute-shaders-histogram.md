@@ -461,7 +461,7 @@ async function main() {
     label: 'histogram bindGroup',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: histogramBuffer }},
+      { binding: 0, resource: histogramBuffer },
       { binding: 1, resource: texture.createView() },
     ],
   });
@@ -1114,8 +1114,8 @@ const chunkSumModule = device.createShaderModule({
     label: 'histogram bindGroup',
     layout: histogramChunkPipeline.getBindGroupLayout(0),
     entries: [
--      { binding: 0, resource: { buffer: histogramBuffer }},
-+      { binding: 0, resource: { buffer: chunksBuffer }},
+-      { binding: 0, resource: histogramBuffer },
++      { binding: 0, resource: chunksBuffer },
       { binding: 1, resource: texture.createView() },
     ],
   });
@@ -1124,7 +1124,7 @@ const chunkSumModule = device.createShaderModule({
     label: 'sum bindGroup',
     layout: chunkSumPipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: chunksBuffer }},
+      { binding: 0, resource: chunksBuffer },
     ],
   });
 ```
@@ -1252,8 +1252,8 @@ for (let i = 0; i < numSteps; ++i) {
   const chunkSumBindGroup = device.createBindGroup({
     layout: chunkSumPipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: chunksBuffer }},
-      { binding: 1, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: chunksBuffer },
+      { binding: 1, resource: uniformBuffer },
     ],
   });
   sumBindGroups.push(chunkSumBindGroup);

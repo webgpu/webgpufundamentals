@@ -559,7 +559,7 @@ GPUでキャンバスに描画するので、優先キャンバス形式を取�
           size: chunkSize * 4 * 4,
         },
       },
-      { binding: 1, resource: { buffer: scaleBuffer }},
+      { binding: 1, resource: scaleBuffer },
       { binding: 2, resource: texture.createView() },
     ],
   });
@@ -681,8 +681,8 @@ struct Uniforms {
       layout: drawHistogramPipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: uniformBuffer } },
-        { binding: 2, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: uniformBuffer  },
+        { binding: 2, resource: scaleBuffer },
       ],
     });
 ```
@@ -903,8 +903,8 @@ fn cs(
       layout: drawHistogramPipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: uniformBuffer } },
-        { binding: 2, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: uniformBuffer  },
+        { binding: 2, resource: scaleBuffer },
       ],
     });
 
@@ -927,7 +927,7 @@ fn cs(
     const histogramBindGroup = device.createBindGroup({
       layout: histogramChunkPipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: chunksBuffer }},
+        { binding: 0, resource: chunksBuffer },
         { binding: 1, resource: texture },
       ],
     });
@@ -936,7 +936,7 @@ fn cs(
       layout: scalePipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: scaleBuffer },
         { binding: 2, resource: texture },
       ],
     });
@@ -959,7 +959,7 @@ fn cs(
         entries: [
           { binding: 0, resource: videoSampler },
           { binding: 1, resource: texture },
-          { binding: 2, resource: { buffer: videoUniformBuffer }},
+          { binding: 2, resource: videoUniformBuffer },
         ],
       });
 

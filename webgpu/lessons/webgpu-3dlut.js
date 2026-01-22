@@ -179,7 +179,7 @@ async function setup() {
     const bindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: imageUniformBuffer } },
+        { binding: 0, resource: imageUniformBuffer  },
         { binding: 1, resource: texture.createView() },
         { binding: 2, resource: imageSampler },
       ],

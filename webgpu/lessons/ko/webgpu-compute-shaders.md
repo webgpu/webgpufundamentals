@@ -166,9 +166,9 @@ JavaScript 변수 `workgroupSize` 와 JavaScript 템플릿 리터럴을 이용�
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: workgroupBuffer }},
-      { binding: 1, resource: { buffer: localBuffer }},
-      { binding: 2, resource: { buffer: globalBuffer }},
+      { binding: 0, resource: workgroupBuffer },
+      { binding: 1, resource: localBuffer },
+      { binding: 2, resource: globalBuffer },
     ],
   });
 ```

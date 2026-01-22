@@ -297,7 +297,7 @@ WebGPU에는 `setBindGroup`을 호출할 때 오프셋을 변경할 수 있는 �
     label: 'bindGroup for work buffer',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
--      { binding: 0, resource: { buffer: workBuffer } },
+-      { binding: 0, resource: workBuffer  },
 +      { binding: 0, resource: { buffer: workBuffer, size: 256 } },
 +      { binding: 1, resource: { buffer: workBuffer, size: 256 } },
 +      { binding: 2, resource: { buffer: workBuffer, size: 256 } },
@@ -446,7 +446,7 @@ for each material
 -    layout: pipeline.getBindGroupLayout(0),
 +    layout: bindGroupLayout,
     entries: [
-      { binding: 0, resource: { buffer: workBuffer } },
+      { binding: 0, resource: workBuffer  },
     ],
   });
 ```

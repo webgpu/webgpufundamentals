@@ -243,7 +243,7 @@ async function setup() {
     imageBindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: imageUniformBuffer } },
+        { binding: 0, resource: imageUniformBuffer  },
         { binding: 1, resource: imageTexture.createView() },
         { binding: 2, resource: imageSampler },
       ],
@@ -420,7 +420,7 @@ async function setup() {
       entries: [
         { binding: 0, resource: renderTargetView },
         { binding: 1, resource: postProcessSampler },
-        { binding: 2, resource: { buffer: postProcessUniformBuffer } },
+        { binding: 2, resource: postProcessUniformBuffer  },
       ],
     });
   }
