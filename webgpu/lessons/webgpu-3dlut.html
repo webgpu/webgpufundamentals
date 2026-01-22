@@ -350,7 +350,7 @@ and once without.</p>
     return device.createBindGroup({
       layout: postProcessPipeline.getBindGroupLayout(1),
       entries: [
-        { binding: 0, resource: texture.createView() },
+        { binding: 0, resource: texture },
         { binding: 1, resource: sampler },
       ],
     });
@@ -381,7 +381,7 @@ and once without.</p>
       ]),
     );
 
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);
@@ -898,6 +898,9 @@ lots of luts.</p>
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

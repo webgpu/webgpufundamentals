@@ -202,7 +202,7 @@ async function main() {
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: uniformBuffer }},
+        { binding: 0, resource: uniformBuffer },
       ],
     });
 
@@ -233,7 +233,7 @@ async function main() {
       // Get the current texture from the canvas context and
       // set it as the texture to render to.
       renderPassDescriptor.colorAttachments[0].view =
-          context.getCurrentTexture().createView();
+          context.getCurrentTexture();
 
       const encoder = device.createCommandEncoder();
       const pass = encoder.beginRenderPass(renderPassDescriptor);

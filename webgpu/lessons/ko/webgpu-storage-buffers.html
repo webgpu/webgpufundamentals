@@ -430,8 +430,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     label: 'bind group for objects',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: staticStorageBuffer }},
-      { binding: 1, resource: { buffer: changingStorageBuffer }},
+      { binding: 0, resource: staticStorageBuffer },
+      { binding: 1, resource: changingStorageBuffer },
     ],
   });
 </pre>
@@ -445,7 +445,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     // 캔버스 컨텍스트로부터 현재 텍스처를 얻어오고
     // 이를 렌더링을 수행할 텍스처로 설정
     renderPassDescriptor.colorAttachments[0].view =
-        context.getCurrentTexture().createView();
+        context.getCurrentTexture();
 
     const encoder = device.createCommandEncoder();
     const pass = encoder.beginRenderPass(renderPassDescriptor);
@@ -615,9 +615,9 @@ struct VSOutput {
     label: 'bind group for objects',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: staticStorageBuffer }},
-      { binding: 1, resource: { buffer: changingStorageBuffer }},
-+      { binding: 2, resource: { buffer: vertexStorageBuffer }},
+      { binding: 0, resource: staticStorageBuffer },
+      { binding: 1, resource: changingStorageBuffer },
++      { binding: 2, resource: vertexStorageBuffer },
     ],
   });
 </pre>
@@ -806,6 +806,9 @@ struct VSOutput {
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

@@ -638,9 +638,9 @@ a version of <code class="notranslate" translate="no">generateMips</code> that w
     label: 'bind group for object',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer },
       { binding: 1, resource: sampler },
--      { binding: 2, resource: texture.createView() },
+-      { binding: 2, resource: texture },
 +      { binding: 2, resource: texture.createView({dimension: 'cube'}) },
     ],
   });
@@ -827,6 +827,9 @@ used for? Probably the single most common thing a cubemap is used for is as an
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

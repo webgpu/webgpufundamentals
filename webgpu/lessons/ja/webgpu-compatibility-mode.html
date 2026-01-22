@@ -291,7 +291,7 @@ const bindGroup = device.createBindGroup({
     {
       binding,
       // 互換モードでのエラー：テクスチャはキューブマップであり、2D配列ではありません
-      resource: cubeTexture.createView(),
+      resource: cubeTexture,
     },
   ],
 })
@@ -1157,6 +1157,9 @@ const isCompatibilityMode = !device.features.has('core-features-and-limits');
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

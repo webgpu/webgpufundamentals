@@ -319,9 +319,9 @@ struct VSOutput {
     label: 'bind group for objects',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: staticStorageBuffer }},
-      { binding: 1, resource: { buffer: changingStorageBuffer }},
--      { binding: 2, resource: { buffer: vertexStorageBuffer }},
+      { binding: 0, resource: staticStorageBuffer },
+      { binding: 1, resource: changingStorageBuffer },
+-      { binding: 2, resource: vertexStorageBuffer },
     ],
   });
 </pre>
@@ -517,8 +517,8 @@ struct VSOutput {
 -    label: 'bind group for objects',
 -    layout: pipeline.getBindGroupLayout(0),
 -    entries: [
--      { binding: 0, resource: { buffer: staticStorageBuffer }},
--      { binding: 1, resource: { buffer: changingStorageBuffer }},
+-      { binding: 0, resource: staticStorageBuffer },
+-      { binding: 1, resource: changingStorageBuffer },
 -    ],
 -  });
 </pre>
@@ -1208,6 +1208,9 @@ pass.setVertexBuffer(2, changingVertexBuffer);
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

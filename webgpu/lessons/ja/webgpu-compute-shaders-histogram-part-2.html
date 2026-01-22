@@ -708,8 +708,8 @@ struct Uniforms {
           size: chunkSize * 4 * 4,
         },
       },
-      { binding: 1, resource: { buffer: scaleBuffer }},
-      { binding: 2, resource: texture.createView() },
+      { binding: 1, resource: scaleBuffer },
+      { binding: 2, resource: texture },
     ],
   });
 </pre>
@@ -808,8 +808,8 @@ struct Uniforms {
       layout: drawHistogramPipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: uniformBuffer } },
-        { binding: 2, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: uniformBuffer  },
+        { binding: 2, resource: scaleBuffer },
       ],
     });
 </pre>
@@ -831,7 +831,7 @@ struct Uniforms {
       label: 'our basic canvas renderPass',
       colorAttachments: [
         {
-          view: context.getCurrentTexture().createView(),
+          view: context.getCurrentTexture(),
           clearValue: [0.3, 0.3, 0.3, 1],
           loadOp: 'clear',
           storeOp: 'store',
@@ -1007,8 +1007,8 @@ fn cs(
       layout: drawHistogramPipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: uniformBuffer } },
-        { binding: 2, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: uniformBuffer  },
+        { binding: 2, resource: scaleBuffer },
       ],
     });
 
@@ -1028,7 +1028,7 @@ fn cs(
     const histogramBindGroup = device.createBindGroup({
       layout: histogramChunkPipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: chunksBuffer }},
+        { binding: 0, resource: chunksBuffer },
         { binding: 1, resource: texture },
       ],
     });
@@ -1037,7 +1037,7 @@ fn cs(
       layout: scalePipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: scaleBuffer },
         { binding: 2, resource: texture },
       ],
     });
@@ -1047,7 +1047,7 @@ fn cs(
 <p>レンダリングに関しては、ビデオのレンダリングは外部ビデオのレンダリングに関する記事と似ています。1つの違いは、行列を計算するコードです。ヒストグラムについて上記で述べたように、2倍にスケーリングして1を引くことを行っていますが、Yを反転させるためにyに-2を使用し、1を加えています。また、<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/background-size#cover">カバー効果</a>を得るためにスケーリングしているので、ビデオは常にキャンバスを埋めますが、正しいアスペクト比を維持します。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    // キャンバスに描画
     {
-      const canvasTexture = context.getCurrentTexture().createView();
+      const canvasTexture = context.getCurrentTexture();
       renderPassDescriptor.colorAttachments[0].view = canvasTexture;
       const pass = encoder.beginRenderPass(renderPassDescriptor);
 
@@ -1057,7 +1057,7 @@ fn cs(
         entries: [
           { binding: 0, resource: videoSampler },
           { binding: 1, resource: texture },
-          { binding: 2, resource: { buffer: videoUniformBuffer }},
+          { binding: 2, resource: videoUniformBuffer },
         ],
       });
 
@@ -1269,6 +1269,9 @@ fn cs(
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

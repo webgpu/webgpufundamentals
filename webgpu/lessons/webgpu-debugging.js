@@ -122,8 +122,8 @@ async function visualizeTextureCoords(elem, bad) {
     const bindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: uniformBuffer } },
-        { binding: 1, resource: { buffer: sharedUniformBuffer } },
+        { binding: 0, resource: uniformBuffer  },
+        { binding: 1, resource: sharedUniformBuffer  },
       ],
     });
 
@@ -170,7 +170,7 @@ async function visualizeTextureCoords(elem, bad) {
     device.queue.writeBuffer(sharedUniformBuffer, 0, sharedUniformValues.arrayBuffer);
 
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view = canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
     // If we don't have a depth texture OR if its size is different
     // from the canvasTexture when make a new depth texture
@@ -186,7 +186,7 @@ async function visualizeTextureCoords(elem, bad) {
         usage: GPUTextureUsage.RENDER_ATTACHMENT,
       });
     }
-    renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
+    renderPassDescriptor.depthStencilAttachment.view = depthTexture;
 
     const commandEncoder = device.createCommandEncoder();
     const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);

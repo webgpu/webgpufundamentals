@@ -488,8 +488,8 @@ For <code class="notranslate" translate="no">module</code> and <code class="notr
 and <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUSampler"><code class="notranslate" translate="no">GPUSampler</code></a> which we can hold on to and use in the future.</p>
 </li>
 <li>
-<p>We have a pair of shaders that are almost exactly the same as all the examples. The only difference
-is this part</p>
+<p>We have a pair of shaders that are almost exactly the same as all the examples so far.
+The only difference is this part</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-  vsOutput.position = uni.matrix * vec4f(xy, 0.0, 1.0);
 -  vsOutput.texcoord = xy * vec2f(1, 50);
 +  vsOutput.position = vec4f(xy * 2.0 - 1.0, 0.0, 1.0);
@@ -527,6 +527,22 @@ not from the <code class="notranslate" translate="no">presentationFormat</code> 
 </li>
 <li>
 <p>We finally use some parameters to <code class="notranslate" translate="no">texture.createView</code></p>
+<p>This is the first time we’ve used <code class="notranslate" translate="no">createView</code> when binding a texture
+to a bind group, and when setting a texture as a colorTarget.
+When you bind a texture in to a bind group, or when you assign a texture
+as a render target (setting <code class="notranslate" translate="no">colorTargets</code>), you can either pass a texture
+directly, or you can pass a <a href="https://developer.mozilla.org/en-US/docs/Web/API/GPUTextureView"><code class="notranslate" translate="no">GPUTextureView</code></a>.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">   { binding: resource: someTexture },
+</pre>
+<p>and</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">   { binding: resource: someTexture.createView(...) }, 
+</pre>
+<p>Using the texture directly is effectively a shortcut for calling <code class="notranslate" translate="no">texture.createView</code> with
+no parameters. With no parameters it means you want to access the entire texture.
+With parameters, <code class="notranslate" translate="no">createView</code> lets you select a subset of the texture.
+In this case we use <code class="notranslate" translate="no">createView</code> to select the mip level we want to read from. We set this in
+the bindGroup. And, we use <code class="notranslate" translate="no">createView</code> again, to select which mip level we want
+to render to in the render pass descriptor.</p>
 <p>We loop over each mip level that we need to generate.
 We create a bind group for the last mip with data in it
 and we set the renderPassDescriptor to draw to the current mip level. Then we encode
@@ -1211,9 +1227,9 @@ and add them our bindGroup</p>
     label: 'bind group for object',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer },
 +      { binding: 1, resource: sampler },
-+      { binding: 2, resource: texture.createView() },
++      { binding: 2, resource: texture },
     ],
   });
 </pre>
@@ -1443,6 +1459,9 @@ They seem to change over time so we won’t go into solutions here. <a href="#fn
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

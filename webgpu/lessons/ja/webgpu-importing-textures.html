@@ -1096,9 +1096,9 @@ struct VSOutput {
     label: 'bind group for object',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer },
 +      { binding: 1, resource: sampler },
-+      { binding: 2, resource: texture.createView() },
++      { binding: 2, resource: texture },
     ],
   });
 </pre>
@@ -1315,6 +1315,9 @@ struct VSOutput {
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

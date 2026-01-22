@@ -278,8 +278,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   function render() {
     const encoder = device.createCommandEncoder({ label: 'clear encoder' });
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.end();
@@ -333,8 +332,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   function render() {
     const encoder = device.createCommandEncoder({ label: 'clear encoder' });
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
 +    const { alpha } = settings;
 +    clearValue[3] = alpha;
@@ -760,7 +758,7 @@ const dstCanvas = createDestinationImage(size);
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: srcTextureUnpremultipliedAlpha.createView() },
+      { binding: 1, resource: srcTextureUnpremultipliedAlpha },
       { binding: 2, resource: { buffer: srcUniform.buffer }},
     ],
   });
@@ -769,7 +767,7 @@ const dstCanvas = createDestinationImage(size);
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: dstTextureUnpremultipliedAlpha.createView() },
+      { binding: 1, resource: dstTextureUnpremultipliedAlpha },
       { binding: 2, resource: { buffer: dstUniform.buffer }},
     ],
   });
@@ -778,7 +776,7 @@ const dstCanvas = createDestinationImage(size);
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: srcTexturePremultipliedAlpha.createView() },
+      { binding: 1, resource: srcTexturePremultipliedAlpha },
       { binding: 2, resource: { buffer: srcUniform.buffer }},
     ],
   });
@@ -787,7 +785,7 @@ const dstCanvas = createDestinationImage(size);
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: dstTexturePremultipliedAlpha.createView() },
+      { binding: 1, resource: dstTexturePremultipliedAlpha },
       { binding: 2, resource: { buffer: dstUniform.buffer }},
     ],
   });
@@ -909,8 +907,7 @@ const dstCanvas = createDestinationImage(size);
     const canvasTexture = context.getCurrentTexture();
     // キャンバスコンテキストから現在のテクスチャを取得し、
     // レンダリングするテクスチャとして設定します。
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
 +    function updateUniforms(uniform, canvasTexture, texture) {
 +      const projectionMatrix = mat4.ortho(0, canvasTexture.width, canvasTexture.height, 0, -1, 1);
@@ -1223,8 +1220,7 @@ const dstCanvas = createDestinationImage(size);
     const canvasTexture = context.getCurrentTexture();
     // キャンバスコンテキストから現在のテクスチャを取得し、
     // レンダリングするテクスチャとして設定します。
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
 </pre>
 <p>そして最後に、レンダーパスのクリア値を選択できるようにしましょう。</p>
@@ -1255,8 +1251,7 @@ const dstCanvas = createDestinationImage(size);
     const canvasTexture = context.getCurrentTexture();
     // キャンバスコンテキストから現在のテクスチャを取得し、
     // レンダリングするテクスチャとして設定します。
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
 +    {
 +      const { alpha, color, premultiply } = clear;
@@ -1447,6 +1442,9 @@ const dstCanvas = createDestinationImage(size);
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

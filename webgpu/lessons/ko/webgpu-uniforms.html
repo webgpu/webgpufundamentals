@@ -334,7 +334,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer },
     ],
   });
 </pre>
@@ -456,7 +456,7 @@ const rand = (min, max) =&gt; {
 +      label: `bind group for obj: ${i}`,
 +      layout: pipeline.getBindGroupLayout(0),
 +      entries: [
-+        { binding: 0, resource: { buffer: uniformBuffer }},
++        { binding: 0, resource: uniformBuffer },
 +      ],
 +    });
 +
@@ -481,7 +481,7 @@ const rand = (min, max) =&gt; {
     // 캔버스 컨텍스트에서 텍스처를 얻고,
     // 이를 렌더링할 텍스처로 설정함
     renderPassDescriptor.colorAttachments[0].view =
-        context.getCurrentTexture().createView();
+        context.getCurrentTexture();
 
     const encoder = device.createCommandEncoder();
     const pass = encoder.beginRenderPass(renderPassDescriptor);
@@ -616,8 +616,8 @@ device.queue.submit([commandBuffer]);
       label: `bind group for obj: ${i}`,
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: staticUniformBuffer }},
-+        { binding: 1, resource: { buffer: uniformBuffer }},
+        { binding: 0, resource: staticUniformBuffer },
++        { binding: 1, resource: uniformBuffer },
       ],
     });
 
@@ -794,6 +794,9 @@ device.queue.submit([commandBuffer]);
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

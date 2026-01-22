@@ -262,7 +262,7 @@ and set that texture as the first <code class="notranslate" translate="no">color
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
 *    renderPassDescriptor.colorAttachments[0].view =
-*        context.getCurrentTexture().createView();
+*        context.getCurrentTexture();
 
     // make a command encoder to start encoding commands
     const encoder = device.createCommandEncoder({ label: 'our encoder' });
@@ -310,7 +310,7 @@ and use that texture as a <code class="notranslate" translate="no">colorAttachme
       // Get the current texture from the canvas context and
       // set it as the texture to render to.
       renderPassDescriptor.colorAttachments[0].view =
-          context.getCurrentTexture().createView();
+          context.getCurrentTexture();
 
       // make a render pass encoder to encode render specific commands
       const pass = encoder.beginRenderPass(renderPassDescriptor);
@@ -460,7 +460,7 @@ the color later so we’ll pick one now. Let’s pick a rand clearValue as well 
 +    const bindGroup = device.createBindGroup({
 +      layout: pipeline.getBindGroupLayout(0),
 +      entries: [
-+        { binding: 0, resource: { buffer: uniformBuffer }},
++        { binding: 0, resource: uniformBuffer },
 +      ],
 +    });
 
@@ -531,7 +531,7 @@ to the uniform buffer, and set the bind group.</p>
       // Get the current texture from the canvas context and
       // set it as the texture to render to.
       renderPassDescriptor.colorAttachments[0].view =
-          context.getCurrentTexture().createView();
+          context.getCurrentTexture();
 +      renderPassDescriptor.colorAttachments[0].clearValue = clearValue;
 +
 +      const { canvas } = context;
@@ -725,7 +725,7 @@ from a canvas to that info.</p>
       // Get the current texture from the canvas context and
       // set it as the texture to render to.
       renderPassDescriptor.colorAttachments[0].view =
-          context.getCurrentTexture().createView();
+          context.getCurrentTexture();
       renderPassDescriptor.colorAttachments[0].clearValue = clearValue;
 
 -      const { canvas } = context;
@@ -909,6 +909,9 @@ In any case, hopefully you have on more tool in your toolbox.</p>
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

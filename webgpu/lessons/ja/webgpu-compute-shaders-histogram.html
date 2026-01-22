@@ -565,8 +565,8 @@ fn srgbLuminance(color: vec3f) -&gt; f32 {
     label: 'histogram bindGroup',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: histogramBuffer }},
-      { binding: 1, resource: texture.createView() },
+      { binding: 0, resource: histogramBuffer },
+      { binding: 1, resource: texture },
     ],
   });
 </pre>
@@ -1043,9 +1043,9 @@ fn cs(@builtin(local_invocation_id) local_invocation_id: vec3u) {
     label: 'histogram bindGroup',
     layout: histogramChunkPipeline.getBindGroupLayout(0),
     entries: [
--      { binding: 0, resource: { buffer: histogramBuffer }},
-+      { binding: 0, resource: { buffer: chunksBuffer }},
-      { binding: 1, resource: texture.createView() },
+-      { binding: 0, resource: histogramBuffer },
++      { binding: 0, resource: chunksBuffer },
+      { binding: 1, resource: texture },
     ],
   });
 
@@ -1053,7 +1053,7 @@ fn cs(@builtin(local_invocation_id) local_invocation_id: vec3u) {
     label: 'sum bindGroup',
     layout: chunkSumPipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: chunksBuffer }},
+      { binding: 0, resource: chunksBuffer },
     ],
   });
 </pre>
@@ -1144,8 +1144,8 @@ for (let i = 0; i &lt; numSteps; ++i) {
   const chunkSumBindGroup = device.createBindGroup({
     layout: chunkSumPipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: chunksBuffer }},
-      { binding: 1, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: chunksBuffer },
+      { binding: 1, resource: uniformBuffer },
     ],
   });
   sumBindGroups.push(chunkSumBindGroup);
@@ -1335,6 +1335,9 @@ for (let i = 0; i &lt; numSteps; ++i) {
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

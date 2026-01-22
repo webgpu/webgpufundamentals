@@ -295,7 +295,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <p>コピーは次のように機能すると考えることができます。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">   // 擬似コード
    const [x, y, z] = origin ?? [0, 0, 0];
-   const [blockWidth, blockHeight, bytesPerBlock] = 
+   const [blockWidth, blockHeight, bytesPerBlock] =
       getBlockInfoForTextureFormat(texture.format);
 
    const blocksAcross = width / blockWidth;
@@ -655,6 +655,9 @@ console.log(f32[0]); // undefinedを出力します
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

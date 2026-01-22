@@ -355,7 +355,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     layout: pipeline.getBindGroupLayout(0),
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: texture.createView() },
+      { binding: 1, resource: texture },
     ],
   });
 </pre>
@@ -437,7 +437,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: sampler },
-        { binding: 1, resource: texture.createView() },
+        { binding: 1, resource: texture },
       ],
     });
 +    bindGroups.push(bindGroup);
@@ -589,8 +589,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: sampler },
-        { binding: 1, resource: texture.createView() },
-+        { binding: 2, resource: { buffer: uniformBuffer }},
+        { binding: 1, resource: texture },
++        { binding: 2, resource: uniformBuffer },
       ],
     });
     bindGroups.push(bindGroup);
@@ -991,8 +991,8 @@ struct Uniforms {
         layout: pipeline.getBindGroupLayout(0),
         entries: [
           { binding: 0, resource: sampler },
-          { binding: 1, resource: texture.createView() },
-          { binding: 2, resource: { buffer: uniformBuffer }},
+          { binding: 1, resource: texture },
+          { binding: 2, resource: uniformBuffer },
         ],
       }));
 
@@ -1363,6 +1363,9 @@ canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

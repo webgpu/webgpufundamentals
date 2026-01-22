@@ -286,8 +286,7 @@ the clear color.</p>
   function render() {
     const encoder = device.createCommandEncoder({ label: 'clear encoder' });
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
     const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.end();
@@ -342,8 +341,7 @@ the clear value as well as whether or not it’s premultiplied</p>
   function render() {
     const encoder = device.createCommandEncoder({ label: 'clear encoder' });
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
 +    const { alpha } = settings;
 +    clearValue[3] = alpha;
@@ -845,7 +843,7 @@ them that matches our shader module</p>
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: srcTextureUnpremultipliedAlpha.createView() },
+      { binding: 1, resource: srcTextureUnpremultipliedAlpha },
       { binding: 2, resource: { buffer: srcUniform.buffer }},
     ],
   });
@@ -854,7 +852,7 @@ them that matches our shader module</p>
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: dstTextureUnpremultipliedAlpha.createView() },
+      { binding: 1, resource: dstTextureUnpremultipliedAlpha },
       { binding: 2, resource: { buffer: dstUniform.buffer }},
     ],
   });
@@ -863,7 +861,7 @@ them that matches our shader module</p>
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: srcTexturePremultipliedAlpha.createView() },
+      { binding: 1, resource: srcTexturePremultipliedAlpha },
       { binding: 2, resource: { buffer: srcUniform.buffer }},
     ],
   });
@@ -872,7 +870,7 @@ them that matches our shader module</p>
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: dstTexturePremultipliedAlpha.createView() },
+      { binding: 1, resource: dstTexturePremultipliedAlpha },
       { binding: 2, resource: { buffer: dstUniform.buffer }},
     ],
   });
@@ -1001,8 +999,7 @@ the src texture with the srcPipeline (with blending)</p>
     const canvasTexture = context.getCurrentTexture();
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
 +    function updateUniforms(uniform, canvasTexture, texture) {
 +      const projectionMatrix = mat4.ortho(0, canvasTexture.width, canvasTexture.height, 0, -1, 1);
@@ -1270,8 +1267,7 @@ there is no <code class="notranslate" translate="no">alpha</code> setting we’l
     const canvasTexture = context.getCurrentTexture();
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
 </pre>
 <p>And finally, lets let you pick the clearValue for the render pass.</p>
@@ -1302,8 +1298,7 @@ there is no <code class="notranslate" translate="no">alpha</code> setting we’l
     const canvasTexture = context.getCurrentTexture();
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
 +    {
 +      const { alpha, color, premultiply } = clear;
@@ -1512,6 +1507,9 @@ cover various techniques.</p>
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

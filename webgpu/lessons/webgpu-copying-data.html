@@ -307,7 +307,7 @@ this value.</p>
 <p>You can think of the copy as working like this</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">   // pseudo code
    const [x, y, z] = origin ?? [0, 0, 0];
-   const [blockWidth, blockHeight, bytesPerBlock] = 
+   const [blockWidth, blockHeight, bytesPerBlock] =
       getBlockInfoForTextureFormat(texture.format);
 
    const blocksAcross = width / blockWidth;
@@ -745,6 +745,9 @@ See <a href="#a-mapped-at-creation">mappedAtCreation</a>. <a href="#fnref1" clas
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

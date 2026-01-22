@@ -437,8 +437,8 @@ the color.</p>
     label: 'bind group for objects',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: staticStorageBuffer }},
-      { binding: 1, resource: { buffer: changingStorageBuffer }},
+      { binding: 0, resource: staticStorageBuffer },
+      { binding: 1, resource: changingStorageBuffer },
     ],
   });
 </pre>
@@ -452,7 +452,7 @@ and colors and then upload that data to the <code class="notranslate" translate=
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
     renderPassDescriptor.colorAttachments[0].view =
-        context.getCurrentTexture().createView();
+        context.getCurrentTexture();
 
     const encoder = device.createCommandEncoder();
     const pass = encoder.beginRenderPass(renderPassDescriptor);
@@ -624,9 +624,9 @@ First, let’s make a function to generate some vertex data. Let’s make a circ
     label: 'bind group for objects',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: staticStorageBuffer }},
-      { binding: 1, resource: { buffer: changingStorageBuffer }},
-+      { binding: 2, resource: { buffer: vertexStorageBuffer }},
+      { binding: 0, resource: staticStorageBuffer },
+      { binding: 1, resource: changingStorageBuffer },
++      { binding: 2, resource: vertexStorageBuffer },
     ],
   });
 </pre>
@@ -815,6 +815,9 @@ which we’ll cover next in an article on <a href="webgpu-vertex-buffers.html">v
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

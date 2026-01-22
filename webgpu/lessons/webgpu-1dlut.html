@@ -350,7 +350,7 @@ much to use this duotone mix.</p>
       ]),
     );
 
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);
@@ -510,7 +510,7 @@ and uploading them to a 2ˣ1 texture.</p>
       ]),
     );
 
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);
@@ -702,7 +702,7 @@ and the last number is a value 0.0 to 1.0 where on the gradient that color is</p
 +    return device.createBindGroup({
 +      layout: postProcessPipeline.getBindGroupLayout(1),
 +      entries: [
-+        { binding: 0, resource: texture.createView() },
++        { binding: 0, resource: texture },
 +        { binding: 1, resource: lutSampler },
 +      ],
 +    });
@@ -712,7 +712,7 @@ and the last number is a value 0.0 to 1.0 where on the gradient that color is</p
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function postProcess(encoder, srcTexture, dstTexture) {
     ...
 
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);
@@ -932,6 +932,9 @@ textures to 3D textures.</p>
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

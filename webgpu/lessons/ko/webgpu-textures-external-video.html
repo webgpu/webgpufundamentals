@@ -361,8 +361,8 @@ struct Uniforms {
 -        layout: pipeline.getBindGroupLayout(0),
 -        entries: [
 -          { binding: 0, resource: sampler },
--          { binding: 1, resource: texture.createView() },
--          { binding: 2, resource: { buffer: uniformBuffer }},
+-          { binding: 1, resource: texture },
+-          { binding: 2, resource: uniformBuffer },
 -        ],
 -      }));
 
@@ -394,7 +394,7 @@ struct Uniforms {
 +        entries: [
 +          { binding: 0, resource: sampler },
 +          { binding: 1, resource: texture },
-+          { binding: 2, resource: { buffer: uniformBuffer }},
++          { binding: 2, resource: uniformBuffer },
 +        ],
 +      });
 
@@ -726,6 +726,9 @@ WebGPU 명세(spec)는 브라우저가 복사를 하지 않기를 바라며 만�
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

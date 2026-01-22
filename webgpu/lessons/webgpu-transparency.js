@@ -162,8 +162,8 @@ const drawBlendResultsP = deviceP.then(device => {
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: srcTexture.createView() },
-      { binding: 2, resource: { buffer: uniformBuffer }},
+      { binding: 1, resource: srcTexture },
+      { binding: 2, resource: uniformBuffer },
     ],
   });
 
@@ -171,8 +171,8 @@ const drawBlendResultsP = deviceP.then(device => {
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: dstTexture.createView() },
-      { binding: 2, resource: { buffer: uniformBuffer }},
+      { binding: 1, resource: dstTexture },
+      { binding: 2, resource: uniformBuffer },
     ],
   });
 
@@ -248,8 +248,7 @@ const drawBlendResultsP = deviceP.then(device => {
     const canvasTexture = context.getCurrentTexture();
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
     const pass = encoder.beginRenderPass(renderPassDescriptor);
 

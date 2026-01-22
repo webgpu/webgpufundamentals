@@ -404,7 +404,7 @@ that match the <code class="notranslate" translate="no">@binding(?)</code>s we p
     layout: pipeline.getBindGroupLayout(0),
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: texture.createView() },
+      { binding: 1, resource: texture },
     ],
   });
 </pre>
@@ -523,7 +523,7 @@ We’ll also create a bind group that uses that sampler.</p>
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: sampler },
-        { binding: 1, resource: texture.createView() },
+        { binding: 1, resource: texture },
       ],
     });
 +    bindGroups.push(bindGroup);
@@ -690,8 +690,8 @@ add it to the bind group.</p>
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: sampler },
-        { binding: 1, resource: texture.createView() },
-+        { binding: 2, resource: { buffer: uniformBuffer }},
+        { binding: 1, resource: texture },
++        { binding: 2, resource: uniformBuffer },
       ],
     });
     bindGroups.push(bindGroup);
@@ -1149,8 +1149,8 @@ buffer per location like we covered in <a href="webgpu-uniforms.html">the articl
         layout: pipeline.getBindGroupLayout(0),
         entries: [
           { binding: 0, resource: sampler },
-          { binding: 1, resource: texture.createView() },
-          { binding: 2, resource: { buffer: uniformBuffer }},
+          { binding: 1, resource: texture },
+          { binding: 2, resource: uniformBuffer },
         ],
       }));
 
@@ -1602,6 +1602,9 @@ goes “🟥🟩🟦🟦🟩🟥🟥🟩🟦🟦🟩🟥” <a href="#fnref4" cl
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

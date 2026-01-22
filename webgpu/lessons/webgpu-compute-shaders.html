@@ -373,9 +373,9 @@ buffers and then read the results.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: workgroupBuffer }},
-      { binding: 1, resource: { buffer: localBuffer }},
-      { binding: 2, resource: { buffer: globalBuffer }},
+      { binding: 0, resource: workgroupBuffer },
+      { binding: 1, resource: localBuffer },
+      { binding: 2, resource: globalBuffer },
     ],
   });
 </pre>
@@ -680,6 +680,9 @@ unaffected by the other iterations.</p>
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

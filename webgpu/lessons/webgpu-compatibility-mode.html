@@ -320,7 +320,7 @@ const bindGroup = device.createBindGroup({
     {
       binding,
       // ERROR in compatibility mode: texture is a cubemap not a 2d-array
-      resource: cubeTexture.createView(),
+      resource: cubeTexture,
     },
   ],
 })
@@ -1259,6 +1259,9 @@ They should be updated soon.</p>
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

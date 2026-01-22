@@ -159,7 +159,7 @@ async function main() {
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer },
     ],
   });
 
@@ -181,8 +181,7 @@ async function main() {
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
     // Set the size in the uniform values
     sizeValue[0] = 10;

@@ -1169,9 +1169,9 @@ newZ = y * s + z *  c;
     // キャンバスコンテキストから現在のテクスチャを取得し、
     // レンダリングするテクスチャとして設定します。
 -    renderPassDescriptor.colorAttachments[0].view =
--        context.getCurrentTexture().createView();
+-        context.getCurrentTexture();
 +    const canvasTexture = context.getCurrentTexture();
-+    renderPassDescriptor.colorAttachments[0].view = canvasTexture.createView();
++    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
 +    // 深度テクスチャがない場合、またはそのサイズが
 +    // キャンバステクスチャと異なる場合は、新しい深度テクスチャを作成します。
@@ -1187,7 +1187,7 @@ newZ = y * s + z *  c;
 +        usage: GPUTextureUsage.RENDER_ATTACHMENT,
 +      });
 +    }
-+    renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
++    renderPassDescriptor.depthStencilAttachment.view = depthTexture;
 
   ...
 </pre>
@@ -1401,6 +1401,9 @@ newZ = y * s + z *  c;
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

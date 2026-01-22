@@ -577,7 +577,7 @@ JavaScript-овом <a href="https://developer.mozilla.org/en-US/docs/Web/JavaSc
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function render() {
     // Получаем текущую текстуру из canvas context и устанавливаем ее как текстуру для рендеринга
     renderPassDescriptor.colorAttachments[0].view =
-        context.getCurrentTexture().createView();
+        context.getCurrentTexture();
 
     // создаем шаблон команды, чтобы запускать их
     const encoder = device.createCommandEncoder({ label: 'our encoder' });
@@ -771,7 +771,7 @@ function dispatchWorkgroup(workgroup_id) {
     label: 'bindGroup for work buffer',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: workBuffer } },
+      { binding: 0, resource: workBuffer  },
     ],
   });
 </pre>
@@ -1116,6 +1116,9 @@ WebGPU спроектирован так, что в большинстве сл�
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

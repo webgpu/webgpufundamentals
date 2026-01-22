@@ -573,9 +573,9 @@ const randomArrayElement = arr =&gt; arr[Math.random() * arr.length | 0];
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: material.texture.createView() },
+        { binding: 0, resource: material.texture },
         { binding: 1, resource: material.sampler },
-        { binding: 2, resource: { buffer: uniformBuffer }},
+        { binding: 2, resource: uniformBuffer },
       ],
     });
 
@@ -653,7 +653,7 @@ const randomArrayElement = arr =&gt; arr[Math.random() * arr.length | 0];
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    // キャンバスコンテキストから現在のテクスチャを取得し、
     // レンダリングするテクスチャとして設定します。
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view = canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
     // 深度テクスチャがない場合、またはそのサイズが
     // キャンバステクスチャと異なる場合は、新しい深度テクスチャを作成します。
@@ -669,7 +669,7 @@ const randomArrayElement = arr =&gt; arr[Math.random() * arr.length | 0];
         usage: GPUTextureUsage.RENDER_ATTACHMENT,
       });
     }
-    renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
+    renderPassDescriptor.depthStencilAttachment.view = depthTexture;
 </pre>
 <p>コマンドバッファとレンダーパスを開始し、頂点バッファとインデックスバッファを設定します。</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    const encoder = device.createCommandEncoder();
@@ -787,7 +787,7 @@ const randomArrayElement = arr =&gt; arr[Math.random() * arr.length | 0];
     // キャンバスコンテキストから現在のテクスチャを取得し、
     // レンダリングするテクスチャとして設定します。
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view = canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
     ...
 
@@ -1364,10 +1364,10 @@ struct PerObjectUniforms {
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: material.texture.createView() },
+        { binding: 0, resource: material.texture },
         { binding: 1, resource: material.sampler },
-        { binding: 2, resource: { buffer: uniformBuffer }},
-+        { binding: 3, resource: { buffer: globalUniformBuffer }},
+        { binding: 2, resource: uniformBuffer },
++        { binding: 3, resource: globalUniformBuffer },
       ],
     });
 
@@ -1650,10 +1650,10 @@ struct PerObjectUniforms {
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: material.texture.createView() },
+        { binding: 0, resource: material.texture },
         { binding: 1, resource: material.sampler },
-        { binding: 2, resource: { buffer: uniformBuffer }},
-        { binding: 3, resource: { buffer: globalUniformBuffer }},
+        { binding: 2, resource: uniformBuffer },
+        { binding: 3, resource: globalUniformBuffer },
 +        { binding: 4, resource: { buffer: material.materialUniformBuffer }},
       ],
     });
@@ -1776,9 +1776,9 @@ struct PerObjectUniforms {
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: material.texture.createView() },
+        { binding: 0, resource: material.texture },
         { binding: 1, resource: material.sampler },
--        { binding: 2, resource: { buffer: uniformBuffer }},
+-        { binding: 2, resource: uniformBuffer },
 +        {
 +          binding: 2,
 +          resource: {
@@ -1787,7 +1787,7 @@ struct PerObjectUniforms {
 +            size: uniformBufferSize,
 +          },
 +        },
-        { binding: 3, resource: { buffer: globalUniformBuffer }},
+        { binding: 3, resource: globalUniformBuffer },
         { binding: 4, resource: { buffer: material.materialUniformBuffer }},
       ],
     });
@@ -1905,10 +1905,10 @@ struct PerObjectUniforms {
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: material.texture.createView() },
+        { binding: 0, resource: material.texture },
         { binding: 1, resource: material.sampler },
         { binding: 2, resource: { buffer: uniformBuffer, offset: uniformBufferOffset, size: uniformBufferSize }},
-        { binding: 3, resource: { buffer: globalUniformBuffer }},
+        { binding: 3, resource: globalUniformBuffer },
         { binding: 4, resource: { buffer: material.materialUniformBuffer }},
       ],
     });
@@ -2096,6 +2096,9 @@ struct PerObjectUniforms {
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

@@ -622,7 +622,7 @@ main();
     // отримуємо поточну текстуру з контексту нашого полотна
     // і встановлюємо її, як текстуру в яку потрібно малювати
     renderPassDescriptor.colorAttachments[0].view =
-        context.getCurrentTexture().createView();
+        context.getCurrentTexture();
 
     // вказуємо кодеку команд почати їхнє кодування 
     const encoder = device.createCommandEncoder({ label: 'our encoder' });
@@ -871,7 +871,7 @@ function dispatchWorkgroup(workgroup_id) {
     label: 'bindGroup for work buffer',
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: workBuffer } },
+      { binding: 0, resource: workBuffer  },
     ],
   });
 </pre>
@@ -1272,6 +1272,9 @@ function main(device) {
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>

@@ -403,7 +403,7 @@ struct VSOutput {
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer },
     ],
   });
 </pre>
@@ -411,8 +411,7 @@ struct VSOutput {
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    // キャンバスコンテキストから現在のテクスチャを取得し、
     // レンダリングするテクスチャとして設定します。
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
 +    // ユニフォームバッファの解像度を更新します
 +    resolutionValue.set([canvasTexture.width, canvasTexture.height]);
@@ -509,9 +508,9 @@ struct VSOutput {
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer },
 +      { binding: 1, resource: sampler },
-+      { binding: 2, resource: texture.createView() },
++      { binding: 2, resource: texture },
     ],
   });
 </pre>
@@ -754,7 +753,7 @@ struct VSOutput {
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: uniformBuffer }},
+      { binding: 0, resource: uniformBuffer },
     ],
   });
 </pre>
@@ -765,8 +764,7 @@ struct VSOutput {
     // キャンバスコンテキストから現在のテクスチャを取得し、
     // レンダリングするテクスチャとして設定します。
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view =
-        canvasTexture.createView();
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
 
     // ユニフォームバッファに行列を設定します
     const fov = 90 * Math.PI / 180;
@@ -1099,6 +1097,9 @@ struct VSOutput {
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
+</div>
+<div id="need-newer-webgpu" style="display: none">
+  <div></div>
 </div>
 
 <script>
