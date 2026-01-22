@@ -219,8 +219,8 @@ WGSLシェーダーを変更したので、JavaScriptを更新しましょう。
   function render() {
     // キャンバスコンテキストから現在のテクスチャを取得し、
     // レンダリングするテクスチャとして設定します。
-    renderPassDescriptor.colorAttachments[0].view =
-        context.getCurrentTexture().createView();
+    renderPassDescriptor.colorAttachments[0].view = 
+        context.getCurrentTexture();
 
     const encoder = device.createCommandEncoder();
     const pass = encoder.beginRenderPass(renderPassDescriptor);

@@ -978,8 +978,8 @@ pipeline or the id rendering pipeline, and the `viewProjectionMatrix`.
 -    // Get the current texture from the canvas context and
 -    // set it as the texture to render to.
 -    const canvasTexture = context.getCurrentTexture();
--    renderPassDescriptor.colorAttachments[0].view = canvasTexture.createView();
-+    renderPassDescriptor.colorAttachments[0].view = target.createView();
+-    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
++    renderPassDescriptor.colorAttachments[0].view = target;
 
     depthTexture = makeNewTextureIfSizeDifferent(
       depthTexture,
@@ -988,7 +988,7 @@ pipeline or the id rendering pipeline, and the `viewProjectionMatrix`.
       'depth24plus',
       GPUTextureUsage.RENDER_ATTACHMENT,
     );
-    renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
+    renderPassDescriptor.depthStencilAttachment.view = depthTexture;
 
 -    root.updateWorldMatrix();
 -    const viewProjectionMatrix = getViewProjectionMatrix(orbitCamera, canvas);
