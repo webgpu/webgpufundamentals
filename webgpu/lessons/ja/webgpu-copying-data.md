@@ -81,7 +81,7 @@ device.writeTexture(
 ```js
    // 擬似コード
    const [x, y, z] = origin ?? [0, 0, 0];
-   const [blockWidth, blockHeight, bytesPerBlock] = 
+   const [blockWidth, blockHeight, bytesPerBlock] =
       getBlockInfoForTextureFormat(texture.format);
 
    const blocksAcross = width / blockWidth;

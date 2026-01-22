@@ -343,7 +343,7 @@ const rand = (min, max) => {
 
     // отримуємо поточну текстуру з контексту полотна
     // та встановлюємо її як текстуру, в яку потрібно рендерити
-    renderPassDescriptor.colorAttachments[0].view = 
+    renderPassDescriptor.colorAttachments[0].view =
         context.getCurrentTexture();
 
     const encoder = device.createCommandEncoder();

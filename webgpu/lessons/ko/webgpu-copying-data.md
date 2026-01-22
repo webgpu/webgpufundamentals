@@ -85,7 +85,7 @@ device.queue.writeTexture(
 ```js
 // pseudo code
 const [x, y, z] = origin ?? [0, 0, 0];
-const [blockWidth, blockHeight] = 
+const [blockWidth, blockHeight] =
    getBlockSizeForTextureFormat(texture.format);
 
 const blocksAcross = width / blockWidth;

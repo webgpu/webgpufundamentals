@@ -406,7 +406,7 @@ GPU가 삼각형을 래스터화(rasterize)할 때(즉, 픽셀로 그릴 때), �
   function render() {
     // 캔버스 컨텍스트로부터 현재 텍스처를 가져오고
     // 이를 렌더링 할 텍스처로 설정합니다.
-    renderPassDescriptor.colorAttachments[0].view = 
+    renderPassDescriptor.colorAttachments[0].view =
         context.getCurrentTexture();
 
     // 커맨드 인코더가 커맨드를 인코딩을 시작합니다.

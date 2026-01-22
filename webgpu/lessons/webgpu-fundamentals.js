@@ -144,7 +144,7 @@ async function initWebGPUPixelRender(webgpuCanvas) {
   return points => {
     device.queue.writeBuffer(vertexBuffer, 0, new Float32Array(points.flat()));
 
-    renderPassDescriptor.colorAttachments[0].view = 
+    renderPassDescriptor.colorAttachments[0].view =
         context.getCurrentTexture();
 
     const encoder = device.createCommandEncoder({

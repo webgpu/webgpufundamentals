@@ -95,7 +95,7 @@ And finally let's render to all of them
 +    for (const {context} of infos) {
       // Get the current texture from the canvas context and
       // set it as the texture to render to.
-      renderPassDescriptor.colorAttachments[0].view = 
+      renderPassDescriptor.colorAttachments[0].view =
           context.getCurrentTexture();
 
       // make a render pass encoder to encode render specific commands
@@ -341,7 +341,7 @@ to the uniform buffer, and set the bind group.
     } of infos) {
       // Get the current texture from the canvas context and
       // set it as the texture to render to.
-      renderPassDescriptor.colorAttachments[0].view = 
+      renderPassDescriptor.colorAttachments[0].view =
           context.getCurrentTexture();
 +      renderPassDescriptor.colorAttachments[0].clearValue = clearValue;
 +
@@ -560,7 +560,7 @@ In our render function, we can just only render the visible canvases
 
       // Get the current texture from the canvas context and
       // set it as the texture to render to.
-      renderPassDescriptor.colorAttachments[0].view = 
+      renderPassDescriptor.colorAttachments[0].view =
           context.getCurrentTexture();
       renderPassDescriptor.colorAttachments[0].clearValue = clearValue;
 
