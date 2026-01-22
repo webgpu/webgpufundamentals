@@ -91,7 +91,7 @@ WebGPUで複数のキャンバスに描画するのは非常に簡単です。[�
 +    for (const {context} of infos) {
       // キャンバスコンテキストから現在のテクスチャを取得し、
       // レンダリングするテクスチャとして設定します。
-      renderPassDescriptor.colorAttachments[0].view = 
+      renderPassDescriptor.colorAttachments[0].view =
           context.getCurrentTexture();
 
       // レンダリング固有のコマンドをエンコードするためのレンダーパスエンコーダーを作成します
@@ -325,7 +325,7 @@ WebGPUで複数のキャンバスに描画するのは非常に簡単です。[�
     } of infos) {
       // キャンバスコンテキストから現在のテクスチャを取得し、
       // レンダリングするテクスチャとして設定します。
-      renderPassDescriptor.colorAttachments[0].view = 
+      renderPassDescriptor.colorAttachments[0].view =
           context.getCurrentTexture();
 +      renderPassDescriptor.colorAttachments[0].clearValue = clearValue;
 +
@@ -522,7 +522,7 @@ WebGPUで複数のキャンバスに描画するのは非常に簡単です。[�
 
       // キャンバスコンテキストから現在のテクスチャを取得し、
       // レンダリングするテクスチャとして設定します。
-      renderPassDescriptor.colorAttachments[0].view = 
+      renderPassDescriptor.colorAttachments[0].view =
           context.getCurrentTexture();
       renderPassDescriptor.colorAttachments[0].clearValue = clearValue;
 
