@@ -234,7 +234,7 @@ from [the article on post processing](webgpu-post-processing.html).
 *        entries: [
 -          { binding: 0, resource: renderTargetView },
 -          { binding: 1, resource: postProcessSampler },
--          { binding: 2, resource: { buffer: postProcessUniformBuffer }},
+-          { binding: 2, resource: postProcessUniformBuffer },
 +          { binding: 0, resource: texture.createView() },
 *        ],
 *      });

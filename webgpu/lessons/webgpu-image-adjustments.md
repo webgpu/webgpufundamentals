@@ -177,7 +177,7 @@ async function main() {
   const imageBindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
-      { binding: 0, resource: { buffer: imageUniformBuffer } },
+      { binding: 0, resource: imageUniformBuffer  },
       { binding: 1, resource: imageTexture.createView() },
       { binding: 2, resource: imageSampler },
     ],
@@ -281,7 +281,7 @@ remove the uniform buffer setting code and add it back in the next step.
       entries: [
         { binding: 0, resource: renderTargetView },
         { binding: 1, resource: postProcessSampler },
-        { binding: 2, resource: { buffer: postProcessUniformBuffer } },
+        { binding: 2, resource: postProcessUniformBuffer  },
       ],
     });
   }
@@ -373,7 +373,7 @@ We'll use a helper library.
 +    imageBindGroup = device.createBindGroup({
 *      layout: pipeline.getBindGroupLayout(0),
 *      entries: [
-*        { binding: 0, resource: { buffer: imageUniformBuffer } },
+*        { binding: 0, resource: imageUniformBuffer  },
 *        { binding: 1, resource: imageTexture.createView() },
 *        { binding: 2, resource: imageSampler },
 *      ],

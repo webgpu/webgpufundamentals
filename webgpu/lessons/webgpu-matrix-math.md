@@ -562,7 +562,7 @@ To do this we need 5 uniform buffers, 5 uniform values, and 5 bindGroups
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: uniformBuffer }},
+        { binding: 0, resource: uniformBuffer },
       ],
     });
 

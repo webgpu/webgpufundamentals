@@ -602,7 +602,7 @@ GPU로 캔버스에 그릴 것이므로
           size: chunkSize * 4 * 4,
         },
       },
-      { binding: 1, resource: { buffer: scaleBuffer }},
+      { binding: 1, resource: scaleBuffer },
       { binding: 2, resource: texture.createView() },
     ],
   });
@@ -739,8 +739,8 @@ X와 Y 모두에서 2로 스케일하고 1을 빼면 클립 공간을 커버하�
       layout: drawHistogramPipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: uniformBuffer } },
-        { binding: 2, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: uniformBuffer  },
+        { binding: 2, resource: scaleBuffer },
       ],
     });
 ```
@@ -972,8 +972,8 @@ fn cs(
       layout: drawHistogramPipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: uniformBuffer } },
-        { binding: 2, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: uniformBuffer  },
+        { binding: 2, resource: scaleBuffer },
       ],
     });
 
@@ -997,7 +997,7 @@ fn cs(
     const histogramBindGroup = device.createBindGroup({
       layout: histogramChunkPipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: chunksBuffer }},
+        { binding: 0, resource: chunksBuffer },
         { binding: 1, resource: texture },
       ],
     });
@@ -1006,7 +1006,7 @@ fn cs(
       layout: scalePipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: chunksBuffer, size: chunkSize * 4 * 4 }},
-        { binding: 1, resource: { buffer: scaleBuffer }},
+        { binding: 1, resource: scaleBuffer },
         { binding: 2, resource: texture },
       ],
     });
@@ -1032,7 +1032,7 @@ y에 -2를 곱하고 1을 더하여 Y를 뒤집습니다. 또한 스케일하여
         entries: [
           { binding: 0, resource: videoSampler },
           { binding: 1, resource: texture },
-          { binding: 2, resource: { buffer: videoUniformBuffer }},
+          { binding: 2, resource: videoUniformBuffer },
         ],
       });
 
