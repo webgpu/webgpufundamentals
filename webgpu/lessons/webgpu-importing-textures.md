@@ -289,8 +289,8 @@ What's changed
   For `module` and `sampler` we check if they have not be set and if not, we create a `GPUSShaderModule`
   and `GPUSampler` which we can hold on to and use in the future.
 
-* We have a pair of shaders that are almost exactly the same as all the examples. The only difference
-  is this part
+* We have a pair of shaders that are almost exactly the same as all the examples so far. 
+  The only difference is this part
 
   ```wgsl
   -  vsOutput.position = uni.matrix * vec4f(xy, 0.0, 1.0);
@@ -332,6 +332,30 @@ What's changed
   not from the `presentationFormat` we use when rendering to the canvas
 
 * We finally use some parameters to `texture.createView`
+
+  This is the first time we've used `createView` when binding a texture
+  to a bind group, and when setting a texture as a colorTarget. 
+  When you bind a texture in to a bind group, or when you assign a texture
+  as a render target (setting `colorTargets`), you can either pass a texture
+  directly, or you can pass a `GPUTextureView`.
+
+
+  ```js
+     { binding: resource: someTexture },
+  ```
+
+  and
+
+  ```js
+     { binding: resource: someTexture.createView(...) }, 
+  ```
+
+  Using the texture directly is effectively a shortcut for calling `texture.createView` with
+  no parameters. With no parameters it means you want to access the entire texture.
+  With parameters, `createView` lets you select a subset of the texture.
+  In this case we use `createView` to select the mip level we want to read from. We set this in
+  the bindGroup. And, we use `createView` again, to select which mip level we want
+  to render to in the render pass descriptor.
 
   We loop over each mip level that we need to generate. 
   We create a bind group for the last mip with data in it
