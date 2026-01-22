@@ -183,7 +183,7 @@ async function setup() {
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: imageUniformBuffer  },
-        { binding: 1, resource: imageTexture.createView() },
+        { binding: 1, resource: imageTexture },
         { binding: 2, resource: imageSampler },
       ],
     });

@@ -620,7 +620,7 @@ const dstCanvas = createDestinationImage(size);
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: srcTextureUnpremultipliedAlpha.createView() },
+      { binding: 1, resource: srcTextureUnpremultipliedAlpha },
       { binding: 2, resource: { buffer: srcUniform.buffer }},
     ],
   });
@@ -629,7 +629,7 @@ const dstCanvas = createDestinationImage(size);
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: dstTextureUnpremultipliedAlpha.createView() },
+      { binding: 1, resource: dstTextureUnpremultipliedAlpha },
       { binding: 2, resource: { buffer: dstUniform.buffer }},
     ],
   });
@@ -638,7 +638,7 @@ const dstCanvas = createDestinationImage(size);
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: srcTexturePremultipliedAlpha.createView() },
+      { binding: 1, resource: srcTexturePremultipliedAlpha },
       { binding: 2, resource: { buffer: srcUniform.buffer }},
     ],
   });
@@ -647,7 +647,7 @@ const dstCanvas = createDestinationImage(size);
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: dstTexturePremultipliedAlpha.createView() },
+      { binding: 1, resource: dstTexturePremultipliedAlpha },
       { binding: 2, resource: { buffer: dstUniform.buffer }},
     ],
   });

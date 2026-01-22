@@ -334,7 +334,7 @@ And we need a sampler and we need to add them to our bind group
     entries: [
       { binding: 0, resource: uniformBuffer },
 +      { binding: 1, resource: sampler },
-+      { binding: 2, resource: texture.createView() },
++      { binding: 2, resource: texture },
     ],
   });
 ```

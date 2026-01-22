@@ -180,7 +180,7 @@ async function setup() {
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: imageUniformBuffer  },
-        { binding: 1, resource: texture.createView() },
+        { binding: 1, resource: texture },
         { binding: 2, resource: imageSampler },
       ],
     });
@@ -282,7 +282,7 @@ async function setup() {
       entries: [
         { binding: 0, resource: renderTargetView },
         { binding: 1, resource: postProcessSampler },
-        { binding: 2, resource: lutTexture.createView() },
+        { binding: 2, resource: lutTexture },
         { binding: 3, resource: lutSampler },
       ],
     });

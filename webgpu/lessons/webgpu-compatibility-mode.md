@@ -115,7 +115,7 @@ const bindGroup = device.createBindGroup({
     {
       binding,
       // ERROR in compatibility mode: texture is a cubemap not a 2d-array
-      resource: cubeTexture.createView(),
+      resource: cubeTexture,
     },
   ],
 })

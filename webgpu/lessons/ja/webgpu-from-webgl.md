@@ -666,7 +666,7 @@ const bindGroup = device.createBindGroup({
     { binding: 0, resource: vsUniformBuffer  },
     { binding: 1, resource: fsUniformBuffer  },
     { binding: 2, resource: sampler },
-    { binding: 3, resource: tex.createView() },
+    { binding: 3, resource: tex },
   ],
 });
 {{/escapehtml}}</code></pre>
@@ -1005,7 +1005,7 @@ WebGPU
         { binding: 0, resource: vsUniformBuffer  },
         { binding: 1, resource: fsUniformBuffer  },
         { binding: 2, resource: sampler },
-        { binding: 3, resource: tex.createView() },
+        { binding: 3, resource: tex },
       ],
     });
 

@@ -154,7 +154,7 @@ and once without.
     return device.createBindGroup({
       layout: postProcessPipeline.getBindGroupLayout(1),
       entries: [
-        { binding: 0, resource: texture.createView() },
+        { binding: 0, resource: texture },
         { binding: 1, resource: sampler },
       ],
     });
