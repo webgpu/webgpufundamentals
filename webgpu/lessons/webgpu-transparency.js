@@ -162,7 +162,7 @@ const drawBlendResultsP = deviceP.then(device => {
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: srcTexture.createView() },
+      { binding: 1, resource: srcTexture },
       { binding: 2, resource: uniformBuffer },
     ],
   });
@@ -171,7 +171,7 @@ const drawBlendResultsP = deviceP.then(device => {
     layout: bindGroupLayout,
     entries: [
       { binding: 0, resource: sampler },
-      { binding: 1, resource: dstTexture.createView() },
+      { binding: 1, resource: dstTexture },
       { binding: 2, resource: uniformBuffer },
     ],
   });

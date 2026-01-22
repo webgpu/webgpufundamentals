@@ -277,8 +277,8 @@ async function idRender(elem) {
       postProcessBindGroup = device.createBindGroup({
         layout: postProcessPipeline.getBindGroupLayout(0),
         entries: [
-          { binding: 0, resource: idTexture.createView() },
-          { binding: 1, resource: atlasTexture.createView() },
+          { binding: 0, resource: idTexture },
+          { binding: 1, resource: atlasTexture },
         ],
       });
     }

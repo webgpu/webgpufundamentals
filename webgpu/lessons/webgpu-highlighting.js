@@ -335,7 +335,7 @@ async function setup() {
       postProcessBindGroup = device.createBindGroup({
         layout: bindGroupLayout,
         entries: [
-          { binding: 0, resource: texture.createView() },
+          { binding: 0, resource: texture },
         ],
       });
     }

@@ -611,7 +611,7 @@ the scale buffer, and the texture
         },
       },
       { binding: 1, resource: scaleBuffer },
-      { binding: 2, resource: texture.createView() },
+      { binding: 2, resource: texture },
     ],
   });
 ```

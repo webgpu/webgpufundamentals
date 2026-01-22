@@ -635,7 +635,7 @@ We need to stop using a render pass and instead use a compute pass for our post 
 +    const outBindGroup = device.createBindGroup({
 +      layout: postProcessPipeline.getBindGroupLayout(1),
 +      entries: [
-+        { binding: 0, resource: dstTexture.createView() },
++        { binding: 0, resource: dstTexture },
 +      ],
 +    });
 

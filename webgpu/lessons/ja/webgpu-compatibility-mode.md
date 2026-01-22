@@ -87,7 +87,7 @@ const bindGroup = device.createBindGroup({
     {
       binding,
       // 互換モードでのエラー：テクスチャはキューブマップであり、2D配列ではありません
-      resource: cubeTexture.createView(),
+      resource: cubeTexture,
     },
   ],
 })

@@ -526,7 +526,7 @@ We can make gradient textures from those using a 2d
 +    return device.createBindGroup({
 +      layout: postProcessPipeline.getBindGroupLayout(1),
 +      entries: [
-+        { binding: 0, resource: texture.createView() },
++        { binding: 0, resource: texture },
 +        { binding: 1, resource: lutSampler },
 +      ],
 +    });
