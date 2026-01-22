@@ -4,6 +4,8 @@
   --main-bg-color: #F8F8F8;
   --code-fg-color: #000;
   --code-bg-color: rgb(224, 224, 224);
+  --error-bg-color: #F00;
+  --error-fg-color: white;
   --comment-notes-fg-color: red;
   --comment-notes-bg-color: #DDD;
   --blockquote-bg-color: #DEF;
@@ -36,6 +38,8 @@
     --main-bg-color: #333;
     --code-fg-color: #FFF;
     --code-bg-color: #666;
+    --error-bg-color: #800;
+    --error-fg-color: white;
     --comment-notes-fg-color: red;
     --comment-notes-bg-color: #222;
     --blockquote-bg-color: #1b1b44;
@@ -57,6 +61,24 @@
   .y-axis, .y-axis * { color: hsl(120, 100%, 40%) !important; }
   .z-axis, .z-axis * { color: hsl(240, 100%, 80%) !important; }
 }
+
+#need-newer-webgpu {
+  position: absolute;
+  top: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  z-index: 1000;
+
+  > div {
+    padding: 2em;
+    background-color: var(--error-bg-color);
+    color: var(--error-fg-color);
+    border: 0.25em solid black;
+  }
+}
+
 
 html {
   box-sizing: border-box;

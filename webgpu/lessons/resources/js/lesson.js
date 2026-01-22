@@ -35,6 +35,88 @@ function showContributors() {
 }
 showContributors();
 
+function supportsDirectBufferBinding(device) {
+  const buffer = device.createBuffer({size: 16, usage: GPUBufferUsage.UNIFORM});
+  const layout = device.createBindGroupLayout({
+    entries: [{ binding: 0, visibility: GPUShaderStage.FRAGMENT, buffer: {} }],
+  });
+
+  try {
+    device.createBindGroup({
+      layout,
+      entries: [{ binding: 0, resource: buffer }],
+    });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    buffer.destroy();
+  }
+}
+
+function supportsDirectTextureBinding(device) {
+  const texture = device.createTexture({size: [1], usage: GPUTextureUsage.TEXTURE_BINDING, format: 'rgba8unorm'});
+  const layout = device.createBindGroupLayout({
+    entries: [{ binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: {} }],
+  });
+
+  try {
+    device.createBindGroup({
+      layout,
+      entries: [{ binding: 0, resource: texture }],
+    });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    texture.destroy();
+  }
+}
+
+function supportsDirectTextureAttachments(device) {
+  const texture = device.createTexture({size: [1], usage: GPUTextureUsage.RENDER_ATTACHMENT, format: 'rgba8unorm', sampleCount: 4});
+  const resolveTarget = device.createTexture({size: [1], usage: GPUTextureUsage.RENDER_ATTACHMENT, format: 'rgba8unorm' });
+  const depthTexture = device.createTexture({size: [1], usage: GPUTextureUsage.RENDER_ATTACHMENT, format: 'depth16unorm', sampleCount: 4 });
+  const encoder = device.createCommandEncoder();
+  try {
+    const pass = encoder.beginRenderPass({
+      colorAttachments: [{view: texture, resolveTarget, loadOp: 'load', storeOp: 'store' }],
+      depthStencilAttachment: { view: depthTexture, depthLoadOp: 'load', depthStoreOp: 'store' },
+    });
+    pass.end();
+    return true;
+  } catch (e) {
+    console.error(e);
+    return false;
+  } finally {
+    encoder.finish();
+    texture.destroy();
+    resolveTarget.destroy();
+  }
+}
+
+async function checkWebGPU() {
+  const seen = localStorage.getItem('seen-newer-webgpu-01') ?? 0;
+  if (seen) {
+    return;
+  }
+  const adapter = await navigator.gpu?.requestAdapter();
+  const device = await adapter?.requestDevice();
+  if (device) {
+    if (!supportsDirectBufferBinding(device) ||
+        !supportsDirectTextureBinding(device) ||
+        !supportsDirectTextureAttachments(device)) {
+      $('#need-newer-webgpu')
+        .show()
+        .on('click', () => {
+          $('#need-newer-webgpu').hide();
+          localStorage.setItem('seen-newer-webgpu-01', 'true');
+        });
+
+    }
+  }
+}
+
 $(document).ready(function($) {
   const linkImgs = function(bigHref) {
     return function() {
@@ -68,6 +150,7 @@ $(document).ready(function($) {
      .replaceWith(function() {
       return $('<pre class="prettyprint showlinemods notranslate" translate="no">' + this.innerHTML + '</pre>');
     });
+  checkWebGPU();
   if (window.prettyPrint) {
     window.prettyPrint();
     // Firefox doesn't support the has() css selector as of 2023-09-09
