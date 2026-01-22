@@ -302,8 +302,8 @@ const rand = (min, max) => {
 
     // Получаем текущую текстуру из контекста canvas'a и
     // устанавливаем как текстуру для рендеринга.
-    renderPassDescriptor.colorAttachments[0].view =
-        context.getCurrentTexture().createView();
+    renderPassDescriptor.colorAttachments[0].view = 
+        context.getCurrentTexture();
 
     const encoder = device.createCommandEncoder();
     const pass = encoder.beginRenderPass(renderPassDescriptor);

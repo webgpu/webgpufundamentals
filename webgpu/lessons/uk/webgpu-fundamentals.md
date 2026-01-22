@@ -482,8 +482,8 @@ main();
   function render() {
     // отримуємо поточну текстуру з контексту нашого полотна
     // і встановлюємо її, як текстуру в яку потрібно малювати
-    renderPassDescriptor.colorAttachments[0].view =
-        context.getCurrentTexture().createView();
+    renderPassDescriptor.colorAttachments[0].view = 
+        context.getCurrentTexture();
 
     // вказуємо кодеку команд почати їхнє кодування 
     const encoder = device.createCommandEncoder({ label: 'our encoder' });
