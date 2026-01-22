@@ -113,6 +113,9 @@
     </div>
   </div>
 </div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>{{{langInfo.needNewWebGPU}}}</div>
+</div>
 </body>
 <script>
 const settings = {
