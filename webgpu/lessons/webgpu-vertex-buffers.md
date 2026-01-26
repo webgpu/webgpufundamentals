@@ -329,7 +329,8 @@ each 4 bytes (24 bytes total). The `color` starts at offset 0 but the `offset` s
 Next we can change the code that sets up the buffers.
 
 ```js
-  // create 2 storage buffers
+-  // create 2 storage buffers
++  // create 2 vertex buffers
   const staticUnitSize =
     4 * 4 + // color is 4 32bit floats (4bytes each)
 -    2 * 4 + // offset is 2 32bit floats (4bytes each)
