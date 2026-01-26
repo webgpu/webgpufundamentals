@@ -519,7 +519,8 @@ first buffer that holds <code class="notranslate" translate="no">position</code>
 <p>So above we say the <code class="notranslate" translate="no">arrayStride</code> to get from one set of data to the next is <code class="notranslate" translate="no">6 * 4</code>, 6 32bit floats
 each 4 bytes (24 bytes total). The <code class="notranslate" translate="no">color</code> starts at offset 0 but the <code class="notranslate" translate="no">offset</code> starts 16 bytes in.</p>
 <p>Next we can change the code that sets up the buffers.</p>
-<pre class="prettyprint showlinemods notranslate lang-js" translate="no">  // create 2 storage buffers
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">-  // create 2 storage buffers
++  // create 2 vertex buffers
   const staticUnitSize =
     4 * 4 + // color is 4 32bit floats (4bytes each)
 -    2 * 4 + // offset is 2 32bit floats (4bytes each)
