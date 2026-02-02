@@ -480,11 +480,24 @@ div[data-diagram] {
   text-align: center;
   max-width: 95%;
 }
+.webgpu_left {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  max-width: 95%;
+}
 .webgpu_center>div,
 .webgpu_center>img,
 .webgpu_center>svg,
 .webgpu_center>video,
-.webgpu_center>object {
+.webgpu_center>object,
+.webgpu_left>div,
+.webgpu_left>img,
+.webgpu_left>svg,
+.webgpu_left>video,
+.webgpu_left>object {
   max-width: 100%;
 }
 /* note: DO NOT ENABLE THIS!

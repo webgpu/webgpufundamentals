@@ -8,7 +8,7 @@ if you can make your app run within some extra limits and
 restrictions then you can request a webgpu compatibility adapter
 and have your app run in more places.
 
-> Note: Compatibility mode has not officially shipped. It may be available in
+> Note: Compatibility mode is shipping in Chrome 146. (2026-02-23) It may be available in
 > your browser as an experiment. In, [Chrome Canary](https://www.google.com/chrome/canary/),
 > as of version 136.0.7063.0
 > (2025-03-11), you can allow compatibility mode by enabling the flag
@@ -45,7 +45,8 @@ which is the 3nd article on this site. After that article we
 [switched to using vertex buffers](webgpu-vertex-buffers.html).
 Using vertex buffers is common and works everywhere but certain solutions are easier
 with storage buffers. One example is
-[this example of drawing wireframes](https://webgpu.github.io/webgpu-samples/?sample=wireframe). It uses storage buffers to generate triangles from vertex data.
+[this example of drawing wireframes](https://webgpu.github.io/webgpu-samples/?sample=wireframe). 
+It uses storage buffers to generate triangles from vertex data.
 
 With vertex data stored in storage buffers we can randomly access the vertex
 data. With the vertex data in vertex buffer we can not. Of course there are
@@ -53,7 +54,7 @@ always other solutions.
 
 ## Medium limits and restrictions
 
-## Only a single viewDimension is allowed for a texture.
+## Only a single view dimension is allowed for a texture as a `TEXTURE_BINDING`
 
 In normal WebGPU you can make a 2d texture like this
 
@@ -73,19 +74,19 @@ const as2DArray = myTexture.createView();
 
 // view layer 3 of myTexture as a 2d texture
 const as2D = myTexture.createView({
-  viewDimension: '2d',
+  dimension: '2d',
   baseArrayLayer: 3,
   arrayLayerCount: 1,
 });
 
 // view of myTexture as a cubemap
 const asCube = myTexture.createView({
-  viewDimension: 'cube',
+  dimension: 'cube',
 });
 ```
 
 In compatibility mode you can only use one view dimension and you have to
-choose which viewDimension when you create the texture. A 2D texture with
+choose which view dimension when you create the texture. A 2D texture with
 1 layer defaults to only being usable as a `'2d'` view. A 2D texture with
 more than 1 layer defaults to only being usable as a `'2d-array`' view.
 If you want something other than the default you must tell WebGPU. For example,
@@ -104,8 +105,13 @@ Note, this extra parameter is called `textureBindingViewDimension` because
 it relates to using the texture with usage `TEXTURE_BINDING`. You can still
 use a single layer of a cubemap or 2d-array as a 2d texture as a `RENDER_ATTACHMENT`.
 
-In compatibility mode, using the texture with another type of view will
-generate a validation error
+To put it another way, you must use this same view dimension when using the
+texture in a bind group. You can still use the `2d` dimension, even if the
+`textureBindingViewDimension` is `2d-array` or `cube` when using the texture
+in as a render target.
+
+In compatibility mode, using the texture in a bind group with another type of view will
+generate a validation error.
 
 ```js
 // a view of cubeTexture as a 2d array with 6 layers
@@ -115,6 +121,7 @@ const bindGroup = device.createBindGroup({
     {
       binding,
       // ERROR in compatibility mode: texture is a cubemap not a 2d-array
+      // (the default for a texture with more than 1 layer)
       resource: cubeTexture,
     },
   ],
@@ -395,17 +402,9 @@ struct VSOutput {
 +    ourSampler,
 +    faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1));
 +}
-+
-+@group(0) @binding(1) var ourTextureCubeArray: texture_cube_array<f32>;
-+@fragment fn fscubearray(fsInput: VSOutput) -> @location(0) vec4f {
-+  return textureSample(
-+    ourTextureCubeArray,
-+    ourSampler,
-+    faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1), fsInput.baseArrayLayer);
-+}
 ```
 
-This code has 4 fragment shaders, one for each of `'2d'`, `'2d-array'`, `'cube'`, and `'cube-array'`.
+This code has 3 fragment shaders, one for each of `'2d'`, `'2d-array'`, `'cube'`.
 It uses the [large triangle to cover clip space](webgpu-large-triangle-to-cover-clip-space.html) technique
 [covered elsewhere](webgpu-large-triangle-to-cover-clip-space.html) to draw.
 It also uses `@builtin(instance_index)` to select the layer. This is an interesting and quick way
@@ -492,14 +491,6 @@ mode. But, we can just assumed `'2d-array'` in that case since in norm "core" we
                 ourSampler,
                 faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1));
             }
-
-            @group(0) @binding(1) var ourTextureCubeArray: texture_cube_array<f32>;
-            @fragment fn fscubearray(fsInput: VSOutput) -> @location(0) vec4f {
-              return textureSample(
-                ourTextureCubeArray,
-                ourSampler,
-                faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1), fsInput.baseArrayLayer);
-            }
           `,
         });
 
@@ -524,7 +515,8 @@ per viewDimension.
 +    const pipelineByFormatAndView = {};
 
     return function generateMips(device, texture, textureBindingViewDimension) {
-      // If the texture doesn't have a textureBindingViewDimension then use '2d-array'
+      // If the texture doesn't have a textureBindingViewDimension then use '2d-array'.
+      // This will be true in core webgpu mode.
       const textureBindingViewDimension = texture.textureBindingViewDimension ?? '2d-array';
       let module = moduleByViewDimension[textureBindingViewDimension];
       if (!module) {
@@ -631,7 +623,7 @@ We have a few other things we need to update to make the example work though.
 We have a function `createTextureFromSources` that we pass sources
 to and it creates a texture. It was always creating a `'2d'` texture
 since in core we can view a `'2d'` texture with 6 layers as a cubemap.
-Instead, we need to make it so we can pass in a textureBindingViewDimension and/or
+Instead, we need to make it so we can pass in a `textureBindingViewDimension` and/or
 a dimension so that when we create the texture we can tell compatibility
 mode how we will view it.
 
@@ -773,7 +765,7 @@ run into
 
   A "depth texture" is a texture referenced in WGSL with `texture_depth`,
   `texture_depth_2d_array`, or `texture_depth_cube`. Those can not be used with
-  `textureLoad` in compatibility mode.ß
+  `textureLoad` in compatibility mode.
 
   On the other hand, `textureLoad` can be used with `texture_2d<f32>`, `texture_2d_array<f32>` and
   `texture_cube<f32>` and a texture that has a depth format can be bound to these bindings..
@@ -896,10 +888,6 @@ const isCore = device.features.has('core-features-and-limits');
 
 This will always be true on a core device.
 
-> Note: As of 2025-03-11, some browsers have not yet fully shipped WebGPU and
-> have not added `'core'features-and'limits'` to their implementations.
-> They should be updated soon.
-
 # Testing compatibility mode
 
 On a browser that supports compatibility mode you can test your
@@ -919,6 +907,66 @@ const isCompatibilityMode = !device.features.has('core-features-and-limits');
 
 This is a good way to test if your app will run on these older devices.
 
-> Note: As of 2025-03-11, some browsers have not yet fully shipped WebGPU and
-> have not added `'core'features-and'limits'` to their implementations.
-> They should be updated soon.
+# Quick test via the webgpu-dev-extension
+
+Using [webgpu-dev-extension](https://github.com/greggman/webgpu-dev-extension) you can
+force your app to use compatibility mode as a quick test with no changes to your app.
+You can also test an app that auto-upgrades to core webgpu, works when it gets compatibility mode.
+
+Steps:
+
+1. Open devtools and run your app
+2. In Devtools, open the settings
+
+   <div class="webgpu_left"><img src="resources/images/webgpu-devtools-settings.png" style="width: 554px"></div>
+
+3. Turn on 'Custom Formatters'
+
+   <div class="webgpu_left"><img src="resources/images/webgpu-devtools-custom-formatters.png" style="width: 554px"></div>
+
+4. In the WebGPU-Dev-Extension, select these options:
+
+   <div class="webgpu_left"><img src="resources/images/webgpu-dev-extension-compat.png" style="width: 274px"></div>
+
+    * ### Force Mode: 'compatibility-mode'
+
+      This makes the app do `navigator.gpu.requestAdapter({ featureLevel: 'compatibility' });`
+
+      Leave this at the default of your app already supports compatibility mode.
+
+    * ### Block Features 'core-features-and-limits'
+
+      This makes it so the app can't request core mode
+
+    * ### DevTools Custom Formatters
+
+      This makes so if you inspect the device in devtools it will show
+      device.features as an array of strings. Without this, the devtools shows an
+      opaque object so you can't see the features
+
+    * ### Show Adapter Info
+
+      This option makes it do console.log(adapter) and console.log(device) any time
+      a new adapter or device is created. This lets you verify the device is in
+      compatibility mode. You can check device.features and see that it doesn't have
+      'core-features-and-limits'
+
+5. Refresh the page
+6. Verify your app is running in compatibility mode
+
+   In the JavaScript console you should see something like this
+
+<div class="webgpu_center"><img src="resources/images/webgpu-compat-verification.png" style="width: 1100px" class="nobg"></div>
+
+   Look for `webgpu-dev-extension: custom-formatters` near the top to verify the formatters
+   were injected into the page
+
+   Then, look for `GPUDevice` and expand the `features`. Make sure you **DO NOT SEE**
+   `"core-features-and-limits"`.
+
+# Examples:
+
+As of 2026-02-01, all of the local examples at [webgpu-samples](https://webgpu.github.io/webgpu-samples)
+work, and 185 of the 193 webgpu examples at [threejs.org/examples](https://threejs.org/examples/)
+work in compatibility mode. The remaining 8 may be updated to also work in compatibility mode in
+the future with minor adjustments.
