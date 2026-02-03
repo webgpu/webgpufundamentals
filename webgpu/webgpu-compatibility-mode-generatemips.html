@@ -297,14 +297,6 @@ async function main() {
                 ourSampler,
                 faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1));
             }
-
-            @group(0) @binding(1) var ourTextureCubeArray: texture_cube_array<f32>;
-            @fragment fn fscubearray(fsInput: VSOutput) -> @location(0) vec4f {
-              return textureSample(
-                ourTextureCubeArray,
-                ourSampler,
-                faceMat[fsInput.baseArrayLayer] * vec3f(fract(fsInput.texcoord), 1), fsInput.baseArrayLayer);
-            }
           `,
         });
 
