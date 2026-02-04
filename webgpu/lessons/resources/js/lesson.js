@@ -96,8 +96,8 @@ function supportsDirectTextureAttachments(device) {
 }
 
 async function checkWebGPU() {
-  const seen = localStorage.getItem('seen-newer-webgpu-01') ?? 0;
-  if (seen) {
+  const seen = localStorage.getItem('seen-newer-webgpu-01') ?? '1';
+  if (seen === '1') {
     return;
   }
   const adapter = await navigator.gpu?.requestAdapter();
@@ -110,7 +110,7 @@ async function checkWebGPU() {
         .show()
         .on('click', () => {
           $('#need-newer-webgpu').hide();
-          localStorage.setItem('seen-newer-webgpu-01', 'true');
+          localStorage.setItem('seen-newer-webgpu-01', '1');
         });
 
     }
