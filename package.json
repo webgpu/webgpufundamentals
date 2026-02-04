@@ -4,7 +4,7 @@
   "description": "Some webgpu Tutorials",
   "main": "index.js",
   "devDependencies": {
-    "@gfxfundamentals/lesson-builder": "github:gfxfundamentals/lesson-builder#v2.4.3",
+    "@gfxfundamentals/lesson-builder": "github:gfxfundamentals/lesson-builder#v2.4.4",
     "@gfxfundamentals/live-editor": "github:gfxfundamentals/live-editor#v1.5.4",
     "@types/estree": "^1.0.8",
     "@types/jsdom": "^27.0.0",
