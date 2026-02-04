@@ -423,7 +423,8 @@ resolution.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    // Get the current texture from the canvas context and
     // set it as the texture to render to.
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
+    renderPassDescriptor.colorAttachments[0].view =
+        canvasTexture.createView();
 
 +    // Update the resolution in the uniform buffer
 +    resolutionValue.set([canvasTexture.width, canvasTexture.height]);
@@ -784,7 +785,8 @@ as a bindGroup to pass the uniform buffer our shader.</p>
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
+    renderPassDescriptor.colorAttachments[0].view =
+        canvasTexture.createView();
 
     // Set the matrix in the uniform buffer
     const fov = 90 * Math.PI / 180;

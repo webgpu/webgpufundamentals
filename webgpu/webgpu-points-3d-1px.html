@@ -164,7 +164,8 @@ async function main() {
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
+    renderPassDescriptor.colorAttachments[0].view =
+        canvasTexture.createView();
 
     // Set the matrix in the uniform values
     const fov = 90 * Math.PI / 180;

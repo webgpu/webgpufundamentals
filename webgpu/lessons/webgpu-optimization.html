@@ -620,7 +620,7 @@ to position and animate each object.</p>
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: material.texture },
+        { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
         { binding: 2, resource: uniformBuffer },
       ],
@@ -704,7 +704,7 @@ we have has a different size then our canvas texture. We did this in
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    // Get the current texture from the canvas context and
     // set it as the texture to render to.
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture.createView();
 
     // If we don't have a depth texture OR if its size is different
     // from the canvasTexture when make a new depth texture
@@ -720,7 +720,7 @@ we have has a different size then our canvas texture. We did this in
         usage: GPUTextureUsage.RENDER_ATTACHMENT,
       });
     }
-    renderPassDescriptor.depthStencilAttachment.view = depthTexture;
+    renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
 </pre>
 <p>We’ll start a command buffer and a render pass and set our vertex and index buffers.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">    const encoder = device.createCommandEncoder();
@@ -843,7 +843,7 @@ the example even more. We needed something showing animation I threw something t
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
+    renderPassDescriptor.colorAttachments[0].view = canvasTexture.createView();
 
     ...
 
@@ -1456,7 +1456,7 @@ global uniform buffer to each object’s bind group.</p>
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: material.texture },
+        { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
         { binding: 2, resource: uniformBuffer },
 +        { binding: 3, resource: globalUniformBuffer },
@@ -1751,7 +1751,7 @@ object’s bind group.</p>
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: material.texture },
+        { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
         { binding: 2, resource: uniformBuffer },
         { binding: 3, resource: globalUniformBuffer },
@@ -1888,7 +1888,7 @@ buffer.</p>
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: material.texture },
+        { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
 -        { binding: 2, resource: uniformBuffer },
 +        {
@@ -2032,7 +2032,7 @@ make new typedarray views after mapping.</p>
       label: 'bind group for object',
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: material.texture },
+        { binding: 0, resource: material.texture.createView() },
         { binding: 1, resource: material.sampler },
         { binding: 2, resource: { buffer: uniformBuffer, offset: uniformBufferOffset, size: uniformBufferSize }},
         { binding: 3, resource: globalUniformBuffer },

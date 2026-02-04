@@ -203,10 +203,11 @@ async function initWebGPUPixelRender(webgpuCanvas) {
       });
     }
 
-    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
+    renderPassDescriptor.colorAttachments[0].view =
+        canvasTexture.createView();
 
-    multisampleRenderPassDescriptor.colorAttachments[0].view = multisampleTexture;
-    multisampleRenderPassDescriptor.colorAttachments[0].resolveTarget = canvasTexture;
+    multisampleRenderPassDescriptor.colorAttachments[0].view = multisampleTexture.createView();
+    multisampleRenderPassDescriptor.colorAttachments[0].resolveTarget = canvasTexture.createView();
 
     const encoder = device.createCommandEncoder({
       label: 'render quad encoder',

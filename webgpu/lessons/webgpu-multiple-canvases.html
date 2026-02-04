@@ -265,7 +265,7 @@ and set that texture as the first <code class="notranslate" translate="no">color
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
 *    renderPassDescriptor.colorAttachments[0].view =
-*        context.getCurrentTexture();
+*        context.getCurrentTexture().createView();
 
     // make a command encoder to start encoding commands
     const encoder = device.createCommandEncoder({ label: 'our encoder' });
@@ -313,7 +313,7 @@ and use that texture as a <code class="notranslate" translate="no">colorAttachme
       // Get the current texture from the canvas context and
       // set it as the texture to render to.
       renderPassDescriptor.colorAttachments[0].view =
-          context.getCurrentTexture();
+          context.getCurrentTexture().createView();
 
       // make a render pass encoder to encode render specific commands
       const pass = encoder.beginRenderPass(renderPassDescriptor);
@@ -534,7 +534,7 @@ to the uniform buffer, and set the bind group.</p>
       // Get the current texture from the canvas context and
       // set it as the texture to render to.
       renderPassDescriptor.colorAttachments[0].view =
-          context.getCurrentTexture();
+          context.getCurrentTexture().createView();
 +      renderPassDescriptor.colorAttachments[0].clearValue = clearValue;
 +
 +      const { canvas } = context;
@@ -728,7 +728,7 @@ from a canvas to that info.</p>
       // Get the current texture from the canvas context and
       // set it as the texture to render to.
       renderPassDescriptor.colorAttachments[0].view =
-          context.getCurrentTexture();
+          context.getCurrentTexture().createView();
       renderPassDescriptor.colorAttachments[0].clearValue = clearValue;
 
 -      const { canvas } = context;
