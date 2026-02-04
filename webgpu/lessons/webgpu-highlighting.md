@@ -224,14 +224,15 @@ from [the article on post processing](webgpu-post-processing.html).
 -      format: 'rgba8unorm',
 -      usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
 -    });
--    renderPassDescriptor.colorAttachments[0].view = renderTarget;
+-    const renderTargetView = renderTarget.createView();
+-    renderPassDescriptor.colorAttachments[0].view = renderTargetView;
 
 +    if (!postProcessBindGroup || texture !== lastPostProcessTexture) {
 +      lastPostProcessTexture = texture;
 *      postProcessBindGroup = device.createBindGroup({
 *        layout: postProcessPipeline.getBindGroupLayout(0),
 *        entries: [
--          { binding: 0, resource: renderTarget },
+-          { binding: 0, resource: renderTargetView },
 -          { binding: 1, resource: postProcessSampler },
 -          { binding: 2, resource: postProcessUniformBuffer },
 +          { binding: 0, resource: texture },
@@ -252,7 +253,7 @@ from [the article on post processing](webgpu-post-processing.html).
 -      ]),
 -    );
 
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);
@@ -323,7 +324,7 @@ We also need to use the post processing objects when rendering.
 +       }
 +      setupPostProcess(postTexture);
 +
-+      renderPassDescriptor.colorAttachments[0].view = postTexture;
++      renderPassDescriptor.colorAttachments[0].view = postTexture.createView();
 +      const pass = encoder.beginRenderPass(renderPassDescriptor);
 +      pass.setPipeline(pipeline);
 +

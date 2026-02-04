@@ -101,7 +101,8 @@ TOC: 基本的なCRTエフェクト
 +      format: 'rgba8unorm',
 +      usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
 +    });
-+    renderPassDescriptor.colorAttachments[0].view = renderTarget;
++    const renderTargetView = renderTarget.createView();
++    renderPassDescriptor.colorAttachments[0].view = renderTargetView;
 +  }
 
   let then = 0;
@@ -113,7 +114,7 @@ TOC: 基本的なCRTエフェクト
 -    // Get the current texture from the canvas context and
 -    // set it as the texture to render to.
 -    renderPassDescriptor.colorAttachments[0].view =
--        context.getCurrentTexture();
+-        context.getCurrentTexture().createView();
 +    const canvasTexture = context.getCurrentTexture();
 +    setupPostProcess(canvasTexture);
 
@@ -148,7 +149,7 @@ TOC: 基本的なCRTエフェクト
 
 ```js
   function postProcess(encoder, srcTexture, dstTexture) {
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);
@@ -289,7 +290,7 @@ TOC: 基本的なCRTエフェクト
     postProcessBindGroup = device.createBindGroup({
       layout: postProcessPipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: renderTarget },
+        { binding: 0, resource: renderTargetView },
         { binding: 1, resource: postProcessSampler },
 +        { binding: 2, resource: postProcessUniformBuffer },
       ],
@@ -323,7 +324,7 @@ TOC: 基本的なCRTエフェクト
 +      ]),
 +    );
 
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);
@@ -439,7 +440,7 @@ JavaScriptに戻り、ユニフォームバッファのサイズを調整する�
       ]),
     );
 
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);
@@ -589,7 +590,7 @@ async function main() {
 +      ],
 +    });
 
--    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
+-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
 -    const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
 +    const pass = encoder.beginComputePass();
     pass.setPipeline(postProcessPipeline);

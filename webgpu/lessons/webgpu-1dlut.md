@@ -143,7 +143,7 @@ And we need to update our JavaScript to set the duotone parameters.
       ]),
     );
 
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);
@@ -326,7 +326,7 @@ and uploading them to a 2ˣ1 texture.
       ]),
     );
 
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);
@@ -539,7 +539,7 @@ We made a bindGroup for each gradient. Now need to use them
   function postProcess(encoder, srcTexture, dstTexture) {
     ...
 
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);

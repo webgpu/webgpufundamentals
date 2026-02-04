@@ -185,7 +185,7 @@ and once without.
       ]),
     );
 
-    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture;
+    postProcessRenderPassDescriptor.colorAttachments[0].view = dstTexture.createView();
     const pass = encoder.beginRenderPass(postProcessRenderPassDescriptor);
     pass.setPipeline(postProcessPipeline);
     pass.setBindGroup(0, postProcessBindGroup);

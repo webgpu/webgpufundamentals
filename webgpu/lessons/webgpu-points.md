@@ -220,7 +220,8 @@ resolution.
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
+    renderPassDescriptor.colorAttachments[0].view =
+        canvasTexture.createView();
 
 +    // Update the resolution in the uniform buffer
 +    resolutionValue.set([canvasTexture.width, canvasTexture.height]);
@@ -618,7 +619,8 @@ And the code to draw using a projection matrix, camera, and other
     // Get the current texture from the canvas context and
     // set it as the texture to render to.
     const canvasTexture = context.getCurrentTexture();
-    renderPassDescriptor.colorAttachments[0].view = canvasTexture;
+    renderPassDescriptor.colorAttachments[0].view =
+        canvasTexture.createView();
 
     // Set the matrix in the uniform buffer
     const fov = 90 * Math.PI / 180;

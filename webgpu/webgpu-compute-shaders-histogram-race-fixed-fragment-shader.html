@@ -120,7 +120,7 @@ async function main() {
   const renderPassDescriptor = {
     colorAttachments: [
       {
-        view: unusedTex,
+        view: unusedTex.createView(),
         clearValue: [0, 0, 0, 0],
         loadOp: 'clear',
         storeOp: 'store',
