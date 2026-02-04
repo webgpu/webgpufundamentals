@@ -230,6 +230,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="lesson-title">
     <h1>WebGPU 동작 방식</h1>
   </div>
+  <div id="need-newer-webgpu" style="display: none">
+    <div>This browser is missing a few WebGPU features. Please update your browser.</div>
+  </div>
   <div class="lesson">
     <div class="lesson-main">
       <p>WebGPU를 설명하기 위해 GPU가 정점 셰이더와 프래그먼트 셰이더로 하는 작업들을 자바스크립트로 구현하여 설명해 보겠습니다.
@@ -770,9 +773,6 @@ const vertexShader = (ndx, bindings, attribs) =&gt;
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
-</div>
-<div id="need-newer-webgpu" style="display: none">
-  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

@@ -230,6 +230,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="lesson-title">
     <h1>WebGPU 顶点缓冲区（Vertex Buffers）</h1>
   </div>
+  <div id="need-newer-webgpu" style="display: none">
+    <div>This browser is missing a few WebGPU features. Please update your browser.</div>
+  </div>
   <div class="lesson">
     <div class="lesson-main">
       <p>在<a href="webgpu-storage-buffers.html">上一篇文章中</a>，我们将顶点数据放入存储缓冲区，并使用内置的 <code class="notranslate" translate="no">vertex_index</code> 对其进行索引。虽然这种技术越来越受欢迎，但向顶点着色器提供顶点数据的传统方法是通过顶点缓冲区和属性。</p>
@@ -1208,9 +1211,6 @@ pass.setVertexBuffer(2, changingVertexBuffer);
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
-</div>
-<div id="need-newer-webgpu" style="display: none">
-  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>

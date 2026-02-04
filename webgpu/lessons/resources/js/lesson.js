@@ -96,23 +96,13 @@ function supportsDirectTextureAttachments(device) {
 }
 
 async function checkWebGPU() {
-  const seen = localStorage.getItem('seen-newer-webgpu-01') ?? '1';
-  if (seen === '1') {
-    return;
-  }
   const adapter = await navigator.gpu?.requestAdapter();
   const device = await adapter?.requestDevice();
   if (device) {
     if (!supportsDirectBufferBinding(device) ||
         !supportsDirectTextureBinding(device) ||
         !supportsDirectTextureAttachments(device)) {
-      $('#need-newer-webgpu')
-        .show()
-        .on('click', () => {
-          $('#need-newer-webgpu').hide();
-          localStorage.setItem('seen-newer-webgpu-01', '1');
-        });
-
+      $('#need-newer-webgpu').show();
     }
   }
 }

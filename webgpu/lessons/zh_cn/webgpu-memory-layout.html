@@ -230,6 +230,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="lesson-title">
     <h1>WebGPU 数据内存布局</h1>
   </div>
+  <div id="need-newer-webgpu" style="display: none">
+    <div>This browser is missing a few WebGPU features. Please update your browser.</div>
+  </div>
   <div class="lesson">
     <div class="lesson-main">
       <p>在 WebGPU 中，您提供的几乎所有数据都需要在内存中进行布局，以便与着色器中的定义相匹配。这与 JavaScript 和 TypeScript 形成了巨大反差，在 JavaScript 和 TypeScript 中，内存布局问题很少出现。</p>
@@ -630,9 +633,6 @@ myUniformValues.set({
         <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
-</div>
-<div id="need-newer-webgpu" style="display: none">
-  <div>This browser is missing a few WebGPU features. Please update your browser.</div>
 </div>
 
 <script>
