@@ -318,7 +318,8 @@ type GPUFeatureName =
     | "subgroups"
     | "texture-formats-tier1"
     | "texture-formats-tier2"
-    | "primitive-index";
+    | "primitive-index"
+    | "texture-component-swizzle";
 type GPUFilterMode =
 
     | "nearest"
@@ -674,7 +675,7 @@ interface GPUBufferBinding {
 
 interface GPUBufferBindingLayout {
   /**
-   * Indicates the type required for buffers bound to this bindings.
+   * Indicates the type required for buffers bound to this binding.
    */
   type?: GPUBufferBindingType;
   /**
@@ -755,7 +756,18 @@ interface GPUCanvasConfiguration {
   /**
    * The tone mapping determines how the content of textures returned by
    * {@link GPUCanvasContext#getCurrentTexture} are to be displayed.
-   * Note: If an implementation doesn't support HDR WebGPU canvases, it should also not expose this member, to allow for feature detection. See {@link GPUCanvasContext#getConfiguration}.
+   * <div class=note heading>
+   * This is a required feature, but user agents might not yet implement it,
+   * effectively supporting only the default {@link GPUCanvasToneMapping}.
+   * In such implementations, this member **should not** exist in its implementation of
+   * {@link GPUCanvasConfiguration}, to make feature detection possible using
+   * {@link GPUCanvasContext#getConfiguration}.
+   * This is especially important in implementations which otherwise have HDR capabilities
+   * (where a <l>'@media/dynamic-range'</l> of <l>''@media/dynamic-range/high''</l> would be
+   * exposed).
+   * If an implementation exposes this member and a `high` dynamic range, it **should** render the
+   * canvas as an HDR element, not clamp values to the SDR range of the HDR display.
+   * </div>
    */
   toneMapping?: GPUCanvasToneMapping;
   /**
@@ -854,7 +866,7 @@ interface GPUCopyExternalImageDestInfo
    * Otherwise, the results are clamped to the target texture format's range.
    * Note:
    * If {@link GPUCopyExternalImageDestInfo#colorSpace} matches the source image,
-   * conversion may not be necessary. See {@link https://www.w3.org/TR/webgpu/#color-space-conversion-elision}.
+   * conversion might not be necessary. See {@link https://www.w3.org/TR/webgpu/#color-space-conversion-elision}.
    */
   colorSpace?: PredefinedColorSpace;
   /**
@@ -865,7 +877,7 @@ interface GPUCopyExternalImageDestInfo
    * corresponding alpha values.
    * Note:
    * If {@link GPUCopyExternalImageDestInfo#premultipliedAlpha} matches the source image,
-   * conversion may not be necessary. See {@link https://www.w3.org/TR/webgpu/#color-space-conversion-elision}.
+   * conversion might not be necessary. See {@link https://www.w3.org/TR/webgpu/#color-space-conversion-elision}.
    */
   premultipliedAlpha?: boolean;
 }
@@ -1086,6 +1098,13 @@ interface GPUPipelineLayoutDescriptor
     | null
     | undefined
   >;
+  /**
+   * The size in bytes of the immediate data range.
+   *
+   * **PROPOSED** in [Immediates](https://github.com/gpuweb/gpuweb/pull/5423).
+   * Check support before using. (Use the non-null assertion operator `!` where needed.)
+   */
+  immediateSize?: GPUSize32;
 }
 
 interface GPUPrimitiveState {
@@ -1438,16 +1457,35 @@ interface GPURenderPipelineDescriptor
 
 interface GPURequestAdapterOptions {
   /**
-   * "Feature level" for the adapter request.
+   * Requests an adapter that supports at least a particular set of capabilities.
+   * This influences the {@link adapter#[[default feature level]]} of devices created
+   * from this adapter. The capabilities for each level are defined below, and the exact
+   * steps are defined in {@link GPU#requestAdapter} and "a new device".
+   * If the implementation or system does not support all of the capabilities in the
+   * requested feature level, {@link GPU#requestAdapter} will return `null`.
+   * Note:
+   * Applications should typically make a single {@link GPU#requestAdapter} call with the lowest
+   * feature level they support, then inspect the adapter for additional capabilities they can
+   * use optionally, and request those in {@link GPUAdapter#requestDevice}.
    * The allowed <dfn dfn for="">feature level string</dfn> values are:
    * <dl dfn-type=dfn dfn-for="feature level string">
    * : <dfn noexport>"core"</dfn>
-   * No effect.
-   * : <dfn noexport>"compatibility"</dfn>
-   * No effect.
+   * The following set of capabilities:
+   * - The limit/Default limits.
+   * - {@link GPUFeatureName} `"core-features-and-limits"`.
    * Note:
-   * This value is reserved for future use as a way to opt into additional validation restrictions.
-   * Applications should not use this value at this time.
+   * Adapters with this {@link adapter#[[default feature level]]} may
+   * conventionally be referred to as "Core-defaulting".
+   * : <dfn noexport>"compatibility"</dfn>
+   * The following set of capabilities:
+   * - The limit/Compatibility Mode Default limits.
+   * - No features. (It excludes the {@link GPUFeatureName} `"core-features-and-limits"` feature.)
+   * If the implementation cannot enforce the stricter "Compatibility Mode"
+   * validation rules, {@link GPU#requestAdapter} will ignore this request and
+   * treat it as a request for feature level string/"core".
+   * Note:
+   * Adapters with this {@link adapter#[[default feature level]]} may
+   * conventionally be referred to as "Compatibility-defaulting".
    */
   featureLevel?: string;
   /**
@@ -1748,20 +1786,20 @@ interface GPUTextureDescriptor
    * </div>
    * Formats in this list must be texture view format compatible with the texture format.
    * <div algorithm data-timeline=const>
-   * Two {@link GPUTextureFormat}s `format` and `viewFormat` are <dfn dfn for="">texture view format compatible</dfn> if:
+   * Two {@link GPUTextureFormat}s `format` and `viewFormat` are <dfn dfn for="">texture view format compatible</dfn> on a given `device` if:
    * - `format` equals `viewFormat`, or
-   * - `format` and `viewFormat` differ only in whether they are `srgb` formats (have the `-srgb` suffix).
+   * - `format` and `viewFormat` differ only in whether they are `srgb` formats (have the `-srgb` suffix) and `device.features` list/contains {@link GPUFeatureName} `"core-features-and-limits"`.
    * </div>
    */
   viewFormats?: Iterable<GPUTextureFormat>;
   /**
-   * **PROPOSED** in [Compatibility Mode](https://github.com/gpuweb/gpuweb/blob/main/proposals/compatibility-mode.md).
-   *
-   * > [In compatibility mode,]
-   * > When specifying a texture, a textureBindingViewDimension property
-   * > determines the views which can be bound from that texture for sampling.
-   * > Binding a view of a different dimension for sampling than specified at
-   * > texture creation time will cause a validation error.
+   * <div class=compatmode>
+   * On devices without {@link GPUFeatureName} `"core-features-and-limits"`,
+   * views created from this texture must have this as their {@link GPUTextureViewDescriptor#dimension}.
+   * If not specified, a default is chosen.
+   * </div>
+   * On devices with {@link GPUFeatureName} `"core-features-and-limits"`,
+   * this is ignored, and there is no such restriction.
    */
   textureBindingViewDimension?: GPUTextureViewDimension;
 }
@@ -1808,6 +1846,21 @@ interface GPUTextureViewDescriptor
    * to the texture view.
    */
   arrayLayerCount?: GPUIntegerCoordinate;
+  /**
+   * A string of length four, with each character mapping to the texture view's red/green/blue/alpha
+   * channels, respectively.
+   * When accessed by a shader, the red/green/blue/alpha channels are replaced by the value
+   * corresponding to the component specified in `swizzle[0]`, `swizzle[1]`, `swizzle[2]`, and
+   * `swizzle[3]`, respectively:
+   * - `"r"`: Take its value from the red channel of the texture.
+   * - `"g"`: Take its value from the green channel of the texture.
+   * - `"b"`: Take its value from the blue channel of the texture.
+   * - `"a"`: Take its value from the alpha channel of the texture.
+   * - `"0"`: Force its value to 0.
+   * - `"1"`: Force its value to 1.
+   * Requires the {@link GPUFeatureName} `"texture-component-swizzle"` feature to be enabled.
+   */
+  swizzle?: string;
 }
 
 interface GPUUncapturedErrorEventInit
@@ -1896,6 +1949,24 @@ interface GPUBindingCommandsMixin {
     dynamicOffsetsData: Uint32Array,
     dynamicOffsetsDataStart: GPUSize64,
     dynamicOffsetsDataLength: GPUSize32
+  ): undefined;
+  /**
+   * Sets immediate data for subsequent render or compute commands
+   * @param rangeOffset - Offset in bytes into the immediate data range to begin writing at.
+   * @param data - Data to write into the immediate data range.
+   * @param dataOffset - Offset into `data` to begin writing from. Given in elements if
+   *  `data` is a `TypedArray` and bytes otherwise. Defaults to 0.
+   * @param size - Size of content to write from `data` to `buffer`. Given in elements if
+   * 	`data` is a `TypedArray` and bytes otherwise.
+   *
+   * **PROPOSED** in [Immediates](https://github.com/gpuweb/gpuweb/pull/5423).
+   * Check support before using. (Use the non-null assertion operator `!` where needed.)
+   */
+  setImmediates?(
+    rangeOffset: GPUSize32,
+    data: GPUAllowSharedBufferSource,
+    dataOffset?: GPUSize64,
+    size?: GPUSize64
   ): undefined;
 }
 
@@ -2144,14 +2215,16 @@ interface GPUAdapterInfo {
    * If the "subgroups" feature is supported, the minimum supported subgroup size for the
    * adapter.
    *
-   * TODO: Temporarily optional until all browsers have implemented it.
+   * @todo Temporarily optional until all browsers have implemented it.
+   * Check support before using. (Use the non-null assertion operator `!` where needed.)
    */
   readonly subgroupMinSize?: number;
   /**
    * If the "subgroups" feature is supported, the maximum supported subgroup size for the
    * adapter.
    *
-   * TODO: Temporarily optional until all browsers have implemented it.
+   * @todo Temporarily optional until all browsers have implemented it.
+   * Check support before using. (Use the non-null assertion operator `!` where needed.)
    */
   readonly subgroupMaxSize?: number;
   /**
@@ -2255,6 +2328,7 @@ interface GPUCanvasContext {
   /**
    * Configures the context for this canvas.
    * This clears the drawing buffer to transparent black (in [$Replace the drawing buffer$]).
+   * See {@link GPUCanvasContext#getConfiguration} for information on feature detection.
    * @param configuration - Desired configuration for the context.
    */
   configure(
@@ -2265,7 +2339,11 @@ interface GPUCanvasContext {
    */
   unconfigure(): undefined;
   /**
-   * Returns the context configuration.
+   * Returns the context configuration, or `null` if the context is not configured.
+   * Note:
+   * This method exists primarily for feature detection of members (and sub-members) of
+   * {@link GPUCanvasConfiguration}; see those members for details.
+   * For supported members, it returns the originally-supplied values.
    */
   getConfiguration(): GPUCanvasConfigurationOut | null;
   /**
@@ -3094,8 +3172,8 @@ interface GPUShaderModule
   readonly __brand: "GPUShaderModule";
   /**
    * Returns any messages generated during the {@link GPUShaderModule}'s compilation.
-   * The locations, order, and contents of messages are implementation-defined
-   * In particular, messages may not be ordered by {@link GPUCompilationMessage#lineNum}.
+   * The locations, order, and contents of messages are implementation-defined.
+   * In particular, messages aren't necessarily ordered by {@link GPUCompilationMessage#lineNum}.
    */
   getCompilationInfo(): Promise<GPUCompilationInfo>;
 }
@@ -3123,7 +3201,27 @@ interface GPUSupportedLimits {
   readonly maxSampledTexturesPerShaderStage: number;
   readonly maxSamplersPerShaderStage: number;
   readonly maxStorageBuffersPerShaderStage: number;
+  /**
+   * @todo Temporarily optional until all browsers have implemented it.
+   * Check support before using. (Use the non-null assertion operator `!` where needed.)
+   */
+  readonly maxStorageBuffersInVertexStage?: number;
+  /**
+   * @todo Temporarily optional until all browsers have implemented it.
+   * Check support before using. (Use the non-null assertion operator `!` where needed.)
+   */
+  readonly maxStorageBuffersInFragmentStage?: number;
   readonly maxStorageTexturesPerShaderStage: number;
+  /**
+   * @todo Temporarily optional until all browsers have implemented it.
+   * Check support before using. (Use the non-null assertion operator `!` where needed.)
+   */
+  readonly maxStorageTexturesInVertexStage?: number;
+  /**
+   * @todo Temporarily optional until all browsers have implemented it.
+   * Check support before using. (Use the non-null assertion operator `!` where needed.)
+   */
+  readonly maxStorageTexturesInFragmentStage?: number;
   readonly maxUniformBuffersPerShaderStage: number;
   readonly maxUniformBufferBindingSize: number;
   readonly maxStorageBufferBindingSize: number;
@@ -3142,18 +3240,16 @@ interface GPUSupportedLimits {
   readonly maxComputeWorkgroupSizeY: number;
   readonly maxComputeWorkgroupSizeZ: number;
   readonly maxComputeWorkgroupsPerDimension: number;
-  /** **PROPOSED** in [Compatibility Mode](https://github.com/gpuweb/gpuweb/blob/main/proposals/compatibility-mode.md). */
-  readonly maxStorageBuffersInVertexStage?: number;
-  /** **PROPOSED** in [Compatibility Mode](https://github.com/gpuweb/gpuweb/blob/main/proposals/compatibility-mode.md). */
-  readonly maxStorageBuffersInFragmentStage?: number;
-  /** **PROPOSED** in [Compatibility Mode](https://github.com/gpuweb/gpuweb/blob/main/proposals/compatibility-mode.md). */
-  readonly maxStorageTexturesInVertexStage?: number;
-  /** **PROPOSED** in [Compatibility Mode](https://github.com/gpuweb/gpuweb/blob/main/proposals/compatibility-mode.md). */
-  readonly maxStorageTexturesInFragmentStage?: number;
+  /**
+   * **PROPOSED** in [Immediates](https://github.com/gpuweb/gpuweb/pull/5423).
+   * Check support before using. (Use the non-null assertion operator `!` where needed.)
+   */
+  readonly maxImmediateSize?: number;
 }
 
 declare var GPUSupportedLimits: {
   prototype: GPUSupportedLimits;
+  new (): never;
 };
 
 interface GPUTexture
@@ -3203,6 +3299,22 @@ interface GPUTexture
    * The allowed usages for this {@link GPUTexture}.
    */
   readonly usage: GPUFlagsConstant;
+  /**
+   * On devices without "core-features-and-limits", views created from this
+   * texture must have this as their dimension.
+   *
+   * On devices with "core-features-and-limits", this is undefined, and there is
+   * no such restriction.
+   *
+   * @todo Temporarily optional until all browsers have implemented it.
+   * It is safe to access on any browser, as it will just (correctly) return
+   * `undefined` if not implemented. Note, depending on the device, `undefined`
+   * is a valid value even in browsers that implement this attribute. (So be
+   * careful if using the non-null assertion operator `!` on this.)
+   */
+  readonly textureBindingViewDimension?:
+    | GPUTextureViewDimension
+    | undefined;
 }
 
 declare var GPUTexture: {
@@ -3308,6 +3420,7 @@ interface GPUTextureUsage {
   readonly TEXTURE_BINDING: GPUFlagsConstant;
   readonly STORAGE_BINDING: GPUFlagsConstant;
   readonly RENDER_ATTACHMENT: GPUFlagsConstant;
+  readonly TRANSIENT_ATTACHMENT: GPUFlagsConstant;
 }
 
 declare var GPUTextureUsage: GPUTextureUsage;
