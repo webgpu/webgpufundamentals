@@ -86,6 +86,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     {{{include "build/templates/languages.template"}}}
   </div>
 </div>
+<div id="need-newer-webgpu" style="display: none">
+  <div>{{{langInfo.needNewWebGPU}}}</div>
+</div>
 <div class="container">
   <div class="lesson">
     <div class="lesson-main">
@@ -98,9 +101,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
 </div>
 {{{include "build/templates/repobanner.template"}}}
-<div id="need-newer-webgpu" style="display: none">
-  <div>{{{langInfo.needNewWebGPU}}}</div>
-</div>
 <iframe class="background" src="/webgpu/background.html"></iframe>
 <iframe src="https://web3dsurvey.com/collector-iframe.html" style="position: absolute; right: 0; top: 0; width: 1px; height: 1px;"></iframe>
 </body>

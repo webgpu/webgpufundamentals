@@ -63,16 +63,14 @@
 }
 
 #need-newer-webgpu {
-  position: absolute;
-  top: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  z-index: 1000;
 
   > div {
     padding: 2em;
+    margin: 2em;
     background-color: var(--error-bg-color);
     color: var(--error-fg-color);
     border: 0.25em solid black;
