@@ -628,7 +628,17 @@ Just like we needed to convert from pixels to clip space for X and Y, for
 Z we need to do the same thing.  In this case we making the Z axis "pixel
 units" as well?. We'll pass in some value similar to `width` for the `depth`
 so our space will be 0 to `width` pixels wide, 0 to `height` pixels tall, but
-for `depth` it will be `-depth / 2` to `+depth / 2`.
+for `depth` it will be from 0 to `depth`, unlike the clip sapce on X and Y which 
+are between -1, 1 the Z coordinate (our depth) is between 0 and 1 so we have to 
+project to it accordingly this is why we devide the depth we set by 0.5 
+(see 10th matrix element) and add 0.5 (see 14th matrix element). 
+
+For example lets try with depth of 400 unit pixels, simillarly to how we 
+transformed pixels to clip space we will use the following formula 
+`(0 >= Z coordinate of a vertex <= depth) * (0.5 / depth) + 0.5`:
+
+So for some vertex where Z coordinate is 150px and the maximum depth 
+is 400px we will get `150 * (0.5 / 400) + 0.5 = 0.6875`.
 
 We need to provide a 4x4 matrix in our uniforms
 
