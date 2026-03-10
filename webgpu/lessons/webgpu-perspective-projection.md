@@ -432,7 +432,7 @@ outside of that is clipped.
 I could go into detail about the math to fix it but [you can derive
 it](https://stackoverflow.com/a/28301213/128511) the same way we did 2D
 projection.  We need to take Z, add some amount (translation) and scale some amount and
-we can make any range we want get remapped to the -1 to +1.
+we can make any range we want get remapped to the 0 to +1.
 
 The cool thing is all of these steps can be done in 1 matrix.  Even
 better, rather than a `fudgeFactor` we'll decide on a `fieldOfView` and
