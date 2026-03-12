@@ -30,11 +30,22 @@
 
   /* special cases */
   #builtin-atomic-compare-exchange-weak pre, 
+  #builtin-workgroupUniformLoad-builtin pre, 
   #builtin-bitcast-builtin pre,
   #builtin-frexp-builtin pre,
   #builtin-modf-builtin pre {
     white-space: normal;
   }
+  table#functions-atomic-builtin-functions>thead>tr>th:nth-child(2),
+  table#functions-atomic-builtin-functions>tbody>tr>td:nth-child(2),
+  table#functions-pack-builtin-functions>thead>tr>th:nth-child(2),
+  table#functions-pack-builtin-functions>tbody>tr>td:nth-child(2),
+  table#functions-unpack-builtin-functions>thead>tr>th:nth-child(2),
+  table#functions-unpack-builtin-functions>tbody>tr>td:nth-child(2),
+  table#functions-subgroup-builtin-functions>thead>tr>th:nth-child(2),
+  table#functions-subgroup-builtin-functions>tbody>tr>td:nth-child(2),
+  table#functions-quad-builtin-functions>thead>tr>th:nth-child(2),
+  table#functions-quad-builtin-functions>tbody>tr>td:nth-child(2),
   table#functions-texture-builtin-functions>thead>tr>th:nth-child(3),
   table#functions-texture-builtin-functions>tbody>tr>td:nth-child(3) {
     display: none;
