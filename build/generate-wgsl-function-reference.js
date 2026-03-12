@@ -81,7 +81,7 @@ const baseURL = 'https://www.w3.org/TR/WGSL/';
       el('th', {textContent: 'Description'}),
     ]);
     const tbody = el('tbody');
-    const table = el('table', {}, [thead, tbody]);
+    const table = el('table', {id: `functions-${bf.id}`}, [thead, tbody]);
     outer.appendChild(table);
 
     const subFunctions = div.querySelectorAll(selector);
@@ -93,21 +93,44 @@ const baseURL = 'https://www.w3.org/TR/WGSL/';
       let pendingRows = [];
       let pendingDesc = '';
       let collectingDesc = false;
+      let pendingFromPre = false;
       // Description collected from P/UL elements before a table or PRE
       let prePendingDesc = '';
 
       const flushPendingRows = () => {
         if (pendingRows.length) {
-          for (const rowData of pendingRows) {
-            tbody.appendChild(el('tr', {}, [
+          if (pendingFromPre) {
+            // PRE-based rows (e.g. atomics): inline description in the single row
+            const rowData = pendingRows[0];
+            tbody.appendChild(el('tr', {id: `builtin-${id}`}, [
               el('td', {}, [el('pre', {className: 'tableprettyprint lang-wgsl', textContent: stripPrefix(rowData.overload)})]),
               el('td', {textContent: rowData.params}),
               el('td', {id, innerHTML: pendingDesc}),
             ]));
+          } else {
+            // TABLE-based rows (e.g. textures): shared description header row before overloads
+            const name = sf.querySelector('.content')?.textContent.trim() || '';
+            const nameElem = name ? [el('code', { class: 'builtin', textContent: name })] : [];
+            if (pendingDesc || nameElem.length) {
+              tbody.appendChild(el('tr', {id: `builtin-${id}`}, [
+                el('td', {className: 'full-description', colSpan: 3, id}, [
+                  ...nameElem,
+                  el('div', {innerHTML: pendingDesc}),
+                ]),
+              ]));
+            }
+            for (const rowData of pendingRows) {
+              tbody.appendChild(el('tr', [
+                el('td', {}, [el('pre', {className: 'tableprettyprint lang-wgsl', textContent: stripPrefix(rowData.overload)})]),
+                el('td', {textContent: rowData.params}),
+                el('td', {}),
+              ]));
+            }
           }
           pendingRows = [];
           pendingDesc = '';
           collectingDesc = false;
+          pendingFromPre = false;
         }
       };
 
@@ -124,7 +147,10 @@ const baseURL = 'https://www.w3.org/TR/WGSL/';
           break;
         }
         if (next.classList.contains('data') && next.nodeName === 'TABLE') {
-          if (next.classList.contains('builtin')) {
+          if (collectingDesc) {
+            // Include parameter description tables (after the algorithm table) in the pending description
+            pendingDesc += next.outerHTML;
+          } else if (next.classList.contains('builtin')) {
             flushPendingRows();
             prePendingDesc = '';
             // Identify rows by their label cell (cells[0]) instead of hardcoded indices
@@ -158,7 +184,7 @@ const baseURL = 'https://www.w3.org/TR/WGSL/';
 
             if (overload) {
               const desc = descContent + (domainContent ? '\n' + domainContent : '');
-              tbody.appendChild(el('tr', {}, [
+              tbody.appendChild(el('tr', {id: `builtin-${id}`}, [
                 el('td', {}, [el('pre', {className: 'tableprettyprint lang-wgsl', textContent: stripPrefix(overload)})]),
                 el('td', {textContent: params}),
                 el('td', {id, innerHTML: desc}),
@@ -188,14 +214,11 @@ const baseURL = 'https://www.w3.org/TR/WGSL/';
           pendingDesc = prePendingDesc;
           prePendingDesc = '';
           collectingDesc = true;
+          pendingFromPre = true;
         } else if (next.nodeName === 'P' || next.nodeName === 'UL') {
           if (collectingDesc) {
-            // Collecting description after a non-builtin table
-            // Skip the "Returns:" label paragraph itself
-            const strong = next.querySelector('strong');
-            if (!(strong && strong.textContent.trim() === 'Returns:')) {
-              pendingDesc += next.outerHTML;
-            }
+            // Collecting description after a non-builtin table (includes Parameters: and Returns: sections)
+            pendingDesc += next.outerHTML;
           } else {
             // Before any table/PRE: collect as potential description
             prePendingDesc += next.outerHTML;
@@ -308,10 +331,53 @@ function el(tag, attrs = {}, children = []) {
   return elem;
 }
 
+function formatSignature(s) {
+  const parenIdx = s.indexOf('(');
+  if (parenIdx === -1) {
+    return s;
+  }
+  //          111111111122222222223333
+  // 123456789012345678901234567890123
+  // textureSampleBaseLevelClampToEdge
+  const hanging = parenIdx > 35;
+  const indent = hanging ? '    ' : ' '.repeat(parenIdx);
+  let result = '';
+  let angleDepth = 0;
+  let parenDepth = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === '(') {
+      parenDepth++;
+      result += c;
+      if (hanging) {
+        result += '\n' + indent;
+      }
+    } else if (c === ')') {
+      parenDepth--;
+      if (hanging && parenDepth === 0) {
+        result += '\n)';
+      } else {
+        result += c;
+      }
+    } else if (c === '<') {
+      angleDepth++;
+      result += c;
+    } else if (c === '>') {
+      angleDepth--;
+      result += c;
+    } else if (c === ',' && angleDepth === 0 && parenDepth === 1) {
+      result += ',\n' + indent;
+    } else {
+      result += c;
+    }
+  }
+  return result;
+}
+
 function stripPrefix(s) {
   const ss = s
     .replaceAll('@const', '')
     .replaceAll('@must_use', '')
     .replaceAll(/\s+/g, ' ');
-  return `{{#escapehtml}}${ss}{{/escapehtml}}`;
+  return `{{#escapehtml}}${formatSignature(ss)}{{/escapehtml}}`;
 }
