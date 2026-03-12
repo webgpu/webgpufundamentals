@@ -110,7 +110,7 @@ const baseURL = 'https://www.w3.org/TR/WGSL/';
           } else {
             // TABLE-based rows (e.g. textures): shared description header row before overloads
             const name = sf.querySelector('.content')?.textContent.trim() || '';
-            const nameElem = name ? [el('code', { class: 'builtin', textContent: name })] : [];
+            const nameElem = name ? [el('code', { class: 'builtin', 'data-name': name, textContent: name })] : [];
             if (pendingDesc || nameElem.length) {
               tbody.appendChild(el('tr', {id: `builtin-${id}`}, [
                 el('td', {className: 'full-description', colSpan: 3, id}, [
@@ -120,7 +120,7 @@ const baseURL = 'https://www.w3.org/TR/WGSL/';
               ]));
             }
             for (const rowData of pendingRows) {
-              tbody.appendChild(el('tr', [
+              tbody.appendChild(el('tr', {}, [
                 el('td', {}, [el('pre', {className: 'tableprettyprint lang-wgsl', textContent: stripPrefix(rowData.overload)})]),
                 el('td', {textContent: rowData.params}),
                 el('td', {}),

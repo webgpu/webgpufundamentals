@@ -731,7 +731,7 @@ T is S or vecN&lt;S&gt;</td><td id="trunc-builtin"><a href="https://www.w3.org/T
    </td></tr><tr id="builtin-fwidthFine-builtin"><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn fwidthFine(e: T) -> T {{/escapehtml}}</pre></td><td>T is f32 or vecN&lt;f32&gt;</td><td id="fwidthFine-builtin"><a href="https://www.w3.org/TR/WGSL/#fwidthFine-builtin" target="_blank"></a>
        Returns <code>abs(dpdxFine(e)) + abs(dpdyFine(e))</code>.
        <p>Returns an indeterminate value if called in non-uniform control flow.</p>
-   </td></tr></tbody></table><h2 id="texture-builtin-functions">Texture Built-in Functions</h2><table id="functions-texture-builtin-functions"><thead><th>Function</th><th>Parameter Types</th><th>Description</th></thead><tbody><tr id="builtin-texturedimensions"><td class="full-description" colspan="3" id="texturedimensions"><a href="https://www.w3.org/TR/WGSL/#texturedimensions" target="_blank"></a><code class="builtin">textureDimensions</code><div><p>Returns the dimensions of a texture, or texture’s mip level in texels.</p><p><strong>Parameters:</strong></p><table class="data">
+   </td></tr></tbody></table><h2 id="texture-builtin-functions">Texture Built-in Functions</h2><table id="functions-texture-builtin-functions"><thead><th>Function</th><th>Parameter Types</th><th>Description</th></thead><tbody><tr id="builtin-texturedimensions"><td class="full-description" colspan="3" id="texturedimensions"><a href="https://www.w3.org/TR/WGSL/#texturedimensions" target="_blank"></a><code class="builtin" data-name="textureDimensions">textureDimensions</code><div><p>Returns the dimensions of a texture, or texture’s mip level in texels.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
       <td><code>t</code>
@@ -747,7 +747,32 @@ T is S or vecN&lt;S&gt;</td><td id="trunc-builtin"><a href="https://www.w3.org/T
    </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The coordinate dimensions of the texture.</p><p>That is, the result provides the integer bounds on the coordinates of the logical texel address,
 excluding the mip level count, array size, and sample count.</p><p>For textures based on cubes, the results are the dimensions of each face of the cube.
 Cube faces are square, so the x and y components of the result are equal.</p><p>If <code>level</code> is outside the range <code>[0, textureNumLevels(t))</code> then an indeterminate value
-for the return type may be returned.</p></div></td></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr id="builtin-texturegather"><td class="full-description" colspan="3" id="texturegather"><a href="https://www.w3.org/TR/WGSL/#texturegather" target="_blank"></a><code class="builtin">textureGather</code><div><p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="texture-gather">texture gather</dfn> operation reads from a 2D, 2D array, cube, or cube array texture,
+for the return type may be returned.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureDimensions(t: T) -> u32 {{/escapehtml}}</pre></td><td>ST is i32, u32, or f32
+        F is a texel format
+        A is an access mode
+        T is texture_1d&lt;ST&gt; or texture_storage_1d&lt;F,A&gt;</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureDimensions(t: T,
+                      level: L) -> u32 {{/escapehtml}}</pre></td><td>ST is i32, u32, or f32
+        T is texture_1d&lt;ST&gt;
+       L is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureDimensions(t: T) -> vec2<u32> {{/escapehtml}}</pre></td><td>ST is i32, u32, or f32
+        F is a texel format
+        A is an access mode
+        T is texture_2d&lt;ST&gt;, texture_2d_array&lt;ST&gt;, texture_cube&lt;ST&gt;,
+               texture_cube_array&lt;ST&gt;, texture_multisampled_2d&lt;ST&gt;,
+               texture_depth_2d, texture_depth_2d_array, texture_depth_cube,
+               texture_depth_cube_array, texture_depth_multisampled_2d,
+               texture_storage_2d&lt;F,A&gt;, texture_storage_2d_array&lt;F,A&gt;,
+               or texture_external</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureDimensions(t: T,
+                      level: L) -> vec2<u32> {{/escapehtml}}</pre></td><td>ST is i32, u32, or f32
+        T is texture_2d&lt;ST&gt;, texture_2d_array&lt;ST&gt;, texture_cube&lt;ST&gt;,
+               texture_cube_array&lt;ST&gt;, texture_depth_2d, texture_depth_2d_array,
+               texture_depth_cube, or texture_depth_cube_array
+       L is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureDimensions(t: T) -> vec3<u32> {{/escapehtml}}</pre></td><td>ST is i32, u32, or f32
+        F is a texel format
+        A is an access mode
+        T is texture_3d&lt;ST&gt; or texture_storage_3d&lt;F,A&gt;</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureDimensions(t: T,
+                      level: L) -> vec3<u32> {{/escapehtml}}</pre></td><td>ST is i32, u32, or f32
+        T is texture_3d&lt;ST&gt;
+       L is i32, or u32</td><td></td></tr><tr id="builtin-texturegather"><td class="full-description" colspan="3" id="texturegather"><a href="https://www.w3.org/TR/WGSL/#texturegather" target="_blank"></a><code class="builtin" data-name="textureGather">textureGather</code><div><p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="texture-gather">texture gather</dfn> operation reads from a 2D, 2D array, cube, or cube array texture,
 computing a four-component vector as follows:</p><ul>
     <li data-md="">
      <p>Find the four texels that would be used in a sampling operation with linear filtering,
@@ -847,7 +872,56 @@ WebGPU sampler descriptor.</p><p><strong>Parameters:</strong></p><table class="d
   The <code>offset</code> expression must be a const-expression (e.g. <code>vec2&lt;i32&gt;(1, 2)</code>).<br>
   Each <code>offset</code> component must be at least <code>-8</code> and at most <code>7</code>. Values outside
   of this range will result in a shader-creation error.
-   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>A four component vector with components extracted from the specified channel from the selected texels, as described above.</p></div></td></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr id="builtin-texturegathercompare"><td class="full-description" colspan="3" id="texturegathercompare"><a href="https://www.w3.org/TR/WGSL/#texturegathercompare" target="_blank"></a><code class="builtin">textureGatherCompare</code><div><p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="texture-gather-compare">texture gather compare</dfn> operation performs a depth comparison on four texels in a depth
+   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>A four component vector with components extracted from the specified channel from the selected texels, as described above.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(component: C,
+                  t: texture_2d<ST>,
+                  s: sampler,
+                  coords: vec2<f32>) -> vec4<ST> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        ST is i32, u32, or f32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(component: C,
+                  t: texture_2d<ST>,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  offset: vec2<i32>) -> vec4<ST> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        ST is i32, u32, or f32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(component: C,
+                  t: texture_2d_array<ST>,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  array_index: A) -> vec4<ST> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        A is i32, or u32
+        ST is i32, u32, or f32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(component: C,
+                  t: texture_2d_array<ST>,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  array_index: A,
+                  offset: vec2<i32>) -> vec4<ST> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        A is i32, or u32
+        ST is i32, u32, or f32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(component: C,
+                  t: texture_cube<ST>,
+                  s: sampler,
+                  coords: vec3<f32>) -> vec4<ST> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        ST is i32, u32, or f32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(component: C,
+                  t: texture_cube_array<ST>,
+                  s: sampler,
+                  coords: vec3<f32>,
+                  array_index: A) -> vec4<ST> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        A is i32, or u32
+        ST is i32, u32, or f32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(t: texture_depth_2d,
+                  s: sampler,
+                  coords: vec2<f32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(t: texture_depth_2d,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(t: texture_depth_cube,
+                  s: sampler,
+                  coords: vec3<f32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(t: texture_depth_2d_array,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  array_index: A) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(t: texture_depth_2d_array,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  array_index: A,
+                  offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGather(t: texture_depth_cube_array,
+                  s: sampler,
+                  coords: vec3<f32>,
+                  array_index: A) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr id="builtin-texturegathercompare"><td class="full-description" colspan="3" id="texturegathercompare"><a href="https://www.w3.org/TR/WGSL/#texturegathercompare" target="_blank"></a><code class="builtin" data-name="textureGatherCompare">textureGatherCompare</code><div><p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="texture-gather-compare">texture gather compare</dfn> operation performs a depth comparison on four texels in a depth
 texture and collects the results into a single vector, as follows:</p><ul>
     <li data-md="">
      <p>Find the four texels that would be used in a depth sampling operation with linear filtering,
@@ -921,7 +995,30 @@ yielding a 0.0 or 1.0 value, as controlled by the comparison sampler parameters.
   The <code>offset</code> expression must be a const-expression (e.g. <code>vec2&lt;i32&gt;(1, 2)</code>).<br>
   Each <code>offset</code> component must be at least <code>-8</code> and at most <code>7</code>. Values outside
   of this range will result in a shader-creation error.
-   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>A four component vector with comparison result for the selected texels, as described above.</p></div></td></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr id="builtin-textureload"><td class="full-description" colspan="3" id="textureload"><a href="https://www.w3.org/TR/WGSL/#textureload" target="_blank"></a><code class="builtin">textureLoad</code><div><p>Reads a single texel from a texture without sampling or filtering.</p><p><strong>Parameters:</strong></p><table class="data">
+   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>A four component vector with comparison result for the selected texels, as described above.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGatherCompare(t: texture_depth_2d,
+                         s: sampler_comparison,
+                         coords: vec2<f32>,
+                         depth_ref: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGatherCompare(t: texture_depth_2d,
+                         s: sampler_comparison,
+                         coords: vec2<f32>,
+                         depth_ref: f32,
+                         offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGatherCompare(t: texture_depth_2d_array,
+                         s: sampler_comparison,
+                         coords: vec2<f32>,
+                         array_index: A,
+                         depth_ref: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGatherCompare(t: texture_depth_2d_array,
+                         s: sampler_comparison,
+                         coords: vec2<f32>,
+                         array_index: A,
+                         depth_ref: f32,
+                         offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGatherCompare(t: texture_depth_cube,
+                         s: sampler_comparison,
+                         coords: vec3<f32>,
+                         depth_ref: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureGatherCompare(t: texture_depth_cube_array,
+                         s: sampler_comparison,
+                         coords: vec3<f32>,
+                         array_index: A,
+                         depth_ref: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr id="builtin-textureload"><td class="full-description" colspan="3" id="textureload"><a href="https://www.w3.org/TR/WGSL/#textureload" target="_blank"></a><code class="builtin" data-name="textureLoad">textureLoad</code><div><p>Reads a single texel from a texture without sampling or filtering.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
       <td><code>t</code>
@@ -971,7 +1068,63 @@ for the corresponding element, or</p>
      </li></ul>
     </li><li data-md="">
      <p>0.0 for depth textures.</p>
-   </li></ul></div></td></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr id="builtin-texturenumlayers"><td class="full-description" colspan="3" id="texturenumlayers"><a href="https://www.w3.org/TR/WGSL/#texturenumlayers" target="_blank"></a><code class="builtin">textureNumLayers</code><div><p>Returns the number of layers (elements) of an arrayed texture.</p><p><strong>Parameters:</strong></p><table class="data">
+   </li></ul></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t: texture_1d<ST>,
+                coords: C,
+                level: L) -> vec4<ST> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        L is i32, or u32
+        ST is i32, u32, or f32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t: texture_2d<ST>,
+                coords: vec2<C>,
+                level: L) -> vec4<ST> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        L is i32, or u32
+        ST is i32, u32, or f32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t: texture_2d_array<ST>,
+                coords: vec2<C>,
+                array_index: A,
+                level: L) -> vec4<ST> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        A is i32, or u32
+        L is i32, or u32
+        ST is i32, u32, or f32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t: texture_3d<ST>,
+                coords: vec3<C>,
+                level: L) -> vec4<ST> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        L is i32, or u32
+        ST is i32, u32, or f32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t: texture_multisampled_2d<ST>,
+                coords: vec2<C>,
+                sample_index: S)-> vec4<ST> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        S is i32, or u32
+        ST is i32, u32, or f32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t: texture_depth_2d,
+                coords: vec2<C>,
+                level: L) -> f32 {{/escapehtml}}</pre></td><td>C is i32, or u32
+        L is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t: texture_depth_2d_array,
+                coords: vec2<C>,
+                array_index: A,
+                level: L) -> f32 {{/escapehtml}}</pre></td><td>C is i32, or u32
+        A is i32, or u32
+        L is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t: texture_depth_multisampled_2d,
+                coords: vec2<C>,
+                sample_index: S)-> f32 {{/escapehtml}}</pre></td><td>C is i32, or u32
+        S is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t: texture_external,
+                coords: vec2<C>) -> vec4<f32> {{/escapehtml}}</pre></td><td>C is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t : texture_storage_1d<F, AM>,
+                coords : C) -> vec4<CF> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        AM is read or read_write
+        CF depends on the storage texel format F.
+        See the texel format table for the mapping of texel
+        format to channel format.</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t : texture_storage_2d<F, AM>,
+                coords : vec2<C>) -> vec4<CF> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        AM is read or read_write
+        CF depends on the storage texel format F.
+        See the texel format table for the mapping of texel
+        format to channel format.</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t : texture_storage_2d_array<F, AM>,
+                coords : vec2<C>,
+                array_index : A) -> vec4<CF> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        AM is read or read_write
+        A is i32 or u32
+        CF depends on the storage texel format F.
+        See the texel format table for the mapping of texel
+        format to channel format.</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureLoad(t : texture_storage_3d<F, AM>,
+                coords : vec3<C>) -> vec4<CF> {{/escapehtml}}</pre></td><td>C is i32, or u32
+        AM is read or read_write
+        CF depends on the storage texel format F.
+        See the texel format table for the mapping of texel
+        format to channel format.</td><td></td></tr><tr id="builtin-texturenumlayers"><td class="full-description" colspan="3" id="texturenumlayers"><a href="https://www.w3.org/TR/WGSL/#texturenumlayers" target="_blank"></a><code class="builtin" data-name="textureNumLayers">textureNumLayers</code><div><p>Returns the number of layers (elements) of an arrayed texture.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
       <td><code>t</code>
@@ -979,19 +1132,31 @@ for the corresponding element, or</p>
   The sampled,
   depth, or
   storage texture array texture.
-   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>If the texture is based on cubes, returns the number of cubes in the cube arrayed texture.</p><p>Otherwise returns the number of layers (homogeneous grids of texels) in the arrayed texture.</p></div></td></tr><tr></tr><tr id="builtin-texturenumlevels"><td class="full-description" colspan="3" id="texturenumlevels"><a href="https://www.w3.org/TR/WGSL/#texturenumlevels" target="_blank"></a><code class="builtin">textureNumLevels</code><div><p>Returns the number of mip levels of a texture.</p><p><strong>Parameters:</strong></p><table class="data">
+   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>If the texture is based on cubes, returns the number of cubes in the cube arrayed texture.</p><p>Otherwise returns the number of layers (homogeneous grids of texels) in the arrayed texture.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureNumLayers(t: T) -> u32 {{/escapehtml}}</pre></td><td>F is a texel format
+        A is an access mode
+        ST is i32, u32, or f32
+        T is texture_2d_array&lt;ST&gt;, texture_cube_array&lt;ST&gt;,
+                               texture_depth_2d_array, texture_depth_cube_array,
+                               or texture_storage_2d_array&lt;F,A&gt;</td><td></td></tr><tr id="builtin-texturenumlevels"><td class="full-description" colspan="3" id="texturenumlevels"><a href="https://www.w3.org/TR/WGSL/#texturenumlevels" target="_blank"></a><code class="builtin" data-name="textureNumLevels">textureNumLevels</code><div><p>Returns the number of mip levels of a texture.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
       <td><code>t</code>
       </td><td>
   The sampled or depth texture.
-   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The mip level count for the texture.</p></div></td></tr><tr></tr><tr id="builtin-texturenumsamples"><td class="full-description" colspan="3" id="texturenumsamples"><a href="https://www.w3.org/TR/WGSL/#texturenumsamples" target="_blank"></a><code class="builtin">textureNumSamples</code><div><p>Returns the number samples per texel in a multisampled texture.</p><p><strong>Parameters:</strong></p><table class="data">
+   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The mip level count for the texture.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureNumLevels(t: T) -> u32 {{/escapehtml}}</pre></td><td>ST is i32, u32, or f32
+        T is texture_1d&lt;ST&gt;, texture_2d&lt;ST&gt;,
+                               texture_2d_array&lt;ST&gt;, texture_3d&lt;ST&gt;,
+                               texture_cube&lt;ST&gt;, texture_cube_array&lt;ST&gt;,
+                               texture_depth_2d, texture_depth_2d_array,
+                               texture_depth_cube, or texture_depth_cube_array</td><td></td></tr><tr id="builtin-texturenumsamples"><td class="full-description" colspan="3" id="texturenumsamples"><a href="https://www.w3.org/TR/WGSL/#texturenumsamples" target="_blank"></a><code class="builtin" data-name="textureNumSamples">textureNumSamples</code><div><p>Returns the number samples per texel in a multisampled texture.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
       <td><code>t</code>
       </td><td>
   The multisampled texture.
-   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sample count for the multisampled texture.</p></div></td></tr><tr></tr><tr id="builtin-texturesample"><td class="full-description" colspan="3" id="texturesample"><a href="https://www.w3.org/TR/WGSL/#texturesample" target="_blank"></a><code class="builtin">textureSample</code><div><p>Samples a texture.</p><p>Must only be used in a fragment shader stage.</p><p>If uniformity analysis cannot prove a call to this function is in uniform control flow,
+   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sample count for the multisampled texture.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureNumSamples(t: T) -> u32 {{/escapehtml}}</pre></td><td>ST is i32, u32, or f32
+        T is texture_multisampled_2d&lt;ST&gt;
+                                or texture_depth_multisampled_2d</td><td></td></tr><tr id="builtin-texturesample"><td class="full-description" colspan="3" id="texturesample"><a href="https://www.w3.org/TR/WGSL/#texturesample" target="_blank"></a><code class="builtin" data-name="textureSample">textureSample</code><div><p>Samples a texture.</p><p>Must only be used in a fragment shader stage.</p><p>If uniformity analysis cannot prove a call to this function is in uniform control flow,
 then a derivative_uniformity diagnostic is triggered.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
@@ -1021,7 +1186,46 @@ then a derivative_uniformity diagnostic is triggered.</p><p><strong>Parameters:<
   The <code>offset</code> expression must be a const-expression (e.g. <code>vec2&lt;i32&gt;(1, 2)</code>).<br>
   Each <code>offset</code> component must be at least <code>-8</code> and at most <code>7</code>. Values outside
   of this range will result in a shader-creation error.
-   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sampled value.</p><p>An indeterminate value results if called in non-uniform control flow.</p></div></td></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr id="builtin-texturesamplebias"><td class="full-description" colspan="3" id="texturesamplebias"><a href="https://www.w3.org/TR/WGSL/#texturesamplebias" target="_blank"></a><code class="builtin">textureSampleBias</code><div><p>Samples a texture with a bias to the mip level.</p><p>Must only be used in a fragment shader stage.</p><p>If uniformity analysis cannot prove a call to this function is in uniform control flow,
+   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sampled value.</p><p>An indeterminate value results if called in non-uniform control flow.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_1d<f32>,
+                  s: sampler,
+                  coords: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_2d<f32>,
+                  s: sampler,
+                  coords: vec2<f32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_2d<f32>,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_2d_array<f32>,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  array_index: A) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_2d_array<f32>,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  array_index: A,
+                  offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: T,
+                  s: sampler,
+                  coords: vec3<f32>) -> vec4<f32> {{/escapehtml}}</pre></td><td>T is texture_3d&lt;f32&gt;, or texture_cube&lt;f32&gt;</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_3d<f32>,
+                  s: sampler,
+                  coords: vec3<f32>,
+                  offset: vec3<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_cube_array<f32>,
+                  s: sampler,
+                  coords: vec3<f32>,
+                  array_index: A) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_depth_2d,
+                  s: sampler,
+                  coords: vec2<f32>) -> f32 {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_depth_2d,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  offset: vec2<i32>) -> f32 {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_depth_2d_array,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  array_index: A) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_depth_2d_array,
+                  s: sampler,
+                  coords: vec2<f32>,
+                  array_index: A,
+                  offset: vec2<i32>) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_depth_cube,
+                  s: sampler,
+                  coords: vec3<f32>) -> f32 {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSample(t: texture_depth_cube_array,
+                  s: sampler,
+                  coords: vec3<f32>,
+                  array_index: A) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr id="builtin-texturesamplebias"><td class="full-description" colspan="3" id="texturesamplebias"><a href="https://www.w3.org/TR/WGSL/#texturesamplebias" target="_blank"></a><code class="builtin" data-name="textureSampleBias">textureSampleBias</code><div><p>Samples a texture with a bias to the mip level.</p><p>Must only be used in a fragment shader stage.</p><p>If uniformity analysis cannot prove a call to this function is in uniform control flow,
 then a derivative_uniformity diagnostic is triggered.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
@@ -1055,7 +1259,34 @@ then a derivative_uniformity diagnostic is triggered.</p><p><strong>Parameters:<
   The <code>offset</code> expression must be a const-expression (e.g. <code>vec2&lt;i32&gt;(1, 2)</code>).<br>
   Each <code>offset</code> component must be at least <code>-8</code> and at most <code>7</code>. Values outside
   of this range will result in a shader-creation error.
-   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sampled value.</p></div></td></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr id="builtin-texturesamplecompare"><td class="full-description" colspan="3" id="texturesamplecompare"><a href="https://www.w3.org/TR/WGSL/#texturesamplecompare" target="_blank"></a><code class="builtin">textureSampleCompare</code><div><p>Samples a depth texture and compares the sampled depth values against a reference value.</p><p>Must only be used in a fragment shader stage.</p><p>If uniformity analysis cannot prove a call to this function is in uniform control flow,
+   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sampled value.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleBias(t: texture_2d<f32>,
+                      s: sampler,
+                      coords: vec2<f32>,
+                      bias: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleBias(t: texture_2d<f32>,
+                      s: sampler,
+                      coords: vec2<f32>,
+                      bias: f32,
+                      offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleBias(t: texture_2d_array<f32>,
+                      s: sampler,
+                      coords: vec2<f32>,
+                      array_index: A,
+                      bias: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleBias(t: texture_2d_array<f32>,
+                      s: sampler,
+                      coords: vec2<f32>,
+                      array_index: A,
+                      bias: f32,
+                      offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleBias(t: T,
+                      s: sampler,
+                      coords: vec3<f32>,
+                      bias: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td>T is texture_3d&lt;f32&gt;, or texture_cube&lt;f32&gt;</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleBias(t: texture_3d<f32>,
+                      s: sampler,
+                      coords: vec3<f32>,
+                      bias: f32,
+                      offset: vec3<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleBias(t: texture_cube_array<f32>,
+                      s: sampler,
+                      coords: vec3<f32>,
+                      array_index: A,
+                      bias: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr id="builtin-texturesamplecompare"><td class="full-description" colspan="3" id="texturesamplecompare"><a href="https://www.w3.org/TR/WGSL/#texturesamplecompare" target="_blank"></a><code class="builtin" data-name="textureSampleCompare">textureSampleCompare</code><div><p>Samples a depth texture and compares the sampled depth values against a reference value.</p><p>Must only be used in a fragment shader stage.</p><p>If uniformity analysis cannot prove a call to this function is in uniform control flow,
 then a derivative_uniformity diagnostic is triggered.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
@@ -1092,7 +1323,30 @@ then a derivative_uniformity diagnostic is triggered.</p><p><strong>Parameters:<
 operator defined by the <code>sampler_comparison</code>, resulting in either a <code>0</code> or <code>1</code>
 value for each texel.</p><p>If the sampler uses bilinear filtering then the returned value is
 the filtered average of these values, otherwise the comparison result of a
-single texel is returned.</p><p>An indeterminate value results if called in non-uniform control flow.</p></div></td></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr id="builtin-texturesamplecomparelevel"><td class="full-description" colspan="3" id="texturesamplecomparelevel"><a href="https://www.w3.org/TR/WGSL/#texturesamplecomparelevel" target="_blank"></a><code class="builtin">textureSampleCompareLevel</code><div><p>Samples a depth texture and compares the sampled depth values against a reference value.</p><p><strong>Parameters:</strong></p><table class="data">
+single texel is returned.</p><p>An indeterminate value results if called in non-uniform control flow.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompare(t: texture_depth_2d,
+                         s: sampler_comparison,
+                         coords: vec2<f32>,
+                         depth_ref: f32) -> f32 {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompare(t: texture_depth_2d,
+                         s: sampler_comparison,
+                         coords: vec2<f32>,
+                         depth_ref: f32,
+                         offset: vec2<i32>) -> f32 {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompare(t: texture_depth_2d_array,
+                         s: sampler_comparison,
+                         coords: vec2<f32>,
+                         array_index: A,
+                         depth_ref: f32) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompare(t: texture_depth_2d_array,
+                         s: sampler_comparison,
+                         coords: vec2<f32>,
+                         array_index: A,
+                         depth_ref: f32,
+                         offset: vec2<i32>) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompare(t: texture_depth_cube,
+                         s: sampler_comparison,
+                         coords: vec3<f32>,
+                         depth_ref: f32) -> f32 {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompare(t: texture_depth_cube_array,
+                         s: sampler_comparison,
+                         coords: vec3<f32>,
+                         array_index: A,
+                         depth_ref: f32) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr id="builtin-texturesamplecomparelevel"><td class="full-description" colspan="3" id="texturesamplecomparelevel"><a href="https://www.w3.org/TR/WGSL/#texturesamplecomparelevel" target="_blank"></a><code class="builtin" data-name="textureSampleCompareLevel">textureSampleCompareLevel</code><div><p>Samples a depth texture and compares the sampled depth values against a reference value.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
       <td><code>t</code>
@@ -1135,7 +1389,30 @@ single texel is returned.</p><p>An indeterminate value results if called in non-
      </li></ul>
     </li><li data-md="">
      <p><code>textureSampleCompareLevel</code> may be invoked in any shader stage.</p>
-   </li></ul></div></td></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr id="builtin-texturesamplegrad"><td class="full-description" colspan="3" id="texturesamplegrad"><a href="https://www.w3.org/TR/WGSL/#texturesamplegrad" target="_blank"></a><code class="builtin">textureSampleGrad</code><div><p>Samples a texture using explicit gradients.</p><p><strong>Parameters:</strong></p><table class="data">
+   </li></ul></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompareLevel(t: texture_depth_2d,
+                              s: sampler_comparison,
+                              coords: vec2<f32>,
+                              depth_ref: f32) -> f32 {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompareLevel(t: texture_depth_2d,
+                              s: sampler_comparison,
+                              coords: vec2<f32>,
+                              depth_ref: f32,
+                              offset: vec2<i32>) -> f32 {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompareLevel(t: texture_depth_2d_array,
+                              s: sampler_comparison,
+                              coords: vec2<f32>,
+                              array_index: A,
+                              depth_ref: f32) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompareLevel(t: texture_depth_2d_array,
+                              s: sampler_comparison,
+                              coords: vec2<f32>,
+                              array_index: A,
+                              depth_ref: f32,
+                              offset: vec2<i32>) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompareLevel(t: texture_depth_cube,
+                              s: sampler_comparison,
+                              coords: vec3<f32>,
+                              depth_ref: f32) -> f32 {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleCompareLevel(t: texture_depth_cube_array,
+                              s: sampler_comparison,
+                              coords: vec3<f32>,
+                              array_index: A,
+                              depth_ref: f32) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr id="builtin-texturesamplegrad"><td class="full-description" colspan="3" id="texturesamplegrad"><a href="https://www.w3.org/TR/WGSL/#texturesamplegrad" target="_blank"></a><code class="builtin" data-name="textureSampleGrad">textureSampleGrad</code><div><p>Samples a texture using explicit gradients.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
       <td><code>t</code>
@@ -1171,7 +1448,41 @@ single texel is returned.</p><p>An indeterminate value results if called in non-
   The <code>offset</code> expression must be a const-expression (e.g. <code>vec2&lt;i32&gt;(1, 2)</code>).<br>
   Each <code>offset</code> component must be at least <code>-8</code> and at most <code>7</code>. Values outside
   of this range will result in a shader-creation error.
-   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sampled value.</p></div></td></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr id="builtin-texturesamplelevel"><td class="full-description" colspan="3" id="texturesamplelevel"><a href="https://www.w3.org/TR/WGSL/#texturesamplelevel" target="_blank"></a><code class="builtin">textureSampleLevel</code><div><p>Samples a texture using an explicit mip level.</p><p><strong>Parameters:</strong></p><table class="data">
+   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sampled value.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleGrad(t: texture_2d<f32>,
+                      s: sampler,
+                      coords: vec2<f32>,
+                      ddx: vec2<f32>,
+                      ddy: vec2<f32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleGrad(t: texture_2d<f32>,
+                      s: sampler,
+                      coords: vec2<f32>,
+                      ddx: vec2<f32>,
+                      ddy: vec2<f32>,
+                      offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleGrad(t: texture_2d_array<f32>,
+                      s: sampler,
+                      coords: vec2<f32>,
+                      array_index: A,
+                      ddx: vec2<f32>,
+                      ddy: vec2<f32>) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleGrad(t: texture_2d_array<f32>,
+                      s: sampler,
+                      coords: vec2<f32>,
+                      array_index: A,
+                      ddx: vec2<f32>,
+                      ddy: vec2<f32>,
+                      offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleGrad(t: T,
+                      s: sampler,
+                      coords: vec3<f32>,
+                      ddx: vec3<f32>,
+                      ddy: vec3<f32>) -> vec4<f32> {{/escapehtml}}</pre></td><td>T is texture_3d&lt;f32&gt;, or texture_cube&lt;f32&gt;</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleGrad(t: texture_3d<f32>,
+                      s: sampler,
+                      coords: vec3<f32>,
+                      ddx: vec3<f32>,
+                      ddy: vec3<f32>,
+                      offset: vec3<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleGrad(t: texture_cube_array<f32>,
+                      s: sampler,
+                      coords: vec3<f32>,
+                      array_index: A,
+                      ddx: vec3<f32>,
+                      ddy: vec3<f32>) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr id="builtin-texturesamplelevel"><td class="full-description" colspan="3" id="texturesamplelevel"><a href="https://www.w3.org/TR/WGSL/#texturesamplelevel" target="_blank"></a><code class="builtin" data-name="textureSampleLevel">textureSampleLevel</code><div><p>Samples a texture using an explicit mip level.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
       <td><code>t</code>
@@ -1207,7 +1518,63 @@ single texel is returned.</p><p>An indeterminate value results if called in non-
   The <code>offset</code> expression must be a const-expression (e.g. <code>vec2&lt;i32&gt;(1, 2)</code>).<br>
   Each <code>offset</code> component must be at least <code>-8</code> and at most <code>7</code>. Values outside
   of this range will result in a shader-creation error.
-   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sampled value.</p></div></td></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr id="builtin-textureSampleBaseClampToEdge"><td class="full-description" colspan="3" id="textureSampleBaseClampToEdge"><a href="https://www.w3.org/TR/WGSL/#textureSampleBaseClampToEdge" target="_blank"></a><code class="builtin">textureSampleBaseClampToEdge</code><div><p>Samples a texture view at its base level,
+   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sampled value.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_1d<f32>,
+                       s: sampler,
+                       coords: f32,
+                       level: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_2d<f32>,
+                       s: sampler,
+                       coords: vec2<f32>,
+                       level: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_2d<f32>,
+                       s: sampler,
+                       coords: vec2<f32>,
+                       level: f32,
+                       offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_2d_array<f32>,
+                       s: sampler,
+                       coords: vec2<f32>,
+                       array_index: A,
+                       level: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_2d_array<f32>,
+                       s: sampler,
+                       coords: vec2<f32>,
+                       array_index: A,
+                       level: f32,
+                       offset: vec2<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: T,
+                       s: sampler,
+                       coords: vec3<f32>,
+                       level: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td>T is texture_3d&lt;f32&gt;, or texture_cube&lt;f32&gt;</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_3d<f32>,
+                       s: sampler,
+                       coords: vec3<f32>,
+                       level: f32,
+                       offset: vec3<i32>) -> vec4<f32> {{/escapehtml}}</pre></td><td></td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_cube_array<f32>,
+                       s: sampler,
+                       coords: vec3<f32>,
+                       array_index: A,
+                       level: f32) -> vec4<f32> {{/escapehtml}}</pre></td><td>A is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_depth_2d,
+                       s: sampler,
+                       coords: vec2<f32>,
+                       level: L) -> f32 {{/escapehtml}}</pre></td><td>L is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_depth_2d,
+                       s: sampler,
+                       coords: vec2<f32>,
+                       level: L,
+                       offset: vec2<i32>) -> f32 {{/escapehtml}}</pre></td><td>L is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_depth_2d_array,
+                       s: sampler,
+                       coords: vec2<f32>,
+                       array_index: A,
+                       level: L) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32
+        L is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_depth_2d_array,
+                       s: sampler,
+                       coords: vec2<f32>,
+                       array_index: A,
+                       level: L,
+                       offset: vec2<i32>) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32
+        L is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_depth_cube,
+                       s: sampler,
+                       coords: vec3<f32>,
+                       level: L) -> f32 {{/escapehtml}}</pre></td><td>L is i32, or u32</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleLevel(t: texture_depth_cube_array,
+                       s: sampler,
+                       coords: vec3<f32>,
+                       array_index: A,
+                       level: L) -> f32 {{/escapehtml}}</pre></td><td>A is i32, or u32
+        L is i32, or u32</td><td></td></tr><tr id="builtin-textureSampleBaseClampToEdge"><td class="full-description" colspan="3" id="textureSampleBaseClampToEdge"><a href="https://www.w3.org/TR/WGSL/#textureSampleBaseClampToEdge" target="_blank"></a><code class="builtin" data-name="textureSampleBaseClampToEdge">textureSampleBaseClampToEdge</code><div><p>Samples a texture view at its base level,
 with texture coordinates clamped to the edge as described below.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
@@ -1236,7 +1603,9 @@ with texture coordinates clamped to the edge as described below.</p><p><strong>P
   wrapping will not occur.
   That is, when sampling near an edge, the sampled texels
   will be at or adjacent to that edge, and not selected from the opposite edge.</p>
-   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sampled value.</p></div></td></tr><tr></tr><tr id="builtin-texturestore"><td class="full-description" colspan="3" id="texturestore"><a href="https://www.w3.org/TR/WGSL/#texturestore" target="_blank"></a><code class="builtin">textureStore</code><div><p>Writes a single texel to a texture.</p><p><strong>Parameters:</strong></p><table class="data">
+   </td></tr></tbody></table><p><strong>Returns:</strong></p><p>The sampled value.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureSampleBaseClampToEdge(t: T,
+                                 s: sampler,
+                                 coords: vec2<f32>) -> vec4<f32> {{/escapehtml}}</pre></td><td>T is texture_2d&lt;f32&gt; or texture_external</td><td></td></tr><tr id="builtin-texturestore"><td class="full-description" colspan="3" id="texturestore"><a href="https://www.w3.org/TR/WGSL/#texturestore" target="_blank"></a><code class="builtin" data-name="textureStore">textureStore</code><div><p>Writes a single texel to a texture.</p><p><strong>Parameters:</strong></p><table class="data">
     <tbody>
      <tr>
       <td><code>t</code>
@@ -1262,7 +1631,37 @@ with texture coordinates clamped to the edge as described below.</p><p><strong>P
 for the corresponding element, or</p>
     </li><li data-md="">
      <p><code>array_index</code> is outside the range of <code>[0, textureNumLayers(t))</code></p>
-   </li></ul><p>If the logical texel address is invalid, the built-in function will not be executed.</p></div></td></tr><tr></tr><tr></tr><tr></tr><tr></tr></tbody></table><h2 id="atomic-builtin-functions">Atomic Built-in Functions</h2><table id="functions-atomic-builtin-functions"><thead><th>Function</th><th>Parameter Types</th><th>Description</th></thead><tbody><tr id="builtin-atomic-load"><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}}fn atomicLoad(atomic_ptr: ptr<AS, atomic<T>, read_write>) -> T {{/escapehtml}}</pre></td><td></td><td id="atomic-load"><a href="https://www.w3.org/TR/WGSL/#atomic-load" target="_blank"></a><p>Returns the atomically loaded the value pointed to by <code>atomic_ptr</code>.
+   </li></ul><p>If the logical texel address is invalid, the built-in function will not be executed.</p></div></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureStore(t: texture_storage_1d<F,AM>,
+                 coords: C,
+                 value: vec4<CF>) {{/escapehtml}}</pre></td><td>F is a texel format
+        C is i32, or u32
+        AM is write or read_write
+        CF depends on the storage texel format F.
+        See the texel format table for the mapping of texel
+        format to channel format.</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureStore(t: texture_storage_2d<F,AM>,
+                 coords: vec2<C>,
+                 value: vec4<CF>) {{/escapehtml}}</pre></td><td>F is a texel format
+        C is i32, or u32
+        AM is write or read_write
+        CF depends on the storage texel format F.
+        See the texel format table for the mapping of texel
+        format to channel format.</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureStore(t: texture_storage_2d_array<F,AM>,
+                 coords: vec2<C>,
+                 array_index: A,
+                 value: vec4<CF>) {{/escapehtml}}</pre></td><td>F is a texel format
+        C is i32, or u32
+        AM is write or read_write
+        A is i32, or u32
+        CF depends on the storage texel format F.
+        See the texel format table for the mapping of texel
+        format to channel format.</td><td></td></tr><tr><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}} fn textureStore(t: texture_storage_3d<F,AM>,
+                 coords: vec3<C>,
+                 value: vec4<CF>) {{/escapehtml}}</pre></td><td>F is a texel format
+        C is i32, or u32
+        AM is write or read_write
+        CF depends on the storage texel format F.
+        See the texel format table for the mapping of texel
+        format to channel format.</td><td></td></tr></tbody></table><h2 id="atomic-builtin-functions">Atomic Built-in Functions</h2><table id="functions-atomic-builtin-functions"><thead><th>Function</th><th>Parameter Types</th><th>Description</th></thead><tbody><tr id="builtin-atomic-load"><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}}fn atomicLoad(atomic_ptr: ptr<AS, atomic<T>, read_write>) -> T {{/escapehtml}}</pre></td><td></td><td id="atomic-load"><a href="https://www.w3.org/TR/WGSL/#atomic-load" target="_blank"></a><p>Returns the atomically loaded the value pointed to by <code>atomic_ptr</code>.
 It does not modify the object.</p></td></tr><tr id="builtin-atomic-store"><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}}fn atomicStore(atomic_ptr: ptr<AS, atomic<T>, read_write>,
                v: T) {{/escapehtml}}</pre></td><td></td><td id="atomic-store"><a href="https://www.w3.org/TR/WGSL/#atomic-store" target="_blank"></a><p>Atomically stores the value <code>v</code> in the atomic object pointed to by <code>atomic_ptr</code>.</p></td></tr><tr id="builtin-atomic-add"><td><pre class="tableprettyprint lang-wgsl">{{#escapehtml}}fn atomicAdd(atomic_ptr: ptr<AS, atomic<T>, read_write>,
              v: T) -> T {{/escapehtml}}</pre></td><td></td><td id="atomic-add"><a href="https://www.w3.org/TR/WGSL/#atomic-add" target="_blank"></a><p>Atomically performs an addition operation on the atomic object pointed to by <code>atomic_ptr</code>
