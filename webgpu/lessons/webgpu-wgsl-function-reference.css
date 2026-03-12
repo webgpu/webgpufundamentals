@@ -19,6 +19,10 @@
     white-space: pre;
   }
 
+  td:nth-child(2) {
+    white-space: pre-line;
+  }
+
   td.full-description {
     padding-top: 1em;
     border-top: 3px solid var(--byte-border-color);
