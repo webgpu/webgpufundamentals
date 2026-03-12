@@ -86,21 +86,29 @@ const baseURL = 'https://www.w3.org/TR/WGSL/';
 
     const subFunctions = div.querySelectorAll(selector);
     for (const sf of subFunctions) {
-      // const desc = sf.querySelector('.content').textContent;
       const id = sf.id;
-      //const link = id ? [el('a', {href: `${baseURL}#${id}`})] : [];
-      let collect = false;
-      const collectedHTML = [];
 
-      const insertCollectedHTML = () => {
-        if (collectedHTML.length) {
-          const innerHTML = collectedHTML.map(e => e.outerHTML).join('\n');
-          tbody.appendChild(el('tr', {}, [
-            fixPre(el('td', {colSpan: 3, innerHTML})),
-          ]));
-          collectedHTML.length = 0;
+      // For non-builtin tables, we buffer rows until we find the description
+      // (description comes after the table in a "Returns:" section)
+      let pendingRows = [];
+      let pendingDesc = '';
+      let collectingDesc = false;
+      // Description collected from P/UL elements before a table or PRE
+      let prePendingDesc = '';
+
+      const flushPendingRows = () => {
+        if (pendingRows.length) {
+          for (const rowData of pendingRows) {
+            tbody.appendChild(el('tr', {}, [
+              el('td', {}, [el('pre', {className: 'tableprettyprint lang-wgsl', textContent: stripPrefix(rowData.overload)})]),
+              el('td', {textContent: rowData.params}),
+              el('td', {id, innerHTML: pendingDesc}),
+            ]));
+          }
+          pendingRows = [];
+          pendingDesc = '';
+          collectingDesc = false;
         }
-        collect = false;
       };
 
       let curr = sf;
@@ -108,65 +116,92 @@ const baseURL = 'https://www.w3.org/TR/WGSL/';
         const next = curr.nextElementSibling;
         curr = next;
         if (!next || next.nodeName === 'H3') {
+          flushPendingRows();
           break;
         }
-        if (next.nodeName === 'P' && next.textContent.trim() === 'Returns:') {
-          collect = true;
-        }
-        if (!collect && (next.nodeName === 'P' ||
-                         next.nodeName === 'UL')) {
-          continue;
-        }
-        if (next.nodeName === 'H4') {
-          insertCollectedHTML();
+        if (next.nodeName === 'H4' || next.nodeName === 'H5') {
+          flushPendingRows();
           break;
         }
-        if (next.classList.contains('data') &&
-            next.nodeName === 'TABLE') {
-          insertCollectedHTML();
-          const table = next;
+        if (next.classList.contains('data') && next.nodeName === 'TABLE') {
           if (next.classList.contains('builtin')) {
-            const overload = table.rows[0].cells[1].textContent;
-            const desc = table.rows[table.rows.length - 1].cells[1].innerHTML;
-            const params = table.rows.length > 2
-              ? table.rows[1].cells[1].textContent
-              : '';
-            tbody.appendChild(el('tr', {}, [
-              el('td', {}, [el('pre', {className: 'tableprettyprint lang-wgsl', textContent: stripPrefix(overload)})]),
-              el('td', {textContent: params}),
-              el('td', {id, innerHTML: desc}),
-            ]));
-          } else {
-            for (const row of table.rows) {
-              if (row.classList.contains('algorithm')) {
-                const overload = row.cells[1].textContent;
-                const params = row.cells[0].textContent;
-                const desc = '';
-                tbody.appendChild(el('tr', {}, [
-                  el('td', {}, [el('pre', {className: 'tableprettyprint lang-wgsl', textContent: stripPrefix(overload)})]),
-                  el('td', {textContent: params}),
-                  el('td', {id, innerHTML: desc}),
-                ]));
+            flushPendingRows();
+            prePendingDesc = '';
+            // Identify rows by their label cell (cells[0]) instead of hardcoded indices
+            let overload = '';
+            let params = '';
+            let descContent = '';
+            let domainContent = '';
+
+            for (const row of next.rows) {
+              if (row.cells.length < 2) {
+                continue;
+              }
+              const label = (row.cells[0].textContent || '').trim().toLowerCase();
+              const contentCell = row.cells[1];
+              switch (label) {
+                case 'overload':
+                  overload = contentCell.textContent;
+                  break;
+                case 'parameterization':
+                  params = getTextWithBreaks(contentCell);
+                  break;
+                case 'description':
+                  descContent = contentCell.innerHTML;
+                  break;
+                case 'domain':
+                case 'scalar domain':
+                  domainContent = contentCell.innerHTML;
+                  break;
               }
             }
+
+            if (overload) {
+              const desc = descContent + (domainContent ? '\n' + domainContent : '');
+              tbody.appendChild(el('tr', {}, [
+                el('td', {}, [el('pre', {className: 'tableprettyprint lang-wgsl', textContent: stripPrefix(overload)})]),
+                el('td', {textContent: params}),
+                el('td', {id, innerHTML: desc}),
+              ]));
+            }
+          } else {
+            flushPendingRows();
+            // Buffer rows - description typically comes after the table
+            pendingDesc = prePendingDesc;
+            prePendingDesc = '';
+            for (const row of next.rows) {
+              if (row.classList.contains('algorithm')) {
+                const overload = (row.cells[1] || row.cells[0]).textContent;
+                const params = getTextWithBreaks(row.cells.length > 1 ? row.cells[0] : null);
+                if (overload) {
+                  pendingRows.push({overload, params});
+                }
+              }
+            }
+            collectingDesc = true;
           }
         } else if (next.nodeName === 'PRE') {
+          flushPendingRows();
           const overload = next.textContent;
-          const params = '';
-          const desc = '';
-          tbody.appendChild(el('tr', {}, [
-            el('td', {}, [el('pre', {className: 'tableprettyprint lang-wgsl', textContent: stripPrefix(overload)})]),
-            el('td', {textContent: params}),
-            el('td', {id, innerHTML: desc}),
-          ]));
-        } else {
-          if (collect) {
-            collectedHTML.push(next);
+          // Buffer PRE row - description typically comes in the P after the PRE
+          pendingRows.push({overload, params: ''});
+          pendingDesc = prePendingDesc;
+          prePendingDesc = '';
+          collectingDesc = true;
+        } else if (next.nodeName === 'P' || next.nodeName === 'UL') {
+          if (collectingDesc) {
+            // Collecting description after a non-builtin table
+            // Skip the "Returns:" label paragraph itself
+            const strong = next.querySelector('strong');
+            if (!(strong && strong.textContent.trim() === 'Returns:')) {
+              pendingDesc += next.outerHTML;
+            }
           } else {
-            insertCollectedHTML();
-            break;
+            // Before any table/PRE: collect as potential description
+            prePendingDesc += next.outerHTML;
           }
         }
+        // Skip DIV blocks (examples, etc.) and other elements
       }
     }
 
@@ -205,15 +240,19 @@ function htmlDecode(s) {
   return d.documentElement.textContent;
 }
 
-function fixPre(elem) {
-  elem.querySelectorAll('pre').forEach(pre => {
-    pre.textContent = pre.textContent;
-    if (pre.classList.contains('highlight')) {
-      pre.classList.add('prettyprint');
-      pre.textContent = `{{#escapehtml}}${pre.textContent}{{/escapehtml}}`;
-    }
+/**
+ * Get text content of an element, replacing <br> tags with newlines
+ * so that multi-constraint parameterization cells display correctly.
+ */
+function getTextWithBreaks(elem) {
+  if (!elem) {
+    return '';
+  }
+  const clone = elem.cloneNode(true);
+  clone.querySelectorAll('br').forEach(br => {
+    br.parentNode.replaceChild(document.createTextNode('\n'), br);
   });
-  return elem;
+  return clone.textContent.trim();
 }
 
 function fixLinks(elem) {
