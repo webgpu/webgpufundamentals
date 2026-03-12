@@ -966,14 +966,6 @@ pre.prettyprint.lighttheme .fun { color: #900; }  /* function name */
     padding: 0.2em;
     border: 1px solid var(--byte-border-color);
   }
-  td.full-description {
-    padding-top: 1em;
-    border-top: 2px solid var(--byte-border-color);
-
-    .builtin {
-      font-size: medium;
-    }
-  }
   li p {
     margin-block-start: 0;
     margin-block-end: 0;

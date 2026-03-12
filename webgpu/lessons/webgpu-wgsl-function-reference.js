@@ -12,6 +12,9 @@ if (window.prettyPrint) {
 
 {
   const names = new Map();
+  document.querySelectorAll('[data-name]').forEach(e => {
+    names.set(e.dataset.name, e);
+  });
   const fnRE = /fn (\w+)/;
   document.querySelectorAll('tr>td:nth-child(1)').forEach(e => {
     const m = fnRE.exec(e.textContent);
@@ -30,7 +33,7 @@ if (window.prettyPrint) {
 
   for (const [name, elem] of sortedNames) {
     const id = `func-${name}`;
-    elem.appendChild(el('a', {id}));
+    elem.prepend(el('a', {id}));
     toc.appendChild(el('li', {}, [el('a', {href: `#${id}`, textContent: name})]));
   }
 }

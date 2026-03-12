@@ -18,6 +18,16 @@
   pre {
     white-space: pre;
   }
+
+  td.full-description {
+    padding-top: 1em;
+    border-top: 3px solid var(--byte-border-color);
+
+    .builtin {
+      font-size: medium;
+    }
+  }
+
   /* special cases */
   #builtin-atomic-compare-exchange-weak pre, 
   #builtin-bitcast-builtin pre,
