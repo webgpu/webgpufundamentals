@@ -18,6 +18,10 @@
   pre {
     white-space: pre;
   }
+  
+  p {
+    margin-block-end: 0;
+  }
 
   td:nth-child(2) {
     white-space: pre-line;
@@ -29,6 +33,14 @@
 
     .builtin {
       font-size: medium;
+    }
+  }
+
+  .data {
+    margin: 0 2em 0 2em;
+
+    td:nth-child(2) {
+      white-space: normal;
     }
   }
 
