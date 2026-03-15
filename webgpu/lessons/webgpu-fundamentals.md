@@ -393,7 +393,7 @@ The shader module also declares a function called `fs` that is declared with
       @fragment fn fs() -> @location(0) vec4f {
 ```
 
-This function takes no parameters and returns a `vec4f` at `location(0)`.
+This function has no parameters and returns a `vec4f` at `location(0)`.
 This means it will write to the first render target. We'll make the first
 render target our canvas texture later.
 
