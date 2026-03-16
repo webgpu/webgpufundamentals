@@ -295,7 +295,7 @@ are available.</p>
 <p><code class="notranslate" translate="no">local_invocation_index</code>: The id of this thread linearized</p>
 <p>You can think of this as</p>
 <pre class="prettyprint showlinemods notranslate notranslate" translate="no">rowSize = workgroup_size.x
-sliceSize = rowWidth * workgroup_size.y
+sliceSize = rowSize * workgroup_size.y
 local_invocation_index =
       local_invocation_id.x +
       local_invocation_id.y * rowSize +
