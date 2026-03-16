@@ -77,7 +77,7 @@ TOC: 컴퓨트 셰이더 기초
 
   ```
   rowSize = workgroup_size.x
-  sliceSize = rowWidth * workgroup_size.y
+  sliceSize = rowSize * workgroup_size.y
   local_invocation_index =
         local_invocation_id.x +
         local_invocation_id.y * rowSize +
