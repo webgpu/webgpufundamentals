@@ -2174,4 +2174,11 @@ Other things that *might* help
   that combines render bundles, indirect draws, GPU frustum culling, to show
   some ideas for getting more speed in specialized situations.
 
+* Immediates
+
+  [Immediates](webgpu-immediates.html) where added in 2026. They
+  are a fast way to send a little bit of data to a shader.
+  They probably won't be as fast as some of the techniques in this
+  article but they can be an easy first step to optimizing.
+
 
