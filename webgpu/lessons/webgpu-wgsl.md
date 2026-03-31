@@ -446,12 +446,117 @@ struct Foo {
 
 Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx` gets its value from the builtin `instance_index`.
 
-<div class="webgpu_center center data-table">
+<div class="webgpu_center center data-table builtins" style="max-width: 900px;">
+<h1>Compute Shader Builtins</h1>
 <table class="data">
   <thead>
     <tr>
       <th>Builtin Name</th>
-      <th>Stage</th>
+      <th>IO</th>
+      <th>Type</th>
+      <th>Description </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-local_invocation_id">local_invocation_id</dfn> </td>
+      <td>input </td>
+      <td>vec3&lt;u32&gt; </td>
+      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#local-invocation-id" id="ref-for-local-invocation-id①">local invocation ID</a>,
+            i.e. its position in the <a data-link-type="dfn" href="#workgroup-grid" id="ref-for-workgroup-grid①">workgroup grid</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-local_invocation_index">local_invocation_index</dfn> </td>
+      <td>input </td>
+      <td>u32 </td>
+      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#local-invocation-index" id="ref-for-local-invocation-index">local invocation index</a>, a linearized index of
+          the invocation’s position within the <a data-link-type="dfn" href="#workgroup-grid" id="ref-for-workgroup-grid②">workgroup grid</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-global_invocation_id">global_invocation_id</dfn> </td>
+      <td>input </td>
+      <td>vec3&lt;u32&gt; </td>
+      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#global-invocation-id" id="ref-for-global-invocation-id">global invocation ID</a>,
+          i.e. its position in the <a data-link-type="dfn" href="#compute-shader-grid" id="ref-for-compute-shader-grid">compute shader grid</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-workgroup_id">workgroup_id</dfn> </td>
+      <td>input </td>
+      <td>vec3&lt;u32&gt; </td>
+      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#workgroup-id" id="ref-for-workgroup-id">workgroup ID</a>,
+          i.e. the position of the workgroup in the <a data-link-type="dfn" href="#compute-shader-grid" id="ref-for-compute-shader-grid">compute shader grid</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-num_workgroups">num_workgroups</dfn> </td>
+      <td>input </td>
+      <td>vec3&lt;u32&gt; </td>
+      <td style="width:50%">The <a data-link-type="dfn" href="#dispatch-size" id="ref-for-dispatch-size">dispatch size</a>, <code>vec&lt;u32&gt;(group_count_x, group_count_y, group_count_z)</code>, of the compute shader <a href="https://www.w3.org/TR/webgpu/#compute-pass-encoder-dispatch">dispatched</a> by the API. </td>
+    </tr>
+  </tbody>
+  </table>
+<h1>Fragment Shader Builtins</h1>
+<table class="data">
+  <thead>
+    <tr>
+      <th>Builtin Name</th>
+      <th>IO</th>
+      <th>Type</th>
+      <th>Description </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-position">position</dfn> </td>
+      <td>input </td>
+      <td>vec4&lt;f32&gt; </td>
+      <td style="width:50%">Framebuffer position of the current fragment in <a data-link-type="dfn" href="https://gpuweb.github.io/gpuweb/#framebuffer" id="ref-for-framebuffer">framebuffer</a> space.
+      (The <em>x</em>, <em>y</em>, and <em>z</em> components have already been scaled such that <em>w</em> is now 1.)
+      See <a href="https://www.w3.org/TR/webgpu/#coordinate-systems"><cite>WebGPU</cite> § 3.3 Coordinate Systems</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-front_facing">front_facing</dfn> </td>
+      <td>input </td>
+      <td>bool </td>
+      <td style="width:50%">True when the current fragment is on a <a data-link-type="dfn" href="https://gpuweb.github.io/gpuweb/#front-facing" id="ref-for-front-facing">front-facing</a> primitive.
+         False otherwise. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-frag_depth">frag_depth</dfn> </td>
+      <td>output </td>
+      <td>f32 </td>
+      <td style="width:50%">Updated depth of the fragment, in the viewport depth range.
+      See <a href="https://www.w3.org/TR/webgpu/#coordinate-systems"><cite>WebGPU</cite> § 3.3 Coordinate Systems</a>. </td>
+    </tr>
+    <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-sample_index">sample_index</dfn> </td>
+      <td>input </td>
+      <td>u32 </td>
+      <td style="width:50%">Sample index for the current fragment.
+         The value is least 0 and at most <code>sampleCount</code>-1, where <code>sampleCount</code> is the MSAA sample <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/webgpu/#dom-gpumultisamplestate-count" id="ref-for-dom-gpumultisamplestate-count">count</a></code> specified for the GPU render pipeline. <br>See <a href="https://www.w3.org/TR/webgpu/#gpurenderpipeline"><cite>WebGPU</cite> § 10.3 GPURenderPipeline</a>. </td>
+    </tr>
+    <tr>
+      <td rowspan="2"><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-sample_mask">sample_mask</dfn> </td>
+      <td>input </td>
+      <td>u32 </td>
+      <td style="width:50%">Sample coverage mask for the current fragment.
+         It contains a bitmask indicating which samples in this fragment are covered
+         by the primitive being rendered. <br>See <a href="https://www.w3.org/TR/webgpu/#sample-masking"><cite>WebGPU</cite> § 23.3.11 Sample Masking</a>. </td>
+    </tr>
+    <tr>
+      <td>output </td>
+      <td>u32 </td>
+      <td style="width:50%">Sample coverage mask control for the current fragment.
+         The last value written to this variable becomes the <a data-link-type="dfn" href="https://gpuweb.github.io/gpuweb/#shader-output-mask" id="ref-for-shader-output-mask">shader-output mask</a>.
+         Zero bits in the written value will cause corresponding samples in
+         the color attachments to be discarded. <br>See <a href="https://www.w3.org/TR/webgpu/#sample-masking"><cite>WebGPU</cite> § 23.3.11 Sample Masking</a>. </td>
+    </tr>
+  </tbody>
+</table>
+<h1>Vertex Shader Builtins</h1>
+<table class="data">
+  <thead>
+    <tr>
+      <th>Builtin Name</th>
       <th>IO</th>
       <th>Type</th>
       <th>Description </th>
@@ -460,7 +565,6 @@ Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx`
   <tbody>
     <tr>
       <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-vertex_index">vertex_index</dfn> </td>
-      <td>vertex </td>
       <td>input </td>
       <td>u32 </td>
       <td style="width:50%">
@@ -474,7 +578,6 @@ Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx`
     </tr>
     <tr>
       <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-instance_index">instance_index</dfn> </td>
-      <td>vertex </td>
       <td>input </td>
       <td>u32 </td>
       <td style="width:50%">
@@ -484,8 +587,7 @@ Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx`
          The index is incremented by one for each additional instance in the draw.</p></td>
     </tr>
     <tr>
-      <td rowspan="2"><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-position">position</dfn> </td>
-      <td>vertex </td>
+      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-position">position</dfn> </td>
       <td>output </td>
       <td>vec4&lt;f32&gt; </td>
       <td style="width:50%">Output position of the current vertex, using homogeneous coordinates.
@@ -494,98 +596,88 @@ Above `blap.vNdx` gets its value from the builtin `vertex_index` and `blap.iNdx`
       coordinate space.
       See <a href="https://www.w3.org/TR/webgpu/#coordinate-systems"><cite>WebGPU</cite> § 3.3 Coordinate Systems</a>. </td>
     </tr>
-    <tr>
-      <td>fragment </td>
-      <td>input </td>
-      <td>vec4&lt;f32&gt; </td>
-      <td style="width:50%">Framebuffer position of the current fragment in <a data-link-type="dfn" href="https://gpuweb.github.io/gpuweb/#framebuffer" id="ref-for-framebuffer">framebuffer</a> space.
-      (The <em>x</em>, <em>y</em>, and <em>z</em> components have already been scaled such that <em>w</em> is now 1.)
-      See <a href="https://www.w3.org/TR/webgpu/#coordinate-systems"><cite>WebGPU</cite> § 3.3 Coordinate Systems</a>. </td>
-    </tr>
-    <tr>
-      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-front_facing">front_facing</dfn> </td>
-      <td>fragment </td>
-      <td>input </td>
-      <td>bool </td>
-      <td style="width:50%">True when the current fragment is on a <a data-link-type="dfn" href="https://gpuweb.github.io/gpuweb/#front-facing" id="ref-for-front-facing">front-facing</a> primitive.
-         False otherwise. </td>
-    </tr>
-    <tr>
-      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-frag_depth">frag_depth</dfn> </td>
-      <td>fragment </td>
-      <td>output </td>
-      <td>f32 </td>
-      <td style="width:50%">Updated depth of the fragment, in the viewport depth range.
-      See <a href="https://www.w3.org/TR/webgpu/#coordinate-systems"><cite>WebGPU</cite> § 3.3 Coordinate Systems</a>. </td>
-    </tr>
-    <tr>
-      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-local_invocation_id">local_invocation_id</dfn> </td>
-      <td>compute </td>
-      <td>input </td>
-      <td>vec3&lt;u32&gt; </td>
-      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#local-invocation-id" id="ref-for-local-invocation-id①">local invocation ID</a>,
-            i.e. its position in the <a data-link-type="dfn" href="#workgroup-grid" id="ref-for-workgroup-grid①">workgroup grid</a>. </td>
-    </tr>
-    <tr>
-      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-local_invocation_index">local_invocation_index</dfn> </td>
-      <td>compute </td>
-      <td>input </td>
-      <td>u32 </td>
-      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#local-invocation-index" id="ref-for-local-invocation-index">local invocation index</a>, a linearized index of
-          the invocation’s position within the <a data-link-type="dfn" href="#workgroup-grid" id="ref-for-workgroup-grid②">workgroup grid</a>. </td>
-    </tr>
-    <tr>
-      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-global_invocation_id">global_invocation_id</dfn> </td>
-      <td>compute </td>
-      <td>input </td>
-      <td>vec3&lt;u32&gt; </td>
-      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#global-invocation-id" id="ref-for-global-invocation-id">global invocation ID</a>,
-          i.e. its position in the <a data-link-type="dfn" href="#compute-shader-grid" id="ref-for-compute-shader-grid">compute shader grid</a>. </td>
-    </tr>
-    <tr>
-      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-workgroup_id">workgroup_id</dfn> </td>
-      <td>compute </td>
-      <td>input </td>
-      <td>vec3&lt;u32&gt; </td>
-      <td style="width:50%">The current invocation’s <a data-link-type="dfn" href="#workgroup-id" id="ref-for-workgroup-id">workgroup ID</a>,
-          i.e. the position of the workgroup in the <a data-link-type="dfn" href="#compute-shader-grid" id="ref-for-compute-shader-grid">compute shader grid</a>. </td>
-    </tr>
-    <tr>
-      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-num_workgroups">num_workgroups</dfn> </td>
-      <td>compute </td>
-      <td>input </td>
-      <td>vec3&lt;u32&gt; </td>
-      <td style="width:50%">The <a data-link-type="dfn" href="#dispatch-size" id="ref-for-dispatch-size">dispatch size</a>, <code>vec&lt;u32&gt;(group_count_x, group_count_y, group_count_z)</code>, of the compute shader <a href="https://www.w3.org/TR/webgpu/#compute-pass-encoder-dispatch">dispatched</a> by the API. </td>
-    </tr>
-    <tr>
-      <td><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-sample_index">sample_index</dfn> </td>
-      <td>fragment </td>
-      <td>input </td>
-      <td>u32 </td>
-      <td style="width:50%">Sample index for the current fragment.
-         The value is least 0 and at most <code>sampleCount</code>-1, where <code>sampleCount</code> is the MSAA sample <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/webgpu/#dom-gpumultisamplestate-count" id="ref-for-dom-gpumultisamplestate-count">count</a></code> specified for the GPU render pipeline. <br>See <a href="https://www.w3.org/TR/webgpu/#gpurenderpipeline"><cite>WebGPU</cite> § 10.3 GPURenderPipeline</a>. </td>
-    </tr>
-    <tr>
-      <td rowspan="2"><dfn class="dfn-paneled" data-dfn-for="built-in values" data-dfn-type="dfn" data-noexport="" id="built-in-values-sample_mask">sample_mask</dfn> </td>
-      <td>fragment </td>
-      <td>input </td>
-      <td>u32 </td>
-      <td style="width:50%">Sample coverage mask for the current fragment.
-         It contains a bitmask indicating which samples in this fragment are covered
-         by the primitive being rendered. <br>See <a href="https://www.w3.org/TR/webgpu/#sample-masking"><cite>WebGPU</cite> § 23.3.11 Sample Masking</a>. </td>
-    </tr>
-    <tr>
-      <td>fragment </td>
-      <td>output </td>
-      <td>u32 </td>
-      <td style="width:50%">Sample coverage mask control for the current fragment.
-         The last value written to this variable becomes the <a data-link-type="dfn" href="https://gpuweb.github.io/gpuweb/#shader-output-mask" id="ref-for-shader-output-mask">shader-output mask</a>.
-         Zero bits in the written value will cause corresponding samples in
-         the color attachments to be discarded. <br>See <a href="https://www.w3.org/TR/webgpu/#sample-masking"><cite>WebGPU</cite> § 23.3.11 Sample Masking</a>. </td>
-    </tr>
   </tbody>
   </table>
 </div>
+
+It's important to note here, there isn't one builtin called `position`. There are 2 builtins, an output called `position` used
+in vertex shaders, and an input called `position` used in fragment shaders. This is no different than having 2 functions in JavaScript
+
+```js
+/**
+ * function that has position as an output
+ * @param \{{array: number[], index: number, position: Float32Array}} params
+ */
+function getVertex(params) {
+  const { array, index, position } = params;
+  position[0] = array[index];
+  position[1] = array[index + 1];
+  position[2] = array[index + 2];
+}
+
+/**
+ * function that has position as an input
+ * @param \{{position: Float32Array}} params
+ */
+function printValue(params) {
+  const { position } = params;
+  return [...position].map(v => v.toString()).join(', ');
+}
+```
+
+Above are 2 functions that both have a parameter called `position`. They are unrelated to each other.
+The same is true of `@builtin(position)` in a vertex shader and `@builtin(position)` in a fragment shader.
+The 2 are unrelated to each other. The confusion often comes from the fact that one struct declaration can
+be used in a single shader module.
+
+```wgsl
+struct VOut {
+  @builtin(position) p: vec4f;
+};
+
+@vertex fn vs() -> VOut {
+  // this is setting the vertex shader's @builtin(position)
+  return VOut(vec4f(0, 0, 0, 1));
+}
+
+@fragment fn fs(v: VOut) {
+  // this is reading the fragment shader's @builtin(position)
+  return v.p;
+}
+```
+
+From the point of view of WGSL, VOut is declared twice. Once when used in `vs` and again in `fs`.
+
+To maybe see this more clearly, you can declare these to shaders in separate modules.
+
+```wgsl
+struct VOut {
+  @builtin(position) p: vec4f;
+};
+
+@vertex fn vs() -> VOut {
+  // this is setting the vertex shader's @builtin(position)
+  return VOut(vec4f(0, 0, 0, 1));
+}
+```
+
+```wgsl
+struct VIn {
+  @builtin(position) fragPosition: vec4f;
+};
+
+@fragment fn fs(v: VIn) {
+  // this is reading the fragment shader's @builtin(position)
+  return v.fragPosition;
+}
+```
+
+These 2 shader modules, combined into a render pipeline, are equivalent to the
+previous one declared in one module.
+
+The benefit to them both being called `position` is it allows them to be used in the same
+shader module. If that wasn't true, you'd be required to declare a different struct
+for vertex shader output vs fragment shader input.
 
 ## flow control
 
@@ -904,3 +996,5 @@ so they will both show up as a required bindings when using `vs2` in a pipeline.
 
 <p class="copyright" data-fill-with="copyright">  <a href="https://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2023 <a href="https://www.w3.org/">World Wide Web Consortium</a>. <abbr title="World Wide Web Consortium">W3C</abbr><sup>®</sup> <a href="https://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="https://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document" rel="license">permissive document license</a> rules apply. </p>
 
+<!-- keep this at the bottom of the article -->
+<link href="webgpu-wgsl.css" rel="stylesheet">
