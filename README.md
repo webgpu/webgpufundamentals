@@ -5,6 +5,7 @@ This is [a series of lessons or tutorials about webgpu](http://webgpufundamental
 This is work in progress. Feel free to contribute, especially localizations
 
 - [简体中文](README.zh-CN.md)
+- [한국어](README.ko.md)
 
 ## Contributing
 
