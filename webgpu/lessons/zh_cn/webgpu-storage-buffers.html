@@ -614,7 +614,11 @@ device.queue.writeBuffer(vertexStorageBuffer, 0, vertexData);
 @group(0) @binding(2) var&lt;storage, read&gt; pos: array&lt;Vertex&gt;;
 </pre>
 <p>我们完全可以不使用结构体，直接使用 <code class="notranslate" translate="no">vec2f</code>。</p>
-<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">@group(0) @binding(2) var&lt;storage, read&gt; pos: vec2f;
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">-@group(0) @binding(2) var&lt;storage, read&gt; pos: array&lt;Vertex&gt;;
++@group(0) @binding(2) var&lt;storage, read&gt; pos: array&lt;vec2f&gt;;
+...
+-pos[vertexIndex].position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
++pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
 </pre>
 <p>但是，如果把它变成一个结构体，以后添加每个顶点的数据会不会更容易呢？</p>
 <p>通过存储缓冲区传递顶点的方法越来越受欢迎。不过我听说在一些较老的设备上，这种方式比传统方式要慢，我们将在下一篇关于<a href="webgpu-vertex-buffers.html">顶点缓冲区</a>的文章中介绍这种方式。</p>
