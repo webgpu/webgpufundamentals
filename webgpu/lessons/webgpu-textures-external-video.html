@@ -565,7 +565,7 @@ background separation. Another might be for VR video once WebGPU is supported in
   await startPlayingAndWaitForVideo(video);
 </pre>
 <p>Then, when the user clicks play, we call <code class="notranslate" translate="no">getUserMedia</code> and ask for the camera. The resulting stream
-is then applied to the video. There are no changes to the WebGPU parts of the code.</p>
+is then applied to the video.</p>
 <pre class="prettyprint showlinemods notranslate lang-js" translate="no">  function waitForClick() {
     return new Promise(resolve =&gt; {
       window.addEventListener(
@@ -588,7 +588,15 @@ is then applied to the video. There are no changes to the WebGPU parts of the co
     });
   }
 </pre>
-<p>Done!</p>
+<p>Depending on your use case you probably want to mirror the image
+so it appears the same as a mirror.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">      mat4.translate(viewProjectionMatrix, [x * xSpacing, y * ySpacing, -zDepth * 0.5], matrix);
+      mat4.rotateX(matrix, 0.25 * Math.PI * Math.sign(y), matrix);
+-      mat4.scale(matrix, [1, -1, 1], matrix);
++      mat4.scale(matrix, [-1, -1, 1], matrix);
+      mat4.translate(matrix, [-0.5, -0.5, 0], matrix);
+</pre>
+<p>No other changes are needed.</p>
 <p></p><div class="webgpu_example_container">
   <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-simple-textured-quad-external-video-camera.html"></iframe></div>
   <a class="webgpu_center" href="/webgpu/lessons/../webgpu-simple-textured-quad-external-video-camera.html" target="_blank">click here to open in a separate window</a>
