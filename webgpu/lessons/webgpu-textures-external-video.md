@@ -398,7 +398,7 @@ First, we don't specify a video to play.
 ```
 
 Then, when the user clicks play, we call `getUserMedia` and ask for the camera. The resulting stream
-is then applied to the video. There are no changes to the WebGPU parts of the code.
+is then applied to the video.
 
 ```js
   function waitForClick() {
@@ -424,7 +424,18 @@ is then applied to the video. There are no changes to the WebGPU parts of the co
   }
 ```
 
-Done!
+Depending on your use case you probably want to mirror the image
+so it appears the same as a mirror.
+
+```js
+      mat4.translate(viewProjectionMatrix, [x * xSpacing, y * ySpacing, -zDepth * 0.5], matrix);
+      mat4.rotateX(matrix, 0.25 * Math.PI * Math.sign(y), matrix);
+-      mat4.scale(matrix, [1, -1, 1], matrix);
++      mat4.scale(matrix, [-1, -1, 1], matrix);
+      mat4.translate(matrix, [-0.5, -0.5, 0], matrix);
+```
+
+No other changes are needed.
 
 {{{example url="../webgpu-simple-textured-quad-external-video-camera.html"}}}
 
