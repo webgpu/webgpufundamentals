@@ -428,7 +428,11 @@ struct Vertex {
 我们完全可以不使用结构体，直接使用 `vec2f`。
 
 ```wgsl
-@group(0) @binding(2) var<storage, read> pos: vec2f;
+-@group(0) @binding(2) var<storage, read> pos: array<Vertex>;
++@group(0) @binding(2) var<storage, read> pos: array<vec2f>;
+...
+-pos[vertexIndex].position * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
++pos[vertexIndex] * otherStruct.scale + ourStruct.offset, 0.0, 1.0);
 ```
 
 但是，如果把它变成一个结构体，以后添加每个顶点的数据会不会更容易呢？
