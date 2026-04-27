@@ -1,8 +1,8 @@
 {
-  language: 'Spanish',
-  defaultExampleCaption: "haz click aquí para abrir el enlace en una ventana nueva",
-  title: 'Fundamentos sobre WebGPU',
-  description: 'Aprende webgpu',
+  language: 'Español',
+  defaultExampleCaption: "haz clic aquí para abrir el enlace en una ventana nueva",
+  title: 'Fundamentos de WebGPU',
+  description: 'Aprende WebGPU',
   link: 'http://webgpufundamentals.org/webgpu/lessons/es',
   commentSectionHeader: `
     <div>¿Dudas? <a href="http://stackoverflow.com/questions/tagged/webgpu">Pregunta en StackOverflow</a>.</div>
@@ -31,7 +31,7 @@ Lo sentimos, este artículo aún no ha sido traducido.
     'reference': 'Referencia',
     '3d-math': 'Matemáticas 3D',
     'lighting': 'Iluminación',
-    'compute-shaders': 'Shaders de Cálculo',
-    'post-processing': 'Post Procesado',
+    'compute-shaders': 'Shaders de Cómputo',
+    'post-processing': 'Post-procesado',
   },
 }
