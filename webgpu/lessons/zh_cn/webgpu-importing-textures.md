@@ -2,6 +2,8 @@ Title: WebGPU 加载图像到纹理
 Description: 如何将图像/Canvas/视频加载到纹理中
 TOC: 加载图像
 
+{{{toc-steps list="passing-data.hanson"}}}
+
 我们之前在[上一篇文章](webgpu-textures.html)中介绍了使用纹理的一些基础知识。在本文中，我们将介绍如何将图像加载到纹理中，以及如何在 GPU 上生成 mipmaps。
 
 在上一篇文章中，我们通过调用 `device.createTexture` 创建纹理，然后通过调用 `device.queue.writeTexture` 向纹理写入数据。`device.queue` 上还有另一个函数叫做 `device.queue.copyExternalImageToTexture`，它可以让我们将图像复制到纹理中。

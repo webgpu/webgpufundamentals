@@ -2,6 +2,8 @@ Title: WebGPU Inter-stage Переменные
 Description: Взаимодействие данных из vertex shader'a в fragment shader
 TOC: Inter-stage Переменные
 
+{{{toc-steps list="passing-data.hanson"}}}
+
 В [предыдущей статье](webgpu-fundamentals.html), мы изучили немного самых базовых вещей об WebGPU. 
 В этой статье мы изучим *основы* inter-stage переменных.
 Слово inter-stage правильнее всего перевести как *межэтапные*
