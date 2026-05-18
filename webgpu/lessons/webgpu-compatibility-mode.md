@@ -407,8 +407,8 @@ struct VSOutput {
 This code has 3 fragment shaders, one for each of `'2d'`, `'2d-array'`, `'cube'`.
 It uses the [large triangle to cover clip space](webgpu-large-triangle-to-cover-clip-space.html) technique
 [covered elsewhere](webgpu-large-triangle-to-cover-clip-space.html) to draw.
-It also uses `@builtin(instance_index)` to select the layer. This is an interesting and quick way
-to pass in a single integer value to a shader without having to use a uniform buffer.
+It also uses `@builtin(instance_index)` to select the layer. This is [an interesting and quick way
+to pass in a single integer value to a shader without having to use a uniform buffer](webgpu-miscellaneous-input.html).
 When we call `draw`, the 4th parameter is the first instance which will be passed
 to the shader as `@builtin(instance_index)`. We pass that from the vertex shader to fragment
 shader via `VSOutput.baseArrayLayer` which we can reference has `fsInput.baseArrayLayer`
