@@ -17,6 +17,7 @@
     },
     'webgpu-immediates.md',
     'webgpu-constants.md',
+    'webgpu-miscellaneous-input.md',
     'webgpu-memory-layout.md',
     'webgpu-transparency.md',
     'webgpu-bind-group-layouts.md',
