@@ -10,15 +10,7 @@ TOC: 平移(Translation)
 
 本文是系列文章中的第一篇，旨在帮助你学习 3D 数学知识。每篇文章都建立在前文基础之上，因此按顺序阅读可能更易于理解。
 
-1. [平移](webgpu-translation.html) ⬅ 你在此处
-2. [旋转](webgpu-rotation.html)
-3. [缩放](webgpu-scale.html)
-4. [矩阵运算](webgpu-matrix-math.html)
-5. [正交投影](webgpu-orthographic-projection.html)
-6. [透视投影](webgpu-perspective-projection.html)
-7. [相机](webgpu-cameras.html)
-8. [矩阵堆栈](webgpu-matrix-stacks.html)
-9. [场景图](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 我们将从类似于[顶点缓冲区文章](webgpu-vertex-buffers.html)中的示例代码开始，但不再绘制多个圆形，而是改为绘制单个字母 F，并通过[索引缓冲区](webgpu-vertex-buffers.html#a-index-buffers)来减少数据量。
 

@@ -6,15 +6,7 @@ TOC: 透視投影
 
 この記事は、3D数学について学ぶことを目的とした一連の記事の6番目です。各記事は前のレッスンを基にしているので、順番に読むと最も理解しやすいかもしれません。
 
-1. [平行移動](webgpu-translation.html)
-2. [回転](webgpu-rotation.html)
-3. [スケーリング](webgpu-scale.html)
-4. [行列演算](webgpu-matrix-math.html)
-5. [正射影](webgpu-orthographic-projection.html)
-6. [透視投影](webgpu-perspective-projection.html) ⬅ ここです
-7. [カメラ](webgpu-cameras.html)
-8. [行列スタック](webgpu-matrix-stacks.html)
-9. [シーングラフ](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 前回の投稿では、3Dを行う方法について説明しましたが、その3Dには遠近感がありませんでした。それは「正射影」ビューと呼ばれるものを使用していましたが、それには用途がありますが、一般的に人々が「3D」と言うときに望むものではありません。
 

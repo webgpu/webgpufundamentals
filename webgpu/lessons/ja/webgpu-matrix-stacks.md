@@ -6,15 +6,7 @@ TOC: 行列スタック
 
 この記事は、3D数学について学ぶことを目的とした一連の記事の8番目です。各記事は前のレッスンを基にしているので、順番に読むと最も理解しやすいかもしれません。
 
-1. [平行移動](webgpu-translation.html)
-2. [回転](webgpu-rotation.html)
-3. [スケーリング](webgpu-scale.html)
-4. [行列演算](webgpu-matrix-math.html)
-5. [正射影](webgpu-orthographic-projection.html)
-6. [透視投影](webgpu-perspective-projection.html)
-7. [カメラ](webgpu-cameras.html)
-8. [行列スタック](webgpu-matrix-stacks.html) ⬅ ここです
-9. [シーングラフ](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 行列スタックは、その名の通り、行列の[スタック](https://en.wikipedia.org/wiki/Stack_(abstract_data_type))です。互いに相対的に物事を配置したり方向付けしたりするのに役立ちます。デモンストレーションとして、ファイルキャビネットのセットを作成しましょう。行列スタックを使用すると、これが簡単になります。
 

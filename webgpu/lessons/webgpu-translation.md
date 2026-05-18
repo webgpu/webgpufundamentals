@@ -11,15 +11,7 @@ This article is the first of series of articles that will hopefully teach
 you about 3D math. Each one builds on the previous lesson so you may find
 them easiest to understand by reading them in order.
 
-1. [Translation](webgpu-translation.html)  ⬅ you are here
-2. [Rotation](webgpu-rotation.html)
-3. [Scaling](webgpu-scale.html)
-4. [Matrix Math](webgpu-matrix-math.html)
-5. [Orthographic Projection](webgpu-orthographic-projection.html)
-6. [Perspective Projection](webgpu-perspective-projection.html)
-7. [Cameras](webgpu-cameras.html)
-8. [Matrix Stacks](webgpu-matrix-stacks.html)
-9. [Scene Graphs](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 We are going to start code similar to the examples from [the article on vertex-buffers](webgpu-vertex-buffers.html)
 but instead of a bunch of circles we're going to draw a single F and we'll use an [index buffer](webgpu-vertex-buffers.html#a-index-buffers) to keep the data

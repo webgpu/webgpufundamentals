@@ -4,15 +4,7 @@ TOC: Pilas de matrices
 
 Este artículo es el octavo de una serie que esperamos que te enseñe sobre matemáticas 3D. Cada uno se basa en la lección anterior, por lo que es posible que te resulten más fáciles de entender leyéndolos en orden.
 
-1. [Traslación](webgpu-translation.html)
-2. [Rotación](webgpu-rotation.html)
-3. [Escalado](webgpu-scale.html)
-4. [Matemáticas de matrices](webgpu-matrix-math.html)
-5. [Proyección ortográfica](webgpu-orthographic-projection.html)
-6. [Proyección en perspectiva](webgpu-perspective-projection.html)
-7. [Cámaras](webgpu-cameras.html)
-8. [Pilas de matrices](webgpu-matrix-stacks.html) ⬅ estás aquí
-9. [Grafos de escena](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 Una pila de matrices (matrix stack) es exactamente lo que parece: una [pila (stack)](https://es.wikipedia.org/wiki/Pila_(inform%C3%A1tica)) de matrices. Es útil para posicionar y orientar cosas unas respecto a otras. Para demostrarlo, vamos a crear un conjunto de archivadores. Usar una pila de matrices facilitará esta tarea.
 

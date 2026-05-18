@@ -4,15 +4,7 @@ TOC: Cámaras
 
 Este artículo es el séptimo de una serie que esperamos que te enseñe sobre matemáticas 3D. Cada uno se basa en la lección anterior, por lo que es posible que te resulten más fáciles de entender leyéndolos en orden.
 
-1. [Traslación](webgpu-translation.html)
-2. [Rotación](webgpu-rotation.html)
-3. [Escalado](webgpu-scale.html)
-4. [Matemáticas de matrices](webgpu-matrix-math.html)
-5. [Proyección ortográfica](webgpu-orthographic-projection.html)
-6. [Proyección en perspectiva](webgpu-perspective-projection.html)
-7. [Cámaras](webgpu-cameras.html) ⬅ estás aquí
-8. [Pilas de matrices](webgpu-matrix-stacks.html)
-9. [Grafos de escena](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 En la última publicación tuvimos que mover la F frente al frustum (tronco de pirámide) porque la función `mat4.perspective` coloca el ojo en el origen (0, 0, 0) y los objetos en el frustum están entre `-zNear` y `-zFar` frente a él. Esto significa que cualquier cosa que queramos que aparezca debe colocarse en este espacio.
 

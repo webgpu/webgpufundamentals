@@ -6,15 +6,7 @@ TOC: カメラ
 
 この記事は、3D数学について学ぶことを目的とした一連の記事の7番目です。各記事は前のレッスンを基にしているので、順番に読むと最も理解しやすいかもしれません。
 
-1. [平行移動](webgpu-translation.html)
-2. [回転](webgpu-rotation.html)
-3. [スケーリング](webgpu-scale.html)
-4. [行列演算](webgpu-matrix-math.html)
-5. [正射影](webgpu-orthographic-projection.html)
-6. [透視投影](webgpu-perspective-projection.html)
-7. [カメラ](webgpu-cameras.html) ⬅ ここです
-8. [行列スタック](webgpu-matrix-stacks.html)
-9. [シーングラフ](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 前回の投稿では、`mat4.perspective`関数が視点を原点(0, 0, 0)に置き、錐台内のオブジェクトがその手前の`-zNear`から`-zFar`の間に配置されるため、Fを錐台の前に移動させる必要がありました。これは、表示させたいものはすべてこの空間に配置する必要があることを意味します。
 

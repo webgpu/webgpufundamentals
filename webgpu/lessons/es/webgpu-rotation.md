@@ -4,15 +4,7 @@ TOC: Rotación
 
 Este artículo es el segundo de una serie que esperamos que te enseñe sobre matemáticas 3D. Cada uno se basa en la lección anterior, por lo que es posible que te resulten más fáciles de entender leyéndolos en orden.
 
-1. [Traslación](webgpu-translation.html)
-2. [Rotación](webgpu-rotation.html) ⬅ estás aquí
-3. [Escalado](webgpu-scale.html)
-4. [Matemáticas de matrices](webgpu-matrix-math.html)
-5. [Proyección ortográfica](webgpu-orthographic-projection.html)
-6. [Proyección en perspectiva](webgpu-perspective-projection.html)
-7. [Cámaras](webgpu-cameras.html)
-8. [Pilas de matrices](webgpu-matrix-stacks.html)
-9. [Grafos de escena](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 Voy a admitir de entrada que no tengo ni idea de si la forma en que explico esto tendrá sentido, pero qué demonios, vale la pena intentarlo.
 

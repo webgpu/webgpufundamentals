@@ -6,15 +6,7 @@ TOC: 行列演算
 
 この記事は、3D数学について学ぶことを目的とした一連の記事の4番目です。各記事は前のレッスンを基にしているので、順番に読むと最も理解しやすいかもしれません。
 
-1. [平行移動](webgpu-translation.html)
-2. [回転](webgpu-rotation.html)
-3. [スケーリング](webgpu-scale.html)
-4. [行列演算](webgpu-matrix-math.html) ⬅ ここです
-5. [正射影](webgpu-orthographic-projection.html)
-6. [透視投影](webgpu-perspective-projection.html)
-7. [カメラ](webgpu-cameras.html)
-8. [行列スタック](webgpu-matrix-stacks.html)
-9. [シーングラフ](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 過去3回の投稿では、頂点位置を[平行移動](webgpu-translation.html)、[回転](webgpu-rotation.html)、[スケーリング](webgpu-scale.html)する方法について説明しました。平行移動、回転、スケーリングは、それぞれ*変換*の一種と見なされます。これらの各変換にはシェーダーの変更が必要であり、3つの変換のそれぞれは順序に依存していました。
 

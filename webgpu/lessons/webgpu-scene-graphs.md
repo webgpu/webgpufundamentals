@@ -6,15 +6,7 @@ This article is the 9th in a series of articles that will hopefully teach
 you about 3D math. Each one builds on the previous lesson so you may find
 them easiest to understand by reading them in order.
 
-1. [Translation](webgpu-translation.html)
-2. [Rotation](webgpu-rotation.html)
-3. [Scaling](webgpu-scale.html)
-4. [Matrix Math](webgpu-matrix-math.html)
-5. [Orthographic Projection](webgpu-orthographic-projection.html)
-6. [Perspective Projection](webgpu-perspective-projection.html)
-7. [Cameras](webgpu-cameras.html)
-8. [Matrix Stacks](webgpu-matrix-stacks.html)
-9. [Scene Graphs](webgpu-scene-graphs.html) ⬅ you are here
+{{{toc-steps list="matrix-math.hanson"}}}
 
 In the last article we covered a matrix stack. It allowed us
 to build up a stack of matrix changes which was helpful for positioning,

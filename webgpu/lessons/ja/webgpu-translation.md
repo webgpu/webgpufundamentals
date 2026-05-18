@@ -8,15 +8,7 @@ TOC: 平行移動
 
 この記事は、3D数学について学ぶことを目的とした一連の記事の最初の記事です。各記事は前のレッスンを基にしているので、順番に読むと最も理解しやすいかもしれません。
 
-1. [平行移動](webgpu-translation.html)  ⬅ ここです
-2. [回転](webgpu-rotation.html)
-3. [スケーリング](webgpu-scale.html)
-4. [行列演算](webgpu-matrix-math.html)
-5. [正射影](webgpu-orthographic-projection.html)
-6. [透視投影](webgpu-perspective-projection.html)
-7. [カメラ](webgpu-cameras.html)
-8. [行列スタック](webgpu-matrix-stacks.html)
-9. [シーングラフ](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 [頂点バッファに関する記事](webgpu-vertex-buffers.html)の例と同様のコードから始めますが、多数の円の代わりに単一のFを描画し、データを小さく保つために[インデックスバッファ](webgpu-vertex-buffers.html#a-index-buffers)を使用します。
 

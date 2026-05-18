@@ -4,15 +4,7 @@ TOC: Escalado
 
 Este artículo es el tercero de una serie que esperamos que te enseñe sobre matemáticas 3D. Cada uno se basa en la lección anterior, por lo que es posible que te resulten más fáciles de entender leyéndolos en orden.
 
-1. [Traslación](webgpu-translation.html)
-2. [Rotación](webgpu-rotation.html)
-3. [Escalado](webgpu-scale.html) ⬅ estás aquí
-4. [Matemáticas de matrices](webgpu-matrix-math.html)
-5. [Proyección ortográfica](webgpu-orthographic-projection.html)
-6. [Proyección en perspectiva](webgpu-perspective-projection.html)
-7. [Cámaras](webgpu-cameras.html)
-8. [Pilas de matrices](webgpu-matrix-stacks.html)
-9. [Grafos de escena](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 Escalar es tan [fácil como trasladar](webgpu-translation.html).
 

@@ -6,15 +6,7 @@ TOC: 回転
 
 この記事は、3D数学について学ぶことを目的とした一連の記事の2番目です。各記事は前のレッスンを基にしているので、順番に読むと最も理解しやすいかもしれません。
 
-1. [平行移動](webgpu-translation.html)
-2. [回転](webgpu-rotation.html) ⬅ ここです
-3. [スケーリング](webgpu-scale.html)
-4. [行列演算](webgpu-matrix-math.html)
-5. [正射影](webgpu-orthographic-projection.html)
-6. [透視投影](webgpu-perspective-projection.html)
-7. [カメラ](webgpu-cameras.html)
-8. [行列スタック](webgpu-matrix-stacks.html)
-9. [シーングラフ](webgpu-scene-graphs.html)
+{{{toc-steps list="matrix-math.hanson"}}}
 
 最初に、私がこれをどのように説明するかが理にかなっているかどうかはわかりませんが、とにかく試してみる価値はあると思います。
 
