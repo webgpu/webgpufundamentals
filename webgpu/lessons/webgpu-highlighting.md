@@ -8,9 +8,7 @@ These article assumes you've already read
 [the article on scene graphs](webgpu-scene-graphs.html) as well as
 [the article on post processing](webgpu-post-processing.html).
 
-1. [Highlighting](webgpu-highlighting.html) ⬅ you are here
-2. [Camera Controls](webgpu-camera-controls.html)
-3. [Picking](webgpu-picking.html)
+{{{toc-steps list="editor.hanson"}}}
 
 Let's assume we want to make a kind of simple 3D editor with inspiration from 
 Blender or Maya or Unity or Unreal. We want something that lets us select and

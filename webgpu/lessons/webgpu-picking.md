@@ -6,9 +6,7 @@ This article is the 3nd in a short series about making parts for a 3D editor.
 Each one builds on the previous lesson so you may find them easiest to
 understand by reading them in order.
 
-1. [Highlighting](webgpu-highlighting.html)
-2. [Camera Controls](webgpu-camera-controls.html)
-3. [Picking](webgpu-picking.html) ⬅ you are here
+{{{toc-steps list="editor.hanson"}}}
 
 Picking is the act of selecting objects by clicking on the screen
 and then figuring out which objects were clicked on.

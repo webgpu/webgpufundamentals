@@ -4,9 +4,7 @@ TOC: Picking
 
 Este artículo es el tercero de una breve serie sobre cómo crear partes para un editor 3D. Cada uno se basa en la lección anterior, por lo que te resultará más fácil entenderlos si los lees en orden.
 
-1. [Resaltado](webgpu-highlighting.html)
-2. [Controles de cámara](webgpu-camera-controls.html)
-3. [Picking (Selección)](webgpu-picking.html) ⬅ estás aquí
+{{{toc-steps list="editor.hanson"}}}
 
 El *picking* es el acto de seleccionar objetos haciendo clic en la pantalla y determinar qué objetos han sido pulsados.
 

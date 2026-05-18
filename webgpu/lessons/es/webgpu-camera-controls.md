@@ -4,9 +4,7 @@ TOC: Controles de cámara
 
 Este artículo es el segundo de una breve serie sobre cómo crear partes para un editor 3D. Cada uno se basa en la lección anterior, por lo que te resultará más fácil entenderlos si los lees en orden.
 
-1. [Resaltado](webgpu-highlighting.html)
-2. [Controles de cámara](webgpu-camera-controls.html) ⬅ estás aquí
-3. [Picking (Selección)](webgpu-picking.html)
+{{{toc-steps list="editor.hanson"}}}
 
 # Cámara de órbita (Orbit Camera)
 

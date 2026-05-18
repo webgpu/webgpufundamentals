@@ -5,9 +5,7 @@ TOC: Resaltado
 Este artículo es el primero de una breve serie sobre cómo crear partes de un editor 3D. Cada uno se basa en la lección anterior, por lo que te resultará más fácil entenderlos si los lees en orden.
 Estos artículos asumen que ya has leído [el artículo sobre grafos de escena (scene graphs)](webgpu-scene-graphs.html) así como [el artículo sobre post-procesamiento (post processing)](webgpu-post-processing.html).
 
-1. [Resaltado](webgpu-highlighting.html) ⬅ estás aquí
-2. [Controles de cámara](webgpu-camera-controls.html)
-3. [Picking (Selección)](webgpu-picking.html)
+{{{toc-steps list="editor.hanson"}}}
 
 Supongamos que queremos hacer una especie de editor 3D sencillo inspirado en Blender, Maya, Unity o Unreal. Queremos algo que nos permita seleccionar y manipular objetos en 3D. Empezamos este camino en [el artículo sobre grafos de escena](webgpu-scene-graphs.html), donde teníamos nodos y podíamos seleccionar uno mediante botones en la interfaz de usuario para editar su traslación, rotación y escala. Sería estupendo si pudiéramos ver visualmente cuál está seleccionado. Hagamos eso.
 
