@@ -2,6 +2,12 @@ Title: WebGPU Inter-stage Variables
 Description: Passing Data from a Vertex Shader to a Fragment Shader
 TOC: Inter-stage Variables
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 In the [previous article](webgpu-fundamentals.html), we covered a few super
 basics about WebGPU. In this article we're going to go over *the basics* of
 inter-stage variables. 

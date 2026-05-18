@@ -18,6 +18,12 @@ const webgpuTypesPath = path.join(__dirname, 'node_modules', '@webgpu', 'types')
 const dataDir = require('./build/appdata')('servez-cli');
 const Servez = require('servez-lib');
 
+// Seems hacky, should probably register something in lesson-builder
+const Handlebars = require('handlebars');
+Handlebars.registerHelper('toc-steps', function() {
+  // need code here
+});
+
 module.exports = function(grunt) {
 
   require('load-grunt-tasks')(grunt);

@@ -26,6 +26,7 @@ Sorry this article has not been translated yet.
   toc: 'Table of Contents',
   categoryMapping: {
     'basics': 'Basics',
+    'passing-data': 'Data for Shaders',
     'misc': 'Misc',
     'textures': 'Textures',
     'techniques': 'Techniques',
