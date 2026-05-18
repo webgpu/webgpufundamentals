@@ -2,6 +2,12 @@ Title: Texturas de almacenamiento (Storage Textures) en WebGPU
 Description: Cómo usar texturas de almacenamiento (storage textures)
 TOC: Texturas de almacenamiento (Storage Textures)
 
+Este artículo es parte de una serie sobre las diversas formas de proporcionar datos
+a un shader. Cada uno se basa en la lección anterior, por lo que te resultará
+más fácil entenderlos si los lees en orden.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 Las texturas de almacenamiento (storage textures) son simplemente [texturas](webgpu-textures.html) en las que puedes escribir o "almacenar" directamente.
 Normalmente especificamos triángulos en un vertex shader (shader de vértices) y la GPU actualiza la textura
 por nosotros de forma indirecta, pero con una textura de almacenamiento podemos escribir directamente en la

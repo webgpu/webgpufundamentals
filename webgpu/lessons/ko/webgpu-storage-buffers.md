@@ -2,6 +2,11 @@ Title: WebGPU 스토리지 버퍼
 Description: 셰이더에 큰 데이터 전달하기
 TOC: 스토리지 버퍼(Storage Buffers)
 
+이 글은 셰이더에 데이터를 전달하는 다양한 방법에 대한 시리즈 중 하나입니다.
+각 글은 이전 내용을 바탕으로 작성되었으므로 순서대로 읽는 것이 가장 이해하기 좋습니다.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 이 글에서는 [지난 글](webgpu-uniforms.html)에 이어서, 
 스토리지 버퍼에 대해 알아보겠습니다.
 

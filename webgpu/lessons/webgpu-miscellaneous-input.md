@@ -2,6 +2,11 @@ Title: Miscellaneous Shader Input
 Description: Alternate ways to pass data to a shader.
 TOC: Miscellaneous Shader Input
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
 
 In the previous articles we covered the standard ways to pass
 data into and out of a shader. Inter-stage variables, uniform buffers,

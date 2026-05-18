@@ -2,6 +2,11 @@ Title: WebGPU Uniforms
 Description: 传递常量数据到 Shader
 TOC: Uniforms
 
+本文是着色器数据传递各种方法系列文章中的一篇。
+每一篇都构建于前面的课程基础之上，因此按顺序阅读将有助于您更好地理解。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 上一篇文章介绍了[Inter-stage 变量](webgpu-inter-stage-variables.html)。本文将介绍 uniforms。
 
 uniforms 就像是着色器的全局变量。你可以在执行着色器之前设置它们的值，然后在着色器的每次迭代中都使用这些值。在下次 GPU 执行着色器时，你可以将其设置为其他值。

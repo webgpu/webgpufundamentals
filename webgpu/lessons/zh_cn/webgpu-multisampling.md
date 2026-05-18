@@ -2,6 +2,11 @@ Title: WebGPU 多重采样
 Description: 多重采样 / MSAA
 TOC: 多重采样 / MSAA
 
+本文是着色器数据传递各种方法系列文章中的一篇。
+每一篇都构建于前面的课程基础之上，因此按顺序阅读将有助于您更好地理解。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 MSAA 是多重采样抗锯齿（Multi-Sampling Anti-aliasing）的缩写。抗锯齿是指试图防止走样（aliasing）问题，而走样就是当我们尝试将矢量图形绘制为离散像素时产生的锯齿状问题。
 
 在[基础文章](webgpu-fundamentals.html)中，我们介绍了 WebGPU 是如何绘图的。它取我们在顶点着色器中为 `@builtin(position)` 返回的裁剪空间顶点，对于每 3 个顶点计算出一个三角形，然后对三角形内每个像素的中心调用片段着色器，询问该像素应该是什么颜色。

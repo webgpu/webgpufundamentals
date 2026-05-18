@@ -2,6 +2,12 @@ Title: WebGPU Uniforms
 Description: Passing Constant Data to a Shader
 TOC: Uniforms
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 The previous article was about [inter-stage variables](webgpu-inter-stage-variables.html).
 This article will be about uniforms.
 

@@ -2,6 +2,9 @@ Title: WebGPU 스테이지간 변수(Inter-stage Variables)
 Description: 정점 셰이더에서 프래그먼트 셰이더로의 데이터 전달
 TOC: 스테이지간 변수(Inter-stage Variables)
 
+이 글은 셰이더에 데이터를 전달하는 다양한 방법에 대한 시리즈 중 하나입니다.
+각 글은 이전 내용을 바탕으로 작성되었으므로 순서대로 읽는 것이 가장 이해하기 좋습니다.
+
 {{{toc-steps list="passing-data.hanson"}}}
 
 [이전 글](webgpu-fundamentals.html)에서, WebGPU에 대한 아주 기초적인 내용을 알아 보았습니다.

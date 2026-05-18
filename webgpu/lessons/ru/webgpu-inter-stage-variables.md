@@ -2,6 +2,10 @@ Title: WebGPU Inter-stage Переменные
 Description: Взаимодействие данных из vertex shader'a в fragment shader
 TOC: Inter-stage Переменные
 
+Эта статья из серии о различных способах передачи данных в шейдер.
+Каждая статья основывается на предыдущем уроке, поэтому вам будет проще
+понять их, если читать по порядку.
+
 {{{toc-steps list="passing-data.hanson"}}}
 
 В [предыдущей статье](webgpu-fundamentals.html), мы изучили немного самых базовых вещей об WebGPU. 

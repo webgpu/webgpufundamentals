@@ -2,6 +2,12 @@ Title: WebGPU Immediates
 Description: Immediates
 TOC: Immediates
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 <div class="warn">
 Immediates are a new (2026) feature of WebGPU. They are supposed to be a **core** feature,
 meaning, they are suppose to be available everywhere, regardless of device.

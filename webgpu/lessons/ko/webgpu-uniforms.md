@@ -2,6 +2,11 @@ Title: WebGPU Uniforms
 Description: 셰이더에 상수 데이터 전달하기
 TOC: Uniforms
 
+이 글은 셰이더에 데이터를 전달하는 다양한 방법에 대한 시리즈 중 하나입니다.
+각 글은 이전 내용을 바탕으로 작성되었으므로 순서대로 읽는 것이 가장 이해하기 좋습니다.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 이전 글은 [스테이지간 변수](webgpu-inter-stage-variables.html)에 관한 글이었습니다.
 이번 글은 uniform에 관한 글입니다.
 

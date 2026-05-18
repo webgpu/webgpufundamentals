@@ -2,6 +2,11 @@ Title: WebGPU Textures
 Description: 如何使用纹理
 TOC: 纹理
 
+本文是着色器数据传递各种方法系列文章中的一篇。
+每一篇都构建于前面的课程基础之上，因此按顺序阅读将有助于您更好地理解。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 本文将介绍纹理的基本原理。在之前的文章中，我们介绍了向着色器传递数据的其他主要方法。它们是[inter-stage 变量](webgpu-inter-stage-variables.html)、[uniforms](webgpu-uniforms.html)、[存储缓冲区](webgpu-storage-buffers.html)和[顶点缓冲区](webgpu-vertex-buffers)。最后一种向着色器传递数据的主要方式是纹理。
 
 纹理通常代表 2d 图像。二维图像只是一个由颜色值组成的二维数组，因此你可能会问，为什么我们需要二维数组的纹理呢？我们可以直接使用存储缓冲区作为二维数组。纹理的特殊之处在于，它们可以被称为 *采样器(sampler)* 的特殊硬件访问。采样器可以读取纹理中最多 16 个不同的值，并将它们混合在一起，这对许多常见的使用情况都很有用。

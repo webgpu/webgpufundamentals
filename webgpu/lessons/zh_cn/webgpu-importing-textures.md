@@ -2,6 +2,9 @@ Title: WebGPU 加载图像到纹理
 Description: 如何将图像/Canvas/视频加载到纹理中
 TOC: 加载图像
 
+本文是着色器数据传递各种方法系列文章中的一篇。
+每一篇都构建于前面的课程基础之上，因此按顺序阅读将有助于您更好地理解。
+
 {{{toc-steps list="passing-data.hanson"}}}
 
 我们之前在[上一篇文章](webgpu-textures.html)中介绍了使用纹理的一些基础知识。在本文中，我们将介绍如何将图像加载到纹理中，以及如何在 GPU 上生成 mipmaps。

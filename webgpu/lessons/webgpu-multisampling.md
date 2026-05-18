@@ -2,6 +2,12 @@ Title: WebGPU Multisampling
 Description: Multisampling / MSAA
 TOC: Multisampling / MSAA
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 MSAA stands for Multi-Sampling Anti-aliasing. Anti-aliasing
 means, trying to prevent the problem of aliasing where aliasing
 is the blocky problem we get when we try to draw a vector shape as

@@ -2,6 +2,11 @@ Title: WebGPU 顶点缓冲区（Vertex Buffers）
 Description: 向着色器中传递顶点数据
 TOC: 顶点缓冲区（Vertex Buffers）
 
+本文是着色器数据传递各种方法系列文章中的一篇。
+每一篇都构建于前面的课程基础之上，因此按顺序阅读将有助于您更好地理解。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 在[上一篇文章中](webgpu-storage-buffers.html)，我们将顶点数据放入存储缓冲区，并使用内置的 `vertex_index` 对其进行索引。虽然这种技术越来越受欢迎，但向顶点着色器提供顶点数据的传统方法是通过顶点缓冲区和属性。
 
 顶点缓冲区与其他 WebGPU 缓冲区一样。它们都保存数据。不同的是，我们不直接从顶点着色器访问它们。相反，我们要告诉 WebGPU 缓冲区中的数据种类、位置和组织方式。然后，WebGPU 会从缓冲区中提取数据并提供给我们。

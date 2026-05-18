@@ -2,6 +2,11 @@ Title: WebGPU 정점 버퍼
 Description: 정점 데이터를 셰이더로 전달하기
 TOC: 정점 버퍼
 
+이 글은 셰이더에 데이터를 전달하는 다양한 방법에 대한 시리즈 중 하나입니다.
+각 글은 이전 내용을 바탕으로 작성되었으므로 순서대로 읽는 것이 가장 이해하기 좋습니다.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 [이전 글](webgpu-storage-buffers.html)에서 우리는 정점 데이터를 
 스토리지 버퍼에 넣고 내장변수(builtin) `vertex_index`를 사용해 인덱싱했습니다.
 이러한 방법이 유명해지고 있긴 하지만, 전통적으로 정점 데이터를 정점 셰이더로 

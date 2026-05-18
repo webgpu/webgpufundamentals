@@ -2,6 +2,11 @@ Title: WebGPU 멀티 샘플링
 Description: 멀티 샘플링 / MSAA
 TOC: 멀티 샘플링 / MSAA
 
+이 글은 셰이더에 데이터를 전달하는 다양한 방법에 대한 시리즈 중 하나입니다.
+각 글은 이전 내용을 바탕으로 작성되었으므로 순서대로 읽는 것이 가장 이해하기 좋습니다.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 MSAA는 멀티샘플링 안티앨리어싱(Multi-Sampling Anti-aliasing)의 약자입니다. 안티앨리어싱이란, 벡터 형태를 개별 픽셀로 그릴 때 발생하는 계단 현상 문제를 해결하는 기술입니다.
 
 [기본 원리 문서](webgpu-fundamentals.html)에서 설명한 대로 WebGPU는 버텍스 셰이더의 `@builtin(position)` 값으로 반환된 클립 공간의 꼭짓점들을 받아 삼각형을 계산한 뒤, 해당 삼각형 내 각 픽셀의 중심에 대해 프래그먼트 셰이더를 호출하여 색상을 결정합니다.

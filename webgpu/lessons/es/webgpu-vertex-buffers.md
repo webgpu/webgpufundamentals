@@ -2,6 +2,12 @@ Title: Vertex Buffers en WebGPU
 Description: Pasando datos de vértices a los shaders
 TOC: Vertex Buffers
 
+Este artículo es parte de una serie sobre las diversas formas de proporcionar datos
+a un shader. Cada uno se basa en la lección anterior, por lo que te resultará
+más fácil entenderlos si los lees en orden.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 En [el artículo anterior](webgpu-storage-buffers.html) pusimos datos de vértices en un storage buffer y los indexamos usando el builtin `vertex_index`. Aunque esa técnica está ganando popularidad, la forma tradicional de proporcionar datos de vértices a un vertex shader (shader de vértices) es a través de vertex buffers y atributos.
 
 Los vertex buffers son como cualquier otro buffer de WebGPU; contienen datos. La diferencia es que no accedemos a ellos directamente desde el vertex shader. En su lugar, le decimos a WebGPU qué tipo de datos hay en el buffer y cómo están organizados. Luego, WebGPU extrae los datos del buffer y nos los proporciona.

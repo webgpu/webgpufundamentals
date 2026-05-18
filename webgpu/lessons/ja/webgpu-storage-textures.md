@@ -2,6 +2,11 @@ Title: WebGPU ストレージテクスチャ
 Description: ストレージテクスチャの使用方法
 TOC: ストレージテクスチャ
 
+この記事は、シェーダにデータを提供するためのさまざまな方法を解説するシリーズの一部です。
+各記事は前回のレッスンの上に成り立っているため、順番に読んでいくと理解しやすいでしょう。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 <div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
 
 ストレージテクスチャは、直接書き込みまたは「保存」できる[テクスチャ](webgpu-textures.html)です。通常、頂点シェーダーで三角形を指定し、GPUが間接的にテクスチャを更新しますが、ストレージテクスチャを使用すると、好きな場所に直接テクスチャに書き込むことができます。

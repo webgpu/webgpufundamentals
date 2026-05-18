@@ -2,6 +2,12 @@ Title: Storage Buffers en WebGPU
 Description: Pasando grandes cantidades de datos a los shaders
 TOC: Storage Buffers
 
+Este artículo es parte de una serie sobre las diversas formas de proporcionar datos
+a un shader. Cada uno se basa en la lección anterior, por lo que te resultará
+más fácil entenderlos si los lees en orden.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 Este artículo trata sobre los storage buffers y continúa donde lo dejó el [artículo anterior](webgpu-uniforms.html).
 
 Los storage buffers son similares a los uniform buffers en muchos sentidos. Si todo lo que hiciéramos fuera cambiar `UNIFORM` por `STORAGE` en nuestro JavaScript y `var<uniform>` por `var<storage, read>` en nuestro WGSL, los ejemplos de la página anterior simplemente funcionarían.

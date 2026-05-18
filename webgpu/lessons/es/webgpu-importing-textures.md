@@ -2,6 +2,12 @@ Title: Carga de imágenes en texturas en WebGPU
 Description: Cómo cargar una Imagen/Canvas/Video en una textura
 TOC: Carga de imágenes
 
+Este artículo es parte de una serie sobre las diversas formas de proporcionar datos
+a un shader. Cada uno se basa en la lección anterior, por lo que te resultará
+más fácil entenderlos si los lees en orden.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 Cubrimos algunos conceptos básicos sobre el uso de texturas [en el artículo anterior](webgpu-textures.html). En este artículo cubriremos la carga de una imagen en una textura, así como la generación de mipmaps en la GPU.
 
 En el artículo anterior creamos una textura llamando a `device.createTexture` y luego pusimos datos en la textura llamando a `device.queue.writeTexture`. Hay otra función en `device.queue` llamada `device.queue.copyExternalImageToTexture` que nos permite copiar una imagen en una textura.

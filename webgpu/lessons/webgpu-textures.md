@@ -2,6 +2,12 @@ Title: WebGPU Textures
 Description: How to use Textures
 TOC: Textures
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 In this article we'll cover the fundamentals of textures. In previous articles
 we covered the other major ways to pass data into a shader. They were
 [inter-stage variables](webgpu-inter-stage-variables.html),

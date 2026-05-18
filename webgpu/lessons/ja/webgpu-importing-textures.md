@@ -2,6 +2,11 @@ Title: WebGPU テクスチャへの画像の読み込み
 Description: 画像/キャンバス/ビデオをテクスチャに読み込む方法
 TOC: 画像の読み込み
 
+この記事は、シェーダにデータを提供するためのさまざまな方法を解説するシリーズの一部です。
+各記事は前回のレッスンの上に成り立っているため、順番に読んでいくと理解しやすいでしょう。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 <div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
 
 [前の記事](webgpu-textures.html)でテクスチャの使用に関するいくつかの基本を説明しました。この記事では、画像をテクスチャに読み込むことと、GPUでミップマップを生成することについて説明します。

@@ -2,6 +2,11 @@ Title: WebGPU 텍스처
 Description: 텍스처 사용하기
 TOC: 텍스처
 
+이 글은 셰이더에 데이터를 전달하는 다양한 방법에 대한 시리즈 중 하나입니다.
+각 글은 이전 내용을 바탕으로 작성되었으므로 순서대로 읽는 것이 가장 이해하기 좋습니다.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 이 글에서는 텍스처(texture)의 기본에 대해 알아보겠습니다.
 이전 글에서 우리는 데이터를 셰이더에 전달하는 주요 방법들을 설명했습니다.
 이는 [스테이지간 변수](webgpu-inter-stage-variables.html),

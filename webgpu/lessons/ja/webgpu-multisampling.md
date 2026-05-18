@@ -2,6 +2,11 @@ Title: WebGPU マルチサンプリング
 Description: マルチサンプリング / MSAA
 TOC: マルチサンプリング / MSAA
 
+この記事は、シェーダにデータを提供するためのさまざまな方法を解説するシリーズの一部です。
+各記事は前回のレッスンの上に成り立っているため、順番に読んでいくと理解しやすいでしょう。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 <div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
 
 MSAAは、マルチサンプリングアンチエイリアシングの略です。アンチエイリアシングとは、ベクトル形状を離散ピクセルとして描画しようとするときに発生するブロック状の問題であるエイリアシングの問題を防ごうとすることを意味します。

@@ -2,6 +2,11 @@ Title: WebGPU 비디오의 효율적인 사용
 Description: WebGPU에서 비디오를 사용하는 방법
 TOC: 비디오 사용하기
 
+이 글은 셰이더에 데이터를 전달하는 다양한 방법에 대한 시리즈 중 하나입니다.
+각 글은 이전 내용을 바탕으로 작성되었으므로 순서대로 읽는 것이 가장 이해하기 좋습니다.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 [이전 글](webgpu-importing-textures.html)에서 이미지, 캔버스, 비디오를 텍스처로 로딩하는 방법을 알아봤습니다. 
 이 글에서는 WebGPU에서 비디오를 사용하는 보다 효율적인 방법을 설명합니다.
 

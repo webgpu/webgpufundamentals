@@ -2,6 +2,10 @@ Title: Variables entre etapas en WebGPU (Inter-stage Variables)
 Description: Pasar datos de un vertex shader a un fragment shader
 TOC: Variables entre etapas
 
+Este artículo es parte de una serie sobre las diversas formas de proporcionar datos
+a un shader. Cada uno se basa en la lección anterior, por lo que te resultará
+más fácil entenderlos si los lees en orden.
+
 {{{toc-steps list="passing-data.hanson"}}}
 
 En el [artículo anterior](webgpu-fundamentals.html), cubrimos algunos conceptos súper básicos sobre WebGPU. En este artículo vamos a repasar *lo básico* de las variables entre etapas (inter-stage variables).

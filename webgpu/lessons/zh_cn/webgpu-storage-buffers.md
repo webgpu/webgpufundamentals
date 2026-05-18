@@ -2,6 +2,11 @@ Title: WebGPU 存储缓冲区(Storage Buffer)
 Description: 向着色器中传递大量数据
 TOC: 存储缓冲区（Storage Buffer）
 
+本文是着色器数据传递各种方法系列文章中的一篇。
+每一篇都构建于前面的课程基础之上，因此按顺序阅读将有助于您更好地理解。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 这篇文章是关于存储缓冲区(Storage buffer)的，是[上一篇文章](webgpu-uniforms.html)的延续。
 
 存储缓冲区在很多方面与 uniform 缓冲区相似。如果我们只需将 JavaScript 中的 `UNIFORM` 改为 `STORAGE`，将 WGSL 中的 `var<uniform>` 改为 `var<storage,read>`，上一篇文章中的示例就可以正常工作了。

@@ -2,6 +2,12 @@ Title: Cubemaps en WebGPU
 Description: Cómo usar cubemaps en WebGPU
 TOC: Cubemaps
 
+Este artículo es parte de una serie sobre las diversas formas de proporcionar datos
+a un shader. Cada uno se basa en la lección anterior, por lo que te resultará
+más fácil entenderlos si los lees en orden.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 Este artículo asume que has leído [el artículo sobre texturas](webgpu-textures.html) y [el artículo sobre la importación de imágenes en texturas](webgpu-importing-textures.html).
 Este artículo también utiliza conceptos cubiertos en [el artículo sobre iluminación direccional](webgpu-lighting-directional.html).
 Si aún no has leído esos artículos, es posible que quieras leerlos primero.

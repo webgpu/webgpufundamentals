@@ -2,6 +2,11 @@ Title: inter-stage(シェーダ間)変数
 Description: 頂点シェーダからフラグメントシェーダへデータを渡す
 TOC: inter-stage変数
 
+この記事は、シェーダにデータを提供するためのさまざまな方法を解説するシリーズの一部です。
+各記事は前回のレッスンの上に成り立っているため、順番に読んでいくと理解しやすいでしょう。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 前回の「[基本](webgpu-fundamentals.html)」と題した記事では、
 WebGPUの、とてもとても基本的な事柄について説明しました。
 今回は、inter-stage変数について、*普通に基本的な*事柄について説明します。

@@ -2,6 +2,11 @@ Title: WebGPU キューブマップ
 Description: WebGPUでキューブマップを使用する方法
 TOC: キューブマップ
 
+この記事は、シェーダにデータを提供するためのさまざまな方法を解説するシリーズの一部です。
+各記事は前回のレッスンの上に成り立っているため、順番に読んでいくと理解しやすいでしょう。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 <div class="warn">この記事はGemini Code Assistによって自動翻訳されました。翻訳に問題がある場合は、お手数ですが<a href="https://github.com/webgpu/webgpufundamentals/pulls">こちら</a>からPull Requestを送信してください。</div>
 
 この記事は、[テクスチャに関する記事](webgpu-textures.html)と[テクスチャへの画像のインポートに関する記事](webgpu-importing-textures.html)を読んでいることを前提としています。この記事では、[指向性ライティングに関する記事](webgpu-lighting-directional.html)で説明されている概念も使用します。これらの記事をまだ読んでいない場合は、最初に読むことをお勧めします。

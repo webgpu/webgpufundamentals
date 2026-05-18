@@ -2,6 +2,11 @@ Title: WebGPU 立方体贴图
 Description: 如何在 WebGPU 中使用立方体贴图
 TOC: 立方体贴图
 
+本文是着色器数据传递各种方法系列文章中的一篇。
+每一篇都构建于前面的课程基础之上，因此按顺序阅读将有助于您更好地理解。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 本文假设你已经阅读了[纹理相关的文章](webgpu-textures.html)以及[将图像导入纹理相关的文章](webgpu-importing-textures.html)。本文还使用了[方向光相关的文章](webgpu-lighting-directional.html)中介绍的概念。如果你还没有阅读这些文章，可能需要先读一下。
 
 在[上一篇文章](webgpu-textures.html)中，我们介绍了如何使用纹理、如何使用从 0 到 1 的纹理坐标来引用纹理，以及如何通过 mip 可选地过滤纹理。

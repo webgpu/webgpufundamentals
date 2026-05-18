@@ -2,6 +2,12 @@ Title: WebGPU Using Video Efficiently
 Description: How to use video in WebGPU
 TOC: Using Video
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 In the [previous article](webgpu-importing-textures.html), we covered
 how to load images, canvases, and video into a texture.
 This article will cover a more efficient way to use video in WebGPU.

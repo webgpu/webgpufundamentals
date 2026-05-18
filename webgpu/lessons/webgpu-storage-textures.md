@@ -2,6 +2,12 @@ Title: WebGPU Storage Textures
 Description: How to use Storage Textures
 TOC: Storage Textures
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 Storage textures are just [textures](webgpu-textures.html) that you can directly write or "store" to.
 Normally we specify triangles in a vertex shader and the GPU updates the texture
 for us indirectly but with a storage texture we can write directly to the

@@ -2,6 +2,12 @@ Title: Texturas en WebGPU
 Description: Cómo usar texturas
 TOC: Texturas
 
+Este artículo es parte de una serie sobre las diversas formas de proporcionar datos
+a un shader. Cada uno se basa en la lección anterior, por lo que te resultará
+más fácil entenderlos si los lees en orden.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 En este artículo cubriremos los fundamentos de las texturas. En artículos anteriores cubrimos las otras formas principales de pasar datos a un shader. Estas fueron las [variables inter-etapa (inter-stage variables)](webgpu-inter-stage-variables.html), los [uniforms](webgpu-uniforms.html), los [storage buffers](webgpu-storage-buffers.html) y los [vertex buffers](webgpu-vertex-buffers.html). La última forma principal de pasar datos a un shader son las texturas.
 
 Las texturas representan con mayor frecuencia una imagen 2D. Una imagen 2D es solo un array 2D de valores de color, por lo que te preguntarás, ¿por qué necesitamos texturas para arrays 2D? Podríamos usar simplemente storage buffers como arrays 2D. Lo que hace especiales a las texturas es que pueden ser accedidas por un hardware especial llamado *sampler*. Un sampler puede leer hasta 16 valores diferentes en una textura y mezclarlos entre sí de una manera que es útil para muchos casos de uso comunes.

@@ -2,6 +2,12 @@ Title: WebGPU Vertex Buffers
 Description: Passing Vertex Data to Shaders
 TOC: Vertex Buffers
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 In [the previous article](webgpu-storage-buffers.html) we put vertex
 data in a storage buffer and indexed it using the builtin `vertex_index`.
 While that technique is growing in popularity, the traditional way to

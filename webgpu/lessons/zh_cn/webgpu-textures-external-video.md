@@ -2,6 +2,11 @@ Title: WebGPU 高效使用视频
 Description: 如何在 WebGPU 中高效地使用视频
 TOC: 高效使用视频
 
+本文是着色器数据传递各种方法系列文章中的一篇。
+每一篇都构建于前面的课程基础之上，因此按顺序阅读将有助于您更好地理解。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 在[上一篇文章](webgpu-importing-textures.html)中，我们介绍了如何将图像、Canvas 和视频加载到纹理中。本文将介绍一种在 WebGPU 中更高效地使用视频的方法。
 
 在上一篇文章中，我们通过调用 `copyExternalImageToTexture` 将视频数据加载到 WebGPU 纹理中。这个函数会将视频的当前帧从视频本身复制到我们预先创建的纹理中。

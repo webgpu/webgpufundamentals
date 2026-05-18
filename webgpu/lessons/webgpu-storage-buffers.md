@@ -2,6 +2,12 @@ Title: WebGPU Storage Buffers
 Description: Passing Large Data to Shaders
 TOC: Storage Buffers
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 This article is about storage buffers and continues where the
 [previous article](webgpu-uniforms.html) left off.
 

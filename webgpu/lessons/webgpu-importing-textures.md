@@ -2,6 +2,12 @@ Title: WebGPU Loading Images into Textures
 Description: How to load an Image/Canvas/Video into a texture
 TOC: Loading Images
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 We covered some basics about using textures [in the previous article](webgpu-textures.html).
 In this article we'll cover loading an image into a texture
 as well as generating mipmaps on the GPU.

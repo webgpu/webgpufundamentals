@@ -2,6 +2,11 @@ Title: WebGPU Inter-stage 变量
 Description: 从顶点着色器传递数据到片段着色器
 TOC: Inter-stage 变量
 
+本文是着色器数据传递各种方法系列文章中的一篇。
+每一篇都构建于前面的课程基础之上，因此按顺序阅读将有助于您更好地理解。
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 在[上一篇文章](webgpu-fundamentals.html)中，我们介绍了有关 WebGPU 的一些基础知识。在本文中，我们将介绍 Inter-stage 变量的基础知识。
 
 Inter-stage 变量在顶点着色器和片段着色器之间发挥作用。

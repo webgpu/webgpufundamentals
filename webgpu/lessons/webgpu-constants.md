@@ -2,6 +2,12 @@ Title: WebGPU Shader Constants
 Description: The fundamentals of WebGPU
 TOC: Constants
 
+This article is one in a series of the various ways to provide data
+to a shader. Each one builds on the previous lesson so you may find
+them easiest to understand by reading them in order.
+
+{{{toc-steps list="passing-data.hanson"}}}
+
 I'm not sure this topic deserves to be considered an input to the shader.
 But, from one point of view it is, so lets cover it.
 
