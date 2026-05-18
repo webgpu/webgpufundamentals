@@ -4,9 +4,7 @@ TOC: Tabla de búsqueda 3D (3D-LUT)
 
 Este artículo es el tercero de una breve serie sobre ajustes de imagen. Cada uno se basa en la lección anterior, por lo que puede resultarte más fácil entenderlos leyéndolos en orden.
 
-1. [Ajustes de imagen](webgpu-image-adjustments.html)
-2. [Tablas de búsqueda 1D](webgpu-1dlut.html)
-3. [Tablas de búsqueda 3D](webgpu-3dlut.html) ⬅ estás aquí
+{{{toc-steps list="image-adjustments.hanson"}}}
 
 
 En el artículo anterior repasamos los [mapas de degradado](webgpu-1dlut.html), que también podríamos llamar tabla de búsqueda 1D o 1D-LUT para abreviar. Nuestras 1D-LUT eran de n píxeles de ancho por 1 de alto. Una 3D-LUT es la misma idea pero en 3D.

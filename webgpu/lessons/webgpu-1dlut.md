@@ -6,9 +6,7 @@ This is article is the 2nd in a short series
 about image adjustments. Each one builds on the previous lesson so you may find
 them easiest to understand by reading them in order.
 
-1. [Image Adjustments](webgpu-image-adjustments.html)
-2. [1D Lookup Tables](webgpu-1dlut.html) ⬅ you are here
-3. [3D Lookup Tables](webgpu-3dlut.html)
+{{{toc-steps list="image-adjustments.hanson"}}}
 
 Continuing where we left off, let's implement a "duotone" image adjustment.
 This is where we use the brightness of an image to select between 2 colors.

@@ -4,9 +4,7 @@ TOC: Tablas de búsqueda 1D (1D-LUT)
 
 Este artículo es el segundo de una breve serie sobre ajustes de imagen. Cada uno se basa en la lección anterior, por lo que puede que te resulte más fácil entenderlos leyéndolos en orden.
 
-1. [Ajustes de imagen](webgpu-image-adjustments.html)
-2. [Tablas de búsqueda 1D](webgpu-1dlut.html) ⬅ estás aquí
-3. [Tablas de búsqueda 3D](webgpu-3dlut.html)
+{{{toc-steps list="image-adjustments.hanson"}}}
 
 Continuando donde lo dejamos, vamos a implementar un ajuste de imagen "duotono" (duotone). Aquí es donde usamos el brillo de una imagen para seleccionar entre 2 colores.
 

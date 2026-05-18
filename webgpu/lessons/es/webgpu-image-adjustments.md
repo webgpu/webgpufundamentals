@@ -4,9 +4,7 @@ TOC: Ajustes de imagen
 
 Este artículo es el primero de una breve serie sobre ajustes de imagen. Cada uno se basa en la lección anterior, por lo que puede resultarte más fácil entenderlos leyéndolos en orden.
 
-1. [Ajustes de imagen](webgpu-image-adjustments.html) ⬅ estás aquí
-2. [Tablas de búsqueda 1D (1D Lookup Tables)](webgpu-1dlut.html)
-3. [Tablas de búsqueda 3D (3D Lookup Tables)](webgpu-3dlut.html)
+{{{toc-steps list="image-adjustments.hanson"}}}
 
 En [un artículo anterior](webgpu-post-processing.html) cubrimos cómo hacer [post-procesamiento (post processing)](webgpu-post-processing.html). Algunas operaciones comunes que a menudo se desean realizar se llaman ajustes de imagen, como se ve en programas de edición de imágenes como Photoshop, GIMP, Affinity Photo, etc...
 

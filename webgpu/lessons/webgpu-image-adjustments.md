@@ -6,9 +6,7 @@ This is article is the 1st in a short series
 about image adjustments. Each one builds on the previous lesson so you may find
 them easiest to understand by reading them in order.
 
-1. [Image Adjustments](webgpu-image-adjustments.html) ⬅ you are here
-2. [1D Lookup Tables](webgpu-1dlut.html)
-3. [3D Lookup Tables](webgpu-3dlut.html)
+{{{toc-steps list="image-adjustments.hanson"}}}
 
 In [a previous article](webgpu-post-processing.html) we covered how to do
 [post processing](webgpu-post-processing.html). Some common operations to
