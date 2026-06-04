@@ -12,9 +12,10 @@ them easiest to understand by reading them in order.
 Immediates are a new (2026) feature of WebGPU. They are supposed to be a **core** feature,
 meaning, they are suppose to be available everywhere, regardless of device.
 They will hopefully be shipping in all browsers by the end of 2026.
-You can check for support by checking for the existence of the function to set the,
+You can check if they are supported by checking if <code>wgslLanguageFeatures</code>
+has <code>'immediate_address_space'</code>.
 <pre class="prettyprint lang-javascript"><code>
-const canUseImmediates = !!GPURenderPassEncoder?.prototype.setImmediates;
+const canUseImmediates = navigator.gpu.wgslLanguageFeatures.has('immediate_address_space');
 </code></pre>
 Ideally, by 2027, you should no longer need this check.
 </div>
