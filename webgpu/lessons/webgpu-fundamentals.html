@@ -554,7 +554,7 @@ the triangle.</p>
 <code class="notranslate" translate="no">@fragment</code> attribute making it a fragment shader function.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">      @fragment fn fs() -&gt; @location(0) vec4f {
 </pre>
-<p>This function takes no parameters and returns a <code class="notranslate" translate="no">vec4f</code> at <code class="notranslate" translate="no">location(0)</code>.
+<p>This function has no parameters and returns a <code class="notranslate" translate="no">vec4f</code> at <code class="notranslate" translate="no">location(0)</code>.
 This means it will write to the first render target. We’ll make the first
 render target our canvas texture later.</p>
 <pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">        return vec4f(1, 0, 0, 1);
