@@ -281,7 +281,7 @@ into the full shader code.
   (this is effectively the same info as linePos, lineNum)
 * `length`: the length to highlight
 
-## WebGPU-Dev-Extension
+## <a id="webgpu-dev-extension"></a> WebGPU-Dev-Extension
 
 The [WebGPU-Dev-Extension](https://github.com/greggman/webgpu-dev-extension) provides features to help debug.
 
@@ -338,6 +338,11 @@ Some things it can do
   Like the example above, the webgpu-dev-extension has an option
   to show the errors interleaved with the source WGSL, rather than
   just a terse error message. (the default)
+
+* <a id="check-for-multiple-updates"></a> Check for Multiple Updates
+
+  Checks if you updated a buffer or texture more than once per submit.
+  [See below](#multiple-updates) for what that means.
 
 ## WebGPU-Inspector
 
@@ -529,6 +534,91 @@ Following the same procedures as above we'd conclude that the data coming into
 the vertex shader must be bad. And indeed, this example is uploading the
 vertex data as `float32x3` values but mistakenly specified them as `float16x2`
 in the render pipeline descriptor.
+
+## Other common issues
+
+### <a id="multiple-updates"></a> Remembering that command buffers don't execute until you submit them
+
+It's common to run into a version of this problem
+
+```js
+  const encoder = device.createCommandEncoder();
+  const pass = encoder.beginRenderPass(renderPassDesc);
+  pass.setPipeline(somePipeline);
+  pass.setBindGroup(0, someBindGroupThatUsesSomeBuffer);
+  device.queue.writeBuffer(someBuffer, 0, data0ForBuffer);
+  pass.draw(numVertices);
+  device.queue.writeBuffer(someBuffer, 0, data1ForBuffer); // ERROR!?
+  pass.draw(numVertices);
+  pass.end();
+  device.queue.submit([encoder.finish()]);
+```
+
+The code above is updating `someBuffer` by calling `queue.writeBuffer`. That function
+executes immediately where as the `draw` function does not execute, it just adds
+a command to a command buffer. That command buffer gets executed later.
+
+Usually this type of situation is not as obvious as the code above. It's more common
+to call some various functions and have one update a buffer that's already being used
+earlier.
+
+One way to find this kind of bug is to use
+[the WebGPU-Inspector](https://github.com/brendan-duncan/webgpu_inspector)
+which either defaults to, or has an option, to order the commands in
+the order they will be executed rather then the order they were created
+in your code. This can be helpful to see what your code is actually doing
+vs what you thought it was doing.
+
+Another is to use the [WebGPU-Dev-Extension](#check-for-multiple-updates)
+
+### Remembering that Canvas Textures are only valid until the next event
+
+You call `someWebGPUContext.getCurrentTexture` to get the texture for a canvas.
+That texture only exists for the current event. So for example, code like this
+will fail
+
+```js
+  const texture = context.getCurrentTexture();
+
+  // This ends the current event and waits for another
+  await someAsyncFunction();
+
+  // ERROR: The canvas texture no longer exist
+  encoder.beginRenderPass({
+    colorTarget: { view: texture, ...},  
+  });
+  ...
+```
+
+You need to call `getCurrentTexture` at the last possible moment and then apply
+all uses without `async` or any other events or callbacks.
+
+### External textures expire at the next event
+
+`importExternalTexture` imports a texture from a video. Like the canvas texture,
+the external texture is only valid until the end of the current event.
+
+### Waiting for images to load
+
+This issue is not unique to WebGPU but images (and videos) load asynchronously
+so if you're going to pass them to WebGPU you need to make sure they're loaded.
+
+```js
+   const img = new Image();
+   img.src = 'someUrl';
+   device.write.copyExternalImageToTexture({ source: img }, ...); // ERROR!
+```
+
+The code above will fail because `img` has not loaded yet.
+
+How you wait is up to you. One example:
+
+```js
+   const img = new Image();
+   img.src = 'someUrl';
+   await img.decode();
+   device.write.copyExternalImageToTexture({ source: img }, ...);
+```
 
 <!-- keep this at the bottom of the article -->
 <link href="webgpu-debugging.css" rel="stylesheet">
