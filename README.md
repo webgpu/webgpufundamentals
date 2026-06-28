@@ -7,6 +7,7 @@ This is work in progress. Feel free to contribute, especially localizations
 - [简体中文](README.zh-CN.md)
 - [한국어](README.ko.md)
 - [Español](README.es.md)
+- [Português (Brasil)](README.pt-BR.md)
 
 ## Contributing
 
