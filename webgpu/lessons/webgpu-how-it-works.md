@@ -249,7 +249,7 @@ Vertex And Fragment shaders can take data in 6 ways. Uniforms, Attributes, Buffe
    fragment shader it's up to us to decide what color to return.
 
    Let's assume we have pair of functions that help us draw a line between
-   2 points. The first function computes how many pixel's we need to draw and some
+   2 points. The first function computes how many pixels we need to draw and some
    values to help draw them. The second takes that info plus a pixel number
    and gives us a pixel position. Example:
 
