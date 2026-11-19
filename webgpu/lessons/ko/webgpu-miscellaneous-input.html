@@ -1,22 +1,22 @@
-<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/langinfo.hanson. Do not edited directly --><!--
-Copyright 2020, Gregg Tavares
+<!DOCTYPE html><!-- this file is auto-generated from webgpu/lessons/ko/webgpu-miscellaneous-input.md. Do not edited directly --><!--
+Copyright 2023, GfxFundamentals Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
 
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following disclaimer
+  in the documentation and/or other materials provided with the
+  distribution.
 
-    * Neither the name of Gregg Tavares nor the names of the
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+* Neither the name of GfxFundamentals nor the names of the
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -29,27 +29,73 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 --><html lang="ko"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta property="og:title" content="Miscellaneous Shader Input">
+
+<meta name="description" content="셰이더에 데이터를 전달하는 다른 방법">
+<meta name="keywords" content="webgpu graphics">
+<meta name="thumbnail" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-miscellaneous-input_ko.jpg">
+
+<meta property="og:title" content="기타 셰이더 입력">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
-<meta property="og:description" content="Alternate ways to pass data to a shader.">
+<meta property="og:image" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-miscellaneous-input_ko.jpg">
+<meta property="og:description" content="셰이더에 데이터를 전달하는 다른 방법">
 <meta property="og:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-miscellaneous-input.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@greggman">
 <meta name="twitter:creator" content="@greggman">
 <meta name="twitter:domain" content="webgpufundamentals.org">
-<meta name="twitter:title" content="Miscellaneous Shader Input">
+<meta name="twitter:title" content="기타 셰이더 입력">
 <meta name="twitter:url" content="https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-miscellaneous-input.html">
-<meta name="twitter:description" content="Alternate ways to pass data to a shader.">
-<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/resources/webgpufundamentals.jpg">
+<meta name="twitter:description" content="셰이더에 데이터를 전달하는 다른 방법">
+<meta name="twitter:image:src" content="https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-miscellaneous-input_ko.jpg">
 
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://webgpufundamentals.org/#website",
+      "url":"https://webgpufundamentals.org/",
+      "name":"webgpufundamentals"
+    },
+    {
+      "@type":"ImageObject",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-miscellaneous-input.html#primaryimage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/screenshots/webgpu-miscellaneous-input_ko.jpg",
+      "width":1200,
+      "height":630
+    },
+    {
+      "@type":"WebPage",
+      "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-miscellaneous-input.html#webpage",
+      "url":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-miscellaneous-input.html",
+      "inLanguage":"ko",
+      "name":"기타 셰이더 입력",
+      "keywords":"webgpu graphics programming",
+      "isPartOf":{
+        "@id":"https://webgpufundamentals.org/#website"
+      },
+      "primaryImageOfPage":{
+        "@id":"https://webgpufundamentals.org/webgpu/lessons/ko/webgpu-miscellaneous-input.html#primaryimage"
+      }
+    }
+  ]
+}
+</script>
 
-<title>Miscellaneous Shader Input</title>
+<title>기타 셰이더 입력</title>
 <link href="/webgpu/lessons/resources/webgpufundamentals-icon.png" rel="shortcut icon" type="image/png">
+<link rel="apple-touch-icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+<link rel="icon" href="/webgpu/lessons/resources/webgpufundamentals-icon.png">
+
+<link rel="stylesheet" href="/webgpu/lessons/lang.css">
+<link rel="stylesheet" href="/webgpu/lessons/ko/lang.css">
 <link rel="stylesheet" href="/webgpu/lessons/resources/lesson.css">
 </head>
 <body>
@@ -183,13 +229,144 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div class="container">
   <div class="lesson-title">
-    <h1>Miscellaneous Shader Input</h1>
+    <h1>기타 셰이더 입력</h1>
+  </div>
+  <div id="need-newer-webgpu" style="display: none">
+    <div>This browser is missing a few WebGPU features. Please update your browser.</div>
   </div>
   <div class="lesson">
     <div class="lesson-main">
-      <p>죄송합니다. 이 글은 아직 번역이 되지 않았습니다.</p>
-<p><a href="https://github.com/webgpu/webgpufundamentals">번역을 도와주세요</a>! 😄</p>
-<p><a href="/webgpu/lessons/webgpu-miscellaneous-input.html">여기서 원문을 볼 수 있습니다</a>.</p>
+      <p>이 글은 셰이더에 데이터를 전달하는 다양한 방법에 대한 시리즈 중 하나입니다.
+각 글은 이전 내용을 바탕으로 작성되었으므로 순서대로 읽는 것이 가장 이해하기 좋습니다.</p>
+<p></p><ol>
+  <li><a href="webgpu-inter-stage-variables.html">스테이지간 변수(Inter-stage Variables)</a></li>
+  <li><a href="webgpu-uniforms.html">Uniforms</a></li>
+  <li><a href="webgpu-storage-buffers.html">스토리지 버퍼(Storage Buffers)</a></li>
+  <li><a href="webgpu-vertex-buffers.html">정점 버퍼</a></li>
+  <li><a href="webgpu-textures.html">텍스처</a></li>
+  <li><a href="webgpu-importing-textures.html">이미지 로딩</a></li>
+  <li><a href="webgpu-textures-external-video.html">비디오 사용하기</a></li>
+  <li><a href="webgpu-cube-maps.html">큐브맵(Cube Maps)</a></li>
+  <li><a href="webgpu-storage-textures.html">스토리지 텍스처</a></li>
+  <li><a href="webgpu-multisampling.html">멀티 샘플링 / MSAA</a></li>
+  <li><a href="webgpu-immediates.html">Immediates</a></li>
+  <li><a href="webgpu-constants.html">상수(Constants)</a></li>
+  <li><a href="webgpu-miscellaneous-input.html">기타 셰이더 입력</a> ⬅ 여기</li>
+</ol><p></p>
+<p>이전 글에서는 셰이더에 데이터를 전달하고 셰이더로부터 데이터를 받는 일반적인 방법을 살펴보았습니다. 인터 스테이지 변수, 유니폼 버퍼, 스토리지 버퍼, 정점 버퍼, 텍스처가 있었습니다.</p>
+<p>덜 일반적이지만 때로는 매우 유용한 방법도 몇 가지 있습니다.</p>
+<p>그중 하나는 <code class="notranslate" translate="no">draw</code> 또는 <code class="notranslate" translate="no">drawIndexed</code> 명령을 호출할 때 <code class="notranslate" translate="no">firstInstance</code> 값을 전달하는 것입니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">pass.draw(numVertices,
+          numInstances = 1,
+          firstVertex = 0,
+          firstInstance = 0); // &lt;== 여기
+pass.drawIndexed(indexCount,
+                 instanceCount = 1,
+                 firstIndex = 0,
+                 baseVertex = 0,
+                 firstInstance = 0); // &lt;== 여기
+</pre>
+<p>이 값은 셰이더에서 <code class="notranslate" translate="no">@builtin(instance_index)</code>로 나타납니다. 따라서 이전 글에서처럼 실제 인스턴싱에 사용하고 있지 않다면 이 값으로 무언가를 선택할 수 있습니다.</p>
+<p>예를 들어 <a href="webgpu-fundamentals.html">첫 번째 글</a>의 간단한 삼각형 예제를 수정해 보겠습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">+struct VertexOut {
++  @builtin(position) pos: vec4f,
++  @location(0) @interpolate(flat, either) colorNdx: u32,
++};
+
+@vertex fn vs(
+*  @builtin(vertex_index) vertexIndex : u32,
++  @builtin(instance_index) instanceIndex: u32,
+) -&gt; VertexOut {
+  let pos = array(
+    vec2f( 0.0,  0.5),  // 상단 중앙
+    vec2f(-0.5, -0.5),  // 왼쪽 아래
+    vec2f( 0.5, -0.5)   // 오른쪽 아래
+  );
++  let offsets = array(
++    vec2f( 0.0,  0.5),  // 상단 중앙
++    vec2f(-0.5, -0.5),  // 왼쪽 아래
++    vec2f( 0.5, -0.5),  // 오른쪽 아래
++  );
+
+-  return vec4f(pos[vertexIndex], 0.0, 1.0);
++  return VertexOut(
++    vec4f(pos[vertexIndex] + offsets[instanceIndex], 0.0, 1.0),
++    instanceIndex,
++  );
+}
+
+-@fragment fn fs() -&gt; @location(0) vec4f {
+-  return vec4f(1, 0, 0, 1);
+-}
++@fragment fn fs(in: VertexOut) -&gt; @location(0) vec4f {
++  let colors = array(
++    vec4f(1, 1, 0, 1),  // 노란색
++    vec4f(0, 1, 1, 1),  // 청록색
++    vec4f(1, 0, 1, 1),  // 자홍색
++  );
++  return colors[in.colorNdx];
++}
+</pre>
+<p>위 코드는 <code class="notranslate" translate="no">instanceIndex</code>로 오프셋을 선택합니다. 그런 다음 <code class="notranslate" translate="no">@interpolate(flat, either)</code> 인터 스테이지 변수로 이 값을 프래그먼트 셰이더에 전달합니다. <code class="notranslate" translate="no">flat</code>은 "보간하지 않음"을 뜻하고, <code class="notranslate" translate="no">either</code>는 그려지는 각 삼각형의 첫 번째 정점이나 마지막 정점의 값을 사용한다는 뜻입니다. 모든 정점에 같은 값을 전달하므로 어느 쪽이든 상관없지만, <code class="notranslate" translate="no">either</code>는 호환성 모드에서도 동작하므로 더 좋은 선택입니다.</p>
+<p>마지막으로 <code class="notranslate" translate="no">draw</code> 호출을 수정하여 3번 그리면 됩니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-js" translate="no">    function render() {
+      // 캔버스 컨텍스트에서 현재 텍스처를 가져와
+      // 렌더링 대상 텍스처로 설정합니다.
+      renderPassDescriptor.colorAttachments[0].view =
+        context.getCurrentTexture().createView();
+
+      const encoder = device.createCommandEncoder({ label: 'our encoder' });
+      const pass = encoder.beginRenderPass(renderPassDescriptor);
+      pass.setPipeline(pipeline);
+      pass.draw(3);  // 정점 셰이더를 3번 호출
++      pass.draw(3, 1, 0, 1); // instance_index에 1 전달
++      pass.draw(3, 1, 0, 2); // instance_index에 2 전달
+      pass.end();
+
+      const commandBuffer = encoder.finish();
+      device.queue.submit([commandBuffer]);
+    }
+</pre>
+<p>그러면 다음과 같은 결과가 나옵니다.</p>
+<p></p><div class="webgpu_example_container">
+  <div><iframe class="webgpu_example" style=" " src="/webgpu/resources/editor.html?url=/webgpu/lessons/..%2Fwebgpu-misc-instance-index.html"></iframe></div>
+  <a class="webgpu_center" href="/webgpu/lessons/../webgpu-misc-instance-index.html" target="_blank">새 창으로 보려면 여기를 클릭하세요</a>
+</div>
+
+<p></p>
+<p>셰이더에 배열을 하드 코딩했지만, 같은 방식으로 스토리지 버퍼 배열의 데이터를 선택할 수도 있습니다.</p>
+<pre class="prettyprint showlinemods notranslate lang-wgsl" translate="no">struct VertexOut {
+  @builtin(position) pos: vec4f,
+  @location(0) @interpolate(flat, either) instanceIndex: u32,
+};
+
+struct PerInstanceInfo {
+  matrix: mat4x4f,
+  color: vec4f,
+};
+
+@group(0) @binding(0) var&lt;storage, read&gt; perInst: array&lt;PerInstanceInfo&gt;;
+
+@vertex fn vs(
+  @location(0) position: vec4f,
+  @builtin(instance_index) instanceIndex: u32,
+) -&gt; VertexOut {
+  let info = perInst[instanceIndex];
+
+  return VertexOut(
+    info.matrix * position,
+    instanceIndex,
+  );
+}
+
+@fragment fn fs(in: VertexOut) -&gt; @location(0) vec4f {
+  let info = perInst[in.instanceIndex];
+  return info.color;
+}
+</pre>
+<p>이 방법을 언제 사용할지는 여러분에게 달려 있습니다. 그리기 호출 사이의 작은 변경에는 <a href="webgpu-immediates.html">Immediates</a>를 사용할 수도 있습니다. <code class="notranslate" translate="no">firstInstance</code>의 장점은 WebGPU 호출이 더 적고 숫자 하나를 전달하기 위해 <code class="notranslate" translate="no">ArrayBufferView</code>가 필요하지 않다는 것입니다.</p>
+<p><a href="webgpu-compatibility-mode.html#a-generating-mipmaps">밉맵 생성 코드가 호환성 모드에서 동작하도록 만들 때</a> 이 방법을 사용합니다. 유니폼 버퍼를 설정하지 않고도 2D 배열이나 큐브 맵의 슬라이스를 쉽게 선택할 수 있기 때문입니다.</p>
+<p><code class="notranslate" translate="no">vertex_index</code>도 같은 방식으로 제어할 수 있습니다. 이 역시 <code class="notranslate" translate="no">draw</code> 호출의 매개변수입니다. 하지만 일반적으로 정점을 선택하는 데 필요하므로 데이터를 전달하는 데 사용할 수 있는 경우는 더 드뭅니다.</p>
 
     </div>
     <div class="lesson-sidebar">
@@ -206,7 +383,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </option></select>
 
 
-        <ul>  <li>기초</li>
+        <div id="toc">
+          <ul>  <li>기초</li>
         <ul>
           <li><a href="/webgpu/lessons/ko/webgpu-fundamentals.html">기초</a></li>
   <li>셰이더용 데이터</li>
@@ -226,7 +404,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         </ul>
 <li><a href="/webgpu/lessons/ko/webgpu-immediates.html">Immediates</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-constants.html">상수(Constants)</a></li>
-<li><a href="/webgpu/lessons/ko/webgpu-miscellaneous-input.html">Miscellaneous Shader Input</a></li>
+<li><a href="/webgpu/lessons/ko/webgpu-miscellaneous-input.html">기타 셰이더 입력</a></li>
         </ul>
 <li><a href="/webgpu/lessons/ko/webgpu-memory-layout.html">데이터 메모리 레이아웃</a></li>
 <li><a href="/webgpu/lessons/ko/webgpu-transparency.html">Transparency and Blending</a></li>
@@ -310,13 +488,53 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <li><a href="https://web3dsurvey.com/webgpu">Web3DSurvey.com</a></li>
 </ul>
 
+        </div>
+    </div>
+    <div class="lesson-comments">
+        
+<div>질문이 있나요? <a href="http://stackoverflow.com/questions/tagged/webgpu">Stack Overflow</a>에 물어보세요.</div>
+<div>
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=suggested+topic&amp;template=suggest-topic.md&amp;title=%5BSUGGESTION%5D">제안</a> /
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=&amp;template=request.md&amp;title=">요청 사항</a> /
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">이슈</a> /
+   <a href="https://github.com/webgpu/webgpufundamentals/issues/new?assignees=&amp;labels=bug+%2F+issue&amp;template=bug-issue-report.md&amp;title=">버그</a>
+</div>
+  
+
+        <div id="disqus_thread"></div>
+        <script>
+            var disqus_config = function () {
+              this.page.url = `${window.location.origin}${window.location.pathname}`;
+              this.page.identifier = `기타 셰이더 입력`;
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+                if (window.location.hostname.indexOf("webgpufundamentals.org") < 0) {
+                    return;
+                }
+                var d = document, s = d.createElement('script');
+                s.src = 'https://webgpufundamentals-org.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
     </div>
   </div>
 </div>
 
+<script>
+const settings = {
+  contribTemplate: "<a href=\"${html_url}\"><img src=\"${avatar_url}\"> ${login}</a>님<br> 당신의 <a href=\"https://github.com/${owner}/${repo}/commits?author=${login}\">${contributions} 기여에 감사드립니다.</a>",
+  owner: "gfxfundamentals",
+  repo: "webgpufundamentals",
+};
+</script>
+<script src="/contributors.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 <script src="/3rdparty/jquery-3.3.1.slim.min.js"></script>
 <script src="/webgpu/lessons/resources/js/prettify.js"></script>
-<script src="/webgpu/lessons/resources/js/lesson.js"></script>
+<script src="/webgpu/lessons/resources/js/lesson.js" type="module"></script>
 <!-- Google tag (gtag.js) -->
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-92BFT5PE4H"></script>
 <script>
