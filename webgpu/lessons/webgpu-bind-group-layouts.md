@@ -663,7 +663,7 @@ Some things to note about creating a `GPUBindGroupLayout`
   On the the other hand, in our example above that used a storage
   buffer to double numbers etc, we didn't declare a `minBindingSize`.
   That's because, since the storage buffer is declared as an `array`,
-  are able to bind different size buffers depending on how
+  you are able to bind different size buffers depending on how
   many values you pass in.
 
 
