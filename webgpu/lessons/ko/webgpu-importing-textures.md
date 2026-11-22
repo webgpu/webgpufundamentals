@@ -458,7 +458,7 @@ WebGPU에서 우리는 노멀 맵이나 높이(height) 맵등 색상이 아닌 �
 
 {{{example url="../webgpu-simple-textured-quad-import.html"}}}
 
-## 캔버스 로딩
+## <a id="a-loading-canvas"></a> 캔버스 로딩
 
 `copyExternalImageToTexture`는 다른 *소스*도 받을 수 있습니다. 
 다른 소스로는 `HTMLCanvasElement`가 있습니다.
