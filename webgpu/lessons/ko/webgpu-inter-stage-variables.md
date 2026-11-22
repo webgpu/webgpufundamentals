@@ -137,7 +137,7 @@ TOC: 스테이지간 변수(Inter-stage Variables)
 
 {{{example url="../webgpu-inter-stage-variables-triangle-by-fn-param.html"}}}
 
-## `@builtin(position)`
+## <a id="a-builtin-position"></a> `@builtin(position)`
 
 또다른 특이한 기술을 살펴 봅시다. 원래 우리 셰이더에서는 `position` 필드를 포함하는 동일한 구조체를 
 정점 셰이더와 프래그먼트 세이더에서 모두 사용했지만, 로케이션은 없었습니다.
